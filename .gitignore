@@ -1,0 +1,10 @@
+dist
+earthcal-linux-x64
+node_modules
+snap
+usr
+electron-builder.yml
+CNAME
+
+
+
