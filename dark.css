@@ -1,0 +1,179 @@
+/*DARK COLOR SCHEME*/
+
+/* dark.css: 👉 light-on-dark */
+
+:root {
+
+    --side-overlays: rgb(31, 33, 48);
+    --slide-highlight: rgb(47, 47, 60);
+    --text-color: #c0c5e1ff;
+    --modal-background: #000000d5;
+    --subdued-text: rgb(158, 162, 184);
+    --h1: #fff;
+    --top-header: #21232f;
+    --gallery:  rgb(51, 52, 63);
+    --general-background: rgb(13, 15, 26);
+    --general-background-highlight: rgb(194, 192, 192);
+    --weeks-circle: rgb(39, 39, 39);
+    --months-lunar: rgb(14, 13, 13); /*40%grey*/
+    --modal-background: rgba(0, 0, 0, 0.352);
+    --night-day: #191919;
+    --grey-trans: rgba(0, 0, 0, 0.718);
+
+
+
+
+
+
+    --login: rgba(28, 31, 38, 0.7);
+    --deeper-accent:  rgb(14, 14, 16);
+    --header-accent: #a0c0d2fe;
+    --button-1-1: #2d2d85;
+    --button-1-1-over: #26266b;
+    --button-1-2: #2929b5;
+    --button-1-2-over: #262686;
+    --button-2-1:#016191;
+    --button-2-1-over:#013a60;
+    --button-2-2:#236d96;
+    --button-2-2-over:#143952;
+    --shadow: #8484846b;
+    --night: #13162b;
+
+    --footer-background: #111735ff;
+    --footer-text: #7ea9c2;
+    --footer-header: #a4a7c2;
+    --splash: #103e5dff;
+    --splash-over: #103e5dff;
+    --notification: #6388b3;
+    --fuscia-button: #804280;
+    --fuscia-button-over: #a93aa9;
+
+    --facebook: #1d2e53;
+
+ }
+
+
+ .tooltip {
+  background-color: #fdd302d8;
+ }
+
+.top-search-button {
+    background: url(svgs/search-night.svg) no-repeat;
+    background-size: contain;
+}
+
+.top-search-button:hover {
+      background: url(svgs/search-night-over.svg) no-repeat;
+      background-size: contain;
+  }
+
+
+  .top-help-button {
+    background: url(svgs/about-i-night.svg) no-repeat;
+    background-size: contain;
+}
+
+.top-help-button:hover {
+      background: url(svgs/about-i-night-over.svg) no-repeat;
+      background-size: contain;
+  }
+
+.top-close-button {
+  background: url(svgs/down-arrow-night.svg) no-repeat;
+  background-size: contain;
+}
+
+.top-close-button:hover {
+  background: url(svgs/up-arrow-night.svg) no-repeat;
+  background-size: contain;
+}
+
+.top-menu-button {
+  background: url(svgs/menu-night.svg) no-repeat;
+  background-size: contain;
+}
+
+.top-menu-button:hover {
+    background: url(svgs/menu-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+
+#planets-button {
+  background: url(svgs/cycles-night.svg) no-repeat;
+  background-size: contain;
+}
+
+#planets-button:hover {
+    background: url(svgs/cycles-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+#lunar-button {
+  background: url(svgs/moon-night.svg) no-repeat;
+  background-size: contain;
+}
+
+#lunar-button:hover {
+    background: url(svgs/moon-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+#earth-button {
+  background: url(svgs/earth-night.svg) no-repeat;
+  background-size: contain;
+}
+
+#earth-button:hover {
+    background: url(svgs/earth-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+
+.main-menu-button {
+    background: url(svgs/login-icon-night.svg?v=3) no-repeat;
+    background-size: contain;
+}
+
+.main-menu-button:hover  {
+    background: url(svgs/login-icon-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+.earthcycles-logo {
+  
+  background: url(svgs/earthcycles-logo-motto-o.svg) no-repeat;
+  background-size: contain;
+}
+
+
+.top-add-button {
+  background: url(svgs/add-night.svg) no-repeat;
+  background-size: contain;
+}
+
+.top-add-button:hover {
+    background: url(svgs/add-night-over.svg) no-repeat;
+    background-size: contain;
+}
+
+#export-down-arrow {
+  background: url(svgs/down-arrow.svg) no-repeat;
+  background-size: contain;
+}
+
+#export-down-arrow:hover {
+    background: url(svgs/down-arrow-over.svg) no-repeat;
+    background-size: contain;
+}
+
+#export-up-arrow {
+  background: url(svgs/up-arrow.svg) no-repeat;
+  background-size: contain;
+  display: none;
+}
+
+#export-up-arrow:hover {
+    background: url(svgs/up-arrow-over.svg) no-repeat;
+    background-size: contain;
+}

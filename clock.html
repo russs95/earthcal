@@ -1,0 +1,94 @@
+<html>
+
+<head>
+   
+</head>
+    <body>
+
+        <div style="width:100px;height:100px;">
+
+            <svg
+            width="100px"
+            height="100px"
+            viewBox="0 0 290.94281 290.94281"
+            version="1.1"
+            id="svg93116"
+            inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+            sodipodi:docname="clock-cycles.svg"
+            xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+            xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:svg="http://www.w3.org/2000/svg">
+            <g id="clock" transform="translate(46.51 -.9255)" fill="none" stroke="#808080" stroke-linecap="round">
+                <circle id="clock-circle" cx="98.962" cy="146.4" r="141.77" stroke-width="8"/>
+                <path id="minute-hand" d="m100.55 21.964-0.52852 124.95" stroke-linejoin="round" stroke-width="8"/>
+                <path id="second-hand" d="m99.712 147.46-87.478 86.846" stroke-width="4.6"/>
+                <path id="hour-hand" d="m177.67 147.05h-77.331" stroke-linejoin="round" stroke-width="8"/>
+               </g>
+              </svg>
+              
+
+        </div>
+
+    </body>
+
+    <script>
+     function animateClock() {
+  // Get the SVG elements
+  const minuteHand = document.getElementById("minute-hand");
+  const hourHand = document.getElementById("hour-hand");
+  const secondHand = document.getElementById("second-hand");
+
+  // Get the clock circle center coordinates
+  const clockCircle = document.getElementById("clock-circle");
+  const cx = parseFloat(clockCircle.getAttribute("cx"));
+  const cy = parseFloat(clockCircle.getAttribute("cy"));
+
+  // Calculate the rotation angles for each hand
+  function calculateRotationAngles() {
+  const now = new Date();
+  const seconds = now.getSeconds();
+  const minutes = now.getMinutes() + seconds / 60;
+  const hours = (now.getHours() % 12) + minutes / 60;
+  const secondAngle = seconds * 6;
+  const minuteAngle = minutes * 6;
+  const hourAngle = (hours * 30) - 90; // Calibrate the hour angle
+  return { secondAngle, minuteAngle, hourAngle };
+}
+
+  // Update the clock hands positions and rotate them
+  function updateClockHands() {
+    const { secondAngle, minuteAngle, hourAngle } = calculateRotationAngles();
+
+    // Update the second hand position and rotation
+    const secondX = cx + 90 * Math.sin((secondAngle - 90) * (Math.PI / 180));
+    const secondY = cy + 90 * Math.cos((secondAngle - 90) * (Math.PI / 180));
+    secondHand.setAttribute("d", `M ${cx},${cy} L ${secondX},${secondY}`);
+
+    // Update the minute hand rotation
+    minuteHand.setAttribute("transform", `rotate(${minuteAngle},${cx},${cy})`);
+
+    // Update the hour hand rotation
+    hourHand.setAttribute("transform", `rotate(${hourAngle},${cx},${cy})`);
+  }
+
+  // Animate the movement of the second hand
+  function animateSecondHand() {
+    const { secondAngle } = calculateRotationAngles();
+    secondHand.setAttribute("transform", `rotate(${secondAngle},${cx},${cy})`);
+
+    // Call the function again after 1 second
+    setTimeout(animateSecondHand, 1000);
+  }
+
+  // Initial setup
+  updateClockHands();
+  animateSecondHand();
+}
+
+// Call the function to start the clock animation
+animateClock();
+
+
+    </script>
+</html>
