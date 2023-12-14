@@ -1,0 +1,54 @@
+[
+  {
+    "First_Name": "Chris",
+    "Last_Name": "Maier",
+    "Birth_day": "July 28",
+    "Birth_year_day": "209-28-7",
+    "Birth_year": 1978,
+    "Calendars": ["Maier", "Wright"]
+  },
+  {
+    "First_Name": "Russell",
+    "Last_Name": "Maier",
+    "Birth_day": "January 6",
+    "Birth_year_day": "6-6-1",
+    "Birth_year": 1977,
+    "Calendars": ["Maier", "Wright"]
+  },
+
+  {
+    "First_Name": "Ellen",
+    "Last_Name": "Dunbar",
+    "Birth_day": "October 17",
+    "Birth_year_day": "290-17-10",
+    "Birth_year": 1983,
+    "Calendars": ["Maier", "Wright", "Dunbar"]
+  },
+
+  { "First_Name": "Edward",
+    "Last_Name": "Maier",
+    "Birth_day": "October 10",
+    "Birth_year_day": "283-17-10",
+    "Birth_year": 1985,
+    "Calendars": ["Maier"]
+},
+
+   {
+
+    "First_Name": "Valerie",
+    "Last_Name": "Maier",
+    "Birth_day": "April 26",
+    "Birth_year_day": "116-17-10",
+    "Birth_year": 1945,
+    "Calendars": ["Maier", "Wright"]
+   },
+
+   {
+    "First_Name": "Charles",
+    "Last_Name": "Maier",
+    "Birth_day": "November 15",
+    "Birth_year_day": "319-17-10",
+    "Birth_year": 1945,
+    "Calendars": ["Maier", "Wright"]
+  }
+]

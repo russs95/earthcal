@@ -1,0 +1,97 @@
+[
+
+  {
+    "calendar": "My dateCycles",
+    "Frequency": "Annual",
+    "Event_name": "Mindy's birthday",
+    "Day": "2",
+    "Month": "1",
+    "Year": "",
+    "Date": "-1-02-",
+    "comment": "Yes",
+    "Comments": "Send a card"
+  },
+
+  {
+    "First_Name": "Mindy",
+    "Last_Name": "Maier",
+    "Birth_day": "January 2",
+    "Birth_year_day": "2-2-1",
+    "Birth_year": "",
+    "Calendars": ["Maier", "Wright"]
+  },
+
+  {
+    "First_Name": "Russell",
+    "Last_Name": "Maier",
+    "Birth_day": "January 6",
+    "Birth_year_day": "6-6-1",
+    "Birth_year": 1977,
+    "Calendars": ["Maier", "Wright"]
+  },
+
+    {
+      "First_Name": "Chris",
+      "Last_Name": "Maier",
+      "Birth_day": "July 28",
+      "Birth_year_day": "209-28-7",
+      "Birth_year": 1978,
+      "Calendars": ["Maier", "Wright"]
+    },
+
+  
+    
+    {
+      "First_Name": "Charles & Valerie's Anniversary",
+      "Last_Name": "",
+      "Birth_day": "August 24",
+      "Birth_year_day": "228-16-8",
+      "Birth_year": 1978,
+      "Calendars": ["Maier", "Wright"]
+    },
+
+    {
+      "First_Name": "Ellen & Ian's Anniversary",
+      "Last_Name": "",
+      "Birth_day": "August 16",
+      "Birth_year_day": "236-16-8",
+      "Birth_year": 2011,
+      "Calendars": ["Maier", "Wright"]
+    },
+  
+    {
+      "First_Name": "Ellen",
+      "Last_Name": "Dunbar",
+      "Birth_day": "October 17",
+      "Birth_year_day": "290-17-10",
+      "Birth_year": 1983,
+      "Calendars": ["Maier", "Wright", "Dunbar"]
+    },
+    {
+      "First_Name": "Edward",
+      "Last_Name": "Maier",
+      "Birth_day": "October 10",
+      "Birth_year_day": "283-10-10",
+      "Birth_year": 1985,
+      "Calendars": ["Maier"]
+    },
+    {
+      "First_Name": "Valerie",
+      "Last_Name": "Maier",
+      "Birth_day": "April 26",
+      "Birth_year_day": "116-26-4",
+      "Birth_year": 1945,
+      "Calendars": ["Maier", "Wright"]
+    },
+    {
+      "First_Name": "Charles",
+      "Last_Name": "Maier",
+      "Birth_day": "November 15",
+      "Birth_year_day": "319-15-11",
+      "Birth_year": 1945,
+      "Calendars": ["Maier", "Wright"]
+    }
+
+ 
+  ]
+  
