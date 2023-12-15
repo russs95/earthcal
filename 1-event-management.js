@@ -296,7 +296,7 @@ async function highlightDateCycles() {
     const datecyclePaths = allPaths.filter(path => path.id.includes(dateCycle.Date));
 
     datecyclePaths.forEach(datecyclePath => {
-      const isDayMaker = datecyclePath.id.endsWith('-day-marker');
+      const isDayMarker = datecyclePath.id.endsWith('-day-marker');
       const currentTitle = datecyclePath.getAttribute('title');
 
       // Only change the title for paths ending with "-day" and if the original title does not include "|"
@@ -305,9 +305,9 @@ async function highlightDateCycles() {
         datecyclePath.setAttribute('title', newTitle);
       }
 
-      // Add "date_event" class only to paths ending with "-day-maker"
-      if (isDayMaker) {
-        datecyclePath.classList.add("date_event");
+      // Add "date_event" class only to paths ending with "-day-marker"
+      if (isDayMarker) {
+        //datecyclePath.classList.add("date_event");
       }
     });
   });
