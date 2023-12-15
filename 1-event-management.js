@@ -300,7 +300,7 @@ async function highlightDateCycles() {
       const currentTitle = datecyclePath.getAttribute('title');
 
       // Only change the title for paths ending with "-day" and if the original title does not include "|"
-      if (!isDayMaker && currentTitle && !currentTitle.includes('|')) {
+      if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
         const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
         datecyclePath.setAttribute('title', newTitle);
       }

@@ -710,7 +710,7 @@ svg path[id*="-11-20"]:not([id*="-marker"]) {
 
 /* December */
 svg path[id*="-12-20"]:not([id*="-marker"]) {
-  fill: #6464e4;/*#3d3de9;*/
+  fill: #3d3de9;/*#3d3de9;*/
   cursor: pointer;
   fill-opacity: 0.3;
 } 
@@ -850,7 +850,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 }
 
 .december {
-  color: #3d3de9;
+  color: #5151ac;
 }
 
 
