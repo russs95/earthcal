@@ -307,7 +307,7 @@ async function highlightDateCycles() {
 
       // Add "date_event" class only to paths ending with "-day-marker"
       if (isDayMarker) {
-        //datecyclePath.classList.add("date_event");
+        datecyclePath.classList.add("date_event");
       }
     });
   });
