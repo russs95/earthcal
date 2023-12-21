@@ -42,10 +42,16 @@ function updateTargetDay() {
         path.style.fillOpacity = '1';
       } else {
         if (path.id.includes(`-day`)) {
-          path.style.fillOpacity = '0.3';
+          if (path.id.includes(`-marker`)) {
+            // Reset -marker paths to their original state
+            path.style.fillOpacity = 0.1;
+          } else {
+            path.style.fillOpacity = '0.3';
+          }
         }
       }
     });
+    
   });
 }
 

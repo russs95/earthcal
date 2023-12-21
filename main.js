@@ -127,12 +127,9 @@ function showAboutDialog() {
 
     dialog.showMessageBox({
       type: 'info',
-      message: `${snapcraftData.name} ${snapcraftData.version}`,
       title: snapcraftData.summary,
       detail: `Sync your moments with Earth's cycles.`,
-      detail: `Latest in current version:  Cross year events now posting.  <br>Visual display of leap year handling improved. 
-      `,
-
+      message: `${snapcraftData.name} ${snapcraftData.version}`,
       buttons: ['OK'],
     });
   } else {
@@ -156,9 +153,8 @@ function showLicenseDialog() {
 
     dialog.showMessageBox({
       type: 'info',
-      message: `${snapcraftData.name} ${snapcraftData.version}`,
-      title: snapcraftData.summary,
-      detail: `The EarthCal concept is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to this Crowdcycle website and Light Paper as the source of this concept. 
+      title: `${snapcraftData.name} ${snapcraftData.version}`,
+      detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code. 
       `,
 
       buttons: ['OK'],

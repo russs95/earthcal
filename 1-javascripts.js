@@ -716,3 +716,25 @@ document.querySelector("#information-six .back").onclick = function() {
 
 }
 
+
+
+
+
+// BREAKOUTS
+
+function activeMonthBreakouts() {
+  // Select the div elements by their IDs
+  const januaryDiv = document.getElementById('january');
+  const januaryBreakoutDiv = document.getElementById('january-breakout');
+  const janBreakoutControlsDiv = document.getElementById('jan-breakout-controls');
+
+  // Listener to show the january-breakout div when the january div is clicked
+  januaryDiv.addEventListener('click', () => {
+    januaryBreakoutDiv.style.display = 'block'; // Show the january-breakout div
+  });
+
+  // Listener to hide the january-breakout div when the jan-breakout-controls div is clicked
+  janBreakoutControlsDiv.addEventListener('click', () => {
+    januaryBreakoutDiv.style.display = 'none'; // Hide the january-breakout div
+  });
+}
