@@ -232,7 +232,6 @@ window.onload = function() {
 //   // If it's not a touch device, call the function
 // }
  // openJanDays() 
-
   UpdateWhaleCycle(targetDate);  
   cyclesToggle(); //enables the planet and animal buttons to work
   handleOrbitClicks();
@@ -261,6 +260,41 @@ window.onload = function() {
 
 <BODY>
 
+
+  <div id="registration-footer">
+    <div class="reg-top-section" onclick="sendUpRegistration()">
+      <div class="reg-buffer" style="width:100%;height:50px"></div>
+      <button id="reg-up-button" ></button>
+    </div>
+    <div class="registration-footer-holder">
+      <div id="progress-bar"></div>
+      <button id="reg-down-button" onclick="sendDownRegistration()" >
+        <img src="svgs/down-arrow.svg" alt="No Register">
+      </button>
+      
+      <div id="email-registration">
+        <div class="registration-box">
+          <div class="reg-img">
+            <img src="svgs/earthen-banner.svg" height="150" width="150" alt="EarthCycles Calendar from Earthen.io">
+          </div>
+          <div class="reg-texts">
+            <div class="reg-header">Subscribe to Earthen.io</div>
+            <div class="reg-subtitle">Learn more about the theory behind EarthCal.</div>
+            <form id="emailForm" class="reg-field" style="display:flex; flex-flow:row;">
+              <label for="email"></label>
+              <input type="email" name="email" required placeholder="Your e-mail..." class="email-input">
+              <input type="text" name="name" required placeholder="Your name..." class="name-input">
+              <div class="reg-complete-text" id="reg-status"></div>
+              <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleFormSubmit(event)">
+            </form>
+            <div class="reg-sub">EarthCal is inspired by the cyclocentric culture of the Igorot people and is guided by the theory of Earthen ethics.  EarthCal is hosted on Earthen.io-- receive our newsletter to go deeper into theory and philosophy around the calendar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
 
 <div id="guided-tour" class="modal">
   <div class="tour-content">
@@ -339,15 +373,9 @@ window.onload = function() {
           
         </div>
         
-        
-    
         <button id="yesterday" class="yesterday-button" onclick="set2Yesterday();" title="Yesterday">↶ Yesterday </button>
           <button id="reset" class="reset-button" onclick="set2Today();" title="Reset to today">⟲ Back to Today</button>
           <button id="tomorrow" class="tomorrow-button" onclick="set2Tomorrow();" title="Tomorrow"> Tomorrow ↷ </button>
-
-          
- 
-          
         </div>
     
   </div>
@@ -1026,6 +1054,10 @@ function tourTaken() {
 <script src="1-event-management.js"></script>
 <script src="1-calendar-scripts.js"></script>
 <script src="kin-cycles.js"></script>
+
+<script src="1-subscription.js"></script>
+
+<!-- registration system-->
 
 
 
