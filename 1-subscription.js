@@ -196,7 +196,7 @@ function handlePhase2(emailInput, nameInput, form) {
         email: emailInput.value,
         name: nameInput.value,
         dateTimeSubmitted: new Date().toISOString(),
-        notes: 'registered on earthbook'
+        notes: 'registered on earthcal'
     };
     localStorage.setItem('earthenRegistration', JSON.stringify(earthenRegistration));
     console.log(earthenRegistration);
