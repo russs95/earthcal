@@ -258,13 +258,12 @@ window.onload = function() {
 
 </script>
 
-<BODY>
+<BODY style="overflow-x: hidden;">
 
 
   <div id="registration-footer">
-    <div class="reg-top-section" onclick="sendUpRegistration()">
-      <div class="reg-buffer" style="width:100%;height:50px"></div>
-      <button id="reg-up-button" ></button>
+    <div class="reg-top-section">
+      <button id="reg-up-button" onclick="sendUpRegistration()"></button>
     </div>
     <div class="registration-footer-holder">
       <div id="progress-bar"></div>
@@ -278,8 +277,8 @@ window.onload = function() {
             <img src="svgs/earthen-banner.svg" height="150" width="150" alt="EarthCycles Calendar from Earthen.io">
           </div>
           <div class="reg-texts">
-            <div class="reg-header">Subscribe to Earthen.io</div>
-            <div class="reg-subtitle">Learn more about the theory behind EarthCal.</div>
+            <div class="reg-header">Sign up</div>
+            <div class="reg-subtitle">Register to Earthen.io to go deeper.</div>
             <form id="emailForm" class="reg-field" style="display:flex; flex-flow:row;">
               <label for="email"></label>
               <input type="email" name="email" required placeholder="Your e-mail..." class="email-input">
@@ -287,7 +286,7 @@ window.onload = function() {
               <div class="reg-complete-text" id="reg-status"></div>
               <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleFormSubmit(event)">
             </form>
-            <div class="reg-sub">EarthCal is inspired by the cyclocentric culture of the Igorot people and is guided by the theory of Earthen ethics.  EarthCal is hosted on Earthen.io-- receive our newsletter to go deeper into theory and philosophy around the calendar.</div>
+            <div class="reg-sub">EarthCal is a project of Earthen.io. Sign up to get news on upgrades and learn more about the Earthen theory behind our work.</div>
           </div>
         </div>
       </div>
@@ -363,6 +362,10 @@ window.onload = function() {
     
         <div id="clock" style="padding: 15px; margin-right: -13px;">
           <object data="svgs/clock.svg" width="50px" height="50px" type="image/svg+xml"></object>
+          <div style="width:50px;display:flex;flex-flow:row;margin:-5px 0px 5px -5px;"> 
+            <button id="yesterday" onclick="set2Yesterday();" title="Yesterday">◄</button>
+            <button id="tomorrow"  onclick="set2Tomorrow();" title="Tomorrow">►</button>
+          </div>
         </div>
         
         <div>
@@ -373,9 +376,11 @@ window.onload = function() {
           
         </div>
         
-        <button id="yesterday" class="yesterday-button" onclick="set2Yesterday();" title="Yesterday">↶ </button>
+        
+       
+
           <button id="reset" class="reset-button" onclick="set2Today();" title="Reset to today">⟲ Back to Today</button>
-          <button id="tomorrow" class="tomorrow-button" onclick="set2Tomorrow();" title="Tomorrow"> ↷ </button>
+          
         </div>
     
   </div>
@@ -751,7 +756,7 @@ margin-bottom:25px;">
   <div class="bottom-info" style="height: fit-content;position: absolute;bottom: 0;left: 0;width:100%;display: flex;flex-flow: row;">
 
     <div class="earthen-cycles" style="font-family: 'Mulish', sans-serif;color: grey;
-    bottom:0;position: absolute;padding:20px;width:fit-content;max-width: 50%;">
+    bottom:0;position: absolute;padding:20px;width:fit-content;max-width: 50%;z-index:20;">
 
 
 
@@ -769,7 +774,7 @@ margin-bottom:25px;">
   
 
 
-  <div class="planets-box" style="height: fit-content;text-align: right;padding: 20px;flex-direction: row-reverse;margin-left:auto;
+  <div class="planets-box" style="height: fit-content;text-align: right;padding: 20px;flex-direction: row-reverse;margin-left:auto; z-index:20;
   ">
  <div>
 
@@ -857,7 +862,7 @@ margin-bottom:25px;">
 
   </div>
 
-    <div id="planet-buttons" class="icon-button-columns" style="display: flex;z-index: 50; justify-content: flex-end;">
+    <div id="planet-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;">
     
       <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
 

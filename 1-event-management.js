@@ -174,7 +174,7 @@ function submitAddCycleForm() {
   // document.getElementById('add-note-check-boxed').style.display = 'none';
 
 //alert("Stored dateCycle: " + JSON.stringify(dateCycle)); 
-//console.log("Stored dateCycle:", dateCycle);
+console.log("Stored dateCycle:", dateCycle);
 displayMatchingDateCycle();
 }
 
@@ -273,7 +273,6 @@ function fetchDateCycles() {
 //   });
 // }
 
-
 async function highlightDateCycles() {
   // 1. Scan the entire HTML document and remove the class "date_event" from date paths
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -282,7 +281,7 @@ async function highlightDateCycles() {
     element.classList.remove("date_event");
   });
 
-  // 2. Continue with your original function
+  // 2. Fetch date cycles
   const dateCycleEvent = await fetchDateCycles();
 
   if (!dateCycleEvent) {
@@ -293,21 +292,31 @@ async function highlightDateCycles() {
   const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
   dateCycleEvent.forEach(dateCycle => {
-    const datecyclePaths = allPaths.filter(path => path.id.includes(dateCycle.Date));
+    // Process for exact date match
+    const exactDateMatchPaths = allPaths.filter(path => path.id.includes(dateCycle.Date));
 
-    datecyclePaths.forEach(datecyclePath => {
-      const isDayMarker = datecyclePath.id.endsWith('-day-marker');
-      const currentTitle = datecyclePath.getAttribute('title');
+    // Process for annual cycles
+    const annualCyclePaths = allPaths.filter(path =>
+      dateCycle.Frequency === 'Annual' &&
+      path.id.includes(`-${dateCycle.Day}-${dateCycle.Month}-`)
+    );
+
+    // Combine both path arrays
+    const combinedPaths = [...exactDateMatchPaths, ...annualCyclePaths];
+
+    combinedPaths.forEach(path => {
+      const isDayMarker = path.id.endsWith('-day-marker');
+      const currentTitle = path.getAttribute('title');
 
       // Only change the title for paths ending with "-day" and if the original title does not include "|"
       if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
         const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
-        datecyclePath.setAttribute('title', newTitle);
+        path.setAttribute('title', newTitle);
       }
 
       // Add "date_event" class only to paths ending with "-day-marker"
       if (isDayMarker) {
-        datecyclePath.classList.add("date_event");
+        path.classList.add("date_event");
       }
     });
   });

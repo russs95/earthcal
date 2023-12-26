@@ -113,31 +113,31 @@ flex-direction: row;
 
 #tomorrow {
   z-index: 20;
-      padding: 20px;
+      /* padding: 20px;
       margin-left:116px;
-      position: absolute;
-      background-color: #80808078;
+      position: absolute;*/
+      background-color: var(--general-background); 
       border-radius: 0px 12px 12px 0px;
       padding: 5px 10px;
       border: none;
       margin-top: 0px;
       cursor: pointer;
-      color: var(--general-background);
+      color: grey;
       display: none;
 }
 
 #yesterday {
   z-index: 20;
-      padding: 20px;
-      margin-left:15px;
-      position: absolute;
-      background-color: #80808078;
+      padding: 10px;
+      /* margin-left:15px;
+      position: absolute;*/
+      background-color:  var(--general-background); 
       border-radius: 12px 0px 0px 12px;
       padding: 5px 10px;
       border: none;
       margin-top: 0px;
       cursor: pointer;
-      color: var(--general-background);
+      color: grey;
       display: none;
 }
 
@@ -1954,8 +1954,8 @@ div.current-datecycle-data > div {
   text-align: center;
   transition: margin-bottom 0.3s, height 0.3s;
   overflow: hidden; 
-  z-index: 100;
-  margin-bottom: -4px;
+  z-index: 25;
+  margin-bottom: -54px;
   display: flex;
   flex-flow: column;
 }
@@ -2030,8 +2030,6 @@ border-top: 1px grey solid;
   flex-flow: column;
   width:100%;
   height: fit-content;
-  cursor: pointer;
-  z-index:10;
 }
 
 #reg-up-button {
@@ -2043,11 +2041,11 @@ border-top: 1px grey solid;
   }
 
 /* Target the reg-up-button when reg-top-section is hovered */
-.reg-top-section:hover #reg-up-button {
+/* .reg-top-section:hover #reg-up-button {
   background: url(svgs/up-reg-arrow-over.svg) center no-repeat;
   background-size: contain;
   opacity: 1;
-}
+} */
 
 #reg-down-button {
       border: none;
@@ -2063,13 +2061,13 @@ border-top: 1px grey solid;
 @media screen and (max-width: 699px) {
     
   #reg-up-button {
-      margin: 0px 5% -4px auto;
+      margin: 0px auto -4px auto;
       
   }
 
   #reg-down-button {
       width:15%;
-      margin: 10px 15px 0px auto;
+      margin: 10px auto 0px auto;
       height: 19px;
   }
 
