@@ -83,7 +83,6 @@ function openDateSearch() {
   updateDayIds(year);
   updateDayTitles(year);
 
-
   });
 
   // Set the target date and trigger setSetDate() function when set-target button is clicked
@@ -104,23 +103,9 @@ function searchGoDate() {
   updateWeekTitles(currentYear);
   updateDayIds(currentYear);
   updateDayTitles(currentYear);
-  animateMercury();
-  animateVenus();
-  animateEarth();
-  animateMars();  
-  animateJupiter();
-  animateSaturn();
-  animateUranus();
-  animateNeptune();
-  updateTargetWeekColor();
-  updateTargetMonth();
-  updateMoonPhase();
-  updateTargetDay();
-  displayMoonPhaseInDiv(targetDate);
-  displayDayInfo(targetDate);
-   getFirstNewMoon();  //Rotate lunar months into alignment with first new moon
-    setLunarMonthForTarget();  //Sets the lunar month for the target date
 
+  calendarRefresh();
+  
   document.getElementById("reset").style.display = "block";
   document.getElementById("tomorrow").style.display = "block";
   document.getElementById("yesterday").style.display = "block";

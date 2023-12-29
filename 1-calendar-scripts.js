@@ -70,8 +70,15 @@ function nextYearClick() {
   updateDayTitles(currentYear + 1);
   
   targetDate = new Date((currentYear + 1), 0, 1);
+  
+  const allPaths = document.querySelectorAll("svg path");
+  allPaths.forEach((path) => {
+    path.classList.remove("active");
+    path.classList.remove("final");
+  });
 
   calendarRefresh();
+  updateTargetDay();
 
   // mercury.animate();
   // venus.animate();
@@ -85,7 +92,7 @@ function nextYearClick() {
   // updateTargetWeekColor();
   // updateTargetMonth();
   // updateMoonPhase(targetDate);
-  // updateTargetDay();
+  // 
   // displayMoonPhaseInDiv(targetDate)
   // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
   // setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
@@ -94,8 +101,6 @@ function nextYearClick() {
   // // getFirstNewMoon(); off
   // document.getElementById("reset").style.display = "block";
   // displayDayInfo(targetDate);
-
-
 
 }
 

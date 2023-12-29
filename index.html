@@ -277,8 +277,8 @@ window.onload = function() {
             <img src="svgs/earthen-banner.svg" height="150" width="150" alt="EarthCycles Calendar from Earthen.io">
           </div>
           <div class="reg-texts">
-            <div class="reg-header">Sign up</div>
-            <div class="reg-subtitle">Register to Earthen.io to go deeper.</div>
+            <div class="reg-header">More than a calendar.</div>
+            <div class="reg-subtitle">EarthCal is one project of Earthen.io.  Signup to our newsletter to follow all our work.</div>
             <form id="emailForm" class="reg-field" style="display:flex; flex-flow:row;">
               <label for="email"></label>
               <input type="email" name="email" required placeholder="Your e-mail..." class="email-input">
@@ -286,7 +286,7 @@ window.onload = function() {
               <div class="reg-complete-text" id="reg-status"></div>
               <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleFormSubmit(event)">
             </form>
-            <div class="reg-sub">EarthCal is a project of Earthen.io. Sign up to get news on upgrades and learn more about the Earthen theory behind our work.</div>
+            <div class="reg-sub">EarthCal is inspired by the theory of Earthen ethics which guides and inspires our coding, writing and innovating.</div>
           </div>
         </div>
       </div>
@@ -752,29 +752,46 @@ margin-bottom:25px;">
   </div>
   </div>
 
+  <div class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:11; bottom:20px;left:20px;position:absolute;">
 
-  <div class="bottom-info" style="height: fit-content;position: absolute;bottom: 0;left: 0;width:100%;display: flex;flex-flow: row;">
+
+    <button type="button" id="lunar-button" class="totems-icon"  aria-label="Access lunar cycles" title="Activate lunar tracking"></button>
+    
+    <button type="button" id="planets-button" class="totems-icon" aria-label="Access planet cycles" title="Activate Planet Cycles"></button>
+
+    <button type="button" id="earth-button" class="totems-icon"   aria-label="Access Earth cycles" title="Activate ecological cycles"></button>
+
+  </div>
+
+  <div id="planet-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;position:fixed; z-index:11; bottom:20px;right:20px;display:none;">
+    
+    <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
+
+      <button type="button" id="jupiter-button" class="totems-icon"  style="border-color:#f59d04;" aria-label="Access Jupiter's cycle" title="Jupiter"><img src="icons/jupiter-cycle.svg" ></button>
+
+    <button type="button" id="mars-button" class="totems-icon"  aria-label="Access Mars's cycle" title="Mars"style="border-color:red;"><img src="icons/mars-cycle.svg"></button>
+    
+    <button type="button" id="venus-button" class="totems-icon"  aria-label="Access Venus's cycle" title="Venus" style="border-color:green;"><img src="icons/venus-cycle.svg"></button>
+
+    <button type="button" id="mercury-button" class="totems-icon"  aria-label="Access Mercury cycle" title="☿ Mercury" style="border-color:rgb(144, 106, 4);"><img src="icons/mercury-cycle.svg"></button>
+
+  </div>
+
+
+
+
+  <div class="bottom-info" style="height: fit-content;position: absolute;bottom:0;left: 0;width:100%;display: flex;flex-flow: row;z-index:9">
 
     <div class="earthen-cycles" style="font-family: 'Mulish', sans-serif;color: grey;
-    bottom:0;position: absolute;padding:20px;width:fit-content;max-width: 50%;z-index:20;">
+    bottom:0;position: absolute;padding:20px;width:fit-content;max-width: 50%;">
 
 
 
-      <div class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:20;">
-
-
-        <button type="button" id="lunar-button" class="totems-icon"  aria-label="Access lunar cycles" title="Activate lunar tracking"></button>
-        
-        <button type="button" id="planets-button" class="totems-icon" aria-label="Access planet cycles" title="Activate Planet Cycles"></button>
-
-        <button type="button" id="earth-button" class="totems-icon"   aria-label="Access Earth cycles" title="Activate ecological cycles"></button>
-
-      </div>
     </div>
   
 
 
-  <div class="planets-box" style="height: fit-content;text-align: right;padding: 20px;flex-direction: row-reverse;margin-left:auto; z-index:20;
+  <div class="planets-box" style="height: fit-content;text-align: right;padding: 20px;flex-direction: row-reverse;margin-left:auto;
   ">
  <div>
 
@@ -823,17 +840,17 @@ margin-bottom:25px;">
       Min Dist.: 29.8 AU</div>
   </div>
   
-    <div id="saturn-cycle">
+    <div id="saturn-cycle" style="margin-bottom:55px;">
       <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
       <div id="saturn-phase-info" class="planet-info"></div>
     </div>
 
-    <div id="jupiter-cycle">
+    <div id="jupiter-cycle" style="margin-bottom:55px;">
       <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
       <div id="jupiter-phase-info" class="planet-info"></div>
     </div>
 
-    <div id="mars-cycle">
+    <div id="mars-cycle" style="margin-bottom:55px;">
       <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
       <div id="mars-phase-info" style="text-align: right;" class="planet-info"></div>
     </div>
@@ -847,12 +864,12 @@ margin-bottom:25px;">
         </div>
     </div>
       
-    <div id="venus-cycle">
+    <div id="venus-cycle" style="margin-bottom:55px;">
       <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
       <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
     </div>
 
-    <div id="mercury-cycle">
+    <div id="mercury-cycle" style="margin-bottom:55px;">
       <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
       <div id="mercury-phase-info" style="text-align: right;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
         Orbit: 0.24 years<br>
@@ -862,19 +879,6 @@ margin-bottom:25px;">
 
   </div>
 
-    <div id="planet-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;">
-    
-      <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
-
-        <button type="button" id="jupiter-button" class="totems-icon"  style="border-color:#f59d04;" aria-label="Access Jupiter's cycle" title="Jupiter"><img src="icons/jupiter-cycle.svg" ></button>
-
-      <button type="button" id="mars-button" class="totems-icon"  aria-label="Access Mars's cycle" title="Mars"style="border-color:red;"><img src="icons/mars-cycle.svg"></button>
-      
-      <button type="button" id="venus-button" class="totems-icon"  aria-label="Access Venus's cycle" title="Venus" style="border-color:green;"><img src="icons/venus-cycle.svg"></button>
-
-      <button type="button" id="mercury-button" class="totems-icon"  aria-label="Access Mercury cycle" title="☿ Mercury" style="border-color:rgb(144, 106, 4);"><img src="icons/mercury-cycle.svg"></button>
-
-    </div>
     <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none;">
      
       <button type="button" id="whale-button" class="totems-icon"  style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
@@ -908,7 +912,6 @@ margin-bottom:25px;">
 <script>
 
   // JavaScript to handle touch events
-
 // Get all SVG elements containing paths with id*="-day"
 const svgElements = document.querySelectorAll("svg");
 const paths = [];
@@ -916,22 +919,21 @@ const paths = [];
 let selectedPath = null; // Track the currently selected path
 
 svgElements.forEach((svg) => {
-  // Get the paths in the current SVG
-  const currentPaths = svg.querySelectorAll("path[id]");
+  // Get the paths in the current SVG that have '-day' in their ID
+  const currentPaths = svg.querySelectorAll("path[id*='-day']");
   paths.push(...currentPaths);
 
   currentPaths.forEach((path) => {
+    // Add click and touch event listeners to each path
     path.addEventListener("click", function () {
       resetPaths(); // Reset all paths to their default state
       this.classList.add("active", "final");
       selectedPath = this; // Set this path as the selected path
     });
+    path.addEventListener("touchstart", onTouch, false);
+    path.addEventListener("touchmove", onTouch, false);
+    path.addEventListener("touchend", onTouchEnd, false);
   });
-
-  // Add touch event listeners to the paths in the current SVG
-  svg.addEventListener("touchstart", onTouch, false);
-  svg.addEventListener("touchmove", onTouch, false);
-  svg.addEventListener("touchend", onTouchEnd, false);
 });
 
 
@@ -945,11 +947,17 @@ function onTouch(event) {
   // Get the element at the touch position
   const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
 
-  // Remove the 'active' class from all paths
-  paths.forEach((path) => path.classList.remove("active"));
-
-  // Add the 'active' class to the element at the touch position
+  // Check if the touched element is a path with '-day' in its ID
   if (targetElement.tagName === "path" && targetElement.matches("path[id*='-day']")) {
+    // Remove the 'active' class from all '-day' paths and set fill-opacity to 0.3
+    paths.forEach((path) => {
+      if (path.id.includes('-day')) {
+        path.classList.remove("active");
+        path.style.fillOpacity = "0.3"; // Set fill-opacity to 0.3
+      }
+    });
+
+    // Add the 'active' class to the touched element
     targetElement.style.transition = 'none'; // Disable transitions temporarily
     targetElement.classList.remove("final");
     targetElement.classList.add("active");
@@ -965,6 +973,7 @@ function onTouch(event) {
     displayMoonPhaseOnTouch(selectedPath.id);
   }
 }
+
 
 
   function onTouchEnd(event) {
@@ -986,37 +995,8 @@ function onTouch(event) {
       let year = pathIdArr[3];
       targetDate = new Date(year, month, day);
 
-
-
-       // animateWhaleCycle();
-      //UpdateWhaleCycle(targetDate);
-      updateMoonPhase(targetDate);
-      UpdateVenusData(targetDate);
-      UpdateMarsData(targetDate);
-      UpdateJupiterData(targetDate);
-      UpdateSaturnData(targetDate);
-
-      mercury.animate();
-      venus.animate();
-      earth.animate();
-      mars.animate();
-      jupiter.animate();
-      saturn.animate();
-      uranus.animate();
-      neptune.animate();
-
-      //  updateTargetWeekColor();
-      getFirstNewMoon(targetDate); 
-      setLunarMonthForTarget(targetDate);
-      updateTargetMonth();
-
-      highlightDateCycles();
-      displayMatchingDateCycle();
-
-      dayOfYear = getDayOfYear(targetDate);
-      displayMoonPhaseInDiv(targetDate)
-      document.getElementById("reset").style.display = "block";
-      document.getElementById("current-time").style.display = "none";
+      calendarRefresh();
+      startDate = targetDate;
     }
 
     // Add the 'final' class to the selected path (if it exists)
