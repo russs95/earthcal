@@ -2154,24 +2154,64 @@ display:flex;
 flex-flow:column;
 }
 
+
+
 .reg-header {
 font-family: 'Arvo'; 
-font-size: 2em;
-padding:12px;
-margin-bottom: -15px;
 }
 
 .reg-subtitle {
 font-family: 'Mulish'; 
-font-size: 1.3em;
-padding:12px;
-margin-bottom:10px;
-
-
 }
 
 .reg-sub {
 font-family: 'Mulish'; 
-font-size: 1em;
-padding:10px;
 }
+
+@media screen and (max-width: 699px) {
+
+  .reg-header {
+    font-size: 1.6em;
+    padding:10px;
+    margin-bottom: -15px;
+    margin-top:-10px;
+    }
+    
+    .reg-subtitle {
+    font-size: 1.2em;
+    padding:10px;
+    margin-bottom:8px;
+    
+    
+    }
+    
+    .reg-sub {
+    font-size: 0.9em;
+    padding:9px;
+    }
+
+  }
+
+
+@media screen and (min-width: 700px) {
+
+  .reg-header {
+    font-size: 2em;
+    padding:12px;
+    margin-bottom: -15px;
+    }
+    
+    .reg-subtitle {
+    font-size: 1.3em;
+    padding:12px;
+    margin-bottom:10px;
+    
+    
+    }
+    
+    .reg-sub {
+    font-size: 1em;
+    padding:10px;
+    }
+
+  }

@@ -997,6 +997,13 @@ function onTouch(event) {
 
       calendarRefresh();
       startDate = targetDate;
+      document.getElementById("reset").style.display = "block";
+        document.getElementById("tomorrow").style.display = "none";
+        document.getElementById("yesterday").style.display = "none";
+
+
+        document.getElementById("current-time").style.display = "none";
+        startDate = targetDate;
     }
 
     // Add the 'final' class to the selected path (if it exists)

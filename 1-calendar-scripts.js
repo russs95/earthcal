@@ -40,26 +40,24 @@ function prevYearClick() {
    
   targetDate = new Date((currentYear - 1), 0, 1);
   
-  calendarRefresh();
-  
-  // mercury.animate();
-  // venus.animate();
-  // earth.animate();
-  // mars.animate();
-  // jupiter.animate();
-  // saturn.animate();
-  // uranus.animate();
-  // neptune.animate();
+  const allPaths = document.querySelectorAll("svg path");
+  allPaths.forEach((path) => {
+    path.classList.remove("active");
+    path.classList.remove("final");
+  });
 
-  // updateTargetWeekColor();
-  // updateTargetMonth();
-  // updateMoonPhase(targetDate);
-  // updateTargetDay();
-  // displayMoonPhaseInDiv(targetDate)
-  // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-  // setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
-  // document.getElementById("reset").style.display = "block";
-  // displayDayInfo(targetDate);
+  calendarRefresh();
+  updateTargetDay();
+
+  document.getElementById("reset").style.display = "block";
+  document.getElementById("tomorrow").style.display = "none";
+  document.getElementById("yesterday").style.display = "none";
+
+
+  document.getElementById("current-time").style.display = "none";
+  startDate = targetDate;
+  
+ 
 }
 
 function nextYearClick() {
@@ -79,6 +77,14 @@ function nextYearClick() {
 
   calendarRefresh();
   updateTargetDay();
+
+  document.getElementById("reset").style.display = "block";
+  document.getElementById("tomorrow").style.display = "none";
+  document.getElementById("yesterday").style.display = "none";
+
+
+  document.getElementById("current-time").style.display = "none";
+  startDate = targetDate;
 
   // mercury.animate();
   // venus.animate();
