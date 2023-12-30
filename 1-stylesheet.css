@@ -95,7 +95,7 @@ flex-direction: row;
 }
 
 .reset-button {
-  z-index: 20;
+  z-index: 30;
       padding: 20px;
       margin-left:15px;
       position: absolute;
