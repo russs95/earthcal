@@ -763,6 +763,20 @@ margin-bottom:25px;">
 
   </div>
 
+
+  <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none; position:fixed; z-index:11; bottom:20px;right:20px;display:none;">
+     
+    <button type="button" id="whale-button" class="totems-icon"  style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
+    <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
+
+    <button type="button" id="goose-button" class="totems-icon"  aria-label="Access goose cycle" style="border-color:red;"><img src="icons/goose.svg"></button>
+
+    <button type="button" id="humming-button" class="totems-icon"  aria-label="Access humming cycle" style="border-color:rgb(71, 8, 8);"><img src="icons/humming.svg"></button>
+
+      <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
+
+  </div>
+
   <div id="planet-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;position:fixed; z-index:11; bottom:20px;right:20px;display:none;">
     
     <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
@@ -800,28 +814,28 @@ margin-bottom:25px;">
     <div id="moon-info" class="planet-info" style="text-align: right;margin-bottom: 10px;"></div>
   </div>
 
-  <div id="whale-cycle">
+  <div id="whale-cycle" style="margin-bottom:60px;">
     <div id="whale-phase" class="phase-image"><img src="icons/whale.svg" width="60" heigh="40"></div>
     <div id="whale-info" class="planet-info" style="text-align: right;">
     </div>
   </div>
 
-  <div id="cariboo-cycle">
+  <div id="cariboo-cycle" style="margin-bottom:60px;">
     <div id="cariboo-phase" class="phase-image"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
     <div id="cariboo-info" class="planet-info">Artic Cariboo<br>Sorry, this cycle is not yet activated.</div>
   </div>
 
-  <div id="goose-cycle">
+  <div id="goose-cycle" style="margin-bottom:60px;">
     <div id="goose-phase" class="phase-image" ><img src="cycles/goose-cycle-map.svg" width="40" heigh="40"></div>
     <div id="goose-info" class="planet-info">Canada Goose<br>Sorry, this cycle is not yet activated.</div>
   </div>
 
-  <div id="humming-cycle">
+  <div id="humming-cycle" style="margin-bottom:60px;">
     <div id="humming-phase" class="phase-image" ><img src="cycles/humming-cycle-map.svg" width="40" heigh="40"></div>
     <div id="humming-info" class="planet-info">Ruby-throated Humming Bird<br>Sorry, this cycle is not yet activated.</div>
   </div>
 
-  <div id="monarch-cycle">
+  <div id="monarch-cycle" style="margin-bottom:60px;">
     <div id="monarch-phase" class="phase-image" ><img src="cycles/monarch-cycle-map.svg" width="40" heigh="40"></div>
     <div id="monarch-info" class="planet-info">Monarch Butterfly<br>Sorry, this cycle is not yet activated.</div>
   </div>
@@ -855,7 +869,7 @@ margin-bottom:25px;">
       <div id="mars-phase-info" style="text-align: right;" class="planet-info"></div>
     </div>
 
-    <div id="earth-cycle" style="display:none;">
+    <div id="earth-cycle" style="display:none;margin-bottom:60px">
       <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
       <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
         Orbit: 1 year<br>
@@ -879,18 +893,6 @@ margin-bottom:25px;">
 
   </div>
 
-    <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none;">
-     
-      <button type="button" id="whale-button" class="totems-icon"  style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
-      <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
-
-      <button type="button" id="goose-button" class="totems-icon"  aria-label="Access goose cycle" style="border-color:red;"><img src="icons/goose.svg"></button>
-
-      <button type="button" id="humming-button" class="totems-icon"  aria-label="Access humming cycle" style="border-color:rgb(71, 8, 8);"><img src="icons/humming.svg"></button>
-
-        <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
-  
-    </div>
   </div>
 </div>
 
@@ -983,7 +985,6 @@ function onTouch(event) {
     // Remove the 'active' class from all paths
     paths.forEach((path) => path.classList.remove("final"));
 
-    displayMoonPhaseOnTouch(selectedPath.id);
 
      // Check if the selected path contains '-day' in its ID
      if (selectedPath.id.includes("-day")) {
@@ -996,14 +997,16 @@ function onTouch(event) {
       targetDate = new Date(year, month, day);
 
       calendarRefresh();
+
+      
       startDate = targetDate;
       document.getElementById("reset").style.display = "block";
-        document.getElementById("tomorrow").style.display = "none";
-        document.getElementById("yesterday").style.display = "none";
+      document.getElementById("tomorrow").style.display = "none";
+      document.getElementById("yesterday").style.display = "none";
+      document.getElementById("current-time").style.display = "none";
 
+        // displayMoonPhaseOnTouch(selectedPath.id);
 
-        document.getElementById("current-time").style.display = "none";
-        startDate = targetDate;
     }
 
     // Add the 'final' class to the selected path (if it exists)

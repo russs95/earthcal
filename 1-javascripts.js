@@ -307,7 +307,6 @@ function getTheDayOfYear(targetDate) {
 
   function triggerPlanets() {
  // Set startDate to the current value of targetDate
-
     let paths = document.querySelectorAll('path[id$="-day"]');
     // Event listener for each path element
     
@@ -321,12 +320,15 @@ function getTheDayOfYear(targetDate) {
         targetDate = new Date(year, month, day);
 
         calendarRefresh()
-        
+
+
         //   if (!('ontouchstart' in window)) {
-      //     //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
-      //     // If it's not a touch device, call the function
-      //     updateTargetDay();
-      //   }
+        //   //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
+        //   // If it's not a touch device, call the function
+        //   updateTargetDay();
+        // }
+
+
         
       //  animateWhaleCycle();
       //  UpdateWhaleCycle(targetDate);
@@ -381,6 +383,7 @@ function getTheDayOfYear(targetDate) {
     // updateTargetWeekColor();
     getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     setLunarMonthForTarget(targetDate);
+    
     updateTargetMonth();
     displayDayInfo(targetDate);
     highlightDateCycles();
@@ -399,6 +402,7 @@ function getTheDayOfYear(targetDate) {
     document.getElementById("current-time").style.display = "block";
 
     displayMoonPhaseInDiv(targetDate);
+    displayDayInfo(targetDate);displayMoonPhaseInDiv(targetDate);
     displayDayInfo(targetDate);
 
     UpdateVenusData(targetDate);
@@ -411,6 +415,7 @@ function getTheDayOfYear(targetDate) {
 
     getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+    // redisplayTargetData();
     startDate = targetDate;
 
 }
@@ -423,9 +428,6 @@ function set2Tomorrow() {
   document.getElementById("reset").style.display = "block";
   document.getElementById("tomorrow").style.display = "none";
   document.getElementById("yesterday").style.display = "none";
-
-
-
   
 }
 

@@ -299,17 +299,18 @@ function displayMoonPhaseOnTouch(pathID) {
 function redisplayTargetData() {
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   displayMoonPhaseInDiv(targetDate);
-  displayDayInfo(targetDate);
-  UpdateVenusData(targetDate);
-  //console.log(VenusElong);
-  // TODO: This function should call displayMoonPhaseInDiv() with the current date
+  // displayDayInfo(targetDate);
+  // UpdateVenusData(targetDate);
+
 }
 
 function handleTouchEnd() {
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   displayMoonPhaseInDiv(targetDate);
-  displayDayInfo(targetDate);
-  UpdateVenusData(targetDate);
+  // displayDayInfo(targetDate);
+  // UpdateVenusData(targetDate);
+  //   console.log(targetDate);
+
   //console.log(VenusElong);
   // TODO: This function should call displayMoonPhaseInDiv() with the current date
 }
@@ -521,8 +522,8 @@ function displayCurrentMoonPhase() {
   
   // Resets the Moon phase path to the one that corresponds to the current date
   function resetMoonPhase() {
-    const currentDate = new Date();
-    updateMoonPhase(currentDate);
+    // const currentDate = new Date();
+    updateMoonPhase(targetDate);
   }
   
   // Handles the event when a user hovers over a Sun path
