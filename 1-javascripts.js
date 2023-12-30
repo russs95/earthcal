@@ -320,43 +320,45 @@ function getTheDayOfYear(targetDate) {
         let year = pathIdArr[3];
         targetDate = new Date(year, month, day);
 
-        if (!('ontouchstart' in window)) {
-          //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
-          // If it's not a touch device, call the function
-          updateTargetDay();
-        }
+        calendarRefresh()
         
-       animateWhaleCycle();
-       UpdateWhaleCycle(targetDate);
-        UpdateVenusData(targetDate);
-        UpdateMarsData(targetDate);
-        UpdateJupiterData(targetDate);
-        UpdateSaturnData(targetDate);
+        //   if (!('ontouchstart' in window)) {
+      //     //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
+      //     // If it's not a touch device, call the function
+      //     updateTargetDay();
+      //   }
         
-        displayMatchingDateCycle();
+      //  animateWhaleCycle();
+      //  UpdateWhaleCycle(targetDate);
+      //   UpdateVenusData(targetDate);
+      //   UpdateMarsData(targetDate);
+      //   UpdateJupiterData(targetDate);
+      //   UpdateSaturnData(targetDate);
         
-       mercury.animate();
-       mercury.animate();
-       venus.animate();
-       earth.animate();
-       mars.animate();
-       jupiter.animate();
-       saturn.animate();
-       uranus.animate();
-       neptune.animate();
+      //   displayMatchingDateCycle();
+        
+      //  mercury.animate();
+      //  mercury.animate();
+      //  venus.animate();
+      //  earth.animate();
+      //  mars.animate();
+      //  jupiter.animate();
+      //  saturn.animate();
+      //  uranus.animate();
+      //  neptune.animate();
        
-        updateTargetWeekColor();
-        setLunarMonthForTarget(targetDate);
-        updateTargetMonth();
-        dayOfYear = getDayOfYear(targetDate);
-        displayMoonPhaseInDiv(targetDate)
-        document.getElementById("reset").style.display = "block";
-        document.getElementById("tomorrow").style.display = "none";
-        document.getElementById("yesterday").style.display = "none";
+      //   // updateTargetWeekColor();
+      //   setLunarMonthForTarget(targetDate);
+      //   updateTargetMonth();
+      //   dayOfYear = getDayOfYear(targetDate);
+      //   displayMoonPhaseInDiv(targetDate)
+      //   document.getElementById("reset").style.display = "block";
+      //   document.getElementById("tomorrow").style.display = "none";
+      //   document.getElementById("yesterday").style.display = "none";
 
 
-        document.getElementById("current-time").style.display = "none";
-        startDate = targetDate;
+      //   document.getElementById("current-time").style.display = "none";
+      //   startDate = targetDate;
        
       });
       
@@ -392,7 +394,8 @@ function getTheDayOfYear(targetDate) {
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
     document.getElementById("reset").style.display = "none";
-  
+    document.getElementById("tomorrow").style.display = "none";
+    document.getElementById("yesterday").style.display = "none";
     document.getElementById("current-time").style.display = "block";
 
     displayMoonPhaseInDiv(targetDate);
@@ -408,6 +411,8 @@ function getTheDayOfYear(targetDate) {
 
     getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+    startDate = targetDate;
+
 }
 
 function set2Tomorrow() {
