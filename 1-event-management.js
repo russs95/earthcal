@@ -236,42 +236,6 @@ function fetchDateCycles() {
 }
 
 
-/*to be updated once date's have their highlight flagger.*/
-
-// async function highlightDateCycles() {
-//   // 1. Scan the entire HTML document and remove the class "date_event" from divs or paths
-//   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-  
-//   elementsWithDateEvent.forEach(element => {
-//     element.classList.remove("date_event");
-//   });
-
-//   // 2. Continue with your original function
-//   const dateCycleEvent = await fetchDateCycles();
-
-//   if (!dateCycleEvent) {
-//       console.log("No dateCycles found in storage.");
-//       return;
-//   }
-
-//   const allPaths = Array.from(document.querySelectorAll("path[id]"));
-
-//   dateCycleEvent.forEach(dateCycle => {
-//     const datecyclePaths = allPaths.filter(path => path.id.includes(dateCycle.Date));
-
-//     datecyclePaths.forEach(datecyclePath => {
-//       const currentTitle = datecyclePath.getAttribute('title');
-
-//       // Only change the title if the original title does not include "|"
-//       if (!currentTitle.includes('|')) {
-//         const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
-//         datecyclePath.setAttribute('title', newTitle);
-//       }
-
-//       datecyclePath.classList.add("date_event");
-//     });
-//   });
-// }
 
 async function highlightDateCycles() {
   // 1. Scan the entire HTML document and remove the class "date_event" from date paths
@@ -396,6 +360,7 @@ function findMatchingDateCycles(dateCycles) {
   // Array representing the names of the months
   const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
   
+  // MATCHING PROBLEM  const dashedDate = `-${day}-${month}-${year}`;
   const dashedDate = `-${day}-${month}-${year}`;
   
 // Add month name class only if Completed is "no"

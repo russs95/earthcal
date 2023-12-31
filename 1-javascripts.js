@@ -322,6 +322,12 @@ function getTheDayOfYear(targetDate) {
         calendarRefresh()
 
 
+      
+        startDate = targetDate;
+        document.getElementById("reset").style.display = "block";
+        document.getElementById("tomorrow").style.display = "none";
+        document.getElementById("yesterday").style.display = "none";
+        document.getElementById("current-time").style.display = "none";
         //   if (!('ontouchstart' in window)) {
         //   //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
         //   // If it's not a touch device, call the function
@@ -396,10 +402,7 @@ function getTheDayOfYear(targetDate) {
     dayOfYear = getDayOfYear(targetDate);
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
-    document.getElementById("reset").style.display = "none";
-    document.getElementById("tomorrow").style.display = "none";
-    document.getElementById("yesterday").style.display = "none";
-    document.getElementById("current-time").style.display = "block";
+
 
     displayMoonPhaseInDiv(targetDate);
     displayDayInfo(targetDate);displayMoonPhaseInDiv(targetDate);
@@ -449,6 +452,10 @@ function set2Today() {
   calendarRefresh(); // Call the calendarRefresh function for all updates
   document.getElementById("yesterday").style.display = "block";
   document.getElementById("tomorrow").style.display = "block";
+  document.getElementById("reset").style.display = "none";
+  document.getElementById("current-time").style.display = "block";
+
+
 }
 
 
