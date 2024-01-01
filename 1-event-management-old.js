@@ -173,8 +173,8 @@ function submitAddCycleForm() {
   // document.getElementById('add-date-title').style.display = 'none';
   // document.getElementById('add-note-check-boxed').style.display = 'none';
 
-alert("Stored dateCycle: " + JSON.stringify(dateCycle)); 
-//console.log("Stored dateCycle:", dateCycle);
+// alert("Stored dateCycle: " + JSON.stringify(dateCycle)); 
+console.log("Stored dateCycle:", dateCycle);
 displayMatchingDateCycle();
 }
 
