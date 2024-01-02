@@ -328,45 +328,7 @@ function getTheDayOfYear(targetDate) {
         document.getElementById("tomorrow").style.display = "none";
         document.getElementById("yesterday").style.display = "none";
         document.getElementById("current-time").style.display = "none";
-        //   if (!('ontouchstart' in window)) {
-        //   //setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
-        //   // If it's not a touch device, call the function
-        //   updateTargetDay();
-        // }
-
-
-        
-      //  animateWhaleCycle();
-      //  UpdateWhaleCycle(targetDate);
-      //   UpdateVenusData(targetDate);
-      //   UpdateMarsData(targetDate);
-      //   UpdateJupiterData(targetDate);
-      //   UpdateSaturnData(targetDate);
-        
-      //   displayMatchingDateCycle();
-        
-      //  mercury.animate();
-      //  mercury.animate();
-      //  venus.animate();
-      //  earth.animate();
-      //  mars.animate();
-      //  jupiter.animate();
-      //  saturn.animate();
-      //  uranus.animate();
-      //  neptune.animate();
-       
-      //   // updateTargetWeekColor();
-      //   setLunarMonthForTarget(targetDate);
-      //   updateTargetMonth();
-      //   dayOfYear = getDayOfYear(targetDate);
-      //   displayMoonPhaseInDiv(targetDate)
-      //   document.getElementById("reset").style.display = "block";
-      //   document.getElementById("tomorrow").style.display = "none";
-      //   document.getElementById("yesterday").style.display = "none";
-
-
-      //   document.getElementById("current-time").style.display = "none";
-      //   startDate = targetDate;
+      
        
       });
       
@@ -448,8 +410,9 @@ function set2Yesterday() {
 }
 
 function set2Today() {
-  targetDate = new Date(); // Reset target date to the current date
+  setCurrentDate();  // Reset target date to the current date
   calendarRefresh(); // Call the calendarRefresh function for all updates
+
   document.getElementById("yesterday").style.display = "block";
   document.getElementById("tomorrow").style.display = "block";
   document.getElementById("reset").style.display = "none";
