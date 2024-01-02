@@ -104,12 +104,12 @@ function closeDateCycleExports() {
 
 
 //ADD A DATECYCLE -- triggered on submit to add dateCyle to cache and page
-
 function submitAddCycleForm() {
   // First, we'll check if all required fields are filled out
   var dayField = document.getElementById('day-field2').value;
   var monthField = document.getElementById('month-field2').value;
   var addDateTitle = document.getElementById('add-date-title').value;
+  var dashOrNot = '-';
   
   if (!dayField || !monthField || !addDateTitle) {
     alert("Please be sure to fill out all the fields to add a new dateCycle to the Calendar.");
@@ -120,7 +120,22 @@ function submitAddCycleForm() {
   var selCalendarElement = document.getElementById('select-calendar');
   var selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].text; // Get the name of the calendar, not the ID
   var dateCycleType = document.getElementById('dateCycle-type').value;
-  var yearField = document.getElementById('year-field2').value || "";
+
+  // Add logic to set Year to blank if the Frequency is 'Annual'
+  var yearField = dateCycleType === 'Annual' ? "" : (document.getElementById('year-field2').value || "");
+  
+    // Logic for "Monthly" Frequency
+    var yearField, monthField;
+    if (dateCycleType === 'Monthly') {
+      yearField = '';
+      monthField = '';
+      dashOrNot = '';
+    } else {
+      // Get values from the form
+      monthField = document.getElementById('month-field2').value;
+      yearField = dateCycleType === 'Annual' ? "" : (document.getElementById('year-field2').value || "");
+    }
+
   var addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
   var addDateNote = document.getElementById('add-date-note').value;
   var DateColorPicker = document.getElementById('DateColorPicker').value;
@@ -146,12 +161,12 @@ function submitAddCycleForm() {
     "Day": dayField,
     "Month": monthField,
     "Year": yearField,
-    "Date": `-${dayField}-${monthField}-${yearField}`,
+    "Date": `-${dayField}-${monthField}${dashOrNot}${yearField}`,
     "comment": addNoteCheckbox,
     "Comments": addDateNote,
     "Completed": 'no',
     "calendar_color": DateColorPicker,
-};
+  };
 
   // Store the object in the browser's local storage
   storedDateCycles.push(dateCycle);
@@ -160,23 +175,14 @@ function submitAddCycleForm() {
   // Clear the form fields
   document.getElementById('select-calendar').value = 'Select Calendar...';
   document.getElementById('dateCycle-type').value = 'Select frequency...';
-  // document.getElementById('year-field2').value = '';
-  // document.getElementById('day-field2').value = '';
-  // document.getElementById('month-field2').value = '';
   document.getElementById('add-date-title').value = '';
   document.getElementById('add-note-checkbox').checked = false;
   document.getElementById('add-date-note').value = '';
 
-  // Set elements to display none
-  // document.getElementById('year-field2').style.display = 'none';
-  // document.getElementById('set-date').style.display = 'none';
-  // document.getElementById('add-date-title').style.display = 'none';
-  // document.getElementById('add-note-check-boxed').style.display = 'none';
-
-//alert("Stored dateCycle: " + JSON.stringify(dateCycle)); 
-console.log("Stored dateCycle:", dateCycle);
-displayMatchingDateCycle();
+  console.log("Stored dateCycle:", dateCycle);
+  displayMatchingDateCycle();
 }
+
 
 
 function uploadDateCycles() {
