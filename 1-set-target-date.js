@@ -16,6 +16,7 @@ function updateTargetDay() {
 
   const svg = document.querySelector('svg');
   const paths = svg.querySelectorAll('path');
+  paths.forEach((path) => path.classList.remove("final"));
 
   paths.forEach(path => {
     if (path.id.startsWith(dayIdStart) && path.id.endsWith('-day')) {

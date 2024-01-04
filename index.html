@@ -543,7 +543,7 @@ window.onload = function() {
 
       <div class="add-date-form" style="margin:auto;">
         <div id="add-datecycle-info">
-          <div style="font-size:4em">📆</div>
+          <div class="top-add-icon"></div>
           <!--<h1>Add a dateCycle</h1>--></div>
 
           <p>Add an event or cycle to your EarthCal calendars...</p>
@@ -985,8 +985,8 @@ function onTouch(event) {
     event.preventDefault();
 
     // Remove the 'active' class from all paths
-    paths.forEach((path) => path.classList.remove("final"));
-
+    // paths.forEach((path) => path.classList.remove("final"));
+    // resetPaths();
 
      // Check if the selected path contains '-day' in its ID
      if (selectedPath.id.includes("-day")) {

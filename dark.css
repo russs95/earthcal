@@ -163,6 +163,11 @@
     background-size: contain;
 }
 
+.top-add-icon {
+  background: url(svgs/add-night-over.svg) no-repeat;
+  background-size: contain;
+}
+
 #export-down-arrow {
   background: url(svgs/down-arrow.svg) no-repeat;
   background-size: contain;

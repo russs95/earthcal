@@ -235,6 +235,13 @@ margin:0px 10px 10px 10px;
   height:30px;
   width:30px;
 }
+
+.top-add-icon  {
+  border: none; 
+  margin:0px auto 10px auto;
+  height:80px;
+  width:80px;
+}
 /*
 .top-close-button  {
   border: none; 

@@ -356,11 +356,14 @@ function getTheDayOfYear(targetDate) {
     displayDayInfo(targetDate);
     highlightDateCycles();
     displayMatchingDateCycle();
-    if (!('ontouchstart' in window)) {
-        //setTimeout(updateTargetDay, 900); //Adds color to the target Day (current day on load)
-        // If it's not a touch device, call the function
-        updateTargetDay();
-    }
+    // if (!('ontouchstart' in window)) {
+    //     // setTimeout(updateTargetDay, 900); //Adds color to the target Day (current day on load)
+    //     // If it's not a touch device, call the function
+    //     updateTargetDay();
+    // }
+    resetPaths();
+    updateTargetDay();
+
     dayOfYear = getDayOfYear(targetDate);
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
