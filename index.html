@@ -302,14 +302,14 @@ window.onload = function() {
     <div id="information-one" class="information">
       <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg"  style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>  
       <div class="modal-header">A Quick Tour</div>
-      <div class="modal-description">Welcome to EarthCycles!  Use our app to sync your calendar with the cycles the moon, the planets and the earth.  To get know how it works, click through for a guided tour of the philosophy, functions and features.</div>
+      <div class="modal-description">Welcome to EarthCal!  Use our app to sync your moments with EarthCycles.  See how your events along side the cycles the moon, the planets and the earth.  To get know how it works, click through for a guided tour of the EarthCal philosophy, functions and features.</div>
       <button class="next">Next ➔</button>
     </div>
   
     <div id="information-two" style="display:none;" class="information">
     <div class="tour-image"><img src="svgs/cycles-night-over.svg"  style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>  
       <div class="modal-header">One Year.<br>One Orbit.</div>
-      <div class="modal-description">The EarthCycles calendar lets you see each year as spin of Earth around the Sun.  Thus the calendar's circle is divided into 365 days, and those are grouped into weeks and months.</div>
+      <div class="modal-description">The EarthCycles calendar lets you see each year as spin of Earth around the Sun.  Thus the calendar's circle is divided into 365 days.  Those days are grouped into solar and lunar months.</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -318,7 +318,7 @@ window.onload = function() {
     <div class="tour-image"><img src="icons/saturn-cycle.svg"    title="Our Neighbourhood" alt="Our Neighbourhood"></div>  
   
       <div class="modal-header">Our Neighbourhood</div>
-      <div class="modal-description">As you watch Earth spin around the Sun, you can see our planetary neighbours spin too!  This is invaluable for not just understanding the night sky but connecting with the deep time cycles that each planet's orbit represents.</div>
+      <div class="modal-description">As you watch Earth spin around the Sun, you can see our planetary neighbours spin too!  This not only helps you understand the night sky but also connects you with the much longer cycles of time that each planet's orbit represents (it takes Neptune almost 165 Earth years for its spin!).</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -327,7 +327,7 @@ window.onload = function() {
     <div id="information-four" style="display:none;" class="information">
     <div class="tour-image"><img src="svgs/just-moon.svg" title="Sinc with the lunar cycles" alt="Sinc with the lunar cycles"></div>  
       <div class="modal-header">Get Lunar</div>
-      <div class="modal-description">Look carefully at the center of the calendar while you hover or click around the days.  You can see in real-time how the phase of the moon changes and what it will be on any given day of the year.</div>
+      <div class="modal-description">Notice the center of the calendar while you skim over the days of the year.  You can see in real-time how the phase of the moon changes over the course of the year.  Click the moon in the bottom left for even more live data.</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -336,7 +336,7 @@ window.onload = function() {
     <div id="information-five" style="display:none;" class="information">
     
     <div class="tour-image"><img src="icons/humming.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
-    <div class="modal-description">Track and cycle with animals and migrations around you.  See where are fellow creatures are during the course of the year.</div>
+    <div class="modal-description">Great civilizations used the cycles of the great creatures around them to track time too.  Click on the Earth icon at the bottom left corner to see where our fellow creatures are at during the course of the year.</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -345,7 +345,7 @@ window.onload = function() {
       <div class="tour-image"><img src="svgs/add-night-over.svg"  title="add events" alt="Add events"></div>  
   
       <div class="modal-header">Add Your Events</div>
-      <div class="modal-description">Add your one time events and annual cycles (like birthdays!) to the calendar.</div>
+      <div class="modal-description">Use EarthCal to record your events and daily to-dos.  Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date.</div>
       <button class="back">↩ Back</button>
       
       <button class="next" onclick="closeTour()">✓ Done</button>
@@ -377,7 +377,7 @@ window.onload = function() {
           
         </div>
         
-        
+         
        
 
           <button id="reset" class="reset-button" onclick="set2Today();" title="Reset to today">⟲ Back to Today</button>
@@ -497,16 +497,14 @@ window.onload = function() {
 
       <div class="menu-page-item" onclick="guidedTour()">Guided Feature Tour</a></div>
 
+      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Get the Earthen.io Newsletter</div>
 
-
-      
-<!--
-      <div class="menu-page-item"><a href="https://earthen.io/cycles/" target="_blank">About the Project</a>
+      <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project</a>
         </div>
       
-       <p style="font-size:1em">Toggle Night/Day:</p>  MAYBE JUST FOR DESKTOP
+       <p style="font-size:small;">Switch Dark/Day themes</p>
       
-       <br>-->
+       <br>
   
   <div class="compro-toggle" style="margin: 10px auto 10px auto;">
   
@@ -514,7 +512,7 @@ window.onload = function() {
       <dark-mode-toggle
       id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
       class="slider"
-      legend="Switch Dark/Day themes"
+      legend=""
       remember="Remember for all pages"
       appearance="toggle">
       </dark-mode-toggle>
