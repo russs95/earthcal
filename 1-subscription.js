@@ -317,10 +317,7 @@ function invite2Register() {
     localStorage.setItem('showCounter', showCounter);
   }
   
-  function sendUpRegistration() {
-    console.log("sendUpRegistration function triggered");
-    // Add the logic for sendUpRegistration here
-  }
+
   
   // ... (Any other function definitions)
   
@@ -349,9 +346,7 @@ function invite2Register() {
   
   }
   
-  document.getElementById('progress-bar').addEventListener('click', function() {
-    sendUpRegistration();
-  });
+
   
   function sendDownRegistration() {
    

@@ -301,15 +301,15 @@ window.onload = function() {
   
     <div id="information-one" class="information">
       <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg"  style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>  
-      <div class="modal-header">A Quick Tour</div>
-      <div class="modal-description">Welcome to EarthCal!  Use our app to sync your moments with EarthCycles.  See how your events along side the cycles the moon, the planets and the earth.  To get know how it works, click through for a guided tour of the EarthCal philosophy, functions and features.</div>
+      <div class="modal-header">Welcome to EarthCal</div>
+      <div class="modal-description">EarthCal is a free online app for connecting with Earth's cycles.  Use our app to manage and sync your events with the cycles the moon, the planets and the earth.  To get know how EarthCal works, click through for a guided tour of the EarthCal philosophy, functions and features.</div>
       <button class="next">Next ➔</button>
     </div>
   
     <div id="information-two" style="display:none;" class="information">
     <div class="tour-image"><img src="svgs/cycles-night-over.svg"  style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>  
       <div class="modal-header">One Year.<br>One Orbit.</div>
-      <div class="modal-description">The EarthCycles calendar lets you see each year as spin of Earth around the Sun.  Thus the calendar's circle is divided into 365 days.  Those days are grouped into solar and lunar months.</div>
+      <div class="modal-description">The EarthCycles calendar lets you see each year as a one spin of Earth around the Sun.  Click any of the 365 divisions of the EarthCal circle to see where the Earth is in its orbit and to see that day's data.  The progression of colors shows the solar and lunar months.</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -335,8 +335,8 @@ window.onload = function() {
     
     <div id="information-five" style="display:none;" class="information">
     
-    <div class="tour-image"><img src="icons/humming.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
-    <div class="modal-description">Great civilizations used the cycles of the great creatures around them to track time too.  Click on the Earth icon at the bottom left corner to see where our fellow creatures are at during the course of the year.</div>
+    <div class="tour-image"><img src="icons/whale.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
+    <div class="modal-description">Great civilizations used the cycles of great creatures around them to track time too.  Click on the Earth icon at the bottom left corner to see where our fellow creatures are at during the course of the year.</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -663,7 +663,7 @@ margin-bottom:25px;">
   <div id="name-event" style="margin-top: 20px;">
     <div style="display: flex;
     justify-content: center;">
-      <textarea id="add-date-title" placeholder="Name the dateCycle..."></textarea>  
+      <textarea id="add-date-title" placeholder="Name of event..."></textarea>  
       <select id="DateColorPicker" name="color" style="padding: 10px;
     resize: none;
     border: 1px solid var(--thin-border-color);
@@ -760,7 +760,7 @@ margin-bottom:25px;">
     
     <button type="button" id="planets-button" class="totems-icon" aria-label="Access planet cycles" title="Activate Planet Cycles"></button>
 
-    <button type="button" id="earth-button" class="totems-icon"   aria-label="Access Earth cycles" title="Activate ecological cycles"></button>
+    <button type="button" id="earth-button" class="totems-icon"   aria-label="Access Earth cycles" title="Activate ecological cycles" onclick="animateWhaleCycle()"></button>
 
   </div>
 
