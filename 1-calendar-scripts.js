@@ -244,12 +244,12 @@ function formatDate(date) {
     // Call the relevant functions to show details for the selected date
     displayDayInfo(date);
   
-
+    displayMoonPhaseInDiv(date);
    
   // Check if the moon-cycle div is set to display block
-  if (document.getElementById('moon-cycle').style.display === 'block') {
-    displayMoonPhaseInDiv(date);
-  }
+  // if (document.getElementById('moon-cycle').style.display === 'block') {
+  //   displayMoonPhaseInDiv(date);
+  // }
 
   // Check if the venus-cycle div is set to display block
   if (document.getElementById('venus-cycle').style.display === 'block') {

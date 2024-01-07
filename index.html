@@ -336,7 +336,7 @@ window.onload = function() {
     <div id="information-five" style="display:none;" class="information">
     
     <div class="tour-image"><img src="icons/whale.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
-    <div class="modal-description">Great civilizations used the cycles of great creatures around them to track time too.  Click on the Earth icon at the bottom left corner to see where our fellow creatures are at during the course of the year.</div>
+    <div class="modal-description">Great civilizations also used the cycles of the great creatures around them to track time.  Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year.  More animals coming soon!</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -345,7 +345,7 @@ window.onload = function() {
       <div class="tour-image"><img src="svgs/add-night-over.svg"  title="add events" alt="Add events"></div>  
   
       <div class="modal-header">Add Your Events</div>
-      <div class="modal-description">Use EarthCal to record your events and daily to-dos.  Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date.</div>
+      <div class="modal-description">Use EarthCal to record your events and daily to-dos.  Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date.  Google Calendar sync coming soon.</div>
       <button class="back">↩ Back</button>
       
       <button class="next" onclick="closeTour()">✓ Done</button>
@@ -525,7 +525,7 @@ window.onload = function() {
     </div>
   </div>
   
-        <p style="font-size:small;">EarthCycles is developed by <a href="https://earthen.io" target="_blank">Earthen.io</a> Our project is inspired by Igorot <a href="https://book.earthen.io/kincentric" target="_blank">cyclocentric culture</a></p>
+        <p style="font-size:small;">EarthCycles is developed by <a href="https://earthen.io" target="_blank">Earthen.io</a> Our project is inspired by Igorot <a href="https://earthen.io/earthcal" target="_blank">cyclocentric culture</a></p>
     </div>
   
     </div>                                                              
@@ -668,7 +668,7 @@ margin-bottom:25px;">
   <div id="name-event" style="margin-top: 20px;">
     <div style="display: flex;
     justify-content: center;">
-      <textarea id="add-date-title" placeholder="Name of event..."></textarea>  
+      <textarea id="add-date-title" placeholder="Event name..."></textarea>  
       <select id="DateColorPicker" name="color" style="padding: 10px;
     resize: none;
     border: 1px solid var(--thin-border-color);
@@ -687,7 +687,7 @@ margin-bottom:25px;">
   </div>
   <div id="add-note-check-boxed">
       <input type="checkbox" id="add-note-checkbox">
-      <label for="add-note-checkbox">Add a note to this dateCycle</label>
+      <label for="add-note-checkbox">Add a note to this event</label>
      </div>
     
   </div>
@@ -697,7 +697,7 @@ margin-bottom:25px;">
             
 
         <div id="add-note-form" style="margin-top:20px; margin-bottom: 30px;display:none">  
-          <textarea id="add-date-note" placeholder="Add a note to your dateCycle..."></textarea>
+          <textarea id="add-date-note" placeholder="Add a note to this event..."></textarea>
         </div>
             
         <button type="button" id="confirm-dateCycle" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();">➕ Add Date</button>
