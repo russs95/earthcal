@@ -39,11 +39,13 @@ function cyclesToggle() {
     animateWhaleCycle();
     
       // Modify here: Add 'active' class and change display for whale-cycle
-  var whaleCycle = document.getElementById("whale-cycle");
+      var whaleCycle = document.getElementById("whale-cycle");
+      var whaleInfo = document.getElementById("whale-info");
   var whaleButton = document.getElementById("whale-button");
 
   whaleCycle.classList.add("active");
   whaleCycle.style.display = "block";
+  whaleInfo.style.display = "block";
   whaleButton.classList.add("active");
 
 });
