@@ -86,28 +86,6 @@ function nextYearClick() {
   document.getElementById("current-time").style.display = "none";
   startDate = targetDate;
 
-  // mercury.animate();
-  // venus.animate();
-  // earth.animate();
-  // mars.animate();
-  // jupiter.animate();
-  // saturn.animate();
-  // uranus.animate();
-  // neptune.animate();
-
-  // updateTargetWeekColor();
-  // updateTargetMonth();
-  // updateMoonPhase(targetDate);
-  // 
-  // displayMoonPhaseInDiv(targetDate)
-  // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-  // setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
-
-
-  // // getFirstNewMoon(); off
-  // document.getElementById("reset").style.display = "block";
-  // displayDayInfo(targetDate);
-
 }
 
 
@@ -246,8 +224,7 @@ function formatDate(date) {
     if (phaseIndex > 29 && phaseIndex <= 31) return 'New Moon';
   }
 
-
-  function displayMoonPhaseOnHover(event) {
+  function displayPlanetInfoOnHover(event) {
     // Get the target path element
     const path = event.target;
   
@@ -265,14 +242,36 @@ function formatDate(date) {
     const date = new Date(year, month, dayOfMonth);
   
     // Call the relevant functions to show details for the selected date
-    displayMoonPhaseInDiv(date);
     displayDayInfo(date);
-    UpdateVenusData(date);
-    UpdateMarsData(date);
-    UpdateJupiterData(date);
-    UpdateSaturnData(date);
-    //UpdateWhaleCycle(date);
+  
+
+   
+  // Check if the moon-cycle div is set to display block
+  if (document.getElementById('moon-cycle').style.display === 'block') {
+    displayMoonPhaseInDiv(date);
   }
+
+  // Check if the venus-cycle div is set to display block
+  if (document.getElementById('venus-cycle').style.display === 'block') {
+    UpdateVenusData(date);
+  }
+
+  // Check if the mars-cycle div is set to display block
+  if (document.getElementById('mars-cycle').style.display === 'block') {
+    UpdateMarsData(date);
+  }
+
+  // Check if the jupiter-cycle div is set to display block
+  if (document.getElementById('jupiter-cycle').style.display === 'block') {
+    UpdateJupiterData(date);
+  }
+
+  // Check if the saturn-cycle div is set to display block
+  if (document.getElementById('saturn-cycle').style.display === 'block') {
+    UpdateSaturnData(date);
+  }
+}
+  
   
 
 function displayMoonPhaseOnTouch(pathID) {
@@ -284,15 +283,37 @@ function displayMoonPhaseOnTouch(pathID) {
   const year = parseInt(dateParts[3]);
   const date = new Date(year, month, dayOfMonth);
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
-  displayMoonPhaseInDiv(date);
+  // Call the relevant functions to show details for the selected date
   displayDayInfo(date);
-  UpdateVenusData(date);
-  UpdateMarsData(date);
-  UpdateJupiterData(date);
-  UpdateSaturnData(date);
-  //UpdateWhaleCycle(date);
-}
 
+  displayMoonPhaseInDiv(date);
+  
+  
+  // // Check if the moon-cycle div is set to display block
+  // if (document.getElementById('moon-cycle').style.display === 'block') {
+  //   displayMoonPhaseInDiv(date);
+  // }
+
+  // Check if the venus-cycle div is set to display block
+  if (document.getElementById('venus-cycle').style.display === 'block') {
+    UpdateVenusData(date);
+  }
+
+  // Check if the mars-cycle div is set to display block
+  if (document.getElementById('mars-cycle').style.display === 'block') {
+    UpdateMarsData(date);
+  }
+
+  // Check if the jupiter-cycle div is set to display block
+  if (document.getElementById('jupiter-cycle').style.display === 'block') {
+    UpdateJupiterData(date);
+  }
+
+  // Check if the saturn-cycle div is set to display block
+  if (document.getElementById('saturn-cycle').style.display === 'block') {
+    UpdateSaturnData(date);
+  }
+}
 
 // This function displays the current moon phase after mouseout or touchout
 
@@ -315,32 +336,6 @@ function handleTouchEnd() {
   // TODO: This function should call displayMoonPhaseInDiv() with the current date
 }
 
-
-
-// This function displays the moon phase details in a div element.
-function displayMoonPhaseInDiv(date) {
-  // Set the latitude and longitude to use for the moon phase calculations
-  const lat = -8.506853;
-  const lon = 115.262477;
-
-  // Calculate the moon illumination details and get the phase, emoji, and phase index
-  const moonIllumination = SunCalc.getMoonIllumination(date);
-  const phase = moonIllumination.phase;
-  const moonPhaseEmoji = getMoonPhaseEmoji(phase);
-  const phaseIndex = getPhaseIndex(phase);
-
-  // Calculate the moon position and get the distance, angle, illuminated fraction, and phase name
-  const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
-  const moonDistance = moonPosition.distance.toFixed(2);
-  const moonAngle = (moonPosition.parallacticAngle * (180 / Math.PI)).toFixed(2);
-  const illuminatedFraction = moonIllumination.fraction.toFixed(2);
-  const moonPhaseName = getMoonPhaseName(phase);
-  const islamicMonth = getIslamicMonth(date);
-
-  // Update the moon phase div with the calculated details
-  const moonPhaseDiv = document.getElementById('current-moon-info');
-  moonPhaseDiv.innerHTML = `${moonPhaseEmoji} ${moonPhaseName} <br>Illuminated Fraction: ${illuminatedFraction} <br>Angle: ${moonAngle}°<br>Distance: ${moonDistance} km`;
-}
 
 
 
@@ -413,6 +408,14 @@ setInterval(printTime, 1000);
 */
 
   function displayMoonPhaseInDiv(date) {
+
+      // Check if the moon-cycle div is not set to display none
+      //NOTE:  this could be replaced and the prevention instead set on the displayPlanetInfoOnHover function
+  var moonCycleDiv = document.getElementById('moon-cycle');
+  if (moonCycleDiv.style.display === 'none') {
+    return; // Exit the function if moon-cycle is not displayed
+  }
+
     // Set the latitude and longitude to use for the moon phase calculations
     const lat = -8.506853;
     const lon = 115.262477;
@@ -478,22 +481,16 @@ function displayCurrentMoonPhase() {
   function addMoonPhaseInteraction() {
     const dayPaths = document.querySelectorAll('path[id$="-day"]');
     dayPaths.forEach((path) => {
-      path.addEventListener('mouseover', displayMoonPhaseOnHover);
+      path.addEventListener('mouseover', displayPlanetInfoOnHover);
       path.addEventListener('mouseout', redisplayTargetData);
   
-      //DUPLICATE
-      // Touchstart to show the Moon phase on touch
-    //  path.addEventListener('touchstart', displayMoonPhaseOnTouch);
-      // Touchend to handle any cleanup or restoration
-   //   path.addEventListener('touchend', handleTouchEnd);
     });
   }
   
   // Initialize the event listeners and display the current Moon phase
   addMoonPhaseInteraction();
   displayCurrentMoonPhase();
-  //displayMoonPhaseOnTouch();
-  //handleTouchEnd();
+
   
 
 

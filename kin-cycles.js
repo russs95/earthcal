@@ -37,6 +37,15 @@ function cyclesToggle() {
     // Call animateWhaleCycle function after the CSS changes
     showKinCycles('whale-button')
     animateWhaleCycle();
+    
+      // Modify here: Add 'active' class and change display for whale-cycle
+  var whaleCycle = document.getElementById("whale-cycle");
+  var whaleButton = document.getElementById("whale-button");
+
+  whaleCycle.classList.add("active");
+  whaleCycle.style.display = "block";
+  whaleButton.classList.add("active");
+
 });
 
 
@@ -73,7 +82,6 @@ function cyclesToggle() {
 
       // Add active class to the clicked icon button
       button.classList.add('active');
-
 
 
     });
@@ -521,6 +529,11 @@ const whaleCycleData = [
 
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {
+
+  var whaleCycleDiv = document.getElementById('whale-cycle');
+  if (whaleCycleDiv.style.display !== 'block') {
+    return; // Exit the function if whale-cycle is not displayed
+  }
   // Determine the numerical day number of the targetDate
   const currentDay = getDayOfYear(targetDate);
 

@@ -198,10 +198,10 @@ window.onload = function() {
   activeMonthBreakouts();
 
   updateMoonPhase(targetDate);
-  UpdateVenusData(targetDate);
-  UpdateMarsData(targetDate);
-  UpdateJupiterData(targetDate);
-  UpdateSaturnData(targetDate);
+  // UpdateVenusData(targetDate);
+  // UpdateMarsData(targetDate);
+  // UpdateJupiterData(targetDate);
+  // UpdateSaturnData(targetDate);
 
   setTimeout(function() {
     
@@ -491,13 +491,18 @@ window.onload = function() {
       <div class="earthcycles-logo"></div>
 
 
+      <div class="menu-page-item" onclick="closeSettings(),guidedTour()">Feature Tour</a></div>
+
+      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
+      
       <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
 
       <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
 
-      <div class="menu-page-item" onclick="closeSettings(),guidedTour()">Guided Feature Tour</a></div>
+      <div class="menu-page-item"><a href="https://snapcraft.io/earthcal" target="_blank">EarthCal for Ubuntu ↗</a>
+      </div>
 
-      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Get the Earthen.io Newsletter</div>
+   
 
       <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project ↗</a>
         </div>
@@ -513,7 +518,7 @@ window.onload = function() {
       <dark-mode-toggle
       id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
       class="slider"
-      legend=""
+      legend=" "
       remember="Remember for all pages"
       appearance="toggle">
       </dark-mode-toggle>
@@ -767,7 +772,7 @@ margin-bottom:25px;">
 
   <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none; position:fixed; z-index:11; bottom:20px;right:20px;display:none;">
      
-    <button type="button" id="whale-button" class="totems-icon"  style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
+    <button type="button" id="whale-button" class="totems-icon active" style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
     <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
 
     <button type="button" id="goose-button" class="totems-icon"  aria-label="Access goose cycle" style="border-color:red;"><img src="icons/goose.svg"></button>
@@ -870,14 +875,14 @@ margin-bottom:25px;">
       <div id="mars-phase-info" style="text-align: right;" class="planet-info"></div>
     </div>
 
-    <div id="earth-cycle" style="display:none;margin-bottom:60px">
+    <!-- <div id="earth-cycle" style="display:none;margin-bottom:60px">
       <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
       <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
         Orbit: 1 year<br>
         Max Dist.: 1 AU<br>
         Min Dist.: 1 AU<br>
         </div>
-    </div>
+    </div> -->
       
     <div id="venus-cycle" style="margin-bottom:55px;">
       <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>

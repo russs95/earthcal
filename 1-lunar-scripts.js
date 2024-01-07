@@ -130,37 +130,38 @@ function getLunarMonthNumber() {
   // This function displays the moon phase details in a div element.
 */
 
-function displayMoonPhaseInDiv(date) {
-  // Set the latitude and longitude to use for the moon phase calculations
-  const lat = -8.506853;
-  const lon = 115.262477;
+// function displayMoonPhaseInDiv(date) {
+//   alert('moon-check');
 
-  // Calculate the moon illumination details and get the phase, emoji, and phase index
-  const moonIllumination = SunCalc.getMoonIllumination(date);
-  const phase = moonIllumination.phase;
-  const moonPhaseEmoji = getMoonPhaseEmoji(phase);
-  const phaseIndex = getPhaseIndex(phase);
+//   // Set the latitude and longitude to use for the moon phase calculations
+//   const lat = -8.506853;
+//   const lon = 115.262477;
+//   // Calculate the moon illumination details and get the phase, emoji, and phase index
+//   const moonIllumination = SunCalc.getMoonIllumination(date);
+//   const phase = moonIllumination.phase;
+//   const moonPhaseEmoji = getMoonPhaseEmoji(phase);
+//   const phaseIndex = getPhaseIndex(phase);
 
-  // Calculate the moon position and get the distance, angle, illuminated fraction, and phase name
-  const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
-  const moonDistance = moonPosition.distance.toFixed(2);
-  const moonAngle = (moonPosition.parallacticAngle * (180 / Math.PI)).toFixed(2);
-  const illuminatedFraction = moonIllumination.fraction.toFixed(2);
-  const moonPhaseName = getMoonPhaseName(phase);
-  //const islamicMonth = getIslamicMonth(date);
-  //const islamicMonthName = getIslamicMonthName(islamicMonth);
-  const maxMoonDist = 406700; // km
-  const minMoonDist = 363300; // km
-  const per_MoonDist = ((moonDistance - minMoonDist) / (maxMoonDist - minMoonDist)) * 100;
-  // Update the moon phase div with the calculated details
-  const moonPhaseDiv = document.getElementById('moon-phase');
-  const moonPhaseInfoDiv = document.getElementById('moon-info');
+//   // Calculate the moon position and get the distance, angle, illuminated fraction, and phase name
+//   const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
+//   const moonDistance = moonPosition.distance.toFixed(2);
+//   const moonAngle = (moonPosition.parallacticAngle * (180 / Math.PI)).toFixed(2);
+//   const illuminatedFraction = moonIllumination.fraction.toFixed(2);
+//   const moonPhaseName = getMoonPhaseName(phase);
+//   //const islamicMonth = getIslamicMonth(date);
+//   //const islamicMonthName = getIslamicMonthName(islamicMonth);
+//   const maxMoonDist = 406700; // km
+//   const minMoonDist = 363300; // km
+//   const per_MoonDist = ((moonDistance - minMoonDist) / (maxMoonDist - minMoonDist)) * 100;
+//   // Update the moon phase div with the calculated details
+//   const moonPhaseDiv = document.getElementById('moon-phase');
+//   const moonPhaseInfoDiv = document.getElementById('moon-info');
 
-  moonPhaseDiv.innerHTML = `${moonPhaseEmoji}`;
-  moonPhaseInfoDiv.innerHTML = `${moonPhaseName} <br>Illuminated Fraction: ${illuminatedFraction} <br>Angle: ${moonAngle}°<br>Distance: ${moonDistance} km<br>Percent of Max Distance: ${per_MoonDist.toFixed(0)} %`;
+//   moonPhaseDiv.innerHTML = `${moonPhaseEmoji}`;
+//   moonPhaseInfoDiv.innerHTML = `${moonPhaseName} <br>Illuminated Fraction: ${illuminatedFraction} <br>Angle: ${moonAngle}°<br>Distance: ${moonDistance} km<br>Percent of Max Distance: ${per_MoonDist.toFixed(0)} %`;
 
-  adjustMoonSize(per_MoonDist)
-}
+//   adjustMoonSize(per_MoonDist)
+// }
 
 
 
