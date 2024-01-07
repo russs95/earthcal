@@ -4,6 +4,7 @@
 
 
 function cyclesToggle() {
+  date = targetDate;
   var moonButton = document.getElementById("lunar-button");
   var planetsButton = document.getElementById("planets-button");
   var earthButton = document.getElementById("earth-button");
@@ -26,6 +27,19 @@ function cyclesToggle() {
     moonCycle.style.display = "none";
     kinButtons.style.display = "none";
     planetButtons.style.display = "flex";
+
+    UpdateVenusData(date);
+
+
+         // Modify here: Add 'active' class and change display for whale-cycle
+         var venusCycle = document.getElementById("venus-cycle");
+        //  var venusPhase = document.getElementById("venus-phase");
+     var venusButton = document.getElementById("venus-button");
+   
+    //  venusCycle.classList.add("active");
+     venusCycle.style.display = "block";
+    //  venusPhase.style.display = "block";
+     venusButton.classList.add("active");
   });
 
   earthButton.addEventListener("click", function() {
@@ -46,8 +60,9 @@ function cyclesToggle() {
   whaleCycle.style.display = "block";
   whaleInfo.style.display = "block";
   whaleButton.classList.add("active");
-  animateWhaleCycle();
-  UpdateWhaleCycle();
+  startDate = targetDate;
+  animateWhaleCycle(targetDate);
+  UpdateWhaleCycle(targetDate);
 
 });
 
@@ -79,9 +94,9 @@ function cyclesToggle() {
         iconButton.classList.remove('active');
       });
 
-      // Show the corresponding animal cycle element
-      const correspondingElement = document.getElementById(`${animal}-cycle`);
-      correspondingElement.style.display = 'block';
+      // // Show the corresponding animal cycle element
+      // const correspondingElement = document.getElementById(`${animal}-cycle`);
+      // correspondingElement.style.display = 'block';
 
       // Add active class to the clicked icon button
       button.classList.add('active');
