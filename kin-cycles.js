@@ -36,7 +36,6 @@ function cyclesToggle() {
 
     // Call animateWhaleCycle function after the CSS changes
     showKinCycles('whale-button')
-    animateWhaleCycle();
     
       // Modify here: Add 'active' class and change display for whale-cycle
       var whaleCycle = document.getElementById("whale-cycle");
@@ -47,6 +46,8 @@ function cyclesToggle() {
   whaleCycle.style.display = "block";
   whaleInfo.style.display = "block";
   whaleButton.classList.add("active");
+  animateWhaleCycle();
+  UpdateWhaleCycle();
 
 });
 

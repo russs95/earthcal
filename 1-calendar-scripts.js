@@ -411,10 +411,10 @@ setInterval(printTime, 1000);
 
       // Check if the moon-cycle div is not set to display none
       //NOTE:  this could be replaced and the prevention instead set on the displayPlanetInfoOnHover function
-  var moonCycleDiv = document.getElementById('moon-cycle');
-  if (moonCycleDiv.style.display === 'none') {
-    return; // Exit the function if moon-cycle is not displayed
-  }
+  // var moonCycleDiv = document.getElementById('moon-cycle');
+  // if (moonCycleDiv.style.display === 'none') {
+  //   return; // Exit the function if moon-cycle is not displayed
+  // }
 
     // Set the latitude and longitude to use for the moon phase calculations
     const lat = -8.506853;
