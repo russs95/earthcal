@@ -29,6 +29,9 @@ function cyclesToggle() {
     planetButtons.style.display = "flex";
 
     UpdateVenusData(date);
+    UpdateMarsData(date);
+    UpdateSaturnData(date);
+    UpdateJupiterData(date);
 
 
          // Modify here: Add 'active' class and change display for whale-cycle
@@ -94,9 +97,9 @@ function cyclesToggle() {
         iconButton.classList.remove('active');
       });
 
-      // // Show the corresponding animal cycle element
-      // const correspondingElement = document.getElementById(`${animal}-cycle`);
-      // correspondingElement.style.display = 'block';
+      // Show the corresponding animal cycle element
+      const correspondingElement = document.getElementById(`${animal}-cycle`);
+      correspondingElement.style.display = 'block';
 
       // Add active class to the clicked icon button
       button.classList.add('active');
@@ -592,56 +595,6 @@ function UpdateWhaleCycle(targetDate) {
 
 
 
-
-
-/*
-// Function to update whale cycle information
-function UpdateWhaleCycle(targetDate) {
-  // Fetch the JSON file
-  fetch('/cycles/whale-cycle.json')
-    .then(response => response.json())
-    .then(data => {
-      // Determine the numerical day number of the targetDate
-      const currentDay = getDayOfYear(targetDate);
-
- // Find the JSON object with the Max-day higher than the current day number, yet closest to it
-let nearestJson = null;
-let nearestDiff = Infinity;
-
-for (let i = 0; i < data.length; i++) {
-  const json = data[i];
-  const maxDay = parseInt(json['Max-day']);
-  
-  // Check if the Max-day is higher than the current day
-  if (maxDay >= currentDay) {
-    const diff = maxDay - currentDay;
-
-    if (diff < nearestDiff) {
-      nearestDiff = diff;
-      nearestJson = json;
-    }
-  }
-}
-
-
-      // Display the JSON information in the div with id "whale-info"
-      const whaleInfoDiv = document.getElementById('whale-info');
-      whaleInfoDiv.innerHTML = '';
-
-      const informationOrder = ['Activity', 'Region', 'Distance', 'Position'];
-
-      for (let j = 0; j < informationOrder.length; j++) {
-        const key = informationOrder[j];
-        const value = nearestJson[key];
-        whaleInfoDiv.innerHTML += `${value}<br>`;
-       // whaleInfoDiv.innerHTML += `${key}: ${value}<br>`;
-
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching whale-cycle.json:', error);
-    });
-}*/
 
 
 
