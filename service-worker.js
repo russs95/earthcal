@@ -1,7 +1,20 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('earthbook-cache').then(cache => {
+    caches.open('earthcal-cache').then(cache => {
       return cache.addAll([
+
+
+//FONTS 
+
+'/fonts/Mulish-Light.ttf',
+'/fonts/Mulish-Medium.ttf',
+'/fonts/Arvo-Regular.ttf',
+
+
+//Landing Images
+
+
+
         '/cycles/whale-cycle.json',
         '/index.html',
         '/cycles/whale-cycle.json',
