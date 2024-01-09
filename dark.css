@@ -105,32 +105,32 @@
 }
 
 
-#planets-button {
+#venus-planetsbutton {
   background: url(svgs/cycles-night.svg) no-repeat;
   background-size: contain;
 }
 
-#planets-button:hover {
+#venus-planetsbutton:hover {
     background: url(svgs/cycles-night-over.svg) no-repeat;
     background-size: contain;
 }
 
-#lunar-button {
+#moon-button {
   background: url(svgs/moon-night.svg) no-repeat;
   background-size: contain;
 }
 
-#lunar-button:hover {
+#moon-button:hover {
     background: url(svgs/moon-night-over.svg) no-repeat;
     background-size: contain;
 }
 
-#earth-button {
+#whale-earthbutton {
   background: url(svgs/earth-night.svg) no-repeat;
   background-size: contain;
 }
 
-#earth-button:hover {
+#whale-earthbutton:hover {
     background: url(svgs/earth-night-over.svg) no-repeat;
     background-size: contain;
 }

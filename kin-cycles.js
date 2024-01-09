@@ -5,9 +5,9 @@
 
 function cyclesToggle() {
   date = targetDate;
-  var moonButton = document.getElementById("lunar-button");
-  var planetsButton = document.getElementById("planets-button");
-  var earthButton = document.getElementById("earth-button");
+  var moonButton = document.getElementById("moon-button");
+  var planetsButton = document.getElementById("venus-planetsbutton");
+  var earthButton = document.getElementById("whale-earthbutton");
   var earthMap = document.getElementById("earth-map");
   var planetButtons = document.getElementById("planet-buttons");
   var kinButtons = document.getElementById("kin-buttons");
@@ -63,8 +63,8 @@ function cyclesToggle() {
   whaleCycle.style.display = "block";
   whaleInfo.style.display = "block";
   whaleButton.classList.add("active");
-  startDate = targetDate;
-  animateWhaleCycle(targetDate);
+  // startDate = targetDate;
+  // animateWhaleCycle(targetDate);
   UpdateWhaleCycle(targetDate);
 
 });
