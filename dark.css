@@ -200,3 +200,9 @@
   background: url(svgs/up-reg-arrow-dark.svg) center no-repeat;
   background-size: contain;
 }
+
+.reset-button {
+  background-color: #a3a3a378;
+  color: var(--general-background);
+}
+
