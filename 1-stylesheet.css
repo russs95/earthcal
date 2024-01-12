@@ -113,14 +113,15 @@ flex-direction: row;
       /* padding: 20px;
       margin-left:116px;
       position: absolute;*/
-      background-color: var(--general-background); 
+      background-color: #a52a2a00;
       border-radius: 0px 12px 12px 0px;
-      padding: 5px 10px;
+      padding: 5px 7px;
       border: none;
       margin-top: 0px;
       cursor: pointer;
       color: grey;
       display: none;
+      font-size: 1.2em;
 }
 
 #yesterday {
@@ -128,14 +129,16 @@ flex-direction: row;
       padding: 10px;
       /* margin-left:15px;
       position: absolute;*/
-      background-color:  var(--general-background); 
+      /* background-color:  var(--general-background);  */
+      background-color: #a52a2a00;
       border-radius: 12px 0px 0px 12px;
-      padding: 5px 10px;
+      padding: 5px 4px;
       border: none;
       margin-top: 0px;
       cursor: pointer;
       color: grey;
       display: none;
+      font-size: 1.2em;
 }
 
 @media screen and (max-width: 700px) {
@@ -732,84 +735,84 @@ svg path[id*="-12-20"]:not([id*="-marker"]) {
 svg path[id*="-1-20"][id*="-day-marker"] {
   fill: #7939d9ff;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0; 
 }
 
 /* February */
 svg path[id*="-2-20"][id*="-day-marker"] {
   fill: #ff00d9;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* March */
 svg path[id*="-3-20"][id*="-day-marker"] {
   fill: #d40000ff;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* April */
 svg path[id*="-4-20"][id*="-day-marker"] {
   fill: #ff6403;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* May */
 svg path[id*="-5-20"][id*="-day-marker"] {
   fill: rgb(255, 128, 1);
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* June */
 svg path[id*="-6-20"][id*="-day-marker"] {
   fill: rgb(255, 209, 25);
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* July */
 svg path[id*="-7-20"][id*="-day-marker"] {
   fill: rgb(251, 251, 0);
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* August */
 svg path[id*="-8-20"][id*="-day-marker"] {
   fill: #c9fa08;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* September */
 svg path[id*="-9-20"][id*="-day-marker"] {
   fill: #00e513ff;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* October */
 svg path[id*="-10-20"][id*="-day-marker"] {
   fill: rgb(0, 230, 169);
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* November */
 svg path[id*="-11-20"][id*="-day-marker"] {
   fill: #0cabf5;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 /* December */
 svg path[id*="-12-20"][id*="-day-marker"] {
   fill: #3d3de9;
   cursor: pointer;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 
@@ -1683,6 +1686,7 @@ margin: auto;
     opacity: 1;
     border-bottom: 2px solid;
     padding-bottom: 4px;
+    filter:saturate(4)
   }
 
   .totems-icon:hover {
@@ -1858,6 +1862,37 @@ background-color: var(--button-2-1);
 
 
 /* CURRENT DATE DATA BOX */
+
+
+@media screen and (min-width: 700px) {
+
+.yesterday-tomorrow-arrows {
+  position: absolute;
+  top:36px;
+  left:207px;
+  width:50px;
+  display:flex;
+  flex-flow:row;
+  margin:-5px 0px 5px 5px;
+}
+
+}
+
+@media screen and (max-width: 699px) {
+
+  .yesterday-tomorrow-arrows {
+    position: absolute;
+    top:46px;
+    left:140px;
+    width:60px;
+    display:flex;
+    flex-flow:row;
+    margin:-5px 0px 5px 5px;
+  }
+  
+  }
+
+
 
 #current-datecycle-info2 .date-info {
   margin-top:20px;

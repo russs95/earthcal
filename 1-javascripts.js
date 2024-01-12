@@ -325,8 +325,8 @@ function getTheDayOfYear(targetDate) {
       
         startDate = targetDate;
         document.getElementById("reset").style.display = "block";
-        document.getElementById("tomorrow").style.display = "none";
-        document.getElementById("yesterday").style.display = "none";
+        // document.getElementById("tomorrow").style.display = "none";
+        // document.getElementById("yesterday").style.display = "none";
         document.getElementById("current-time").style.display = "none";
       
        
@@ -390,23 +390,27 @@ function getTheDayOfYear(targetDate) {
 
 function set2Tomorrow() {
   // This function sets the target date to tomorrow and then refreshes the calendar
-  targetDate = new Date();
+  // targetDate = new Date();
   targetDate.setDate(targetDate.getDate() + 1); // Sets the target date to tomorrow
   calendarRefresh(); // Call the calendarRefresh function
   document.getElementById("reset").style.display = "block";
-  document.getElementById("tomorrow").style.display = "none";
-  document.getElementById("yesterday").style.display = "none";
+  // document.getElementById("tomorrow").style.display = "none";
+  // document.getElementById("yesterday").style.display = "none";
+  document.getElementById("current-time").style.display = "none";
+
   
 }
 
 function set2Yesterday() {
   // This function sets the target date to yesterday and then refreshes the calendar
-  targetDate = new Date();
+  // targetDate = new Date();
   targetDate.setDate(targetDate.getDate() - 1); // Sets the target date to yesterday
   calendarRefresh(); // Call the calendarRefresh function
   document.getElementById("reset").style.display = "block";
-  document.getElementById("tomorrow").style.display = "none";
-  document.getElementById("yesterday").style.display = "none";
+  // document.getElementById("tomorrow").style.display = "none";
+  // document.getElementById("yesterday").style.display = "none";
+  document.getElementById("current-time").style.display = "none";
+
 
 
 

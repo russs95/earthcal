@@ -45,7 +45,7 @@ function updateTargetDay() {
         if (path.id.includes(`-day`)) {
           if (path.id.includes(`-marker`)) {
             // Reset -marker paths to their original state
-            path.style.fillOpacity = 0.1;
+            path.style.fillOpacity = 0;
           } else {
             path.style.fillOpacity = '0.3';
           }

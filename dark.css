@@ -125,6 +125,11 @@
     background-size: contain;
 }
 
+#moon-button:active {
+  background: url(svgs/moon-night-over.svg) no-repeat;
+  background-size: contain;
+}
+
 #whale-earthbutton {
   background: url(svgs/earth-night.svg) no-repeat;
   background-size: contain;
@@ -202,7 +207,7 @@
 }
 
 .reset-button {
-  background-color: #a3a3a378;
+  background-color: #b5c2d378;
   color: var(--general-background);
 }
 

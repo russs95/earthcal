@@ -597,7 +597,6 @@ function UpdateWhaleCycle(targetDate) {
 
 
 
-
 function animateWhaleCycle() {
   let whaleMarkerElement = document.getElementById("whale-marker");
   let whalePathElement = document.getElementById("whale-year-cycle");
@@ -605,9 +604,26 @@ function animateWhaleCycle() {
   let startOffpoint = startDate - yearStart;
   let daysToTargetDate = targetDate - startDate;
   let totalDays = startOffpoint + daysToTargetDate;
+  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
 
   let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
   let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
+  // Determine the duration based on daysToTargetDate
+  let duration;
+  if (RealdaysToTargetDate < 30) {
+    duration = 1;
+  } else if (RealdaysToTargetDate < 60) {
+    duration = 2;
+  } else if (RealdaysToTargetDate < 120) {
+    duration = 3;
+  } else if (RealdaysToTargetDate < 180) {
+    duration = 4;
+  // ... Add more conditions as needed
+  } else if (RealdaysToTargetDate <= 366) {
+    duration = 5; // Example: set a default for the max range
+  } else {
+    duration = 6; // Default duration if daysToTargetDate is out of expected range
+  }
 
   gsap.to(whaleMarkerElement, {
     motionPath: {
@@ -618,10 +634,11 @@ function animateWhaleCycle() {
       alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the whale-marker
       autoRotate: true, // Enable auto-rotation along the path
     },
-    duration: 2, // Adjust the duration as needed
+    duration: duration, // Use the calculated duration
     ease: "linear",
   });
 }
+
 
 
 
