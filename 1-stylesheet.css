@@ -507,6 +507,10 @@ color: var(--subdued-text);
   font-size: 22px !important;
 }
 
+legend {
+  margin: 0px auto 10px auto;
+}
+
 
 /*-----------------------------------------
 
