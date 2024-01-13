@@ -103,6 +103,11 @@
     background-size: contain;
 }
 
+#venus-planetsbutton.active {
+  background: url(svgs/cycles-day-over.svg) no-repeat;
+    background-size: contain;
+}
+
 #moon-button {
   background: url(svgs/moon-day.svg) no-repeat;
   background-size: contain;
@@ -113,6 +118,11 @@
     background-size: contain;
 }
 
+#moon-button.active {
+  background: url(svgs/moon-day-over.svg) no-repeat;
+  background-size: contain;
+}
+
 #whale-earthbutton {
   background: url(svgs/earth-day.svg) no-repeat;
   background-size: contain;
@@ -121,6 +131,11 @@
 #whale-earthbutton:hover {
     background: url(svgs/earth-day-over.svg) no-repeat;
     background-size: contain;
+}
+
+#whale-earthbutton.active {
+  background: url(svgs/earth-day-over.svg) no-repeat;
+  background-size: contain;
 }
 
 .top-menu-button {
@@ -184,13 +199,3 @@
   color: var(--general-background);
 }
 
-#totems-icon:active {
-  
-}
-
-.totems-icon.active {
-  opacity: 1;
-  border-bottom: 2px solid;
-  padding-bottom: 4px;
-  filter:brightness(0);
-}

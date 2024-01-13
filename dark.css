@@ -115,6 +115,11 @@
     background-size: contain;
 }
 
+#venus-planetsbutton.active {
+  background: url(svgs/cycles-night-over.svg) no-repeat;
+  background-size: contain;
+}
+
 #moon-button {
   background: url(svgs/moon-night.svg) no-repeat;
   background-size: contain;
@@ -125,7 +130,7 @@
     background-size: contain;
 }
 
-#moon-button:active {
+#moon-button.active {
   background: url(svgs/moon-night-over.svg) no-repeat;
   background-size: contain;
 }
@@ -140,12 +145,17 @@
     background-size: contain;
 }
 
-.totems-icon.active {
+#whale-earthbutton.active {
+  background: url(svgs/earth-night-over.svg) no-repeat;
+  background-size: contain;
+}
+
+/* .totems-icon.active {
   opacity: 1;
   border-bottom: 2px solid;
   padding-bottom: 4px;
-  filter:saturate(4) !important;
-}
+  /* filter:saturate(4) !important; */
+ */
 
 
 
