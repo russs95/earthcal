@@ -140,6 +140,19 @@
     background-size: contain;
 }
 
+#whale-earthbutton:active {
+  filter:saturate(4);
+}
+
+#moon-earthbutton:active {
+  filter:saturate(4);
+}
+
+#venus-earthbutton:active {
+  filter:saturate(4);
+}
+
+
 
 .main-menu-button {
     background: url(svgs/login-icon-night.svg?v=3) no-repeat;
