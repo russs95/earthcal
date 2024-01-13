@@ -321,12 +321,8 @@ function getTheDayOfYear(targetDate) {
 
         calendarRefresh()
 
-
-      
         startDate = targetDate;
         document.getElementById("reset").style.display = "block";
-        // document.getElementById("tomorrow").style.display = "none";
-        // document.getElementById("yesterday").style.display = "none";
         document.getElementById("current-time").style.display = "none";
       
        
@@ -339,7 +335,15 @@ function getTheDayOfYear(targetDate) {
   
  
   function calendarRefresh() {
-    // This function will execute a series of animations and updates for the calendar
+    // Phase 1: instant animations
+    updateTargetMonth();
+    displayDayInfo(targetDate);
+    getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
+    setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+    resetPaths();
+    updateTargetDay();
+  // Phase 2: animations after 0.1sec
+
     mercury.animate();
     venus.animate();
     earth.animate();
@@ -348,21 +352,22 @@ function getTheDayOfYear(targetDate) {
     saturn.animate();
     uranus.animate();
     neptune.animate();
-    // updateTargetWeekColor();
+
+    animateWhaleCycle();
+    UpdateWhaleCycle(targetDate);
+
+
+
+    // Phase 3: Actions after 1 sec
+
+    setTimeout(function() {
+
+    highlightDateCycles();
+    displayMatchingDateCycle();
     getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     setLunarMonthForTarget(targetDate);
     
-    updateTargetMonth();
-    displayDayInfo(targetDate);
-    highlightDateCycles();
-    displayMatchingDateCycle();
-    // if (!('ontouchstart' in window)) {
-    //     // setTimeout(updateTargetDay, 900); //Adds color to the target Day (current day on load)
-    //     // If it's not a touch device, call the function
-    //     updateTargetDay();
-    // }
-    resetPaths();
-    updateTargetDay();
+  
 
     dayOfYear = getDayOfYear(targetDate);
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
@@ -378,13 +383,9 @@ function getTheDayOfYear(targetDate) {
     UpdateJupiterData(targetDate);
     UpdateSaturnData(targetDate);
 
-    animateWhaleCycle();
-    UpdateWhaleCycle(targetDate);
-
-    getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-    setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
     // redisplayTargetData();
     startDate = targetDate;
+  }, 1000);
 
 }
 

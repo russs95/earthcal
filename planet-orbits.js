@@ -109,7 +109,7 @@ finalCoordsX2 = finalCoordsX2.toFixed(2) + "px";
   }
 }
 
-// Create a new instance of the Planet class for Mercury
+// Create a new instance of the Planet classes
 const mercury = new Planet(element_id = "mercury", orbit_id = "mercury-orbit", orbit_days = 88)
 
 const venus = new Planet(element_id = "venus", orbit_id = "venus-orbit", orbit_days = 224.7)
@@ -126,10 +126,6 @@ const uranus = new Planet(element_id = "uranus", orbit_id = "uranus-orbit", orbi
 
 const neptune = new Planet(element_id = "neptune", orbit_id = "neptune-orbit", orbit_days = 60190)
 
-564-
-129
-
-435
 
 /*----------------------------------
 
