@@ -140,17 +140,10 @@
     background-size: contain;
 }
 
-#whale-earthbutton:active {
+#totems-icon:active {
   filter:saturate(4);
 }
 
-#moon-earthbutton:active {
-  filter:saturate(4);
-}
-
-#venus-earthbutton:active {
-  filter:saturate(4);
-}
 
 
 

@@ -184,14 +184,6 @@
   color: var(--general-background);
 }
 
-#whale-earthbutton:active {
-  filter:brightness(1);
-}
-
-#moon-earthbutton:active {
-  filter:brightness(1);
-}
-
-#venus-earthbutton:active {
+#totems-icon:active {
   filter:brightness(1);
 }
