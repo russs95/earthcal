@@ -192,5 +192,5 @@
   opacity: 1;
   border-bottom: 2px solid;
   padding-bottom: 4px;
-  filter:brightness(1);
+  filter:brightness(0);
 }
