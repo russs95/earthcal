@@ -140,8 +140,11 @@
     background-size: contain;
 }
 
-#totems-icon:active {
-  filter:saturate(4);
+.totems-icon.active {
+  opacity: 1;
+  border-bottom: 2px solid;
+  padding-bottom: 4px;
+  filter:saturate(4) !important;
 }
 
 
