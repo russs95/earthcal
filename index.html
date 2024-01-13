@@ -417,8 +417,7 @@ window.onload = function() {
       
       <div><button type="button" class="top-add-button" onclick="openAddCycle(),populateDropdown()" aria-label="Add a Cycle"></button></div>
       
-      <!-- <div><button type="button" class="top-help-button" onclick="guidedTour()" aria-label="Open tour"></button></div>
-       -->
+    
       
     </div>
   </div> 
@@ -512,7 +511,8 @@ window.onload = function() {
       <div class="earthcycles-logo"></div>
 
 
-      <div class="menu-page-item" onclick="closeSettings(),guidedTour()">Feature Tour</a></div>
+      <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 1000);">Feature Tour</div>
+
 
       <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
       
@@ -725,7 +725,7 @@ margin-bottom:25px;">
           <textarea id="add-date-note" placeholder="Add a note to this event..."></textarea>
         </div>
             
-        <button type="button" id="confirm-dateCycle" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();">➕ Add Date</button>
+        <button type="button" id="confirm-dateCycle" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();">➕ Add</button>
 <!--checkAndDisplayMatchingDateCycles()-->
 
       </div>
@@ -1062,7 +1062,7 @@ function onTouch(event) {
 
   if (!tourToken) {
     // Token doesn't exist, trigger the guided tour
-    guidedTour();
+    guidedTour(); sendDownRegistration();
   }
 }
 
