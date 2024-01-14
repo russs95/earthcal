@@ -337,7 +337,7 @@ function invite2Register() {
         var downArrow = document.getElementById("reg-down-button");
   
         // Adjust the height of the registration footer
-        footer.style.height = "55vh";
+        footer.style.height = "70vh";
   
         // Make the email registration section visible
         emailRegistration.style.display = "block";

@@ -4,7 +4,18 @@
 
   @media screen and (max-width: 700px) {
   .date-info h2 {
-    font-size: 1.3em;
+    font-size: 1.2em;
+  
+  }
+
+  .date-info p {
+    font-size: 0.85em;
+  
+  }
+
+  #current-time  {
+    font-size: 0.85em;
+    display: none;
   
   }
   .earth-icon {
@@ -101,7 +112,7 @@ flex-direction: row;
   border-radius: 10px;
   padding: 5px 10px;
   border: none;
-  margin-top: 12px;
+  margin-top: -10px;
   cursor: pointer;
   display: none;  
 }
