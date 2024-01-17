@@ -112,7 +112,7 @@ flex-direction: row;
   border-radius: 10px;
   padding: 5px 10px;
   border: none;
-  margin-top: -10px;
+  margin-top: 2px;
   cursor: pointer;
   display: none;  
 }
@@ -1303,7 +1303,7 @@ TOOLTIPS AND MODALS
 /* Close button */
 .close {
   display: inline-block;
-  float: right;
+  /* float: right; */
   font-size: 24px;
   font-weight: bold;
   color: #aaa;
@@ -1312,22 +1312,6 @@ TOOLTIPS AND MODALS
 
 .close:hover,
 .close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.close-tour {
-  display: inline-block;
-  float: right;
-  font-size: 32px;
-  font-weight: bold;
-  color: #aaa;
-  transition: color 0.3s ease;
-}
-
-.close-tour:hover,
-.close-tour:focus {
   color: #000;
   text-decoration: none;
   cursor: pointer;
@@ -1490,6 +1474,27 @@ GUIDED TOUR---*
     }
 
   }
+
+
+
+  .close-tour {
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    color: #aaa;
+    transition: color 0.3s ease;
+    position: fixed;
+    top: 20px;
+    right: 10%;
+  }
+  
+  .close-tour:hover,
+  .close-tour:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
 
 .close {
   color: var(--subdued-text);
@@ -2145,14 +2150,15 @@ border-top: 1px grey solid;
 }
 
 
-
+/* 
 #email-registration {
 margin-top: -20px;
-}
+} */
 
 .registration-box {
 padding: 12px;
 margin:auto;
+margin-bottom: 100px;
 
 color: var(--text-color);
 display:flex;
@@ -2164,7 +2170,7 @@ flex-flow:row;
 
   .registration-box {
     width:82%;
-    margin-top: 30px;
+    /* margin-top: 30px; */
   }
   .reg-img {
     display: none;
@@ -2176,7 +2182,7 @@ flex-flow:row;
 @media screen and (min-width: 700px) {
 
 .registration-box {
-  width:75%;
+  width:77%;
 }
 
 .reg-img {

@@ -492,71 +492,52 @@ window.onload = function() {
 
 
     
- 
+ <!-- RIGHT PAGE MENU -->
 
   <div id="right-settings-overlay" class="overlay-settings">
     <div id="right-close-button">
-              <button type="button" style="cursor:pointer" onclick="closeSettings(), updateBackgroundColor(),
-              updateHighlightColor()" aria-label="Click to close settings page" class="x-button"></button>
+      <button type="button" style="cursor:pointer" onclick="closeSettings(), updateBackgroundColor(),
+      updateHighlightColor()" aria-label="Click to close settings page" class="x-button">
+      </button>
     </div>
 
-    <div class="overlay-content-settings">
-
-
-    <div style="margin-bottom: 20px;">
-                
-                
-    <!--  <div class="menu-page-item"><a href="index.php"  aria-label="Return Home">Home</a></div>
-
-      <div class="menu-page-item"><a href="sign-up" aria-label="Register">Sign up</a><span style="height: 10px; margin-right:10px;margin-left:10px;width:1px; border-right:solid 1px var(--header-accent);"></span><a href="login.php" aria-label="Login">Login</a></div>-->
-
-      <div class="earthcycles-logo"></div>
-
-
-      <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 500);">Feature Tour</div>
-
-
-      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
+    <div class="overlay-content-settings" style="margin-bottom: 20px;">
       
-      <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
+        <div class="earthcycles-logo"></div>
 
-      <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
+        <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 500);">Feature Tour</div>
 
-      <!-- <div class="menu-page-item"><a href="https://snapcraft.io/earthcal" target="_blank">EarthCal for Ubuntu ↗</a>
-      </div> -->
+        <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
+        
+        <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
 
-   
+        <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
 
-      <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project ↗</a>
+        <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project ↗</a>
         </div>
-      
-        <br>
-        <!-- <p style="font-size:small;">Switch Dark/Day themes</p> -->
-      
-       
-  
-  <div class="compro-toggle" style="margin: 10px auto 10px auto;width: fit-content;">
-  
-    <div style="font-size:1.25em">
-      <dark-mode-toggle
-      id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
-      class="slider"
-      legend="Switch Dark/Day themes"
-      remember="Remember for all pages"
-      appearance="toggle">
-      </dark-mode-toggle>
-    </div>
-  </div>
-  
-  <a href="https://snapcraft.io/earthcal">
-    <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
-  </a>
+          
+        <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
+        
+          <div style="font-size:1.25em">
+            <dark-mode-toggle
+            id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
+            class="slider"
+            legend="Switch Dark/Day themes"
+            remember="Remember for all pages"
+            appearance="toggle">
+            </dark-mode-toggle>
+          </div>
+        </div>
+    
+        <a href="https://snapcraft.io/earthcal">
+          <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+        </a>
+
         <p style="font-size:small;">EarthCal is developed by <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
         
-    </div>
-  
-    </div>                                                              
-  </div>
+      </div>
+                                                                
+</div>
 
 
 
