@@ -741,3 +741,31 @@ function closeDatecycleInfo(element) {
     dateInfoDiv.style.display = 'none';
   }
 }
+
+// // Wait for the DOM to be fully loaded
+// document.addEventListener('DOMContentLoaded', function() {
+//   // Attach an event listener to the form
+//   document.getElementById('calendar-adding-form').addEventListener('keypress', function(event) {
+//     // Check if the Enter key was pressed
+//     if (event.key === 'Enter') {
+//       // Prevent the default form submission behavior
+//       event.preventDefault();
+//       // Call the addNewCalendar function
+//       addNewCalendar();
+//     }
+//   });
+// });
+
+// // Your addNewCalendar function goes here
+// function addNewCalendar() {
+//   // Function logic
+// }
+
+
+
+function handleKeyPress(event) {
+  if (event.keyCode === 13) { // 13 is the key code for the enter key
+     event.preventDefault(); // Prevent the default action to stop form submission
+     addNewCalendar(); // Call your search function without arguments
+  }
+}

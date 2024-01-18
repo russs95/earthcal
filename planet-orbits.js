@@ -11,7 +11,7 @@ class Planet {
     this.orbit_days = orbit_days;  // Number of days the planet takes to orbit
     //this.planetAnimation2;
     // Log to the console that the instance has been created
-    console.log("Initiating");
+    // console.log("Initiating");
   }
 
   // Define the animate method to move the planet along its orbit
@@ -21,7 +21,7 @@ class Planet {
     let planetOrbitElement = document.getElementById(this.orbit_id);
     // Set a reference date of January 1, 2023
     let yearStart = new Date(2023, 0, 1);
-    console.log("Initiating" + startDate);
+    // console.log("Initiating" + startDate);
 
     let planetAnimation2;
     
@@ -31,6 +31,7 @@ class Planet {
     let daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
     // Sum the two durations to get the total days
     let totalDays = daysSinceYearStart + daysSinceTargetDate;
+
 
 
     // Calculate the ratio of days passed to the total orbit days for the start and target dates
@@ -94,12 +95,32 @@ finalCoordsX2 = finalCoordsX2.toFixed(2) + "px";
     // Once the first animation completes, start the second animation from 'startDate' to 'targetDate'
     
     planetAnimation1.onfinish = function () {
+
+
+    let animationDuration;
+    if (daysSinceTargetDate < 30) {
+      animationDuration = 1000;
+    } else if (daysSinceTargetDate < 60) {
+      animationDuration = 2000;
+    } else if (daysSinceTargetDate < 120) {
+      animationDuration = 3000;
+    } else if (daysSinceTargetDate < 180) {
+      animationDuration = 4000;
+    // ... Add more conditions as needed
+    } else if (daysSinceTargetDate <= 366) {
+      animationDuration = 5000; // Example: set a default for the max range
+    } else {
+      animationDuration = 6000; // Default duration if daysToTargetDate is out of expected range
+    }
+
+
+    
       
       planetAnimation2 = planetElement.animate([
         { cx: finalCoordsX1, cy: finalCoordsY1, transform: `rotate(${orbitRatio1 * 360}deg)` },
         { cx: finalCoordsX2, cy: finalCoordsY2, transform: `rotate(${orbitRatio2 * 360}deg)` }
       ], {
-        duration: 1000,     // The animation lasts 1 second
+        duration: animationDuration,     // The animation lasts 1 second
         easing: "linear",
         fill: "forwards"
       });

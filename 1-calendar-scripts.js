@@ -320,8 +320,8 @@ function displayMoonPhaseOnTouch(pathID) {
 function redisplayTargetData() {
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   displayMoonPhaseInDiv(targetDate);
-  // displayDayInfo(targetDate);
-  // UpdateVenusData(targetDate);
+  displayDayInfo(targetDate);
+  UpdateVenusData(targetDate);
 
 }
 
