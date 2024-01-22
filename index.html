@@ -395,7 +395,7 @@ window.onload = function() {
           
           
 
-          <div id="current-datecycle-info2" class="date-info" style="overflow-y: scroll;">
+          <div id="current-datecycle-info2" class="date-info" style="overflow-y: auto;height:80vh;overflow-x: hidden;width:fit-content">
           
         </div>
         
@@ -608,7 +608,7 @@ margin-bottom:25px;">
   
 
   <div id="dateCycle-year-option"  >  <!-- style="display:none;" -->
-    <select name="year" id="year-field2" style="width:130px;margin-right:10px;font-size: 1em;text-align:center;height:35px;margin-top:10px">
+    <select name="year" id="year-field2" style="width:65%;font-size: 1em;text-align:center;height:35px;margin-top:10px">
       <option value="" disabled >Select year...</option>
       <option>2023</option>
       <option>2024</option>
@@ -619,7 +619,7 @@ margin-bottom:25px;">
         
   <div id="set-date" > <!-- style="display:none;" -->
     <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;">
-      <select name="day" id="day-field2" style="width: 130px; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
+      <select name="day" id="day-field2" style="width: 20%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
         <option value="" disabled selected>Select day...</option>
         <option value="1">1</option>
         <option value="2">2</option>
@@ -655,7 +655,7 @@ margin-bottom:25px;">
     </select>
           
 
-    <select name="month" id="month-field2" style="width: 130px; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
+    <select name="month" id="month-field2" style="width: 45%; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
       <option value="" disabled selected>Select month...</option>
       <option value="1">January</option>
       <option value="2">February</option>
@@ -677,6 +677,8 @@ margin-bottom:25px;">
     <div style="display: flex;
     justify-content: center;">
       <textarea id="add-date-title" placeholder="Event name..."></textarea>  
+      <!-- <input type="text" id="add-date-title" placeholder="Event name...">  -->
+
       <select id="DateColorPicker" name="color" style="padding: 10px;
     resize: none;
     border: 1px solid var(--thin-border-color);

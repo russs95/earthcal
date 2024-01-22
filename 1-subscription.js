@@ -330,26 +330,33 @@ function invite2Register() {
   
   
   function sendUpRegistration() {
-   
-        var footer = document.getElementById("registration-footer");
-        var emailRegistration = document.getElementById("email-registration");
-        var upArrow = document.getElementById("reg-up-button");
-        var downArrow = document.getElementById("reg-down-button");
-  
-        // Adjust the height of the registration footer
-        footer.style.height = "70vh";
-  
-        // Make the email registration section visible
-        emailRegistration.style.display = "block";
-        upArrow.style.display = "none";
-        downArrow.style.display = "block";
-  
-  }
+    var guidedTour = document.getElementById("guided-tour");
+
+    // Check if the guided-tour div is visible
+    if (guidedTour && guidedTour.style.display !== "none") {
+        // If it's visible, show an alert and exit the function
+        alert("subscribe box denied");
+        return;
+    }
+
+    var footer = document.getElementById("registration-footer");
+    var emailRegistration = document.getElementById("email-registration");
+    var upArrow = document.getElementById("reg-up-button");
+    var downArrow = document.getElementById("reg-down-button");
+
+    // Adjust the height of the registration footer
+    footer.style.height = "70vh";
+
+    // Make the email registration section visible
+    emailRegistration.style.display = "block";
+    upArrow.style.display = "none";
+    downArrow.style.display = "block";
+}
+
   
 
   
   function sendDownRegistration() {
-   
     var footer = document.getElementById("registration-footer");
     var emailRegistration = document.getElementById("email-registration");
     var upArrow = document.getElementById("reg-up-button");
