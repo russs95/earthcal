@@ -335,7 +335,6 @@ function invite2Register() {
     // Check if the guided-tour div is visible
     if (guidedTour && guidedTour.style.display !== "none") {
         // If it's visible, show an alert and exit the function
-        alert("subscribe box denied");
         return;
     }
 
