@@ -372,3 +372,33 @@ function invite2Register() {
   
   }
   
+
+  function checkBoxActivated() {
+    if (document.getElementById('reg-sub-checkbox').checked) {
+      // Change the text of the checkbox div
+      document.getElementById('reg-sub-checker').innerText = "Ok! You won't see this again. But if you wish to, look for Subscribe to Earthen.io in the main menu";
+  
+      // Show this text for 2 seconds, then call sendDownRegistration
+      setTimeout(function() {
+        sendDownRegistration();
+      }, 2000);
+  
+      // Check for earthenRegistration in browser cache
+      if (localStorage.getItem('earthenRegistration')) {
+        alert('Error 452');
+      } else {
+        // Store new JSON in browser cache
+        const earthenRegistration = {
+          email: 'none',
+          name: 'none',
+          dateTimeSubmitted: new Date().toISOString(),
+          notes: 'requested no signup box'
+        };
+        localStorage.setItem('earthenRegistration', JSON.stringify(earthenRegistration));
+  
+        // Log the JSON to the console
+        console.log(earthenRegistration);
+      }
+    }
+  }
+  
