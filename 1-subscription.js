@@ -377,11 +377,17 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   
   }
   
-
   function checkBoxActivated() {
     if (document.getElementById('reg-sub-checkbox').checked) {
+      var checkerDiv = document.getElementById('reg-sub-checker');
+  
       // Change the text of the checkbox div
-      document.getElementById('reg-sub-checker').innerText = "Ok! You won't see this again. But if you wish to, look for Subscribe to Earthen.io in the main menu";
+      checkerDiv.innerText = "Ok! You won't see this again. But if you wish to, look for Subscribe to Earthen.io in the main menu";
+  
+      // Update styles
+      checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
+      checkerDiv.style.color = 'var(--main-background)';
+      checkerDiv.style.fontSize = '1.5em';
   
       // Show this text for 2 seconds, then call sendDownRegistration
       setTimeout(function() {
@@ -406,4 +412,5 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
       }
     }
   }
+  
   
