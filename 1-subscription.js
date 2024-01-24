@@ -387,12 +387,12 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
       // Update styles
       checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
       checkerDiv.style.color = 'var(--main-background)';
-      checkerDiv.style.fontSize = '1.5em';
+      checkerDiv.style.fontSize = 'normal';
   
       // Show this text for 2 seconds, then call sendDownRegistration
       setTimeout(function() {
         sendDownRegistration();
-      }, 2000);
+      }, 8000);
   
       // Check for earthenRegistration in browser cache
       if (localStorage.getItem('earthenRegistration')) {
