@@ -380,23 +380,30 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   function checkBoxActivated() {
     if (document.getElementById('reg-sub-checkbox').checked) {
       var checkerDiv = document.getElementById('reg-sub-checker');
+      var explaDiv = document.getElementById('reg-explanation');
+
   
       // Change the text of the checkbox div
-      checkerDiv.innerText = "Ok! You won't see this again. But if you wish to, look for Subscribe to Earthen.io in the main menu";
+      checkerDiv.innerText = "Ok! You won't see the subscribe option again-- but you can always find it again in the main menu.";
   
       // Update styles
       checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
       checkerDiv.style.color = 'var(--main-background)';
       checkerDiv.style.fontSize = 'normal';
+      checkerDiv.style.display = 'none';
   
       // Show this text for 2 seconds, then call sendDownRegistration
       setTimeout(function() {
         sendDownRegistration();
+        checkerDiv.style.backgroundColor = '';
+        checkerDiv.style.color = 'var(--text-color)';
+        checkerDiv.style.fontSize = 'small';
+        checkerDiv.style.display = 'block';
       }, 8000);
   
       // Check for earthenRegistration in browser cache
       if (localStorage.getItem('earthenRegistration')) {
-        alert('Error 452');
+        alert('Error 453');
       } else {
         // Store new JSON in browser cache
         const earthenRegistration = {
