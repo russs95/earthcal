@@ -332,11 +332,16 @@ function invite2Register() {
   function sendUpRegistration() {
     var guidedTour = document.getElementById("guided-tour");
 
-    // Check if the guided-tour div is visible
-    if (guidedTour && guidedTour.style.display !== "none") {
-        // If it's visible, show an alert and exit the function
-        return;
-    }
+    // Select the .modal element within the #guided-tour element
+var guidedTourModal = document.querySelector('#guided-tour .modal');
+
+// Check if the guidedTourModal is defined and visible
+if (guidedTourModal && guidedTourModal.style.display !== "none") {
+    // If it's visible, show an alert and exit the function
+    alert('nope');
+    return;
+}
+
 
     var footer = document.getElementById("registration-footer");
     var emailRegistration = document.getElementById("email-registration");
