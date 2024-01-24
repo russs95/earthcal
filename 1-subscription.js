@@ -390,7 +390,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
       checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
       checkerDiv.style.color = 'var(--main-background)';
       checkerDiv.style.fontSize = 'normal';
-      checkerDiv.style.display = 'none';
+      explaDiv.style.display = 'none';
   
       // Show this text for 2 seconds, then call sendDownRegistration
       setTimeout(function() {
@@ -398,7 +398,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
         checkerDiv.style.backgroundColor = '';
         checkerDiv.style.color = 'var(--text-color)';
         checkerDiv.style.fontSize = 'small';
-        checkerDiv.style.display = 'block';
+        explaDiv.style.display = 'block';
       }, 8000);
   
       // Check for earthenRegistration in browser cache
