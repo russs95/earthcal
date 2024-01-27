@@ -177,6 +177,14 @@ path[id*="week-"] {
  }
 
 
+ #reg-sub-checker {
+  font-size: small;
+  padding: 7px;
+  border-radius: 5px;
+  margin-top: 8px;
+  color: var(--text-color);
+  display: none;
+}
 
 </style>
 
@@ -303,7 +311,14 @@ window.onload = function() {
               <div class="reg-complete-text" id="reg-status"></div>
               <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleFormSubmit(event)">
             </form>
-            <div class="reg-sub">EarthCal is inspired by the theory of Earthen ethics which guides and inspires our coding, writing and innovating.</div>
+            <div class="reg-sub">
+              <div id="reg-explanation" data-lang-id="114-subscription-caption">EarthCal is inspired by the theory of Earthen ethics which guides and inspires our coding, writing and innovating.</div>
+              <div id="reg-sub-checker">
+                  <input type="checkbox" id="reg-sub-checkbox" onclick="checkBoxActivated()">
+                  <label for="reg-sub-checkbox" data-lang-id="115-subscription-do-not-show-again">I've already signed up or I am not interested - don't show again.</label>
+              </div>
+          </div>
+          
           </div>
         </div>
       </div>

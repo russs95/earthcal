@@ -130,20 +130,7 @@ function checkRegistrationStatus() {
     handleFormSubmit(new Event('submit')); // Proceed to the next phase
   }
   
-  
-  
-  // function completeSubmission() {
-  //   // Update button text
-  //   const submitButton = document.querySelector('.register-button');
-  //   submitButton.value = 'Sign up';
-  
-  //   // Update the phase
-  //   submissionPhase = 2;
-  
-  //   // Additional logic for form submission if required
-  // }
-  
-  
+
   
   
   
@@ -291,7 +278,8 @@ function invite2Register() {
                 delayDuration = 300000; // 5 minutes
                 break;
             case 3:
-                delayDuration = 360000; // 6 minutes
+                delayDuration = 500000; // 6 minutes
+                displayCheckBoxToHideSubscription();
                 break;
             case 4:
                 delayDuration = 420000; // 7 minutes
@@ -316,6 +304,13 @@ function invite2Register() {
     showCounter = showCounter ? parseInt(showCounter) + 1 : 1;
     localStorage.setItem('showCounter', showCounter);
   }
+
+  function displayCheckBoxToHideSubscription() {
+    const regSubChecker = document.getElementById('reg-sub-checker');
+    if (regSubChecker) {
+        regSubChecker.style.display = 'block';
+    }
+}
   
 
   
@@ -403,7 +398,6 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   
       // Check for earthenRegistration in browser cache
       if (localStorage.getItem('earthenRegistration')) {
-        alert('Error 453');
       } else {
         // Store new JSON in browser cache
         const earthenRegistration = {
