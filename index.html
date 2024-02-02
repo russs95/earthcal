@@ -407,6 +407,9 @@ window.onload = function() {
           <!-- </div> -->
           
           <div id="current-time" class="date-info"></div>
+
+
+          <button id="reset" class="reset-button" onclick="set2Today();" title="Reset to today">⟲ Back to Today</button>
           
           
 
@@ -417,7 +420,6 @@ window.onload = function() {
          
        
 
-          <button id="reset" class="reset-button" onclick="set2Today();" title="Reset to today">⟲ Back to Today</button>
           
         </div>
     
@@ -748,7 +750,7 @@ margin-bottom:25px;">
         <h6 style="margin: 16px auto 10px auto;">You can download or import Earthcal calenders here...</h6>
 
   
-        <button id="booknotes-download" onclick="downloadBooknotes()" aria-label="Download DateCycles">
+        <button id="datcycles-download" onclick="downloadDateCycles()" aria-label="Download Events & Cycles">
           ▼ Download
         </button>
   
@@ -776,7 +778,6 @@ margin-bottom:25px;">
 
       </div>
    <div id="export-up-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="closeDateCycleExports()"></div>
-
 
     </div>
 

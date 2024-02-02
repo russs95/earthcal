@@ -62,12 +62,12 @@ function createWindow() {
       label: 'Events',
       submenu: [
         {
-          label: 'Import Datecycles',
+          label: 'Import Events & Cycles',
           click: () => uploadDateCycles(),
         },
         {
-          label: 'Export Datecycles',
-          click: () => downloadBooknotes(),
+          label: 'Export Events & Cycles',
+          click: () => downloadDateCycles(),
         },
       ],
     },
@@ -203,10 +203,7 @@ function uploadDateCycles() {
   fetchDateCycles()
 }
 
-function downloadBooknotes() {
-  // Implement the logic for exporting Datecycles here
-  // For example, you can save data to a file or send data to a server
-}
+
 
 app.whenReady().then(createWindow);
 

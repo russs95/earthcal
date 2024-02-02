@@ -217,6 +217,36 @@ function uploadDateCycles() {
 }
 
 
+//Download Datecycles
+
+function downloadDateCycles() {
+  // Fetch dateCycles from localStorage
+  const dateCyclesString = localStorage.getItem('dateCycles');
+  
+  if (!dateCyclesString) {
+      alert('No dateCycles found in cache to download.');
+      return;
+  }
+  
+  // Convert the dateCycles string to a Blob
+  const blob = new Blob([dateCyclesString], { type: 'application/json' });
+  
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
+  
+  // Create a temporary <a> element and trigger download
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dateCycles.json'; // Filename to download
+  document.body.appendChild(a); // Append to the document
+  a.click(); // Trigger download
+  
+  // Clean up by revoking the Blob URL and removing the <a> element
+  URL.revokeObjectURL(url);
+  a.remove();
+}
+
+
 
 // Fetches dateCycles data from local storage
 function fetchDateCycles() {
@@ -240,6 +270,9 @@ function fetchDateCycles() {
   }
 
 }
+
+
+
 
 
 
@@ -530,7 +563,7 @@ function addNewCalendar() {
     public: isPublic ? 'yes' : 'no'
   };
 
-  alert(JSON.stringify(newCalendar, null, 2));
+  // alert(JSON.stringify(newCalendar, null, 2));
 
   userCalendars.push(newCalendar);
   localStorage.setItem('userCalendars', JSON.stringify(userCalendars));
