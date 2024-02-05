@@ -2,7 +2,9 @@
 /* ---------------------------
 
 
-SUBSCRIPTION SYSTEM
+EARTHEN SUBSCRIPTION SYSTEM
+Version 1.0  | Febrauary 4th, 2024
+https://api.earthen.io
 
 -----------------------------*/
 
