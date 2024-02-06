@@ -294,13 +294,15 @@ window.onload = function() {
 
 
   <div id="registration-footer">
+
+
     <div class="reg-top-section">
         <button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
     </div>
     <div class="registration-footer-holder">
         <div id="progress-bar"></div>
         <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Newsletter Registration" data-lang-id="106-hide-subscription-registration">
-            <img src="../svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
+            <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
         </button>
         
           <div id="email-registration">
@@ -323,8 +325,11 @@ window.onload = function() {
                       <div class="reg-complete-text" id="reg-status"></div>
                       <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleFormSubmit(event)">
                       </form>
-                      <div class="reg-sub">
+                      <div class="reg-sub" style="flex-flow: row;">
+                          <div class="earthen-icon"></div>
                           <div id="reg-explanation" data-lang-id="114-subscription-caption">We send out a news once every month or so according to <a href="javascript:void(0)" onclick="previewPrivacy()">our strict privacy policy</a>.</div>
+                      </div>
+                      <div class="reg-sub" style="flex-flow: row;">
                           <div id="reg-sub-checker">
                               <input type="checkbox" id="reg-sub-checkbox" onclick="checkBoxActivated()">
                               <label for="reg-sub-checkbox" data-lang-id="115-subscription-do-not-show-again">I've already signed up or I am not interested - don't show again</label>
@@ -332,16 +337,17 @@ window.onload = function() {
                       </div>
                   </div>
 
-                  <!--PRAVACY STATEMENT-->
+                  <!--PRIVACY STATEMENT-->
 
                   <div id="reg-privacy-texts">
-                      <div class="reg-header" data-lang-id="116-privacy-title">Your Data is Safe</div>
-                      <div class="reg-subtitle" data-lang-id="117-privacy-subtitle">As a not-for-profit Earth enterprise on principle we do partake in any 3rd party advertising, nor connect your data to social platforms that do.  Your data will not be sold or exchanged.  We proudly use Ghost.org's for our newsletter-- a not-for-profit open source platform which we host on our own servers.  Our newsletters are sent usually once a month, we commit to not exceeding more than one a week.</div>
-                      <div style="display:flex; flex-flow:row;width:fit-content;margin:-10px 10% 0px auto;">
-                          <div style="width:fit-content;font-size:small;padding:10px 15px 10px 15px;"><p><a href="privacy-policy.php" data-lang-id="118-full-privacy-link">Our Full Privacy Policy</a></p></div>
-                          <button class="btn" onclick="previewPrivacy()" style="height:fit-content; padding:10px 15px 10px 15px;border-radius:10px;" type="button" aria="Go back to registration">OK</button>                      
-                      </div>
-                  </div>
+                    <div class="reg-header" data-lang-id="116-privacy-title">Your Data is Safe</div>
+                    <div class="reg-privacy-subtitle" data-lang-id="117-privacy-subtitle">As a not-for-profit Earth enterprise on principle we do partake in any 3rd party advertising, nor connect your data to social platforms that do.  Your data will not be sold or exchanged.  We proudly use Ghost.org's for our newsletter-- a not-for-profit open source platform which we host on our own servers.  Our newsletters are sent usually once a month, we commit to not exceeding more than one a week.</div>
+                    <div style="display:flex; flex-flow:row;width:fit-content;margin:-10px 10% 0px auto;">
+                        <div class="full-privacy-policy-link">
+                          <a href="privacy-policy.php" data-lang-id="118-full-privacy-link">Our Full Privacy Policy</a></div>
+                        <button class="btn" onclick="previewPrivacy()" style="height:fit-content; padding:10px 15px 10px 15px;border-radius:10px;" type="button" aria="Go back to registration">OK</button>                      
+                    </div>
+                </div>
 
 
               </div>
