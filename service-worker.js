@@ -53,7 +53,17 @@ self.addEventListener('install', event => {
         'svgs/login-icon-night.svg?v=3',
         'svgs/login-icon-night-over.svg',
         'svgs/earthcycles-logo-motto-o-day.svg',
-        'svgs/earthcycles-logo-motto-o.svg'
+        'svgs/earthcycles-logo-motto-o.svg',
+
+        'svgs/earthcal-banner.svg',
+        
+        //Registration images 
+        'subscription-side-image.svg',
+        'webp/earthen-logo-icon.webp',
+        'webp/earthen-subscription-background-dark.webp',
+        'webp/earthen-subscription-background-light.webp',
+
+
       ]);
     })
   );
