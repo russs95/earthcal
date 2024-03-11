@@ -1,7 +1,7 @@
 
 /* ---------------------------
 
- 
+
 EARTHEN SUBSCRIPTION SYSTEM
 Version 1.0  | Febrauary 4th, 2024
 https://api.earthen.io
@@ -20,47 +20,46 @@ function checkRegistrationStatus() {
             regTopSection.style.display = 'none';
         }
   
+        // Set the margin-top of .registration-footer-holder to 70px
+        const registrationFooterHolder = document.querySelector('.registration-footer-holder');
+        if (registrationFooterHolder) {
+            registrationFooterHolder.style.marginTop = '70px';
+        }
     }
   }
   
+  
   let submissionPhase = 1;
-
-  function handleSubscriptionSubmit(event) {
-    // Prevent the default form submission behavior
-    if (event) event.preventDefault();
-    const form = document.getElementById("emailForm");
-    const emailInput = form.elements["email"];
-    const nameInput = form.elements["name"];
-    console.log(window.subSource);
-
-
-    switch (submissionPhase) {
-        case 1:
-            handlePhase1(emailInput, nameInput);
-            break;
-        case 2:
-            animateEmailInput(emailInput, nameInput);
-            break;
-        case 3:
-            checkNameInput(nameInput);
-            break;
-        case 4:
-            saveRegData2Cache(emailInput, nameInput, form);
-            break;
-        case 5:
-            // Ensure some delay if needed or directly call
-            sendData2WebHook(emailInput, nameInput, form);
-            break;
-        case 6:
+  
+  function handleFormSubmit(event) {
+      // Prevent the default form submission behavior
+      if (event) event.preventDefault();
+  
+      const form = document.getElementById("emailForm");
+      const emailInput = form.elements["email"];
+      const nameInput = form.elements["name"];
+  
+      switch (submissionPhase) {
+          case 1:
+              handlePhase1(emailInput, nameInput);
+              break;
+          case 2:
+              animateEmailInput(emailInput, nameInput);
+              break;
+          case 3:
+              checkNameInput(nameInput);
+              break;
+          case 4:
+              saveRegData2Cache(emailInput, nameInput, form);
+              break;
+          case 5:
+              sendData2WebHook(emailInput, nameInput, form);
+              break;
+          case 6:
             sendDownRegistration();
             checkRegistrationStatus();
-            break;
-        default:
-            console.error("Invalid submission phase");
-    }
-}
-
-
+      }
+  }
   
   
   function handlePhase1(emailInput, nameInput) {
@@ -83,7 +82,7 @@ function checkRegistrationStatus() {
   
       // Update submission phase to 2.1 for email animation
       submissionPhase = 2;
-      handleSubscriptionSubmit(new Event('submit')); // Proceed to animate email input
+      handleFormSubmit(new Event('submit')); // Proceed to animate email input
   
   }
   
@@ -103,7 +102,7 @@ function checkRegistrationStatus() {
         setTimeout(() => {
             nameInput.style.width = '70%';
             submissionPhase = 3;
-            // handleSubscriptionSubmit(new Event('submit')); // Proceed to check name input
+            // handleFormSubmit(new Event('submit')); // Proceed to check name input
         }, 10);
     }, 300);
   }
@@ -130,7 +129,7 @@ function checkRegistrationStatus() {
   
     // If name input is valid, proceed to the next phase
     submissionPhase = 4;
-    handleSubscriptionSubmit(new Event('submit')); // Proceed to the next phase
+    handleFormSubmit(new Event('submit')); // Proceed to the next phase
   }
   
 
@@ -140,16 +139,15 @@ function checkRegistrationStatus() {
   
   
   function saveRegData2Cache(emailInput, nameInput, form) {
-    console.log("subSource in saveRegData2Cache:", window.subSource);
-
-    const earthenRegistration = {
-        email: emailInput.value,
-        name: nameInput.value,
-        dateTimeSubmitted: new Date().toISOString(),
-        notes: window.subSource // Use the passed notes value
-    };
-    localStorage.setItem('earthenRegistration', JSON.stringify(earthenRegistration));
-    console.log(earthenRegistration);
+      // Store data in browser cache and log
+      const earthenRegistration = {
+          email: emailInput.value,
+          name: nameInput.value,
+          dateTimeSubmitted: new Date().toISOString(),
+          notes: 'registered on earthbook'
+      };
+      localStorage.setItem('earthenRegistration', JSON.stringify(earthenRegistration));
+      console.log(earthenRegistration);
   
       // Animate name input to shrink to 0% width
       nameInput.style.transition = 'width 0.3s';
@@ -185,13 +183,13 @@ function checkRegistrationStatus() {
   }
   
   function sendData2WebHook(emailInput, nameInput, form) {
-    // Use the notes parameter to set the value of 'notes'
-    const data = {
-        email: emailInput.value,
-        name: nameInput.value,
-        notes: window.subSource // Use the global value
-    };
-    console.log('subSource before sending:', window.subSource);
+      // Prepare data for the webhook
+      const data = {
+          email: emailInput.value,
+          name: nameInput.value,
+          notes: 'earthbook'
+      };
+  
       // Log the data to be sent
       console.log('Sending data to webhook:', JSON.stringify(data));
   
@@ -311,6 +309,7 @@ function invite2Register() {
     // Post the value of showCounter to the console
     console.log(showCounter);
   }
+  
 
   function displayCheckBoxToHideSubscription() {
     const regSubChecker = document.getElementById('reg-sub-checker');
@@ -422,18 +421,3 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   }
   
   
-  function previewPrivacy() {
-    var regTexts = document.getElementById('reg-registration-texts');
-    var privacyTexts = document.getElementById('reg-privacy-texts');
-
-    // Check the current display state and toggle it
-    if (regTexts.style.display === 'none') {
-        // If the registration texts are hidden, show them and hide the privacy texts
-        regTexts.style.display = 'flex';
-        privacyTexts.style.display = 'none';
-    } else {
-        // If the registration texts are shown, hide them and show the privacy texts
-        regTexts.style.display = 'none';
-        privacyTexts.style.display = 'flex';
-    }
-}
