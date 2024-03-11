@@ -429,7 +429,7 @@ divElement.innerHTML += `
       <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
       <div style="display:flex;flex-flow:row;">
       
-      <div class="forward-button-datecycle" title="➡️ Push to tomorrow" onclick="push2tomorrow('${dateCycle.ID}')">➜</div>
+      <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}')">➜</div>
       <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this)">✔</div>
          <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}')">✘</div>
       </div>
@@ -725,9 +725,52 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-//PUSH DATE TO TOMORRRW
+// //PUSH DATE TO TOMORRRW
 
-function push2tomorrow(id) {
+// function push2tomorrow(id) {
+//   const dateCycles = fetchDateCycles();
+//   if (!dateCycles) {
+//     console.log("No dateCycles found in storage.");
+//     return;
+//   }
+
+//   const dateCycle = dateCycles.find(dc => dc.ID === id);
+//   if (!dateCycle) {
+//     console.log("No dateCycle found with the provided ID.");
+//     return;
+//   }
+
+//   // Create a Date object for the current dateCycle
+//   const currentDate = new Date(dateCycle.Year, dateCycle.Month - 1, dateCycle.Day);
+  
+//   // Add one day
+//   currentDate.setDate(currentDate.getDate() + 1);
+  
+//   // Update the dateCycle object
+//   dateCycle.Day = currentDate.getDate();
+//   dateCycle.Month = currentDate.getMonth() + 1; // Months are zero-indexed in JavaScript Dates
+//   dateCycle.Year = currentDate.getFullYear();
+//   dateCycle.Date = `-${dateCycle.Day}-${dateCycle.Month}-${dateCycle.Year}`; // Update the Date string as well
+  
+//   // Save the updated array back to localStorage
+//   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+  
+//   // Optionally: Refresh the display or show a message to user
+//   console.log(`Pushed dateCycle with ID: ${id} to tomorrow`);
+  
+//   // Refreshing the display
+//   const divElement = document.getElementById('current-datecycle-info2');
+//   if (divElement) {
+//     divElement.innerHTML = "";  
+//     highlightDateCycles();
+//     displayMatchingDateCycle();
+//   }
+// }
+
+
+// PUSH DATE TO TODAY
+
+function push2today(id) {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
     console.log("No dateCycles found in storage.");
@@ -740,11 +783,10 @@ function push2tomorrow(id) {
     return;
   }
 
-  // Create a Date object for the current dateCycle
-  const currentDate = new Date(dateCycle.Year, dateCycle.Month - 1, dateCycle.Day);
+  // Create a Date object for today's date
+  const currentDate = new Date();
   
-  // Add one day
-  currentDate.setDate(currentDate.getDate() + 1);
+  // No need to add one day, as we're setting it to today
   
   // Update the dateCycle object
   dateCycle.Day = currentDate.getDate();
@@ -756,7 +798,7 @@ function push2tomorrow(id) {
   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
   
   // Optionally: Refresh the display or show a message to user
-  console.log(`Pushed dateCycle with ID: ${id} to tomorrow`);
+  console.log(`Updated dateCycle with ID: ${id} to today`);
   
   // Refreshing the display
   const divElement = document.getElementById('current-datecycle-info2');
@@ -766,6 +808,7 @@ function push2tomorrow(id) {
     displayMatchingDateCycle();
   }
 }
+
 
 
 function closeDatecycleInfo(element) {

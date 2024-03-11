@@ -323,6 +323,7 @@ margin:0px 10px 10px 10px;
   font-family:'Mulish', sans-serif; 
   color: var(--text-color); 
   padding: 0px 5px 15px 15px;
+  direction: ltr;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1908,7 +1909,10 @@ background-color: var(--button-2-1);
   }
 
 
-
+  #current-datecycle-info2  {
+    direction: rtl;
+  }
+ 
 #current-datecycle-info2 .date-info {
   margin-top:20px;
   margin-bottom: 0px;
