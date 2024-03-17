@@ -31,7 +31,8 @@ function checkRegistrationStatus() {
     const form = document.getElementById("emailForm");
     const emailInput = form.elements["email"];
     const nameInput = form.elements["name"];
-    console.log(window.subSource);
+    console.log("The sub source is: " + window.subSource);
+
 
 
     switch (submissionPhase) {
@@ -146,7 +147,8 @@ function checkRegistrationStatus() {
         email: emailInput.value,
         name: nameInput.value,
         dateTimeSubmitted: new Date().toISOString(),
-        notes: window.subSource // Use the passed notes value
+        source: window.subSource, // Use the passed notes value
+        language: window.currentLanguage
     };
     localStorage.setItem('earthenRegistration', JSON.stringify(earthenRegistration));
     console.log(earthenRegistration);
@@ -189,7 +191,9 @@ function checkRegistrationStatus() {
     const data = {
         email: emailInput.value,
         name: nameInput.value,
-        notes: window.subSource // Use the global value
+        source: window.subSource, // Use the global value
+        language: window.currentLanguage
+
     };
     console.log('subSource before sending:', window.subSource);
       // Log the data to be sent
@@ -307,12 +311,17 @@ function invite2Register() {
     let showCounter = localStorage.getItem('showCounter');
     showCounter = showCounter ? parseInt(showCounter) + 1 : 1;
     localStorage.setItem('showCounter', showCounter);
-    
-    // Post the value of showCounter to the console
-    console.log(showCounter);
-  }
 
-  function displayCheckBoxToHideSubscription() {
+    // Post the value of showCounter to the console
+    console.log("showCounter: " + showCounter);
+
+    // Check if showCounter is higher than 3 and trigger the function
+    if (showCounter > 3) {
+        displayCheckBoxToHideSubscription();
+    }
+}
+
+function displayCheckBoxToHideSubscription() {
     const regSubChecker = document.getElementById('reg-sub-checker');
     if (regSubChecker) {
         regSubChecker.style.display = 'block';
