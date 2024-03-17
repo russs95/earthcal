@@ -19,9 +19,13 @@ function checkRegistrationStatus() {
         if (regTopSection) {
             regTopSection.style.display = 'none';
         }
-  
+        console.log('User is registered');
+    } else {
+        // If the user is not registered
+        console.log('User not yet registered, embarking on subscription sequence');
     }
-  }
+}
+
   
   let submissionPhase = 1;
 
@@ -274,7 +278,7 @@ function invite2Register() {
     const earthenRegistrationData = localStorage.getItem('earthenRegistration');
     
     if (!earthenRegistrationData) {
-        updateShowCounter();
+        // updateShowCounter();
   
         let showCounter = parseInt(localStorage.getItem('showCounter'));
         let delayDuration;
@@ -401,7 +405,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
       // Update styles
       checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
       checkerDiv.style.color = 'var(--main-background)';
-      checkerDiv.style.fontSize = 'normal';
+      checkerDiv.style.fontSize = 'large';
       explaDiv.style.display = 'none';
   
       // Show this text for 2 seconds, then call sendDownRegistration
@@ -411,7 +415,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
         checkerDiv.style.color = 'var(--text-color)';
         checkerDiv.style.fontSize = 'small';
         explaDiv.style.display = 'block';
-      }, 8000);
+      }, 3000);
   
       // Check for earthenRegistration in browser cache
       if (localStorage.getItem('earthenRegistration')) {
