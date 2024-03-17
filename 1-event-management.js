@@ -479,12 +479,15 @@ function deleteDateCycle(id) {
   displayMatchingDateCycle();
 }
  
+
+
 function clearAllDateCycles() {
   let hasDateCycles = localStorage.getItem('dateCycles');
   let hasUserCalendars = localStorage.getItem('userCalendars');
   let hasTourToken = localStorage.getItem('tourToken');
+  let hasEarthenRegistration = localStorage.getItem('earthenRegistration'); // Added line for earthenRegistration
 
-  if (hasDateCycles || hasUserCalendars || hasTourToken) {
+  if (hasDateCycles || hasUserCalendars || hasTourToken || hasEarthenRegistration) { // Updated condition to include hasEarthenRegistration
     // Ask the user for confirmation
     const userConfirmed = confirm('Are you certain you want to delete all your EarthCal data? This can\'t be undone!');
 
@@ -497,8 +500,13 @@ function clearAllDateCycles() {
         localStorage.removeItem('userCalendars');
       }
 
-      // Remove the tourToken
-      localStorage.removeItem('tourToken');
+      if (hasTourToken) { // Ensure tourToken is specifically checked
+        localStorage.removeItem('tourToken');
+      }
+
+      if (hasEarthenRegistration) { // Remove earthenRegistration if it exists
+        localStorage.removeItem('earthenRegistration');
+      }
 
       alert('All EarthCal data has been cleared from storage.');
     } else {

@@ -3,7 +3,7 @@
 
  
 EARTHEN SUBSCRIPTION SYSTEM
-Version 1.0  | Febrauary 4th, 2024
+Version 1.1  | March 17, 2024
 https://api.earthen.io
 
 -----------------------------*/
@@ -320,7 +320,7 @@ function invite2Register() {
     console.log("showCounter: " + showCounter);
 
     // Check if showCounter is higher than 3 and trigger the function
-    if (showCounter > 3) {
+    if (showCounter > 4) {
         displayCheckBoxToHideSubscription();
     }
 }
@@ -400,11 +400,11 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
 
   
       // Change the text of the checkbox div
-      checkerDiv.innerText = "Ok! You won't see the subscribe option again-- but you can always find it again in the main menu.";
+      checkerDiv.innerText = "Ok! You won't see the subscription box again. However, you can always find it again in the main menu.";
   
       // Update styles
       checkerDiv.style.backgroundColor = 'var(--emblem-blue)';
-      checkerDiv.style.color = 'var(--main-background)';
+      checkerDiv.style.color = 'var(--h1)';
       checkerDiv.style.fontSize = 'large';
       explaDiv.style.display = 'none';
   
@@ -415,7 +415,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
         checkerDiv.style.color = 'var(--text-color)';
         checkerDiv.style.fontSize = 'small';
         explaDiv.style.display = 'block';
-      }, 3000);
+      }, 4000);
   
       // Check for earthenRegistration in browser cache
       if (localStorage.getItem('earthenRegistration')) {
