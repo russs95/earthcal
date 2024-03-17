@@ -306,7 +306,7 @@ function invite2Register() {
     }
   }
   
-  
+
   function updateShowCounter() {
     let showCounter = localStorage.getItem('showCounter');
     showCounter = showCounter ? parseInt(showCounter) + 1 : 1;
@@ -349,7 +349,7 @@ var guidedTourModal = document.querySelector('#guided-tour .modal');
 // Check if the guidedTourModal is defined and visible
 if (guidedTourModal && guidedTourModal.style.display !== "none") {
     // If it's visible, show an alert and exit the function
-    alert('nope');
+    // alert('nope');
     return;
 }
 
@@ -366,6 +366,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
     emailRegistration.style.display = "block";
     upArrow.style.display = "none";
     downArrow.style.display = "block";
+    updateShowCounter();
 }
 
   
