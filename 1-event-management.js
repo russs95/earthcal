@@ -413,15 +413,19 @@ return dateCycles
 
 // Write the provided dateCycle to the provided div element
 function writeMatchingDateCycles(divElement, dateCycle) {
-// Determine styles based on whether the dateCycle is completed or not
+// Determine styles based on whether the dateCycle is completed or not 
 const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
 const calendarColorContent = dateCycle.Completed === 'yes' ? '✔' : '⬤';
 
+
+//MOnth color class: ${dateCycle.monthName}
+//<div class="current-date-calendar-color" style="color:${dateCycle.calendar_color};">${calendarColorContent}</div>
+
 divElement.innerHTML += `
   <div class="date-info ${dateCycle.ID}">
-      <div class="current-date-info-title ${dateCycle.monthName}" style="${eventNameStyle}">${dateCycle.Event_name}</div>
+      <div class="current-date-info-title " style="${eventNameStyle};color:${dateCycle.calendar_color};"><span style="font-size:small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span> ${dateCycle.Event_name}</div>
       <div class="current-datecycle-data">
-          <div class="current-date-calendar-color" style="color:${dateCycle.calendar_color};">${calendarColorContent}</div>
+          
           <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
           <div>|</div>
           <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
