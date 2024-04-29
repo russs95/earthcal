@@ -694,17 +694,17 @@ document.querySelector("#information-six .back").onclick = function() {
 
 function activeMonthBreakouts() {
   // Select the div elements by their IDs
-  const januaryDiv = document.getElementById('january');
-  const januaryBreakoutDiv = document.getElementById('january-breakout');
-  const janBreakoutControlsDiv = document.getElementById('jan-breakout-controls');
+  const mayDiv = document.getElementById('may');
+  const mayBreakoutDiv = document.getElementById('may-breakout');
+  const mayBreakoutCloseDiv = document.getElementById('may-breakout-close');
 
   // Listener to show the january-breakout div when the january div is clicked
-  januaryDiv.addEventListener('click', () => {
-    januaryBreakoutDiv.style.display = 'block'; // Show the january-breakout div
+  mayDiv.addEventListener('click', () => {
+    mayBreakoutDiv.style.display = 'block'; // Show the january-breakout div
   });
 
   // Listener to hide the january-breakout div when the jan-breakout-controls div is clicked
-  janBreakoutControlsDiv.addEventListener('click', () => {
-    januaryBreakoutDiv.style.display = 'none'; // Hide the january-breakout div
+  mayBreakoutCloseDiv.addEventListener('click', () => {
+    mayBreakoutDiv.style.display = 'none'; // Hide the january-breakout div
   });
 }

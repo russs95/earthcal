@@ -205,6 +205,7 @@ function checkRegistrationStatus() {
   
       // Send data to the webhook
       fetch('https://hook.eu1.make.com/xtlexd0girt9ua3hnsfuzwlrjgrsmqgt', {
+        
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
