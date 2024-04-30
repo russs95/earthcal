@@ -697,14 +697,27 @@ function activeMonthBreakouts() {
   const mayDiv = document.getElementById('may');
   const mayBreakoutDiv = document.getElementById('may-breakout');
   const mayBreakoutCloseDiv = document.getElementById('may-breakout-close');
+  const solarCenterDiv = document.getElementById('solar-system-center');
+  const dayLinesDiv = document.getElementById('days-of-year-lines');
+  const allDayMarkers = document.getElementById('all-daymarkers');
+
 
   // Listener to show the january-breakout div when the january div is clicked
   mayDiv.addEventListener('click', () => {
     mayBreakoutDiv.style.display = 'block'; // Show the january-breakout div
+    solarCenterDiv.style.display = 'none'; // Show the january-breakout div
+    dayLinesDiv.style.display = 'none'; // Show the january-breakout div
+    allDayMarkers.style.display = 'none'; 
+
+
   });
 
   // Listener to hide the january-breakout div when the jan-breakout-controls div is clicked
   mayBreakoutCloseDiv.addEventListener('click', () => {
     mayBreakoutDiv.style.display = 'none'; // Hide the january-breakout div
+    solarCenterDiv.style.display = 'block'; // Show the january-breakout div
+    dayLinesDiv.style.display = 'block'; // Show the january-breakout div
+    allDayMarkers.style.display = 'block'; 
+
   });
 }

@@ -924,6 +924,7 @@ Planets Styling and interactivity
   transition: 0.5s;
   cursor: pointer;
 }
+
 #uranus_system:hover #uranus-orbit {
   stroke-width: 2px;
   transition: 0.5s;
