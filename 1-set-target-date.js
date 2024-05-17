@@ -57,6 +57,36 @@ function updateTargetDay() {
 }
 
 
+//TURN APPROPRIATE SET OF MONTH COLORS ON
+
+function setYearsMonthsOn() {
+  // Get the year from the global variable targetDate
+  const targetDateObj = new Date(targetDate);
+  const year = targetDateObj.getFullYear();
+
+  // Determine if the year is a leap year
+  const isLeapYear = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0));
+
+  // alert('Is ' + year + 'setYearsMonthsOn() a leap year? ' + isLeapYear);
+
+  // Get the SVG groups by their IDs
+  const solarMonths366 = document.getElementById('solar_months_366');
+  const solarMonths365 = document.getElementById('solar_months_365');
+
+  if (isLeapYear) {
+    // Set opacity for a leap year
+    solarMonths366.style.opacity = '1'; 
+    solarMonths365.style.opacity = '0'; 
+  } else {
+    solarMonths366.style.opacity = '0'; 
+    solarMonths365.style.opacity = '1'; 
+  }
+}
+
+
+
+
+
 //Set the color of the Target Day's Week
 
 function updateTargetWeekColor() {
@@ -88,31 +118,42 @@ function updateTargetWeekColor() {
   });
 }
 
-//Sets the Color of the Target Day's Month
 
 function updateTargetMonth() {
-  const targetMonth = targetDate.getMonth();
+  // Ensure targetDate is a Date object
+  const targetDateObj = new Date(targetDate);
+  const targetMonth = targetDateObj.getMonth();
+  const targetYear = targetDateObj.getFullYear();
 
-  const svg = document.querySelector('svg');
-  const paths = svg.querySelectorAll('path');
+  // Determine if the year is a leap year
+  const isLeapYear = (targetYear % 4 === 0 && (targetYear % 100 !== 0 || targetYear % 400 === 0));
 
-  const monthRegex = /(january|february|march|april|may|june|july|august|september|october|november|december)/;
+  // Get the month name and convert it to lowercase
+  const monthName = getMonthName(targetMonth).toLowerCase();
 
-  paths.forEach(path => {
-    if (monthRegex.test(path.id)) {  
-      path.style.opacity = '0.5';
-    } else {
-    }
+  // Select all paths ending with _365 or _366 and clear the 'active-month' class
+  const allPaths = document.querySelectorAll('path[id$="_365"], path[id$="_366"]');
+  allPaths.forEach(path => {
+    path.classList.remove('active-month');
   });
 
-  const quadrantElement = document.getElementById(`${getMonthName(targetMonth).toLowerCase()}`);
-  quadrantElement.style.opacity = "0.9";
-  quadrantElement.style.transition = "opacity 1s";
+  // Construct the ID using the month name and leap year information
+  const pathId = `${monthName}_${isLeapYear ? '366' : '365'}`;
+
+  // Select the path with the constructed ID
+  const targetPath = document.getElementById(pathId);
+  if (targetPath) {
+    // Add the 'active-month' class to the matched path
+    targetPath.classList.add('active-month');
+  } else {
+    console.error(`No path found with ID ${pathId}`);
+  }
 }
 
-
 function getMonthName(monthIndex) {
+  // Array of month names
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return monthNames[monthIndex];
 }
+
 

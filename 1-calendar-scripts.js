@@ -47,6 +47,7 @@ function prevYearClick() {
   });
 
   calendarRefresh();
+  setYearsMonthsOn()
   updateTargetDay();
 
   document.getElementById("reset").style.display = "block";
@@ -68,7 +69,7 @@ function nextYearClick() {
   updateDayTitles(currentYear + 1);
   
   targetDate = new Date((currentYear + 1), 0, 1);
-  
+  setYearsMonthsOn()
   const allPaths = document.querySelectorAll("svg path");
   allPaths.forEach((path) => {
     path.classList.remove("active");

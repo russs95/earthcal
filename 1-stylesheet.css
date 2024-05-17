@@ -532,28 +532,46 @@ MONTHS
 
 -----------------------------------------*/
 
-/*Months*/
-svg path#january,
-svg path#february,
-svg path#march,
-svg path#april,
-svg path#may,
-svg path#june,
-svg path#july,
-svg path#august,
-svg path#september,
-svg path#october,
-svg path#november,
-svg path#december {
+#solar_months_366 {
+  display: block;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+
+#solar_months_365 {
+  display: block;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+#lunar_months-12 {
+  transition: opacity 1s;
+}
+
+
+/*Sets the original opacity of both the _365 and _366 solar months*/
+svg path[id*="january_3"],
+svg path[id*="february_3"],
+svg path[id*="march_3"],
+svg path[id*="april_3"],
+svg path[id*="may_3"],
+svg path[id*="june_3"],
+svg path[id*="july_3"],
+svg path[id*="august_3"],
+svg path[id*="september_3"],
+svg path[id*="october_3"],
+svg path[id*="november_3"],
+svg path[id*="december_3"] {
   opacity: 0.65;
-  transition: 0.3s;
-  cursor:pointer;
+  transition: 0.5s;
+  cursor: pointer;
 }
 
 
 /*to be updated once date's have their highlight flagger.*/
 .date_event {
-  fill-opacity: 0.8 !important;
+  fill-opacity: 0.3 !important;
 }
 
 /* .date_event:hover {
@@ -570,42 +588,48 @@ svg path#december {
     fill-opacity: 1;
   }
 
-svg path#january:hover,
-svg path#february:hover,
-svg path#march:hover,
-svg path#april:hover,
-svg path#may:hover,
-svg path#june:hover,
-svg path#july:hover,
-svg path#august:hover,
-svg path#september:hover,
-svg path#october:hover,
-svg path#november:hover,
-svg path#december:hover {
-  opacity: 0.5;
-  transition: 0.4s;
-  cursor: pointer;
-}
 
-svg path#january.final,
-svg path#february.final,
-svg path#march.final,
-svg path#april.final,
-svg path#may.final,
-svg path#june.final,
-svg path#july.final,
-svg path#august.final,
-svg path#september.final,
-svg path#october.final,
-svg path#november.final,
-svg path#december.final  {
+  svg path[id*="january_36"]:hover,
+  svg path[id*="february_36"]:hover,
+  svg path[id*="march_36"]:hover,
+  svg path[id*="april_36"]:hover,
+  svg path[id*="may_36"]:hover,
+  svg path[id*="june_36"]:hover,
+  svg path[id*="july_36"]:hover,
+  svg path[id*="august_36"]:hover,
+  svg path[id*="september_36"]:hover,
+  svg path[id*="october_36"]:hover,
+  svg path[id*="november_36"]:hover,
+  svg path[id*="december_36"]:hover {
+    opacity: 1;
+    transition: 0.4s;
+    cursor: pointer;
+  }
+
+  svg path[id*="january_36"].final,
+  svg path[id*="february_36"].final,
+  svg path[id*="march_36"].final,
+  svg path[id*="april_36"].final,
+  svg path[id*="may_36"].final,
+  svg path[id*="june_36"].final,
+  svg path[id*="july_36"].final,
+  svg path[id*="august_36"].final,
+  svg path[id*="september_36"].final,
+  svg path[id*="october_36"].final,
+  svg path[id*="november_36"].final,
+  svg path[id*="december_36"].final {
   opacity: 1;
   cursor: pointer;
   transition: 0s; /* Set the transition duration to 0 seconds */
-}}
+}
+}
 
 
-@media (hover: none) { 
+@media (max-width: 770px) {
+
+  svg path[id*="-day"]:hover {
+    fill-opacity: 0.6;
+  }
   
   /* Add a transition to the paths */
   path[id*='-day'] {
@@ -622,36 +646,51 @@ svg path#december.final  {
     fill-opacity: 1 !important;
   }
 
+  svg path[id*="january_36"]:hover,
+  svg path[id*="february_36"]:hover,
+  svg path[id*="march_36"]:hover,
+  svg path[id*="april_36"]:hover,
+  svg path[id*="may_36"]:hover,
+  svg path[id*="june_36"]:hover,
+  svg path[id*="july_36"]:hover,
+  svg path[id*="august_36"]:hover,
+  svg path[id*="september_36"]:hover,
+  svg path[id*="october_36"]:hover,
+  svg path[id*="november_36"]:hover,
+  svg path[id*="december_36"]:hover {
+    opacity: 1;
+    transition: 0.4s;
+    cursor: pointer;
+  }
 
 
-
-svg path#january.active,
-svg path#february.active,
-svg path#march.active,
-svg path#april.active,
-svg path#may.active,
-svg path#june.active,
-svg path#july.active,
-svg path#august.active,
-svg path#september.active,
-svg path#october.active,
-svg path#november.active,
-svg path#december.active {
+  svg path[id*="january_36"].active,
+  svg path[id*="february_36"].active,
+  svg path[id*="march_36"].active,
+  svg path[id*="april_36"].active,
+  svg path[id*="may_36"].active,
+  svg path[id*="june_36"].active,
+  svg path[id*="july_36"].active,
+  svg path[id*="august_36"].active,
+  svg path[id*="september_36"].active,
+  svg path[id*="october_36"].active,
+  svg path[id*="november_36"].active,
+  svg path[id*="december_36"].active {
   fill-opacity: 0.5;
 }
 
-svg path#january.final,
-svg path#february.final,
-svg path#march.final,
-svg path#april.final,
-svg path#may.final,
-svg path#june.final,
-svg path#july.final,
-svg path#august.final,
-svg path#september.final,
-svg path#october.final,
-svg path#november.final,
-svg path#december.final  {
+svg path[id*="january_36"].final,
+svg path[id*="february_36"].final,
+svg path[id*="march_36"].final,
+svg path[id*="april_36"].final,
+svg path[id*="may_36"].final,
+svg path[id*="june_36"].final,
+svg path[id*="july_36"].final,
+svg path[id*="august_36"].final,
+svg path[id*="september_36"].final,
+svg path[id*="october_36"].final,
+svg path[id*="november_36"].final,
+svg path[id*="december_36"].final {
   fill-opacity: 1;
   cursor: pointer;
   transition: 0s; /* Set the transition duration to 0 seconds */
@@ -663,7 +702,7 @@ svg path#december.final  {
  /* CSS for screens above 768px (desktop) */
 /*January*/
 svg path[id*="-1-20"]:not([id*="-marker"]) {
-  fill: #7939d9ff;
+  fill: #6600ffff;
   fill-opacity: 0.3;
   cursor: pointer;
 }
@@ -748,7 +787,7 @@ svg path[id*="-12-20"]:not([id*="-marker"]) {
 
 /* January */
 svg path[id*="-1-20"][id*="-day-marker"] {
-  fill: #7939d9ff;
+  fill: #6600ffff;
   cursor: pointer;
   fill-opacity: 0; 
 }
@@ -836,7 +875,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 /* BASIC COLOR MONTH STYLING */
 
 .january {
-  color: #7939d9ff;
+  color: #6600ffff;
 }
 
 .february {
@@ -1045,8 +1084,7 @@ svg path[id*="lunar"] {
 }
 
 svg path[id*="lunar"]:hover {
-  opacity: 1;
-  fill: grey;
+  fill-opacity: 1;
 }
 
 /*weekly*/

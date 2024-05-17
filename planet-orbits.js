@@ -19,9 +19,10 @@ class Planet {
     // Get the SVG elements for the planet and its orbit using their IDs
     let planetElement = document.getElementById(this.element_id);
     let planetOrbitElement = document.getElementById(this.orbit_id);
-    // Set a reference date of January 1, 2023
+    // Set a reference date of January 1, 2023 - WHAT?  why isn't this 2024 now that the vector positions are updated?
+
     let yearStart = new Date(2023, 0, 1);
-    // console.log("Initiating" + startDate);
+     console.log("Initiating:"+ yearStart + startDate);
 
     let planetAnimation2;
     
@@ -31,6 +32,8 @@ class Planet {
     let daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
     // Sum the two durations to get the total days
     let totalDays = daysSinceYearStart + daysSinceTargetDate;
+
+    console.log("days since target date:"+ daysSinceTargetDate);
 
 
 
@@ -99,18 +102,18 @@ finalCoordsX2 = finalCoordsX2.toFixed(2) + "px";
 
     let animationDuration;
     if (daysSinceTargetDate < 30) {
-      animationDuration = 1000;
+      animationDuration = 500;
     } else if (daysSinceTargetDate < 60) {
-      animationDuration = 2000;
+      animationDuration = 1000;
     } else if (daysSinceTargetDate < 120) {
-      animationDuration = 3000;
+      animationDuration = 1500;
     } else if (daysSinceTargetDate < 180) {
-      animationDuration = 4000;
+      animationDuration = 2000;
     // ... Add more conditions as needed
     } else if (daysSinceTargetDate <= 366) {
-      animationDuration = 5000; // Example: set a default for the max range
+      animationDuration = 3000; // Example: set a default for the max range
     } else {
-      animationDuration = 6000; // Default duration if daysToTargetDate is out of expected range
+      animationDuration = 4000; // Default duration if daysToTargetDate is out of expected range
     }
 
 

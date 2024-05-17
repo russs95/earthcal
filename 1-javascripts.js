@@ -338,8 +338,8 @@ function getTheDayOfYear(targetDate) {
     // Phase 1: instant animations
     updateTargetMonth();
     displayDayInfo(targetDate);
-    getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-    setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+    // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
+    // setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
     resetPaths();
     updateTargetDay();
   // Phase 2: animations after 0.1sec
@@ -364,8 +364,8 @@ function getTheDayOfYear(targetDate) {
 
     highlightDateCycles();
     displayMatchingDateCycle();
-    getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-    setLunarMonthForTarget(targetDate);
+    // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
+    // setLunarMonthForTarget(targetDate);
     
   
 
@@ -694,30 +694,126 @@ document.querySelector("#information-six .back").onclick = function() {
 
 function activeMonthBreakouts() {
   // Select the div elements by their IDs
-  const mayDiv = document.getElementById('may');
-  const mayBreakoutDiv = document.getElementById('may-breakout');
+  const mayDiv = document.getElementById('may_366');
   const mayBreakoutCloseDiv = document.getElementById('may-breakout-close');
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
-  const allDayMarkers = document.getElementById('all-daymarkers');
+  const allDaymarkers = document.getElementById('all-daymarkers');
+  const lunarMonths = document.getElementById('lunar_months-12');
+  const mayIntentions = document.getElementById('may-intentions');
+
+  
 
 
-  // Listener to show the january-breakout div when the january div is clicked
+  // OPEN:
+  //Listener to hide elements of the cal and show the may-breakout
   mayDiv.addEventListener('click', () => {
-    mayBreakoutDiv.style.display = 'block'; // Show the january-breakout div
-    solarCenterDiv.style.display = 'none'; // Show the january-breakout div
-    dayLinesDiv.style.display = 'none'; // Show the january-breakout div
-    allDayMarkers.style.display = 'none'; 
+    allDaymarkers.style.opacity = '0';
+    dayLinesDiv.style.opacity = '0'; 
+    lunarMonths.style.opacity = '0'; 
+    mayIntentions.style.display = 'block'; 
+   
+    setTimeout(() => {
+    // solarCenterDiv.style.opacity = '0'; 
+    mayDiv.style.opacity = '1'; 
+  }, 500);
 
+    setTimeout(breakoutMay,700);
 
+    setTimeout(() => {
+      mayIntentions.style.opacity = '1'; 
+    }, 1000);
   });
 
-  // Listener to hide the january-breakout div when the jan-breakout-controls div is clicked
+  // CLOSE: 
+  //Listener to hide may breakout and reshow cal
   mayBreakoutCloseDiv.addEventListener('click', () => {
-    mayBreakoutDiv.style.display = 'none'; // Hide the january-breakout div
-    solarCenterDiv.style.display = 'block'; // Show the january-breakout div
-    dayLinesDiv.style.display = 'block'; // Show the january-breakout div
-    allDayMarkers.style.display = 'block'; 
+    
+    breakoutMay(); // Call the breakoutMay function
 
-  });
+    // Set a delay before changing the opacity of dayLinesDiv
+    setTimeout(() => {
+        dayLinesDiv.style.opacity = '1';
+        mayIntentions.style.opacity = '0'; 
+     }, 800);
+
+    setTimeout(() => {
+      solarCenterDiv.style.opacity = '1'; 
+
+  }, 1000);
+
+    setTimeout(() => {
+      // lunarMonths.style.opacity = '1'; 
+      allDaymarkers.style.opacity = '1'; 
+      mayIntentions.style.display = 'none'; 
+
+  }, 2500);
+
+});
+
+
 }
+
+
+function breakoutMay() {
+  // This function animates the opening of May breakout
+  const mayBreakout = document.getElementById('may-breakout');
+
+  // Function to change the display style of day divs and possibly add a class
+  const setDisplay = (id, displayStyle, addClass) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.style.display = displayStyle;
+      if (addClass) {
+        element.classList.add(addClass);
+      }
+    }
+  };
+
+  // Check the current display status of 'may-breakout'
+  if (mayBreakout.style.display === 'none' || !mayBreakout.style.display) {
+    // Set all day div groups to display none
+    for (let i = 1; i <= 31; i++) {
+      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
+      setDisplay(dayId, 'none');
+    }
+
+    // Set 'may-breakout' to display block
+    mayBreakout.style.display = 'block';
+
+    // Sequentially set each day div to display block
+    for (let i = 1; i <= 31; i++) {
+      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
+      setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
+    }
+
+    // Check if targetDate is in May and highlight the corresponding day
+    const targetDateObj = new Date(targetDate);
+    if (targetDateObj.getMonth() === 4) {  // Month is May (months are zero-indexed)
+      const day = targetDateObj.getDate().toString().padStart(2, '0');
+      const dayId = `${day}-05-day-breakout`;
+      setTimeout(() => setDisplay(dayId, 'block', 'active-break'), day * 22);
+    }
+
+    calendarRefresh();
+
+  } else {
+    // Sequentially set each day div to display none in reverse order
+    for (let i = 31; i >= 1; i--) {
+      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
+      setTimeout(() => setDisplay(dayId, 'none'), (32 - i) * 22);  // Adjusted to 0.22 seconds
+    }
+
+    // Finally, set 'may-breakout' to display none
+    setTimeout(() => {
+      mayBreakout.style.display = 'none';
+    }, 31 * 22 + 100);  // Adjusted delay to ensure all days are hidden first
+
+
+
+
+    
+  }
+}
+
+
