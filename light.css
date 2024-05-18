@@ -93,17 +93,17 @@
     background-size: contain;
 }
 
-#venus-planetsbutton {
+#solarsystem-button {
   background: url(svgs/cycles-day.svg) no-repeat;
   background-size: contain;
 }
 
-#venus-planetsbutton:hover {
+#solarsystem-button:hover {
   background: url(svgs/cycles-day-over.svg) no-repeat;
     background-size: contain;
 }
 
-#venus-planetsbutton.active {
+#solarsystem-button.active {
   background: url(svgs/cycles-day-over.svg) no-repeat;
     background-size: contain;
 }

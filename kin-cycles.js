@@ -1,7 +1,5 @@
 
 /* KINCYCLES MENU CONTROL*/
-
-
 function cyclesToggle() {
   date = targetDate;
   var moonButton = document.getElementById("moon-button");
@@ -10,9 +8,10 @@ function cyclesToggle() {
   var kinButtons = document.getElementById("kin-buttons");
   var moonCycle = document.getElementById("moon-cycle");
   var moonPhase = document.getElementById("moon-phase");
-  var lunarMonths = document.getElementById('lunar_months-12');
+  var lunarMonths = document.querySelectorAll('path[id*="lunarmonth-12"]');
   var earthButton = document.getElementById('whale-earthbutton');
   var solarsystemButton = document.getElementById('solarsystem-button');
+  var solarSystemCenter = document.getElementById('solar-system-center');
 
   // Initial state
   var isMoonClicked = true;
@@ -24,45 +23,37 @@ function cyclesToggle() {
       kinButtons.style.display = "none";
       moonCycle.style.display = "block";
       moonPhase.style.display = "block";
-      lunarMonths.style.opacity = '0.6';
+      lunarMonths.forEach(function(lunarMonth) {
+        lunarMonth.style.opacity = "0.6";
+      });
+      setLunarMonthForTarget(targetDate);
     } else {
-      lunarMonths.style.opacity = '0';
+      lunarMonths.forEach(function(lunarMonth) {
+        lunarMonth.style.opacity = "0";
+      });
       moonPhase.style.display = "none";
       moonCycle.style.display = "none";
-
     }
+
 
     // Toggle the state
     isMoonClicked = !isMoonClicked;
   });
 
 
+  // Initial state
+  var isSolarsysClicked = true;
 
-  moonButton.addEventListener("click", function() {
-    if (isMoonClicked) {
+
+  solarsystemButton.addEventListener("click", function() {
+    if (isSolarsysClicked) {
+      solarSystemCenter.style.display = "none";
+      planetButtons.style.display = "flex";
+
+
+    } else {
+      solarSystemCenter.style.display = "block";
       earthMap.style.display = "none";
-      planetButtons.style.display = "none";
-      kinButtons.style.display = "none";
-      moonCycle.style.display = "none";
-      moonPhase.style.display = "none";
-      lunarMonths.style.opacity = '0';
-    } else {
-      
-
-    }
-
-    // Toggle the state
-    isMoonClicked = !isMoonClicked;
-  });
-
-
-
-
-
-  
-
-  planetButtons.addEventListener("click", function() {
-    earthMap.style.display = "none";
     moonCycle.style.display = "none";
     kinButtons.style.display = "none";
     planetButtons.style.display = "flex";
@@ -82,7 +73,44 @@ function cyclesToggle() {
      venusCycle.style.display = "block";
     //  venusPhase.style.display = "block";
      venusButton.classList.add("active");
+
+    }isSolarsysClicked
+
+    // Toggle the state      const correspondingElement = document.getElementById(`${animal}-cycle`);
+
+    isSolarsysClicked = !isSolarsysClicked;
   });
+
+
+
+
+
+  
+
+  // planetButtons.addEventListener("click", function() {
+  //   earthMap.style.display = "none";
+  //   moonCycle.style.display = "none";
+  //   kinButtons.style.display = "none";
+  //   planetButtons.style.display = "flex";
+
+  //   UpdateVenusData(date);
+  //   UpdateMarsData(date);
+  //   UpdateSaturnData(date);
+  //   UpdateJupiterData(date);
+
+
+  //        // Modify here: Add 'active' class and change display for whale-cycle
+  //        var venusCycle = document.getElementById("venus-cycle");
+  //       //  var venusPhase = document.getElementById("venus-phase");
+  //    var venusButton = document.getElementById("venus-button");
+   
+  //   //  venusCycle.classList.add("active");
+  //    venusCycle.style.display = "block";
+  //   //  venusPhase.style.display = "block";
+  //    venusButton.classList.add("active");
+  // });
+
+  
 
   earthButton.addEventListener("click", function() {
     planetButtons.style.display = "none";

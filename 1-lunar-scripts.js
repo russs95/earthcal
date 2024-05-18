@@ -51,71 +51,84 @@ function getFirstNewMoon() {
 
     }
     
+
+
     
-
-// Sets the color of the Target Day's Lunar Month
-
-   
-
     function setLunarMonthForTarget() {
-        const lunarMonthNumber = getLunarMonthNumber();
-        const pathID = `lunar-${lunarMonthNumber}-month`;
-
-        // console.log("Path ID:", pathID); // Debugging line
-
-        const pathElement = document.getElementById(pathID);
-      
-        const svg = document.querySelector('svg');
-        const paths = svg.querySelectorAll('path');
-      
-
-        paths.forEach(path => {
-          if (path.id.includes('lunar-')) {
-            path.style.fill = 'none';
-            // pathElement.style.fillOpacity = 0;
-
-          }
-        });
-      
-        if (pathElement) {
-          const lunarMonthColors = [
-            '#7f2affff', '#ff11ceff', '#fb0000ff', '#ff6303ff', '#ff8201ff', '#ffd119ff',
-            '#fbfb00ff', '#beee00ff', '#00e513ff', '#00e6a7ff', '#0cacf5ff', '#4343ffff', '#808080ff',
-          ];
-      
-          const targetMonth = targetDate.getMonth();
-          pathElement.style.opacity = 1;
-          pathElement.style.fill = lunarMonthColors[targetMonth];
-        } else {
-          console.error("Path not found:", pathID);
-        }
-      }
-      
   
+     // Reset the opacity of all lunarmonth-12 paths to 0.6 and remove all classes
+     const lunarMonthPaths = document.querySelectorAll('path[id*="lunarmonth-12"]');
+     lunarMonthPaths.forEach(path => {
+         path.style.opacity = '0.6';
+         path.classList.forEach(cls => {
+             path.classList.remove(cls);
+         });
+     });
+  
+      // Get the current solar month
+      const targetMonth = targetDate.getMonth();
+      const monthNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+      const targetMonthName = monthNames[targetMonth];
+  
+      // Get the lunar month number and add 1
+      let lunarMonthNumber = getLunarMonthNumber() + 1;
+  
+      const pathID = `${lunarMonthNumber}-lunarmonth-12`;
+  
+      // Select the appropriate lunar month div
+      const pathElement = document.getElementById(pathID);
+      if (pathElement) {
+          // Add the solar month name class to the lunar div
+          pathElement.classList.add(targetMonthName);
+          // Set the opacity of the specified lunarmonth-12 div to 1
+          pathElement.style.fillOpacity = '1';
+          pathElement.style.opacity = '1';
+      } else {
+          console.error("Path not found:", pathID);
+      }
+  }
+  
+
+
 function getLunarMonthNumber() {
-    // alert("getLunarMonthNumber, targetDate:" + targetDate);
-    getTheDayOfYear(targetDate);
-    // alert("getLunarMonthNumber, moonDay: " + moonDay + ", dayOfYear: " + dayOfYear);
+  getTheDayOfYear(targetDate); // Ensure this function sets dayOfYear and moonDay
 
-    const synodicMonth = 29.530588; // average number of days between new moons
-    let lunarMonthNumber = 1;
+  if (typeof dayOfYear !== 'number' || typeof moonDay !== 'number') {
+      console.error("dayOfYear or moonDay is not properly set.");
+      return NaN;
+  }
 
-    // console.log("Before calculation - dayOfYear:", dayOfYear, "moonDay:", moonDay); // Debugging
+  const synodicMonth = 29.530588; // average number of days between new moons
+  let lunarMonthNumber = 1;
 
-    if (dayOfYear >= moonDay) {
-        const daysSinceFirstNewMoon = dayOfYear - moonDay;
-        lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 1;
-    } else {
-        const daysUntilFirstNewMoon = moonDay - dayOfYear;
-        lunarMonthNumber = Math.floor(daysUntilFirstNewMoon / synodicMonth) + 1;
-    }
+  if (dayOfYear >= moonDay) {
+      const daysSinceFirstNewMoon = dayOfYear - moonDay;
+      lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 1;
+  } else {
+      const daysUntilFirstNewMoon = moonDay - dayOfYear;
+      lunarMonthNumber = Math.floor(daysUntilFirstNewMoon / synodicMonth) + 1;
+  }
 
-    // console.log("lunarMonthNumber:", lunarMonthNumber); // Debugging
-
-    return lunarMonthNumber;
+  return lunarMonthNumber;
 }
 
-    
+// Assuming getTheDayOfYear sets the global variables correctly
+function getTheDayOfYear(date) {
+  // Logic to set dayOfYear and moonDay based on the provided date
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  dayOfYear = Math.floor(diff / oneDay);
+
+  // Example logic to set moonDay, this needs to be replaced with actual logic
+  moonDay = calculateMoonDay(date); 
+}
+
+function calculateMoonDay(date) {
+  // Dummy logic for moonDay calculation, replace with actual logic
+  // For example, assuming the first new moon of the year is on the 10th day
+  return 10; 
+}
 
 
 

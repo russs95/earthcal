@@ -545,9 +545,13 @@ MONTHS
   transition: opacity 1s;
 }
 
-#lunar_months-12 {
+
+
+path[id*="lunarmonth-12"] {
+  opacity: 0;
   transition: opacity 1s;
 }
+
 
 
 /*Sets the original opacity of both the _365 and _366 solar months*/
@@ -871,56 +875,68 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 
 
-
 /* BASIC COLOR MONTH STYLING */
 
 .january {
   color: #6600ffff;
+  fill: #6600ffff;
 }
 
 .february {
   color: #ff00d9;
+  fill: #ff00d9;
 }
 
 .march {
   color: #d40000ff;
+  fill: #d40000ff;
 }
 
 .april {
   color: #ff6403;
+  fill: #ff6403;
 }
 
 .may {
   color: rgb(255, 128, 1);
+  fill: rgb(255, 128, 1);
 }
 
 .june {
   color: rgb(255, 209, 25);
+  fill: rgb(255, 209, 25);
 }
 
 .july {
   color: rgb(251, 251, 0);
+  fill: rgb(251, 251, 0);
 }
 
 .august {
   color: #c9fa08;
+  fill: #c9fa08;
 }
 
 .september {
   color: #00e513ff;
+  fill: #00e513ff;
 }
 
 .october {
   color: rgb(0, 230, 169);
+  fill: rgb(0, 230, 169);
 }
 
 .november {
   color: #0cabf5;
+  fill: #0cabf5;
 }
 
 .december {
   color: #5151ac;
+  fill: #5151ac;
 }
+
 
 
 .featured-day-event {
@@ -1695,7 +1711,7 @@ margin: auto;
   display: none;
 }
 
-#venus-planetsbutton  {
+#solarsystem-button  {
   border: none; 
   margin:0px 10px 10px 10px;
   cursor:pointer;

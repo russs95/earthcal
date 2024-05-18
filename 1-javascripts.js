@@ -339,7 +339,7 @@ function getTheDayOfYear(targetDate) {
     updateTargetMonth();
     displayDayInfo(targetDate);
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-    // setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+   setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
     resetPaths();
     updateTargetDay();
   // Phase 2: animations after 0.1sec
