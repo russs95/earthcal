@@ -11,6 +11,8 @@ function cyclesToggle() {
   var moonCycle = document.getElementById("moon-cycle");
   var moonPhase = document.getElementById("moon-phase");
   var lunarMonths = document.getElementById('lunar_months-12');
+  var earthButton = document.getElementById('whale-earthbutton');
+  var solarsystemButton = document.getElementById('solarsystem-button');
 
   // Initial state
   var isMoonClicked = true;
@@ -35,9 +37,31 @@ function cyclesToggle() {
   });
 
 
+
+  moonButton.addEventListener("click", function() {
+    if (isMoonClicked) {
+      earthMap.style.display = "none";
+      planetButtons.style.display = "none";
+      kinButtons.style.display = "none";
+      moonCycle.style.display = "none";
+      moonPhase.style.display = "none";
+      lunarMonths.style.opacity = '0';
+    } else {
+      
+
+    }
+
+    // Toggle the state
+    isMoonClicked = !isMoonClicked;
+  });
+
+
+
+
+
   
 
-  planetsButton.addEventListener("click", function() {
+  planetButtons.addEventListener("click", function() {
     earthMap.style.display = "none";
     moonCycle.style.display = "none";
     kinButtons.style.display = "none";
