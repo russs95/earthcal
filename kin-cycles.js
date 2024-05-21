@@ -18,15 +18,20 @@ function cyclesToggle() {
 
   moonButton.addEventListener("click", function() {
     if (isMoonClicked) {
+
+      currentYearText.textContent = targetDate.getFullYear().toString();
+    const currentYear = parseInt(currentYearText.textContent);
+     
       earthMap.style.display = "none";
       planetButtons.style.display = "none";
       kinButtons.style.display = "none";
       moonCycle.style.display = "block";
       moonPhase.style.display = "block";
+      calculateHijriMonthNames(currentYear);
       lunarMonths.forEach(function(lunarMonth) {
         lunarMonth.style.opacity = "0.6";
       });
-      setLunarMonthForTarget(targetDate);
+      setLunarMonthForTarget(targetDate, 2024);
     } else {
       lunarMonths.forEach(function(lunarMonth) {
         lunarMonth.style.opacity = "0";

@@ -339,7 +339,7 @@ function getTheDayOfYear(targetDate) {
     updateTargetMonth();
     displayDayInfo(targetDate);
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-   setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
+    //Sets the lunar month for the target date
     resetPaths();
     updateTargetDay();
   // Phase 2: animations after 0.1sec
@@ -364,6 +364,8 @@ function getTheDayOfYear(targetDate) {
 
     highlightDateCycles();
     displayMatchingDateCycle();
+
+
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     // setLunarMonthForTarget(targetDate);
     
@@ -372,6 +374,8 @@ function getTheDayOfYear(targetDate) {
     dayOfYear = getDayOfYear(targetDate);
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
+    const currentYear = parseInt(currentYearText.textContent);
+    setLunarMonthForTarget(targetDate, currentYear); 
 
 
     displayMoonPhaseInDiv(targetDate);
