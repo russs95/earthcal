@@ -704,7 +704,7 @@ function activeMonthBreakouts() {
   const dayLinesDiv = document.getElementById('days-of-year-lines');
   const allDaymarkers = document.getElementById('all-daymarkers');
   const lunarMonths = document.getElementById('lunar_months-12');
-  const mayIntentions = document.getElementById('may-intentions');
+  // const mayIntentions = document.getElementById('may-intentions');
 
   
 
@@ -715,7 +715,7 @@ function activeMonthBreakouts() {
     allDaymarkers.style.opacity = '0';
     dayLinesDiv.style.opacity = '0'; 
     lunarMonths.style.opacity = '0'; 
-    mayIntentions.style.display = 'block'; 
+    // mayIntentions.style.display = 'block'; 
    
     setTimeout(() => {
     // solarCenterDiv.style.opacity = '0'; 
@@ -725,7 +725,7 @@ function activeMonthBreakouts() {
     setTimeout(breakoutMay,700);
 
     setTimeout(() => {
-      mayIntentions.style.opacity = '1'; 
+      // mayIntentions.style.opacity = '1'; 
     }, 1000);
   });
 
@@ -738,7 +738,7 @@ function activeMonthBreakouts() {
     // Set a delay before changing the opacity of dayLinesDiv
     setTimeout(() => {
         dayLinesDiv.style.opacity = '1';
-        mayIntentions.style.opacity = '0'; 
+        // mayIntentions.style.opacity = '0'; 
      }, 800);
 
     setTimeout(() => {
@@ -749,7 +749,7 @@ function activeMonthBreakouts() {
     setTimeout(() => {
       // lunarMonths.style.opacity = '1'; 
       allDaymarkers.style.opacity = '1'; 
-      mayIntentions.style.display = 'none'; 
+      // mayIntentions.style.display = 'none'; 
 
   }, 2500);
 
