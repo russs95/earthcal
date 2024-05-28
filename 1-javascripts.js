@@ -693,75 +693,91 @@ document.querySelector("#information-six .back").onclick = function() {
 
 
 
+// LISTEN FOR BREAKOUT CLICK
 
-// BREAKOUTS
 
-function activeMonthBreakouts() {
-  // Select the div elements by their IDs
-  const mayDiv = document.getElementById('may_366');
-  const mayBreakoutCloseDiv = document.getElementById('may-breakout-close');
+// LISTEN FOR BREAKOUT CLICK
+
+function listenForMonthBreakout() {
+  const monthNames = [
+    'january', 'february', 'march', 'april', 'may', 'june', 
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
+
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
   const allDaymarkers = document.getElementById('all-daymarkers');
   const lunarMonths = document.getElementById('lunar_months-12');
-  // const mayIntentions = document.getElementById('may-intentions');
 
-  
+  monthNames.forEach((month, index) => {
+    const monthDiv = document.getElementById(`${month}_366`);
+    const monthIntentions = document.getElementById(`${month}-intentions`);
+    const monthNumber = index + 1;
 
+    // OPEN:
+    monthDiv.addEventListener('click', () => {
+      allDaymarkers.style.opacity = '0';
+      dayLinesDiv.style.opacity = '0'; 
+      lunarMonths.style.opacity = '0'; 
+     
+      setTimeout(() => {
+        solarCenterDiv.style.opacity = '0'; 
+        monthDiv.style.opacity = '1'; 
+      }, 500);
 
-  // OPEN:
-  //Listener to hide elements of the cal and show the may-breakout
-  mayDiv.addEventListener('click', () => {
-    allDaymarkers.style.opacity = '0';
-    dayLinesDiv.style.opacity = '0'; 
-    lunarMonths.style.opacity = '0'; 
-    // mayIntentions.style.display = 'block'; 
-   
-    setTimeout(() => {
-    // solarCenterDiv.style.opacity = '0'; 
-    mayDiv.style.opacity = '1'; 
-  }, 500);
+      setTimeout(() => breakoutTheMonth(month, monthNumber), 700);
 
-    setTimeout(breakoutMay,700);
-
-    setTimeout(() => {
-      // mayIntentions.style.opacity = '1'; 
-    }, 1000);
+      setTimeout(() => {
+        monthIntentions.style.display = 'block'; 
+        monthIntentions.style.opacity = '1'; 
+      }, 1000);
+    });
   });
+}
 
-  // CLOSE: 
-  //Listener to hide may breakout and reshow cal
-  mayBreakoutCloseDiv.addEventListener('click', () => {
-    
-    breakoutMay(); // Call the breakoutMay function
+// LISTEN FOR BREAKOUT CLOSE CLICK
 
-    // Set a delay before changing the opacity of dayLinesDiv
-    setTimeout(() => {
-        dayLinesDiv.style.opacity = '1';
-        // mayIntentions.style.opacity = '0'; 
-     }, 800);
+function listenForCloseBreakout() {
+  const monthNames = [
+    'january', 'february', 'march', 'april', 'may', 'june', 
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
 
-    setTimeout(() => {
-      solarCenterDiv.style.opacity = '1'; 
+  monthNames.forEach(month => {
+    const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
+    if (monthBreakoutCloseDiv) {
+      monthBreakoutCloseDiv.addEventListener('click', () => {
+        console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
+        closeCurrentBreakout(() => {
+          const solarCenterDiv = document.getElementById('solar-system-center');
+          const dayLinesDiv = document.getElementById('days-of-year-lines');
+          const allDaymarkers = document.getElementById('all-daymarkers');
 
-  }, 1000);
+          setTimeout(() => {
+            dayLinesDiv.style.opacity = '1';
+          }, 800);
 
-    setTimeout(() => {
-      // lunarMonths.style.opacity = '1'; 
-      allDaymarkers.style.opacity = '1'; 
-      // mayIntentions.style.display = 'none'; 
+          setTimeout(() => {
+            solarCenterDiv.style.opacity = '1';
+          }, 1000);
 
-  }, 2500);
-
-});
-
-
+          setTimeout(() => {
+            allDaymarkers.style.opacity = '1';
+          }, 2500);
+        });
+      });
+    }
+  });
 }
 
 
-function breakoutMay() {
-  // This function animates the opening of May breakout
-  const mayBreakout = document.getElementById('may-breakout');
+
+
+function closeCurrentBreakout(callback) {
+  const monthNames = [
+    'january', 'february', 'march', 'april', 'may', 'june', 
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
 
   // Function to change the display style of day divs and possibly add a class
   const setDisplay = (id, displayStyle, addClass) => {
@@ -774,50 +790,92 @@ function breakoutMay() {
     }
   };
 
-  // Check the current display status of 'may-breakout'
-  if (mayBreakout.style.display === 'none' || !mayBreakout.style.display) {
-    // Set all day div groups to display none
-    for (let i = 1; i <= 31; i++) {
-      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
-      setDisplay(dayId, 'none');
+  let closeDuration = 0;
+  let closeOperations = [];
+
+  monthNames.forEach(month => {
+    const otherMonthBreakout = document.getElementById(`${month}-breakout`);
+    const otherMonthIntentions = document.getElementById(`${month}-intentions`);
+    if (otherMonthBreakout && otherMonthBreakout.style.display === 'block') {
+      const daysInOtherMonth = new Date(2024, monthNames.indexOf(month) + 1, 0).getDate();
+      for (let i = daysInOtherMonth; i >= 1; i--) {
+        let dayId = `${i.toString().padStart(2, '0')}-${(monthNames.indexOf(month) + 1).toString().padStart(2, '0')}-day-breakout`;
+        closeOperations.push(() => setDisplay(dayId, 'none'));
+      }
+      closeDuration = daysInOtherMonth * 22 + 100;
+      closeOperations.push(() => { otherMonthBreakout.style.display = 'none'; });
     }
-
-    // Set 'may-breakout' to display block
-    mayBreakout.style.display = 'block';
-
-    // Sequentially set each day div to display block
-    for (let i = 1; i <= 31; i++) {
-      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
-      setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
+    if (otherMonthIntentions && otherMonthIntentions.style.display !== 'none') {
+      closeOperations.push(() => { otherMonthIntentions.style.display = 'none'; });
     }
+  });
 
-    // Check if targetDate is in May and highlight the corresponding day
-    const targetDateObj = new Date(targetDate);
-    if (targetDateObj.getMonth() === 4) {  // Month is May (months are zero-indexed)
-      const day = targetDateObj.getDate().toString().padStart(2, '0');
-      const dayId = `${day}-05-day-breakout`;
-      setTimeout(() => setDisplay(dayId, 'block', 'active-break'), day * 22);
-    }
+  // Execute all close operations sequentially
+  closeOperations.forEach((operation, index) => {
+    setTimeout(operation, index * 22);
+  });
 
-    calendarRefresh();
-
-  } else {
-    // Sequentially set each day div to display none in reverse order
-    for (let i = 31; i >= 1; i--) {
-      let dayId = `${i.toString().padStart(2, '0')}-05-day-breakout`;
-      setTimeout(() => setDisplay(dayId, 'none'), (32 - i) * 22);  // Adjusted to 0.22 seconds
-    }
-
-    // Finally, set 'may-breakout' to display none
-    setTimeout(() => {
-      mayBreakout.style.display = 'none';
-    }, 31 * 22 + 100);  // Adjusted delay to ensure all days are hidden first
-
-
-
-
-    
-  }
+  // Call the callback function after closing current breakouts
+  setTimeout(callback, closeDuration);
 }
 
+function breakoutTheMonth(monthName, monthNumber) {
+  closeCurrentBreakout(() => {
+    const monthBreakout = document.getElementById(`${monthName}-breakout`);
+
+    // Function to change the display style of day divs and possibly add a class
+    const setDisplay = (id, displayStyle, addClass) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = displayStyle;
+        if (addClass) {
+          element.classList.add(addClass);
+        }
+      }
+    };
+
+    // Check the current display status of the month breakout
+    if (monthBreakout.style.display === 'none' || !monthBreakout.style.display) {
+      // Set all day div groups to display none
+      const daysInMonth = new Date(2024, monthNumber, 0).getDate(); // Get the number of days in the month
+      for (let i = 1; i <= daysInMonth; i++) {
+        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setDisplay(dayId, 'none');
+      }
+
+      // Set the month breakout to display block
+      monthBreakout.style.display = 'block';
+
+      // Sequentially set each day div to display block
+      for (let i = 1; i <= daysInMonth; i++) {
+        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
+      }
+
+      // Check if targetDate is in the specified month and highlight the corresponding day
+      const targetDateObj = new Date(targetDate);
+      if (targetDateObj.getMonth() === monthNumber - 1) {  // Months are zero-indexed
+        const day = targetDateObj.getDate().toString().padStart(2, '0');
+        const dayId = `${day}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setTimeout(() => setDisplay(dayId, 'block', 'active-break'), day * 22);
+      }
+
+      calendarRefresh();
+      listenForCloseBreakout();  // Initialize the close listeners after refreshing the calendar
+
+    } else {
+      // Sequentially set each day div to display none in reverse order
+      const daysInMonth = new Date(2024, monthNumber, 0).getDate(); // Get the number of days in the month
+      for (let i = daysInMonth; i >= 1; i--) {
+        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setTimeout(() => setDisplay(dayId, 'none'), (daysInMonth - i + 1) * 22);  // Adjusted to 0.22 seconds
+      }
+
+      // Finally, set the month breakout to display none
+      setTimeout(() => {
+        monthBreakout.style.display = 'none';
+      }, daysInMonth * 22 + 100);  // Adjusted delay to ensure all days are hidden first
+    }
+  });
+}
 
