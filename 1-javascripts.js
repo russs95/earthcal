@@ -879,3 +879,89 @@ function breakoutTheMonth(monthName, monthNumber) {
   });
 }
 
+
+
+// Function to hide the corresponding month intentions div
+function hideMonthIntentions(month) {
+  const intentionsDiv = document.getElementById(`${month}-intentions`);
+  if (intentionsDiv) {
+    intentionsDiv.style.display = 'none';
+  }
+}
+
+// Function to attach event listeners to all hide-month buttons
+function attachEventListeners() {
+  const buttons = document.querySelectorAll('[id$="-hide-month-button"]');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      const month = this.id.split('-')[0]; // Extract the month from the button id
+      hideMonthIntentions(month);
+    });
+  });
+}
+
+// Attach event listeners when the DOM content is loaded
+document.addEventListener('DOMContentLoaded', attachEventListeners);
+
+
+
+
+// MONTH PHASE DISPLAY ON BREAKOUTS
+
+// Globally preset variable for the current year
+const currentYear = 2024; // Set this to the appropriate value
+
+// Function to display moon phase on breakout touch or mouseover
+function displayMoonPhaseOnBreakoutTouch(event) {
+  let targetElement = event.target;
+
+  // Traverse up the DOM tree to find the <g> element if necessary
+  while (targetElement && targetElement.tagName !== 'g') {
+    targetElement = targetElement.parentNode;
+  }
+
+  // Ensure we have found the <g> element
+  if (targetElement && targetElement.tagName === 'g') {
+    const pathID = targetElement.id;
+    const dateParts = pathID.split('-');
+    const day = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]) - 1; // month is 0-indexed in JavaScript
+    const year = currentYear; // Use the globally preset currentYear
+    
+    const date = new Date(year, month, day);
+
+
+    // Display an alert with the picked day, month, and year
+    // alert(`Path: ${pathID},Day: ${day}, Month: ${month + 1}, Year: ${year}, date: ${date}`);
+    
+    
+    // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
+    displayMoonPhaseInDiv(date);
+    updateMoonPhase(date);
+
+  }
+}
+
+// Function to attach event listeners to all relevant SVG groups
+function attachBreakoutTouchListeners() {
+  const breakoutGroups = document.querySelectorAll('[id$="-day-breakout"]');
+  breakoutGroups.forEach(group => {
+    group.addEventListener('touchstart', displayMoonPhaseOnBreakoutTouch);
+    group.addEventListener('mouseover', displayMoonPhaseOnBreakoutTouch);
+  });
+}
+
+// Attach event listeners when the DOM content is loaded
+document.addEventListener('DOMContentLoaded', attachBreakoutTouchListeners);
+
+// Example implementation of displayMoonPhaseInDiv function
+function displayMoonPhaseInDiv(date) {
+  // Your code to display the moon phase details in a div
+  console.log(`Displaying moon phase for date: ${date}`);
+}
+
+// Example implementation of displayDayInfo function
+function displayDayInfo(date) {
+  // Your code to display the day information
+  console.log(`Displaying day info for date: ${date}`);
+}

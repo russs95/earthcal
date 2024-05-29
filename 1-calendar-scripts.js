@@ -405,7 +405,7 @@ setInterval(printTime, 1000);
 
 
   /*----------MOON--------------------
-  // This function displays the moon phase details in a div element.
+  // This function displays the moon phase details in the bottom right div element.
 */
 
   function displayMoonPhaseInDiv(date) {
@@ -471,11 +471,11 @@ setInterval(printTime, 1000);
 
 
 
-// This function displays the current moon phase
-function displayCurrentMoonPhase() {
-  const currentDate = targetDate;
-  // TODO: This function should call displayMoonPhaseInDiv() with the current date
-}
+// // This function displays the current moon phase
+// function displayCurrentMoonPhase() {
+//   const currentDate = targetDate;
+//   // TODO: This function should call displayMoonPhaseInDiv() with the current date
+// }
   
 
 
