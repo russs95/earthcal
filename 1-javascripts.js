@@ -748,18 +748,7 @@ function listenForCloseBreakout() {
     if (monthBreakoutCloseDiv) {
       monthBreakoutCloseDiv.addEventListener('click', () => {
         console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
-        
-        // Remove 'active-month' class from all <path> elements with '_36' in their id
-        const activeElements = document.querySelectorAll('path[id*="_36"].active-month');
-        activeElements.forEach(element => {
-          element.classList.remove('active-month');
-        });
-
-          // Set opacity for all <path> elements with '_36' in their id to 0.65
-          const pathElements = document.querySelectorAll('path[id*="_36"]');
-          pathElements.forEach(element => {
-            element.style.opacity = '0.65';
-          });
+   
 
         closeCurrentBreakout(() => {
           const solarCenterDiv = document.getElementById('solar-system-center');
@@ -772,6 +761,22 @@ function listenForCloseBreakout() {
 
           setTimeout(() => {
             solarCenterDiv.style.opacity = '1';
+
+                 
+        // Remove 'active-month' class from all <path> elements with '_36' in their id 
+        // Not sure if this is needed.  Maybe the sequence underneath does the trick.
+        // const activeElements = document.querySelectorAll('path[id*="_36"].active-month');
+        // activeElements.forEach(element => {
+        //   element.classList.remove('active-month');
+        // });
+
+          // Set opacity for all <path> elements with '_36' in their id to 0.65
+          const pathElements = document.querySelectorAll('path[id*="_36"]');
+          pathElements.forEach(element => {
+            element.style.opacity = '0.65';
+          });
+
+
           }, 1000);
 
           setTimeout(() => {
