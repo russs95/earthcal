@@ -897,7 +897,7 @@ function breakoutTheMonth(monthName, monthNumber) {
 
 // Function to hide the corresponding month intentions div
 function hideMonthIntentions(month) {
-  const intentionsDiv = document.getElementById(`${month}-intentions`);
+  const intentionsDiv = document.getElementById(`${month}-intention-month-name`);
   const themoonphases = document.getElementById('themoonphases');
   const solarCenterDiv = document.getElementById('solar-system-center');
 
@@ -911,7 +911,7 @@ function hideMonthIntentions(month) {
 
 // Function to attach event listeners to all hide-month buttons
 function attachEventListeners() {
-  const buttons = document.querySelectorAll('[id$="-hide-month-button"]');
+  const buttons = document.querySelectorAll('[id$="solar_show-button"]');
   buttons.forEach(button => {
     button.addEventListener('click', function() {
       const month = this.id.split('-')[0]; // Extract the month from the button id
