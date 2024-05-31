@@ -12,6 +12,8 @@ function cyclesToggle() {
   var earthButton = document.getElementById('whale-earthbutton');
   var solarsystemButton = document.getElementById('solarsystem-button');
   var solarSystemCenter = document.getElementById('solar-system-center');
+  const themoonphases = document.getElementById('themoonphases');
+
 
   // Initial state
   var isMoonClicked = true;
@@ -21,7 +23,8 @@ function cyclesToggle() {
 
       currentYearText.textContent = targetDate.getFullYear().toString();
     const currentYear = parseInt(currentYearText.textContent);
-     
+    themoonphases.style.display = 'block';
+
       earthMap.style.display = "none";
       planetButtons.style.display = "none";
       kinButtons.style.display = "none";

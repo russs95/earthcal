@@ -748,6 +748,19 @@ function listenForCloseBreakout() {
     if (monthBreakoutCloseDiv) {
       monthBreakoutCloseDiv.addEventListener('click', () => {
         console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
+        
+        // Remove 'active-month' class from all <path> elements with '_36' in their id
+        const activeElements = document.querySelectorAll('path[id*="_36"].active-month');
+        activeElements.forEach(element => {
+          element.classList.remove('active-month');
+        });
+
+          // Set opacity for all <path> elements with '_36' in their id to 0.65
+          const pathElements = document.querySelectorAll('path[id*="_36"]');
+          pathElements.forEach(element => {
+            element.style.opacity = '0.65';
+          });
+
         closeCurrentBreakout(() => {
           const solarCenterDiv = document.getElementById('solar-system-center');
           const dayLinesDiv = document.getElementById('days-of-year-lines');
@@ -755,7 +768,7 @@ function listenForCloseBreakout() {
 
           setTimeout(() => {
             dayLinesDiv.style.opacity = '1';
-          }, 800);
+          }, 0);
 
           setTimeout(() => {
             solarCenterDiv.style.opacity = '1';
@@ -763,12 +776,13 @@ function listenForCloseBreakout() {
 
           setTimeout(() => {
             allDaymarkers.style.opacity = '1';
-          }, 2500);
+          }, 1500);
         });
       });
     }
   });
 }
+
 
 
 
@@ -884,8 +898,14 @@ function breakoutTheMonth(monthName, monthNumber) {
 // Function to hide the corresponding month intentions div
 function hideMonthIntentions(month) {
   const intentionsDiv = document.getElementById(`${month}-intentions`);
+  const themoonphases = document.getElementById('themoonphases');
+  const solarCenterDiv = document.getElementById('solar-system-center');
+
   if (intentionsDiv) {
     intentionsDiv.style.display = 'none';
+    themoonphases.style.display = 'none';
+    solarCenterDiv.style.opacity = '1';
+
   }
 }
 
