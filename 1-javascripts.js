@@ -375,6 +375,7 @@ function getTheDayOfYear(targetDate) {
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
     const currentYear = parseInt(currentYearText.textContent);
+    
     setLunarMonthForTarget(targetDate, currentYear); 
 
 
@@ -777,7 +778,7 @@ function listenForCloseBreakout() {
           });
 
 
-          }, 1000);
+          }, 800);
 
           setTimeout(() => {
             allDaymarkers.style.opacity = '1';
@@ -934,7 +935,7 @@ document.addEventListener('DOMContentLoaded', attachEventListeners);
 // MONTH PHASE DISPLAY ON BREAKOUTS
 
 // Globally preset variable for the current year
-const currentYear = 2024; // Set this to the appropriate value
+// const currentYear = 2024; // Set this to the appropriate value
 
 // Function to display moon phase on breakout touch or mouseover
 function displayMoonPhaseOnBreakoutTouch(event) {
