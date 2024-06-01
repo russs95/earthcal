@@ -375,7 +375,7 @@ function getTheDayOfYear(targetDate) {
     const currentYearText = document.getElementById('current-year').querySelector('tspan');
     currentYearText.textContent = targetDate.getFullYear().toString();
     const currentYear = parseInt(currentYearText.textContent);
-    
+
     setLunarMonthForTarget(targetDate, currentYear); 
 
 
@@ -695,32 +695,34 @@ document.querySelector("#information-six .back").onclick = function() {
 
 
 // LISTEN FOR BREAKOUT CLICK
-
-
-// LISTEN FOR BREAKOUT CLICK
-
 function listenForMonthBreakout() {
   const monthNames = [
     'january', 'february', 'march', 'april', 'may', 'june', 
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
 
+  // Filter to only include May and June
+  const targetMonths = ['may', 'june'];
+
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
   const allDaymarkers = document.getElementById('all-daymarkers');
   const lunarMonths = document.getElementById('lunar_months-12');
 
-  monthNames.forEach((month, index) => {
+  targetMonths.forEach((month, index) => {
     const monthDiv = document.getElementById(`${month}_366`);
     const monthIntentions = document.getElementById(`${month}-intentions`);
-    const monthNumber = index + 1;
+    const monthNumber = monthNames.indexOf(month) + 1;
+
+    const intentionsDiv = document.getElementById(`${month}-intention-month-name`);
 
     // OPEN:
     monthDiv.addEventListener('click', () => {
       allDaymarkers.style.opacity = '0';
       dayLinesDiv.style.opacity = '0'; 
       lunarMonths.style.opacity = '0'; 
-     
+      intentionsDiv.style.display = 'block';
+
       setTimeout(() => {
         solarCenterDiv.style.opacity = '0'; 
         monthDiv.style.opacity = '1'; 
@@ -736,6 +738,7 @@ function listenForMonthBreakout() {
   });
 }
 
+
 // LISTEN FOR BREAKOUT CLOSE CLICK
 
 function listenForCloseBreakout() {
@@ -743,6 +746,9 @@ function listenForCloseBreakout() {
     'january', 'february', 'march', 'april', 'may', 'june', 
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
+
+    // Filter to only include May and June
+    const targetMonths = ['may', 'june'];
 
   monthNames.forEach(month => {
     const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
@@ -755,6 +761,8 @@ function listenForCloseBreakout() {
           const solarCenterDiv = document.getElementById('solar-system-center');
           const dayLinesDiv = document.getElementById('days-of-year-lines');
           const allDaymarkers = document.getElementById('all-daymarkers');
+          const lunarMonths = document.getElementById('lunar_months-12');
+
 
           setTimeout(() => {
             dayLinesDiv.style.opacity = '1';
@@ -762,22 +770,7 @@ function listenForCloseBreakout() {
 
           setTimeout(() => {
             solarCenterDiv.style.opacity = '1';
-
-                 
-        // Remove 'active-month' class from all <path> elements with '_36' in their id 
-        // Not sure if this is needed.  Maybe the sequence underneath does the trick.
-        // const activeElements = document.querySelectorAll('path[id*="_36"].active-month');
-        // activeElements.forEach(element => {
-        //   element.classList.remove('active-month');
-        // });
-
-          // Set opacity for all <path> elements with '_36' in their id to 0.65
-          const pathElements = document.querySelectorAll('path[id*="_36"]');
-          pathElements.forEach(element => {
-            element.style.opacity = '0.65';
-          });
-
-
+            lunarMonths.style.opacity = '1'; 
           }, 800);
 
           setTimeout(() => {
@@ -792,12 +785,14 @@ function listenForCloseBreakout() {
 
 
 
-
 function closeCurrentBreakout(callback) {
   const monthNames = [
     'january', 'february', 'march', 'april', 'may', 'june', 
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
+
+  // Filter to only include May and June
+  const targetMonths = ['may', 'june'];
 
   // Function to change the display style of day divs and possibly add a class
   const setDisplay = (id, displayStyle, addClass) => {
@@ -813,7 +808,7 @@ function closeCurrentBreakout(callback) {
   let closeDuration = 0;
   let closeOperations = [];
 
-  monthNames.forEach(month => {
+  targetMonths.forEach(month => {
     const otherMonthBreakout = document.getElementById(`${month}-breakout`);
     const otherMonthIntentions = document.getElementById(`${month}-intentions`);
     if (otherMonthBreakout && otherMonthBreakout.style.display === 'block') {
@@ -838,6 +833,7 @@ function closeCurrentBreakout(callback) {
   // Call the callback function after closing current breakouts
   setTimeout(callback, closeDuration);
 }
+
 
 function breakoutTheMonth(monthName, monthNumber) {
   closeCurrentBreakout(() => {
@@ -900,35 +896,50 @@ function breakoutTheMonth(monthName, monthNumber) {
 }
 
 
-
-// Function to hide the corresponding month intentions div
-function hideMonthIntentions(month) {
+// Function to toggle the views for solar and lunar for a particular month
+function toggleMonthSolarLunarViews(month, type) {
   const intentionsDiv = document.getElementById(`${month}-intention-month-name`);
   const themoonphases = document.getElementById('themoonphases');
   const solarCenterDiv = document.getElementById('solar-system-center');
+  const solarButton = document.getElementById(`${month}-solar_show-button`);
+  const lunarButton = document.getElementById(`${month}-lunar_show-button`);
 
-  if (intentionsDiv) {
+  if (type === 'solar') {
     intentionsDiv.style.display = 'none';
     themoonphases.style.display = 'none';
     solarCenterDiv.style.opacity = '1';
-
+    if (solarButton) solarButton.style.display = 'none';
+    if (lunarButton) lunarButton.style.display = 'block';
+  } else if (type === 'lunar') {
+    intentionsDiv.style.display = 'block';
+    themoonphases.style.display = 'block';
+    solarCenterDiv.style.opacity = '0';
+    if (solarButton) solarButton.style.display = 'block';
+    if (lunarButton) lunarButton.style.display = 'none';
   }
 }
 
-// Function to attach event listeners to all hide-month buttons
+// Function to attach event listeners to all toggle buttons
 function attachEventListeners() {
-  const buttons = document.querySelectorAll('[id$="solar_show-button"]');
-  buttons.forEach(button => {
+  const solarButtons = document.querySelectorAll('[id$="solar_show-button"]');
+  solarButtons.forEach(button => {
     button.addEventListener('click', function() {
       const month = this.id.split('-')[0]; // Extract the month from the button id
-      hideMonthIntentions(month);
+      toggleMonthSolarLunarViews(month, 'solar');
+    });
+  });
+
+  const lunarButtons = document.querySelectorAll('[id$="lunar_show-button"]');
+  lunarButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const month = this.id.split('-')[0]; // Extract the month from the button id
+      toggleMonthSolarLunarViews(month, 'lunar');
     });
   });
 }
 
 // Attach event listeners when the DOM content is loaded
 document.addEventListener('DOMContentLoaded', attachEventListeners);
-
 
 
 
@@ -939,6 +950,8 @@ document.addEventListener('DOMContentLoaded', attachEventListeners);
 
 // Function to display moon phase on breakout touch or mouseover
 function displayMoonPhaseOnBreakoutTouch(event) {
+  const currentYear = parseInt(currentYearText.textContent); //imports the current year from the currentYearText element
+
   let targetElement = event.target;
 
   // Traverse up the DOM tree to find the <g> element if necessary
