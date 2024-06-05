@@ -752,6 +752,8 @@ function listenForCloseBreakout() {
 
   monthNames.forEach(month => {
     const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
+
+    
     if (monthBreakoutCloseDiv) {
       monthBreakoutCloseDiv.addEventListener('click', () => {
         console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
@@ -762,10 +764,13 @@ function listenForCloseBreakout() {
           const dayLinesDiv = document.getElementById('days-of-year-lines');
           const allDaymarkers = document.getElementById('all-daymarkers');
           const lunarMonths = document.getElementById('lunar_months-12');
+          const theMonth = document.getElementById(`may_366`);
+
 
 
           setTimeout(() => {
             dayLinesDiv.style.opacity = '1';
+            theMonth.style.opactiy ='0.66';
           }, 0);
 
           setTimeout(() => {
