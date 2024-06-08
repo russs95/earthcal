@@ -48,11 +48,11 @@ function prevYearClick() {
 
   calendarRefresh();
   setYearsMonthsOn()
-  updateTargetDay();
+  // updateTargetDay();
 
-  document.getElementById("reset").style.display = "block";
-  document.getElementById("tomorrow").style.display = "none";
-  document.getElementById("yesterday").style.display = "none";
+  // document.getElementById("reset").style.display = "block";
+  // document.getElementById("tomorrow").style.display = "none";
+  // document.getElementById("yesterday").style.display = "none";
 
 
   document.getElementById("current-time").style.display = "none";
@@ -79,9 +79,9 @@ function nextYearClick() {
   calendarRefresh();
   updateTargetDay();
 
-  document.getElementById("reset").style.display = "block";
-  document.getElementById("tomorrow").style.display = "none";
-  document.getElementById("yesterday").style.display = "none";
+  // document.getElementById("reset").style.display = "block";
+  // document.getElementById("tomorrow").style.display = "none";
+  // document.getElementById("yesterday").style.display = "none";
 
 
   document.getElementById("current-time").style.display = "none";

@@ -18,7 +18,7 @@
     --weeks-circle: #b3b3b3ff; /*30% grey*/
     --months-lunar: rgb(240, 239, 239); /*40%grey*/
     --modal-background: rgba(255, 255, 255, 0.215);
-    --night-day: #f2f2f2;
+    --day-day: #f2f2f2;
     --grey-trans: rgba(136, 136, 136, 0.343);
     
 
@@ -199,3 +199,57 @@
   color: var(--general-background);
 }
 
+
+#prev-year {
+  background: url(svgs/to-prev-year-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-year:hover {
+  background: url(svgs/to-prev-year-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-day {
+  background: url(svgs/to-yesterday-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-day:hover {
+  background: url(svgs/to-yesterday-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#reset-to-today {
+  background: url(svgs/to-today-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#reset-to-today:hover {
+  background: url(svgs/to-today-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-day {
+  background: url(svgs/to-tomorrow-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-day:hover {
+  background: url(svgs/to-tomorrow-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year {
+  background: url(svgs/to-next-year-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year:hover {
+  background: url(svgs/to-next-year-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+.night-only {display:none;}
+
+.day-only {display:block;}

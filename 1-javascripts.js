@@ -106,9 +106,9 @@ function searchGoDate() {
 
   calendarRefresh();
   
-  document.getElementById("reset").style.display = "block";
-  document.getElementById("tomorrow").style.display = "block";
-  document.getElementById("yesterday").style.display = "block";
+  // document.getElementById("reset").style.display = "block";
+  // document.getElementById("tomorrow").style.display = "block";
+  // document.getElementById("yesterday").style.display = "block";
 
 
 }
@@ -206,7 +206,15 @@ function openAddCycle() {
   document.body.style.overflowY = "hidden";
   document.body.style.maxHeight = "101vh";
 
+  // Extract and format the date
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = targetDate.toLocaleDateString('en-US', options);
+
+  // Update the text in the div
+  const titleElement = document.getElementById("add-event-title");
+  titleElement.textContent = `Add an event for ${formattedDate}`;
 }
+
 
 /* Close when someone clicks on the "x" symbol inside the overlay */
 
@@ -322,7 +330,7 @@ function getTheDayOfYear(targetDate) {
         calendarRefresh()
 
         startDate = targetDate;
-        document.getElementById("reset").style.display = "block";
+        // document.getElementById("reset").style.display = "block";
         document.getElementById("current-time").style.display = "none";
       
        
@@ -399,7 +407,7 @@ function set2Tomorrow() {
   // targetDate = new Date();
   targetDate.setDate(targetDate.getDate() + 1); // Sets the target date to tomorrow
   calendarRefresh(); // Call the calendarRefresh function
-  document.getElementById("reset").style.display = "block";
+  // document.getElementById("reset").style.display = "block";
   // document.getElementById("tomorrow").style.display = "none";
   // document.getElementById("yesterday").style.display = "none";
   document.getElementById("current-time").style.display = "none";
@@ -412,7 +420,7 @@ function set2Yesterday() {
   // targetDate = new Date();
   targetDate.setDate(targetDate.getDate() - 1); // Sets the target date to yesterday
   calendarRefresh(); // Call the calendarRefresh function
-  document.getElementById("reset").style.display = "block";
+  // document.getElementById("reset").style.display = "block";
   // document.getElementById("tomorrow").style.display = "none";
   // document.getElementById("yesterday").style.display = "none";
   document.getElementById("current-time").style.display = "none";
@@ -426,9 +434,9 @@ function set2Today() {
   setCurrentDate();  // Reset target date to the current date
   calendarRefresh(); // Call the calendarRefresh function for all updates
 
-  document.getElementById("yesterday").style.display = "block";
-  document.getElementById("tomorrow").style.display = "block";
-  document.getElementById("reset").style.display = "none";
+  // document.getElementById("yesterday").style.display = "block";
+  // document.getElementById("tomorrow").style.display = "block";
+  // document.getElementById("reset").style.display = "none";
   document.getElementById("current-time").style.display = "block";
 
 

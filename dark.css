@@ -19,6 +19,7 @@
     --modal-background: rgba(0, 0, 0, 0.352);
     --night-day: #191919;
     --grey-trans: rgba(0, 0, 0, 0.718);
+    --hover-over: #02E1E2;
 
 
 
@@ -178,14 +179,16 @@
 
 
 .top-add-button {
-  background: url(svgs/add-night.svg) no-repeat;
+  background: url(svgs/add-night.svg) no-repeat center;
   background-size: contain;
 }
 
 .top-add-button:hover {
     background: url(svgs/add-night-over.svg) no-repeat;
     background-size: contain;
+
 }
+
 
 .top-add-icon {
   background: url(svgs/add-night-over.svg) no-repeat;
@@ -229,4 +232,59 @@
   background-color: #b5c2d378;
   color: var(--general-background);
 }
+
+
+#prev-year {
+  background: url(svgs/to-prev-year-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-year:hover {
+  background: url(svgs/to-prev-year-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-day {
+  background: url(svgs/to-yesterday-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-day:hover {
+  background: url(svgs/to-yesterday-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#reset-to-today {
+  background: url(svgs/to-today-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#reset-to-today:hover {
+  background: url(svgs/to-today-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-day {
+  background: url(svgs/to-tomorrow-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-day:hover {
+  background: url(svgs/to-tomorrow-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year {
+  background: url(svgs/to-next-year-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year:hover {
+  background: url(svgs/to-next-year-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+.night-only {display:block;}
+
+.day-only {display:none;}
 
