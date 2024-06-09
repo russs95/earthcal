@@ -177,6 +177,8 @@ mercuryButton.addEventListener("click", function() {
   } else {
     mercuryCycle.style.display = "none";
     mercuryButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+
 
   }isMercuryClicked
   isMercuryClicked = !isMercuryClicked;
@@ -215,6 +217,8 @@ UpdateVenusData(date);
   } else {
     venusCycle.style.display = "none";
     venusButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+
 
   }isVenusClicked
     isVenusClicked = !isVenusClicked;
@@ -248,9 +252,12 @@ UpdateMarsData(date);
   solarSystemCenter.style.display = "none";
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
+
   } else {
     marsCycle.style.display = "none";
     marsButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+
 
   }isMarsClicked
   isMarsClicked = !isMarsClicked;
@@ -288,6 +295,8 @@ UpdateJupiterData(date);
   } else {
     jupiterCycle.style.display = "none";
     jupiterButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+
 
   }isJupiterClicked
   isJupiterClicked = !isJupiterClicked;
@@ -324,6 +333,8 @@ UpdateSaturnData(date);
   } else {
     saturnCycle.style.display = "none";
     saturnButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+
 
   }isSaturnClicked
   isSaturnClicked = !isSaturnClicked;
