@@ -363,6 +363,17 @@ z-index:21}
 .previous-button {width:30px;height:20px;text-align:center;cursor:pointer;}
 .next-button {width:30px;height:20px;text-align:center;cursor:pointer;}
 #reset-to-today {width:35px;height:20px;text-align:center;cursor:pointer;}
+
+
+.planet-info-box {display:none; margin: auto; width: 300px; height:300px;text-align:center;}
+
+.animal-info-box {
+  display:none;
+   margin: auto auto 10px 10px; 
+   width: 300px; 
+   height:fit-content;
+   font-size: 0.8em;
+   text-align:left;}
 </style>
 
 <script>
@@ -411,7 +422,7 @@ window.onload = function() {
   
     title2tooltip();   //Adds titles tooltips to the non-date paths
   title2datetip();   //Adds titles to the date paths
-  printTime();
+  // printTime();
   checkRegistrationStatus();
   triggerPlanets();  //Enables the planet animations to be triggered.
   listenForMonthBreakout();
@@ -480,7 +491,7 @@ attachBreakoutTouchListeners();
    highlightDateCycles();
    displayMatchingDateCycle();
    checkTourToken();
-   document.getElementById("current-time").style.display = "block";
+  //  document.getElementById("current-time").style.display = "block";
   //  document.getElementById("tomorrow").style.display = "block";
   //       document.getElementById("yesterday").style.display = "block";
     //Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
@@ -651,13 +662,13 @@ attachBreakoutTouchListeners();
         
         <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:100px;">
 
-          <div class="date-time-box" style="display:flex;flex-flow:column;text-align: right;margin-left:auto;margin-top:auto;margin-bottom:auto;">
+          <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right:0px;padding-bottom:8px;">
             <div id="current-date-info" class="date-info"></div>
-            <div id="current-time" class="date-info"></div>
+            <!-- <div id="current-time" class="date-info"></div> -->
           </div>
 
-          <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;background:var(--grey-trans);margin-right:10px;margin-left:10px;border-radius:8px;border:0.5px solid var(--text-color); border-radius:5px;padding-top:8px;">
-            <button type="button" class="top-add-button" onclick="openAddCycle(),populateDropdown()" aria-label="Add a Cycle" style="width:50px;height:50px;"></button>
+          <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;background:var(--grey-trans);margin-right:10px;margin-left:10px;border-radius:8px;border:1px solid var(--text-color); border-radius:10px;padding-top:8px;">
+            <button type="button" class="top-add-button" onclick="openAddCycle(),populateDropdown()" aria-label="Add a Cycle" style="width:32px;height:32px;"></button>
 
           </div>
         </div>
@@ -680,49 +691,6 @@ attachBreakoutTouchListeners();
        </div>
      
      
-<!-- 
-<svg id="time-controller"  version="1.1" viewBox="0 0 173.92 41.242" xmlns="http://www.w3.org/2000/svg">
-  <g id="layer1" transform="translate(-24.8 -37.41)">
-    <rect id="rect1" x="24.912" y="37.522" width="173.66" height="35.664" ry="8.7255" opacity=".3" stroke="#c5cadf" stroke-linecap="round" stroke-width=".223"/>
-    <g id="time-control-arrow-5" transform="matrix(-6.6542 1.3314 1.3314 6.6542 753.38 -38.812)" stroke="#c5cadf" aria-lable="Previous Year" title="Go to previous year">
-     <path id="path7" d="m88.98-5.1695-1.0236 1.7414 1.5197 1.2741" fill="none" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".20198"/>
-    </g>
-    <g id="next-year" transform="matrix(12.132 1.7826 -1.7826 12.132 -1052 -67.399)" aria-label="Next Year" title="Go to next year">
-     <g id="g12" fill="none">
-      <path id="path6259" d="m100.82-3.6969 0.66321-1.1072-0.96422-0.8221" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".1264"/>
-      <path id="path12" d="m99.834-6.0334 1.4965-0.18992 0.46448 0.17457 0.24182 1.1892-5e-3 1.0619-0.40703 0.29184-1.1356 0.16699-0.29689-0.34858 0.0555-0.94234z"/>
-     </g>
-    </g>
-    <g id="prev-month" transform="matrix(.89187 0 0 .89187 7.228 6.0037)">
-     <g id="time-control-arrow-2" transform="matrix(7.87 1.5746 -1.5746 7.87 -635.77 -55.697)" stroke="#c5cadf" aria-lable="Previous Year" title="Go to previous year">
-      <path id="path4" d="m88.98-5.1695-1.0236 1.7414 1.5197 1.2741" fill="none" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".20198"/>
-     </g>
-     <path id="path10" d="m54.313 40.715 8.3519-1.9339 16.568 0.30036-2.4676 16.996 3.0832 14.763s-22.234 3.4447-24.117-0.36269c-1.8835-3.8073-1.8835-3.8073-1.8835-3.8073z" fill="none"/>
-    </g>
-    <g id="prev-year" transform="matrix(5.4715 1.0947 -1.0947 5.4715 -405.77 -21.99)" fill="none" aria-lable="Previous Year" title="Go to previous year">
-     <path id="path9" d="m78.835-4.37 0.65699-0.45047s2.5284-0.85047 2.9554-0.56822l0.27038 0.7748 0.82396 3.9728-0.13288 0.9062-3.1269 0.58479-0.85283-1.2307z"/>
-     <g id="time-control-arrow" transform="matrix(1.3937 0 0 1.3937 -42.376 2.8759)" stroke="#c5cadf" aria-lable="Previous Year" title="Go to previous year">
-      <path id="path6254" d="m88.98-5.1695-1.0236 1.7414 1.5197 1.2741" fill="none" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".20198"/>
-     </g>
-    </g>
-    <g id="prev-day" cursor="pointer" fill="none" onclick="set2Yesterday()" title="Go back one day">
-     <path id="time-control-arrow-3" transform="matrix(6.4339 1.2873 -1.2873 6.4339 -484.29 -35.411)" d="m88.98-5.1695-1.0236 1.7414 1.5197 1.2741" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".20198"/>
-     <path id="path11" d="m86.525 41.215 15.075 0.01603-5.7639 14.227 4.3677 15.123-14.154 0.1947-4.3523-0.5752s-6.0327-10.517-4.1789-14.122c1.8538-3.6055 9.0061-14.863 9.0061-14.863z"/>
-    </g>
-    <g id="reset-to-today" cursor="pointer" fill="none" stroke="#c5cadf" stroke-linecap="round" onclick="set2Today()" title="⟲ Back to Today">
-     <circle id="time-control-arrow-circle-center" cx="113.42" cy="55.452" r="8.7217" stroke-width=".7723"/>
-     <circle id="time-control-arrow-center-center" cx="113.42" cy="55.452" r="2.1111" stroke-width=".987"/>
-     <rect id="rect12" x="98.978" y="34.457" width="27.848" height="40.616" ry="8.7255" opacity=".01" stroke-width=".987"/>
-    </g>
-    <g id="next-day" cursor="pointer" stroke="#c5cadf" onclick="set2Tomorrow()">
-     <g id="time-control-arrow-4" transform="matrix(-6.4339 1.2873 1.2873 6.4339 710.5 -35.779)" aria-lable="Previous Year" title="Go to previous year">
-      <path id="path8" d="m88.98-5.1695-1.0236 1.7414 1.5197 1.2741" fill="none" stroke="#c5cadf" stroke-linecap="round" stroke-linejoin="round" stroke-width=".20198"/>
-     </g>
-     <rect id="rect13" x="124.22" y="37.781" width="24.013" height="35.185" ry="8.7255" fill="none" opacity=".01" stroke-linecap="round" stroke-width=".987"/>
-    </g>
-   </g>
-  
-</svg> -->
 
  
 
@@ -747,7 +715,7 @@ attachBreakoutTouchListeners();
 
 
 
-    <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;">
+    <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;">
 
       <div><button type="button" class="top-menu-button" onclick="openSettings()" aria-label="Open site settings"></button></div>
       
@@ -809,15 +777,78 @@ attachBreakoutTouchListeners();
 
 
   <div id="events-container"></div>
-    <div class="calendar-box" style="width:98%; height: 100vh;">    
+    <!-- <div class="calendar-box" style="width:98%; height: 100vh;">    
       <div id="modal-planets" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
           <div class="planet-info"></div>
         </div>
-      </div>
-        
+      </div> -->
 
+  <div class="planet-info-container" style="width:100%;height:100%;display:flex;justify-content: center;text-align: center;">
+
+      <div id="neptune-cyclexxx" class="planet-info-box">
+        <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
+        <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
+          Max Dist.: 30.1 AU<br>
+          Min Dist: 29.8 AU</div>
+      </div>
+    
+      <div id="uranus-cyclexxx" class="planet-info-box">
+          <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
+          <div id="uranus-phase-info" style="text-align:left;" class="planet-info"><span style:font-size:1.5em;>Uranus ♅ </span><br>Orbit: 84.07 years<br>
+          Max Dist.: 20.1 AU<br>
+          Min Dist.: 29.8 AU</div>
+      </div>
+      
+        <div id="saturn-cycle" class="planet-info-box">
+          <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
+          <div id="saturn-phase-info" class="planet-info"></div>
+        </div>
+    
+        <div id="jupiter-cycle" class="planet-info-box">
+          <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
+          <div id="jupiter-phase-info" class="planet-info"></div>
+        </div>
+    
+        <div id="mars-cycle" class="planet-info-box">
+          <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
+          <div id="mars-phase-info" class="planet-info"></div>
+        </div>
+    
+        <div id="earth-cyclexxx" class="planet-info-box">
+          <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
+          <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
+            Orbit: 1 year<br>
+            Max Dist.: 1 AU<br>
+            Min Dist.: 1 AU<br>
+            </div>
+        </div>
+          
+        <div id="venus-cycle" class="planet-info-box">
+          <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
+          <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
+        </div>
+    
+        <div id="mercury-cycle" class="planet-info-box">
+          <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
+          <div id="mercury-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
+            Orbit: 0.24 years<br>
+            max Dist.': 1.4 AU<br>
+            min Dist.': 0.61 AU</div>
+        </div>
+
+    <!--ANIMALS-->
+
+    <div id="whale-cycle" class="animal-info-box">
+      <div id="whale-phase" class="phase-image">
+        <img src="icons/whale.svg" width="60" heigh="40">
+      </div>
+      <div id="whale-info" class="planet-info" style="text-align: left;">
+      </div>
+    </div>
+        
+</div>
  
   <div id="the-cal">
 
@@ -1124,7 +1155,11 @@ margin-bottom:25px;">
   </div>
 
 
-  <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none; position:fixed; z-index:11; bottom:20px;left:20px;display:none;">
+  <div id="kin-buttons" class="icon-button-columns" style="display: flex;z-index:50; justify-content: flex-end;display:none; position:fixed; z-index:11; bottom: 20px;
+  right: 70px;
+  display: flex;
+  background: var(--grey-trans);
+  border-radius: 8px;display:none;">
      
     <button type="button" id="whale-button" class="totems-icon active" style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
     <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
@@ -1134,10 +1169,11 @@ margin-bottom:25px;">
     <button type="button" id="humming-button" class="totems-icon"  aria-label="Access humming cycle" style="border-color:rgb(71, 8, 8);"><img src="icons/humming.svg"></button>
 
       <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
-
   </div>
 
-  <div id="planet-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;position:fixed; z-index:11; bottom:20px;left:20px;display:none;">
+  <div id="planet-buttons" class="icon-button-columns" style="justify-content:flex-end;position:absolute; z-index:20; bottom:20px;right:20px;display:none;bottom: 60px;
+  right: 65px;background: var(--grey-trans);
+  border-radius: 8px;">
     
     <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
 
@@ -1171,14 +1207,14 @@ margin-bottom:25px;">
 
   <div id="moon-cycle">
     <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
-    <div id="moon-info" class="planet-info" style="text-align: left;margin-bottom: 10px;"></div>
+    <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
   </div>
 
-  <div id="whale-cycle" style="margin-bottom:60px;">
+  <!-- <div id="whale-cycle" style="margin-bottom:60px;" class="animal-info-box">
     <div id="whale-phase" class="phase-image"><img src="icons/whale.svg" width="60" heigh="40"></div>
     <div id="whale-info" class="planet-info" style="text-align: left;">
     </div>
-  </div>
+  </div> -->
 
   <div id="cariboo-cycle" style="margin-bottom:60px;">
     <div id="cariboo-phase" class="phase-image"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
@@ -1200,7 +1236,7 @@ margin-bottom:25px;">
     <div id="monarch-info" class="planet-info">Monarch Butterfly<br>Sorry, this cycle is not yet activated.</div>
   </div>
 
-  <div id="neptune-cycle" style="display:none; max-width: 200px;">
+  <!-- <div id="neptune-cycle" style="display:none; max-width: 200px;">
     <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
     <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
       Max Dist.: 30.1 AU<br>
@@ -1227,7 +1263,7 @@ margin-bottom:25px;">
     <div id="mars-cycle" style="margin-bottom:55px;">
       <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
       <div id="mars-phase-info" style="text-align: right;" class="planet-info"></div>
-    </div>
+    </div> -->
 
     <!-- <div id="earth-cycle" style="display:none;margin-bottom:60px">
       <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
@@ -1238,7 +1274,7 @@ margin-bottom:25px;">
         </div>
     </div> -->
       
-    <div id="venus-cycle" style="margin-bottom:55px;line-height:1.1;">
+    <!-- <div id="venus-cycle" style="margin-bottom:55px;line-height:1.1;">
       <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
       <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
     </div>
@@ -1249,7 +1285,7 @@ margin-bottom:25px;">
         Orbit: 0.24 years<br>
         max Dist.': 1.4 AU<br>
         min Dist.': 0.61 AU</div>
-    </div>
+    </div> -->
 
   </div>
 
@@ -1400,7 +1436,7 @@ function onTouch(event) {
       // document.getElementById("reset").style.display = "block";
      /* document.getElementById("tomorrow").style.display = "none";
       document.getElementById("yesterday").style.display = "none";*/
-      document.getElementById("current-time").style.display = "none";
+      // document.getElementById("current-time").style.display = "none";
 
         // displayMoonPhaseOnTouch(selectedPath.id);
 

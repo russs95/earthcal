@@ -331,7 +331,7 @@ function getTheDayOfYear(targetDate) {
 
         startDate = targetDate;
         // document.getElementById("reset").style.display = "block";
-        document.getElementById("current-time").style.display = "none";
+        // document.getElementById("current-time").style.display = "none";
       
        
       });
@@ -361,7 +361,7 @@ function getTheDayOfYear(targetDate) {
     uranus.animate();
     neptune.animate();
 
-    animateWhaleCycle();
+    animateWhaleCycle(targetDate);
     UpdateWhaleCycle(targetDate);
 
 
@@ -410,7 +410,7 @@ function set2Tomorrow() {
   // document.getElementById("reset").style.display = "block";
   // document.getElementById("tomorrow").style.display = "none";
   // document.getElementById("yesterday").style.display = "none";
-  document.getElementById("current-time").style.display = "none";
+  // document.getElementById("current-time").style.display = "none";
 
   
 }
@@ -423,7 +423,7 @@ function set2Yesterday() {
   // document.getElementById("reset").style.display = "block";
   // document.getElementById("tomorrow").style.display = "none";
   // document.getElementById("yesterday").style.display = "none";
-  document.getElementById("current-time").style.display = "none";
+  // document.getElementById("current-time").style.display = "none";
 
 
 
@@ -437,7 +437,7 @@ function set2Today() {
   // document.getElementById("yesterday").style.display = "block";
   // document.getElementById("tomorrow").style.display = "block";
   // document.getElementById("reset").style.display = "none";
-  document.getElementById("current-time").style.display = "block";
+  // document.getElementById("current-time").style.display = "block";
 
 
 }

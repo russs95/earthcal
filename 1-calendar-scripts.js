@@ -397,7 +397,7 @@ function printTime() {
   currentTimeText.textContent = currentHours + ":" + currentMinutes + ":" + currentSeconds + " " /*+ currentTimezone*/ + " (GMT" + (currentGMTOffset >= 0 ? '+' : '') + currentGMTOffset + ")";
 }
 
-setInterval(printTime, 1000);
+// setInterval(printTime, 1000);
 
 
   
