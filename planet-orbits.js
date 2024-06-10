@@ -640,8 +640,12 @@ function handleOrbitClicks() {
       const planet = this.id.replace('-orbit', '');
 
       // Show the corresponding planet-cycle div
+      var solarSystemCenter = document.getElementById('solar-system-center');
       const cycleDiv = document.getElementById(`${planet}-cycle`);
+
       if (cycleDiv) {
+        solarSystemCenter.style.display = "none";
+
         cycleDiv.style.display = 'block';
       }
     });

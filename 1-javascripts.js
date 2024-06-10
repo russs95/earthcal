@@ -609,22 +609,22 @@ function closeTour() {
   // Reset the tour to the first window (index 0)
   //showInfo(0);
 }
-
+ 
 
 function guidedTour() {
   // Get the modal and set its display to "block" to show it
   var modal = document.getElementById("guided-tour");
-  modal.style.display = "block";
+  modal.style.display = "flex";
 
   // Add the "blur" class to the page content to visually distinguish it from the modal
   document.getElementById("page-content").classList.add("blur");
 
   // Get the close button and set its onclick function to hide the modal and remove the "blur" class from the page content
-  var closeButton = document.querySelector(".close");
-  closeButton.onclick = function() {
-    modal.style.display = "none";
-    document.getElementById("page-content").classList.remove("blur");
-  }
+  // var closeButton = document.getElementByID("close-tour-button");
+  // closeButton.onclick = function() {
+  //   modal.style.display = "none";
+  //   document.getElementById("page-content").classList.remove("blur");
+  // }
 
     // Get all the "information" elements (which contain the tour content) and set the currentInfo variable to 0 (the first element)
   var information = document.querySelectorAll(".information");

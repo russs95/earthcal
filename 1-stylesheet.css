@@ -1363,7 +1363,7 @@ TOOLTIPS AND MODALS
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 20; /* Sit on top */
+  z-index: 50; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%;
@@ -1575,8 +1575,9 @@ GUIDED TOUR---*
 
   @media screen and (min-width: 701px) {
     .tour-content {
-      margin: 5% auto 15% auto;
+      /* margin: 5% auto 15% auto; */
       width: 80%;
+      margin:auto;
     }
 
   }
@@ -1585,18 +1586,19 @@ GUIDED TOUR---*
 
   .close-tour {
     float: right;
-    font-size: 32px;
+    font-size: 50px;
     font-weight: bold;
     color: #aaa;
     transition: color 0.3s ease;
     position: fixed;
     top: 20px;
     right: 10%;
+    z-index: 30;
   }
   
   .close-tour:hover,
   .close-tour:focus {
-    color: #000;
+    color: #04ecfd;
     text-decoration: none;
     cursor: pointer;
   }

@@ -365,7 +365,13 @@ z-index:21}
 #reset-to-today {width:35px;height:20px;text-align:center;cursor:pointer;}
 
 
-.planet-info-box {display:none; margin: auto; width: 300px; height:300px;text-align:center;}
+.planet-info-box {
+  display:none; 
+  margin: auto; 
+  width: 300px; 
+  height:300px;
+  text-align:center;
+  z-index: 20;}
 
 .animal-info-box {
   display:none;
@@ -478,7 +484,7 @@ attachBreakoutTouchListeners();
   // UpdateWhaleCycle();   
   //  animateWhaleCycle();
   cyclesToggle(); //enables the planet and animal buttons to work
-  handleOrbitClicks();
+  // handleOrbitClicks();  //enables clicks on the orbits to open up planet info.  THis needs work!!
 
 
   triggerBreakoutDay();
@@ -585,14 +591,14 @@ attachBreakoutTouchListeners();
     </div>
 </div>
 
-<div id="earthcal-version-updates" class="modal" data-version="0.81">  
-  <span class="close-tour" style="padding:10px" onclick="closeTour();">&times;</span>
+<!-- <div id="earthcal-version-updates" class="modal" data-version="0.81">  
+  <span id="close-updates-button" class="close-tour" style="padding:10px" onclick="closeUpdates();">&times;</span>
   <div id="version-info" class="information"></div>
-</div>
+</div> -->
 
 <div id="guided-tour" class="modal">
   <div class="tour-content">
-    <span class="close-tour" style="padding:10px" onclick="closeTour();">&times;</span>
+    <span id="close-tour-button" class="close-tour" style="padding:10px" onclick="closeTour();">&times;</span>
   
     <div id="information-one" class="information">
       <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg"  style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>  
@@ -602,7 +608,7 @@ attachBreakoutTouchListeners();
     </div>
   
     <div id="information-two" style="display:none;" class="information">
-    <div class="tour-image"><img src="svgs/cycles-night-over.svg"  style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>  
+      <div class="tour-image"><img src="svgs/cycles-night-over.svg"  style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>  
       <div class="modal-header">One Year.<br>One Orbit.</div>
       <div class="modal-description">The EarthCycles calendar lets you see each year as a one spin of Earth around the Sun.  Click any of the 365 divisions of the EarthCal circle to see where the Earth is in its orbit and to see that day's data.  The progression of colors shows the solar and lunar months.</div>
       <button class="back">↩ Back</button>
@@ -610,8 +616,8 @@ attachBreakoutTouchListeners();
     </div>
     
     <div id="information-three" style="display:none;" class="information">
-    <div class="tour-image"><img src="icons/saturn-cycle.svg"    title="Our Neighbourhood" alt="Our Neighbourhood"></div>  
-  
+      <div class="tour-image"><img src="icons/saturn-cycle.svg"    title="Our Neighbourhood" alt="Our Neighbourhood"></div>  
+    
       <div class="modal-header">Our Neighbourhood</div>
       <div class="modal-description">As you watch Earth spin around the Sun, you can see our planetary neighbours spin too!  This not only helps you understand the night sky but also connects you with the much longer cycles of time that each planet's orbit represents (it takes Neptune almost 165 Earth years for its spin!).</div>
       <button class="back">↩ Back</button>
@@ -620,7 +626,7 @@ attachBreakoutTouchListeners();
   
     
     <div id="information-four" style="display:none;" class="information">
-    <div class="tour-image"><img src="svgs/just-moon.svg" title="Sinc with the lunar cycles" alt="Sync with the lunar cycles"></div>  
+      <div class="tour-image"><img src="svgs/just-moon.svg" title="Sinc with the lunar cycles" alt="Sync with the lunar cycles"></div>  
       <div class="modal-header">Get Lunar</div>
       <div class="modal-description">Notice the center of the calendar while you skim over the days of the year?  You can see in real-time how the phase of the moon changes over the course of the year.  Click the moon in the bottom left for even more live data.</div>
       <button class="back">↩ Back</button>
@@ -630,8 +636,8 @@ attachBreakoutTouchListeners();
     
     <div id="information-five" style="display:none;" class="information">
     
-    <div class="tour-image"><img src="icons/whale.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
-    <div class="modal-description">Great civilizations also used the cycles of the great creatures around them to track time.  Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year.  More animals coming soon!</div>
+      <div class="tour-image"><img src="icons/whale.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
+      <div class="modal-description">Great civilizations also used the cycles of the great creatures around them to track time.  Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year.  More animals coming soon!</div>
       <button class="back">↩ Back</button>
       <button class="next">Next ➔</button>
     </div>
@@ -647,101 +653,82 @@ attachBreakoutTouchListeners();
 
     </div>
   </div>
-  </div>
+</div>
 
 
-<div id="page-content" style="transition:1s;">
+<div id="page-content" style="transition:0.3s;">
 
   <div id="header" class="top-menu">
-      
-      
-      <div class="target-date-info" style="display: flex; flex-flow: column;max-width:75%;position:absolute;right:0;">
     
-        
-
-        
-        <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
-
-          <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right:0px;padding-bottom:8px;">
-            <div id="current-date-info" class="date-info"></div>
-            <!-- <div id="current-time" class="date-info"></div> -->
-          </div>
-
-          <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;background:var(--grey-trans);margin-right:10px;margin-left:10px;border-radius:8px;border:1px solid var(--text-color); border-radius:10px;padding-top:8px;">
-            <button type="button" class="top-add-button" onclick="openAddCycle(),populateDropdown()" aria-label="Add a Cycle" style="width:32px;height:32px;"></button>
-
-          </div>
-        </div>
-        <!-- <div class="yesterday-tomorrow-arrows"> 
-          <button id="yesterday" onclick="set2Yesterday();" title="Yesterday">◄</button>
-          <button id="tomorrow"  onclick="set2Tomorrow();" title="Tomorrow">►</button>
-        </div> -->
-
-       <div id="time-controller" style="display:flex;flex-flow:row;width:250px;height:30px;;margin-left:auto;z-index:20;justify-content:flex-end;margin-right:10px;border-radius:5px;padding:8px;">
-          <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
-          <!-- <div id="prev-month" class="previous-button" aria-lable="Next Day" title="Go to next day">◀️</div> -->
-          <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
-
-          <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
-
-          <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
-          <!-- <div id="next-month" class="next-button" aria-lable="Next YMonth" title="Go to next month">▶️</div> -->
-          <div id="next-year" class="next-button" onclick="prevYear()" aria-lable="Next Year" title="Go to next year"></div>
-
-       </div>
-     
-     
-
+    <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;">
  
+      <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
 
-
-        
-          
-          
-
-          <div id="current-datecycle-info2" class="date-info" style="overflow-y: auto;height:80vh;overflow-x: hidden;width:fit-content;margin-top:20px;">
-          </div>
-          
-        </div>  
-        
-         
-       
-
-          
+        <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right:0px;padding-bottom:8px;">
+          <div id="current-date-info" class="date-info"></div>
+          <div id="current-time" class="date-info"></div>
         </div>
-    
+
+        <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;background:var(--grey-trans);margin-right:10px;margin-left:10px;border-radius:8px;border:1px solid var(--text-color); border-radius:10px;padding-top:8px;">
+          <button type="button" class="top-add-button" onclick="openAddCycle(),populateDropdown()" aria-label="Add a Cycle" style="width:32px;height:32px;"></button>
+
+        </div>
+      </div>
+
+      <div id="time-controller" style="
+      display: flex;
+      flex-flow: row;
+      width: 250px;
+      height: 30px;
+      margin-left: auto;
+      z-index: 20;
+      margin-right: 10px;
+      border-radius: 5px;
+      padding: 8px;
+      position: fixed;
+      bottom: 10px;
+      left: 10px;">
+        <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
+        
+        <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
+
+        <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
+
+        <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
+
+        <div id="next-year" class="next-button" onclick="prevYear()" aria-lable="Next Year" title="Go to next year"></div>
+
+      </div>
+
+      <div id="current-datecycle-info2" class="date-info" style="overflow-y: auto;height:80vh;overflow-x: hidden;width:fit-content;margin-top:-15px;margin-left:auto;margin-right:12px;">
+      </div>
+          
+    </div>  
   </div>
 
 
 
 
-    <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;">
+  <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;">
 
-      <div><button type="button" class="top-menu-button" onclick="openSettings()" aria-label="Open site settings"></button></div>
+    <div><button type="button" class="top-menu-button" onclick="openSettings()" aria-label="Open site settings"></button></div>
+    
+    <div><button type="button" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
       
-      <div><button type="button" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
-      
-
-
-      <div id="clock" style="cursor:progress; margin-left:10px;" title="v0.4" class="day-only" style="cursor: pointer;">
+    <div id="clock" style="cursor:progress; margin-left:10px;" title="v0.4" class="day-only" style="cursor: pointer;">
         <object data="svgs/clock-day.svg" width="30px" height="30px" type="image/svg+xml"></object>
-      </div>
-
-
-        <div id="clock" style="margin-left:10px;cursor:pointer;" title="v0.34" class="night-only">
-          <object data="svgs/clock-night.svg" width="30px" height="30px" type="image/svg+xml" style="cursor:pointer;"></object>
-        </div>
-      
-    
-      
     </div>
-  </div> 
-            
- 
-    
-  
 
-  <div id="tooltip"></div>
+    <div id="clock" style="margin-left:10px;cursor:pointer;" title="v0.34" class="night-only">
+      <object data="svgs/clock-night.svg" width="30px" height="30px" type="image/svg+xml" style="cursor:pointer;"></object>
+    </div>
+      
+    
+      
+  </div>
+            
+
+  <!-- <div id="tooltip"></div> being used? -->
 
 
   <div id="day-search" class="modal">
@@ -776,7 +763,7 @@ attachBreakoutTouchListeners();
   </div>
 
 
-  <div id="events-container"></div>
+  <!-- <div id="events-container"></div> -->
     <!-- <div class="calendar-box" style="width:98%; height: 100vh;">    
       <div id="modal-planets" class="modal">
         <div class="modal-content">
@@ -785,77 +772,87 @@ attachBreakoutTouchListeners();
         </div>
       </div> -->
 
-  <div class="planet-info-container" style="width:100%;height:100%;display:flex;justify-content: center;text-align: center;">
+  <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">
 
-      <div id="neptune-cyclexxx" class="planet-info-box">
-        <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
-        <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
-          Max Dist.: 30.1 AU<br>
-          Min Dist: 29.8 AU</div>
-      </div>
-    
-      <div id="uranus-cyclexxx" class="planet-info-box">
-          <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
-          <div id="uranus-phase-info" style="text-align:left;" class="planet-info"><span style:font-size:1.5em;>Uranus ♅ </span><br>Orbit: 84.07 years<br>
-          Max Dist.: 20.1 AU<br>
-          Min Dist.: 29.8 AU</div>
-      </div>
-      
-        <div id="saturn-cycle" class="planet-info-box">
-          <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
-          <div id="saturn-phase-info" class="planet-info"></div>
-        </div>
-    
-        <div id="jupiter-cycle" class="planet-info-box">
-          <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
-          <div id="jupiter-phase-info" class="planet-info"></div>
-        </div>
-    
-        <div id="mars-cycle" class="planet-info-box">
-          <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
-          <div id="mars-phase-info" class="planet-info"></div>
-        </div>
-    
-        <div id="earth-cyclexxx" class="planet-info-box">
-          <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
-          <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
-            Orbit: 1 year<br>
-            Max Dist.: 1 AU<br>
-            Min Dist.: 1 AU<br>
-            </div>
-        </div>
-          
-        <div id="venus-cycle" class="planet-info-box">
-          <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
-          <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
-        </div>
-    
-        <div id="mercury-cycle" class="planet-info-box">
-          <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
-          <div id="mercury-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
-            Orbit: 0.24 years<br>
-            max Dist.': 1.4 AU<br>
-            min Dist.': 0.61 AU</div>
-        </div>
-
-    <!--ANIMALS-->
-
-    <div id="whale-cycle" class="animal-info-box">
-      <div id="whale-phase" class="phase-image">
-        <img src="icons/whale.svg" width="60" heigh="40">
-      </div>
-      <div id="whale-info" class="planet-info" style="text-align: left;">
-      </div>
+    <div id="neptune-cyclexxx" class="planet-info-box">
+      <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
+      <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
+        Max Dist.: 30.1 AU<br>
+        Min Dist: 29.8 AU</div>
     </div>
+  
+    <div id="uranus-cyclexxx" class="planet-info-box">
+        <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
+        <div id="uranus-phase-info" style="text-align:left;" class="planet-info"><span style:font-size:1.5em;>Uranus ♅ </span><br>Orbit: 84.07 years<br>
+        Max Dist.: 20.1 AU<br>
+        Min Dist.: 29.8 AU</div>
+    </div>
+    
+    <div id="saturn-cycle" class="planet-info-box">
+      <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
+      <div id="saturn-phase-info" class="planet-info"></div>
+    </div>
+
+    <div id="jupiter-cycle" class="planet-info-box">
+      <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
+      <div id="jupiter-phase-info" class="planet-info"></div>
+    </div>
+
+    <div id="mars-cycle" class="planet-info-box">
+      <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
+      <div id="mars-phase-info" class="planet-info"></div>
+    </div>
+
+    <div id="earth-cyclexxx" class="planet-info-box">
+      <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
+      <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
+        Orbit: 1 year<br>
+        Max Dist.: 1 AU<br>
+        Min Dist.: 1 AU<br>
+        </div>
+    </div>
+      
+    <div id="venus-cycle" class="planet-info-box">
+      <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
+      <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
+    </div>
+
+    <div id="mercury-cycle" class="planet-info-box">
+      <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
+      <div id="mercury-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
+        Orbit: 0.24 years<br>
+        max Dist.': 1.4 AU<br>
+        min Dist.': 0.61 AU</div>
+    </div>
+
+    <div id="moon-cycle" style="margin-bottom:50px;" class="animal-info-box">
+      <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
+      <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
+    </div>
+
+  </div>
+  
+
+    <!--MOON-->
+
+
+
+
+  <!--ANIMALS-->
+
+  <div id="whale-cycle" class="planet-info-box">
+    <div id="whale-phase" class="phase-image">
+      <img src="icons/whale.svg" width="60" heigh="40">
+    </div>
+    <div id="whale-info" class="planet-info" style="text-align: left;">
+    </div>
+  </div>
         
-</div>
+ 
  
   <div id="the-cal">
 
-      <!--The raw file
-
-      CHange all colors #808000 to var(--general-background)-->
-
+      <!--The raw file-->
 
     <svg id="EarthCycles" version="1.2" viewBox="-67 -90 497 515" preserveAspectRatio="xMidYMid meet" width="100%" height="100%" pointer-events="all" xmlns="http://www.w3.org/2000/svg">
 
@@ -865,10 +862,9 @@ attachBreakoutTouchListeners();
       
 
      </svg>
+
   </div>
 
-
-    
  <!-- RIGHT PAGE MENU -->
 
   <div id="right-settings-overlay" class="overlay-settings">
@@ -880,41 +876,41 @@ attachBreakoutTouchListeners();
 
     <div class="overlay-content-settings" style="margin-bottom: 20px;">
       
-        <div class="earthcycles-logo"></div>
+      <div class="earthcycles-logo"></div>
 
-        <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 500);">Feature Tour</div>
+      <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 500);">Feature Tour</div>
 
-        <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
-        
-        <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
+      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
+      
+      <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
 
-        <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
+      <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
 
-        <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project ↗</a>
-        </div>
-          
-        <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
-        
-          <div style="font-size:1.25em">
-            <dark-mode-toggle
-            id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
-            class="slider"
-            legend="Switch Dark/Day themes"
-            remember="Remember for all pages"
-            appearance="toggle">
-            </dark-mode-toggle>
-          </div>
-        </div>
-    
-        <a href="https://snapcraft.io/earthcal">
-          <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
-        </a>
-
-        <p style="font-size:small;">EarthCal is developed by <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
-        
+      <div class="menu-page-item"><a href="https://earthen.io/earthcal" target="_blank">About the Project ↗</a>
       </div>
+        
+      <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
+      
+        <div style="font-size:1.25em">
+          <dark-mode-toggle
+          id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
+          class="slider"
+          legend="Switch Dark/Day themes"
+          remember="Remember for all pages"
+          appearance="toggle">
+          </dark-mode-toggle>
+        </div>
+      </div>
+  
+      <a href="https://snapcraft.io/earthcal">
+        <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+      </a>
+
+      <p style="font-size:small;">EarthCal is developed by <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
+      
+    </div>
                                                                 
-</div>
+  </div>
 
 
 
@@ -942,141 +938,141 @@ attachBreakoutTouchListeners();
           </div>
           
 
-<div id="addNewCalendar" style="display: none;background-color: var(--button-1-1-over);
-border-radius: 10px;
-padding: 20px;
-width: fit-content;
-margin: auto;
-margin-bottom:25px;">
-  <form id="calendar-adding-form">
-    <label for="calendarName">Name:</label>
-    <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
+      <div id="addNewCalendar" style="display: none;background-color: var(--button-1-1-over);
+      border-radius: 10px;
+      padding: 20px;
+      width: fit-content;
+      margin: auto;
+      margin-bottom:25px;">
+        <form id="calendar-adding-form">
+          <label for="calendarName">Name:</label>
+          <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
 
-    <label for="colorPicker">Choose a color:</label>
-    <select id="colorPicker" name="color">
-      <option value="red">🔴 Red</option>
-      <option value="blue">🔵 Blue</option>
-      <option value="green">🟢 Green</option>
-      <option value="green">🟠 Orange</option>
+          <label for="colorPicker">Choose a color:</label>
+          <select id="colorPicker" name="color">
+            <option value="red">🔴 Red</option>
+            <option value="blue">🔵 Blue</option>
+            <option value="green">🟢 Green</option>
+            <option value="green">🟠 Orange</option>
 
-      <!-- Add other color options as needed -->
-    </select><br>
+            <!-- Add other color options as needed -->
+          </select><br>
 
-    <input type="checkbox" id="publicCalendar" name="publicCalendar">
-    <label for="publicCalendar">Public Calendar</label><br><br>
+          <input type="checkbox" id="publicCalendar" name="publicCalendar">
+          <label for="publicCalendar">Public Calendar</label><br><br>
 
-    <button type="button" id="add-new-cal" onclick="addNewCalendar()">+ Add Calendar</button>
-  </form>
-</div>
+          <button type="button" id="add-new-cal" onclick="addNewCalendar()">+ Add Calendar</button>
+        </form>
+      </div>
 
 
-<div id="datecycle-setter"></div><!-- style="display:none;" -->
-    
-  <select id="dateCycle-type" style="width: 65%; font-size: 1em; text-align: center; height: 35px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()">
-    <option value="" disabled >Select frequency...</option>
-    <option value="One-time" selected >One-time</option>
-    <!--<option value="Monthly" >Monthly</option> Problem with matching -month- as well as matching -day--->
-    <option One-time="Annual">Annual</option>
-    
-    <!--<option disabled>Monthly</option>
-    <option disabled>Weekly</option>-->
-  </select>
-  
-
-  <div id="dateCycle-year-option"  >  <!-- style="display:none;" -->
-    <select name="year" id="year-field2" style="width:65%;font-size: 1em;text-align:center;height:35px;margin-top:10px">
-      <option value="" disabled >Select year...</option>
-      <option>2023</option>
-      <option>2024</option>
-      <option>2025</option>
-      <option>2026</option>
-    </select>
-  </div>
-        
-  <div id="set-date" > <!-- style="display:none;" -->
-    <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;">
-      <select name="day" id="day-field2" style="width: 20%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
-        <option value="" disabled selected>Select day...</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
-        <option value="17">17</option>
-        <option value="18">18</option>
-        <option value="19">19</option>
-        <option value="20">20</option>
-        <option value="21">21</option>
-        <option value="22">22</option>
-        <option value="23">23</option>
-        <option value="24">24</option>
-        <option value="25">25</option>
-        <option value="26">26</option>
-        <option value="27">27</option>
-        <option value="28">28</option>
-        <option value="29">29</option>
-        <option value="30">30</option>
-        <option value="31">31</option>
-    </select>
+      <div id="datecycle-setter"></div><!-- style="display:none;" -->
           
+        <select id="dateCycle-type" style="width: 65%; font-size: 1em; text-align: center; height: 35px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()">
+          <option value="" disabled >Select frequency...</option>
+          <option value="One-time" selected >One-time</option>
+          <!--<option value="Monthly" >Monthly</option> Problem with matching -month- as well as matching -day--->
+          <option One-time="Annual">Annual</option>
+          
+          <!--<option disabled>Monthly</option>
+          <option disabled>Weekly</option>-->
+        </select>
+        
 
-    <select name="month" id="month-field2" style="width: 45%; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
-      <option value="" disabled selected>Select month...</option>
-      <option value="1">January</option>
-      <option value="2">February</option>
-      <option value="3">March</option>
-      <option value="4">April</option>
-      <option value="5">May</option>
-      <option value="6">June</option>
-      <option value="7">July</option>
-      <option value="8">August</option>
-      <option value="9">September</option>
-      <option value="10">October</option>
-      <option value="11">November</option>
-      <option value="12">December</option>
-  </select>
+        <div id="dateCycle-year-option"  >  <!-- style="display:none;" -->
+          <select name="year" id="year-field2" style="width:65%;font-size: 1em;text-align:center;height:35px;margin-top:10px">
+            <option value="" disabled >Select year...</option>
+            <option>2023</option>
+            <option>2024</option>
+            <option>2025</option>
+            <option>2026</option>
+          </select>
+        </div>
+              
+        <div id="set-date" > <!-- style="display:none;" -->
+          <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;">
+            <select name="day" id="day-field2" style="width: 20%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
+              <option value="" disabled selected>Select day...</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+              <option value="24">24</option>
+              <option value="25">25</option>
+              <option value="26">26</option>
+              <option value="27">27</option>
+              <option value="28">28</option>
+              <option value="29">29</option>
+              <option value="30">30</option>
+              <option value="31">31</option>
+          </select>
+                
 
-  </div>
+          <select name="month" id="month-field2" style="width: 45%; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
+            <option value="" disabled selected>Select month...</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
 
-  <div id="name-event" style="margin-top: 20px;">
-    <div style="display: flex;
-    justify-content: center;">
-      <textarea id="add-date-title" placeholder="Event name..."></textarea>  
-      <!-- <input type="text" id="add-date-title" placeholder="Event name...">  -->
+        </div>
 
-      <select id="DateColorPicker" name="color" style="padding: 10px;
-    resize: none;
-    border: 1px solid var(--thin-border-color);
-    border-radius: 0px 5px 5px 0px;
-    margin-bottom: 10px;
-  font-size: 1.5em;
-  background: var(--header-accent);
-  color: var(--login);
-  ">
-      <option value="green">🟢</option>
-      <option value="yellow">🟡</option>
-      <option value="orange">🟠</option>
-      <option value="red">🔴</option>
-      <option value="blue">🔵</option>
-    </select><!-- style="display:none;" -->
-  </div>
-  <div id="add-note-check-boxed">
-      <input type="checkbox" id="add-note-checkbox">
-      <label for="add-note-checkbox">Add a note to this event</label>
-     </div>
-    
-  </div>
+        <div id="name-event" style="margin-top: 20px;">
+          <div style="display: flex;
+          justify-content: center;">
+            <textarea id="add-date-title" placeholder="Event name..."></textarea>  
+            <!-- <input type="text" id="add-date-title" placeholder="Event name...">  -->
+
+            <select id="DateColorPicker" name="color" style="padding: 10px;
+          resize: none;
+          border: 1px solid var(--thin-border-color);
+          border-radius: 0px 5px 5px 0px;
+          margin-bottom: 10px;
+        font-size: 1.5em;
+        background: var(--header-accent);
+        color: var(--login);
+        ">
+            <option value="green">🟢</option>
+            <option value="yellow">🟡</option>
+            <option value="orange">🟠</option>
+            <option value="red">🔴</option>
+            <option value="blue">🔵</option>
+          </select><!-- style="display:none;" -->
+        </div>
+        <div id="add-note-check-boxed">
+            <input type="checkbox" id="add-note-checkbox">
+            <label for="add-note-checkbox">Add a note to this event</label>
+          </div>
+          
+        </div>
 
             
             
@@ -1201,96 +1197,20 @@ margin-bottom:25px;">
     </div>
   
 
-
+<!-- 
   <div class="planets-box" style="height: fit-content;text-align: right;padding: 20px;flex-direction: row-reverse;margin-right:auto;
   ">
- <div>
+    <div>
 
-  <div id="moon-cycle">
-    <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
-    <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
+      <div id="moon-cycle" style="display:none;margin-bottom:20px;">
+        <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
+        <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
+      </div>
+ 
+
   </div>
 
-  <!-- <div id="whale-cycle" style="margin-bottom:60px;" class="animal-info-box">
-    <div id="whale-phase" class="phase-image"><img src="icons/whale.svg" width="60" heigh="40"></div>
-    <div id="whale-info" class="planet-info" style="text-align: left;">
-    </div>
   </div> -->
-
-  <div id="cariboo-cycle" style="margin-bottom:60px;">
-    <div id="cariboo-phase" class="phase-image"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
-    <div id="cariboo-info" class="planet-info">Artic Cariboo<br>Sorry, this cycle is not yet activated.</div>
-  </div>
-
-  <div id="goose-cycle" style="margin-bottom:60px;">
-    <div id="goose-phase" class="phase-image" ><img src="cycles/goose-cycle-map.svg" width="40" heigh="40"></div>
-    <div id="goose-info" class="planet-info">Canada Goose<br>Sorry, this cycle is not yet activated.</div>
-  </div>
-
-  <div id="humming-cycle" style="margin-bottom:60px;">
-    <div id="humming-phase" class="phase-image" ><img src="cycles/humming-cycle-map.svg" width="40" heigh="40"></div>
-    <div id="humming-info" class="planet-info">Ruby-throated Humming Bird<br>Sorry, this cycle is not yet activated.</div>
-  </div>
-
-  <div id="monarch-cycle" style="margin-bottom:60px;">
-    <div id="monarch-phase" class="phase-image" ><img src="cycles/monarch-cycle-map.svg" width="40" heigh="40"></div>
-    <div id="monarch-info" class="planet-info">Monarch Butterfly<br>Sorry, this cycle is not yet activated.</div>
-  </div>
-
-  <!-- <div id="neptune-cycle" style="display:none; max-width: 200px;">
-    <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
-    <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
-      Max Dist.: 30.1 AU<br>
-      Min Dist: 29.8 AU</div>
-  </div>
-
-  <div id="uranus-cycle" style="display:none;">
-      <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
-      <div id="uranus-phase-info" style="text-align:left;" class="planet-info"><span style:font-size:1.5em;>Uranus ♅ </span><br>Orbit: 84.07 years<br>
-      Max Dist.: 20.1 AU<br>
-      Min Dist.: 29.8 AU</div>
-  </div>
-  
-    <div id="saturn-cycle" style="margin-bottom:55px;">
-      <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
-      <div id="saturn-phase-info" class="planet-info"></div>
-    </div>
-
-    <div id="jupiter-cycle" style="margin-bottom:55px;">
-      <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
-      <div id="jupiter-phase-info" class="planet-info"></div>
-    </div>
-
-    <div id="mars-cycle" style="margin-bottom:55px;">
-      <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
-      <div id="mars-phase-info" style="text-align: right;" class="planet-info"></div>
-    </div> -->
-
-    <!-- <div id="earth-cycle" style="display:none;margin-bottom:60px">
-      <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
-      <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
-        Orbit: 1 year<br>
-        Max Dist.: 1 AU<br>
-        Min Dist.: 1 AU<br>
-        </div>
-    </div> -->
-      
-    <!-- <div id="venus-cycle" style="margin-bottom:55px;line-height:1.1;">
-      <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
-      <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
-    </div>
-
-    <div id="mercury-cycle" style="margin-bottom:55px;">
-      <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
-      <div id="mercury-phase-info" style="text-align: right;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
-        Orbit: 0.24 years<br>
-        max Dist.': 1.4 AU<br>
-        min Dist.': 0.61 AU</div>
-    </div> -->
-
-  </div>
-
-  </div>
 </div>
 
 
