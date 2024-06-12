@@ -171,13 +171,15 @@ mercuryButton.addEventListener("click", function() {
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
 
-  solarSystemCenter.style.display = "none";
+  solarSystemCenter.style.opacity = "0.1";
+        solarSystemCenter.style.filter = "blur(4px)";
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     mercuryCycle.style.display = "none";
     mercuryButton.classList.remove("totems-active");
-    solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "1";
+        solarSystemCenter.style.filter = "none";
 
 
   }isMercuryClicked
@@ -211,13 +213,15 @@ UpdateVenusData(date);
     whaleButton.classList.remove("totems-active");
 
 
-  solarSystemCenter.style.display = "none";
+  solarSystemCenter.style.opacity = "0.1";
+        solarSystemCenter.style.filter = "blur(4px)";
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     venusCycle.style.display = "none";
     venusButton.classList.remove("totems-active");
-    solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "1";
+        solarSystemCenter.style.filter = "none";
 
 
   }isVenusClicked
@@ -249,14 +253,16 @@ UpdateMarsData(date);
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
 
-  solarSystemCenter.style.display = "none";
+  solarSystemCenter.style.opacity = "0.1";
+        solarSystemCenter.style.filter = "blur(4px)";
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
 
   } else {
     marsCycle.style.display = "none";
     marsButton.classList.remove("totems-active");
-    solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "1";
+        solarSystemCenter.style.filter = "none";
 
 
   }isMarsClicked
@@ -289,13 +295,15 @@ UpdateJupiterData(date);
   whaleCycle.style.display = "none";
   whaleButton.classList.remove("totems-active");
 
-  solarSystemCenter.style.display = "none";
+  solarSystemCenter.style.opacity = "0.1";
+  solarSystemCenter.style.filter = "blur(0.4px)"
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     jupiterCycle.style.display = "none";
     jupiterButton.classList.remove("totems-active");
-    solarSystemCenter.style.display = "block";
+     solarSystemCenter.style.opacity = "1";
+  solarSystemCenter.style.filter = "none"
 
 
   }isJupiterClicked
@@ -327,13 +335,15 @@ UpdateSaturnData(date);
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
 
-  solarSystemCenter.style.display = "none";
+  solarSystemCenter.style.opacity = "0.1";
+        solarSystemCenter.style.filter = "blur(4px)";
   earthMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     saturnCycle.style.display = "none";
     saturnButton.classList.remove("totems-active");
-    solarSystemCenter.style.display = "block";
+   solarSystemCenter.style.opacity = "1";
+        solarSystemCenter.style.filter = "none";
 
 
   }isSaturnClicked
@@ -382,6 +392,77 @@ whaleButton.addEventListener("click", function() {
 });
 
 }
+
+//show the planet info when their orbit is clicked
+
+
+function openPlanetInfoBox() {
+  // Get all the SVG paths that have an ID ending with "-orbit"
+  const orbitPaths = document.querySelectorAll('[id$="-orbit"]');
+
+    UpdateVenusData(targetDate);
+    UpdateMarsData(targetDate);
+    UpdateJupiterData(targetDate);
+    UpdateSaturnData(targetDate);
+
+  // For each orbit path, add a click event listener
+  orbitPaths.forEach(path => {
+    path.addEventListener('click', function () {
+      // Hide all the divs with IDs ending with "-cycle"
+      const cycleDivs = document.querySelectorAll('[id$="-cycle"]');
+      cycleDivs.forEach(div => {
+        div.style.display = 'none';
+      });
+
+      // Get the planet name from the clicked path's ID
+      const planet = this.id.replace('-orbit', '');
+
+      // Show the corresponding planet-cycle div
+      var solarSystemCenter = document.getElementById('solar-system-center');
+      const cycleDiv = document.getElementById(`${planet}-cycle`);
+
+      if (cycleDiv) {
+        solarSystemCenter.style.opacity = "0.2";
+        solarSystemCenter.style.filter = "blur(4px)";
+
+        cycleDiv.style.display = 'block';
+      }
+    });
+  });
+}
+
+
+//close the planet info when the orbit is clicked.
+
+    function closePlanetInfoBoxes() {
+        const planetIds = [
+            "mercury-cycle", "venus-cycle", "earth-cycle",
+            "mars-cycle", "jupiter-cycle", "saturn-cycle",
+            "uranus-cycle", "neptune-cycle", "pluto-cycle"
+        ];
+        var solarSystemCenter = document.getElementById('solar-system-center');
+
+
+        planetIds.forEach(id => {
+            const planetDiv = document.getElementById(id);
+            if (planetDiv) {
+                planetDiv.style.display = "none";
+            }
+        });
+
+        const solarSystemCenterDiv = document.getElementById("solar-system-center");
+        if (solarSystemCenterDiv) {
+            solarSystemCenter.style.filter = "none";
+
+            solarSystemCenterDiv.style.opacity = "1";
+        }
+    }
+
+
+
+
+
+
 
 
 

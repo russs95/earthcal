@@ -623,34 +623,5 @@ function adjustSaturnSize(per_dist) {
 }
 
 
-function handleOrbitClicks() {
-  // Get all the SVG paths that have an ID ending with "-orbit"
-  const orbitPaths = document.querySelectorAll('[id$="-orbit"]');
-
-  // For each orbit path, add a click event listener
-  orbitPaths.forEach(path => {
-    path.addEventListener('click', function () {
-      // Hide all the divs with IDs ending with "-cycle"
-      const cycleDivs = document.querySelectorAll('[id$="-cycle"]');
-      cycleDivs.forEach(div => {
-        div.style.display = 'none';
-      });
-
-      // Get the planet name from the clicked path's ID
-      const planet = this.id.replace('-orbit', '');
-
-      // Show the corresponding planet-cycle div
-      var solarSystemCenter = document.getElementById('solar-system-center');
-      const cycleDiv = document.getElementById(`${planet}-cycle`);
-
-      if (cycleDiv) {
-        solarSystemCenter.style.display = "none";
-
-        cycleDiv.style.display = 'block';
-      }
-    });
-  });
-}
-
 
 

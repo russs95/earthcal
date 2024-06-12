@@ -339,6 +339,8 @@ function handleTouchEnd() {
 
 
 
+//THE NEXT FOCUS PROJECT
+//Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
 
 function displayDayInfo(date) {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

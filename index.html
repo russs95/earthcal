@@ -13,8 +13,6 @@ https://github/russs95/earthcycles
 -->
 
 
-
-    
 <link rel="canonical" href="https://cycles.earthen.io"> 
 <link rel="alternate" href="https://cycles.earthen.io" hreflang="en" >
 <link rel="alternate" href="http://cycles.earthen.io" hreflang="x-default" >
@@ -485,7 +483,7 @@ attachBreakoutTouchListeners();
   //  animateWhaleCycle();
   cyclesToggle(); //enables the planet and animal buttons to work
   // handleOrbitClicks();  //enables clicks on the orbits to open up planet info.  THis needs work!!
-
+openPlanetInfoBox();
 
   triggerBreakoutDay();
   // setTimeout(displayCurrentDayInfo, 3000);
@@ -774,47 +772,54 @@ attachBreakoutTouchListeners();
 
   <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">
 
-    <div id="neptune-cyclexxx" class="planet-info-box">
+    <div id="neptune-cycle" class="planet-info-box">
       <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
-      <div id="neptune-phase-info" style="text-align: right;" class="planet-info"><span style:font-size:1.5em;> Neptune ♆</span>Orbit: 164.81 years<br>
+      <div id="neptune-phase-info" style="text-align: center;" class="planet-info"><span style="font-size:1.5em;"> Neptune ♆</span><br>Orbit: 164.81 years<br>
         Max Dist.: 30.1 AU<br>
         Min Dist: 29.8 AU</div>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
   
-    <div id="uranus-cyclexxx" class="planet-info-box">
+    <div id="uranus-cycle" class="planet-info-box">
         <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
-        <div id="uranus-phase-info" style="text-align:left;" class="planet-info"><span style:font-size:1.5em;>Uranus ♅ </span><br>Orbit: 84.07 years<br>
+        <div id="uranus-phase-info" style="text-align:center;" class="planet-info"><span style="font-size:1.5em;">Uranus ♅ </span><br>Orbit: 84.07 years<br>
         Max Dist.: 20.1 AU<br>
         Min Dist.: 29.8 AU</div>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
     
     <div id="saturn-cycle" class="planet-info-box">
       <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
       <div id="saturn-phase-info" class="planet-info"></div>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
     <div id="jupiter-cycle" class="planet-info-box">
       <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
       <div id="jupiter-phase-info" class="planet-info"></div>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
     <div id="mars-cycle" class="planet-info-box">
       <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
       <div id="mars-phase-info" class="planet-info"></div>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
-    <div id="earth-cyclexxx" class="planet-info-box">
+    <div id="earth-cycle" class="planet-info-box">
       <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
       <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
         Orbit: 1 year<br>
         Max Dist.: 1 AU<br>
         Min Dist.: 1 AU<br>
         </div>
+       <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
       
     <div id="venus-cycle" class="planet-info-box">
       <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
       <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
+       <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
     <div id="mercury-cycle" class="planet-info-box">
@@ -822,7 +827,8 @@ attachBreakoutTouchListeners();
       <div id="mercury-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
         Orbit: 0.24 years<br>
         max Dist.': 1.4 AU<br>
-        min Dist.': 0.61 AU</div>
+        min Dist.': 0.61 AU</div><br>
+      <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
     <div id="moon-cycle" style="margin-bottom:50px;" class="animal-info-box">
