@@ -380,7 +380,7 @@ z-index:21}
    text-align:left;}
 </style>
 
-<script>
+  <script>
 
 //Initiate
 
@@ -390,6 +390,7 @@ gsap.registerPlugin(MotionPathPlugin);
 
 /*ROLL CALL*/
 window.onload = function() {
+
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
@@ -419,7 +420,19 @@ window.onload = function() {
   //updateWeeksCircle();  //Updates week's colors for night and day themese
   setCurrentDate();   //Sets the Current Date as the Target Date.
   const currentYear = parseInt(currentYearText.textContent); //imports the current year from the currentYearText element
-  displayCurrentDayInfo();
+  //displayCurrentDayInfo();
+
+  displayMoonPhaseInDiv(targetDate);
+  getUserDetails();
+    displayDayInfo(targetDate);
+
+   highlightDateCycles();
+   displayMatchingDateCycle();
+   checkTourToken();
+
+
+
+
   //updateWeekTitles(currentYear);  //Updates the week titles for the current year
   updateDayIds(currentYear);  //Updates the day ids for the current year
   updateDayTitles(currentYear);  //Updates the day titles for the current year
@@ -486,21 +499,13 @@ attachBreakoutTouchListeners();
 openPlanetInfoBox();
 
   triggerBreakoutDay();
-  // setTimeout(displayCurrentDayInfo, 3000);
- 
-  function displayCurrentDayInfo(event) {
-   const date = targetDate;
-   displayMoonPhaseInDiv(date);
-   displayDayInfo(date);
-   highlightDateCycles();
-   displayMatchingDateCycle();
-   checkTourToken();
+
   //  document.getElementById("current-time").style.display = "block";
   //  document.getElementById("tomorrow").style.display = "block";
   //       document.getElementById("yesterday").style.display = "block";
     //Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
 }
-}
+
 
 
 
@@ -662,9 +667,14 @@ openPlanetInfoBox();
  
       <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
 
-        <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right:0px;padding-bottom:8px;">
-          <div id="current-date-info" class="date-info"></div>
-          <div id="current-time" class="date-info"></div>
+        <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; margin-top: 16px;">
+          <div id="current-date-info" style="font-family: 'Mulish', sans-serif;
+  color: var(--text-color);font-size: 1.4em;"></div>
+          <div id="user-timezone-lang" style="font-size: 0.8em;
+  color: var(--subdued-text);
+  font-family: 'Mulish';margin-top: -10px;
+  margin-right: 12px;"></div>
+<!--          <div id="current-time" class="date-info"></div>-->
         </div>
 
         <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;background:var(--grey-trans);margin-right:10px;margin-left:10px;border-radius:8px;border:1px solid var(--text-color); border-radius:10px;padding-top:8px;">
@@ -673,12 +683,7 @@ openPlanetInfoBox();
         </div>
       </div>
 
-      <div id="time-controller" style="
-      display: flex;
-      flex-flow: row;
-      width: 250px;
-      height: 30px;
-      margin-left: auto;
+      <div id="date-controls" style="margin-left: auto;
       z-index: 20;
       margin-right: 10px;
       border-radius: 5px;
@@ -686,17 +691,29 @@ openPlanetInfoBox();
       position: fixed;
       bottom: 10px;
       left: 10px;">
-        <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
-        
-        <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
+        <div id="time-controller" style="
+      display: flex;
+      flex-flow: row;
+      width: 250px;
+      height: 30px;
+      ">
+          <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
 
-        <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
+          <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
 
-        <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
+          <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
 
-        <div id="next-year" class="next-button" onclick="prevYear()" aria-lable="Next Year" title="Go to next year"></div>
+          <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
 
+          <div id="next-year" class="next-button" onclick="prevYear()" aria-lable="Next Year" title="Go to next year"></div>
+
+        </div>
+        <div id="current-day-info" style="font-size: 0.8em;
+  color: var(--subdued-text);
+  font-family: 'Mulish';
+  padding: 11px;"></div>
       </div>
+
 
       <div id="current-datecycle-info2" class="date-info" style="overflow-y: auto;height:80vh;overflow-x: hidden;width:fit-content;margin-top:-15px;margin-left:auto;margin-right:12px;">
       </div>
@@ -831,7 +848,7 @@ openPlanetInfoBox();
       <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
-    <div id="moon-cycle" style="margin-bottom:50px;" class="animal-info-box">
+    <div id="moon-cycle" style="margin-bottom:75px;" class="animal-info-box">
       <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
       <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
     </div>

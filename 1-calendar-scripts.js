@@ -342,44 +342,61 @@ function handleTouchEnd() {
 //THE NEXT FOCUS PROJECT
 //Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
 
+function getUserDetails() {
+  // Get the user's timezone offset and format it
+  const timezoneOffset = -new Date().getTimezoneOffset() / 60;
+  const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+
+  // Get the user's language
+  const language = navigator.language || navigator.userLanguage;
+
+  // Construct a string representing the user's details
+  const userDetailsString = ` ${timezone} | ${language}`;
+
+  // Update the inner HTML of the div with id 'user-timezone-lang' to display the user's details
+  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+  userTimezoneLangDiv.innerHTML = `<p>${userDetailsString}</p>`;
+}
+
 function displayDayInfo(date) {
+  // Arrays to map day and month indices to their names
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+  // Get the day of the week, month, day of the month, and year from the date object
   const dayOfWeek = daysOfWeek[date.getDay()];
   const month = monthsOfYear[date.getMonth()];
   const dayOfMonth = date.getDate();
   const year = date.getFullYear();
-  const dayOfYear = getDayOfYear(date);
-  const weekNumber = getWeekNumber(date);
 
+  // Calculate the day of the year
+  const dayOfYear = getDayOfYear(date);
+
+  // Determine the appropriate ordinal suffix for the day of the month
   let dayOfMonthString;
+  const suffixStyle = 'style="font-size: 0.6em; vertical-align: super;"';
   if (dayOfMonth % 10 === 1 && dayOfMonth !== 11) {
-    dayOfMonthString = `${dayOfMonth}st`;
+    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>st</span>`;
   } else if (dayOfMonth % 10 === 2 && dayOfMonth !== 12) {
-    dayOfMonthString = `${dayOfMonth}nd`;
+    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>nd</span>`;
   } else if (dayOfMonth % 10 === 3 && dayOfMonth !== 13) {
-    dayOfMonthString = `${dayOfMonth}rd`;
+    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>rd</span>`;
   } else {
-    dayOfMonthString = `${dayOfMonth}th`;
+    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>th</span>`;
   }
 
+  // Construct a string representing the full date
   const dateString = `${dayOfWeek}, ${month} ${dayOfMonthString}`;
-  const dayOfYearString = `Day ${dayOfYear + 1}`;
-  const weekNumberString = `of ${year}`;
+  // Construct a string representing the day of the year
+  const dayOfYearString = `Day ${dayOfYear + 1} of ${year}`;
 
-  //const weekNumberString = `week ${weekNumber} of ${year}`;
-
+  // Update the inner HTML of the div with id 'current-date-info' to display the date information
   const currentDateInfoDiv = document.getElementById('current-date-info');
-  currentDateInfoDiv.innerHTML = `<h2>${dateString}</h2><p style="margin: -12px 0px -10px 0px;">${dayOfYearString} ${weekNumberString}</p>`;
-}
+  currentDateInfoDiv.innerHTML = `${dateString}`;
 
-
-
-function getWeekNumber(date) {
-  const oneJan = new Date(date.getFullYear(), 0, 1);
-  const numberOfDays = Math.floor((date - oneJan) / (24 * 60 * 60 * 1000));
-  return Math.ceil((date.getDay() + 1 + numberOfDays) / 7);
+  // Update the inner HTML of the div with id 'current-day-info' to display the day of the year
+  const currentDayInfoDiv = document.getElementById('current-day-info');
+  currentDayInfoDiv.innerHTML = `<p style="margin: -12px 0px -10px 0px;">${dayOfYearString}</p>`;
 }
 
 
