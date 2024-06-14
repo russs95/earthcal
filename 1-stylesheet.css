@@ -475,6 +475,11 @@ border-color: #00a112 !important;
     width: 75px;
     height: 75px;
     border:none;
+    cursor:pointer;
+    position:absolute;
+    top:25px;
+    right: 25px;
+
 }
 
 .x-button:hover {
@@ -2404,7 +2409,6 @@ INFO MODAL
   justify-content: center; 
   align-items: center; 
   z-index: 1000;
-  display: none;
   }
   
   .modal-content-box {
@@ -2414,8 +2418,7 @@ INFO MODAL
     background-color: var(--emblem-pink); 
     border-radius: 10px; 
     max-width: 90%; 
-    max-height: 80vh; 
-    min-height: 50%;
+    height:100%;
     min-width: 70%; 
     width: 50%; 
     color: var(--h1);

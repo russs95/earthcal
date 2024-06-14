@@ -82,7 +82,7 @@ https://github/russs95/earthcycles
 <script src="suncalc.min.js"></script> 
 <script src="astronomy.browser.js"></script><!-- Functional orbital calculations-->
 
-<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.1.1/hijri.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.0.25/dist/hijri-js.common.min.js"></script>
 <!--This loads the main calendar javascripts-->
 
 <script src="1-javascripts.js"></script> <!--functional scripts-->
@@ -356,6 +356,8 @@ margin-left: auto;
 padding: 10px;
 z-index:21}
 
+
+
  */
 
 .previous-button {width:30px;height:20px;text-align:center;cursor:pointer;}
@@ -378,6 +380,23 @@ z-index:21}
    height:fit-content;
    font-size: 0.8em;
    text-align:left;}
+
+
+  .modal-hidden {
+  display:none;}
+
+  .modal-visible {
+  display: block;
+
+
+  #user-details {
+cursor:pointer !important;
+}
+
+#user-details:hover {
+text-decoration: underline;
+}
+
 </style>
 
   <script>
@@ -418,13 +437,14 @@ window.onload = function() {
   updateHighlightColor(); //Updates colors for night and day themese
   //updateLunarMonths(); //Updates lunar months colors for night and day themese
   //updateWeeksCircle();  //Updates week's colors for night and day themese
-  setCurrentDate();   //Sets the Current Date as the Target Date.
+  getUserDetails();
+  <!--  setCurrentDate();   //Sets the Current Date as the Target Date.-->
   const currentYear = parseInt(currentYearText.textContent); //imports the current year from the currentYearText element
   //displayCurrentDayInfo();
 
   displayMoonPhaseInDiv(targetDate);
-  getUserDetails();
-    displayDayInfo(targetDate);
+
+
 
    highlightDateCycles();
    displayMatchingDateCycle();
@@ -518,18 +538,12 @@ openPlanetInfoBox();
   <!--INFO MODAL-->
 
   <div id="form-modal-message" class="modal-hidden">
+        <button type="button" onclick="closeInfoModal()" aria-label="Click to close modal" class="x-button"></button>
+
     <div class="modal-content-box">
-    <button type="button" onclick="closeInfoModal()" aria-label="Click to close modal" class="x-button"></button>
-        <div class="modal-message">
-          <h3>Version 0.8.8</h3>
-          <p>Featuring minor bug upgrades.  </p>
+        <div id="modal-content" class="modal-message">
         </div>
     </div>
-    <div class="modal-photo-box">
-        <button type="button" onclick="closeInfoModal()" aria-label="Click to close modal" class="x-button"></button>
-        <div class ="modal-photo"></div>
-    </div>
-
 </div>
 
   <div id="registration-footer">
@@ -672,8 +686,7 @@ openPlanetInfoBox();
   color: var(--text-color);font-size: 1.4em;"></div>
           <div id="user-timezone-lang" style="font-size: 0.8em;
   color: var(--subdued-text);
-  font-family: 'Mulish';margin-top: -10px;
-  margin-right: 12px;"></div>
+  font-family: 'Mulish';margin-top: -6px;margin-left:auto;z-index:20;"></div>
 <!--          <div id="current-time" class="date-info"></div>-->
         </div>
 
@@ -1282,7 +1295,7 @@ openPlanetInfoBox();
             targetDate = new Date(year, month, day);
 
             // Alert the formatted targetDate
-            calendarRefresh()
+            calendarRefresh();
         });
     });
 }

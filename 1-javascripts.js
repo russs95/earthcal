@@ -12,12 +12,12 @@ let currentDate;
 let dayOfYear;
 
 
-
-function setCurrentDate() {
-  let currentDate = new Date();
-  startDate = new Date(currentDate.getFullYear(), 0, 1);
-  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-}
+//
+//function setCurrentDate() {
+//  let currentDate = new Date();
+//  startDate = new Date(currentDate.getFullYear(), 0, 1);
+//  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+//}
 
 
 
@@ -345,7 +345,7 @@ function getTheDayOfYear(targetDate) {
   function calendarRefresh() {
     // Phase 1: instant animations
     updateTargetMonth();
-    displayDayInfo(targetDate);
+     displayDayInfo(targetDate);
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     //Sets the lunar month for the target date
     resetPaths();

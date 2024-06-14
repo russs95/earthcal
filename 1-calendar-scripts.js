@@ -242,9 +242,10 @@ function formatDate(date) {
     const year = parseInt(dateParts[3]);
     const date = new Date(year, month, dayOfMonth);
   
-    // Call the relevant functions to show details for the selected date
+
     displayDayInfo(date);
-  
+
+
     displayMoonPhaseInDiv(date);
    
   // Check if the moon-cycle div is set to display block
@@ -342,30 +343,84 @@ function handleTouchEnd() {
 //THE NEXT FOCUS PROJECT
 //Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
 
+// Global variables for timezone and language
+let timezone;
+let language;
+
 function getUserDetails() {
   // Get the user's timezone offset and format it
   const timezoneOffset = -new Date().getTimezoneOffset() / 60;
-  const timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+  timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
 
-  // Get the user's language
-  const language = navigator.language || navigator.userLanguage;
+  // Get the user's language and truncate it to the first two characters, then capitalize them
+  language = (navigator.language || navigator.userLanguage).slice(0, 2).toUpperCase();
 
-  // Construct a string representing the user's details
-  const userDetailsString = ` ${timezone} | ${language}`;
+  // Set the global variable targetDate based on the user's timezone
+  let currentDate = new Date();
+  startDate = new Date(currentDate.getFullYear(), 0, 1);
+  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 
-  // Update the inner HTML of the div with id 'user-timezone-lang' to display the user's details
-  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-  userTimezoneLangDiv.innerHTML = `<p>${userDetailsString}</p>`;
+  // Call displayUserData with the timezone and language
+  displayUserData(timezone, language);
+
+  // Call displayDayInfo with the date, language, and timezone
+  displayDayInfo(targetDate);
+
 }
 
-function displayDayInfo(date) {
-  // Arrays to map day and month indices to their names
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  // Get the day of the week, month, day of the month, and year from the date object
-  const dayOfWeek = daysOfWeek[date.getDay()];
-  const month = monthsOfYear[date.getMonth()];
+
+
+function displayDayInfo(date) {
+  // Define the day and month names for each language
+  const daysOfWeek = {
+    EN: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    ID: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+    FR: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+    ES: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+    DE: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    AR: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+  };
+
+  const monthsOfYear = {
+    EN: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    ID: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+    FR: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+    ES: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    DE: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    AR: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+  };
+
+  const ordinalSuffixes = {
+    EN: ['st', 'nd', 'rd', 'th'],
+    ID: ['', '', '', ''],
+    FR: ['er', '', '', ''],
+    ES: ['', '', '', ''],
+    DE: ['.', '.', '.', '.'],
+    AR: ['', '', '', '']
+  };
+
+  const dayTranslations = {
+    EN: 'Day',
+    ID: 'Hari',
+    FR: 'Jour',
+    ES: 'Día',
+    DE: 'Tag',
+    AR: 'يوم'
+  };
+
+  const ofTranslations = {
+    EN: 'of',
+    ID: 'dari',
+    FR: 'de',
+    ES: 'de',
+    DE: 'von',
+    AR: 'من'
+  };
+
+  // Use the corresponding day and month names based on the user's language
+  const dayOfWeek = daysOfWeek[language] ? daysOfWeek[language][date.getDay()] : daysOfWeek['EN'][date.getDay()];
+  const month = monthsOfYear[language] ? monthsOfYear[language][date.getMonth()] : monthsOfYear['EN'][date.getMonth()];
   const dayOfMonth = date.getDate();
   const year = date.getFullYear();
 
@@ -373,22 +428,15 @@ function displayDayInfo(date) {
   const dayOfYear = getDayOfYear(date);
 
   // Determine the appropriate ordinal suffix for the day of the month
-  let dayOfMonthString;
-  const suffixStyle = 'style="font-size: 0.6em; vertical-align: super;"';
-  if (dayOfMonth % 10 === 1 && dayOfMonth !== 11) {
-    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>st</span>`;
-  } else if (dayOfMonth % 10 === 2 && dayOfMonth !== 12) {
-    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>nd</span>`;
-  } else if (dayOfMonth % 10 === 3 && dayOfMonth !== 13) {
-    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>rd</span>`;
-  } else {
-    dayOfMonthString = `${dayOfMonth}<span ${suffixStyle}>th</span>`;
-  }
+  const suffixIndex = (dayOfMonth % 10 === 1 && dayOfMonth !== 11) ? 0 : (dayOfMonth % 10 === 2 && dayOfMonth !== 12) ? 1 : (dayOfMonth % 10 === 3 && dayOfMonth !== 13) ? 2 : 3;
+  const suffix = ordinalSuffixes[language] ? ordinalSuffixes[language][suffixIndex] : ordinalSuffixes['EN'][suffixIndex];
+  const dayOfMonthString = `${dayOfMonth}<sup style="font-size: 0.7em;">${suffix}</sup>`;
 
   // Construct a string representing the full date
   const dateString = `${dayOfWeek}, ${month} ${dayOfMonthString}`;
+
   // Construct a string representing the day of the year
-  const dayOfYearString = `Day ${dayOfYear + 1} of ${year}`;
+  const dayOfYearString = `${dayTranslations[language]} ${dayOfYear + 1} ${ofTranslations[language]} ${year}`;
 
   // Update the inner HTML of the div with id 'current-date-info' to display the date information
   const currentDateInfoDiv = document.getElementById('current-date-info');
@@ -401,20 +449,198 @@ function displayDayInfo(date) {
 
 
 
-/*Prints the live time on the top left corner*/
+//
+//function displayUserData() {
+//  // Convert the timezone format from "UTC+8" to "Asia/Shanghai"
+//  const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, 'Etc/GMT$1');
+//
+//  // Get the current date and time in the user's timezone
+//  const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
+//  const [datePart, timePart] = currentTime.split(', ');
+//  const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
+//
+//  // Construct a string representing the user's details
+//  const userDetailsString = `| ${timezone} | ${language}`;
+//  const currentUserTime = `${hours}:${minutes}:${seconds}`;
+//
+//  // Update the inner HTML of the div with id 'user-timezone-lang' to display the user's details
+//  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+//  userTimezoneLangDiv.innerHTML = `<p><span id="current-user-time">${currentUserTime}</span><span id="user-details" onclick="showUserCalSettings()">${userDetailsString} ⚙️</span></p>`;
+//}
+function displayUserData() {
+  // Function to update the current time
+  function updateTime() {
+    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
+    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${-parseInt(p1)}`);
 
-function printTime() {
-  const currentTime = new Date();
-  const currentHours = currentTime.getHours().toString().padStart(2, '0');
-  const currentMinutes = currentTime.getMinutes().toString().padStart(2, '0');
-  const currentSeconds = currentTime.getSeconds().toString().padStart(2, '0');
-  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const currentGMTOffset = -currentTime.getTimezoneOffset() / 60;
-  const currentUTC = currentTime.toUTCString();
-  const currentTimeText = document.getElementById('current-time');
+    // Get the current date and time in the user's timezone
+    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
+    const [datePart, timePart] = currentTime.split(', ');
+    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
 
-  currentTimeText.textContent = currentHours + ":" + currentMinutes + ":" + currentSeconds + " " /*+ currentTimezone*/ + " (GMT" + (currentGMTOffset >= 0 ? '+' : '') + currentGMTOffset + ")";
+    // Update the inner HTML of the span with id 'current-user-time' to display the current time
+    const currentUserTime = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('current-user-time').textContent = currentUserTime;
+  }
+
+  // Construct a string representing the user's details
+  const userDetailsString = `| ${timezone} | ${language}`;
+
+  // Set the initial content of the div with id 'user-timezone-lang'
+  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+  userTimezoneLangDiv.innerHTML = `
+    <p>
+      <span id="current-user-time"></span>
+      <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
+    </p>`;
+
+  // Update the time immediately
+  updateTime();
+
+  // Set an interval to update the time every second
+  setInterval(updateTime, 1000);
 }
+
+
+
+
+
+
+function showUserCalSettings() {
+  // Define the list of timezones with principal cities
+  const timezones = [
+    { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
+    { value: 'UTC-11', label: 'UTC-11 | Niue' },
+    { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian' },
+    { value: 'UTC-9', label: 'UTC-9 | Alaska' },
+    { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
+    { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
+    { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
+    { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
+    { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
+    { value: 'UTC-3', label: 'UTC-3 | Buenos Aires' },
+    { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
+    { value: 'UTC-1', label: 'UTC-1 | Azores' },
+    { value: 'UTC+0', label: 'UTC+0 | London' },
+    { value: 'UTC+1', label: 'UTC+1 | Berlin' },
+    { value: 'UTC+2', label: 'UTC+2 | Cairo' },
+    { value: 'UTC+3', label: 'UTC+3 | Moscow' },
+    { value: 'UTC+4', label: 'UTC+4 | Dubai' },
+    { value: 'UTC+5', label: 'UTC+5 | Karachi' },
+    { value: 'UTC+6', label: 'UTC+6 | Dhaka' },
+    { value: 'UTC+7', label: 'UTC+7 | Jakarta, Indonesia' },
+    { value: 'UTC+8', label: 'UTC+8 | Bali, Indonesia' },
+    { value: 'UTC+9', label: 'UTC+9 | Tokyo' },
+    { value: 'UTC+10', label: 'UTC+10 | Sydney' },
+    { value: 'UTC+11', label: 'UTC+11 | Solomon Islands' },
+    { value: 'UTC+12', label: 'UTC+12 | Fiji' },
+    { value: 'UTC+13', label: 'UTC+13 | Tonga' },
+    { value: 'UTC+14', label: 'UTC+14 | Kiritimati' }
+  ];
+
+  // Create options for the timezone select element
+  let timezoneOptions = timezones.map(tz =>
+    `<option value="${tz.value}" ${tz.value === timezone ? 'selected' : ''}>${tz.label}</option>`
+  ).join('');
+
+  // Insert a form into the modal content for the user to choose timezone and language
+  const modalContent = document.getElementById('modal-content');
+  modalContent.innerHTML = `
+    <form id="user-settings-form">
+      <label for="timezone">🌐</label>
+      <select id="timezone" name="timezone" style="padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #0000007a;
+  color: var(--h1);
+  margin: 20px;
+  width: 300px;
+  font-size: large;">
+        ${timezoneOptions}
+      </select>
+      <br>
+      <label for="language">💬</label>
+      <select id="language" name="language" style="padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #0000007a;
+  color: var(--h1);
+  margin: 20px;
+  width: 300px;
+  font-size: large;">
+        <option value="EN" ${language === 'EN' ? 'selected' : ''}>English</option>
+        <option value="ID" ${language === 'ID' ? 'selected' : ''}>Indonesian</option>
+        <option value="FR" ${language === 'FR' ? 'selected' : ''}>French</option>
+        <option value="ES" ${language === 'ES' ? 'selected' : ''}>Spanish</option>
+        <option value="DE" ${language === 'DE' ? 'selected' : ''}>German</option>
+        <option value="AR" ${language === 'AR' ? 'selected' : ''}>Arabic</option>
+      </select>
+      <br>
+      <label for="apply">✅</label>
+      <button type="button" name="apply" onclick="applySettings()" style="padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: grey;
+  color: black;
+  margin: 20px;
+  width: 300px;
+  font-size: large;
+
+  cursor:pointer;">Apply Settings</button>
+    </form>
+  `;
+
+  // Show the modal
+  const modal = document.getElementById('form-modal-message');
+  modal.classList.remove('modal-hidden');
+  modal.classList.add('modal-visible');
+  document.getElementById("page-content").classList.add("blur");
+}
+
+
+
+function closeInfoModal() {
+  const modal = document.getElementById('form-modal-message');
+  modal.classList.remove('modal-visible');
+  modal.classList.add('modal-hidden');
+   document.getElementById("page-content").classList.remove("blur");
+}
+
+
+function applySettings() {
+  // Get the values from the form
+  timezone = document.getElementById('timezone').value;
+  language = document.getElementById('language').value;
+
+  // Call displayUserData with the new values
+  displayUserData();
+
+  // Call displayDayInfo with the new values
+  displayDayInfo(targetDate);
+
+  // Close the modal
+  closeInfoModal();
+}
+
+
+
+
+
+
+/*Prints the live time on the top left corner*/
+//
+//function printTime() {
+//  const currentTime = new Date();
+//  const currentHours = currentTime.getHours().toString().padStart(2, '0');
+//  const currentMinutes = currentTime.getMinutes().toString().padStart(2, '0');
+//  const currentSeconds = currentTime.getSeconds().toString().padStart(2, '0');
+//  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+//  const currentGMTOffset = -currentTime.getTimezoneOffset() / 60;
+//  const currentUTC = currentTime.toUTCString();
+//  const currentTimeText = document.getElementById('current-time');
+//
+//  currentTimeText.textContent = currentHours + ":" + currentMinutes + ":" + currentSeconds + " " /*+ currentTimezone*/ + " (GMT" + (currentGMTOffset >= 0 ? '+' : '') + currentGMTOffset + ")";
+//}
 
 // setInterval(printTime, 1000);
 
