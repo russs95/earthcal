@@ -546,19 +546,20 @@ function showUserCalSettings() {
   // Insert a form into the modal content for the user to choose timezone and language
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
+    <h1 style="margin-top:-30px;text-align:center;">⚙️</h1>
     <form id="user-settings-form">
       <label for="timezone"></label>
-      <select id="timezone" name="timezone" style="padding: 10px;
+      <div style="cursor:pointer;"><select id="timezone" name="timezone" style="padding: 10px;
   border-radius: 10px;
   border: none;
   background: #0000007a;
   color: var(--h1);
   margin: 20px;
   width: 300px;
-  font-size: large;">
+  font-size: large;
+  ">
         ${timezoneOptions}
-      </select>
-      <br>
+      </select></div>
       <label for="language"></label>
       <select id="language" name="language" style="padding: 10px;
   border-radius: 10px;
@@ -567,7 +568,8 @@ function showUserCalSettings() {
   color: var(--h1);
   margin: 20px;
   width: 300px;
-  font-size: large;">
+  font-size: large;
+  cursor:pointer;">
         <option value="EN" ${language === 'EN' ? 'selected' : ''}>English</option>
         <option value="ID" ${language === 'ID' ? 'selected' : ''}>Indonesian</option>
         <option value="FR" ${language === 'FR' ? 'selected' : ''}>French</option>
@@ -580,13 +582,13 @@ function showUserCalSettings() {
       <button type="button" name="apply" onclick="applySettings()" style="padding: 10px;
   border-radius: 10px;
   border: none;
-  background: grey;
-  color: black;
+  background: #ffffff70;
+  color: var(--general-background);
   margin: 20px;
   width: 300px;
   font-size: large;
 
-  cursor:pointer;">Apply Settings</button>
+  cursor:pointer;" onmouseover="this.style.background='#ffffff90'" onmouseout="this.style.background='#ffffff70'">✔️ Apply Settings</button>
     </form>
   `;
 

@@ -546,6 +546,41 @@ openPlanetInfoBox();
     </div>
 </div>
 
+
+  <div id="day-search" class="modal-hidden">
+        <button type="button" onclick="closeSearchModal()" aria-label="Click to close modal" class="x-button"></button>
+
+    <div class="search-modal-content">
+<!--      <span class="search-close" onclick="closeSearchModal()">&times;</span>-->
+      <div class="year-buttons" style="display:flex;flex-flow:row;padding:15px;margin:auto;justify-content: center;">
+        <button id="prev-year-search" style="cursor:pointer; font-size:1.5em;background-color:#0000000f;border:none;padding:15px;margin-right:10px;">◀️</button>
+        <div class="searched-year" style="font-size: 3.3em;color:white;">2023</div>
+        <button id="next-year-search" style="font-size:1.5em;background-color:#0000000f;border:none;padding:15px;cursor:pointer;margin-left:10px;">▶️</button>
+      </div>
+
+      <div class="date-search fields" style="display: flex;flex-flow:column;justify-content: center;padding:10px;">
+        <input type="number" id="day-field" placeholder="Day" style="width:100px;padding:5px;font-size: 1.4em;text-align:center;margin:auto;margin-bottom:15px;border-radius: 8px;">
+        <select id="month-field" style="width:100px;margin:auto;font-size: 1em;text-align:center;">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12" selected>December</option>
+        </select>
+
+      </div>
+      <button onclick="setLunarMonthForTarget()" class="search-button" style="text-align:center;">📆 Go to Date</button>
+    </div>
+  </div>
+
+
   <div id="registration-footer">
 
 
@@ -759,36 +794,6 @@ openPlanetInfoBox();
   <!-- <div id="tooltip"></div> being used? -->
 
 
-  <div id="day-search" class="modal">
-    <div class="search-modal-content">
-      <span class="search-close" onclick="closeSearchModal()">&times;</span>
-      <div class="year-buttons" style="display:flex;flex-flow:row;padding:15px;margin:auto;justify-content: center;">
-        <button id="prev-year-search" style="cursor:pointer; font-size:1.5em;background-color:#0000000f;border:none;padding:15px;margin-right:10px;">◀️</button>
-        <div class="searched-year" style="font-size: 3.3em;color:white;">2023</div>
-        <button id="next-year-search" style="font-size:1.5em;background-color:#0000000f;border:none;padding:15px;cursor:pointer;margin-left:10px;">▶️</button>
-      </div>
-  
-      <div class="date-search fields" style="display: flex;flex-flow:column;justify-content: center;padding:10px;">
-        <input type="number" id="day-field" placeholder="Day" style="width:100px;padding:5px;font-size: 1.4em;text-align:center;margin:auto;margin-bottom:15px;border-radius: 8px;">
-        <select id="month-field" style="width:100px;margin:auto;font-size: 1em;text-align:center;">
-          <option value="1">January</option>
-          <option value="2">February</option>
-          <option value="3">March</option>
-          <option value="4">April</option>
-          <option value="5">May</option>
-          <option value="6">June</option>
-          <option value="7">July</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12" selected>December</option>
-        </select>
-
-      </div>
-      <button onclick="setLunarMonthForTarget()" class="search-button" style="text-align:center;">📆 Go to Date</button>
-    </div>
-  </div>
 
 
   <!-- <div id="events-container"></div> -->
@@ -1195,13 +1200,13 @@ openPlanetInfoBox();
      
     <button type="button" id="whale-button" class="totems-icon active" style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" ></button>
     
-    <!-- <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
+     <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg"></button>
 
     <button type="button" id="goose-button" class="totems-icon"  aria-label="Access goose cycle" style="border-color:red;"><img src="icons/goose.svg"></button>
 
     <button type="button" id="humming-button" class="totems-icon"  aria-label="Access humming cycle" style="border-color:rgb(71, 8, 8);"><img src="icons/humming.svg"></button>
 
-      <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button> -->
+      <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
   </div>
 
   <div id="planet-buttons" class="icon-button-columns" style="justify-content:flex-end;position:absolute; z-index:20; bottom:20px;right:20px;display:none;bottom: 60px;

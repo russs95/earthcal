@@ -28,12 +28,20 @@ let dayOfYear;
 
 function closeSearchModal() {
   var modal = document.getElementById("day-search");
-  modal.style.display = "none";
+
+  modal.classList.remove('modal-visible');
+  modal.classList.add('modal-hidden');
+   document.getElementById("page-content").classList.remove("blur");
 }
 
 function openDateSearch() {
   var modal = document.getElementById("day-search");
-  modal.style.display = "block";
+//  modal.style.display = "block";
+    // Show the modal
+//  const modal = document.getElementById('form-modal-message');
+  modal.classList.remove('modal-hidden');
+  modal.classList.add('modal-visible');
+  document.getElementById("page-content").classList.add("blur");
 
   // Retrieve the searched-year element
   var searchedYear = document.querySelector(".searched-year");

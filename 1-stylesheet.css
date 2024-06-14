@@ -478,7 +478,8 @@ border-color: #00a112 !important;
     cursor:pointer;
     position:absolute;
     top:25px;
-    right: 25px;
+    right: 12px;
+    z-index:30;
 
 }
 
@@ -1465,11 +1466,13 @@ TOOLTIPS AND MODALS
   margin: auto;
   margin-top: -25px;
   height: fit-content;
-  background-color: rgba(0, 0, 0, 0.798);
-  border: 1px solid var(--months-lunar);
+  /*background-color: rgba(0, 0, 0, 0.798);
+  border: 1px solid var(--months-lunar);*/
   font-family: 'Mulish', sans-serif;
   color: var(--text-color);
   transition: 0.5s;
+  margin-top: auto;
+    z-index: 20;
 
 }
 
