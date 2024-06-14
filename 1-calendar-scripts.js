@@ -547,7 +547,7 @@ function showUserCalSettings() {
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
     <form id="user-settings-form">
-      <label for="timezone">🌐</label>
+      <label for="timezone"></label>
       <select id="timezone" name="timezone" style="padding: 10px;
   border-radius: 10px;
   border: none;
@@ -559,7 +559,7 @@ function showUserCalSettings() {
         ${timezoneOptions}
       </select>
       <br>
-      <label for="language">💬</label>
+      <label for="language"></label>
       <select id="language" name="language" style="padding: 10px;
   border-radius: 10px;
   border: none;
@@ -576,7 +576,7 @@ function showUserCalSettings() {
         <option value="AR" ${language === 'AR' ? 'selected' : ''}>Arabic</option>
       </select>
       <br>
-      <label for="apply">✅</label>
+
       <button type="button" name="apply" onclick="applySettings()" style="padding: 10px;
   border-radius: 10px;
   border: none;
