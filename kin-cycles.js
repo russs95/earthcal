@@ -13,6 +13,7 @@ function cyclesToggle() {
   var solarsystemButton = document.getElementById('solarsystem-button');
   var solarSystemCenter = document.getElementById('solar-system-center');
   var themoonphases = document.getElementById('themoonphases');
+  var mainClock = document.getElementById('main-clock');
 
   var mercuryButton = document.getElementById('mercury-button');
   var mercuryCycle = document.getElementById('mercury-cycle');  
@@ -171,6 +172,8 @@ mercuryButton.addEventListener("click", function() {
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
 
+  mainClock.style.opacity = "0.2";
+  mainClock.style.filter = "blur(2px)";
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
   earthMap.style.display = "none";

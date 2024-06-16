@@ -1025,3 +1025,6 @@ function displayDayInfo(date) {
   // Your code to display the day information
   console.log(`Displaying day info for date: ${date}`);
 }
+
+;
+

@@ -449,59 +449,6 @@ function displayDayInfo(date) {
 
 
 
-//
-//function displayUserData() {
-//  // Convert the timezone format from "UTC+8" to "Asia/Shanghai"
-//  const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, 'Etc/GMT$1');
-//
-//  // Get the current date and time in the user's timezone
-//  const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
-//  const [datePart, timePart] = currentTime.split(', ');
-//  const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
-//
-//  // Construct a string representing the user's details
-//  const userDetailsString = `| ${timezone} | ${language}`;
-//  const currentUserTime = `${hours}:${minutes}:${seconds}`;
-//
-//  // Update the inner HTML of the div with id 'user-timezone-lang' to display the user's details
-//  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-//  userTimezoneLangDiv.innerHTML = `<p><span id="current-user-time">${currentUserTime}</span><span id="user-details" onclick="showUserCalSettings()">${userDetailsString} ⚙️</span></p>`;
-//}
-function displayUserData() {
-  // Function to update the current time
-  function updateTime() {
-    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
-    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${-parseInt(p1)}`);
-
-    // Get the current date and time in the user's timezone
-    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
-    const [datePart, timePart] = currentTime.split(', ');
-    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
-
-    // Update the inner HTML of the span with id 'current-user-time' to display the current time
-    const currentUserTime = `${hours}:${minutes}:${seconds}`;
-    document.getElementById('current-user-time').textContent = currentUserTime;
-  }
-
-  // Construct a string representing the user's details
-  const userDetailsString = `| ${timezone} | ${language}`;
-
-  // Set the initial content of the div with id 'user-timezone-lang'
-  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-  userTimezoneLangDiv.innerHTML = `
-    <p>
-      <span id="current-user-time"></span>
-      <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
-    </p>`;
-
-  // Update the time immediately
-  updateTime();
-
-  // Set an interval to update the time every second
-  setInterval(updateTime, 1000);
-}
-
-
 
 
 
@@ -548,7 +495,6 @@ function showUserCalSettings() {
   modalContent.innerHTML = `
     <h1 style="margin-top:-30px;text-align:center;">⚙️</h1>
     <form id="user-settings-form">
-      <label for="timezone"></label>
       <div style="cursor:pointer;"><select id="timezone" name="timezone" style="padding: 10px;
   border-radius: 10px;
   border: none;
@@ -560,7 +506,6 @@ function showUserCalSettings() {
   ">
         ${timezoneOptions}
       </select></div>
-      <label for="language"></label>
       <select id="language" name="language" style="padding: 10px;
   border-radius: 10px;
   border: none;
@@ -609,45 +554,11 @@ function closeInfoModal() {
 }
 
 
-function applySettings() {
-  // Get the values from the form
-  timezone = document.getElementById('timezone').value;
-  language = document.getElementById('language').value;
-
-  // Call displayUserData with the new values
-  displayUserData();
-
-  // Call displayDayInfo with the new values
-  displayDayInfo(targetDate);
-
-  // Close the modal
-  closeInfoModal();
-}
 
 
 
 
 
-
-/*Prints the live time on the top left corner*/
-//
-//function printTime() {
-//  const currentTime = new Date();
-//  const currentHours = currentTime.getHours().toString().padStart(2, '0');
-//  const currentMinutes = currentTime.getMinutes().toString().padStart(2, '0');
-//  const currentSeconds = currentTime.getSeconds().toString().padStart(2, '0');
-//  const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-//  const currentGMTOffset = -currentTime.getTimezoneOffset() / 60;
-//  const currentUTC = currentTime.toUTCString();
-//  const currentTimeText = document.getElementById('current-time');
-//
-//  currentTimeText.textContent = currentHours + ":" + currentMinutes + ":" + currentSeconds + " " /*+ currentTimezone*/ + " (GMT" + (currentGMTOffset >= 0 ? '+' : '') + currentGMTOffset + ")";
-//}
-
-// setInterval(printTime, 1000);
-
-
-  
   
 
 
@@ -850,4 +761,119 @@ function handleDayPathTouchStart(pathId) {
 
 
 
+
+
+//CLOCK, USER TIME
+
+function applySettings() {
+  // Get the values from the form
+  timezone = document.getElementById('timezone').value;
+  language = document.getElementById('language').value;
+
+  // Call displayUserData with the new values
+  displayUserData();
+
+  // Call displayDayInfo with the new values
+  displayDayInfo(targetDate);
+
+  // Check if the main-clock div is showing
+  const mainClock = document.getElementById('main-clock');
+  if (mainClock.style.display === 'block') {
+    // Hide the main-clock div
+    mainClock.style.display = 'none';
+  }
+
+  // Run openClock to update the clock with the new timezone
+  openClock(timezone);
+
+  // Close the modal
+  closeInfoModal();
+}
+
+function displayUserData() {
+  // Function to update the current time
+  function updateTime() {
+    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
+    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
+
+    // Get the current date and time in the user's timezone
+    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
+    const [datePart, timePart] = currentTime.split(', ');
+    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
+
+    // Update the inner HTML of the span with id 'current-user-time' to display the current time
+    const currentUserTime = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('current-user-time').textContent = currentUserTime;
+  }
+
+  // Construct a string representing the user's details
+  const userDetailsString = `| ${timezone} | ${language}`;
+
+  // Set the initial content of the div with id 'user-timezone-lang'
+  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+  userTimezoneLangDiv.innerHTML = `
+    <p>
+      <span id="current-user-time"></span>
+      <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
+    </p>`;
+
+  // Update the time immediately
+  updateTime();
+
+  // Set an interval to update the time every second
+  setInterval(updateTime, 1000);
+}
+
+let clockInterval;
+
+function openClock(timezone) {
+  const mainClock = document.getElementById('main-clock');
+  const secondHand = document.getElementById('main-second-hand');
+  const minuteHand = document.getElementById('main-minute-hand');
+  const hourHand = document.getElementById('main-hour-hand');
+  const solarSystemCenter = document.getElementById('solar-system-center');
+
+  // Convert the timezone format from "UTC+X" to "Etc/GMT-X"
+  const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
+
+  // Clear existing interval to prevent multiple intervals
+  clearInterval(clockInterval);
+
+  if (mainClock.style.display === 'none' || mainClock.style.display === '') {
+    mainClock.style.display = 'block';
+    if (solarSystemCenter) {
+      solarSystemCenter.style.opacity = "0.5";
+      solarSystemCenter.style.filter = "brightness(50%)";
+    }
+
+    function setClockHands() {
+      const now = new Date(new Date().toLocaleString('en-US', { timeZone: timezoneConverted }));
+      const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
+      const minutes = now.getMinutes() + seconds / 60;
+      const hours = now.getHours() + minutes / 60;
+
+      const secondDeg = (seconds / 60) * 360;
+      const minuteDeg = (minutes / 60) * 360;
+      const hourDeg = (hours / 12) * 360;
+
+      secondHand.setAttribute('transform', `rotate(${secondDeg} 181.07 165.44)`);
+      minuteHand.setAttribute('transform', `rotate(${minuteDeg} 181.07 165.44)`);
+      hourHand.setAttribute('transform', `rotate(${hourDeg} 181.07 165.44)`);
+    }
+
+    function animateClockHands() {
+      setClockHands();
+      clockInterval = setInterval(setClockHands, 100); // 10 frames per second (every 1/10th of a second)
+    }
+
+    animateClockHands();
+  } else {
+    mainClock.style.display = 'none';
+    clearInterval(clockInterval);
+    if (solarSystemCenter) {
+      solarSystemCenter.style.opacity = "";
+      solarSystemCenter.style.filter = "";
+    }
+  }
+}
 

@@ -75,6 +75,17 @@
   }
 
 
+.top-clock-button {
+    background: url(svgs/clock-night.svg) no-repeat;
+    background-size: contain;
+}
+
+.top-clock-button:hover {
+      background: url(svgs/clock-night-over.svg) no-repeat;
+      background-size: contain;
+  }
+
+
   .top-help-button {
     background: url(svgs/about-i-night.svg) no-repeat;
     background-size: contain;

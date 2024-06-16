@@ -56,7 +56,7 @@
   updateClockHands();
   animateSecondHand();
 }</script>
- <g id="clock" transform="matrix(.98984 0 0 .98984 47.516 .562)" fill="none" stroke="#000" stroke-linecap="round">
+ <g id="clock" transform="matrix(.98984 0 0 .98984 47.516 .562)" fill="none" stroke="#a0c1d1" stroke-linecap="round">
   <circle id="clock-circle" cx="98.962" cy="146.4" r="137.25" stroke-width="13.133"/>
   <g stroke-width="8.263">
    <path id="minute-hand" d="m99.983 32.709-0.47503 112.31" stroke-linejoin="round"/>

@@ -220,6 +220,16 @@ margin:0px 10px 10px 10px;
 }
 
 
+
+.top-clock-button  {
+  border: none;
+margin:0px 10px 10px 10px;
+  cursor:pointer;
+  height:30px;
+  width:30px;
+}
+
+
 .top-menu-button  {
   border: none; 
   margin:0px 10px 10px 10px;
@@ -476,11 +486,7 @@ border-color: #00a112 !important;
     height: 75px;
     border:none;
     cursor:pointer;
-    position:absolute;
-    top:25px;
-    right: 12px;
-    z-index:30;
-
+        z-index:30;
 }
 
 .x-button:hover {
@@ -490,7 +496,17 @@ border-color: #00a112 !important;
 
 }
 
+#day-search .x-button {
+    position:absolute;
+    top:25px;
+    right: 12px;
+    }
 
+#form-modal-message .x-button {
+    position:absolute;
+    top:25px;
+    right: 12px;
+    }
 
 .menu-page-item {
   padding:10px;
