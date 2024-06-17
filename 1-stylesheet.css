@@ -250,10 +250,10 @@ margin:0px 10px 10px 10px;
 
 .top-add-button  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:14px 15px 10px 6px;
   cursor:pointer;
-  height:30px;
-  width:30px;
+  height:45px;
+  width:45px;
 }
 
 .top-add-icon  {
@@ -262,6 +262,15 @@ margin:0px 10px 10px 10px;
   height:80px;
   width:80px;
 }
+
+.top-search-icon  {
+  border: none;
+  margin:0px auto 10px auto;
+  height:80px;
+  width:80px;
+}
+
+
 /*
 .top-close-button  {
   border: none; 
@@ -323,7 +332,7 @@ margin:0px 10px 10px 10px;
 
 #EarthCycles {
   position: absolute;
-  z-index: 10;
+  z-index: 0;
   top: 0;
 }
 
@@ -357,7 +366,7 @@ margin:0px 10px 10px 10px;
   width: 0%;
   position: fixed; /* Stay in place */
   z-index: 21; /* Sit on top */
-  right: 0;
+  left: 0;
   top: 0;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
@@ -477,29 +486,42 @@ border-color: #00a112 !important;
   top: 0px;
 }
 
+#left-close-button {
+  position: absolute;
+  right: 0px;
+  transition: 0.3s;
+  height: 75px;
+  width:75px;
+  padding-right: 30px;
+  padding-top: 30px;
+  left: 0px;
+  top: 0px;
+}
+
 
 .x-button {
-    background: url('svgs/right-x.svg') no-repeat;
+
     padding: 10px;
     background-size: contain;
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
     border:none;
     cursor:pointer;
-        z-index:30;
-}
-
-.x-button:hover {
-    background: url('svgs/x-over.svg') no-repeat;
-    padding: 10px;
-    background-size: contain;
+    z-index:30;
 
 }
+
 
 #day-search .x-button {
     position:absolute;
     top:25px;
-    right: 12px;
+    left: 25px;
+    }
+
+#right-settings-overlay .x-button {
+    position:absolute;
+    top:25px;
+    left: 25px;
     }
 
 #form-modal-message .x-button {
@@ -1473,22 +1495,34 @@ TOOLTIPS AND MODALS
 }
 
 
-/* Modal content box */
-.search-modal-content {
+
+#day-search {
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
-  margin: auto;
-  margin-top: -25px;
+    height: 100%;
+  width: 100%;
+   transition: 0.5s;
+
+    z-index: 20;
+    flex-flow:column;
+    justify-content:center;
+    padding-bottom: 50px;
+    }
+
+
+/* Modal content box */
+.search-modal-content {
+
   height: fit-content;
   /*background-color: rgba(0, 0, 0, 0.798);
   border: 1px solid var(--months-lunar);*/
   font-family: 'Mulish', sans-serif;
   color: var(--text-color);
-  transition: 0.5s;
-  margin-top: auto;
-    z-index: 20;
+  margin: auto;
+  display: flex;
+  flex-flow: column;
 
 }
 
@@ -1504,16 +1538,13 @@ TOOLTIPS AND MODALS
 
 @media screen and (min-width: 700px) {
   .search-modal-content {
-  padding: 50px 20px 20px 20px;
-  max-width: 800px;
-  max-height: 800px;
-  width: 30%;
-  border-radius: 20px;
+/*  padding: 50px 20px 20px 20px;*/
+  width: 50%;
 }
 }
 
 
-
+/*
 .search-button {
   z-index: 20;
       text-align: center;
@@ -1528,8 +1559,8 @@ TOOLTIPS AND MODALS
       color: var(--general-background);
     display: block;
     font-size: 1.2em;
-    
-}
+
+}*/
 
 /* Close button */
 .search-close {
@@ -1644,9 +1675,10 @@ GUIDED TOUR---*
   cursor: pointer;
 }
 .blur {
-  filter: blur(5px);
+  filter: blur(11px);
   pointer-events: none;
 }
+
 .next {
   background-color: green;
   border: none;
@@ -2442,7 +2474,7 @@ INFO MODAL
     width: 50%; 
     color: var(--h1);
     font-family: 'Mulish', sans-serif;
-    font-size: 1.4em;
+ /*   font-size: 1.4em;*/
     display: flex;
     margin: auto;
   }
@@ -2462,4 +2494,42 @@ INFO MODAL
   .modal-shown {
       display: flex;
   }
-  
+
+
+  /*..............................................
+
+     FORM FORMATTING
+
+
+     ......................................*/
+
+
+     .blur-form-field {
+     padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: var(--form-field-background);
+  color: var(--form-field-text);
+  margin: 10px auto 10px auto;
+  width: 300px;
+  font-size: large;
+  cursor: pointer;
+  }
+
+
+.confirmation-blur-button {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: larger;
+    background: var(--form-conf-background);
+    color: var(--form-conf-text);
+    margin: 20px auto 50px auto;
+    width: 300px;
+    cursor: pointer;}
+
+
+  .confirmation-blur-button:hover {
+  background: var(--form-conf-background-over);
+  text-color: var(--h1);
+  }

@@ -57,12 +57,11 @@
   animateSecondHand();
 }</script>
  <g id="clock" transform="matrix(.98984 0 0 .98984 47.516 .562)" fill="none" stroke="#808080" stroke-linecap="round">
-  <circle id="clock-circle" cx="98.962" cy="146.4" r="137.25" stroke-width="13.133"/>
-  <g stroke-width="8.263">
-   <path id="minute-hand" d="m99.983 32.709-0.47503 112.31" stroke-linejoin="round"/>
-   <path id="second-hand" d="m99.23 145.5-78.625 78.057"/>
-   <path id="hour-hand" d="m169.3 145.14h-69.505" stroke-linejoin="round"/>
+  <circle id="clock-circle" cx="98.962" cy="146.4" r="137.25" stroke-width="14.144"/>
+  <g id="g2">
+   <path id="minute-hand" d="m99.983 32.709-0.47503 112.31" stroke-linejoin="round" stroke-width="12.123"/>
+   <path id="second-hand" d="m99.23 145.5-78.625 78.057" stroke-width="10.103"/>
+   <path id="hour-hand" d="m169.83 145.14h-69.505" stroke-linejoin="round" stroke-width="15.154"/>
   </g>
  </g>
- <circle id="time-control-arrow-circle-center" cx="475.3" cy="43.768" r="8.7217" fill="none" stroke="#808080" stroke-width=".7723"/>
 </svg>

@@ -5,7 +5,8 @@
 
    :root {
 
-    --side-overlays: rgb(225, 225, 225);
+/*    --side-overlays: rgb(225, 225, 225);*/
+    --side-overlays: white;
     --slide-highlight: rgb(212, 212, 213);
     --top-header: #fff;
     --modal-background: #ffffffd5;
@@ -13,13 +14,20 @@
     --subdued-text: #454545;
     --h1: black;
     --gallery: grey;
-    --general-background: rgb(252, 252, 252);
+    --general-background: rgb(245, 245, 245);
     --general-background-highlight: #f9f9f9ff;
     --weeks-circle: #b3b3b3ff; /*30% grey*/
     --months-lunar: rgb(240, 239, 239); /*40%grey*/
     --modal-background: rgba(255, 255, 255, 0.215);
     --day-day: #f2f2f2;
     --grey-trans: rgba(136, 136, 136, 0.343);
+
+    --form-field-background: #5b5b5b80;
+    --form-field-text: white;
+    --form-conf-background: rgba(255, 255, 255, 0.7);
+    --form-conf-background-over: rgba(255, 255, 255);
+     --form-conf-text: rgb(32, 33, 38);
+
     
 
 
@@ -46,6 +54,13 @@
 
     --facebook: #728398;
 
+   }
+
+
+   #white-back-for-day {
+   display:block;
+   opacity: 0;
+   transition: 1s;
    }
 
    .tooltip {
@@ -179,6 +194,11 @@
   background-size: contain;
 }
 
+.top-search-icon {
+  background: url(svgs/search-day.svg) no-repeat;
+  background-size: contain;
+}
+
 #reg-up-button {
   background: url(svgs/up-reg-arrow-light.svg) center no-repeat;
   background-size: contain;
@@ -206,6 +226,16 @@
 }
 
 #prev-year:hover {
+  background: url(svgs/to-prev-year-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-year-search {
+  background: url(svgs/to-prev-year-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-year-search:hover {
   background: url(svgs/to-prev-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
@@ -250,6 +280,40 @@
   background-size: contain;
 }
 
+#next-year-search {
+  background: url(svgs/to-next-year-day.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year-search:hover {
+  background: url(svgs/to-next-year-day-over.svg) center no-repeat;
+  background-size: contain;
+}
+
 .night-only {display:none;}
 
 .day-only {display:block;}
+
+
+.top-clock-button {
+    background: url(svgs/clock-day.svg) no-repeat;
+    background-size: contain;
+}
+
+.top-clock-button:hover {
+      background: url(svgs/clock-day-over.svg) no-repeat;
+      background-size: contain;
+  }
+
+/*
+.blur {
+  background: #ededed;}*/
+.x-button {
+  background: url(svgs/x-day.svg) center no-repeat;
+  background-size: contain;
+  }
+
+  .x-button:hover {
+  background: url(svgs/x-day-over.svg) center no-repeat;
+  background-size: contain;
+  }

@@ -4,7 +4,8 @@
 
 :root {
 
-    --side-overlays: rgb(31, 33, 48);
+    /*--side-overlays: rgb(31, 33, 48);*/
+    --side-overlays: #070b1b;
     --slide-highlight: rgb(47, 47, 60);
     --text-color: #c0c5e1ff;
     --modal-background: #000000d5;
@@ -21,6 +22,11 @@
     --grey-trans: rgba(0, 0, 0, 0.718);
     --hover-over: #02E1E2;
 
+    --form-field-background: #0000007a;
+    --form-field-text: white;
+    --form-conf-background: rgba(255, 255, 255, 0.7);
+    --form-conf-background-over: rgba(255, 255, 255);
+    --form-conf-text: rgb(32, 33, 38);
 
 
 
@@ -53,6 +59,15 @@
 
  }
 
+
+   #white-back-for-day {
+   display:block;
+   }
+
+   #path3 {
+   fill:black;
+   transition:1s;
+   opacity:0}
 
  #reg-up-button {
   background: url(svgs/up-reg-arrow-dark.svg) center no-repeat;
@@ -202,7 +217,12 @@
 
 
 .top-add-icon {
-  background: url(svgs/add-night-over.svg) no-repeat;
+  background: url(svgs/add-night.svg) no-repeat;
+  background-size: contain;
+}
+
+.top-search-icon {
+  background: url(svgs/search-night.svg) no-repeat;
   background-size: contain;
 }
 
@@ -295,7 +315,38 @@
   background-size: contain;
 }
 
+#prev-year-search {
+  background: url(svgs/to-prev-year-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#prev-year-search:hover {
+  background: url(svgs/to-prev-year-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
+
+#next-year-search {
+  background: url(svgs/to-next-year-night.svg) center no-repeat;
+  background-size: contain;
+}
+
+#next-year-search:hover {
+  background: url(svgs/to-next-year-night-over.svg) center no-repeat;
+  background-size: contain;
+}
+
 .night-only {display:block;}
 
 .day-only {display:none;}
+
+.x-button {
+  background: url(svgs/x-night.svg) center no-repeat;
+  background-size: contain;
+  }
+
+  .x-button:hover {
+  background: url(svgs/x-night-over.svg) center no-repeat;
+  background-size: contain;
+  }
 

@@ -28,10 +28,12 @@ let dayOfYear;
 
 function closeSearchModal() {
   var modal = document.getElementById("day-search");
-
-  modal.classList.remove('modal-visible');
+  var underContent = document.getElementById("page-content");
+underContent.classList.remove('blur');
+  modal.classList.remove('modal-shown');
   modal.classList.add('modal-hidden');
-   document.getElementById("page-content").classList.remove("blur");
+
+//   document.getElementById("page-content").classList.remove("blur");
 }
 
 function openDateSearch() {
@@ -40,14 +42,14 @@ function openDateSearch() {
     // Show the modal
 //  const modal = document.getElementById('form-modal-message');
   modal.classList.remove('modal-hidden');
-  modal.classList.add('modal-visible');
+  modal.classList.add('modal-shown');
   document.getElementById("page-content").classList.add("blur");
 
   // Retrieve the searched-year element
   var searchedYear = document.querySelector(".searched-year");
 
   // Retrieve the set-target button
-  var setTargetBtn = document.querySelector(".search-button");
+  var setTargetBtn = document.getElementById("search-button");
 
   // Set initial year value
   var year = targetDate.getFullYear(); // Use the year value from targetDate
@@ -100,7 +102,7 @@ function openDateSearch() {
     var yeard = searchedYear.textContent;
     targetDate = new Date(yeard, month - 1, day); // Create a new Date object with the selected values
     searchGoDate(targetDate); // Trigger the setSetDate() function with the targetDate
-    modal.style.display = "none"; // Hide the modal
+
 
   });
 }

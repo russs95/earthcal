@@ -1,19 +1,55 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg width="290.94mm" height="290.94mm" version="1.1" viewBox="0 0 290.94 290.94" xmlns="http://www.w3.org/2000/svg">
- <script>window.onload = function start() {   
+
+<svg
+   width="290.94mm"
+   height="290.94mm"
+   version="1.1"
+   viewBox="0 0 290.94 290.94"
+   id="svg2"
+   sodipodi:docname="clock-day-over.svg"
+   inkscape:version="1.3.2 (1:1.3.2+202404261509+091e20ef0f)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.77754433"
+     inkscape:cx="549.16483"
+     inkscape:cy="549.80788"
+     inkscape:window-width="1803"
+     inkscape:window-height="1125"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="clock" />
+  <script
+     id="script1">window.onload = function start() {   
   animateClock()
 }</script>
- <script>function animateClock() {
+  <script
+     id="script2">function animateClock() {
   // Get the SVG elements
-  const minuteHand = document.getElementById("minute-hand");
-  const hourHand = document.getElementById("hour-hand");
-  const secondHand = document.getElementById("second-hand");
+  const minuteHand = document.getElementById(&quot;minute-hand&quot;);
+  const hourHand = document.getElementById(&quot;hour-hand&quot;);
+  const secondHand = document.getElementById(&quot;second-hand&quot;);
 
   // Get the clock circle center coordinates
-  const clockCircle = document.getElementById("clock-circle");
-  const cx = parseFloat(clockCircle.getAttribute("cx"));
-  const cy = parseFloat(clockCircle.getAttribute("cy"));
+  const clockCircle = document.getElementById(&quot;clock-circle&quot;);
+  const cx = parseFloat(clockCircle.getAttribute(&quot;cx&quot;));
+  const cy = parseFloat(clockCircle.getAttribute(&quot;cy&quot;));
 
   // Calculate the rotation angles for each hand
   function calculateRotationAngles() {
@@ -34,19 +70,19 @@
     // Update the second hand position and rotation
     const secondX = cx + 90 * Math.sin((secondAngle - 90) * (Math.PI / 180));
     const secondY = cy + 90 * Math.cos((secondAngle - 90) * (Math.PI / 180));
-    secondHand.setAttribute("d", `M ${cx},${cy} L ${secondX},${secondY}`);
+    secondHand.setAttribute(&quot;d&quot;, `M ${cx},${cy} L ${secondX},${secondY}`);
 
     // Update the minute hand rotation
-    minuteHand.setAttribute("transform", `rotate(${minuteAngle},${cx},${cy})`);
+    minuteHand.setAttribute(&quot;transform&quot;, `rotate(${minuteAngle},${cx},${cy})`);
 
     // Update the hour hand rotation
-    hourHand.setAttribute("transform", `rotate(${hourAngle},${cx},${cy})`);
+    hourHand.setAttribute(&quot;transform&quot;, `rotate(${hourAngle},${cx},${cy})`);
   }
 
   // Animate the movement of the second hand
   function animateSecondHand() {
     const { secondAngle } = calculateRotationAngles();
-    secondHand.setAttribute("transform", `rotate(${secondAngle},${cx},${cy})`);
+    secondHand.setAttribute(&quot;transform&quot;, `rotate(${secondAngle},${cx},${cy})`);
 
     // Call the function again after 1 second
     setTimeout(animateSecondHand, 1000);
@@ -56,12 +92,37 @@
   updateClockHands();
   animateSecondHand();
 }</script>
- <g id="clock" transform="matrix(.98984 0 0 .98984 47.516 .562)" fill="none" stroke="#a0c1d1" stroke-linecap="round">
-  <circle id="clock-circle" cx="98.962" cy="146.4" r="137.25" stroke-width="13.133"/>
-  <g stroke-width="8.263">
-   <path id="minute-hand" d="m99.983 32.709-0.47503 112.31" stroke-linejoin="round"/>
-   <path id="second-hand" d="m99.23 145.5-78.625 78.057"/>
-   <path id="hour-hand" d="m169.3 145.14h-69.505" stroke-linejoin="round"/>
+  <g
+     id="clock"
+     transform="matrix(.98984 0 0 .98984 47.516 .562)"
+     fill="none"
+     stroke="#000"
+     stroke-linecap="round">
+    <circle
+       id="clock-circle"
+       cx="98.962"
+       cy="146.4"
+       r="137.25"
+       stroke-width="13.133"
+       style="stroke-width:14.14369999;stroke-dasharray:none;stroke:#1a1a1a;stroke-opacity:1" />
+    <g
+       stroke-width="8.263"
+       id="g2"
+       style="stroke-width:10.10264285;stroke-dasharray:none;stroke:#808080;stroke-opacity:1">
+      <path
+         id="minute-hand"
+         d="m99.983 32.709-0.47503 112.31"
+         stroke-linejoin="round"
+         style="stroke-width:12.12317142;stroke-dasharray:none;stroke:#1a1a1a;stroke-opacity:1" />
+      <path
+         id="second-hand"
+         d="m99.23 145.5-78.625 78.057"
+         style="stroke-width:10.10264285;stroke-dasharray:none;stroke:#1a1a1a;stroke-opacity:1" />
+      <path
+         id="hour-hand"
+         d="m 169.8346,145.14 h -69.505"
+         stroke-linejoin="round"
+         style="stroke:#1a1a1a;stroke-width:15.154;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
- </g>
 </svg>

@@ -495,26 +495,10 @@ function showUserCalSettings() {
   modalContent.innerHTML = `
     <h1 style="margin-top:-30px;text-align:center;">⚙️</h1>
     <form id="user-settings-form">
-      <div style="cursor:pointer;"><select id="timezone" name="timezone" style="padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #0000007a;
-  color: var(--h1);
-  margin: 20px;
-  width: 300px;
-  font-size: large;
-  ">
+      <div style="cursor:pointer;"><select id="timezone" name="timezone" class="blur-form-field" style="cursor:pointer;">
         ${timezoneOptions}
       </select></div>
-      <select id="language" name="language" style="padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #0000007a;
-  color: var(--h1);
-  margin: 20px;
-  width: 300px;
-  font-size: large;
-  cursor:pointer;">
+      <select id="language" name="language" class="blur-form-field">
         <option value="EN" ${language === 'EN' ? 'selected' : ''}>English</option>
         <option value="ID" ${language === 'ID' ? 'selected' : ''}>Indonesian</option>
         <option value="FR" ${language === 'FR' ? 'selected' : ''}>French</option>
@@ -524,16 +508,7 @@ function showUserCalSettings() {
       </select>
       <br>
 
-      <button type="button" name="apply" onclick="applySettings()" style="padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #ffffff70;
-  color: var(--general-background);
-  margin: 20px;
-  width: 300px;
-  font-size: large;
-
-  cursor:pointer;" onmouseover="this.style.background='#ffffff90'" onmouseout="this.style.background='#ffffff70'">✔️ Apply Settings</button>
+      <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button" >Apply Settings</button>
     </form>
   `;
 
