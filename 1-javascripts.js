@@ -218,7 +218,11 @@ function openAddCycle() {
 
   // Extract and format the date
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const formattedDate = targetDate.toLocaleDateString('en-US', options);
+  const targetDate = new Date(); // Assuming targetDate is defined somewhere in your code
+  let formattedDate = targetDate.toLocaleDateString('en-US', options);
+
+  // Replace spaces between the date elements with non-breaking spaces
+  formattedDate = formattedDate.replace(/ /g, '\u00A0');
 
   // Update the text in the div
   const titleElement = document.getElementById("add-event-title");

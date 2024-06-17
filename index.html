@@ -28,6 +28,8 @@ bottom right icon-button-coumns: 10;
 bottom right horiz kin-buttons: 15;
 bottom right horiz planet-buttons: 20;
 bottom-info: 9  needed?
+#form-modal-message: 15
+#registration-footer: 25
 
 
 
@@ -400,16 +402,22 @@ z-index:20}
   width: 300px; 
   height:300px;
   text-align:center;
-  z-index: 20;}
+  z-index: 50;
+
+  }
 
 .animal-info-box {
   display:none;
-   margin: auto auto 20px 20px; 
+
    width: 300px; 
    height:fit-content;
    font-size: 0.8em;
    text-align:left;
-   z-index: 20}
+   z-index: 20;
+   position: fixed;
+  bottom: 75px;
+  left: 25px;
+}
 
 
   .modal-hidden {
@@ -589,9 +597,9 @@ openPlanetInfoBox();
       <h2 style="text-align: center">Find any date...</h2>
 
 
-        <input type="number" id="day-field" placeholder="Day" class="blur-form-field">
+        <input type="number" id="day-field" placeholder="Day" class="blur-form-field" style="width:90%;">
 
-        <select id="month-field"  class="blur-form-field" style="width:320px;">
+        <select id="month-field"  class="blur-form-field">
           <option value="1">January</option>
           <option value="2">February</option>
           <option value="3">March</option>
@@ -607,7 +615,7 @@ openPlanetInfoBox();
         </select>
 
 
-      <div class="year-buttons blur-form-field" style="display:flex;flex-flow:row;justify-content: center;">
+      <div class="year-buttons blur-form-field" style="display:flex;flex-flow:row;justify-content: center;width:90%;">
          <div id="prev-year-search" class="next-button" aria-lable="Previous Year" title="Go to previous year" style="margin:auto auto auto 10px;"></div>
         <div class="searched-year">2024</div>
 
@@ -873,7 +881,7 @@ openPlanetInfoBox();
       
     <div id="venus-cycle" class="planet-info-box">
       <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
-      <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div>
+      <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div><br>
        <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
@@ -886,7 +894,7 @@ openPlanetInfoBox();
       <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
     </div>
 
-    <div id="moon-cycle" style="margin-bottom:75px;" class="animal-info-box">
+    <div id="moon-cycle" class="animal-info-box">
       <div id="moon-phase" style="font-size:xx-small;text-align: left;" class="phase-image" ></div>
       <div id="moon-info" class="planet-info" style="font-size:small;text-align: left;margin-bottom: 10px;"></div>
     </div>
@@ -979,9 +987,9 @@ openPlanetInfoBox();
 
   <div id="add-datecycle" class="overlay-add-datecycle">
     
-    <div class="right-close-button">
+
       <button type="button" style="cursor:pointer" onclick="closeAddCycle(),   closeDateCycleExports(), highlightDateCycles(), displayMatchingDateCycle()", aria-label="Close settings page" class="x-button"></button>
-    </div>
+
 
     <div class="add-datecycle-content">
       
@@ -990,11 +998,10 @@ openPlanetInfoBox();
       <div class="add-date-form" style="margin:auto;">
         <div id="add-datecycle-info">
           <div class="top-add-icon"></div>
-
-          <h3 id="add-event-title">Add an event for this date</h3>
+          <h3 style="width:85%;margin:20px auto;" id="add-event-title">Add an event for this date</h3>
         </div>
           <div id="select-cal" style="margin-bottom: 30px;" >
-            <select id="select-calendar" label="select-calendar" style="width: 65%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 35px;" onchange="handleAddNewCal()" >
+            <select id="select-calendar" label="select-calendar" style="width: 70%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 35px;" onchange="handleAddNewCal()" >
             </select>
           </div>
           
@@ -1029,7 +1036,7 @@ openPlanetInfoBox();
 
       <div id="datecycle-setter"></div><!-- style="display:none;" -->
           
-        <select id="dateCycle-type" style="width: 65%; font-size: 1em; text-align: center; height: 35px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()">
+        <select id="dateCycle-type" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()">
           <option value="" disabled >Select frequency...</option>
           <option value="One-time" selected >One-time</option>
           <!--<option value="Monthly" >Monthly</option> Problem with matching -month- as well as matching -day--->
@@ -1041,7 +1048,7 @@ openPlanetInfoBox();
         
 
         <div id="dateCycle-year-option"  >  <!-- style="display:none;" -->
-          <select name="year" id="year-field2" style="width:65%;font-size: 1em;text-align:center;height:35px;margin-top:10px">
+          <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:35px;margin-top:10px">
             <option value="" disabled >Select year...</option>
             <option>2023</option>
             <option>2024</option>
@@ -1052,7 +1059,7 @@ openPlanetInfoBox();
               
         <div id="set-date" > <!-- style="display:none;" -->
           <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;">
-            <select name="day" id="day-field2" style="width: 20%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
+            <select name="day" id="day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" >
               <option value="" disabled selected>Select day...</option>
               <option value="1">1</option>
               <option value="2">2</option>
@@ -1088,7 +1095,7 @@ openPlanetInfoBox();
           </select>
                 
 
-          <select name="month" id="month-field2" style="width: 45%; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
+          <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 35px;" ><!--onchange="showDateCycleTitleSetter()"-->
             <option value="" disabled selected>Select month...</option>
             <option value="1">January</option>
             <option value="2">February</option>

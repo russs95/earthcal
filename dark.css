@@ -336,6 +336,11 @@
   background-size: contain;
 }
 
+.top-settings-icon {
+    background: url(svgs/settings-icon-dark.svg) no-repeat;
+    background-size: contain;
+}
+
 .night-only {display:block;}
 
 .day-only {display:none;}

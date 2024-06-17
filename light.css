@@ -83,8 +83,8 @@
     background-size: contain;
 }
 
-.top-settings-button:hover {
-    background: url(svgs/settings-icon-over.svg) no-repeat;
+.top-settings-icon {
+    background: url(svgs/settings-icon.svg) no-repeat;
     background-size: contain;
 }
 

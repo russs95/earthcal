@@ -433,7 +433,7 @@ function displayDayInfo(date) {
   const dayOfMonthString = `${dayOfMonth}<sup style="font-size: 0.7em;">${suffix}</sup>`;
 
   // Construct a string representing the full date
-  const dateString = `${dayOfWeek}, ${month} ${dayOfMonthString}`;
+ const dateString = `${dayOfWeek}, ${month}\u00A0${dayOfMonthString}`;
 
   // Construct a string representing the day of the year
   const dayOfYearString = `${dayTranslations[language]} ${dayOfYear + 1} ${ofTranslations[language]} ${year}`;
@@ -493,7 +493,7 @@ function showUserCalSettings() {
   // Insert a form into the modal content for the user to choose timezone and language
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
-    <h1 style="margin-top:-30px;text-align:center;">⚙️</h1>
+    <div class="top-settings-icon"></div>
     <form id="user-settings-form">
       <div style="cursor:pointer;"><select id="timezone" name="timezone" class="blur-form-field" style="cursor:pointer;">
         ${timezoneOptions}

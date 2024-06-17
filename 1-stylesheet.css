@@ -270,6 +270,13 @@ margin:0px 10px 10px 10px;
   width:80px;
 }
 
+.top-settings-icon  {
+  border: none;
+  margin:0px auto 25px auto;
+  height:80px;
+  width:80px;
+}
+
 
 /*
 .top-close-button  {
@@ -498,17 +505,29 @@ border-color: #00a112 !important;
   top: 0px;
 }
 
-
+  @media screen and (min-width: 700px) {
 .x-button {
 
     padding: 10px;
     background-size: contain;
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
     border:none;
     cursor:pointer;
     z-index:30;
 
+}
+}
+  @media screen and (max-width: 700px) {
+.x-button {
+    padding: 6px;
+    background-size: contain;
+    width: 50px;
+    height: 50px;
+    border:none;
+    cursor:pointer;
+    z-index:30;
+}
 }
 
 
@@ -524,10 +543,28 @@ border-color: #00a112 !important;
     left: 25px;
     }
 
+#add-datecycle .x-button {
+    position:absolute;
+    top:20px;
+    right: 20px;
+    }
+
 #form-modal-message .x-button {
     position:absolute;
     top:25px;
     right: 12px;
+    }
+
+ #form-modal-message .x-button {
+    position:absolute;
+    top:25px;
+    right: 12px;
+    }
+
+ .planet-info-container .x-button {
+    width: 36px;
+    height: 36px;
+    margin:auto;
     }
 
 .menu-page-item {
@@ -1514,7 +1551,6 @@ TOOLTIPS AND MODALS
 
 /* Modal content box */
 .search-modal-content {
-
   height: fit-content;
   /*background-color: rgba(0, 0, 0, 0.798);
   border: 1px solid var(--months-lunar);*/
@@ -1528,11 +1564,11 @@ TOOLTIPS AND MODALS
 
 @media screen and (max-width: 700px) {
     .search-modal-content {
-    padding: 40px 10px 10px 10px;
-    max-width: 800px;
-    max-height: 800px;
-    width: 65%;
-    border-radius: 12px;
+    width: 80%;
+}
+    #current-date-info {
+    max-width: 200px;
+    font-size: 1.3em}
   }
 }
 
@@ -1946,9 +1982,10 @@ ADD DATE CURTAIN
 
 @media screen and (max-width: 700px) {
   .add-datecycle-content {
-    width: 77%;
+    width: 100%;
     font-size: 0.9em;
     /*margin-top: 6%;*/
+    height:130%
 }
 }
 
@@ -2459,7 +2496,7 @@ INFO MODAL
   background-color: var(--show-hide); 
   justify-content: center; 
   align-items: center; 
-  z-index: 1000;
+  z-index: 15;
   }
   
   .modal-content-box {
@@ -2471,7 +2508,6 @@ INFO MODAL
     max-width: 90%; 
     height:100%;
     min-width: 70%; 
-    width: 50%; 
     color: var(--h1);
     font-family: 'Mulish', sans-serif;
  /*   font-size: 1.4em;*/
@@ -2503,15 +2539,13 @@ INFO MODAL
 
      ......................................*/
 
-
-     .blur-form-field {
-     padding: 10px;
+.blur-form-field {
+  padding: 10px;
   border-radius: 10px;
   border: none;
   background: var(--form-field-background);
   color: var(--form-field-text);
   margin: 10px auto 10px auto;
-  width: 300px;
   font-size: large;
   cursor: pointer;
   }
@@ -2525,11 +2559,35 @@ INFO MODAL
     background: var(--form-conf-background);
     color: var(--form-conf-text);
     margin: 20px auto 50px auto;
-    width: 300px;
     cursor: pointer;}
 
 
   .confirmation-blur-button:hover {
   background: var(--form-conf-background-over);
   text-color: var(--h1);
+  }
+
+
+  @media screen and (max-width: 700px) {
+
+  .blur-form-field {
+  width:100%;
+  }
+
+  .confirmation-blur-button {
+      width: 100%;
+
+  }
+  }
+
+    @media screen and (min-width: 700px) {
+
+  .blur-form-field {
+  width:300px;
+  }
+
+  .confirmation-blur-button {
+      width:300px;
+
+  }
   }
