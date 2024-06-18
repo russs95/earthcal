@@ -992,6 +992,7 @@ openPlanetInfoBox();
           appearance="toggle">
           </dark-mode-toggle>
         </div>
+        </div>
   
       <a href="https://snapcraft.io/earthcal">
         <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
@@ -1229,6 +1230,7 @@ openPlanetInfoBox();
   </div>
   </div>
 
+
   <div class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:10; bottom:20px;right:20px;position:absolute;">
 
 
@@ -1241,10 +1243,10 @@ openPlanetInfoBox();
   </div>
 
 
-  <div id="kin-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;display:none; position:fixed; z-index:15; bottom: 20px;
+  <div id="kin-buttons" class="icon-button-columns" style="display: flex; justify-content: flex-end;display:none; position:fixed; z-index:25; bottom: 20px;
   right: 70px;
   display: flex;
-  background: var(--grey-trans);
+  background: var(--night-day);
   border-radius: 8px;display:none;">
      
     <button type="button" id="whale-button" class="totems-icon active" style="border-color:blue;" aria-label="Access whale cycle" onclick="animateWhaleCycle()"><img src="icons/whale.svg" title="grey whale migration"></button>
@@ -1260,8 +1262,8 @@ openPlanetInfoBox();
       <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
   </div>
 
-  <div id="planet-buttons" class="icon-button-columns" style="justify-content:flex-end;position:absolute; z-index:20; bottom:20px;right:20px;display:none;bottom: 60px;
-  right: 65px;background: var(--grey-trans);
+  <div id="planet-buttons" class="icon-button-columns" style="justify-content:flex-end;position:absolute; z-index:25; bottom:20px;right:20px;display:none;bottom: 60px;
+  right: 65px;background: var(--night-day);
   border-radius: 8px;">
     
     <button type="button" id="saturn-button" class="totems-icon" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle" title="Saturn"></button>
