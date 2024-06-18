@@ -181,7 +181,7 @@ mercuryButton.addEventListener("click", function() {
     whaleButton.classList.remove("totems-active");
 
   mainClock.style.opacity = "0.2";
-  mainClock.style.filter = "blur(2px)";
+//  mainClock.style.filter = "blur(2px)";
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
   americasMap.style.display = "none";
