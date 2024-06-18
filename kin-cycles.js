@@ -3,7 +3,8 @@
 function cyclesToggle() {
   date = targetDate;
   var moonButton = document.getElementById("moon-button");
-  var earthMap = document.getElementById("earth-map");
+  var americasMap = document.getElementById("americas-map");
+  var euroMap = document.getElementById("europe-africa-map");
   var planetButtons = document.getElementById("planet-buttons");
   var kinButtons = document.getElementById("kin-buttons");
   var moonCycle = document.getElementById("moon-cycle");
@@ -27,9 +28,14 @@ function cyclesToggle() {
   var saturnCycle = document.getElementById('saturn-cycle'); 
 
   var whaleButton = document.getElementById('whale-button');
-  var whaleCycle = document.getElementById('whale-cycle'); 
+  var whaleCycle = document.getElementById('whale-cycle');
   var whaleInfo = document.getElementById('whale-info'); 
   var whaleCycler = document.getElementById('whale-cycler');
+
+  var storkButton = document.getElementById('stork-button');
+  var storkCycle = document.getElementById('stork-cycle');
+  var storkInfo = document.getElementById('stork-info');
+  var storkCycler = document.getElementById('stork-cycler');
 
 
   // Initial state
@@ -57,7 +63,8 @@ function cyclesToggle() {
     const currentYear = parseInt(currentYearText.textContent);
     themoonphases.style.display = 'block';
 
-      earthMap.style.display = "none";
+      americasMap.style.display = "none";
+        euroMap.style.display = "none";
       planetButtons.style.display = "none";
       kinButtons.style.display = "none";
       moonCycle.style.display = "block";
@@ -104,7 +111,8 @@ function cyclesToggle() {
     } else {
       solarSystemCenter.style.display = "block";
       moonCycle.style.display = "none";
-      earthMap.style.display = "none";
+      americasMap.style.display = "none";
+euroMap.style.display = "none";
     moonCycle.style.display = "none";
     kinButtons.style.display = "none";
     planetButtons.style.display = "none";
@@ -176,7 +184,8 @@ mercuryButton.addEventListener("click", function() {
   mainClock.style.filter = "blur(2px)";
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
-  earthMap.style.display = "none";
+  americasMap.style.display = "none";
+euroMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     mercuryCycle.style.display = "none";
@@ -218,7 +227,8 @@ UpdateVenusData(date);
 
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
-  earthMap.style.display = "none";
+  americasMap.style.display = "none";
+euroMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     venusCycle.style.display = "none";
@@ -258,7 +268,8 @@ UpdateMarsData(date);
 
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
-  earthMap.style.display = "none";
+  americasMap.style.display = "none";
+euroMap.style.display = "none";
   moonCycle.style.display = "none";
 
   } else {
@@ -300,7 +311,8 @@ UpdateJupiterData(date);
 
   solarSystemCenter.style.opacity = "0.1";
   solarSystemCenter.style.filter = "blur(0.4px)"
-  earthMap.style.display = "none";
+  americasMap.style.display = "none";
+euroMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     jupiterCycle.style.display = "none";
@@ -340,7 +352,8 @@ UpdateSaturnData(date);
 
   solarSystemCenter.style.opacity = "0.1";
         solarSystemCenter.style.filter = "blur(4px)";
-  earthMap.style.display = "none";
+  americasMap.style.display = "none";
+euroMap.style.display = "none";
   moonCycle.style.display = "none";
   } else {
     saturnCycle.style.display = "none";
@@ -364,7 +377,60 @@ whaleButton.addEventListener("click", function() {
     moonCycle.style.display = "none";
     planetButtons.style.display = "none";
     moonPhase.style.display = "none";
-    earthMap.style.display = "block";
+    americasMap.style.display = "block";
+
+    mercuryCycle.style.display = "none";
+    mercuryButton.classList.remove("totems-active");
+    venusCycle.style.display = "none";
+    venusButton.classList.remove("totems-active");
+    marsCycle.style.display = "none";
+    marsButton.classList.remove("totems-active");
+    jupiterCycle.style.display = "none";
+    jupiterButton.classList.remove("totems-active");
+    saturnCycle.style.display = "none";
+    saturnButton.classList.remove("totems-active");
+
+    whaleCycle.style.display = "block";
+    whaleInfo.style.display = "block";
+    whaleCycler.style.display = "block";
+    whaleButton.classList.add("totems-active");
+
+       storkCycle.style.display = "none";
+    storkButton.classList.remove("totems-active");
+    euroMap.style.display = "none";
+
+    startDate = targetDate;
+    animateWhaleCycle(targetDate);
+    UpdateWhaleCycle(targetDate);
+
+
+
+  } else {
+    whaleCycle.style.display = "none";
+    whaleButton.classList.remove("totems-active");
+
+  }isWhaleClicked
+  isWhaleClicked = !isWhaleClicked;
+});
+
+
+
+
+
+
+var isStorkClicked = true;
+
+storkButton.addEventListener("click", function() {
+  if(isStorkClicked) {
+
+    whaleCycle.style.display = "none";
+    whaleButton.classList.remove("totems-active");
+
+    solarSystemCenter.style.display = "none";
+    moonCycle.style.display = "none";
+    planetButtons.style.display = "none";
+    moonPhase.style.display = "none";
+    euroMap.style.display = "block";
 
     mercuryCycle.style.display = "none";
     mercuryButton.classList.remove("totems-active");
@@ -377,24 +443,252 @@ whaleButton.addEventListener("click", function() {
       saturnCycle.style.display = "none";
       saturnButton.classList.remove("totems-active");
 
-    whaleCycle.classList.add("totems-active");
-  whaleCycle.style.display = "block";
+
+  storkCycle.style.display = "block";
   // whaleInfo.style.display = "block";
-  whaleCycler.style.display = "block";
-  whaleButton.classList.add("totems-active");
+  storkCycler.style.display = "block";
+  storkButton.classList.add("totems-active");
   startDate = targetDate;
-  animateWhaleCycle(targetDate);
-  UpdateWhaleCycle(targetDate);
+  updateStorkCycle(targetDate);
 
   } else {
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-  }isWhaleClicked
-  isWhaleClicked = !isWhaleClicked;
+   storkCycle.style.display = "none";
+    storkButton.classList.remove("totems-active");
+    euroMap.style.display = "none";
+  }isStorkClicked
+  isStorkClicked = !isStorkClicked;
 });
 
 }
+
+
+
+
+// Function to update whale cycle information
+function UpdateWhaleCycle(targetDate) {
+
+  var whaleCycleDiv = document.getElementById('whale-cycle');
+  if (whaleCycleDiv.style.display !== 'block') {
+    return; // Exit the function if whale-cycle is not displayed
+  }
+  // Determine the numerical day number of the targetDate
+  const currentDay = getDayOfYear(targetDate);
+
+  // Find the JSON object with the Max-day higher than the current day number, yet closest to it
+  let nearestJson = null;
+  let nearestDiff = Infinity;
+
+  for (let i = 0; i < whaleCycleData.length; i++) {
+    const json = whaleCycleData[i];
+    const maxDay = parseInt(json['Max-day']);
+
+    // Check if the Max-day is higher than the current day
+    if (maxDay >= currentDay) {
+      const diff = maxDay - currentDay;
+
+      if (diff < nearestDiff) {
+        nearestDiff = diff;
+        nearestJson = json;
+      }
+    }
+  }
+
+  // Display the JSON information in the div with id "whale-info"
+  const whaleInfoDiv = document.getElementById('whale-info');
+  whaleInfoDiv.innerHTML = '';
+
+  const informationOrder = ['Activity', 'Region', 'Distance', 'Position'];
+
+  for (let j = 0; j < informationOrder.length; j++) {
+    const key = informationOrder[j];
+    const value = nearestJson[key];
+    whaleInfoDiv.innerHTML += `${value}<br>`;
+    // whaleInfoDiv.innerHTML += `${key}: ${value}<br>`;
+  }
+}
+
+
+// Function to show information about where the stork is in its journey.
+function updateStorkCycle(targetDate) {
+
+  var storkCycleDiv = document.getElementById('stork-cycle');
+  if (storkCycleDiv.style.display !== 'block') {
+    return; // Exit the function if stork-cycle is not displayed
+  }
+  // Determine the numerical day number of the targetDate
+  const currentDay = getDayOfYear(targetDate);
+
+  // Find the JSON object with the Max-day higher than the current day number, yet closest to it
+  let nearestJson = null;
+  let nearestDiff = Infinity;
+
+  for (let i = 0; i < storkCycleData.length; i++) {
+    const json = storkCycleData[i];
+    const maxDay = parseInt(json['Max-day']);
+
+    // Check if the Max-day is higher than the current day
+    if (maxDay >= currentDay) {
+      const diff = maxDay - currentDay;
+
+      if (diff < nearestDiff) {
+        nearestDiff = diff;
+        nearestJson = json;
+      }
+    }
+  }
+
+  // Display the JSON information
+  const storkInfoDiv = document.getElementById('stork-info');
+  storkInfoDiv.innerHTML = '';
+
+  const informationOrder = ['Activity', 'Region', 'Distance', 'Position'];
+
+  for (let j = 0; j < informationOrder.length; j++) {
+    const key = informationOrder[j];
+    const value = nearestJson[key];
+    storkInfoDiv.innerHTML += `${value}<br>`;
+  }
+
+  // Send the current JSON's "Journey" value to animateStorkCycle as journeyPercentage
+  const journeyPercentage = nearestJson['Journey'];
+  animateStorkCycle(journeyPercentage);
+}
+
+
+
+// Declare the global variable startPercentage
+let startPercentage = 0;
+
+// Function to animate the stork cycle
+function animateStorkCycle(journeyPercentage) {
+  let storkMarkerElement = document.getElementById("stork-marker");
+  let storkPathElement = document.getElementById("stork-year-cycle");
+  // Convert journeyPercentage to a fraction of 1
+  let journeyFraction = journeyPercentage / 100;
+  // Ensure any previous animations are killed
+  gsap.killTweensOf(storkMarkerElement);
+
+  // Use GSAP to animate the stork marker along the path
+  gsap.to(storkMarkerElement, {
+    motionPath: {
+      path: storkPathElement,
+      align: storkPathElement,
+      start: startPercentage, // Use the global variable startPercentage
+      end: journeyFraction, // Set the end to the journeyFraction
+      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
+      autoRotate: true, // Enable auto-rotation along the path
+    },
+    duration: 3, // Use the fixed duration
+    ease: "linear",
+    onComplete: function() {
+      // Set startPercentage to the value of journeyPercentage for the next use
+      startPercentage = journeyFraction;
+    }
+  });
+}
+//
+//function animateStorkCycle() {
+//  // Get the HTML element for the stork marker and the path element
+//  let storkMarkerElement = document.getElementById("stork-marker");
+//  let storkPathElement = document.getElementById("stork-year-cycle");
+//
+//  // Define the start of the year for reference
+//  let yearStart = new Date(2024, 0, 1);
+//
+//  // Calculate the offset from the start date to the year start
+//  let startOffpoint = startDate - yearStart;
+//
+//  // Calculate the difference in days to the target date
+//  let daysToTargetDate = targetDate - startDate;
+//
+//  // Total days from the year start to the target date
+//  let totalDays = startOffpoint + daysToTargetDate;
+//
+//  // Calculate the absolute difference in days for the target date
+//  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
+//
+//  // Calculate the target angle for the stork marker's motion path
+//  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
+//  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
+//
+//  // Determine the animation duration based on the real days to the target date
+//  let duration;
+//  if (RealdaysToTargetDate < 30) {
+//    duration = 1;
+//  } else if (RealdaysToTargetDate < 60) {
+//    duration = 2;
+//  } else if (RealdaysToTargetDate < 120) {
+//    duration = 3;
+//  } else if (RealdaysToTargetDate < 180) {
+//    duration = 4;
+//  // Add more conditions as needed
+//  } else if (RealdaysToTargetDate <= 366) {
+//    duration = 5; // Example: set a default for the max range
+//  } else {
+//    duration = 6; // Default duration if daysToTargetDate is out of expected range
+//  }
+//
+//  // Use GSAP to animate the stork marker along the path
+//  gsap.to(storkMarkerElement, {
+//    motionPath: {
+//      path: storkPathElement,
+//      align: storkPathElement,
+//      start: targetAngle / 360,
+//      end: targetAngle2 / 360,
+//      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
+//      autoRotate: true, // Enable auto-rotation along the path
+//    },
+//    duration: duration, // Use the calculated duration
+//    ease: "linear", // Use linear easing for smooth animation
+//  });
+//}
+
+
+
+
+
+function animateWhaleCycle() {
+  let whaleMarkerElement = document.getElementById("whale-marker");
+  let whalePathElement = document.getElementById("whale-year-cycle");
+  let yearStart = new Date(2024, 0, 1);
+  let startOffpoint = startDate - yearStart;
+  let daysToTargetDate = targetDate - startDate;
+  let totalDays = startOffpoint + daysToTargetDate;
+  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
+
+  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
+  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
+  // Determine the duration based on daysToTargetDate
+  let duration;
+  if (RealdaysToTargetDate < 30) {
+    duration = 1;
+  } else if (RealdaysToTargetDate < 60) {
+    duration = 2;
+  } else if (RealdaysToTargetDate < 120) {
+    duration = 3;
+  } else if (RealdaysToTargetDate < 180) {
+    duration = 4;
+  // ... Add more conditions as needed
+  } else if (RealdaysToTargetDate <= 366) {
+    duration = 5; // Example: set a default for the max range
+  } else {
+    duration = 6; // Default duration if daysToTargetDate is out of expected range
+  }
+
+  gsap.to(whaleMarkerElement, {
+    motionPath: {
+      path: whalePathElement,
+      align: whalePathElement,
+      start: targetAngle / 360,
+      end: targetAngle2 / 360,
+      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the whale-marker
+      autoRotate: true, // Enable auto-rotation along the path
+    },
+    duration: duration, // Use the calculated duration
+    ease: "linear",
+  });
+}
+
 
 //show the planet info when their orbit is clicked
 
@@ -465,97 +759,148 @@ function openPlanetInfoBox() {
 
 
 
+const storkCycleData = [
+  {
+    "Journey": "0",
+    "Region": "Sub-Saharan Africa",
+    "Activity": "Foraging, resting.",
+    "Distance": "10,000 km to 10,500 km",
+    "Position": "5.00N, 20.00E",
+    "Days": "1-30",
+    "Max-day": "30"
+  },
 
+    {
+    "Journey": "3",
+    "Region": "Sub-Saharan Africa",
+    "Activity": "Foraging, resting.",
+    "Distance": "10,000 km to 10,500 km",
+    "Position": "5.00N, 20.00E",
+    "Days": "30-45",
+    "Max-day": "45"
+  },
 
+  {
+    "Journey": "10",
+    "Region": "Sub-Saharan Africa to North Africa",
+    "Activity": "Initial leg of return journey.",
+    "Distance": "10,500 km to 9,000 km",
+    "Position": "15.00N, 10.00E",
+    "Days": "45-60",
+    "Max-day": "60"
+  },
+  {
+    "Journey": "20",
+    "Region": "North Africa, crossing the Sahara Desert",
+    "Activity": "Continued return migration.",
+    "Distance": "9,000 km to 6,000 km",
+    "Position": "25.00N, 10.00E",
+    "Days": "61-90",
+    "Max-day": "90"
+  },
+  {
+    "Journey": "30",
+    "Region": "Mediterranean region (Spain, France, or Eastern Europe, Turkey)",
+    "Activity": "Final leg of return migration.",
+    "Distance": "6,000 km to 3,000 km",
+    "Position": "35.00N, 10.00E",
+    "Days": "91-120",
+    "Max-day": "120"
+  },
+  {
+    "Journey": "40",
+    "Region": "Northern and Central Europe",
+    "Activity": "Arrival at breeding sites, nest building, mating.",
+    "Distance": "3,000 km to 1,000 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "121-150",
+    "Max-day": "150"
+  },
+  {
+    "Journey": "47",
+    "Region": "Northern and Central Europe",
+    "Activity": "Laying eggs, incubation.",
+    "Distance": "0 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "151-180",
+    "Max-day": "180"
+  },
+  {
+    "Journey": "50",
+    "Region": "Northern and Central Europe",
+    "Activity": "Incubation continues, hatching of chicks.",
+    "Distance": "0 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "181-210",
+    "Max-day": "210"
+  },
+  {
+    "Journey": "52",
+    "Region": "Northern and Central Europe",
+    "Activity": "Chicks being fed and nurtured.",
+    "Distance": "0 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "211-240",
+    "Max-day": "240"
+  },
+  {
+    "Journey": "53",
+    "Region": "Northern and Central Europe",
+    "Activity": "Chicks continue to grow, start to fledge.",
+    "Distance": "0 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "241-270",
+    "Max-day": "270"
+  },
+  {
+    "Journey": "60",
+    "Region": "Northern and Central Europe (preparing to leave)",
+    "Activity": "Adults and fledglings preparing for migration.",
+    "Distance": "0 km to 1,000 km",
+    "Position": "50.00N, 10.00E",
+    "Days": "271-300",
+    "Max-day": "300"
+  },
+  {
+    "Journey": "67",
+    "Region": "Migration route (France, Spain, or Eastern Europe, Turkey)",
+    "Activity": "Migration southward begins.",
+    "Distance": "1,000 km to 3,000 km",
+    "Position": "40.00N, 10.00E",
+    "Days": "301-315",
+    "Max-day": "315"
+  },
 
+    {
+    "Journey": "80",
+    "Region": "Migration through Spain, or Eastern Europe, Turkey)",
+    "Activity": "Migration southward begins.",
+    "Distance": "1,000 km to 3,000 km",
+    "Position": "40.00N, 10.00E",
+    "Days": "315-330",
+    "Max-day": "330"
+  },
 
-    // planetButtons.style.display = "none";
-    // moonPhase.style.display = "none";
-    // earthMap.style.display = "block";
+      {
+    "Journey": "90",
+    "Region": "Crossing the Mediterranean, North Africa",
+    "Activity": "Migration southward begins.",
+    "Distance": "1,000 km to 3,000 km",
+    "Position": "40.00N, 10.00E",
+    "Days": "331-345",
+    "Max-day": "345"
+  },
 
-
-    // Call animateWhaleCycle function after the CSS changes
-  //   showKinCycles('whale-button')
-    
-  //     // Modify here: Add 'active' class and change display for whale-cycle
-  //     var whaleCycle = document.getElementById("whale-cycle");
-  //     var whaleInfo = document.getElementById("whale-info");
-  // var whaleButton = document.getElementById("whale-button");
-
-  // whaleCycle.classList.add("active");
-  // whaleCycle.style.display = "block";
-  // whaleInfo.style.display = "block";
-  // whaleButton.classList.add("active");
-  // startDate = targetDate;
-  // animateWhaleCycle(targetDate);
-  // UpdateWhaleCycle(targetDate);
-
-
-  // // Get all the animal and planet cycle elements
-  // const cycleElements = document.querySelectorAll('[id$="-cycle"]');
-
-  // // Get all the totems icon buttons
-  // const iconButtons = document.querySelectorAll('.totems-icon');
-
-  // // Get the earth-map element
-  // //const earthMap = document.getElementById('earth-map');
-
-  // // Add click event listener to each icon button
-  // iconButtons.forEach((button) => {
-  //   button.addEventListener('click', () => {
-  //     const animal = button.id.split('-')[0]; // Get the animal name from the button ID
-
-  //     // Hide all the animal cycle elements
-  //     cycleElements.forEach((element) => {
-  //       element.style.display = 'none';
-  //     });
-
-  //     // Remove active class from all icon buttons
-  //     iconButtons.forEach((iconButton) => {
-  //       iconButton.classList.remove('active');
-  //     });
-
-  //     // Show the corresponding animal cycle element
-  //     const correspondingElement = document.getElementById(`${animal}-cycle`);
-  //     correspondingElement.style.display = 'block';
-
-  //     // Add active class to the clicked icon button
-  //     button.classList.add('active');
-
-
-  //   });
-  // });
-
-
-//   function showKinCycles(buttonId) {
-//   // Hide all animal paths in the svg
-//   document.getElementById('whale-cycler').style.display = 'none';
-//   document.getElementById('cariboo-cycler').style.display = 'none';
-//   document.getElementById('goose-cycler').style.display = 'none';
-//   document.getElementById('humming-cycler').style.display = 'none';
-//   document.getElementById('monarch-cycler').style.display = 'none';
-
-//   // Show the div corresponding to the clicked button
-//   var animalId = buttonId.replace('-button', '-cycler');
-//   document.getElementById(animalId).style.display = 'contents';
-// }
-
-// // Add click event listeners to the animal buttons
-// document.getElementById('whale-button').addEventListener('click', function() {
-//   showKinCycles('whale-button');
-// });
-// document.getElementById('cariboo-button').addEventListener('click', function() {
-//   showKinCycles('cariboo-button');
-// });
-// document.getElementById('goose-button').addEventListener('click', function() {
-//   showKinCycles('goose-button');
-// });
-// document.getElementById('humming-button').addEventListener('click', function() {
-//   showKinCycles('humming-button');
-// });
-// document.getElementById('monarch-button').addEventListener('click', function() {
-//   showKinCycles('monarch-button');
-// });
+  {
+    "Journey": "100",
+    "Region": "Crossing the Mediterranean, North Africa",
+    "Activity": "Continued migration.",
+    "Distance": "3,000 km to 6,000 km",
+    "Position": "30.00N, 10.00E",
+    "Days": "346-360",
+    "Max-day": "360"
+  }
+];
 
 
 
@@ -598,7 +943,7 @@ const whaleCycleData = [
 
   {
     "Journey": "14%-16%",
-    "Region": "Los Angelese, California, USA",
+    "Region": "Los Angeles, California, USA",
     "Activity": "Migrating north",
     "Distance": "1565 km",
     "Arrival": "80-122",
@@ -965,97 +1310,6 @@ const whaleCycleData = [
   }
 ]
 
-
-// Function to update whale cycle information
-function UpdateWhaleCycle(targetDate) {
-
-  var whaleCycleDiv = document.getElementById('whale-cycle');
-  if (whaleCycleDiv.style.display !== 'block') {
-    return; // Exit the function if whale-cycle is not displayed
-  }
-  // Determine the numerical day number of the targetDate
-  const currentDay = getDayOfYear(targetDate);
-
-  // Find the JSON object with the Max-day higher than the current day number, yet closest to it
-  let nearestJson = null;
-  let nearestDiff = Infinity;
-
-  for (let i = 0; i < whaleCycleData.length; i++) {
-    const json = whaleCycleData[i];
-    const maxDay = parseInt(json['Max-day']);
-
-    // Check if the Max-day is higher than the current day
-    if (maxDay >= currentDay) {
-      const diff = maxDay - currentDay;
-
-      if (diff < nearestDiff) {
-        nearestDiff = diff;
-        nearestJson = json;
-      }
-    }
-  }
-
-  // Display the JSON information in the div with id "whale-info"
-  const whaleInfoDiv = document.getElementById('whale-info');
-  whaleInfoDiv.innerHTML = '';
-
-  const informationOrder = ['Activity', 'Region', 'Distance', 'Position'];
-
-  for (let j = 0; j < informationOrder.length; j++) {
-    const key = informationOrder[j];
-    const value = nearestJson[key];
-    whaleInfoDiv.innerHTML += `${value}<br>`;
-    // whaleInfoDiv.innerHTML += `${key}: ${value}<br>`;
-  }
-}
-
-
-
-
-
-
-
-function animateWhaleCycle() {
-  let whaleMarkerElement = document.getElementById("whale-marker");
-  let whalePathElement = document.getElementById("whale-year-cycle");
-  let yearStart = new Date(2024, 0, 1);
-  let startOffpoint = startDate - yearStart;
-  let daysToTargetDate = targetDate - startDate;
-  let totalDays = startOffpoint + daysToTargetDate;
-  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
-
-  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
-  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
-  // Determine the duration based on daysToTargetDate
-  let duration;
-  if (RealdaysToTargetDate < 30) {
-    duration = 1;
-  } else if (RealdaysToTargetDate < 60) {
-    duration = 2;
-  } else if (RealdaysToTargetDate < 120) {
-    duration = 3;
-  } else if (RealdaysToTargetDate < 180) {
-    duration = 4;
-  // ... Add more conditions as needed
-  } else if (RealdaysToTargetDate <= 366) {
-    duration = 5; // Example: set a default for the max range
-  } else {
-    duration = 6; // Default duration if daysToTargetDate is out of expected range
-  }
-
-  gsap.to(whaleMarkerElement, {
-    motionPath: {
-      path: whalePathElement,
-      align: whalePathElement,
-      start: targetAngle / 360,
-      end: targetAngle2 / 360,
-      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the whale-marker
-      autoRotate: true, // Enable auto-rotation along the path
-    },
-    duration: duration, // Use the calculated duration
-    ease: "linear",
-  });
-}
 
 
 

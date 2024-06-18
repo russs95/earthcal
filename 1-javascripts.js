@@ -377,12 +377,14 @@ function getTheDayOfYear(targetDate) {
 
     animateWhaleCycle(targetDate);
     UpdateWhaleCycle(targetDate);
+       updateStorkCycle(targetDate);
+
 
 
 
     // Phase 3: Actions after 1 sec
 
-    setTimeout(function() {
+
 
     highlightDateCycles();
     displayMatchingDateCycle();
@@ -398,9 +400,9 @@ function getTheDayOfYear(targetDate) {
     currentYearText.textContent = targetDate.getFullYear().toString();
     const currentYear = parseInt(currentYearText.textContent);
 
-    setLunarMonthForTarget(targetDate, currentYear); 
+    setLunarMonthForTarget(targetDate, currentYear);
 
-
+   setTimeout(function() {
     displayMoonPhaseInDiv(targetDate);
     displayDayInfo(targetDate);displayMoonPhaseInDiv(targetDate);
     displayDayInfo(targetDate);
