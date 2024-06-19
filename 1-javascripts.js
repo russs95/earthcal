@@ -12,12 +12,13 @@ let currentDate;
 let dayOfYear;
 
 
-//
-//function setCurrentDate() {
-//  let currentDate = new Date();
-//  startDate = new Date(currentDate.getFullYear(), 0, 1);
-//  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-//}
+//Used in set2Today (maybe it should be integrated into it if this isn't used else where?)
+function setCurrentDate() {
+  let currentDate = new Date();
+  startDate = new Date(currentDate.getFullYear(), 0, 1);
+  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+}
 
 
 
