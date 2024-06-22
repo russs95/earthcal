@@ -2113,9 +2113,6 @@ background-color: var(--button-2-1);
   }
 
 
-  #current-datecycle-info2  {
-    direction: rtl;
-  }
  
 #current-datecycle-info2 .date-info {
   margin-top:20px;

@@ -464,6 +464,54 @@ storkButton.addEventListener("click", function() {
 
 
 
+var isCariboClicked = true;
+
+cariboButton.addEventListener("click", function() {
+  if(isStorkClicked) {
+
+    whaleCycle.style.display = "none";
+    whaleButton.classList.remove("totems-active");
+
+    solarSystemCenter.style.display = "none";
+    moonCycle.style.display = "none";
+    planetButtons.style.display = "none";
+    moonPhase.style.display = "none";
+    euroMap.style.display = "block";
+
+    mercuryCycle.style.display = "none";
+    mercuryButton.classList.remove("totems-active");
+    venusCycle.style.display = "none";
+    venusButton.classList.remove("totems-active");
+    marsCycle.style.display = "none";
+    marsButton.classList.remove("totems-active");
+    jupiterCycle.style.display = "none";
+      jupiterButton.classList.remove("totems-active");
+      saturnCycle.style.display = "none";
+      saturnButton.classList.remove("totems-active");
+
+
+  storkCycle.style.display = "block";
+  // whaleInfo.style.display = "block";
+  storkCycler.style.display = "block";
+  storkButton.classList.add("totems-active");
+  startDate = targetDate;
+  updateStorkCycle(targetDate);
+
+  } else {
+   storkCycle.style.display = "none";
+    storkButton.classList.remove("totems-active");
+    euroMap.style.display = "none";
+  }isStorkClicked
+  isStorkClicked = !isStorkClicked;
+});
+
+}
+
+
+
+
+
+
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {
 
