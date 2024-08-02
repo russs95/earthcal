@@ -505,8 +505,6 @@ cariboButton.addEventListener("click", function() {
 });
 
 
-
-
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {
 
