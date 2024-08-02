@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/russs95/earthcycles#readme",
   "devDependencies": {
-    "electron": "^26.3.0",
+    "electron": "^26.6.10",
     "electron-installer-snap": "^5.2.0",
     "electron-packager": "^17.1.2"
   },

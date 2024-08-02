@@ -60,18 +60,18 @@ function cyclesToggle() {
 
 
       currentYearText.textContent = targetDate.getFullYear().toString();
-    const currentYear = parseInt(currentYearText.textContent);
-    themoonphases.style.display = 'block';
+      const currentYear = parseInt(currentYearText.textContent);
+      themoonphases.style.display = 'block';
 
       americasMap.style.display = "none";
-        euroMap.style.display = "none";
+      euroMap.style.display = "none";
       planetButtons.style.display = "none";
       kinButtons.style.display = "none";
       moonCycle.style.display = "block";
       moonPhase.style.display = "block";
       calculateHijriMonthNames(currentYear);
       lunarMonths.forEach(function(lunarMonth) {
-        lunarMonth.style.opacity = "0.6";
+      lunarMonth.style.opacity = "0.6";
       });
       setLunarMonthForTarget(targetDate, 2024);
     } else {
@@ -81,7 +81,6 @@ function cyclesToggle() {
       moonPhase.style.display = "none";
       moonCycle.style.display = "none";
     }
-
 
     // Toggle the state
     isMoonClicked = !isMoonClicked;
@@ -112,26 +111,26 @@ function cyclesToggle() {
       solarSystemCenter.style.display = "block";
       moonCycle.style.display = "none";
       americasMap.style.display = "none";
-euroMap.style.display = "none";
-    moonCycle.style.display = "none";
-    kinButtons.style.display = "none";
-    planetButtons.style.display = "none";
-    mercuryCycle.style.display = "none";
-    mercuryButton.classList.remove("totems-active");
-    marsCycle.style.display = "none";
-    marsButton.classList.remove("totems-active");
-    venusCycle.style.display = "none";
-    venusButton.classList.remove("totems-active");
-    jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
+        euroMap.style.display = "none";
+        moonCycle.style.display = "none";
+        kinButtons.style.display = "none";
+        planetButtons.style.display = "none";
+        mercuryCycle.style.display = "none";
+        mercuryButton.classList.remove("totems-active");
+        marsCycle.style.display = "none";
+        marsButton.classList.remove("totems-active");
+        venusCycle.style.display = "none";
+        venusButton.classList.remove("totems-active");
+        jupiterCycle.style.display = "none";
+        jupiterButton.classList.remove("totems-active");
+        saturnCycle.style.display = "none";
+        saturnButton.classList.remove("totems-active");
 
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
+        whaleCycle.style.display = "none";
+        whaleButton.classList.remove("totems-active");
 
 
-    }isSolarsysClicked
+    } isSolarsysClicked
 
     isSolarsysClicked = !isSolarsysClicked;
   });
@@ -505,7 +504,7 @@ cariboButton.addEventListener("click", function() {
   isStorkClicked = !isStorkClicked;
 });
 
-}
+
 
 
 
