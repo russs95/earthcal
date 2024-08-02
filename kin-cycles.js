@@ -504,7 +504,6 @@ cariboButton.addEventListener("click", function() {
   isStorkClicked = !isStorkClicked;
 });
 
-
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {
 
@@ -795,8 +794,6 @@ function openPlanetInfoBox() {
             solarSystemCenterDiv.style.opacity = "1";
         }
     }
-
-
 
 
 
