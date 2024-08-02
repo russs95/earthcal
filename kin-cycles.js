@@ -796,6 +796,7 @@ function openPlanetInfoBox() {
     }
 
 
+//STORK
 
 const storkCycleData = [
   {
