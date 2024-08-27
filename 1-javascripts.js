@@ -727,7 +727,7 @@ function listenForMonthBreakout() {
   ];
 
   // Filter to only include May and June
-  const targetMonths = ['may', 'june'];
+  const targetMonths = ['may', 'june', 'july', 'august'];
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
@@ -773,12 +773,12 @@ function listenForCloseBreakout() {
   ];
 
     // Filter to only include May and June
-    const targetMonths = ['may', 'june'];
+    const targetMonths = ['may', 'june', 'july', 'august'];
 
   monthNames.forEach(month => {
     const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
 
-    
+
     if (monthBreakoutCloseDiv) {
       monthBreakoutCloseDiv.addEventListener('click', () => {
         console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
@@ -789,7 +789,7 @@ function listenForCloseBreakout() {
           const dayLinesDiv = document.getElementById('days-of-year-lines');
           const allDaymarkers = document.getElementById('all-daymarkers');
           const lunarMonths = document.getElementById('lunar_months-12');
-          const theMonth = document.getElementById(`may_366`);
+          const theMonth = document.getElementById(`${month}_366`);
 
 
 
@@ -813,8 +813,6 @@ function listenForCloseBreakout() {
 }
 
 
-
-
 function closeCurrentBreakout(callback) {
   const monthNames = [
     'january', 'february', 'march', 'april', 'may', 'june', 
@@ -822,7 +820,7 @@ function closeCurrentBreakout(callback) {
   ];
 
   // Filter to only include May and June
-  const targetMonths = ['may', 'june'];
+  const targetMonths = ['may', 'june', 'july', 'august'];
 
   // Function to change the display style of day divs and possibly add a class
   const setDisplay = (id, displayStyle, addClass) => {

@@ -115,7 +115,9 @@ version 1.0
 
 .register-button:hover {
 
+/*
   background-color: none;
+*/
   background-image: url(svgs/cloud-button-back.svg);
   color: black;
 }

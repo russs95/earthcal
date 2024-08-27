@@ -38,6 +38,7 @@ function cyclesToggle() {
   var storkCycler = document.getElementById('stork-cycler');
 
 
+
   // Initial state
   var isMoonClicked = true;
 
@@ -458,14 +459,14 @@ storkButton.addEventListener("click", function() {
   isStorkClicked = !isStorkClicked;
 });
 
-}
 
 
 
 
-var isCariboClicked = true;
 
-cariboButton.addEventListener("click", function() {
+var isStorkClicked = true;
+
+storkButton.addEventListener("click", function() {
   if(isStorkClicked) {
 
     whaleCycle.style.display = "none";
@@ -503,6 +504,8 @@ cariboButton.addEventListener("click", function() {
   }isStorkClicked
   isStorkClicked = !isStorkClicked;
 });
+
+}
 
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {

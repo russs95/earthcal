@@ -1568,7 +1568,7 @@ TOOLTIPS AND MODALS
 }
     #current-date-info {
     max-width: 200px;
-    font-size: 1.3em}
+    font-size: 1.3em;
   }
 }
 
@@ -2156,7 +2156,7 @@ div.current-datecycle-data > div {
 }
 
 .current-date-notes {
-  font-size: regular;
+  font-size: medium;
 }
 
 .close-button-datecycle {
@@ -2561,7 +2561,7 @@ INFO MODAL
 
   .confirmation-blur-button:hover {
   background: var(--form-conf-background-over);
-  text-color: var(--h1);
+  color: var(--h1);  /*fixed? */
   }
 
 
