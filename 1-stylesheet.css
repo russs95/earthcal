@@ -1562,13 +1562,19 @@ TOOLTIPS AND MODALS
 
 }
 
+
+#current-date-info {
+    font-family: 'Mulish', sans-serif;
+    color: var(--text-color);
+  }
+
 @media screen and (max-width: 700px) {
     .search-modal-content {
     width: 80%;
 }
     #current-date-info {
     max-width: 200px;
-    font-size: 1.3em;
+    font-size: 1.2em;
   }
 }
 
@@ -1577,6 +1583,9 @@ TOOLTIPS AND MODALS
 /*  padding: 50px 20px 20px 20px;*/
   width: 50%;
 }
+    #current-date-info {
+    max-width: 200px;
+    font-size: 1.45em;
 }
 
 
