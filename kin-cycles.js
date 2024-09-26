@@ -1,428 +1,169 @@
 
-/* KINCYCLES MENU CONTROL*/
+/* KINCYCLES MENU CONTROL */
 function cyclesToggle() {
   date = targetDate;
+
+  // Main menu buttons
   var moonButton = document.getElementById("moon-button");
-  var americasMap = document.getElementById("americas-map");
-  var euroMap = document.getElementById("europe-africa-map");
   var planetButtons = document.getElementById("planet-buttons");
   var kinButtons = document.getElementById("kin-buttons");
+  var earthButton = document.getElementById("whale-earthbutton");
+  var solarsystemButton = document.getElementById("solarsystem-button");
+
+  // Moon
   var moonCycle = document.getElementById("moon-cycle");
   var moonPhase = document.getElementById("moon-phase");
   var lunarMonths = document.querySelectorAll('path[id*="lunarmonth-12"]');
-  var earthButton = document.getElementById('whale-earthbutton');
-  var solarsystemButton = document.getElementById('solarsystem-button');
-  var solarSystemCenter = document.getElementById('solar-system-center');
-  var themoonphases = document.getElementById('themoonphases');
-  var mainClock = document.getElementById('main-clock');
 
-  var mercuryButton = document.getElementById('mercury-button');
-  var mercuryCycle = document.getElementById('mercury-cycle');  
-  var venusButton = document.getElementById('venus-button');
-  var venusCycle = document.getElementById('venus-cycle'); 
-  var marsButton = document.getElementById('mars-button');
-  var marsCycle = document.getElementById('mars-cycle'); 
-  var jupiterButton = document.getElementById('jupiter-button');
-  var jupiterCycle = document.getElementById('jupiter-cycle'); 
-  var saturnButton = document.getElementById('saturn-button');
-  var saturnCycle = document.getElementById('saturn-cycle'); 
+  // Center
+  var solarSystemCenter = document.getElementById("solar-system-center");
+  var themoonphases = document.getElementById("themoonphases");
+  var mainClock = document.getElementById("main-clock");
 
-  var whaleButton = document.getElementById('whale-button');
-  var whaleCycle = document.getElementById('whale-cycle');
-  var whaleInfo = document.getElementById('whale-info'); 
-  var whaleCycler = document.getElementById('whale-cycler');
+  // Planet buttons
+  var mercuryButton = document.getElementById("mercury-button");
+  var mercuryCycle = document.getElementById("mercury-cycle");
+  var venusButton = document.getElementById("venus-button");
+  var venusCycle = document.getElementById("venus-cycle");
+  var marsButton = document.getElementById("mars-button");
+  var marsCycle = document.getElementById("mars-cycle");
+  var jupiterButton = document.getElementById("jupiter-button");
+  var jupiterCycle = document.getElementById("jupiter-cycle");
+  var saturnButton = document.getElementById("saturn-button");
+  var saturnCycle = document.getElementById("saturn-cycle");
 
-  var storkButton = document.getElementById('stork-button');
-  var storkCycle = document.getElementById('stork-cycle');
-  var storkInfo = document.getElementById('stork-info');
-  var storkCycler = document.getElementById('stork-cycler');
+  // Animal Cycles
+  var americasMap = document.getElementById("americas-map");
+  var euroMap = document.getElementById("europe-africa-map");
+  var whaleButton = document.getElementById("whale-button");
+  var whaleCycle = document.getElementById("whale-cycle");
+  var whaleInfo = document.getElementById("whale-info");
+  var whaleCycler = document.getElementById("whale-cycler");
 
+  // Stork buttons
+  var storkButton = document.getElementById("stork-button");
+  var storkCycle = document.getElementById("stork-cycle");
+  var storkInfo = document.getElementById("stork-info");
+  var storkCycler = document.getElementById("stork-cycler");
 
+  // Moon clicked
+var isMoonClicked = false; // Initial state set to false
+moonButton.addEventListener("click", function () {
+  isMoonClicked = !isMoonClicked; // Toggle the clicked state immediately
 
-  // Initial state
-  var isMoonClicked = true;
-
-  moonButton.addEventListener("click", function() {
-    if (isMoonClicked) {
-
-      mercuryCycle.style.display = "none";
-      mercuryButton.classList.remove("totems-active");
-      marsCycle.style.display = "none";
-      marsButton.classList.remove("totems-active");
-      venusCycle.style.display = "none";
-      venusButton.classList.remove("totems-active");
-      jupiterCycle.style.display = "none";
-      jupiterButton.classList.remove("totems-active");
-      saturnCycle.style.display = "none";
-      saturnButton.classList.remove("totems-active");
-
-      whaleCycle.style.display = "none";
-      whaleButton.classList.remove("totems-active");
-
-
-      currentYearText.textContent = targetDate.getFullYear().toString();
-      const currentYear = parseInt(currentYearText.textContent);
-      themoonphases.style.display = 'block';
-
-      americasMap.style.display = "none";
-      euroMap.style.display = "none";
-      planetButtons.style.display = "none";
-      kinButtons.style.display = "none";
-      moonCycle.style.display = "block";
-      moonPhase.style.display = "block";
-      calculateHijriMonthNames(currentYear);
-      lunarMonths.forEach(function(lunarMonth) {
+  if (isMoonClicked) {
+    resetPlanetStates();
+    currentYearText.textContent = targetDate.getFullYear().toString();
+    const currentYear = parseInt(currentYearText.textContent);
+    themoonphases.style.display = "block";
+    americasMap.style.display = "none";
+    euroMap.style.display = "none";
+    planetButtons.style.display = "none";
+    kinButtons.style.display = "none";
+    moonCycle.style.display = "block";
+    moonPhase.style.display = "block";
+    calculateHijriMonthNames(currentYear);
+    lunarMonths.forEach(function (lunarMonth) {
       lunarMonth.style.opacity = "0.6";
-      });
-      setLunarMonthForTarget(targetDate, 2024);
-    } else {
-      lunarMonths.forEach(function(lunarMonth) {
-        lunarMonth.style.opacity = "0";
-      });
-      moonPhase.style.display = "none";
-      moonCycle.style.display = "none";
-    }
-
-    // Toggle the state
-    isMoonClicked = !isMoonClicked;
-  });
-
-
-  // Initial state
-  var isSolarsysClicked = true;
-
-  solarsystemButton.addEventListener("click", function() {
-    if (isSolarsysClicked) {
-      planetButtons.style.display = "flex";
-      kinButtons.style.display = "none";
-      mercuryCycle.style.display = "none";
-      mercuryButton.classList.remove("totems-active");
-      marsCycle.style.display = "none";
-      marsButton.classList.remove("totems-active");
-      venusCycle.style.display = "none";
-      venusButton.classList.remove("totems-active");
-      jupiterCycle.style.display = "none";
-      jupiterButton.classList.remove("totems-active");
-      saturnCycle.style.display = "none";
-      saturnButton.classList.remove("totems-active");
+    });
+    setLunarMonthForTarget(targetDate, 2024);
+  } else {
+    resetPlanetStates();
+    solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "1";
+    planetButtons.style.display = "none";
+    lunarMonths.forEach(function (lunarMonth) {
+      lunarMonth.style.opacity = "0";
+    });
+  }
+});
 
 
+// Solar System button clicked
+var isSolarsysClicked = false; // Initial state set to false
+solarsystemButton.addEventListener("click", function () {
+  isSolarsysClicked = !isSolarsysClicked; // Toggle the clicked state immediately
 
-    } else {
-      solarSystemCenter.style.display = "block";
-      moonCycle.style.display = "none";
-      americasMap.style.display = "none";
-        euroMap.style.display = "none";
-        moonCycle.style.display = "none";
-        kinButtons.style.display = "none";
-        planetButtons.style.display = "none";
-        mercuryCycle.style.display = "none";
-        mercuryButton.classList.remove("totems-active");
-        marsCycle.style.display = "none";
-        marsButton.classList.remove("totems-active");
-        venusCycle.style.display = "none";
-        venusButton.classList.remove("totems-active");
-        jupiterCycle.style.display = "none";
-        jupiterButton.classList.remove("totems-active");
-        saturnCycle.style.display = "none";
-        saturnButton.classList.remove("totems-active");
+  if (isSolarsysClicked) {
+    planetButtons.style.display = "flex";
+    kinButtons.style.display = "none";
+  } else {
+    resetPlanetStates();
+    planetButtons.style.display = "none";
 
-        whaleCycle.style.display = "none";
-        whaleButton.classList.remove("totems-active");
+    solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "1";
+  }
+});
 
 
-    } isSolarsysClicked
-
-    isSolarsysClicked = !isSolarsysClicked;
-  });
-
-
-    // Initial state
-    var isEarthbuttonClicked = true;
-  
-
-  earthButton.addEventListener("click", function() {
-  if (isEarthbuttonClicked) {
+  // Earth button clicked
+  earthButton.addEventListener("click", function () {
+    resetPlanetStates();
     kinButtons.style.display = "flex";
     planetButtons.style.display = "none";
-    
-} else {
+  });
 
-  kinButtons.style.display = "none";
+  //PLANET BUTTONS
 
-}isEarthbuttonClicked
+  // Mercury button clicked
+  mercuryButton.addEventListener("click", function () {
+    resetPlanetStates();
+    mercuryCycle.style.display = "block";
+    mercuryButton.classList.add("totems-active");
 
-isEarthbuttonClicked = !isEarthbuttonClicked;
-});
+  });
 
+  // Venus button clicked
+  venusButton.addEventListener("click", function () {
+    resetPlanetStates();
+    UpdateVenusData(date);
+    venusCycle.style.display = "block";
+    venusButton.classList.add("totems-active");
 
+  });
 
+  // Mars button clicked
+  marsButton.addEventListener("click", function () {
+    resetPlanetStates();
+    UpdateMarsData(date);
+    marsCycle.style.display = "block";
+    marsButton.classList.add("totems-active");
+  });
 
-var isMercuryClicked = true;
+  // Jupiter button clicked
+  jupiterButton.addEventListener("click", function () {
+    resetPlanetStates();
+    UpdateJupiterData(date);
+    jupiterCycle.style.display = "block";
+    jupiterButton.classList.add("totems-active");
+  });
 
-mercuryButton.addEventListener("click", function() {
-  if(isMercuryClicked) {
+  // Saturn button clicked
+  saturnButton.addEventListener("click", function () {
+    resetPlanetStates();
+    UpdateSaturnData(date);
+    saturnCycle.style.display = "block";
+    saturnButton.classList.add("totems-active");
+  });
 
-  themoonphases.style.display = 'none';
-// venusCycle.classList.add("active");
-  mercuryCycle.style.display = "block";
-  mercuryButton.classList.add("totems-active");
-
-  venusCycle.style.display = "none";
-  venusButton.classList.remove("totems-active");
-  marsCycle.style.display = "none";
-  marsButton.classList.remove("totems-active");
-  jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
-
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-  mainClock.style.opacity = "0.2";
-//  mainClock.style.filter = "blur(2px)";
-  solarSystemCenter.style.opacity = "0.1";
-        solarSystemCenter.style.filter = "blur(4px)";
-  americasMap.style.display = "none";
-euroMap.style.display = "none";
-  moonCycle.style.display = "none";
-  } else {
-    mercuryCycle.style.display = "none";
-    mercuryButton.classList.remove("totems-active");
-    solarSystemCenter.style.opacity = "1";
-        solarSystemCenter.style.filter = "none";
-
-
-  }isMercuryClicked
-  isMercuryClicked = !isMercuryClicked;
-});
-
-
-
-
-var isVenusClicked = true;
-
-venusButton.addEventListener("click", function() {
-  if(isVenusClicked) {
-
-UpdateVenusData(date);
-  themoonphases.style.display = 'none';
-// venusCycle.classList.add("active");
-  venusCycle.style.display = "block";
-  venusButton.classList.add("totems-active");
-
-  mercuryCycle.style.display = "none";
-  mercuryButton.classList.remove("totems-active");
-  marsCycle.style.display = "none";
-  marsButton.classList.remove("totems-active");
-  jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
-
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-
-  solarSystemCenter.style.opacity = "0.1";
-        solarSystemCenter.style.filter = "blur(4px)";
-  americasMap.style.display = "none";
-euroMap.style.display = "none";
-  moonCycle.style.display = "none";
-  } else {
-    venusCycle.style.display = "none";
-    venusButton.classList.remove("totems-active");
-    solarSystemCenter.style.opacity = "1";
-        solarSystemCenter.style.filter = "none";
-
-
-  }isVenusClicked
-    isVenusClicked = !isVenusClicked;
-});
-
-
-
-var isMarsClicked = true;
-
-marsButton.addEventListener("click", function() {
-  if(isMarsClicked) {
-
-UpdateMarsData(date);
-  themoonphases.style.display = 'none';
-// venusCycle.classList.add("active");
-  marsCycle.style.display = "block";
-  marsButton.classList.add("totems-active");
-
-  mercuryCycle.style.display = "none";
-  mercuryButton.classList.remove("totems-active");
-  venusCycle.style.display = "none";
-  venusButton.classList.remove("totems-active");
-  jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
-
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-  solarSystemCenter.style.opacity = "0.1";
-        solarSystemCenter.style.filter = "blur(4px)";
-  americasMap.style.display = "none";
-euroMap.style.display = "none";
-  moonCycle.style.display = "none";
-
-  } else {
-    marsCycle.style.display = "none";
-    marsButton.classList.remove("totems-active");
-    solarSystemCenter.style.opacity = "1";
-        solarSystemCenter.style.filter = "none";
-
-
-  }isMarsClicked
-  isMarsClicked = !isMarsClicked;
-});
-
-
-
-
-var isJupiterClicked = true;
-
-jupiterButton.addEventListener("click", function() {
-  if(isJupiterClicked) {
-
-UpdateJupiterData(date);
-  themoonphases.style.display = 'none';
-// venusCycle.classList.add("active");
-  jupiterCycle.style.display = "block";
-  jupiterButton.classList.add("totems-active");
-
-  mercuryCycle.style.display = "none";
-  mercuryButton.classList.remove("totems-active");
-  venusCycle.style.display = "none";
-  venusButton.classList.remove("totems-active");
-  marsCycle.style.display = "none";
-  marsButton.classList.remove("totems-active");
-  saturnCycle.style.display = "none";
-  saturnButton.classList.remove("totems-active");
-
-  whaleCycle.style.display = "none";
-  whaleButton.classList.remove("totems-active");
-
-  solarSystemCenter.style.opacity = "0.1";
-  solarSystemCenter.style.filter = "blur(0.4px)"
-  americasMap.style.display = "none";
-euroMap.style.display = "none";
-  moonCycle.style.display = "none";
-  } else {
-    jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-     solarSystemCenter.style.opacity = "1";
-  solarSystemCenter.style.filter = "none"
-
-
-  }isJupiterClicked
-  isJupiterClicked = !isJupiterClicked;
-});
-
-
-
-var isSaturnClicked = true;
-
-saturnButton.addEventListener("click", function() {
-  if(isSaturnClicked) {
-
-UpdateSaturnData(date);
-  themoonphases.style.display = 'none';
-// venusCycle.classList.add("active");
-  saturnCycle.style.display = "block";
-  saturnButton.classList.add("totems-active");
-
-  mercuryCycle.style.display = "none";
-  mercuryButton.classList.remove("totems-active");
-  venusCycle.style.display = "none";
-  venusButton.classList.remove("totems-active");
-  marsCycle.style.display = "none";
-  marsButton.classList.remove("totems-active");
-  jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-  solarSystemCenter.style.opacity = "0.1";
-        solarSystemCenter.style.filter = "blur(4px)";
-  americasMap.style.display = "none";
-euroMap.style.display = "none";
-  moonCycle.style.display = "none";
-  } else {
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
-   solarSystemCenter.style.opacity = "1";
-        solarSystemCenter.style.filter = "none";
-
-
-  }isSaturnClicked
-  isSaturnClicked = !isSaturnClicked;
-});
-
-
-
-var isWhaleClicked = true;
-
-whaleButton.addEventListener("click", function() {
-  if(isWhaleClicked) {
-
-    solarSystemCenter.style.display = "none";
-    moonCycle.style.display = "none";
+  // Whale button clicked
+  whaleButton.addEventListener("click", function () {
+    resetPlanetStates();
     planetButtons.style.display = "none";
-    moonPhase.style.display = "none";
     americasMap.style.display = "block";
-
-    mercuryCycle.style.display = "none";
-    mercuryButton.classList.remove("totems-active");
-    venusCycle.style.display = "none";
-    venusButton.classList.remove("totems-active");
-    marsCycle.style.display = "none";
-    marsButton.classList.remove("totems-active");
-    jupiterCycle.style.display = "none";
-    jupiterButton.classList.remove("totems-active");
-    saturnCycle.style.display = "none";
-    saturnButton.classList.remove("totems-active");
-
     whaleCycle.style.display = "block";
     whaleInfo.style.display = "block";
     whaleCycler.style.display = "block";
     whaleButton.classList.add("totems-active");
-
-       storkCycle.style.display = "none";
-    storkButton.classList.remove("totems-active");
-    euroMap.style.display = "none";
-
     startDate = targetDate;
     animateWhaleCycle(targetDate);
     UpdateWhaleCycle(targetDate);
+  });
 
-
-
-  } else {
-    whaleCycle.style.display = "none";
-    whaleButton.classList.remove("totems-active");
-
-  }isWhaleClicked
-  isWhaleClicked = !isWhaleClicked;
-});
-
-
-
-
-
-
-var isStorkClicked = true;
-
-storkButton.addEventListener("click", function() {
-  if(isStorkClicked) {
-
+  // Stork button clicked
+  storkButton.addEventListener("click", function () {
+    resetPlanetStates();
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
 
@@ -432,6 +173,26 @@ storkButton.addEventListener("click", function() {
     moonPhase.style.display = "none";
     euroMap.style.display = "block";
 
+    storkCycle.style.display = "block";
+    storkCycler.style.display = "block";
+    storkButton.classList.add("totems-active");
+    startDate = targetDate;
+    updateStorkCycle(targetDate);
+  });
+
+  // Helper function to reset planet states
+  function resetPlanetStates() {
+  mainClock.style.opacity = "0.2";
+  solarSystemCenter.style.display = "block";
+    solarSystemCenter.style.opacity = "0.1";
+    americasMap.style.display = "none";
+    euroMap.style.display = "none";
+    moonCycle.style.display = "none";
+    planetButtons.style.display = "block";
+    moonPhase.style.display = "none";
+    themoonphases.style.display = "none";
+
+
     mercuryCycle.style.display = "none";
     mercuryButton.classList.remove("totems-active");
     venusCycle.style.display = "none";
@@ -439,73 +200,31 @@ storkButton.addEventListener("click", function() {
     marsCycle.style.display = "none";
     marsButton.classList.remove("totems-active");
     jupiterCycle.style.display = "none";
-      jupiterButton.classList.remove("totems-active");
-      saturnCycle.style.display = "none";
-      saturnButton.classList.remove("totems-active");
-
-
-  storkCycle.style.display = "block";
-  // whaleInfo.style.display = "block";
-  storkCycler.style.display = "block";
-  storkButton.classList.add("totems-active");
-  startDate = targetDate;
-  updateStorkCycle(targetDate);
-
-  } else {
-   storkCycle.style.display = "none";
-    storkButton.classList.remove("totems-active");
-    euroMap.style.display = "none";
-  }isStorkClicked
-  isStorkClicked = !isStorkClicked;
-});
-
-
-
-
-
-
-var isStorkClicked = true;
-
-storkButton.addEventListener("click", function() {
-  if(isStorkClicked) {
-
+    jupiterButton.classList.remove("totems-active");
+    saturnCycle.style.display = "none";
+    saturnButton.classList.remove("totems-active");
     whaleCycle.style.display = "none";
     whaleButton.classList.remove("totems-active");
-
-    solarSystemCenter.style.display = "none";
-    moonCycle.style.display = "none";
-    planetButtons.style.display = "none";
-    moonPhase.style.display = "none";
-    euroMap.style.display = "block";
-
-    mercuryCycle.style.display = "none";
-    mercuryButton.classList.remove("totems-active");
-    venusCycle.style.display = "none";
-    venusButton.classList.remove("totems-active");
-    marsCycle.style.display = "none";
-    marsButton.classList.remove("totems-active");
-    jupiterCycle.style.display = "none";
-      jupiterButton.classList.remove("totems-active");
-      saturnCycle.style.display = "none";
-      saturnButton.classList.remove("totems-active");
-
-
-  storkCycle.style.display = "block";
-  // whaleInfo.style.display = "block";
-  storkCycler.style.display = "block";
-  storkButton.classList.add("totems-active");
-  startDate = targetDate;
-  updateStorkCycle(targetDate);
-
-  } else {
-   storkCycle.style.display = "none";
-    storkButton.classList.remove("totems-active");
-    euroMap.style.display = "none";
-  }isStorkClicked
-  isStorkClicked = !isStorkClicked;
-});
-
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Function to update whale cycle information
 function UpdateWhaleCycle(targetDate) {
@@ -598,7 +317,6 @@ function updateStorkCycle(targetDate) {
 }
 
 
-
 // Declare the global variable startPercentage
 let startPercentage = 0;
 
@@ -629,62 +347,61 @@ function animateStorkCycle(journeyPercentage) {
     }
   });
 }
-//
-//function animateStorkCycle() {
-//  // Get the HTML element for the stork marker and the path element
-//  let storkMarkerElement = document.getElementById("stork-marker");
-//  let storkPathElement = document.getElementById("stork-year-cycle");
-//
-//  // Define the start of the year for reference
-//  let yearStart = new Date(2024, 0, 1);
-//
-//  // Calculate the offset from the start date to the year start
-//  let startOffpoint = startDate - yearStart;
-//
-//  // Calculate the difference in days to the target date
-//  let daysToTargetDate = targetDate - startDate;
-//
-//  // Total days from the year start to the target date
-//  let totalDays = startOffpoint + daysToTargetDate;
-//
-//  // Calculate the absolute difference in days for the target date
-//  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
-//
-//  // Calculate the target angle for the stork marker's motion path
-//  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
-//  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
-//
-//  // Determine the animation duration based on the real days to the target date
-//  let duration;
-//  if (RealdaysToTargetDate < 30) {
-//    duration = 1;
-//  } else if (RealdaysToTargetDate < 60) {
-//    duration = 2;
-//  } else if (RealdaysToTargetDate < 120) {
-//    duration = 3;
-//  } else if (RealdaysToTargetDate < 180) {
-//    duration = 4;
-//  // Add more conditions as needed
-//  } else if (RealdaysToTargetDate <= 366) {
-//    duration = 5; // Example: set a default for the max range
-//  } else {
-//    duration = 6; // Default duration if daysToTargetDate is out of expected range
-//  }
-//
-//  // Use GSAP to animate the stork marker along the path
-//  gsap.to(storkMarkerElement, {
-//    motionPath: {
-//      path: storkPathElement,
-//      align: storkPathElement,
-//      start: targetAngle / 360,
-//      end: targetAngle2 / 360,
-//      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
-//      autoRotate: true, // Enable auto-rotation along the path
-//    },
-//    duration: duration, // Use the calculated duration
-//    ease: "linear", // Use linear easing for smooth animation
-//  });
-//}
+
+function animateStorkCycle() {
+  // Get the HTML element for the stork marker and the path element
+  let storkMarkerElement = document.getElementById("stork-marker");
+  let storkPathElement = document.getElementById("stork-year-cycle");
+  // Define the start of the year for reference
+  let yearStart = new Date(2024, 0, 1);
+
+  // Calculate the offset from the start date to the year start
+  let startOffpoint = startDate - yearStart;
+
+  // Calculate the difference in days to the target date
+  let daysToTargetDate = targetDate - startDate;
+
+  // Total days from the year start to the target date
+  let totalDays = startOffpoint + daysToTargetDate;
+
+  // Calculate the absolute difference in days for the target date
+  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
+
+  // Calculate the target angle for the stork marker's motion path
+  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
+  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
+
+  // Determine the animation duration based on the real days to the target date
+  let duration;
+  if (RealdaysToTargetDate < 30) {
+    duration = 1;
+  } else if (RealdaysToTargetDate < 60) {
+    duration = 2;
+  } else if (RealdaysToTargetDate < 120) {
+    duration = 3;
+  } else if (RealdaysToTargetDate < 180) {
+    duration = 4;
+  // Add more conditions as needed
+  } else if (RealdaysToTargetDate <= 366) {
+    duration = 5; // Example: set a default for the max range
+  } else {
+    duration = 6; // Default duration if daysToTargetDate is out of expected range
+  }
+
+  // Use GSAP to animate the stork marker along the path
+  gsap.to(storkMarkerElement, {
+    motionPath: {
+      path: storkPathElement,
+      align: storkPathElement,
+      start: targetAngle / 360,
+      end: targetAngle2 / 360,
+      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
+      autoRotate: true, // Enable auto-rotation along the path
+    },
+    duration: duration, // Use the calculated duration
+    ease: "linear", // Use linear easing for smooth animation
+  });
+}
 
 
 
@@ -778,7 +495,7 @@ function openPlanetInfoBox() {
         const planetIds = [
             "mercury-cycle", "venus-cycle", "earth-cycle",
             "mars-cycle", "jupiter-cycle", "saturn-cycle",
-            "uranus-cycle", "neptune-cycle", "pluto-cycle"
+            "uranus-cycle", "neptune-cycle", "pluto-cycle","moon-cycle"
         ];
         var solarSystemCenter = document.getElementById('solar-system-center');
 
@@ -795,6 +512,10 @@ function openPlanetInfoBox() {
             solarSystemCenter.style.filter = "none";
 
             solarSystemCenterDiv.style.opacity = "1";
+            lunarMonths.forEach(function (lunarMonth) {
+              lunarMonth.style.opacity = "0.6";
+            });
+
         }
     }
 

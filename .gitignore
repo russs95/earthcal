@@ -1,10 +1,13 @@
 dist
+dist-old
 earthcal-linux-x64
 node_modules
 snap
 usr
 electron-builder.yml
 CNAME
+External Libraries
+Scratches and Consoles
 
 
 
