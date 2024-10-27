@@ -30,7 +30,8 @@
     height: fit-content;
     padding-top: 10px;
     width:100%;
-    line-height: 1.5;}
+    line-height: 1.5;
+    }
   }
 
   
@@ -161,59 +162,23 @@ flex-direction: row;
 }
 
   @media screen and (min-width: 701px) {
-#header {  
-  height: 2px;
-}
-}
+        #header {
+          height: 2px;
+        }
+        }
 
-@media screen and (max-width: 700px) {
-#header {  
+        @media screen and (max-width: 700px) {
+        #header {
 
-  height: 36px;
-}
-}
-
-
-/*
-.top-menu-login-button {
-
-  position:absolute;
-  left:0;
- margin-top: 22px;
- margin-left: 22px;
-
-
-  font-family:'Mulish';
-  background: none;
-  border:0.5px;
-  border-style:solid;
-
-  border-radius:5px;
-  align-content: center;
-  font-size: 0.9em;
-  padding: 3px 14px 3px 14px;
-  margin-right:10px;
-  cursor: pointer;
-  color: var(--header-accent);
-  border-color: var(--header-accent);
-  border-width: 0.5px;
+          height: 36px;
+        }
 }
 
-.top-menu-login-button:hover {
-  color: var(--top-header);
-  background-color: var(--header-accent);
-}
 
-@media screen and (max-width: 700px) {
-.top-menu-login-button {
-  display:none;
-}
-}
-*/
 
 .top-search-button  {
   border: none; 
-margin:0px 10px 10px 10px;
+    margin:0px 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -223,7 +188,7 @@ margin:0px 10px 10px 10px;
 
 .top-clock-button  {
   border: none;
-margin:0px 10px 10px 10px;
+    margin:0px 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -278,33 +243,6 @@ margin:0px 10px 10px 10px;
 }
 
 
-/*
-.top-close-button  {
-  border: none; 
-  margin-right:10px;
-  cursor:pointer;
-  height:30px;
-  width:30px;
-}
-
-
-.top-close-button:hover  {
-  border: none; 
-  margin-right:10px;
-  cursor:pointer;
-  height:30px;
-  width:30px;
-}
-
-.top-close-button:hover  {
-  border: none; 
-  margin-right:10px;
-  cursor:pointer;
-  height:30px;
-  width:30px;
-}
-
-*/
 .earthcycles-logo {
   margin:15px auto 0 auto;
   padding:5px 5px 5px 5px;
@@ -355,7 +293,9 @@ margin:0px 10px 10px 10px;
 
 #current-datecycle-info2 .date-info:hover {
  background:grey;
-  cursor:pointer;}
+  cursor:pointer;
+  }
+
 /* -------------------------------------------------------------------------- */
 
 /*	6. User Settings Overlay Curtain 
@@ -670,47 +610,47 @@ svg path[id*="december_3"] {
 
 @media (min-width: 769px) {
 
-  svg path[id*="-day"]:hover {
-    fill-opacity: 0.6;
-  }
-  svg path[id*="-day"]:active {
-    fill-opacity: 1;
-  }
+      svg path[id*="-day"]:hover {
+        fill-opacity: 0.6;
+      }
+      svg path[id*="-day"]:active {
+        fill-opacity: 1;
+      }
 
 
-  svg path[id*="january_36"]:hover,
-  svg path[id*="february_36"]:hover,
-  svg path[id*="march_36"]:hover,
-  svg path[id*="april_36"]:hover,
-  svg path[id*="may_36"]:hover,
-  svg path[id*="june_36"]:hover,
-  svg path[id*="july_36"]:hover,
-  svg path[id*="august_36"]:hover,
-  svg path[id*="september_36"]:hover,
-  svg path[id*="october_36"]:hover,
-  svg path[id*="november_36"]:hover,
-  svg path[id*="december_36"]:hover {
-    opacity: 1;
-    transition: 0.4s;
-    cursor: pointer;
-  }
+      svg path[id*="january_36"]:hover,
+      svg path[id*="february_36"]:hover,
+      svg path[id*="march_36"]:hover,
+      svg path[id*="april_36"]:hover,
+      svg path[id*="may_36"]:hover,
+      svg path[id*="june_36"]:hover,
+      svg path[id*="july_36"]:hover,
+      svg path[id*="august_36"]:hover,
+      svg path[id*="september_36"]:hover,
+      svg path[id*="october_36"]:hover,
+      svg path[id*="november_36"]:hover,
+      svg path[id*="december_36"]:hover {
+        opacity: 1;
+        transition: 0.4s;
+        cursor: pointer;
+      }
 
-  svg path[id*="january_36"].final,
-  svg path[id*="february_36"].final,
-  svg path[id*="march_36"].final,
-  svg path[id*="april_36"].final,
-  svg path[id*="may_36"].final,
-  svg path[id*="june_36"].final,
-  svg path[id*="july_36"].final,
-  svg path[id*="august_36"].final,
-  svg path[id*="september_36"].final,
-  svg path[id*="october_36"].final,
-  svg path[id*="november_36"].final,
-  svg path[id*="december_36"].final {
-  opacity: 1;
-  cursor: pointer;
-  transition: 0s; /* Set the transition duration to 0 seconds */
-}
+      svg path[id*="january_36"].final,
+      svg path[id*="february_36"].final,
+      svg path[id*="march_36"].final,
+      svg path[id*="april_36"].final,
+      svg path[id*="may_36"].final,
+      svg path[id*="june_36"].final,
+      svg path[id*="july_36"].final,
+      svg path[id*="august_36"].final,
+      svg path[id*="september_36"].final,
+      svg path[id*="october_36"].final,
+      svg path[id*="november_36"].final,
+      svg path[id*="december_36"].final {
+      opacity: 1;
+      cursor: pointer;
+      transition: 0s; /* Set the transition duration to 0 seconds */
+    }
 }
 
 
@@ -1591,7 +1531,7 @@ TOOLTIPS AND MODALS
     font-size: 1.45em;
 }
 
-
+}
 /*
 .search-button {
   z-index: 20;

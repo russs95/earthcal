@@ -389,9 +389,7 @@ function strikeDateCycle(element) {
 }
 
 
-function editDateCycle(dateCycleID) {
-    alert(`Hi Jordan! Sorry, I am still working on this function editDateCycle that will let you edit dateCycle ${dateCycleID}.`);
-}
+
 
 
 
@@ -424,10 +422,10 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const calendarColorContent = dateCycle.Completed === 'yes' ? '✔' : '⬤';
 
     divElement.innerHTML += `
-      <div class="date-info ${dateCycle.ID}">
-          <a href="javascript:void(0);" onclick="editDateCycle('${dateCycle.ID}')" class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
+      <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')">
+          <div class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
               <span style="font-size:small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span> ${dateCycle.Event_name}
-          </a>
+          </div>
           <div class="current-datecycle-data">
               <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
               <div>|</div>
@@ -435,12 +433,28 @@ function writeMatchingDateCycles(divElement, dateCycle) {
           </div>
           <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
           <div style="display:flex;flex-flow:row;">
-              <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}')">➜</div>
-              <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this)">✔</div>
-              <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}')">✘</div>
+              <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}'); event.stopPropagation();">➜</div>
+              <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this); event.stopPropagation();">✔</div>
+              <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();">✘</div>
           </div>
       </div>
     `;
+}
+
+// Open modal dialogue to let the user edit the dateCycle:
+
+function editDateCycle(dateCycleID) {
+    // Set the message in the modal-content div
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `<h1>Hi Jordan!</h1> <p>Sorry, I am still working on this function editDateCycle that will let you edit dateCycle ${dateCycleID}.</p>`;
+
+    // Display the modal by removing the modal-hidden class
+
+  // Show the modal
+  const modal = document.getElementById('form-modal-message');
+  modal.classList.remove('modal-hidden');
+  modal.classList.add('modal-visible');
+  document.getElementById("page-content").classList.add("blur");
 }
 
 
