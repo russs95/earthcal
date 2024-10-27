@@ -350,8 +350,12 @@ margin:0px 10px 10px 10px;
   color: var(--text-color); 
   padding: 0px 5px 15px 15px;
   direction: ltr;
+
 }
 
+#current-datecycle-info2 .date-info:hover {
+ background:grey;
+  cursor:pointer;}
 /* -------------------------------------------------------------------------- */
 
 /*	6. User Settings Overlay Curtain 
