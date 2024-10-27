@@ -11,7 +11,7 @@ HIGHLIGHT CURRENT DATE
 function updateTargetDay() {
   const startOfYear = new Date(Date.UTC(targetDate.getFullYear(), 0, 1));
   const diff = targetDate.getTime() - startOfYear.getTime();
-  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24)) + 2;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
   const dayIdStart = `${dayOfYear}-`;
 
   const svg = document.querySelector('svg');
