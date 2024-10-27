@@ -389,6 +389,12 @@ function strikeDateCycle(element) {
 }
 
 
+function editDateCycle(dateCycleID) {
+    alert(`Hi Jordan! Sorry, I am still working on this function editDateCycle that will let you edit dateCycle ${dateCycleID}.`);
+}
+
+
+
 // Find matching dateCycles
 function findMatchingDateCycles(dateCycles) {
   let dateObj = new Date(targetDate);
@@ -413,33 +419,30 @@ return dateCycles
 
 // Write the provided dateCycle to the provided div element
 function writeMatchingDateCycles(divElement, dateCycle) {
-// Determine styles based on whether the dateCycle is completed or not 
-const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
-const calendarColorContent = dateCycle.Completed === 'yes' ? '✔' : '⬤';
+    // Determine styles based on whether the dateCycle is completed or not
+    const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
+    const calendarColorContent = dateCycle.Completed === 'yes' ? '✔' : '⬤';
 
-
-//MOnth color class: ${dateCycle.monthName}
-//<div class="current-date-calendar-color" style="color:${dateCycle.calendar_color};">${calendarColorContent}</div>
-
-divElement.innerHTML += `
-  <div class="date-info ${dateCycle.ID}">
-      <div class="current-date-info-title " style="${eventNameStyle};color:${dateCycle.calendar_color};"><span style="font-size:small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span> ${dateCycle.Event_name}</div>
-      <div class="current-datecycle-data">
-          
-          <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
-          <div>|</div>
-          <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
+    divElement.innerHTML += `
+      <div class="date-info ${dateCycle.ID}">
+          <a href="javascript:void(0);" onclick="editDateCycle('${dateCycle.ID}')" class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
+              <span style="font-size:small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span> ${dateCycle.Event_name}
+          </a>
+          <div class="current-datecycle-data">
+              <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
+              <div>|</div>
+              <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
+          </div>
+          <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
+          <div style="display:flex;flex-flow:row;">
+              <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}')">➜</div>
+              <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this)">✔</div>
+              <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}')">✘</div>
+          </div>
       </div>
-      <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
-      <div style="display:flex;flex-flow:row;">
-      
-      <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}')">➜</div>
-      <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this)">✔</div>
-         <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}')">✘</div>
-      </div>
-  </div>
-`;
+    `;
 }
+
 
 
 
