@@ -7,12 +7,13 @@ let startCoords = { cx: 0, cy: 0 };
 
 let targetDate;
 let startDate;
-let year = 2023;
+let year = 2024;
 let currentDate;
 let dayOfYear;
 
 
 //Used in set2Today (maybe it should be integrated into it if this isn't used else where?)
+//Setting the date but not the current year
 function setCurrentDate() {
   let currentDate = new Date();
   startDate = new Date(currentDate.getFullYear(), 0, 1);
