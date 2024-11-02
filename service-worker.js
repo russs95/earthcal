@@ -9,12 +9,7 @@ self.addEventListener('install', event => {
 '/fonts/Mulish-Light.ttf',
 '/fonts/Mulish-Medium.ttf',
 '/fonts/Arvo-Regular.ttf',
-
-
 //Landing Images
-
-
-
         '/cycles/whale-cycle.json',
         '/index.html',
         '/cycles/whale-cycle.json',
@@ -62,7 +57,6 @@ self.addEventListener('install', event => {
         'webp/earthen-logo-icon.webp',
         'webp/earthen-subscription-background-dark.webp',
         'webp/earthen-subscription-background-light.webp',
-
 
       ]);
     })
