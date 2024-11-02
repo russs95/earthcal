@@ -441,6 +441,11 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     `;
 }
 
+
+
+
+
+
 // Open modal dialogue to let the user edit the dateCycle:
 // Function to open modal dialogue and populate form with dateCycle data for editing
 function editDateCycle(dateCycleID) {
@@ -455,11 +460,12 @@ function editDateCycle(dateCycleID) {
 
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
-    <h1>Edit DateCycle</h1>
+
     <div id="edit-addNewCalendar" style="display: none; background-color: var(--button-1-1-over); border-radius: 10px; padding: 20px; width: fit-content; margin: auto; margin-bottom: 25px;">
+    <h1>Edit DateCycle</h1>
       <form id="edit-calendar-adding-form">
         <label for="edit-calendarName">Name:</label>
-        <input type="text" id="edit-calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
+        <input type="text" id="edit-calendarName" name="calendarName" placeholder="Enter Calendar Name" class="blur-form-field"><br>
 
         <label for="edit-colorPicker">Choose a color:</label>
         <select id="edit-colorPicker" name="color">
@@ -518,7 +524,7 @@ function editDateCycle(dateCycleID) {
       <div id="edit-add-note-form" style="margin-top: 20px; margin-bottom: 30px;">
         <textarea id="edit-add-date-note" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
       </div>
-      <button type="button" id="edit-confirm-dateCycle" onclick=" closeAddCycle(); highlightDateCycles();saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
+      <button type="button" id="edit-confirm-dateCycle" onclick="saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
     </div>
   `;
 
@@ -530,16 +536,16 @@ function editDateCycle(dateCycleID) {
 }
 
 
-
 // Function to save edited dateCycle changes
 function saveDateCycleEditedChanges(dateCycleID) {
   // Retrieve the stored dateCycles from localStorage
   const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
   const dateCycleIndex = dateCycles.findIndex(dc => dc.ID === dateCycleID);
 
-  // If no matching dateCycle is found, log an error and return
+  // If no matching dateCycle is found, show an error message on the button
   if (dateCycleIndex === -1) {
-    console.log(`No dateCycle found with ID: ${dateCycleID}`);
+    const confirmButton = document.getElementById('edit-confirm-dateCycle');
+    confirmButton.textContent = "Error Updating DateCycle";
     return;
   }
 
@@ -571,15 +577,24 @@ function saveDateCycleEditedChanges(dateCycleID) {
   // Save the updated array back to localStorage
   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
 
-  // Close the modal and refresh the display
+  // Hide the edit-addNewCalendar div after successful completion
+  const addNewCalendarDiv = document.getElementById('edit-addNewCalendar');
+  if (addNewCalendarDiv) {
+    addNewCalendarDiv.style.display = "none";
+  }
+
+  // Close modal, unblur page, and refresh the display
   const modal = document.getElementById('form-modal-message');
   modal.classList.add('modal-hidden');
   document.getElementById("page-content").classList.remove("blur");
 
-  // Optionally, refresh the display of dateCycles
+  // Run the specified functions to update UI
+  closeAddCycle();
   highlightDateCycles();
   displayMatchingDateCycle();
 }
+
+
 
 
 
