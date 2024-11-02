@@ -484,13 +484,13 @@ function editDateCycle(dateCycleID) {
 
     <div id="edit-datecycle-setter"></div>
 
-    <select id="edit-dateCycle-type" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin: auto; margin-bottom: 10px;" onchange="showYearMonthDaySetter()">
+    <select id="edit-dateCycle-type" class="blur-form-field" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin: auto; margin-bottom: 10px;" onchange="showYearMonthDaySetter()">
       <option value="" disabled>Select frequency...</option>
       <option value="One-time" ${dateCycle.Frequency === 'One-time' ? 'selected' : ''}>One-time</option>
       <option value="Annual" ${dateCycle.Frequency === 'Annual' ? 'selected' : ''}>Annual</option>
     </select>
 
-    <div id="edit-dateCycle-year-option">
+    <div id="edit-dateCycle-year-option" class="blur-form-field">
       <select name="year" id="edit-year-field2" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin-top: 10px;">
         <option value="" disabled>Select year...</option>
         ${[2023, 2024, 2025, 2026].map(year => `<option value="${year}" ${dateCycle.Year === String(year) ? 'selected' : ''}>${year}</option>`).join('')}
@@ -498,12 +498,12 @@ function editDateCycle(dateCycleID) {
     </div>
 
     <div id="edit-set-date">
-      <div class="date-search fields" style="display: flex; flex-flow: row; padding: 10px; margin: auto; justify-content: center;">
-        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;">
+      <div class="date-search fields" style="display: flex; flex-flow: row; padding: 10px; margin: auto; justify-content: center;" >
+        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" class="blur-form-field">
           <option value="" disabled>Select day...</option>
           ${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${dateCycle.Day === String(i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
         </select>
-        <select name="month" id="edit-month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 35px;">
+        <select name="month" id="edit-month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 35px;" class="blur-form-field">
           <option value="" disabled>Select month...</option>
           ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
             .map((month, i) => `<option value="${i + 1}" ${dateCycle.Month === String(i + 1) ? 'selected' : ''}>${month}</option>`).join('')}
