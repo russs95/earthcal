@@ -611,6 +611,9 @@ function saveDateCycleEditedChanges(dateCycleID) {
 
 
 
+
+
+
 function closeDatecycleInfo(element) {
   const dateInfoDiv = element.closest('.date-info');
   if (dateInfoDiv) {
