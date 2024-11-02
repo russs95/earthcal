@@ -518,8 +518,7 @@ function editDateCycle(dateCycleID) {
       <div id="edit-add-note-form" style="margin-top: 20px; margin-bottom: 30px;">
         <textarea id="edit-add-date-note" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
       </div>
-
-      <button type="button" id="edit-confirm-dateCycle" onclick="submitAddCycleForm(); closeAddCycle(); highlightDateCycles();">➕ Save Changes</button>
+      <button type="button" id="edit-confirm-dateCycle" onclick=" closeAddCycle(); highlightDateCycles();saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
     </div>
   `;
 
@@ -529,6 +528,59 @@ function editDateCycle(dateCycleID) {
   modal.classList.add('modal-visible');
   document.getElementById("page-content").classList.add("blur");
 }
+
+
+
+// Function to save edited dateCycle changes
+function saveDateCycleEditedChanges(dateCycleID) {
+  // Retrieve the stored dateCycles from localStorage
+  const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
+  const dateCycleIndex = dateCycles.findIndex(dc => dc.ID === dateCycleID);
+
+  // If no matching dateCycle is found, log an error and return
+  if (dateCycleIndex === -1) {
+    console.log(`No dateCycle found with ID: ${dateCycleID}`);
+    return;
+  }
+
+  // Get updated values from the form
+  const updatedTitle = document.getElementById('edit-add-date-title').value;
+  const updatedDay = document.getElementById('edit-day-field2').value;
+  const updatedMonth = document.getElementById('edit-month-field2').value;
+  const updatedYear = document.getElementById('edit-year-field2').value || ""; // Empty if not selected
+  const updatedFrequency = document.getElementById('edit-dateCycle-type').value;
+  const updatedCalendarColor = document.getElementById('edit-DateColorPicker').value;
+  const updatedComments = document.getElementById('edit-add-date-note').value;
+
+  // Update the dateCycle object
+  const updatedDateCycle = {
+    ...dateCycles[dateCycleIndex],  // Preserve existing data
+    Event_name: updatedTitle,
+    Day: updatedDay,
+    Month: updatedMonth,
+    Year: updatedYear,
+    Date: `-${updatedDay}-${updatedMonth}${updatedYear ? '-' + updatedYear : ''}`,
+    Frequency: updatedFrequency,
+    calendar_color: updatedCalendarColor,
+    Comments: updatedComments
+  };
+
+  // Replace the original dateCycle with the updated version
+  dateCycles[dateCycleIndex] = updatedDateCycle;
+
+  // Save the updated array back to localStorage
+  localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+
+  // Close the modal and refresh the display
+  const modal = document.getElementById('form-modal-message');
+  modal.classList.add('modal-hidden');
+  document.getElementById("page-content").classList.remove("blur");
+
+  // Optionally, refresh the display of dateCycles
+  highlightDateCycles();
+  displayMatchingDateCycle();
+}
+
 
 
 
