@@ -461,58 +461,39 @@ function editDateCycle(dateCycleID) {
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
 
-    <div id="edit-addNewCalendar" style="display: none; background-color: var(--button-1-1-over); border-radius: 10px; padding: 20px; width: fit-content; margin: auto; margin-bottom: 25px;">
-    <h1>Edit DateCycle</h1>
-      <form id="edit-calendar-adding-form">
-        <label for="edit-calendarName">Name:</label>
-        <input type="text" id="edit-calendarName" name="calendarName" placeholder="Enter Calendar Name" class="blur-form-field"><br>
 
-        <label for="edit-colorPicker">Choose a color:</label>
-        <select id="edit-colorPicker" name="color">
-          <option value="red">🔴 Red</option>
-          <option value="blue">🔵 Blue</option>
-          <option value="green">🟢 Green</option>
-          <option value="orange">🟠 Orange</option>
-        </select><br>
 
-        <input type="checkbox" id="edit-publicCalendar" name="publicCalendar">
-        <label for="edit-publicCalendar">Public Calendar</label><br><br>
+    <div id="edit-datecycle-setter" style="width:100%;text-align:center;color:var(--text-color)"><h1>Edit DateCycle</h1></div>
 
-        <button type="button" id="edit-add-new-cal" onclick="addNewCalendar()">+ Add Calendar</button>
-      </form>
-    </div>
-
-    <div id="edit-datecycle-setter"></div>
-
-    <select id="edit-dateCycle-type" class="blur-form-field" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin: auto; margin-bottom: 10px;" onchange="showYearMonthDaySetter()">
+    <select id="edit-dateCycle-type" class="blur-form-field" style="font-size: 1em; text-align: center; height: 35px; margin: auto; margin-bottom: 10px;width: 100%;" onchange="showYearMonthDaySetter()">
       <option value="" disabled>Select frequency...</option>
       <option value="One-time" ${dateCycle.Frequency === 'One-time' ? 'selected' : ''}>One-time</option>
       <option value="Annual" ${dateCycle.Frequency === 'Annual' ? 'selected' : ''}>Annual</option>
     </select>
 
-    <div id="edit-dateCycle-year-option" class="blur-form-field">
-      <select name="year" id="edit-year-field2" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin-top: 10px;">
+    <div id="edit-dateCycle-year-option" >
+      <select name="year" id="edit-year-field2" style="width: 100%; font-size: 1em; text-align: center; height: 35px; margin-top: 10px;" class="blur-form-field">
         <option value="" disabled>Select year...</option>
         ${[2023, 2024, 2025, 2026].map(year => `<option value="${year}" ${dateCycle.Year === String(year) ? 'selected' : ''}>${year}</option>`).join('')}
       </select>
     </div>
 
     <div id="edit-set-date">
-      <div class="date-search fields" style="display: flex; flex-flow: row; padding: 10px; margin: auto; justify-content: center;" >
-        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" class="blur-form-field">
+      <div class="date-search fields" style="display: flex; flex-flow: row; margin: auto; justify-content: center;" >
+        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;margin-left: 0px;" class="blur-form-field">
           <option value="" disabled>Select day...</option>
           ${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${dateCycle.Day === String(i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
         </select>
-        <select name="month" id="edit-month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 35px;" class="blur-form-field">
+        <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 35px;margin-right: 0px;" class="blur-form-field">
           <option value="" disabled>Select month...</option>
           ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
             .map((month, i) => `<option value="${i + 1}" ${dateCycle.Month === String(i + 1) ? 'selected' : ''}>${month}</option>`).join('')}
         </select>
       </div>
 
-      <div id="edit-name-event" style="margin-top: 20px; display: flex; justify-content: center;">
-        <textarea id="edit-add-date-title" placeholder="Event name...">${dateCycle.Event_name || ''}</textarea>
-        <select id="edit-DateColorPicker" name="color" style="padding: 10px; border: 1px solid var(--thin-border-color); border-radius: 0px 5px 5px 0px; font-size: 1.5em; background: var(--header-accent); color: var(--login);">
+      <div id="edit-name-event" style="margin-top: 0px; display: flex; justify-content: center;margin-left: 0px;margin-right: auto; border-radius: 10px 0px 0px 10px;width: 100%;">
+        <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left: 0px;margin-right: auto; border-radius: 10px 0px 0px 10px;width: calc(100% - 80px);">${dateCycle.Event_name || ''}</textarea>
+        <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding: 10px; border-radius: 0px 10px 10px 0px; font-size: 1.5em;width:60px; margin-left: -40px;margin-right: 0px;">
           <option value="green" ${dateCycle.calendar_color === 'green' ? 'selected' : ''}>🟢</option>
           <option value="yellow" ${dateCycle.calendar_color === 'yellow' ? 'selected' : ''}>🟡</option>
           <option value="orange" ${dateCycle.calendar_color === 'orange' ? 'selected' : ''}>🟠</option>
@@ -521,10 +502,10 @@ function editDateCycle(dateCycleID) {
         </select>
       </div>
 
-      <div id="edit-add-note-form" style="margin-top: 20px; margin-bottom: 30px;">
-        <textarea id="edit-add-date-note" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
+      <div id="edit-add-note-form" style="margin-top: 0px; margin-bottom: 0px;">
+        <textarea id="edit-add-date-note" class="blur-form-field" style="width: calc(100% - 10px);padding-right:0px;" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
       </div>
-      <button type="button" id="edit-confirm-dateCycle" onclick="saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
+      <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button" style="width: 100%;" onclick="saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
     </div>
   `;
 

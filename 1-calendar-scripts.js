@@ -84,7 +84,7 @@ function nextYearClick() {
   // document.getElementById("yesterday").style.display = "none";
 
 
-  document.getElementById("current-time").style.display = "none";
+  // document.getElementById("current-time").style.display = "none";
   startDate = targetDate;
 
 }
