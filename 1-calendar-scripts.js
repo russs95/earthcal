@@ -521,7 +521,7 @@ function showUserCalSettings() {
 
 
 
-function closeInfoModal() {
+function closeTheModal() {
   const modal = document.getElementById('form-modal-message');
   modal.classList.remove('modal-visible');
   modal.classList.add('modal-hidden');
@@ -762,7 +762,7 @@ function applySettings() {
   openClock(timezone);
 
   // Close the modal
-  closeInfoModal();
+  closeTheModal();
 }
 
 function displayUserData() {
