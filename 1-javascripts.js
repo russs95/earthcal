@@ -98,15 +98,39 @@ function openDateSearch() {
   });
 
   // Set the target date and trigger setSetDate() function when set-target button is clicked
-  setTargetBtn.addEventListener("click", function() {
-    var day = document.getElementById("day-field").value;
-    var month = document.getElementById("month-field").value;
-    var yeard = searchedYear.textContent;
-    targetDate = new Date(yeard, month - 1, day); // Create a new Date object with the selected values
+setTargetBtn.addEventListener("click", function() {
+    var day = parseInt(document.getElementById("day-field").value);
+    var month = parseInt(document.getElementById("month-field").value);
+    var yeard = parseInt(searchedYear.textContent);
+
+    // Check if the day is reasonable
+    if (day > 31) {
+        alert("Please make sure you're choosing a reasonable date under 31!");
+        return; // Stop the function if the day is invalid
+    }
+
+    // Check if it's February and the day is above 29
+    if (month === 2 && day > 29) {
+        alert("Please make sure you're choosing a reasonable date for February!");
+        return; // Stop the function if the day is invalid for February
+    }
+
+    // Check if it's February in a non-leap year and the day is above 28
+    if (month === 2 && day > 28 && !isLeapYear(yeard)) {
+        alert("Please choose a day under 29 for February in a non-leap year!");
+        return; // Stop the function if the day is invalid for non-leap year February
+    }
+
+    // Create a new Date object with the selected values
+    targetDate = new Date(yeard, month - 1, day);
     searchGoDate(targetDate); // Trigger the setSetDate() function with the targetDate
+});
 
+// Helper function to check if a year is a leap year
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
 
-  });
 }
 
 function searchGoDate() {
@@ -115,6 +139,7 @@ function searchGoDate() {
   updateWeekTitles(currentYear);
   updateDayIds(currentYear);
   updateDayTitles(currentYear);
+alert('Hi.  Please make sure the date is not above 31!');
 
   calendarRefresh();
   
