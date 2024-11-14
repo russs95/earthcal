@@ -1956,7 +1956,7 @@ ADD DATE CURTAIN
     }
 }
 
-
+/*
 textarea#add-date-title {
   width: 50%;
   height: 25px;
@@ -1981,7 +1981,7 @@ textarea#add-date-note {
 font-size: 1.5em;
 background: var(--header-accent);
 color: var(--login);
-}
+}*/
 
 #export-hover-box {
   opacity: 0.5;

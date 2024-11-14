@@ -886,20 +886,20 @@ openPlanetInfoBox();
 
         </div>
 
-        <div id="name-event" style="margin-top: 20px;">
+        <div id="name-event" style="margin: 0px auto 10px auto;width:70%">
           <div style="display: flex;
-          justify-content: center;">
-            <textarea id="add-date-title" placeholder="Event name..." class="blur-form-field"></textarea>
+          justify-content: center;width: 100%;
+  ">
+            <textarea id="add-date-title" placeholder="Event name..." class="blur-form-field" style="margin: 10px auto 10px auto;border-radius: 10px 0px 0px 10px;width:100%;cursor:text;"></textarea>
             <!-- <input type="text" id="add-date-title" placeholder="Event name...">  -->
 
-            <select id="DateColorPicker" name="color" style="padding: 10px;
+            <select id="DateColorPicker" name="color" style="
           resize: none;
-          border: 1px solid var(--thin-border-color);
+              width: 60px;
           border-radius: 0px 5px 5px 0px;
-          margin-bottom: 10px;
+
         font-size: 1.5em;
-        background: var(--header-accent);
-        color: var(--login);
+
         " class="blur-form-field">
             <option value="green">🟢</option>
             <option value="yellow">🟡</option>
@@ -909,7 +909,7 @@ openPlanetInfoBox();
           </select><!-- style="display:none;" -->
         </div>
         <div id="add-note-check-boxed">
-            <input type="checkbox" id="add-note-checkbox">
+            <input type="checkbox" id="add-note-checkbox" class="blur-form-field">
             <label for="add-note-checkbox">Add a note to this event</label>
           </div>
 
@@ -923,7 +923,7 @@ openPlanetInfoBox();
           <textarea id="add-date-note" placeholder="Add a note to this event..."></textarea>
         </div>
 
-        <button type="button" id="confirm-dateCycle" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();">➕ Add</button>
+        <button type="button" id="confirm-dateCycle" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();" class="confirmation-blur-button">➕ Add</button>
 <!--checkAndDisplayMatchingDateCycles()-->
 
       </div>
