@@ -239,9 +239,12 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 function openAddCycle() {
   //document.getElementById("add-a-datecycle").style.display = "block";
-  document.getElementById("add-datecycle").style.width = "100%";
+  // document.getElementById("add-datecycle").style.width = "100%";
   document.body.style.overflowY = "hidden";
   document.body.style.maxHeight = "101vh";
+  document.getElementById("add-datecycle").classList.remove('modal-hidden');
+  document.getElementById("add-datecycle").classList.add('modal-shown');
+  document.getElementById("page-content").classList.add("blur");
 
   // Extract and format the date
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -260,9 +263,13 @@ function openAddCycle() {
 /* Close when someone clicks on the "x" symbol inside the overlay */
 
 function closeAddCycle() {
-    document.getElementById("add-datecycle").style.width = "0%";
+    //document.getElementById("add-datecycle").style.width = "0%";
     document.body.style.overflowY = "unset";
     document.body.style.maxHeight = "unset";
+
+    document.getElementById("add-datecycle").classList.add('modal-hidden');
+  document.getElementById("add-datecycle").classList.remove('modal-shown');
+  document.getElementById("page-content").classList.remove("blur");
     
     // Reset select-cal to default value
     let selectCal = document.getElementById("select-cal");

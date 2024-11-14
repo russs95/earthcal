@@ -1884,7 +1884,7 @@ ADD DATE CURTAIN
 
 
 #add-datecycle {
-  background-color: var(--side-overlays) /*var(--overlays-and-headers:)*/; 
+  /*background-color: var(--side-overlays) */;
   color:  var(--text-color); /*var(--text-color)*/ ;
   z-index: 56;
 }
@@ -1893,7 +1893,7 @@ ADD DATE CURTAIN
 /* Table of Contents Menu (background) */
 .overlay-add-datecycle {
   height: 100%;
-  width: 0%;
+  width: 100%;
   position: fixed; /* Stay in place */
   z-index: 21; /* Sit on top */
   right: 0;
