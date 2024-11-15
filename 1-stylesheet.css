@@ -2513,7 +2513,7 @@ INFO MODAL
 
   .confirmation-blur-button:hover {
   background: var(--form-conf-background-over);
-  color: var(--h1);  /*fixed? */
+  color: grey;  /*fixed? */
   }
 
 

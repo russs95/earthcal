@@ -760,7 +760,7 @@ function listenForMonthBreakout() {
   ];
 
   // Filter to only include May and June
-  const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'january'];
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
@@ -806,7 +806,7 @@ function listenForCloseBreakout() {
   ];
 
     // Filter to only include May and June
-    const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'january'];
 
   monthNames.forEach(month => {
     const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
@@ -853,7 +853,7 @@ function closeCurrentBreakout(callback) {
   ];
 
   // Filter to only include May and June
-  const targetMonths = ['may', 'june', 'july', 'august','september', 'october', 'november', 'december'];
+  const targetMonths = ['may', 'june', 'july', 'august','september', 'october', 'november', 'december', 'january'];
 
   // Function to change the display style of day divs and possibly add a class
   const setDisplay = (id, displayStyle, addClass) => {
