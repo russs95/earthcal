@@ -1,3 +1,19 @@
+
+#npx electron-builder --linux snap
+# sudo snap remove earthcal
+# sudo snap install --dangerous dist/earthcal_0.7.9_amd64.snap
+# earthcal
+
+
+
+# snapcraft login
+# snapcraft upload dist/earthcal_0.7.9_amd64.snap
+# snapcraft release earthcal edge
+# sudo snap remove earthcal
+# sudo snap install earthcal --edge
+# OR  sudo snap refresh earthcal --edge
+
+
 name: earthcal
 version: '0.7.9'
 summary: Earthcal | EarthCycles Calendar

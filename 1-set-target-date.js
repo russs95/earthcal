@@ -11,7 +11,7 @@ HIGHLIGHT CURRENT DATE
 function updateTargetDay() {
   const startOfYear = new Date(Date.UTC(targetDate.getFullYear(), 0, 1));
   const diff = targetDate.getTime() - startOfYear.getTime();
-  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24)+2);
   const dayIdStart = `${dayOfYear}-`;
 
   const svg = document.querySelector('svg');
@@ -67,7 +67,7 @@ function setYearsMonthsOn() {
   // Determine if the year is a leap year
   const isLeapYear = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0));
 
-  // alert('Is ' + year + 'setYearsMonthsOn() a leap year? ' + isLeapYear);
+//  alert('Is ' + year + 'setYearsMonthsOn() a leap year? ' + isLeapYear);
 
   // Get the SVG groups by their IDs
   const solarMonths366 = document.getElementById('solar_months_366');

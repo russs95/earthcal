@@ -1,10 +1,10 @@
 {
-  "name": "Earthcal",
+  "name": "earthcal",
   "version": "0.7.9",
   "description": "Sync your cycles with Earth",
   "main": "main.js",
   "scripts": {
-    "start": "electron . --no-sandbox",
+    "start": "electron .",
     "package": "electron-builder"
   },
   "repository": {
@@ -28,35 +28,59 @@
   "homepage": "https://github.com/russs95/earthcalendar#readme",
   "devDependencies": {
     "electron": "^32.1.0",
-    "electron-builder": "^25.0.5",
+    "electron-builder": "^25.1.8",
     "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^8.1.0"
   },
   "build": {
     "appId": "com.example.earthcal",
     "productName": "EarthCal",
     "asar": true,
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "**/*",
+      "!dist/**",
       "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/*.{o,hprof,orig,pyc,pyo,rbc}",
       "!*.{iml}"
     ],
     "linux": {
       "target": [
-        "AppImage",
-        "deb",
-        "tar.gz"
+        "snap"
       ],
-      "category": "Utility"
+      "category": "Utility",
+      "icon": "build/icon.png"
     },
+
+
+    "snap": {
+  "plugs": [
+    "desktop",
+     "browser-support",
+    "network",
+    "network-bind",
+    "desktop-legacy",
+    "opengl",
+    "wayland",
+    "x11",
+
+  ]
+},
+
     "extraResources": [
       {
         "from": "resources/",
         "to": "resources",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }

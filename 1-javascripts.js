@@ -750,47 +750,48 @@ document.querySelector("#information-six .back").onclick = function() {
 }
 
 
+/*************************
 
+// BREAKOUTS
+
+
+/*****************************/
 
 // LISTEN FOR BREAKOUT CLICK
 function listenForMonthBreakout() {
   const monthNames = [
-    'january', 'february', 'march', 'april', 'may', 'june', 
-    'july', 'august', 'september', 'october', 'november', 'december'
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december',
   ];
-
-  // Filter to only include May and June
-  const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'january'];
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
   const allDaymarkers = document.getElementById('all-daymarkers');
   const lunarMonths = document.getElementById('lunar_months-12');
 
-  targetMonths.forEach((month, index) => {
+  monthNames.forEach((month, index) => {
     const monthDiv = document.getElementById(`${month}_366`);
     const monthIntentions = document.getElementById(`${month}-intentions`);
     const monthNumber = monthNames.indexOf(month) + 1;
-
     const intentionsDiv = document.getElementById(`${month}-intention-month-name`);
 
     // OPEN:
     monthDiv.addEventListener('click', () => {
       allDaymarkers.style.opacity = '0';
-      dayLinesDiv.style.opacity = '0'; 
-      lunarMonths.style.opacity = '0'; 
+      dayLinesDiv.style.opacity = '0';
+      lunarMonths.style.opacity = '0';
       intentionsDiv.style.display = 'block';
 
       setTimeout(() => {
-        solarCenterDiv.style.opacity = '0'; 
-        monthDiv.style.opacity = '1'; 
+        solarCenterDiv.style.opacity = '0';
+        monthDiv.style.opacity = '1';
       }, 500);
 
       setTimeout(() => breakoutTheMonth(month, monthNumber), 700);
 
       setTimeout(() => {
-        monthIntentions.style.display = 'block'; 
-        monthIntentions.style.opacity = '1'; 
+        monthIntentions.style.display = 'block';
+        monthIntentions.style.opacity = '1';
       }, 1000);
     });
   });
@@ -801,21 +802,16 @@ function listenForMonthBreakout() {
 
 function listenForCloseBreakout() {
   const monthNames = [
-    'january', 'february', 'march', 'april', 'may', 'june', 
+    'january', 'february', 'march', 'april', 'may', 'june',
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
-
-    // Filter to only include May and June
-    const targetMonths = ['may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'january'];
 
   monthNames.forEach(month => {
     const monthBreakoutCloseDiv = document.getElementById(`${month}-breakout-close`);
 
-
     if (monthBreakoutCloseDiv) {
       monthBreakoutCloseDiv.addEventListener('click', () => {
         console.log("Close button clicked:", monthBreakoutCloseDiv.id); // Debug log
-   
 
         closeCurrentBreakout(() => {
           const solarCenterDiv = document.getElementById('solar-system-center');
@@ -824,16 +820,14 @@ function listenForCloseBreakout() {
           const lunarMonths = document.getElementById('lunar_months-12');
           const theMonth = document.getElementById(`${month}_366`);
 
-
-
           setTimeout(() => {
             dayLinesDiv.style.opacity = '1';
-            theMonth.style.opactiy ='0.66';
+            theMonth.style.opacity = '0.66';
           }, 0);
 
           setTimeout(() => {
             solarCenterDiv.style.opacity = '1';
-            lunarMonths.style.opacity = '1'; 
+            lunarMonths.style.opacity = '1';
           }, 800);
 
           setTimeout(() => {
@@ -848,12 +842,9 @@ function listenForCloseBreakout() {
 
 function closeCurrentBreakout(callback) {
   const monthNames = [
-    'january', 'february', 'march', 'april', 'may', 'june', 
+    'january', 'february', 'march', 'april', 'may', 'june',
     'july', 'august', 'september', 'october', 'november', 'december'
   ];
-
-  // Filter to only include May and June
-  const targetMonths = ['may', 'june', 'july', 'august','september', 'october', 'november', 'december', 'january'];
 
   // Function to change the display style of day divs and possibly add a class
   const setDisplay = (id, displayStyle, addClass) => {
@@ -869,7 +860,7 @@ function closeCurrentBreakout(callback) {
   let closeDuration = 0;
   let closeOperations = [];
 
-  targetMonths.forEach(month => {
+  monthNames.forEach(month => {
     const otherMonthBreakout = document.getElementById(`${month}-breakout`);
     const otherMonthIntentions = document.getElementById(`${month}-intentions`);
     if (otherMonthBreakout && otherMonthBreakout.style.display === 'block') {
@@ -896,6 +887,16 @@ function closeCurrentBreakout(callback) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
 function breakoutTheMonth(monthName, monthNumber) {
   closeCurrentBreakout(() => {
     const monthBreakout = document.getElementById(`${monthName}-breakout`);
@@ -911,50 +912,67 @@ function breakoutTheMonth(monthName, monthNumber) {
       }
     };
 
-    // Check the current display status of the month breakout
-    if (monthBreakout.style.display === 'none' || !monthBreakout.style.display) {
-      // Set all day div groups to display none
-      const daysInMonth = new Date(2024, monthNumber, 0).getDate(); // Get the number of days in the month
-      for (let i = 1; i <= daysInMonth; i++) {
-        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-        setDisplay(dayId, 'none');
-      }
+    // Get the current year from the div with id 'current-year'
+    const currentYear = parseInt(document.getElementById('current-year').textContent);
 
-      // Set the month breakout to display block
-      monthBreakout.style.display = 'block';
+    // Set global targetDate to the first day of the selected month
+    targetDate = new Date(currentYear, monthNumber - 1, 1);
 
-      // Sequentially set each day div to display block
-      for (let i = 1; i <= daysInMonth; i++) {
-        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-        setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
-      }
-
-      // Check if targetDate is in the specified month and highlight the corresponding day
-      const targetDateObj = new Date(targetDate);
-      if (targetDateObj.getMonth() === monthNumber - 1) {  // Months are zero-indexed
-        const day = targetDateObj.getDate().toString().padStart(2, '0');
-        const dayId = `${day}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-        setTimeout(() => setDisplay(dayId, 'block', 'active-break'), day * 22);
-      }
-
-      calendarRefresh();
-      listenForCloseBreakout();  // Initialize the close listeners after refreshing the calendar
-
-    } else {
-      // Sequentially set each day div to display none in reverse order
-      const daysInMonth = new Date(2024, monthNumber, 0).getDate(); // Get the number of days in the month
-      for (let i = daysInMonth; i >= 1; i--) {
-        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-        setTimeout(() => setDisplay(dayId, 'none'), (daysInMonth - i + 1) * 22);  // Adjusted to 0.22 seconds
-      }
-
-      // Finally, set the month breakout to display none
-      setTimeout(() => {
-        monthBreakout.style.display = 'none';
-      }, daysInMonth * 22 + 100);  // Adjusted delay to ensure all days are hidden first
+    // Set all day div groups to display none
+    const daysInMonth = new Date(currentYear, monthNumber, 0).getDate(); // Get the number of days in the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+      setDisplay(dayId, 'none');
     }
+
+    // Set the month breakout to display block
+    monthBreakout.style.display = 'block';
+
+    // Sequentially set each day div to display block
+    for (let i = 1; i <= daysInMonth; i++) {
+      let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+      setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
+    }
+
+    // Highlight the first day of the month
+    const dayId = `01-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+    setTimeout(() => setDisplay(dayId, 'block', 'active-break'), 22);
+
+    // Update breakout days of the week
+    updateBreakoutDaysOfWeek(targetDate);
+
+    calendarRefresh();
+    listenForCloseBreakout();  // Initialize the close listeners after refreshing the calendar
   });
 }
+
+function updateBreakoutDaysOfWeek(targetDate) {
+  const daysInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate();
+  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dayOfWeek = new Date(targetDate.getFullYear(), targetDate.getMonth(), i).getDay();
+    const dayTextId = `break_out_text_${i.toString().padStart(2, '0')}_${(targetDate.getMonth() + 1).toString().padStart(2, '0')}`;
+    const dayTextDiv = document.getElementById(dayTextId);
+
+    if (dayTextDiv) {
+      const tspanElement = dayTextDiv.querySelector('tspan');
+      if (tspanElement) {
+        tspanElement.innerHTML = dayNames[dayOfWeek];
+      }
+    }
+  }
+
+//  alert(`Days of the week for ${targetDate.toDateString()} are set!`);
+}
+
+
+
+
+
+
+
+
 
 
 // Function to toggle the views for solar and lunar for a particular month
@@ -1003,11 +1021,7 @@ function attachEventListeners() {
 document.addEventListener('DOMContentLoaded', attachEventListeners);
 
 
-
 // MONTH PHASE DISPLAY ON BREAKOUTS
-
-// Globally preset variable for the current year
-// const currentYear = 2024; // Set this to the appropriate value
 
 // Function to display moon phase on breakout touch or mouseover
 function displayMoonPhaseOnBreakoutTouch(event) {
@@ -1027,18 +1041,12 @@ function displayMoonPhaseOnBreakoutTouch(event) {
     const day = parseInt(dateParts[0]);
     const month = parseInt(dateParts[1]) - 1; // month is 0-indexed in JavaScript
     const year = currentYear; // Use the globally preset currentYear
-    
+
     const date = new Date(year, month, day);
 
-
-    // Display an alert with the picked day, month, and year
-    // alert(`Path: ${pathID},Day: ${day}, Month: ${month + 1}, Year: ${year}, date: ${date}`);
-    
-    
     // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
     displayMoonPhaseInDiv(date);
     updateMoonPhase(date);
-
   }
 }
 
@@ -1054,17 +1062,4 @@ function attachBreakoutTouchListeners() {
 // Attach event listeners when the DOM content is loaded
 document.addEventListener('DOMContentLoaded', attachBreakoutTouchListeners);
 
-// Example implementation of displayMoonPhaseInDiv function
-function displayMoonPhaseInDiv(date) {
-  // Your code to display the moon phase details in a div
-  console.log(`Displaying moon phase for date: ${date}`);
-}
-
-// Example implementation of displayDayInfo function
-function displayDayInfo(date) {
-  // Your code to display the day information
-  console.log(`Displaying day info for date: ${date}`);
-}
-
-;
 

@@ -5,6 +5,10 @@ const jsyaml = require('js-yaml');
 
 let mainWindow;
 
+app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
+app.commandLine.appendSwitch('disable-features', 'RendererCodeIntegrity');
+
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -90,7 +94,7 @@ function createWindow() {
     {
       label: 'About',
       submenu: [
-        
+
         {
           label: 'Created by Earthen.io',
           click: () => shell.openExternal('https://earthen.io'),
@@ -154,7 +158,7 @@ function showLicenseDialog() {
     dialog.showMessageBox({
       type: 'info',
       title: `${snapcraftData.name} ${snapcraftData.version}`,
-      detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code. 
+      detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code.
       `,
 
       buttons: ['OK'],
@@ -174,12 +178,12 @@ function showLicenseDialog() {
 
 function uploadDateCycles() {
   const fileInput = document.getElementById('jsonUpload');
-  
+
   if (fileInput.files.length === 0) {
       alert('Please select a JSON file to upload.');
       return;
   }
-  
+
   const file = fileInput.files[0];
   const reader = new FileReader();
 
@@ -214,6 +218,9 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+
+
 
 
 
