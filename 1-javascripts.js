@@ -1,9 +1,7 @@
 
-
-/* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS   */
+/* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 
 let startCoords = { cx: 0, cy: 0 };
-
 
 let targetDate;
 let startDate;
@@ -11,144 +9,206 @@ let year = 2024;
 let currentDate;
 let dayOfYear;
 
+/* Used in set2Today
+ * Sets the current date and initializes targetDate and startDate
+ */
 
-//Used in set2Today (maybe it should be integrated into it if this isn't used else where?)
-//Setting the date but not the current year
-function setCurrentDate() {
+
+//THE NEXT FOCUS PROJECT
+//Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
+
+// Global variables for timezone and language
+let timezone;
+let language;
+
+function getUserDetails() {
+  // Get the user's timezone offset and format it
+  const timezoneOffset = -new Date().getTimezoneOffset() / 60;
+  timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
+
+  // Get the user's language from various sources
+  const browserLanguage = navigator.language || navigator.userLanguage; // Primary
+  const acceptLanguage = navigator.languages && navigator.languages[0]; // Fallback
+
+  // Use the first detected language or default to 'EN'
+  const detectedLanguage = (browserLanguage || acceptLanguage || 'en').slice(0, 2).toUpperCase();
+  language = detectedLanguage;
+
+  // Debugging logs
+  console.log(`Browser language: ${browserLanguage}`);
+  console.log(`Accept-Language: ${acceptLanguage}`);
+  console.log(`Detected language: ${language}`);
+
+  // Set the global variable targetDate based on the user's timezone
   let currentDate = new Date();
   startDate = new Date(currentDate.getFullYear(), 0, 1);
   targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 
+  // Call displayUserData with the timezone and language
+  displayUserData(timezone, language);
+
+  // Call displayDayInfo with the date, language, and timezone
+  displayDayInfo(targetDate);
+
+
 }
 
 
+function setCurrentDate() {
+  let currentDate = new Date();
+  startDate = new Date(currentDate.getFullYear(), 0, 1);
+  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+}
 
+/* DAY SEARCH FUNCTIONS */
 
-
-
-/* DAY SEARCH FUNCTION*/
-
+// Close the day search modal
 function closeSearchModal() {
-  var modal = document.getElementById("day-search");
-  var underContent = document.getElementById("page-content");
-underContent.classList.remove('blur');
-  modal.classList.remove('modal-shown');
-  modal.classList.add('modal-hidden');
+  const modal = document.getElementById("day-search");
+  const underContent = document.getElementById("page-content");
 
-//   document.getElementById("page-content").classList.remove("blur");
+  underContent.classList.remove("blur");
+  modal.classList.remove("modal-shown");
+  modal.classList.add("modal-hidden");
 }
 
+// Open the day search modal
 function openDateSearch() {
-  var modal = document.getElementById("day-search");
-//  modal.style.display = "block";
+
+    const modal = document.getElementById("day-search");
+
+    // Use the global 'language' variable to fetch translations, defaulting to English (EN) if undefined or unsupported
+    const translations = openDateSearchTranslations[language] || openDateSearchTranslations.EN;
+
+    // Populate the title
+    document.getElementById("date-search-title").textContent = translations.title;
+
+    // Set placeholder for the day input
+    const dayField = document.getElementById("day-field");
+    dayField.placeholder = translations.placeholderDay;
+
+    // Populate months in the select dropdown
+    const monthField = document.getElementById("month-field");
+    monthField.innerHTML = ""; // Clear existing options
+    translations.months.forEach((month, index) => {
+        const option = document.createElement("option");
+        option.value = index + 1;
+        option.textContent = month;
+        monthField.appendChild(option);
+    });
+
+    // Set year buttons text
+    const prevYearButton = document.getElementById("prev-year-search");
+    const nextYearButton = document.getElementById("next-year-search");
+    prevYearButton.setAttribute("aria-label", translations.prevYear);
+    prevYearButton.setAttribute("title", translations.prevYear);
+    nextYearButton.setAttribute("aria-label", translations.nextYear);
+    nextYearButton.setAttribute("title", translations.nextYear);
+
+    // Set the Go to Date button text
+    const searchButton = document.getElementById("search-button");
+    searchButton.textContent = translations.goToDate;
+
+    // Initialize the target button
+    const setTargetBtn = document.getElementById("search-button");
+
     // Show the modal
-//  const modal = document.getElementById('form-modal-message');
-  modal.classList.remove('modal-hidden');
-  modal.classList.add('modal-shown');
-  document.getElementById("page-content").classList.add("blur");
+    modal.classList.remove("modal-hidden");
+    modal.classList.add("modal-shown");
+    document.getElementById("page-content").classList.add("blur");
 
-  // Retrieve the searched-year element
-  var searchedYear = document.querySelector(".searched-year");
-
-  // Retrieve the set-target button
-  var setTargetBtn = document.getElementById("search-button");
-
-  // Set initial year value
-  var year = targetDate.getFullYear(); // Use the year value from targetDate
-  searchedYear.textContent = year;
-
-  // Set the day field to the day value from targetDate
-  document.getElementById("day-field").value = targetDate.getDate();
-
-  // Set the month field to the month value from targetDate
-  document.getElementById("month-field").value = targetDate.getMonth() + 1;
-
-
-  // Decrease year by one when left arrow is clicked
-  document.getElementById("prev-year-search").addEventListener("click", function() {
-    year--;
+    // Set default values
+    const searchedYear = document.querySelector(".searched-year");
+    let year = targetDate.getFullYear();
     searchedYear.textContent = year;
-    targetDate.setFullYear(year);
-    targetDate.setMonth(0);
-    targetDate.setDate(1);
-    searchGoDate(targetDate); // Call searchGoDate() function with the updated targetDate
-    const currentYearText = document.getElementById('current-year').querySelector('tspan');
-  currentYearText.textContent = (year).toString();
-  updateWeekTitles(year);
-  updateDayIds(year);
-  updateDayTitles(year);
 
-  });
+    dayField.value = targetDate.getDate();
+    monthField.value = targetDate.getMonth() + 1;
 
-  // Increase year by one when right arrow is clicked
-  document.getElementById("next-year-search").addEventListener("click", function() {
-    year++;
-    searchedYear.textContent = year;
-    targetDate.setFullYear(year);
-    targetDate.setMonth(0);
-    targetDate.setDate(1);
-    searchGoDate(targetDate); // Call searchGoDate() function with the updated targetDate
-    const currentYearText = document.getElementById('current-year').querySelector('tspan');
+    // Add event listener for the search button
+    setTargetBtn.addEventListener("click", function () {
+        const day = parseInt(dayField.value, 10);
+        const month = parseInt(monthField.value, 10);
+        const yeard = parseInt(searchedYear.textContent, 10);
 
-  currentYearText.textContent = (year).toString();
-  updateWeekTitles(year);
-  updateDayIds(year);
-  updateDayTitles(year);
+        if (!validateDate(day, month, yeard)) return;
 
-  });
+        targetDate = new Date(yeard, month - 1, day);
+        searchGoDate(targetDate);
+    });
 
-  // Set the target date and trigger setSetDate() function when set-target button is clicked
-setTargetBtn.addEventListener("click", function() {
-    var day = parseInt(document.getElementById("day-field").value);
-    var month = parseInt(document.getElementById("month-field").value);
-    var yeard = parseInt(searchedYear.textContent);
+    // Handle event listeners for year navigation
+    prevYearButton.addEventListener("click", function () {
+        year--;
+        searchedYear.textContent = year;
+        targetDate.setFullYear(year);
+        targetDate.setMonth(0);
+        targetDate.setDate(1);
+        searchGoDate(targetDate);
+    });
 
-    // Check if the day is reasonable
+    nextYearButton.addEventListener("click", function () {
+        year++;
+        searchedYear.textContent = year;
+        targetDate.setFullYear(year);
+        targetDate.setMonth(0);
+        targetDate.setDate(1);
+        searchGoDate(targetDate);
+    });
+}
+
+
+
+// Update the year and refresh associated UI
+function updateYear(year, searchedYearElement) {
+  searchedYearElement.textContent = year;
+  targetDate.setFullYear(year);
+  targetDate.setMonth(0);
+  targetDate.setDate(1);
+
+  searchGoDate(targetDate);
+}
+
+// Validate the selected date and return true if valid
+function validateDate(day, month, year) {
+    const translations = openDateSearchTranslations[language] || openDateSearchTranslations.EN;
+
     if (day > 31) {
-        alert("Please make sure you're choosing a reasonable date under 31!");
-        return; // Stop the function if the day is invalid
+        alert(translations.invalidDay);
+        return false;
     }
 
-    // Check if it's February and the day is above 29
     if (month === 2 && day > 29) {
-        alert("Please make sure you're choosing a reasonable date for February!");
-        return; // Stop the function if the day is invalid for February
+        alert(translations.invalidFebruary);
+        return false;
     }
 
-    // Check if it's February in a non-leap year and the day is above 28
-    if (month === 2 && day > 28 && !isLeapYear(yeard)) {
-        alert("Please choose a day under 29 for February in a non-leap year!");
-        return; // Stop the function if the day is invalid for non-leap year February
+    if (month === 2 && day > 28 && !isLeapYear(year)) {
+        alert(translations.invalidLeapYear);
+        return false;
     }
 
-    // Create a new Date object with the selected values
-    targetDate = new Date(yeard, month - 1, day);
-    searchGoDate(targetDate); // Trigger the setSetDate() function with the targetDate
-});
+    return true;
+}
+
 
 // Helper function to check if a year is a leap year
 function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
-}
-
+// Update the calendar for the selected date
 function searchGoDate() {
-  const currentYear = parseInt(currentYearText.textContent);
-  currentYearText.textContent = (currentYear).toString();
+  const currentYear = parseInt(currentYearText.textContent, 10);
+  currentYearText.textContent = currentYear.toString();
+
   updateWeekTitles(currentYear);
   updateDayIds(currentYear);
   updateDayTitles(currentYear);
-alert('Hi.  Please make sure the date is not above 31!');
 
   calendarRefresh();
-  
-  // document.getElementById("reset").style.display = "block";
-  // document.getElementById("tomorrow").style.display = "block";
-  // document.getElementById("yesterday").style.display = "block";
-
-
 }
+
 
 
 /*Updates certain colors to the Dark or Light theme*/
@@ -232,9 +292,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
-
-
 /* ADD CYCLE OVERLAY */
 
 function openAddCycle() {
@@ -257,36 +314,52 @@ function openAddCycle() {
   // Update the text in the div
   const titleElement = document.getElementById("add-event-title");
   titleElement.textContent = `Add an event for ${formattedDate}`;
+
+  // Add listener for Enter key to submit the form
+  document.addEventListener("keydown", handleEnterKeySubmit);
 }
 
+function handleEnterKeySubmit(event) {
+  if (event.key === "Enter") {
+    event.preventDefault(); // Prevent default action (if any)
+    const form = document.getElementById("dateCycleForm");
+    if (form) {
+      form.querySelector("#confirm-dateCycle-button").click(); // Trigger the form submit button
+    }
+  }
+}
 
 /* Close when someone clicks on the "x" symbol inside the overlay */
 
 function closeAddCycle() {
-    //document.getElementById("add-datecycle").style.width = "0%";
-    document.body.style.overflowY = "unset";
-    document.body.style.maxHeight = "unset";
+  //document.getElementById("add-datecycle").style.width = "0%";
+  document.body.style.overflowY = "unset";
+  document.body.style.maxHeight = "unset";
 
-    document.getElementById("add-datecycle").classList.add('modal-hidden');
+  document.getElementById("add-datecycle").classList.add('modal-hidden');
   document.getElementById("add-datecycle").classList.remove('modal-shown');
   document.getElementById("page-content").classList.remove("blur");
-    
-    // Reset select-cal to default value
-    let selectCal = document.getElementById("select-cal");
-    if(selectCal) selectCal.value = "Select Calendar...";
-    
-    // Reset dateCycle-type to default value
-    let dateCycleType = document.getElementById("dateCycle-type");
-    if(dateCycleType) dateCycleType.value = "Select frequency...";
-    
-    // Hide the datecycle-setter div
-    let datecycleSetter = document.getElementById("datecycle-setter");
-    if(datecycleSetter) datecycleSetter.style.display = "none";
-    
-    // Reset the value of add-date-title
-    let addDateTitle = document.getElementById("add-date-title");
-    if(addDateTitle) addDateTitle.value = "";
+
+  // Reset select-cal to default value
+  let selectCal = document.getElementById("select-cal");
+  if (selectCal) selectCal.value = "Select Calendar...";
+
+  // Reset dateCycle-type to default value
+  let dateCycleType = document.getElementById("dateCycle-type");
+  if (dateCycleType) dateCycleType.value = "Select frequency...";
+
+  // Hide the datecycle-setter div
+  let datecycleSetter = document.getElementById("datecycle-setter");
+  if (datecycleSetter) datecycleSetter.style.display = "none";
+
+  // Reset the value of add-date-title
+  let addDateTitle = document.getElementById("add-date-title");
+  if (addDateTitle) addDateTitle.value = "";
+
+  // Remove the Enter key listener
+  document.removeEventListener("keydown", handleEnterKeySubmit);
 }
+
 
 
 

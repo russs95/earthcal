@@ -80,7 +80,7 @@ function createWindow() {
       submenu: [
         {
           label: 'EarthCal Online',
-          click: () => shell.openExternal('https://calendar.earthen.io'),
+          click: () => shell.openExternal('https://cycles.earthen.io'),
         },
         {
           label: 'Calendar Guide Wiki',
@@ -99,10 +99,11 @@ function createWindow() {
           label: 'Created by Earthen.io',
           click: () => shell.openExternal('https://earthen.io'),
         },
-        {
+        <!-- {
           label: 'GitHub Repository',
           click: () => shell.openExternal('https://github.com/russs95/earthcycles'),
         },
+        -->
         {
           label: 'License',
           click: () => showLicenseDialog(),
@@ -123,28 +124,29 @@ function createWindow() {
 }
 
 function showAboutDialog() {
-  const snapcraftPath = path.join(__dirname, 'snap', `snapcraft.yaml`);
+  const packagePath = path.join(__dirname, 'package.json');
 
-  if (fs.existsSync(snapcraftPath)) {
-    const snapcraftContent = fs.readFileSync(snapcraftPath, 'utf8');
-    const snapcraftData = jsyaml.load(snapcraftContent);
+  if (fs.existsSync(packagePath)) {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageData = JSON.parse(packageContent);
 
     dialog.showMessageBox({
       type: 'info',
-      title: snapcraftData.summary,
+      title: packageData.description,
       detail: `Sync your moments with Earth's cycles.`,
-      message: `${snapcraftData.name} ${snapcraftData.version}`,
+      message: `${packageData.name} ${packageData.version}`,
       buttons: ['OK'],
     });
   } else {
     dialog.showMessageBox({
       type: 'error',
       title: 'Error',
-      message: 'Snapcraft.yaml file not found.',
+      message: 'Package.json file not found.',
       buttons: ['OK'],
     });
   }
 }
+
 
 
 
@@ -230,5 +232,11 @@ app.on('window-all-closed', () => {
 // snapcraft login
 // snapcraft push earthcal_0.4.15_amd64.snap
 //sudo snap refresh earthcal
+////// npx electron-builder --linux snap
+//sudo snap install --dangerous dist/earthcal_0.9.0_amd64.snap
+//snapcraft login
+//snapcraft upload dist/earthcal_0.9.0_amd64.snap
+//snapcraft release earthcal 63 stable
+
 
 

@@ -340,83 +340,13 @@ function handleTouchEnd() {
 
 
 
-//THE NEXT FOCUS PROJECT
-//Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
-
-// Global variables for timezone and language
-let timezone;
-let language;
-
-function getUserDetails() {
-  // Get the user's timezone offset and format it
-  const timezoneOffset = -new Date().getTimezoneOffset() / 60;
-  timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-
-  // Get the user's language and truncate it to the first two characters, then capitalize them
-  language = (navigator.language || navigator.userLanguage).slice(0, 2).toUpperCase();
-
-  // Set the global variable targetDate based on the user's timezone
-  let currentDate = new Date();
-  startDate = new Date(currentDate.getFullYear(), 0, 1);
-  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-
-  // Call displayUserData with the timezone and language
-  displayUserData(timezone, language);
-
-  // Call displayDayInfo with the date, language, and timezone
-  displayDayInfo(targetDate);
-
-}
 
 
 
 
 function displayDayInfo(date) {
   // Define the day and month names for each language
-  const daysOfWeek = {
-    EN: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    ID: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-    FR: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-    ES: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-    DE: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-    AR: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-  };
 
-  const monthsOfYear = {
-    EN: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    ID: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-    FR: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-    ES: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-    DE: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-    AR: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
-  };
-
-  const ordinalSuffixes = {
-    EN: ['st', 'nd', 'rd', 'th'],
-    ID: ['', '', '', ''],
-    FR: ['er', '', '', ''],
-    ES: ['', '', '', ''],
-    DE: ['.', '.', '.', '.'],
-    AR: ['', '', '', '']
-  };
-
-  const dayTranslations = {
-    EN: 'Day',
-    ID: 'Hari',
-    FR: 'Jour',
-    ES: 'Día',
-    DE: 'Tag',
-    AR: 'يوم'
-  };
-
-  const ofTranslations = {
-    EN: 'of',
-    ID: 'dari',
-    FR: 'de',
-    ES: 'de',
-    DE: 'von',
-    AR: 'من'
-  };
 
   // Use the corresponding day and month names based on the user's language
   const dayOfWeek = daysOfWeek[language] ? daysOfWeek[language][date.getDay()] : daysOfWeek['EN'][date.getDay()];
@@ -451,73 +381,80 @@ function displayDayInfo(date) {
 
 
 
-
-
 function showUserCalSettings() {
-  // Define the list of timezones with principal cities
-  const timezones = [
-    { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
-    { value: 'UTC-11', label: 'UTC-11 | Niue' },
-    { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian' },
-    { value: 'UTC-9', label: 'UTC-9 | Alaska' },
-    { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
-    { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
-    { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
-    { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
-    { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
-    { value: 'UTC-3', label: 'UTC-3 | Buenos Aires' },
-    { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
-    { value: 'UTC-1', label: 'UTC-1 | Azores' },
-    { value: 'UTC+0', label: 'UTC+0 | London, UK' },
-    { value: 'UTC+1', label: 'UTC+1 | Berlin, Germany' },
-    { value: 'UTC+2', label: 'UTC+2 | Cairo' },
-    { value: 'UTC+3', label: 'UTC+3 | Moscow' },
-    { value: 'UTC+4', label: 'UTC+4 | Dubai' },
-    { value: 'UTC+5', label: 'UTC+5 | Karachi' },
-    { value: 'UTC+6', label: 'UTC+6 | Dhaka' },
-    { value: 'UTC+7', label: 'UTC+7 | Jakarta, Indonesia' },
-    { value: 'UTC+8', label: 'UTC+8 | Bali, Indonesia' },
-    { value: 'UTC+9', label: 'UTC+9 | Tokyo' },
-    { value: 'UTC+10', label: 'UTC+10 | Sydney' },
-    { value: 'UTC+11', label: 'UTC+11 | Solomon Islands' },
-    { value: 'UTC+12', label: 'UTC+12 | Fiji' },
-    { value: 'UTC+13', label: 'UTC+13 | Tonga' },
-    { value: 'UTC+14', label: 'UTC+14 | Kiritimati' }
-  ];
+    // Define the list of timezones with principal cities
+    const timezones = [
+        { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
+        { value: 'UTC-11', label: 'UTC-11 | Niue' },
+        { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian' },
+        { value: 'UTC-9', label: 'UTC-9 | Alaska' },
+        { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
+        { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
+        { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
+        { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
+        { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
+        { value: 'UTC-3', label: 'UTC-3 | Buenos Aires' },
+        { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
+        { value: 'UTC-1', label: 'UTC-1 | Azores' },
+        { value: 'UTC+0', label: 'UTC+0 | London, UK' },
+        { value: 'UTC+1', label: 'UTC+1 | Berlin, Germany' },
+        { value: 'UTC+2', label: 'UTC+2 | Cairo' },
+        { value: 'UTC+3', label: 'UTC+3 | Moscow' },
+        { value: 'UTC+4', label: 'UTC+4 | Dubai' },
+        { value: 'UTC+5', label: 'UTC+5 | Karachi' },
+        { value: 'UTC+6', label: 'UTC+6 | Dhaka' },
+        { value: 'UTC+7', label: 'UTC+7 | Jakarta, Indonesia' },
+        { value: 'UTC+8', label: 'UTC+8 | Bali, Indonesia' },
+        { value: 'UTC+9', label: 'UTC+9 | Tokyo' },
+        { value: 'UTC+10', label: 'UTC+10 | Sydney' },
+        { value: 'UTC+11', label: 'UTC+11 | Solomon Islands' },
+        { value: 'UTC+12', label: 'UTC+12 | Fiji' },
+        { value: 'UTC+13', label: 'UTC+13 | Tonga' },
+        { value: 'UTC+14', label: 'UTC+14 | Kiritimati' }
+    ];
 
-  // Create options for the timezone select element
-  let timezoneOptions = timezones.map(tz =>
-    `<option value="${tz.value}" ${tz.value === timezone ? 'selected' : ''}>${tz.label}</option>`
-  ).join('');
+    // Create options for the timezone select element
+    let timezoneOptions = timezones.map(tz =>
+        `<option value="${tz.value}" ${tz.value === timezone ? 'selected' : ''}>${tz.label}</option>`
+    ).join('');
 
-  // Insert a form into the modal content for the user to choose timezone and language
-  const modalContent = document.getElementById('modal-content');
-  modalContent.innerHTML = `
-    <div class="top-settings-icon"></div>
-    <form id="user-settings-form">
-      <div style="cursor:pointer;"><select id="timezone" name="timezone" class="blur-form-field" style="cursor:pointer;">
-        ${timezoneOptions}
-      </select></div>
-      <select id="language" name="language" class="blur-form-field">
-        <option value="EN" ${language === 'EN' ? 'selected' : ''}>English</option>
-        <option value="ID" ${language === 'ID' ? 'selected' : ''}>Indonesian</option>
-        <option value="FR" ${language === 'FR' ? 'selected' : ''}>French</option>
-        <option value="ES" ${language === 'ES' ? 'selected' : ''}>Spanish</option>
-        <option value="DE" ${language === 'DE' ? 'selected' : ''}>German</option>
-        <option value="AR" ${language === 'AR' ? 'selected' : ''}>Arabic</option>
-      </select>
-      <br>
+    // Get translations for the current language
+    const settingsContent = settingsTranslations[language] || settingsTranslations['EN'];
 
-      <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button" >Apply Settings</button>
-    </form>
-  `;
+    // Create language options dynamically
+    const languageOptions = Object.entries(settingsContent.languages).map(([key, value]) =>
+        `<option value="${key}" ${language === key ? 'selected' : ''}>${value}</option>`
+    ).join('');
 
-  // Show the modal
-  const modal = document.getElementById('form-modal-message');
-  modal.classList.remove('modal-hidden');
-  modal.classList.add('modal-visible');
-  document.getElementById("page-content").classList.add("blur");
+    // Insert a form into the modal content for the user to choose timezone and language
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <div class="top-settings-icon"></div>
+        <form id="user-settings-form">
+            <div style="cursor:pointer;">
+                <select id="timezone" name="timezone" class="blur-form-field" style="cursor:pointer;">
+                    ${timezoneOptions}
+                </select>
+            </div>
+            <div style="cursor:pointer;">
+                <select id="language" name="language" class="blur-form-field">
+                    ${languageOptions}
+                </select>
+            </div>
+            <br>
+            <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button">
+                ${settingsContent.applySettings}
+            </button>
+        </form>
+    `;
+
+    // Show the modal
+    const modal = document.getElementById('form-modal-message');
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    document.getElementById("page-content").classList.add("blur");
 }
+
 
 
 

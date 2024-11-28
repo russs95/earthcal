@@ -1,74 +1,16 @@
-
-#npx electron-builder --linux snap
-# sudo snap remove earthcal
-# sudo snap install --dangerous dist/earthcal_0.7.9_amd64.snap
-# earthcal
-
-
-
-# snapcraft login
-# snapcraft upload dist/earthcal_0.7.9_amd64.snap
-# snapcraft release earthcal edge
-# sudo snap remove earthcal
-# sudo snap install earthcal --edge
-# OR  sudo snap refresh earthcal --edge
-
-
 name: earthcal
-version: '0.7.9'
-summary: Earthcal | EarthCycles Calendar
+version: '0.9.0'
+summary: Earthcal
 description: |
-  Sync your moments with Earthen cycles
-base: core22
+  Sync your moments with Earth's cycles.
+base: core20
 confinement: strict
 grade: stable
 
-parts:
-  earthcal:
-    plugin: nil
-    source: .
-    build-packages:
-      - curl
-    override-build: |
-      # Install Node.js v18
-      curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-      
-      # Force install Node.js v18 with overwrite option to handle file conflicts
-      apt-get install -y nodejs --allow-downgrades --allow-remove-essential --allow-change-held-packages
-      
-      # Verify Node.js version
-      node -v
-      
-      npm install
-      npm run package
-      
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      # Copy the output from linux-unpacked
-      cp -r dist/linux-unpacked/* $SNAPCRAFT_PART_INSTALL/bin/
-    stage-packages:
-      - libx11-6
-      - libxcomposite1
-      - libxdamage1
-      - libxext6
-      - libxfixes3
-      - libxrandr2
-      - libasound2
-      - libatk1.0-0
-      - libatk-bridge2.0-0
-      - libatspi2.0-0
-      - libcairo2
-      - libcups2
-      - libgbm1
-      - libgtk-3-0
-      - libnspr4
-      - libnss3
-      - libpango-1.0-0
-      - libxcb1
-      - libxkbcommon0
-
 apps:
   earthcal:
-    command: desktop-launch $SNAP/bin/Earthcal
+    command: earthcal
+    extensions: [gnome-3-38]
     plugs:
       - browser-support
       - desktop
@@ -76,3 +18,20 @@ apps:
       - network
       - network-bind
       - x11
+
+    environment:
+      TMPDIR: $XDG_RUNTIME_DIR
+
+parts:
+  earthcal:
+    plugin: dump
+    source: earthcal-linux-x64/
+    build-snaps:
+    - node/14/stable
+    build-packages:
+    - unzip
+    stage-packages:
+    - libnss3
+    - libnspr4
+
+

@@ -5,7 +5,7 @@
 function showAddNoteCheckbox() {
   const addDateTitleTextarea = document.getElementById('add-date-title');
   const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
-  const confirmDateCycleButton = document.getElementById('confirm-dateCycle');
+  const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
 
   if (addDateTitleTextarea.value.trim() !== '') {
     addNoteCheckboxDiv.style.display = 'block';
@@ -573,6 +573,7 @@ function saveDateCycleEditedChanges(dateCycleID) {
   closeAddCycle();
   highlightDateCycles();
   displayMatchingDateCycle();
+  closeTheModal();
 }
 
 

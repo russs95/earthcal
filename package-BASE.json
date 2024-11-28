@@ -1,0 +1,88 @@
+{
+  "name": "earthcal",
+  "version": "0.7.9",
+  "description": "Sync your cycles with Earth",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/russs95/earthcalendar.git"
+  },
+  "keywords": [
+    "calendar",
+    "cycles",
+    "events",
+    "to-do",
+    "tasks",
+    "time",
+    "management"
+  ],
+  "author": "Russell Maier",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/russs95/earthcalendar/issues"
+  },
+  "homepage": "https://github.com/russs95/earthcalendar#readme",
+  "devDependencies": {
+    "electron": "^32.1.0",
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.example.earthcal",
+    "productName": "EarthCal",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/*.{o,hprof,orig,pyc,pyo,rbc}",
+      "!*.{iml}"
+    ],
+    "linux": {
+      "target": [
+        "snap"
+      ],
+      "category": "Utility",
+      "icon": "build/icon.png"
+    },
+    "snap": {
+  "grade": "stable",
+  "confinement": "strict",
+  "summary": "EarthCal | EarthCycles Calendar",
+  "description": "Sync your moments with Earthen cycles",
+  "plugs": [
+    "desktop",
+    "opengl",
+    "x11",
+    "wayland",
+    "browser-support",
+    "network",
+    "network-bind"
+  ]
+},
+
+
+    "extraResources": [
+      {
+        "from": "resources/",
+        "to": "resources",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
+}

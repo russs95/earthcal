@@ -1,5 +1,19 @@
 
 /* KINCYCLES MENU CONTROL */
+
+ document.addEventListener('DOMContentLoaded', function() {
+        const caribooButton = document.getElementById('cariboo-button');
+        const monarchButton = document.getElementById('monarch-button');
+
+        function showAlert() {
+          alert('Sorry the cycles of this animal is not yet added to the calendar. Stay tuned, we\'re working on it!');
+        }
+
+        caribooButton.addEventListener('click', showAlert);
+        monarchButton.addEventListener('click', showAlert);
+      });
+
+
 function cyclesToggle() {
   date = targetDate;
 
@@ -150,6 +164,8 @@ solarsystemButton.addEventListener("click", function () {
   // Whale button clicked
   whaleButton.addEventListener("click", function () {
     resetPlanetStates();
+    storkCycle.style.display = "none";
+    storkButton.classList.remove("totems-active");
     planetButtons.style.display = "none";
     americasMap.style.display = "block";
     whaleCycle.style.display = "block";
