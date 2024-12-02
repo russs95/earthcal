@@ -44,101 +44,93 @@
     AR: 'من'
   };
 
-
-  const versioningTranslations = {
-        EN: {
-            title: "Welcome to EarthCal 1.0!",
-            subtitle: "We're super excited to announce the first official release of EarthCal after two years of development",
-            description: "EarthCal has been completely overhauled for 2025. Major new features now include:",
-            features: [
-                "Months now break out into sub circles! Take a close look at each month's days of the week.",
-                "Add events and cycles to your calendar: Use the calendar to keep track of events, goals, and to-dos each day.",
-                "Edit events, push them forward a day or check them off!",
-                "Initial multi-lingual support for five languages added.",
-                "Clock view. Keep EarthCal up as a clock on a decorative monitor.",
-                "The migratory cycle of the black heron is synced with the calendar."
-            ],
-            gotIt: "Got it! 👍",
-            tour: "EarthCal Tour 🌏"
-        },
-
-
+const versioningTranslations = {
+    EN: {
+        title: "Welcome to EarthCal 0.9!",
+        subtitle: "EarthCal has been completely overhauled in preparation for our 2025 v1.0 release. Major new features in v0.9 include:",
+        features: [
+            "Months now break out!  Click any month's color bar to expand its circle.",
+            "Add events and cycles: Hit the + to add events, goals, and to-dos to any day.",
+            "Edit an event, push it forward a day or check it off!",
+            "Initial multi-lingual support for five languages added.",
+            "Clock view. Keep EarthCal up as a clock on a second monitor.",
+            "The migratory cycle of the black heron is synced with the calendar."
+        ],
+        gotIt: "👍 Got it!",
+        tour: " 🌏 More: EarthCal Tour"
+    },
     ID: {
-        title: "Selamat datang di EarthCal 1.0!",
-        subtitle: "Kami sangat bersemangat untuk mengumumkan rilis resmi pertama EarthCal setelah dua tahun pengembangan",
-        description: "EarthCal telah sepenuhnya diperbarui untuk tahun 2025. Fitur baru utama sekarang mencakup:",
+        title: "Selamat datang di EarthCal 0.9!",
+        subtitle: "EarthCal telah sepenuhnya diperbarui sebagai persiapan untuk rilis versi 1.0 pada tahun 2025. Fitur utama di v0.9 meliputi:",
         features: [
-            "Bulan kini dibagi menjadi lingkaran kecil! Perhatikan setiap hari dalam seminggu.",
-            "Tambahkan acara dan siklus ke kalender Anda: Gunakan kalender untuk melacak acara, tujuan, dan tugas harian Anda.",
-            "Edit acara, dorong ke depan sehari, atau tandai selesai!",
+            "Bulan kini dapat diperbesar! Klik bilah warna bulan mana saja untuk memperbesar lingkarannya.",
+            "Tambahkan acara dan siklus: Tekan + untuk menambahkan acara, tujuan, dan tugas ke hari apa pun.",
+            "Edit acara, geser maju sehari atau centang selesai!",
             "Dukungan multi-bahasa awal untuk lima bahasa ditambahkan.",
-            "Tampilan jam. Gunakan EarthCal sebagai jam di monitor dekoratif.",
-            "Siklus migrasi burung kuntul hitam disinkronkan dengan kalender."
+            "Tampilan jam. Gunakan EarthCal sebagai jam di monitor kedua.",
+            "Siklus migrasi bangau hitam disinkronkan dengan kalender."
         ],
-        gotIt: "Mengerti! 👍",
-        tour: "Tur EarthCal 🌏"
-    },
-    FR: {
-        title: "Bienvenue dans EarthCal 1.0 !",
-        subtitle: "Nous sommes très heureux d'annoncer la première version officielle d'EarthCal après deux ans de développement",
-        description: "EarthCal a été entièrement révisé pour 2025. Les nouvelles fonctionnalités principales incluent désormais :",
-        features: [
-            "Les mois se divisent désormais en sous-cercles ! Regardez de près les jours de la semaine de chaque mois.",
-            "Ajoutez des événements et des cycles à votre calendrier : utilisez le calendrier pour suivre les événements, les objectifs et les tâches quotidiennes.",
-            "Modifiez les événements, poussez-les d'un jour ou cochez-les comme terminés !",
-            "Prise en charge multilingue initiale pour cinq langues ajoutée.",
-            "Affichage de l'horloge. Gardez EarthCal comme horloge sur un moniteur décoratif.",
-            "Le cycle migratoire du héron noir est synchronisé avec le calendrier."
-        ],
-        gotIt: "Compris ! 👍",
-        tour: "Tour EarthCal 🌏"
-    },
-    AR: {
-        title: "مرحبًا بك في EarthCal 1.0!",
-        subtitle: "يسعدنا جدًا الإعلان عن الإصدار الرسمي الأول من EarthCal بعد عامين من التطوير",
-        description: "تمت إعادة تصميم EarthCal بالكامل لعام 2025. الميزات الجديدة الرئيسية تشمل الآن:",
-        features: [
-            "الأشهر مقسمة الآن إلى دوائر فرعية! ألق نظرة عن قرب على أيام الأسبوع لكل شهر.",
-            "أضف الأحداث والدورات إلى التقويم الخاص بك: استخدم التقويم لتتبع الأحداث والأهداف والمهام اليومية.",
-            "حرّر الأحداث، ادفعها يومًا للأمام أو حددها على أنها مكتملة!",
-            "إضافة دعم متعدد اللغات لخمسة لغات.",
-            "عرض الساعة. احتفظ بـ EarthCal كساعة على شاشة زخرفية.",
-            "تمت مزامنة دورة هجرة مالك الحزين الأسود مع التقويم."
-        ],
-        gotIt: "فهمت! 👍",
-        tour: "جولة EarthCal 🌏"
+        gotIt: "👍 Mengerti!",
+        tour: " 🌏 Selengkapnya: Tur Terpandu"
     },
     ES: {
-        title: "¡Bienvenido a EarthCal 1.0!",
-        subtitle: "Estamos muy emocionados de anunciar el primer lanzamiento oficial de EarthCal después de dos años de desarrollo",
-        description: "EarthCal ha sido completamente renovado para 2025. Las principales nuevas características incluyen ahora:",
+        title: "¡Bienvenido a EarthCal 0.9!",
+        subtitle: "EarthCal ha sido completamente renovado en preparación para nuestra versión 1.0 en 2025. Las principales novedades en la v0.9 incluyen:",
         features: [
-            "¡Los meses ahora se dividen en subcírculos! Echa un vistazo a los días de la semana de cada mes.",
-            "Agrega eventos y ciclos a tu calendario: utiliza el calendario para hacer un seguimiento de eventos, metas y tareas diarias.",
-            "Edita eventos, adelántalos un día o márcalos como completados.",
-            "Soporte multilingüe inicial para cinco idiomas agregado.",
-            "Vista de reloj. Mantén EarthCal como un reloj en un monitor decorativo.",
+            "¡Ahora los meses se expanden! Haz clic en la barra de color de cualquier mes para expandir su círculo.",
+            "Añade eventos y ciclos: Presiona + para agregar eventos, objetivos y tareas a cualquier día.",
+            "Edita un evento, muévelo un día hacia adelante o márcalo como completado.",
+            "Se agregó soporte multilingüe inicial para cinco idiomas.",
+            "Vista de reloj. Usa EarthCal como un reloj en un segundo monitor.",
             "El ciclo migratorio de la garza negra está sincronizado con el calendario."
         ],
-        gotIt: "¡Entendido! 👍",
-        tour: "Recorrido por EarthCal 🌏"
+        gotIt: "👍 ¡Entendido!",
+        tour: " 🌏 Más: Tour Guiado"
     },
     DE: {
-        title: "Willkommen bei EarthCal 1.0!",
-        subtitle: "Wir freuen uns sehr, die erste offizielle Version von EarthCal nach zwei Jahren Entwicklung anzukündigen",
-        description: "EarthCal wurde vollständig für 2025 überarbeitet. Wichtige neue Funktionen umfassen jetzt:",
+        title: "Willkommen bei EarthCal 0.9!",
+        subtitle: "EarthCal wurde vollständig überarbeitet, um auf unsere Version 1.0 im Jahr 2025 vorzubereiten. Die wichtigsten neuen Funktionen in v0.9 umfassen:",
         features: [
-            "Monate sind jetzt in Unterkreise unterteilt! Werfen Sie einen genauen Blick auf die Wochentage jedes Monats.",
-            "Fügen Sie Ereignisse und Zyklen zu Ihrem Kalender hinzu: Verwenden Sie den Kalender, um Ereignisse, Ziele und tägliche Aufgaben zu verfolgen.",
-            "Bearbeiten Sie Ereignisse, verschieben Sie sie um einen Tag oder markieren Sie sie als abgeschlossen!",
+            "Monate können jetzt ausgeklappt werden! Klicke auf die Farbleiste eines Monats, um seinen Kreis zu vergrößern.",
+            "Ereignisse und Zyklen hinzufügen: Drücke +, um Ereignisse, Ziele und Aufgaben zu jedem Tag hinzuzufügen.",
+            "Bearbeite ein Ereignis, verschiebe es um einen Tag oder hake es ab!",
             "Erste mehrsprachige Unterstützung für fünf Sprachen hinzugefügt.",
-            "Uhransicht. Verwenden Sie EarthCal als Uhr auf einem dekorativen Monitor.",
-            "Der Wanderzyklus des schwarzen Reihers ist mit dem Kalender synchronisiert."
+            "Uhrenansicht. Nutze EarthCal als Uhr auf einem zweiten Monitor.",
+            "Der Migrationszyklus des schwarzen Reihers ist mit dem Kalender synchronisiert."
         ],
-        gotIt: "Verstanden! 👍",
-        tour: "EarthCal-Tour 🌏"
+        gotIt: "👍 Verstanden!",
+        tour: " 🌏 Mehr: Geführte Tour"
+    },
+    AR: {
+        title: "مرحبًا بك في EarthCal 0.9!",
+        subtitle: "تم إعادة تصميم EarthCal بالكامل استعدادًا لإصدارنا 1.0 في عام 2025. الميزات الجديدة الرئيسية في الإصدار 0.9 تشمل:",
+        features: [
+            "يمكن الآن فتح الأشهر! انقر على شريط اللون لأي شهر لتوسيع دائرته.",
+            "أضف أحداثًا ودورات: اضغط على + لإضافة أحداث، أهداف، ومهام إلى أي يوم.",
+            "قم بتحرير حدث، ادفعه إلى الأمام يومًا واحدًا أو قم بوضع علامة عليه كمنجز!",
+            "تمت إضافة دعم متعدد اللغات الأولي لخمس لغات.",
+            "عرض الساعة. استخدم EarthCal كساعة على شاشة ثانية.",
+            "تمت مزامنة دورة هجرة مالك الحزين الأسود مع التقويم."
+        ],
+        gotIt: "👍 فهمت!",
+        tour: " 🌏 المزيد: جولة إرشادية"
+    },
+    FR: {
+        title: "Bienvenue sur EarthCal 0.9 !",
+        subtitle: "EarthCal a été entièrement remanié en préparation de notre version 1.0 en 2025. Les principales nouvelles fonctionnalités de la v0.9 incluent :",
+        features: [
+            "Les mois peuvent maintenant s'agrandir ! Cliquez sur la barre colorée de n'importe quel mois pour agrandir son cercle.",
+            "Ajoutez des événements et des cycles : Appuyez sur + pour ajouter des événements, des objectifs et des tâches à un jour quelconque.",
+            "Modifiez un événement, repoussez-le d'un jour ou cochez-le comme terminé !",
+            "Support multilingue initial pour cinq langues ajouté.",
+            "Vue horloge. Utilisez EarthCal comme horloge sur un second écran.",
+            "Le cycle migratoire du héron noir est synchronisé avec le calendrier."
+        ],
+        gotIt: "👍 Compris !",
+        tour: " 🌏 Plus : Visite guidée"
     }
 };
+
 
 const settingsTranslations = {
     EN: {

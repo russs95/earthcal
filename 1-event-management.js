@@ -390,30 +390,29 @@ function strikeDateCycle(element) {
 
 
 
-
-
-
-// Find matching dateCycles
+// Find matching dateCycles and sort them by color
 function findMatchingDateCycles(dateCycles) {
-  let dateObj = new Date(targetDate);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1; // month in number
-  const year = dateObj.getFullYear();
-  
-  // Array representing the names of the months
-  const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-  
-  // MATCHING PROBLEM  const dashedDate = `-${day}-${month}-${year}`;
-  const dashedDate = `-${day}-${month}-${year}`;
-  
-// Add month name class only if Completed is "no"
-return dateCycles
-.filter(dc => dashedDate.includes(dc.Date))
-.map(dc => ({
-    ...dc,
-    monthName: dc.Completed === 'no' ? monthsNames[month - 1] : ''
-}));
+    const targetDateObj = new Date(targetDate);
+    const day = targetDateObj.getDate();
+    const month = targetDateObj.getMonth() + 1; // JavaScript months are 0-indexed
+    const year = targetDateObj.getFullYear();
+
+    const dashedDate = `-${day}-${month}-${year}`;
+    const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+
+    // Define the color priority for sorting
+    const colorPriority = { red: 1, orange: 2, yellow: 3, green: 4, blue: 5 };
+
+    // Filter, map, and sort the dateCycles
+    return dateCycles
+        .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
+        .map(dc => ({
+            ...dc,
+            monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
+        }))
+        .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
+
 
 // Write the provided dateCycle to the provided div element
 function writeMatchingDateCycles(divElement, dateCycle) {

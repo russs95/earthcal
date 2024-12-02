@@ -2447,22 +2447,22 @@ INFO MODAL
   align-items: center; 
   z-index: 15;
   }
-  
-  .modal-content-box {
-  
-    position: relative; 
-    padding: 20px; 
-    background-color: var(--emblem-pink); 
-    border-radius: 10px; 
-    max-width: 90%; 
-    height:100%;
-    min-width: 70%; 
+
+.modal-content-box {
+    position: relative;
+    padding: 20px;
+    background-color: var(--emblem-pink);
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 90vh; /* Restrict the modal height to 90% of the viewport */
+    min-width: 70%;
     color: var(--h1);
     font-family: 'Mulish', sans-serif;
- /*   font-size: 1.4em;*/
     display: flex;
     margin: auto;
-  }
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
   
   .modal-message {
     margin: auto;
@@ -2506,16 +2506,18 @@ INFO MODAL
     border-radius: 10px;
     border: none;
     font-size: larger;
-    background: var(--form-conf-background);
+    background-color: var(--form-conf-background);
     color: var(--form-conf-text);
     margin: 20px auto 50px auto;
-    cursor: pointer;}
+    cursor: pointer;
+    }
 
 
   .confirmation-blur-button:hover {
-  background: var(--form-conf-background-over);
-  color: grey;  /*fixed? */
+  background-color: var(--form-conf-background-over);
+  color: red;  /*fixed? */
   }
+
 
 
   @media screen and (max-width: 700px) {

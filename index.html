@@ -599,10 +599,7 @@ setTimeout(showIntroModal, 5000);
     </div>
 </div>
 
-<!-- <div id="earthcal-version-updates" class="modal" data-version="0.81">  
-  <span id="close-updates-button" class="close-tour" style="padding:10px" onclick="closeUpdates();">&times;</span>
-  <div id="version-info" class="information"></div>
-</div> -->
+
 
 <div id="guided-tour" class="modal">
   <div class="tour-content">
@@ -666,7 +663,7 @@ setTimeout(showIntroModal, 5000);
 
   <!--Add-DateCycle Curtain, hidden-->
 
-  <div id="add-datecycle" class="overlay-add-datecycle modal-hidden" style="padding-top:100px;">
+  <div id="add-datecycle" class="overlay-add-datecycle modal-hidden" style="padding-top:33px;">
 
 
       <button type="button" style="cursor:pointer" onclick="closeAddCycle(),   closeDateCycleExports(), highlightDateCycles(), displayMatchingDateCycle()", aria-label="Close settings page" class="x-button"></button>
@@ -1388,13 +1385,12 @@ const tokenKey = 'newVersionInfoSeen';
             <div style="text-align:center;">
                 <h1>${content.title}</h1>
                 <h4>${content.subtitle}</h4>
-                <p>${content.description}</p>
             </div>
-            <div style="width:80%; margin: 10px auto 10px auto;">
+            <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
                 <ul>${featureList}</ul>
             </div>
             <div style="display:flex;flex-flow:column;justify-content:center;">
-                <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px">${content.gotIt}</button>
+                <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;background:green;">${content.gotIt}</button>
                 <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
             </div>
         `;
