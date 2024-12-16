@@ -99,11 +99,6 @@ function createWindow() {
           label: 'Created by Earthen.io',
           click: () => shell.openExternal('https://earthen.io'),
         },
-        <!-- {
-          label: 'GitHub Repository',
-          click: () => shell.openExternal('https://github.com/russs95/earthcycles'),
-        },
-        -->
         {
           label: 'License',
           click: () => showLicenseDialog(),

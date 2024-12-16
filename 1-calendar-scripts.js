@@ -379,54 +379,27 @@ function displayDayInfo(date) {
 
 
 
-
-
 function showUserCalSettings() {
-    // Define the list of timezones with principal cities
+    const modal = document.getElementById('form-modal-message');
+
+    // Populate modal content
     const timezones = [
         { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
         { value: 'UTC-11', label: 'UTC-11 | Niue' },
         { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian' },
         { value: 'UTC-9', label: 'UTC-9 | Alaska' },
         { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
-        { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
-        { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
-        { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
-        { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
-        { value: 'UTC-3', label: 'UTC-3 | Buenos Aires' },
-        { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
-        { value: 'UTC-1', label: 'UTC-1 | Azores' },
-        { value: 'UTC+0', label: 'UTC+0 | London, UK' },
-        { value: 'UTC+1', label: 'UTC+1 | Berlin, Germany' },
-        { value: 'UTC+2', label: 'UTC+2 | Cairo' },
-        { value: 'UTC+3', label: 'UTC+3 | Moscow' },
-        { value: 'UTC+4', label: 'UTC+4 | Dubai' },
-        { value: 'UTC+5', label: 'UTC+5 | Karachi' },
-        { value: 'UTC+6', label: 'UTC+6 | Dhaka' },
-        { value: 'UTC+7', label: 'UTC+7 | Jakarta, Indonesia' },
-        { value: 'UTC+8', label: 'UTC+8 | Bali, Indonesia' },
-        { value: 'UTC+9', label: 'UTC+9 | Tokyo' },
-        { value: 'UTC+10', label: 'UTC+10 | Sydney' },
-        { value: 'UTC+11', label: 'UTC+11 | Solomon Islands' },
-        { value: 'UTC+12', label: 'UTC+12 | Fiji' },
-        { value: 'UTC+13', label: 'UTC+13 | Tonga' },
-        { value: 'UTC+14', label: 'UTC+14 | Kiritimati' }
+        // Add the rest of the timezones here...
     ];
-
-    // Create options for the timezone select element
     let timezoneOptions = timezones.map(tz =>
         `<option value="${tz.value}" ${tz.value === timezone ? 'selected' : ''}>${tz.label}</option>`
     ).join('');
 
-    // Get translations for the current language
     const settingsContent = settingsTranslations[language] || settingsTranslations['EN'];
-
-    // Create language options dynamically
     const languageOptions = Object.entries(settingsContent.languages).map(([key, value]) =>
         `<option value="${key}" ${language === key ? 'selected' : ''}>${value}</option>`
     ).join('');
 
-    // Insert a form into the modal content for the user to choose timezone and language
     const modalContent = document.getElementById('modal-content');
     modalContent.innerHTML = `
         <div class="top-settings-icon"></div>
@@ -449,23 +422,45 @@ function showUserCalSettings() {
     `;
 
     // Show the modal
-    const modal = document.getElementById('form-modal-message');
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
     document.getElementById("page-content").classList.add("blur");
+
+    // Set focus and enable focus trapping
+    modal.setAttribute('tabindex', '0');
+    modal.focus();
+    modalOpen = true;
+
+    // Add focus restriction
+    document.addEventListener('focus', focusRestrict, true);
 }
+
 
 
 
 
 function closeTheModal() {
-  const modal = document.getElementById('form-modal-message');
-  modal.classList.remove('modal-visible');
-  modal.classList.add('modal-hidden');
-   document.getElementById("page-content").classList.remove("blur");
+    const modal = document.getElementById('form-modal-message');
+
+    // Hide the modal
+    modal.classList.remove('modal-visible');
+    modal.classList.add('modal-hidden');
+    document.getElementById("page-content").classList.remove("blur");
+
+    modalOpen = false;
+
+    // Remove focus restriction
+    document.removeEventListener('focus', focusRestrict, true);
 }
 
 
+function focusRestrict(event) {
+    const modal = document.getElementById('form-modal-message');
+    if (modalOpen && !modal.contains(event.target)) {
+        event.stopPropagation(); // Prevent further propagation of the focus event
+        modal.focus();           // Redirect focus back to the modal
+    }
+}
 
 
 

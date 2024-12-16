@@ -15,7 +15,8 @@ hmmmmm
 Z-INDEX:
 
 EarthCycles: 0;
-right-setting-overlay: 56;
+main-menu-overlay: 56;
+target-date-info: 40
 
 time-controller: 20;
 planet-info-box: 20;
@@ -395,6 +396,8 @@ window.onload = function() {
 listenForCloseBreakout();
 attachBreakoutTouchListeners();
 
+// invite2Register(); //starts timer on whether to display or not the registration footer - being updated for buwana login
+
 
   updateMoonPhase(targetDate);
   calculateHijriMonthNames(currentYear);
@@ -466,7 +469,7 @@ setTimeout(showIntroModal, 5000);
 
 </script>
 
-<BODY style="overflow-x: hidden; overflow-y:hidden;">
+<BODY style="overflow: hidden !important;">
 
 
 
@@ -537,7 +540,7 @@ setTimeout(showIntroModal, 5000);
 
 
   <!-- REGISTRATION FOOTER -->
-  <div id="registration-footer" style="display:none"> <!--turned off until Buwana login added-->
+  <div id="registration-footer"> <!--turned off until Buwana login added-->
 
 
     <div class="reg-top-section">
@@ -891,7 +894,7 @@ setTimeout(showIntroModal, 5000);
 
   <div id="header" class="top-menu">
     
-    <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;">
+    <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:40">
  
       <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
 
@@ -953,7 +956,7 @@ setTimeout(showIntroModal, 5000);
 
   <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;">
 
-    <div><button type="button" class="top-menu-button" onclick="openSettings()" aria-label="Open site settings"></button></div>
+    <div><button type="button" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
     
     <div><button type="button" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
 
@@ -1073,50 +1076,17 @@ setTimeout(showIntroModal, 5000);
 
   </div>
 
- <!-- RIGHT PAGE MENU -->
+ <!-- MAIN PAGE MENU -->
 
-  <div id="right-settings-overlay" class="overlay-settings">
+  <div id="main-menu-overlay" class="overlay-settings">
 
-      <button type="button" style="cursor:pointer" onclick="closeSettings(), updateBackgroundColor(),
-      updateHighlightColor()" aria-label="Click to close settings page" class="x-button">
-
+      <button type="button" style="cursor:pointer" onclick="closeMainMenu(), updateBackgroundColor(),
+      updateHighlightColor()" aria-label="Close" class="x-button">
       </button>
 
-    <div class="overlay-content-settings" style="margin-bottom: 20px;">
+    <div id="main-menu-content" class="overlay-content-settings">
       
-      <div class="earthcycles-logo"></div>
 
-      <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(guidedTour, 500);">Feature Tour</div>
-
-        <div class="menu-page-item" onclick="sendDownRegistration(); closeSettings(); setTimeout(showIntroModal, 500);">Latest Version Info</div>
-
-      <div class="menu-page-item" onclick="closeSettings(),sendUpRegistration()">Earthen.io Newsletter</div>
-      
-      <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">Calendar Guide ↗</a></div>
-
-      <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">Purchase Print ↗</a></div>
-
-      <div class="menu-page-item"><a href="https://guide.earthen.io/about" target="_blank">About the Project ↗</a>
-      </div>
-        
-      <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
-
-        <div style="font-size:1.25em">
-          <dark-mode-toggle
-          id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
-          class="slider"
-          legend="Switch Dark/Day themes"
-          remember="Remember for all pages"
-          appearance="toggle">
-          </dark-mode-toggle>
-        </div>
-        </div>
-  
-      <a href="https://snapcraft.io/earthcal">
-        <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
-      </a>
-
-      <p style="font-size:small;">EarthCal is developed by <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
       
     </div>
                                                                 

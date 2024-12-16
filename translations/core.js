@@ -291,3 +291,73 @@ const openDateSearchTranslations = {
 
 
 };
+
+
+const mainMenuTranslations = {
+    EN: {
+        title: "Sync with Earth's cycles",
+        featureTour: "Feature Tour",
+        latestVersion: "Latest Version Info",
+        newsletter: "Earthen.io Newsletter",
+        guide: "Calendar Guide ↗",
+        purchasePrint: "Purchase Print ↗",
+        about: "About the Project ↗",
+        darkModeToggle: "Switch Dark/Day themes",
+        developedBy: "EarthCal is developed by",
+    },
+    ES: {
+        title: "Sincroniza con los ciclos de la Tierra",
+        featureTour: "Recorrido de Funciones",
+        latestVersion: "Última Información de la Versión",
+        newsletter: "Boletín de Earthen.io",
+        guide: "Guía del Calendario ↗",
+        purchasePrint: "Compra Impresa ↗",
+        about: "Sobre el Proyecto ↗",
+        darkModeToggle: "Cambiar entre temas Oscuro/Día",
+        developedBy: "EarthCal es desarrollado por",
+    },
+    FR: {
+        title: "Synchronisez avec les cycles de la Terre",
+        featureTour: "Visite des Fonctionnalités",
+        latestVersion: "Dernière Version Info",
+        newsletter: "Bulletin d'Earthen.io",
+        guide: "Guide du Calendrier ↗",
+        purchasePrint: "Acheter Imprimé ↗",
+        about: "À propos du Projet ↗",
+        darkModeToggle: "Changer entre les thèmes Sombre/Jour",
+        developedBy: "EarthCal est développé par",
+    },
+    DE: {
+        title: "Synchronisieren mit den Zyklen der Erde",
+        featureTour: "Feature-Tour",
+        latestVersion: "Neueste Versionsinfo",
+        newsletter: "Earthen.io Newsletter",
+        guide: "Kalenderanleitung ↗",
+        purchasePrint: "Druck kaufen ↗",
+        about: "Über das Projekt ↗",
+        darkModeToggle: "Zwischen Dunkel-/Tagthemen wechseln",
+        developedBy: "EarthCal wird entwickelt von",
+    },
+    ID: {
+        title: "Sinkronkan dengan siklus Bumi",
+        featureTour: "Tur Fitur",
+        latestVersion: "Informasi Versi Terbaru",
+        newsletter: "Newsletter Earthen.io",
+        guide: "Panduan Kalender ↗",
+        purchasePrint: "Beli Cetak ↗",
+        about: "Tentang Proyek ↗",
+        darkModeToggle: "Beralih Tema Gelap/Hari",
+        developedBy: "EarthCal dikembangkan oleh",
+    },
+    AR: {
+        title: "تزامن مع دورات الأرض",
+        featureTour: "جولة الميزات",
+        latestVersion: "معلومات النسخة الأحدث",
+        newsletter: "نشرة Earthen.io",
+        guide: "دليل التقويم ↗",
+        purchasePrint: "شراء نسخة مطبوعة ↗",
+        about: "حول المشروع ↗",
+        darkModeToggle: "تبديل بين الوضع الليلي/النهاري",
+        developedBy: "تم تطوير EarthCal بواسطة",
+    },
+};

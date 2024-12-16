@@ -304,7 +304,7 @@ flex-direction: row;
 
 /* -------------------------------------------------------------------------- */
 
-#right-settings-overlay {
+#main-menu-overlay {
   background-color: var(--side-overlays) /*var(--overlays-and-headers:)*/; 
   color:  var(--text-color); /*var(--text-color)*/ ;
   z-index: 56;
@@ -328,9 +328,7 @@ flex-direction: row;
 .overlay-content-settings {
   position: initial;
   text-align: center; /* Centered text/links */
-   /*margin-top: 30px; 30px top margin to avoid conflict with the close button on smaller screens */
   font-family: "Mulish";
-  /*font-size: smaller;*/
   display: flex;
   justify-content: center;
   flex-flow: column;
@@ -343,7 +341,7 @@ flex-direction: row;
   .overlay-content-settings {
     width: 77%;
     font-size: 0.9em;
-    /*margin-top: 6%;*/
+    margin-top: 30px;
 }
 }
 
@@ -351,14 +349,14 @@ flex-direction: row;
   .overlay-content-settings {
     width: 65%;
     font-size: 0.9em;
-    /*margin-top: 2%;*/
+
 }
 }
 
 @media screen and (min-width: 1325px) {
     .overlay-content-settings {
       width: 69%;
-      margin: auto;
+
     }
 }
 
@@ -449,9 +447,14 @@ border-color: #00a112 !important;
   top: 0px;
 }
 
+
+.x-button {
+    position:absolute;
+    }
+
+
   @media screen and (min-width: 700px) {
 .x-button {
-
     padding: 10px;
     background-size: contain;
     width: 60px;
@@ -459,9 +462,9 @@ border-color: #00a112 !important;
     border:none;
     cursor:pointer;
     z-index:30;
+    }
+}
 
-}
-}
   @media screen and (max-width: 700px) {
 .x-button {
     padding: 6px;
@@ -476,31 +479,26 @@ border-color: #00a112 !important;
 
 
 #day-search .x-button {
-    position:absolute;
     top:25px;
     left: 25px;
     }
 
 #right-settings-overlay .x-button {
-    position:absolute;
     top:25px;
     left: 25px;
     }
 
 #add-datecycle .x-button {
-    position:absolute;
     top:20px;
     right: 20px;
     }
 
 #form-modal-message .x-button {
-    position:absolute;
     top:25px;
     right: 12px;
     }
 
  #form-modal-message .x-button {
-    position:absolute;
     top:25px;
     right: 12px;
     }
@@ -2459,8 +2457,9 @@ INFO MODAL
     color: var(--h1);
     font-family: 'Mulish', sans-serif;
     display: flex;
-    margin: auto;
+    margin: auto auto auto auto;;
     overflow-y: auto; /* Enable vertical scrolling */
+    height: 100%;
 }
 
   

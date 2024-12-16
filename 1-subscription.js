@@ -338,8 +338,8 @@ function displayCheckBoxToHideSubscription() {
   // ... (Any other function definitions)
   
   // Run invite2Register on page load
-  document.addEventListener('DOMContentLoaded', invite2Register);
-  
+  //document.addEventListener('DOMContentLoaded', invite2Register);
+
   
   
   

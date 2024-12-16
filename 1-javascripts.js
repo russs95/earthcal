@@ -245,51 +245,96 @@ function updateHighlightColor() {
 }
 
 
+let modalOpen = false; // Keep track of modal state
 
-/* RIGHT SETTINGS OVERLAY */
+function openMainMenu() {
+    const modal = document.getElementById("main-menu-overlay");
+    const content = document.getElementById("main-menu-content");
 
-function openSettings() {
-  document.getElementById("right-settings-overlay").style.width = "100%";
-  document.body.style.overflowY = "hidden";
-  document.body.style.maxHeight = "101vh";
+    // Fetch translations based on the selected language
+    const translations = mainMenuTranslations[language] || mainMenuTranslations.EN;
 
-  var modal = document.getElementById('right-settings-overlay');
+    // Dynamically set the menu content
+    content.innerHTML = `
 
-function modalShow () {
-   modal.setAttribute('tabindex', '0');
-   modal.focus();
+        <div class="earthcycles-logo" alt="EarthCal Logo" title="${translations.title}"></div>
+
+        <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
+            ${translations.featureTour}
+        </div>
+
+        <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
+            ${translations.latestVersion}
+        </div>
+
+        <div class="menu-page-item" onclick="closeMainMenu(), sendUpRegistration()">
+            ${translations.newsletter}
+        </div>
+
+        <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">${translations.guide}</a></div>
+
+        <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">${translations.purchasePrint}</a></div>
+
+        <div class="menu-page-item"><a href="https://guide.earthen.io/about" target="_blank">${translations.about}</a></div>
+
+        <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
+            <div style="font-size:1.25em">
+                <dark-mode-toggle
+                id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
+                class="slider"
+                legend="${translations.darkModeToggle}"
+                remember="Remember for all pages"
+                appearance="toggle">
+                </dark-mode-toggle>
+            </div>
+        </div>
+
+        <a href="https://snapcraft.io/earthcal">
+            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+        </a>
+
+        <p style="font-size:small;">${translations.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
+    `;
+
+    // Show the modal
+    modal.style.width = "100%";
+    document.body.style.overflowY = "hidden";
+    document.body.style.maxHeight = "101vh";
+
+    modal.setAttribute("tabindex", "0");
+    modal.focus();
+    modalOpen = true;
+
+    // Add focus restriction
+    document.addEventListener("focus", focusMainMenuRestrict, true);
 }
 
-function focusRestrict ( event ) {
-  document.addEventListener('focus', function( event ) {
-    if ( modalOpen && !modal.contains( event.target ) ) {
-      event.stopPropagation();
-      modal.focus();
+
+function focusMainMenuRestrict(event) {
+    const modal = document.getElementById("main-menu-overlay");
+    if (modalOpen && !modal.contains(event.target)) {
+        event.stopPropagation();
+        modal.focus();
     }
-  }, true);
 }
+function closeMainMenu() {
+    const modal = document.getElementById("main-menu-overlay");
+    modal.style.width = "0%";
+    document.body.style.overflowY = "unset";
+    document.body.style.maxHeight = "unset";
+
+    modalOpen = false;
+
+    // Cleanup event listeners
+    document.removeEventListener("focus", focusMainMenuRestrict, true);
 }
-
-/* Close when someone clicks on the "x" symbol inside the overlay */
-function closeSettings() {
-  document.getElementById("right-settings-overlay").style.width = "0%";
-  document.body.style.overflowY = "unset";
-document.body.style.maxHeight = "unset";
-  //document.body.style.height = "unset";
-} 
-
-function modalCloseCurtains ( e ) {
-  if ( !e.keyCode || e.keyCode === 27 ) {
-    
-  document.body.style.overflowY = "unset";
-  document.getElementById("right-settings-overlay").style.width = "0%";
-  /*document.getElementById("knack-overlay-curtain").style.height = "0%";*/
-
-  }
+function modalCloseCurtains(event) {
+    if (!event.key || event.key === "Escape") {
+        closeMainMenu();
+    }
 }
 
-document.addEventListener('keydown', modalCloseCurtains);
-
+document.addEventListener("keydown", modalCloseCurtains);
 
 
 /* ADD CYCLE OVERLAY */
