@@ -1229,6 +1229,10 @@ setTimeout(showIntroModal, 5000);
 
 <script>
 
+    //BUWANA LOGIN
+
+// Consolidated function to handle error responses and show the appropriate error div
+
 // Consolidated function to handle error responses and show the appropriate error div
 function handleErrorResponse(errorType) {
     // Hide both error divs initially
@@ -1250,7 +1254,6 @@ function handleErrorResponse(errorType) {
 
 // Utility function to shake an element (CSS class for shaking animation needed)
 function shakeElement(element) {
-    if (!element) return; // Safety check
     element.classList.add('shake');
     setTimeout(() => element.classList.remove('shake'), 500); // Remove shake class after 0.5s
 }
@@ -1267,29 +1270,22 @@ document.getElementById('login').addEventListener('submit', async function (e) {
             body: formData
         });
 
-        // Check if the response is valid JSON
-        let data;
-        try {
-            data = await response.json();
-        } catch (jsonError) {
-            console.error('JSON parsing error:', jsonError);
-            alert('Server returned an invalid response. Please try again.');
-            return;
-        }
+        const data = await response.json();
 
-        if (data.success || data.status === 'credfound') {
-            // Hide login form and show logged-in view
-            document.getElementById('login-form-section').style.display = 'none';
-            const loggedInView = document.getElementById('logged-in-view');
-            loggedInView.style.display = 'block';
+      if (data.status === 'credfound') {
+        // Hide login form and show logged-in view
+        document.getElementById('login-form-section').style.display = 'none';
+        const loggedInView = document.getElementById('logged-in-view');
+        loggedInView.style.display = 'block';
 
-            // Update UI with user details
-            loggedInView.querySelector('h3').textContent = `Welcome back, ${data.first_name || 'User'}.`;
-            loggedInView.querySelector('.confirmation-blur-button').textContent =
-                `Sync your events (${data.continent_code || 'N/A'}, ${data.location_full || 'Unknown Location'})`;
-        } else {
+        // Update UI with user details
+        loggedInView.querySelector('h3').textContent = `Welcome back, ${data.first_name || 'User'}.`;
+        loggedInView.querySelector('.confirmation-blur-button').textContent =
+            `Sync your events (${data.continent_code || 'N/A'}, ${data.location_full || 'Unknown Location'})`;
+    }
+ else {
             // Handle errors from server
-            handleErrorResponse(determineErrorType(data.message || ''));
+            handleErrorResponse(determineErrorType(data.message));
         }
     } catch (error) {
         console.error('Network error:', error);
@@ -1299,7 +1295,6 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
 // Helper function to determine error type from server response message
 function determineErrorType(message) {
-    if (typeof message !== 'string') return 'unknown_error';
     if (message.includes('Invalid password')) {
         return 'invalid_password';
     } else if (message.includes('Invalid credential key') || message.includes('Invalid user')) {
