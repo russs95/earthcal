@@ -1228,19 +1228,38 @@ setTimeout(showIntroModal, 5000);
 
 
 <script>
+
+// Consolidated function to handle error responses and show the appropriate error div
+function handleErrorResponse(errorType) {
+    // Hide both error divs initially
+    document.getElementById('password-error').style.display = 'none';
+    document.getElementById('no-buwana-email').style.display = 'none';
+
+    // Show the appropriate error div based on the errorType
+    if (errorType === 'invalid_password') {
+        document.getElementById('password-error').style.display = 'block'; // Show password error
+        shakeElement(document.getElementById('password-form'));
+    } else if (errorType === 'invalid_user' || errorType === 'invalid_credential') {
+        document.getElementById('no-buwana-email').style.display = 'block'; // Show email error
+        shakeElement(document.getElementById('credential-input-field'));
+    } else {
+        console.error('Unknown error type:', errorType);
+        alert('An unexpected error occurred. Please try again.');
+    }
+}
+
+// Utility function to shake an element (CSS class for shaking animation needed)
+function shakeElement(element) {
+    if (!element) return; // Safety check
+    element.classList.add('shake');
+    setTimeout(() => element.classList.remove('shake'), 500); // Remove shake class after 0.5s
+}
+
+// Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevent default form submission
 
     const formData = new FormData(e.target);
-    const credentialKey = document.getElementById('credential_key').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    // Simple validation
-    if (!credentialKey || !password) {
-        handleErrorResponse('invalid_credential');
-        shakeElement(document.getElementById('credential-input-field'));
-        return;
-    }
 
     try {
         const response = await fetch('https://gobrik.com/api/buwana_login_process.php', {
@@ -1248,35 +1267,47 @@ document.getElementById('login').addEventListener('submit', async function (e) {
             body: formData
         });
 
-        const data = await response.json();
-        console.log('Server response:', data);
+        // Check if the response is valid JSON
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            alert('Server returned an invalid response. Please try again.');
+            return;
+        }
 
-        if (data.status === 'credfound') {
+        if (data.success || data.status === 'credfound') {
             // Hide login form and show logged-in view
             document.getElementById('login-form-section').style.display = 'none';
             const loggedInView = document.getElementById('logged-in-view');
             loggedInView.style.display = 'block';
 
-            // Safely set user details
-            const firstName = data.first_name || 'User';
-            const continentCode = data.continent_code || 'N/A';
-            const locationFull = data.location_full || 'Unknown Location';
-
-            loggedInView.querySelector('h3').textContent = `Welcome back, ${firstName}.`;
+            // Update UI with user details
+            loggedInView.querySelector('h3').textContent = `Welcome back, ${data.first_name || 'User'}.`;
             loggedInView.querySelector('.confirmation-blur-button').textContent =
-                `Sync your events (${continentCode}, ${locationFull})`;
+                `Sync your events (${data.continent_code || 'N/A'}, ${data.location_full || 'Unknown Location'})`;
         } else {
-            handleErrorResponse(determineErrorType(data.message));
+            // Handle errors from server
+            handleErrorResponse(determineErrorType(data.message || ''));
         }
     } catch (error) {
-        console.error('Network error details:', error);
+        console.error('Network error:', error);
         alert('Unable to connect to the server. Please check your internet connection and try again.');
     }
 });
 
-
-
-
+// Helper function to determine error type from server response message
+function determineErrorType(message) {
+    if (typeof message !== 'string') return 'unknown_error';
+    if (message.includes('Invalid password')) {
+        return 'invalid_password';
+    } else if (message.includes('Invalid credential key') || message.includes('Invalid user')) {
+        return 'invalid_credential';
+    } else {
+        return 'unknown_error';
+    }
+}
 
 
 
