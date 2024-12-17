@@ -16,6 +16,7 @@ Z-INDEX:
 
 EarthCycles: 0;
 main-menu-overlay: 56;
+#registration-footer: 50
 target-date-info: 40
 
 time-controller: 20;
@@ -30,7 +31,7 @@ bottom right horiz kin-buttons: 15;
 bottom right horiz planet-buttons: 20;
 bottom-info: 9  needed?
 #form-modal-message: 15
-#registration-footer: 25
+
 -->
 
 
@@ -88,16 +89,14 @@ bottom-info: 9  needed?
 
 <!--<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.0.25/dist/hijri-js.common.min.js"></script>-->
 
-  <script src="hijri-js.common.min.js"></script>
+  <script src="js/hijri-js.common.min.js"></script>
 <!--This loads the main calendar javascripts-->
 
 <script src="1-javascripts.js"></script> <!--functional scripts-->
 <script src="1-set-target-date.js"></script> <!--functional scripts-->
 <script src="1-lunar-scripts.js"></script><!-- concerning the moon-->
 <script src="planet-orbits.js"></script><!--planets-->
-
-
-
+    <script src="login-scripts.js"></script><!--planets-->
 
 <!--Default Light Styles to load first-->
 <link rel="preload" href="light.css?v5.2" as="style" onload="this.rel='stylesheet'">
@@ -115,6 +114,8 @@ bottom-info: 9  needed?
 <!-- Main Calendar Stylesheet-->
 <link rel="stylesheet" href="1-stylesheet.css?v=3.7">
 <link rel="stylesheet" href="subscription-stylesheet.css?v=2.2">
+    <link rel="stylesheet" href="login-styles.css?v=1">
+
 
 
 
@@ -538,55 +539,93 @@ setTimeout(showIntroModal, 5000);
   </div>
 </div>
 
-
-  <!-- REGISTRATION FOOTER -->
-  <div id="registration-footer"> <!--turned off until Buwana login added-->
-
-
+<!-- LOGIN FOOTER CURTAIN -->
+<div id="registration-footer">
     <div class="reg-top-section">
         <button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
     </div>
     <div class="registration-footer-holder">
-        <div id="progress-bar"></div>
-        <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Newsletter Registration" data-lang-id="106-hide-subscription-registration">
+        <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
             <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
         </button>
-        
-          <div id="email-registration">
-              <div class="registration-box">
-                  <div class="reg-img">
-                      <img src="svgs/subscription-side-image.svg" data-lang-id="108-subscription-image-alt-desktop" class="desktop" height="200" width="200" alt="Earthen Ecobrick Newsletter subscription">
-                    <!-- <img src="../svgs/richard-and-team-night.svg" data-lang-id="109-subscription-image-alt-mobile" class="mobile" height="140" width="200" alt="Earthen Ecobrick Newsletter subscription"> -->
-                  </div>
 
-                  <!--REGISTRATION TEXTS-->
+        <div class="form-container" id="login-form-section">
+            <div style="text-align:center;width:100%;margin:auto;" >
+                <div id="status-message">Login to Earthcal</div>
+                <div id="sub-status-message">Please signin with your Buwana account credentials.</div>
+            </div>
+            <!-- Form starts here-->
+            <form id="login" action="https://gobrik.com/api/buwana_login_process.php" method="POST">
+                <div class="form-item">
+                    <div id="credential-input-field" class="input-wrapper" style="position: relative;">
+                        <input type="text" id="credential_key" name="credential_key" required placeholder="Your e-mail...">
+                        <span class="toggle-select-key" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🌏</span>
+                        <div id="dropdown-menu" style="display: none; position: absolute; right: 10px; top: 100%; z-index: 1000; background: white; border: 1px solid #ccc; width: 150px; text-align: left;">
+                            <div class="dropdown-item" value="Your email...">E-mail</div>
+                            <div class="dropdown-item disabled" style="opacity: 0.5;">SMS</div>
+                            <div class="dropdown-item disabled" style="opacity: 0.5;">Phone</div>
+                            <div class="dropdown-item disabled" style="opacity: 0.5;">GEA Peer</div>
+                        </div>
+                    </div>
+                    <div id="no-buwana-email" data-lang-id="001-cant-find" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">🤔 We can't find this credential in the database.</div>
+                </div>
 
-                  <div id="reg-registration-texts">
-                      <div class="reg-header" data-lang-id="110-subscription-title">Subscribe to Earthen</div>
-                      <div class="reg-subtitle" data-lang-id="111-subscription-subtitle">Earthcal is inspired by the cosmology of Earthen ethics. Follow the regenerative work of Earthen.io by subscribing to our newsletter.</div>
-                    
-                      <form id="emailForm" class="reg-field" style="display:flex; flex-flow:row;">
-                      <label for="email"></label>
-                      <input type="email" name="email" required placeholder="Your e-mail..." class="email-input" data-lang-id="112-subscription-email-placeholder">
-                      <input type="text" name="name" required placeholder="Your name..." class="name-input" data-lang-id="113-subscription-name-placeholder">
-                      <div class="reg-complete-text" id="reg-status"></div>
-                      <input type="submit" value="➔" class="register-button" id="reg-status-icon" onclick="handleSubscriptionSubmit(event)">
-                      </form>
-                      <div class="reg-sub" style="flex-flow: row;">
-                          <div class="earthen-icon"></div>
-                          <div id="reg-explanation" data-lang-id="114-subscription-caption">We send out a newsletter of Earthen projects once a month or so as per <a href="javascript:void(0)" onclick="previewPrivacy()">our strict privacy policy</a>.</div>
-                      </div>
-                      <div class="reg-sub" style="flex-flow: row;">
-                          <div id="reg-sub-checker">
-                              <input type="checkbox" id="reg-sub-checkbox" onclick="checkBoxActivated()">
-                              <label for="reg-sub-checkbox" data-lang-id="115-subscription-do-not-show-again">I've already signed up or I am not interested - don't show again</label>
-                          </div>
-                      </div>
-                  </div>
+                <div class="form-item" id="password-form" style="height:92px;margin-top: -5px;">
+                    <div class="password-wrapper" style="position: relative;">
+                        <div data-lang-id="005-password-field-placeholder">
+                            <input type="password" id="password" name="password" placeholder="Your password..." required>
+                        </div>
+                        <span toggle="#password" class="toggle-password" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🙈</span>
+                    </div>
+                    <div id="password-error" data-lang-id="002-password-is-wrong" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">👉 Password is wrong.</div>
+                    <p class="form-caption"><span data-lang-id="003-forgot-your-password">Forgot your password?</span> <a href="#" onclick="showPasswordReset('reset', '<?php echo $lang; ?>', '')" class="underline-link" data-lang-id="000-reset-it">Reset it.</a></p>
+                </div>
 
-                  <!--PRIVACY STATEMENT-->
+                <div class="form-item" id="code-form" style="text-align:center;height:80px;">
 
-                  <div id="reg-privacy-texts">
+                    <div class="code-wrapper" style="position: relative;">
+                        <input type="text" maxlength="1" class="code-box" placeholder="-">
+                        <input type="text" maxlength="1" class="code-box" placeholder="-">
+                        <input type="text" maxlength="1" class="code-box" placeholder="-">
+                        <input type="text" maxlength="1" class="code-box" placeholder="-">
+                        <input type="text" maxlength="1" class="code-box" placeholder="-">
+                    </div>
+                <p id="code-status" class="form-caption" data-lang-id="003-code-status" style="margin-top:5px;">A code to login will be sent to your email.</p>
+
+                </div>
+
+                <div style="text-align:center;width:100%;margin:auto;margin-top:15px;max-width:500px;" id="login-buttons">
+                    <div class="toggle-container">
+                        <input type="radio" id="password" name="toggle" value="password" checked>
+                        <input type="radio" id="code" name="toggle" value="code">
+                        <div class="toggle-button password">🔑</div>
+                        <div class="toggle-button code">📱</div>
+                        <div class="login-slider"></div>
+                        <span data-lang-id="004-login-button">
+                            <input type="submit" id="submit-password-button" value="Login" class="login-button-75">
+                        </span>
+                        <input type="button" id="send-code-button" value="📨 Send Code" class="code-button-75" style="display:none;">
+                    </div>
+                    <div id="code-error" data-lang-id="002-password-wrong" class="form-field-error" style="display:none;margin-top: 5px;margin-bottom:-15px;">👉 Entry is incorrect.</div>
+                </div>
+            </form>
+        </div><!--Login Form -->
+
+
+        <!--To be shown upon login-->
+        <div id="logged-in-view" style="display:none; text-align-center; margin:auto;">
+            <h4>Welcome back $First_name.</h4>
+            <button class="confirmation-blur-button">Sync your events</button>
+        </div>
+    </div>
+</div>
+
+
+                  <!--PRIVACY STATEMENT
+<div style="font-size: medium; text-align: center; margin: auto; align-self: center;padding-top:40px;padding-bottom:50px;margin-top: 0px;height:100%;>
+                    <p style="font-size:medium;color:var(--subdued-text);font-family:'Mulish',sans-seif" data-lang-id="000-no-account-yet">Don't have an account yet? <a href="https://gobrik.com/en/signup.php">Signup!</a></p>
+            </div>
+                <div id="reg-privacy-texts">
                     <div class="reg-header" data-lang-id="116-privacy-title">Your Data is Safe</div>
                     <div class="reg-privacy-subtitle" data-lang-id="117-privacy-subtitle">As a not-for-profit Earth enterprise on principle we do partake in any 3rd party advertising, nor connect your data to social platforms that do.  Your data will not be sold or exchanged.  We proudly use Ghost.org's for our newsletter-- a not-for-profit open source platform which we host on our own servers.  Our newsletters are sent usually once a month, we commit to not exceeding more than one a week.</div>
                     <div style="display:flex; flex-flow:row;width:fit-content;margin:-10px 10% 0px auto;">
@@ -594,13 +633,14 @@ setTimeout(showIntroModal, 5000);
                       <a href="https://earthen.io/privacy/" target="_blank"data-lang-id="118-full-privacy-link">Our Full Privacy Policy</a></div>
                         <button class="btn" onclick="previewPrivacy()" style="height:fit-content; padding:10px 15px 10px 15px;border-radius:10px;" type="button" aria="Go back to registration">OK</button>                      
                     </div>
-                </div>
+                </div>-->
 
 
-              </div>
-          </div>
-    </div>
-</div>
+
+
+
+
+
 
 
 
@@ -894,7 +934,7 @@ setTimeout(showIntroModal, 5000);
 
   <div id="header" class="top-menu">
     
-    <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:40">
+    <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
  
       <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
 
@@ -1188,6 +1228,62 @@ setTimeout(showIntroModal, 5000);
 
 
 <script>
+document.getElementById('login').addEventListener('submit', async function (e) {
+    e.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(e.target);
+    const credentialKey = document.getElementById('credential_key').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    // Simple validation
+    if (!credentialKey || !password) {
+        handleErrorResponse('invalid_credential');
+        shakeElement(document.getElementById('credential-input-field'));
+        return;
+    }
+
+    try {
+        const response = await fetch('https://gobrik.com/api/buwana_login_process.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        console.log('Server response:', data);
+
+        if (data.status === 'credfound') {
+            // Hide login form and show logged-in view
+            document.getElementById('login-form-section').style.display = 'none';
+            const loggedInView = document.getElementById('logged-in-view');
+            loggedInView.style.display = 'block';
+
+            // Safely set user details
+            const firstName = data.first_name || 'User';
+            const continentCode = data.continent_code || 'N/A';
+            const locationFull = data.location_full || 'Unknown Location';
+
+            loggedInView.querySelector('h3').textContent = `Welcome back, ${firstName}.`;
+            loggedInView.querySelector('.confirmation-blur-button').textContent =
+                `Sync your events (${continentCode}, ${locationFull})`;
+        } else {
+            handleErrorResponse(determineErrorType(data.message));
+        }
+    } catch (error) {
+        console.error('Network error details:', error);
+        alert('Unable to connect to the server. Please check your internet connection and try again.');
+    }
+});
+
+
+
+
+
+
+
+// Important calendar functions
+
+
+
     function triggerBreakoutDay() {
     // This sets the target date on an open month breakout.
 

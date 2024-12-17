@@ -16,9 +16,9 @@ function checkRegistrationStatus() {
     if (earthenRegistration) {
         // Hide .reg-top-section
         const regTopSection = document.querySelector('.reg-top-section');
-        if (regTopSection) {
+        /*if (regTopSection) {
             regTopSection.style.display = 'none';
-        }
+        }*/
         console.log('User is registered');
     } else {
         // If the user is not registered
@@ -360,12 +360,12 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
 
 
     var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("email-registration");
+    var emailRegistration = document.getElementById("login-form-section");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
 
     // Adjust the height of the registration footer
-    footer.style.height = "70vh";
+    footer.style.height = "90vh";
 
     // Make the email registration section visible
     emailRegistration.style.display = "block";
@@ -379,7 +379,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   
   function sendDownRegistration() {
     var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("email-registration");
+    var emailRegistration = document.getElementById("login-form-section");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
   

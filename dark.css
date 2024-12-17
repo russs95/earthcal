@@ -25,7 +25,7 @@
     --form-field-background: #0000007a;
     --form-field-text: white;
     --form-conf-background: rgba(255, 255, 255, 0.7);
-    --form-conf-background-over: red;
+    --form-conf-background-over: rgb(155, 155, 155);
     --form-conf-text: rgb(32, 33, 38);
 
 

@@ -277,17 +277,7 @@ function openMainMenu() {
 
         <div class="menu-page-item"><a href="https://guide.earthen.io/about" target="_blank">${translations.about}</a></div>
 
-        <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
-            <div style="font-size:1.25em">
-                <dark-mode-toggle
-                id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
-                class="slider"
-                legend="${translations.darkModeToggle}"
-                remember="Remember for all pages"
-                appearance="toggle">
-                </dark-mode-toggle>
-            </div>
-        </div>
+        <br><br>
 
         <a href="https://snapcraft.io/earthcal">
             <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />

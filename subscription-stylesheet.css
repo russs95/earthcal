@@ -18,8 +18,8 @@ version 1.0
   text-align: center;
   transition: margin-bottom 0.3s, height 0.3s;
   overflow: hidden; 
-  z-index: 25;
-  margin-bottom: -66px;
+  z-index: 50;
+  /*margin-bottom: -66px;*/
   display: flex;
   flex-flow: column;
 }
@@ -58,7 +58,7 @@ version 1.0
   z-index: 10;
 }
 
-#email-registration {
+#login-form-section {
   display: none; 
   color: black; 
   text-align: left;

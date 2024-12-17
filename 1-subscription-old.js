@@ -345,7 +345,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
 
 
     var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("email-registration");
+    var emailRegistration = document.getElementById("login-form-section"); /*update variable name!*/
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
 
@@ -363,7 +363,7 @@ if (guidedTourModal && guidedTourModal.style.display !== "none") {
   
   function sendDownRegistration() {
     var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("email-registration");
+    var emailRegistration = document.getElementById("login-form-section");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
   

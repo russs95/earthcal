@@ -414,7 +414,17 @@ function showUserCalSettings() {
                     ${languageOptions}
                 </select>
             </div>
-            <br>
+            <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
+            <div style="font-size:1.25em">
+                <dark-mode-toggle
+                id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
+                class="slider"
+                legend="Toggle dark and light mode:"
+                remember="Remember for all pages"
+                appearance="toggle">
+                </dark-mode-toggle>
+            </div>
+        </div>
             <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button">
                 ${settingsContent.applySettings}
             </button>
