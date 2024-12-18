@@ -17,6 +17,79 @@ MAIN FUNCTIONS
 ----------------*/
 
 
+// Consolidated function to handle error responses and show the appropriate error div
+function handleErrorResponse(errorType) {
+    // Hide both error divs initially
+    document.getElementById('password-error').style.display = 'none';
+    document.getElementById('no-buwana-email').style.display = 'none';
+
+    // Show the appropriate error div based on the errorType
+    if (errorType === 'invalid_password') {
+        document.getElementById('password-error').style.display = 'block'; // Show password error
+        shakeElement(document.getElementById('password-form'));
+    } else if (errorType === 'invalid_user' || errorType === 'invalid_credential') {
+        document.getElementById('no-buwana-email').style.display = 'block'; // Show email error
+        shakeElement(document.getElementById('credential-input-field'));
+    } else {
+        console.error('Unknown error type:', errorType);
+        alert('An unexpected error occurred. Please try again.');
+    }
+}
+
+// Utility function to shake an element (CSS class for shaking animation needed)
+function shakeElement(element) {
+    element.classList.add('shake');
+    setTimeout(() => element.classList.remove('shake'), 500); // Remove shake class after 0.5s
+}
+
+
+// Function to generate the logged-in view
+function generateLoggedInView(userDetails) {
+    const loggedInView = document.getElementById("logged-in-view");
+
+    // Clear existing content
+    loggedInView.innerHTML = "";
+
+    // Fetch translations based on the selected language
+    const translations = loggedInTranslations[language] || loggedInTranslations.EN;
+
+    // Dynamically set the logged-in content
+    loggedInView.innerHTML = `
+        <h3 class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
+
+        <button class="confirmation-blur-button" onclick="syncUserEvents()">
+            ${translations.syncButton}
+        </button>
+
+        <button onclick="logoutBuwana()" class="confirmation-blur-button">
+            ${translations.logout}
+        </button>
+
+        <p>${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}</p>
+    `;
+
+    // Show the logged-in view
+    loggedInView.style.display = "block";
+}
+
+// Logout function
+function logoutBuwana() {
+    // Clear user-related data
+    localStorage.removeItem("buwana_id");
+
+    // Reset views
+    document.getElementById("login-form-section").style.display = "block";
+    const loggedInView = document.getElementById("logged-in-view");
+    loggedInView.style.display = "none";
+    loggedInView.innerHTML = ""; // Clear content
+
+    alert("You have been logged out successfully.");
+}
+
+// Placeholder function for syncing user events
+function syncUserEvents() {
+    alert("Your events are being synced!");
+}
 
 /* ---------- ------------------------------
 TOGGLE PASSWORD VISIBILITY

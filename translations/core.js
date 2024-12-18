@@ -361,3 +361,38 @@ const mainMenuTranslations = {
         developedBy: "تم تطوير EarthCal بواسطة",
     },
 };
+
+
+// Translations for Logged-In View
+const loggedInTranslations = {
+    EN: {
+        welcome: "Welcome back,",
+        syncButton: "Sync your events",
+        logout: "Logout",
+    },
+    ES: {
+        welcome: "Bienvenido de nuevo,",
+        syncButton: "Sincronizar tus eventos",
+        logout: "Cerrar sesión",
+    },
+    ID: {
+        welcome: "Selamat datang kembali,",
+        syncButton: "Sinkronkan acara Anda",
+        logout: "Keluar",
+    },
+    DE: {
+        welcome: "Willkommen zurück,",
+        syncButton: "Synchronisiere deine Ereignisse",
+        logout: "Abmelden",
+    },
+    AR: {
+        welcome: "مرحبًا بعودتك،",
+        syncButton: "مزامنة الأحداث",
+        logout: "تسجيل الخروج",
+    },
+    FR: {
+        welcome: "Bon retour parmi nous,",
+        syncButton: "Synchronisez vos événements",
+        logout: "Se déconnecter",
+    }
+};
