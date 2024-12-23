@@ -707,40 +707,45 @@ function applySettings() {
   closeTheModal();
 }
 
+
 function displayUserData() {
-  // Function to update the current time
-  function updateTime() {
-    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
-    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
+    // Function to update the current time
+    function updateTime() {
+        // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
+        const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
 
-    // Get the current date and time in the user's timezone
-    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
-    const [datePart, timePart] = currentTime.split(', ');
-    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
+        // Get the current date and time in the user's timezone
+        const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
+        const [datePart, timePart] = currentTime.split(', ');
+        const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
 
-    // Update the inner HTML of the span with id 'current-user-time' to display the current time
-    const currentUserTime = `${hours}:${minutes}:${seconds}`;
-    document.getElementById('current-user-time').textContent = currentUserTime;
-  }
+        // Update the inner HTML of the span with id 'current-user-time' to display the current time
+        const currentUserTime = `${hours}:${minutes}:${seconds}`;
+        document.getElementById('current-user-time').textContent = currentUserTime;
+    }
 
-  // Construct a string representing the user's details
-  const userDetailsString = `| ${timezone} | ${language}`;
+    // Construct a string representing the user's details
+    const userDetailsString = `| ${timezone} | ${language}`;
 
-  // Set the initial content of the div with id 'user-timezone-lang'
-  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-  userTimezoneLangDiv.innerHTML = `
-    <p>
-      <span id="current-user-time"></span>
-      <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
-      <span id="logged-in-green">🟢</span>
-    </p>`;
+    // Check user session status
+    const isUserLoggedIn = checkUserSession();
 
-  // Update the time immediately
-  updateTime();
+    // Set the initial content of the div with id 'user-timezone-lang'
+    const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+    userTimezoneLangDiv.innerHTML = `
+        <p>
+            <span id="current-user-time"></span>
+            <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
+            ${isUserLoggedIn ? '<span id="logged-in-green">🟢</span>' : ''}
+        </p>`;
 
-  // Set an interval to update the time every second
-  setInterval(updateTime, 1000);
+    // Update the time immediately
+    updateTime();
+
+    // Set an interval to update the time every second
+    setInterval(updateTime, 1000);
 }
+
 
 let clockInterval;
 
