@@ -15,6 +15,13 @@
 /*-------------
 MAIN FUNCTIONS
 ----------------*/
+function checkUserSession() {
+    // Check if the 'buwana_id' exists in localStorage
+    const buwanaId = localStorage.getItem('buwana_id');
+
+    // Return true if 'buwana_id' is found and not empty
+    return buwanaId !== null && buwanaId !== '';
+}
 
 
 // Consolidated function to handle error responses and show the appropriate error div

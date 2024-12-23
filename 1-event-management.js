@@ -418,12 +418,29 @@ function findMatchingDateCycles(dateCycles) {
 function writeMatchingDateCycles(divElement, dateCycle) {
     // Determine styles based on whether the dateCycle is completed or not
     const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
-    const calendarColorContent = dateCycle.Completed === 'yes' ? '✔' : '⬤';
+    let calendarColorContent;
+
+    // Set content based on Completed and Pinned status
+    if (dateCycle.Completed === 'yes') {
+        calendarColorContent = '✔';
+    } else if (dateCycle.Pinned === 'yes') {
+        calendarColorContent = '📌';
+    } else {
+        calendarColorContent = '⬤';
+    }
 
     divElement.innerHTML += `
       <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')">
           <div class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
-              <span style="font-size:small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span> ${dateCycle.Event_name}
+              ${dateCycle.Completed !== 'yes' ? `<button
+                  class="pin-button"
+                  title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                  onclick="pinThisDatecycle(this); event.stopPropagation();"
+                  onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '❌' : '📌'}';"
+                  onmouseout="this.textContent = '${calendarColorContent}';"
+                  style="font-size: small; margin: 0px 4px 8px 0px; border: none; background: none; cursor: pointer; color: inherit;"
+              >${calendarColorContent}</button>` : `<span style="font-size: small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span>`}
+              ${dateCycle.Event_name}
           </div>
           <div class="current-datecycle-data">
               <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
@@ -439,6 +456,37 @@ function writeMatchingDateCycles(divElement, dateCycle) {
       </div>
     `;
 }
+
+
+function pinThisDatecycle(element) {
+    // Retrieve stored dateCycles from localStorage
+    var storedDateCycles = JSON.parse(localStorage.getItem('dateCycles') || '[]');
+
+    // Find the ancestor .date-info div of the clicked element
+    const dateInfoDiv = element.closest('.date-info');
+
+    if (dateInfoDiv) {
+        // Get the ID from the class list of dateInfoDiv
+        const dateCycleID = dateInfoDiv.classList[1];
+
+        // Find the corresponding dateCycle object
+        let dateCycleIndex = storedDateCycles.findIndex(dc => dc.ID === dateCycleID);
+        if (dateCycleIndex !== -1) {
+            // Toggle the 'Pinned' status (add if not present)
+            let currentDateCycle = storedDateCycles[dateCycleIndex];
+            currentDateCycle.Pinned = currentDateCycle.Pinned === 'yes' ? 'no' : 'yes';
+
+            // Update the localStorage with the new state
+            localStorage.setItem('dateCycles', JSON.stringify(storedDateCycles));
+
+            displayMatchingDateCycle();
+
+            // Optional: Show an alert with the updated dateCycle JSON
+            // alert(JSON.stringify(storedDateCycles[dateCycleIndex], null, 2));
+        }
+    }
+}
+
 
 
 

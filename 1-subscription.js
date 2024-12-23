@@ -344,35 +344,46 @@ function displayCheckBoxToHideSubscription() {
   
   
   
-  
   function sendUpRegistration() {
     var guidedTour = document.getElementById("guided-tour");
 
     // Select the .modal element within the #guided-tour element
-var guidedTourModal = document.querySelector('#guided-tour .modal');
+    var guidedTourModal = document.querySelector('#guided-tour .modal');
 
-// Check if the guidedTourModal is defined and visible
-if (guidedTourModal && guidedTourModal.style.display !== "none") {
-    // If it's visible, show an alert and exit the function
-    // alert('nope');
-    return;
-}
-
+    // Check if the guidedTourModal is defined and visible
+    if (guidedTourModal && guidedTourModal.style.display !== "none") {
+        return; // Exit if the guided tour modal is visible
+    }
 
     var footer = document.getElementById("registration-footer");
     var emailRegistration = document.getElementById("login-form-section");
+    var loggedInView = document.getElementById("logged-in-view");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
+
+    // Check if the user session is active
+    if (checkUserSession()) {
+        // If user is logged in, show the logged-in view and hide the login form
+        emailRegistration.style.display = "none";
+        loggedInView.style.display = "block";
+    } else {
+        // If user is not logged in, show the login form
+        emailRegistration.style.display = "block";
+        loggedInView.style.display = "none";
+    }
 
     // Adjust the height of the registration footer
     footer.style.height = "90vh";
 
-    // Make the email registration section visible
-    emailRegistration.style.display = "block";
+    // Show or hide the arrows
     upArrow.style.display = "none";
     downArrow.style.display = "block";
+
+    // Update counter or any additional state
     updateShowCounter();
 }
+
+
 
   
 
