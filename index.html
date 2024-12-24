@@ -1213,8 +1213,17 @@ setTimeout(showIntroModal, 5000);
 
 <script>
 
-    //BUWANA LOGIN
+  // BUWANA LOGIN
 
+// Function to generate the logged-in view
+function generateLoggedInView(userData) {
+    // Example: Populate the dashboard or welcome message with user data
+    document.getElementById('welcome-message').textContent = `Welcome, ${userData.first_name}!`;
+    document.getElementById('user-location').textContent = `Location: ${userData.location_full} (${userData.continent_code})`;
+
+    // Show the logged-in section
+    document.getElementById('logged-in-section').style.display = 'block';
+}
 
 // Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
@@ -1231,18 +1240,29 @@ document.getElementById('login').addEventListener('submit', async function (e) {
         const data = await response.json();
 
         if (data.success) {
-            // Hide login form section
-            document.getElementById('login-form-section').style.display = 'none';
+            const connectedApps = data.connected_apps ? data.connected_apps.split(',') : [];
+            const earthcalAppId = '0002'; // Assuming "0002" is the ID for EarthCal
 
-            // Generate the logged-in view
-            generateLoggedInView({
-                first_name: data.first_name,
-                continent_code: data.continent_code,
-                location_full: data.location_full
-            });
+            // Check if the user is registered on EarthCal
+            if (connectedApps.includes(earthcalAppId)) {
+                // User is registered on EarthCal, proceed to logged-in view
+                document.getElementById('login-form-section').style.display = 'none';
+                generateLoggedInView({
+                    first_name: data.first_name,
+                    continent_code: data.continent_code,
+                    location_full: data.location_full
+                });
 
-            // Save user data locally
-            localStorage.setItem('buwana_id', data.buwana_id);
+                // Save user data locally
+                localStorage.setItem('buwana_id', data.buwana_id);
+            } else {
+                // User is not registered on EarthCal, show activation div
+                document.getElementById('login-form-section').style.display = 'none';
+                document.getElementById('activate-earthcal-account').style.display = 'block';
+
+                // Optionally store data locally to assist in the activation process
+                localStorage.setItem('buwana_id', data.buwana_id);
+            }
         } else {
             // Handle errors from server
             handleErrorResponse(determineErrorType(data.message));
@@ -1252,6 +1272,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
         alert('Unable to connect to the server. Please check your internet connection and try again.');
     }
 });
+
 
 // Helper function to determine error type from server response message
 function determineErrorType(message) {

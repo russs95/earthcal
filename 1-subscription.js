@@ -343,7 +343,6 @@ function displayCheckBoxToHideSubscription() {
   
   
   
-  
   function sendUpRegistration() {
     var guidedTour = document.getElementById("guided-tour");
 
@@ -358,18 +357,40 @@ function displayCheckBoxToHideSubscription() {
     var footer = document.getElementById("registration-footer");
     var emailRegistration = document.getElementById("login-form-section");
     var loggedInView = document.getElementById("logged-in-view");
+    var activateEarthCalAccount = document.getElementById("activate-earthcal-account");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
 
     // Check if the user session is active
     if (checkUserSession()) {
-        // If user is logged in, show the logged-in view and hide the login form
-        emailRegistration.style.display = "none";
-        loggedInView.style.display = "block";
+        // Retrieve the user's connected_apps from localStorage or your session handler
+        const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
+        const earthcalAppId = '0002'; // Assuming "0002" is the ID for EarthCal
+
+        if (connectedApps.includes(earthcalAppId)) {
+            // User is logged in and registered on EarthCal, show the logged-in view
+            emailRegistration.style.display = "none";
+            loggedInView.style.display = "block";
+            activateEarthCalAccount.style.display = "none";
+
+            // Use generateLoggedInView to render the logged-in UI
+            const userData = {
+                first_name: localStorage.getItem('first_name') || '',
+                continent_code: localStorage.getItem('continent_code') || '',
+                location_full: localStorage.getItem('location_full') || ''
+            };
+            generateLoggedInView(userData);
+        } else {
+            // User is logged in but not registered on EarthCal, show activation view
+            emailRegistration.style.display = "none";
+            loggedInView.style.display = "none";
+            activateEarthCalAccount.style.display = "block";
+        }
     } else {
         // If user is not logged in, show the login form
         emailRegistration.style.display = "block";
         loggedInView.style.display = "none";
+        activateEarthCalAccount.style.display = "none";
     }
 
     // Adjust the height of the registration footer
