@@ -24,6 +24,40 @@ function checkUserSession() {
 }
 
 
+async function activateEarthcalAccount() {
+    try {
+        const buwanaId = localStorage.getItem('buwana_id'); // Retrieve Buwana ID from localStorage
+
+        if (!buwanaId) {
+            alert("Buwana ID is missing. Please log in again.");
+            return;
+        }
+
+        const response = await fetch('https://gobrik.com/api/earthcal_activate.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ buwana_id: buwanaId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert("Your EarthCal account has been successfully activated!");
+            location.reload(); // Reload the page to reflect the updated status
+        } else {
+            alert(`Activation failed: ${data.message}`);
+        }
+    } catch (error) {
+        console.error('Error activating EarthCal account:', error);
+        alert('An error occurred while activating your EarthCal account. Please try again.');
+    }
+}
+
+
+
+
 // Consolidated function to handle error responses and show the appropriate error div
 function handleErrorResponse(errorType) {
     // Hide both error divs initially
