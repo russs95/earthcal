@@ -394,7 +394,7 @@ function displayCheckBoxToHideSubscription() {
     }
 
     // Adjust the height of the registration footer
-    footer.style.height = "105vh";
+    footer.style.height = "102vh";
 
     // Show or hide the arrows
     upArrow.style.display = "none";

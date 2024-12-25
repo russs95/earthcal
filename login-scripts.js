@@ -23,7 +23,6 @@ function checkUserSession() {
     return buwanaId !== null && buwanaId !== '';
 }
 
-
 async function activateEarthcalAccount() {
     try {
         const buwanaId = localStorage.getItem('buwana_id'); // Retrieve Buwana ID from localStorage
@@ -45,7 +44,16 @@ async function activateEarthcalAccount() {
 
         if (data.success) {
             alert("Your EarthCal account has been successfully activated!");
-            location.reload(); // Reload the page to reflect the updated status
+
+            // Update connected_apps in localStorage
+            let connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
+            if (!connectedApps.includes('0002')) {
+                connectedApps.push('0002');
+                localStorage.setItem('connected_apps', connectedApps.join(','));
+            }
+
+            // Reload the registration state
+            sendUpRegistration();
         } else {
             alert(`Activation failed: ${data.message}`);
         }
@@ -54,6 +62,7 @@ async function activateEarthcalAccount() {
         alert('An error occurred while activating your EarthCal account. Please try again.');
     }
 }
+
 
 
 
