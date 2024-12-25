@@ -23,7 +23,7 @@
     --grey-trans: rgba(136, 136, 136, 0.44);
 
     --form-field-background: #5b5b5b80;
-    --form-field-text: white;
+    --form-field-text: black;
     --form-conf-background: rgba(255, 255, 255, 0.7);
     --form-conf-background-over: rgba(255, 255, 255);
      --form-conf-text: rgb(32, 33, 38);
