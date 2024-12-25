@@ -612,8 +612,11 @@ setTimeout(showIntroModal, 5000);
         </div><!--Login Form -->
         <!--To be shown upon login without activation-->
         <div id="activate-earthcal-account" style="display:none; text-align-center; margin:auto;">
-            <p>It looks like you haven't yet connected your Buwana account with Earcal.</p>
-                                    <button class="confirmation-blur-button enabled">Connect!</button>
+            <p>It looks like you haven't yet connected your Buwana account with Earthcal.</p>
+                                    <button class="confirmation-blur-button enabled" style="margin:10px">Connect!</button>
+            <p style="font-size:0.9em;text-align:center;">By activating EarthCal on your buwana account you agree to our <a onclik="viewTerms">terms of use.</a></p>
+            <button class="confirmation-blur-button" style="margin:10px" onclick="logoutBuwana">Log out</button>
+
         </div>
 
 
