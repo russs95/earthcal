@@ -74,6 +74,7 @@ async function activateEarthcalAccount() {
 
 
 
+
 // Consolidated function to handle error responses and show the appropriate error div
 function handleErrorResponse(errorType) {
     // Hide both error divs initially
