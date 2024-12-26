@@ -116,6 +116,8 @@ function shakeElement(element) {
 // Function to generate the logged-in view
 function generateLoggedInView(userDetails) {
     const loggedInView = document.getElementById("logged-in-view");
+    const activateView = document.getElementById("activate-earthcal-account");
+    activateView.style.display = "none";
 
     // Clear existing content
     loggedInView.innerHTML = "";
@@ -125,17 +127,17 @@ function generateLoggedInView(userDetails) {
 
     // Dynamically set the logged-in content
     loggedInView.innerHTML = `
-        <h3 class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
+        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
 
-        <button class="confirmation-blur-button" onclick="syncUserEvents()">
+        <button class="confirmation-blur-button enabled" style="margin:10px" onclick="syncUserEvents()">
             ${translations.syncButton}
         </button>
 
-        <button onclick="logoutBuwana()" class="confirmation-blur-button">
+        <button onclick="logoutBuwana()" class="confirmation-blur-button" style="margin:10px; background:lightgray;">
             ${translations.logout}
         </button>
 
-        <p>${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}</p>
+        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);" >${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}</p>
     `;
 
     // Show the logged-in view
