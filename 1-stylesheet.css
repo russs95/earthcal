@@ -8,8 +8,22 @@ p {
   color:var(--h1);
   }
 
+usr-timezone-lang {
+    font-size: 0.8em;
+    color: var(--subdued-text);
+    font-family: 'Mulish';
+    margin-top: -6px;
+    margin-left:auto;
+    z-index:20;
+    }
+
 
   @media screen and (max-width: 700px) {
+
+  usr-timezone-lang {
+    margin-right:-55px;
+    }
+
   .date-info h2 {
     font-size: 1.2em;
   
@@ -41,8 +55,12 @@ p {
     }
   }
 
+
   
   @media screen and (min-width: 700px) {
+
+
+
     .date-info h2 {
       font-size: 1.1em;
     
