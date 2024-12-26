@@ -122,6 +122,8 @@ function generateLoggedInView(userDetails) {
     loggedInView.style.display = "block";
 }
 
+
+
 function viewTerms()  {
        alert("Sorry, our terms of use are still under development along with Buwana login.");
        }

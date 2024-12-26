@@ -1228,15 +1228,7 @@ setTimeout(showIntroModal, 5000);
 
   // BUWANA LOGIN
 
-// Function to generate the logged-in view
-function generateLoggedInView(userData) {
-    // Example: Populate the dashboard or welcome message with user data
-    document.getElementById('welcome-message').textContent = `Welcome, ${userData.first_name}!`;
-    document.getElementById('user-location').textContent = `Location: ${userData.location_full} (${userData.continent_code})`;
 
-    // Show the logged-in section
-    document.getElementById('logged-in-section').style.display = 'block';
-}
 
 // Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
@@ -1272,6 +1264,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 // User is not registered on EarthCal, show activation div
                 document.getElementById('login-form-section').style.display = 'none';
                 document.getElementById('activate-earthcal-account').style.display = 'block';
+                document.getElementById('logged-in-view').style.display = 'none';
 
                 // Optionally store data locally to assist in the activation process
                 localStorage.setItem('buwana_id', data.buwana_id);
