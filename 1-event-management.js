@@ -1141,7 +1141,7 @@ async function syncUserEvents() {
 
 async function updateServer(dateCycles) {
     // Update the server with the provided dateCycles
-    const response = await fetch('https://gobrik.com/api/update_Calendar.php', {
+    const response = await fetch('https://gobrik.com/api/update_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

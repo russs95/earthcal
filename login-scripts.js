@@ -129,8 +129,8 @@ function generateLoggedInView(userDetails) {
     loggedInView.innerHTML = `
 
             <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
-            <div id="logged-in-buttons" style="width:100%;">
-                <button class="confirmation-blur-button enabled" onclick="syncUserEvents()"> ${translations.syncButton}
+            <div id="logged-in-buttons" style="width:90%;margin:auto;">
+                <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()"> ${translations.syncButton}
                 </button>
                 <button onclick="logoutBuwana()" class="confirmation-blur-button cancel" >
                     ${translations.logout}

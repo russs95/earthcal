@@ -226,7 +226,7 @@ select {
 }
 
 .cancel {
-    background-color: #555;
+    background-color: grey;
     cursor: pointer;
     color: var(--text-color);
 }
