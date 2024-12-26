@@ -144,7 +144,9 @@ function logoutBuwana() {
     // Reset views
     document.getElementById("login-form-section").style.display = "block";
     const loggedInView = document.getElementById("logged-in-view");
+    const activateView = document.getElementById("activate-earthcal-account");
     loggedInView.style.display = "none";
+    activateView.style.display = "none";
     loggedInView.innerHTML = ""; // Clear content
 
     alert("You have been logged out successfully.");
