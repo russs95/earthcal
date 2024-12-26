@@ -8,7 +8,7 @@ p {
   color:var(--h1);
   }
 
-usr-timezone-lang {
+user-timezone-lang {
     font-size: 0.8em;
     color: var(--subdued-text);
     font-family: 'Mulish';
@@ -20,7 +20,7 @@ usr-timezone-lang {
 
   @media screen and (max-width: 700px) {
 
-  usr-timezone-lang {
+  user-timezone-lang {
     margin-right:-55px;
     }
 
@@ -2535,7 +2535,7 @@ INFO MODAL
 
 
   .confirmation-blur-button:hover {
-  background-color: var(--form-conf-background-over) !important;
+  background-color: var(--form-conf-background-over);
   }
 
 

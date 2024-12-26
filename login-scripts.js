@@ -127,15 +127,15 @@ function generateLoggedInView(userDetails) {
 
     // Dynamically set the logged-in content
     loggedInView.innerHTML = `
-        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
 
-        <button class="confirmation-blur-button enabled" style="margin:10px" onclick="syncUserEvents()">
-            ${translations.syncButton}
-        </button>
-
-        <button onclick="logoutBuwana()" class="confirmation-blur-button" style="margin:10px; background:lightgray;">
-            ${translations.logout}
-        </button>
+            <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
+            <div class="form-item">
+                <button class="confirmation-blur-button enabled" onclick="syncUserEvents()"> ${translations.syncButton}
+                </button>
+                <button onclick="logoutBuwana()" class="confirmation-blur-button cancel" >
+                    ${translations.logout}
+                </button>
+            </div>
 
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);" >${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}</p>
     `;
