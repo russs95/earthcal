@@ -1052,3 +1052,130 @@ function handleKeyPress(event) {
      addNewCalendar(); // Call your search function without arguments
   }
 }
+
+
+
+//*********************************
+
+// SYNC DATECYCLES
+
+//*********************************
+
+async function syncUserEvents() {
+    try {
+        // Step 1: Fetch local dateCycles and metadata
+        const localDateCycles = fetchDateCycles() || [];
+        const localMetadata = {
+            lastModified: localStorage.getItem('dateCycles_last_modified') || new Date().toISOString(),
+            datecyclesCount: localDateCycles.length
+        };
+
+        // Step 2: Fetch server metadata
+        const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                buwana_id: localStorage.getItem('buwana_id'),
+                calendar_name: 'My Calendar'
+            })
+        });
+
+        const serverMetadata = await response.json();
+
+        // Step 3: Compare metadata to identify sync scenario
+        if (localMetadata.lastModified === serverMetadata.last_updated && localMetadata.datecyclesCount === serverMetadata.datecyclesCount) {
+            alert('Your dateCycles are already in sync!');
+            return;
+        }
+
+        let userChoice;
+
+        if (new Date(localMetadata.lastModified) > new Date(serverMetadata.last_updated)) {
+            // Local data is newer
+            userChoice = confirm(
+                "Your local dateCycles are newer than the server's. Do you want to overwrite the server copy?"
+            ) ? 'keepLocal' : 'useServer';
+        } else if (new Date(localMetadata.lastModified) < new Date(serverMetadata.last_updated)) {
+            // Server data is newer
+            userChoice = confirm(
+                "The server's dateCycles are newer than your local copy. Do you want to overwrite your local copy?"
+            ) ? 'useServer' : 'keepLocal';
+        } else {
+            // Divergent changes
+            userChoice = prompt(
+                "Both your local and server dateCycles have been modified. Choose an option:\n1. Keep Local\n2. Use Server\n3. Merge",
+                "3"
+            );
+        }
+
+        // Step 4: Handle sync decision
+        switch (userChoice) {
+            case 'keepLocal':
+            case '1': // Handle prompt input
+                await updateServer(localDateCycles);
+                break;
+
+            case 'useServer':
+            case '2': // Handle prompt input
+                await updateLocal(serverMetadata.datecycles);
+                break;
+
+            case 'merge':
+            case '3': // Handle prompt input
+                const mergedDateCycles = mergeLocalAndServer(localDateCycles, serverMetadata.datecycles);
+                await updateServer(mergedDateCycles);
+                updateLocal(mergedDateCycles);
+                break;
+
+            default:
+                alert('Sync canceled. No changes made.');
+                return;
+        }
+
+        alert('DateCycles have been successfully synced!');
+    } catch (error) {
+        console.error('Error during sync:', error);
+        alert('An error occurred while syncing your dateCycles. Please try again.');
+    }
+}
+
+async function updateServer(dateCycles) {
+    // Update the server with the provided dateCycles
+    const response = await fetch('https://gobrik.com/api/update_Calendar.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            buwana_id: localStorage.getItem('buwana_id'),
+            calendar_name: 'My Calendar',
+            datecycles: dateCycles
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update server data.');
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+        throw new Error(result.message || 'Unknown error occurred on server.');
+    }
+
+    // Update the local metadata with the new server's last_updated timestamp
+    localStorage.setItem('dateCycles_last_modified', result.last_updated);
+}
+
+function updateLocal(dateCycles) {
+    // Update the local storage with the provided dateCycles
+    localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+    localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
+}
+
+function mergeLocalAndServer(localDateCycles, serverDateCycles) {
+    // Merge local and server dateCycles, retaining unique entries
+    const allDateCycles = [...localDateCycles, ...serverDateCycles];
+    const uniqueDateCycles = Array.from(
+        new Map(allDateCycles.map(dc => [dc.ID, dc])).values()
+    );
+
+    return uniqueDateCycles;
+}
