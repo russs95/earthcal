@@ -23,6 +23,7 @@ function checkUserSession() {
     return buwanaId !== null && buwanaId !== '';
 }
 
+
 async function activateEarthcalAccount() {
     try {
         const buwanaId = localStorage.getItem('buwana_id'); // Retrieve Buwana ID from localStorage
@@ -52,6 +53,11 @@ async function activateEarthcalAccount() {
                 localStorage.setItem('connected_apps', connectedApps.join(','));
             }
 
+            // Update user data in localStorage
+            localStorage.setItem('first_name', data.first_name || '');
+            localStorage.setItem('continent_code', data.continent_code || '');
+            localStorage.setItem('location_full', data.location_full || '');
+
             // Reload the registration state
             sendUpRegistration();
         } else {
@@ -62,6 +68,7 @@ async function activateEarthcalAccount() {
         alert('An error occurred while activating your EarthCal account. Please try again.');
     }
 }
+
 
 
 
