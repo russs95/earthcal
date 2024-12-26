@@ -342,55 +342,42 @@ function displayCheckBoxToHideSubscription() {
 
   
   
-  
   function sendUpRegistration() {
-    var guidedTour = document.getElementById("guided-tour");
+    const guidedTour = document.getElementById("guided-tour");
+    const guidedTourModal = document.querySelector('#guided-tour .modal');
 
-    // Select the .modal element within the #guided-tour element
-    var guidedTourModal = document.querySelector('#guided-tour .modal');
-
-    // Check if the guidedTourModal is defined and visible
+    // Exit if the guided tour modal is visible
     if (guidedTourModal && guidedTourModal.style.display !== "none") {
-        return; // Exit if the guided tour modal is visible
+        return;
     }
 
-    var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("login-form-section");
-    var loggedInView = document.getElementById("logged-in-view");
-    var activateEarthCalAccount = document.getElementById("activate-earthcal-account");
-    var upArrow = document.getElementById("reg-up-button");
-    var downArrow = document.getElementById("reg-down-button");
+    const footer = document.getElementById("registration-footer");
+    const emailRegistration = document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
+    const activateEarthCalAccount = document.getElementById("activate-earthcal-account");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
 
     // Check if the user session is active
     if (checkUserSession()) {
-        // Retrieve the user's connected_apps from localStorage or your session handler
-        const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
-        const earthcalAppId = '0002'; // Assuming "0002" is the ID for EarthCal
+        try {
+            const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
+            const earthcalAppId = '0002'; // EarthCal App ID
 
-        if (connectedApps.includes(earthcalAppId)) {
-            // User is logged in and registered on EarthCal, show the logged-in view
-            emailRegistration.style.display = "none";
-            loggedInView.style.display = "block";
-            activateEarthCalAccount.style.display = "none";
-
-            // Use generateLoggedInView to render the logged-in UI
-            const userData = {
-                first_name: localStorage.getItem('first_name') || '',
-                continent_code: localStorage.getItem('continent_code') || '',
-                location_full: localStorage.getItem('location_full') || ''
-            };
-            generateLoggedInView(userData);
-        } else {
-            // User is logged in but not registered on EarthCal, show activation view
-            emailRegistration.style.display = "none";
-            loggedInView.style.display = "none";
-            activateEarthCalAccount.style.display = "block";
+            if (connectedApps.includes(earthcalAppId)) {
+                // User is logged in and registered on EarthCal
+                showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount);
+            } else {
+                // User is logged in but not registered on EarthCal
+                showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount);
+            }
+        } catch (error) {
+            console.error('Error accessing localStorage:', error);
+            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
         }
     } else {
-        // If user is not logged in, show the login form
-        emailRegistration.style.display = "block";
-        loggedInView.style.display = "none";
-        activateEarthCalAccount.style.display = "none";
+        // User is not logged in, show the login form
+        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
     }
 
     // Adjust the height of the registration footer
@@ -399,10 +386,40 @@ function displayCheckBoxToHideSubscription() {
     // Show or hide the arrows
     upArrow.style.display = "none";
     downArrow.style.display = "block";
-
-    // Update counter or any additional state
-    updateShowCounter();
 }
+
+// Helper Functions
+function showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount) {
+    emailRegistration.style.display = "none";
+    activateEarthCalAccount.style.display = "none";
+    loggedInView.style.display = "block";
+
+    const userData = {
+        first_name: localStorage.getItem('first_name') || '',
+        continent_code: localStorage.getItem('continent_code') || '',
+        location_full: localStorage.getItem('location_full') || ''
+    };
+
+    generateLoggedInView(userData);
+}
+
+function showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount) {
+    emailRegistration.style.display = "none";
+    loggedInView.style.display = "none";
+    activateEarthCalAccount.style.display = "block";
+}
+
+function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount) {
+    emailRegistration.style.display = "block";
+    loggedInView.style.display = "none";
+    activateEarthCalAccount.style.display = "none";
+}
+
+function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount) {
+    console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
+    showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
+}
+
 
 
 
