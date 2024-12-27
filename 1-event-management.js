@@ -1062,12 +1062,10 @@ function handleKeyPress(event) {
 //*********************************
 
 
-
 async function syncUserEvents() {
     try {
-        // Step 1: Fetch local calendars and their metadata
         const localDateCycles = fetchDateCycles() || [];
-        const localCalendars = [...new Set(localDateCycles.map(dc => dc.selectCalendar))]; // Get unique calendar names
+        const localCalendars = [...new Set(localDateCycles.map(dc => dc.selectCalendar))];
         const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
@@ -1075,7 +1073,6 @@ async function syncUserEvents() {
             return;
         }
 
-        // Step 2: Check server for user's existing calendars
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1084,43 +1081,50 @@ async function syncUserEvents() {
 
         const serverData = await response.json();
         if (!serverData.success) {
-            throw new Error(serverData.message || 'Failed to retrieve calendar data from server.');
+            console.error('Server Error:', serverData.message);
+            throw new Error(serverData.message || 'Failed to retrieve calendar data.');
         }
 
         const serverCalendars = serverData.data.map(c => c.calendar_name);
         const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
 
-        // Step 3: Handle unsynced calendars
         if (unsyncedCalendars.length > 0) {
+            console.log('Unsynced Calendars Detected:', unsyncedCalendars);
             const confirmSync = confirm(
                 `Looks like ${unsyncedCalendars.join(', ')} have not yet been synced with your Buwana account! Shall we go ahead and sync them?`
             );
 
             if (confirmSync) {
                 for (const calendarName of unsyncedCalendars) {
-                    const calendarColor = 'blue'; // Default value
-                    const calendarPublic = 0; // Default value
-
                     const createResponse = await fetch('https://gobrik.com/api/create_calendar.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             buwana_id: buwanaId,
                             calendar_name: calendarName,
-                            calendar_color: calendarColor,
-                            calendar_public: calendarPublic
+                            calendar_color: 'red', // Example value
+                            calendar_public: 0 // Example value
                         })
                     });
 
                     const createData = await createResponse.json();
                     if (!createData.success) {
-                        throw new Error(`Failed to create calendar: ${calendarName}. ${createData.message}`);
+                        console.error('Error Creating Calendar:', createData.message);
+                        throw new Error(`Failed to create calendar: ${calendarName}`);
                     }
                 }
 
                 alert('Unsynced calendars have been successfully created and synced!');
             }
         }
+
+        alert('DateCycles have been successfully synced!');
+    } catch (error) {
+        console.error('Error during sync:', error);
+        alert('An error occurred while syncing your calendars. Please try again.');
+    }
+}
+
 
         // Step 4: Compare and sync dateCycles
         // Fetch server calendar metadata
