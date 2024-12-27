@@ -1227,7 +1227,6 @@ setTimeout(showIntroModal, 5000);
   // BUWANA LOGIN
 
 
-
 // Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevent default form submission
@@ -1242,13 +1241,12 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
         const data = await response.json();
 
+        // Log the full JSON response to the console
+        console.log('User Data Retrieved:', JSON.stringify(data, null, 2));
+
         if (data.success) {
             const connectedApps = data.connected_apps ? data.connected_apps.split(',') : [];
-            const earthcalAppId = '00002'; // Assuming "00002" is the ID for EarthCal
-
-            // Save user data to localStorage
-            localStorage.setItem('buwana_id', data.buwana_id);
-            localStorage.setItem('connected_apps', data.connected_apps || ''); // Save connected_apps
+            const earthcalAppId = '00002'; // Assuming "0002" is the ID for EarthCal
 
             // Check if the user is registered on EarthCal
             if (connectedApps.includes(earthcalAppId)) {
@@ -1259,11 +1257,22 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                     continent_code: data.continent_code,
                     location_full: data.location_full
                 });
+
+                // Save user data locally
+                localStorage.setItem('buwana_id', data.buwana_id);
+                localStorage.setItem('connected_apps', data.connected_apps);
+                localStorage.setItem('first_name', data.first_name);
+                localStorage.setItem('continent_code', data.continent_code);
+                localStorage.setItem('location_full', data.location_full);
             } else {
                 // User is not registered on EarthCal, show activation div
                 document.getElementById('login-form-section').style.display = 'none';
                 document.getElementById('activate-earthcal-account').style.display = 'block';
                 document.getElementById('logged-in-view').style.display = 'none';
+
+                // Optionally store data locally to assist in the activation process
+                localStorage.setItem('buwana_id', data.buwana_id);
+                localStorage.setItem('connected_apps', data.connected_apps);
             }
         } else {
             // Handle errors from server
@@ -1274,6 +1283,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
         alert('Unable to connect to the server. Please check your internet connection and try again.');
     }
 });
+
 
 
 
