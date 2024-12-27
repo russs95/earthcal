@@ -333,15 +333,7 @@ function displayCheckBoxToHideSubscription() {
     }
 }
   
-
-  
-  // ... (Any other function definitions)
-  
-  // Run invite2Register on page load
-  //document.addEventListener('DOMContentLoaded', invite2Register);
-
-  
-  function sendUpRegistration() {
+function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
 
@@ -360,18 +352,23 @@ function displayCheckBoxToHideSubscription() {
     // Check if the user session is active
     if (checkUserSession()) {
         try {
-            const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
+            // Retrieve and validate connected_apps from localStorage
+            const connectedAppsRaw = localStorage.getItem('connected_apps') || '';
+            const connectedApps = connectedAppsRaw.split(',').map(app => app.trim());
             const earthcalAppId = '00002'; // EarthCal App ID
 
             if (connectedApps.includes(earthcalAppId)) {
                 // User is logged in and registered on EarthCal
                 showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount);
+            } else if (connectedAppsRaw === '') {
+                console.warn('Connected apps are missing in localStorage.');
+                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
             } else {
                 // User is logged in but not registered on EarthCal
                 showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount);
             }
         } catch (error) {
-            console.error('Error accessing localStorage:', error);
+            console.error('Error accessing or parsing connected_apps in localStorage:', error);
             showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
         }
     } else {
