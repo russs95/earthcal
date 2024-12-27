@@ -1244,7 +1244,11 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
         if (data.success) {
             const connectedApps = data.connected_apps ? data.connected_apps.split(',') : [];
-            const earthcalAppId = '00002'; // Assuming "0002" is the ID for EarthCal
+            const earthcalAppId = '00002'; // Assuming "00002" is the ID for EarthCal
+
+            // Save user data to localStorage
+            localStorage.setItem('buwana_id', data.buwana_id);
+            localStorage.setItem('connected_apps', data.connected_apps || ''); // Save connected_apps
 
             // Check if the user is registered on EarthCal
             if (connectedApps.includes(earthcalAppId)) {
@@ -1255,17 +1259,11 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                     continent_code: data.continent_code,
                     location_full: data.location_full
                 });
-
-                // Save user data locally
-                localStorage.setItem('buwana_id', data.buwana_id);
             } else {
                 // User is not registered on EarthCal, show activation div
                 document.getElementById('login-form-section').style.display = 'none';
                 document.getElementById('activate-earthcal-account').style.display = 'block';
                 document.getElementById('logged-in-view').style.display = 'none';
-
-                // Optionally store data locally to assist in the activation process
-                localStorage.setItem('buwana_id', data.buwana_id);
             }
         } else {
             // Handle errors from server
@@ -1276,6 +1274,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
         alert('Unable to connect to the server. Please check your internet connection and try again.');
     }
 });
+
 
 
 // Helper function to determine error type from server response message
