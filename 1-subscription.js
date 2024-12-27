@@ -361,7 +361,7 @@ function displayCheckBoxToHideSubscription() {
     if (checkUserSession()) {
         try {
             const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
-            const earthcalAppId = '0002'; // EarthCal App ID
+            const earthcalAppId = '00002'; // EarthCal App ID
 
             if (connectedApps.includes(earthcalAppId)) {
                 // User is logged in and registered on EarthCal
