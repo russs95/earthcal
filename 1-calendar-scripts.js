@@ -736,7 +736,7 @@ function displayUserData() {
 
             <span id="current-user-time"></span>
             <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
-            ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in">🟢</span>' : ''}
+            ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in" style="cursor:pointer;font-size:0.7em;>🟢</span>' : ''}
         `;
 
     // Update the time immediately
