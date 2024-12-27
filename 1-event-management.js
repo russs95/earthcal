@@ -1061,92 +1061,104 @@ function handleKeyPress(event) {
 
 //*********************************
 
+
+
 async function syncUserEvents() {
     try {
-        // Step 1: Fetch local dateCycles and metadata
+        // Step 1: Fetch local calendars and their metadata
         const localDateCycles = fetchDateCycles() || [];
-        const localMetadata = {
-            lastModified: localStorage.getItem('dateCycles_last_modified') || new Date().toISOString(),
-            datecyclesCount: localDateCycles.length
-        };
+        const localCalendars = [...new Set(localDateCycles.map(dc => dc.selectCalendar))]; // Get unique calendar names
+        const buwanaId = localStorage.getItem('buwana_id');
 
-        // Step 2: Fetch server metadata
-        const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                buwana_id: localStorage.getItem('buwana_id'),
-                calendar_name: 'My Calendar'
-            })
-        });
-
-        const serverMetadata = await response.json();
-
-        // Step 3: Compare metadata to identify sync scenario
-        if (localMetadata.lastModified === serverMetadata.last_updated && localMetadata.datecyclesCount === serverMetadata.datecyclesCount) {
-            alert('Your dateCycles are already in sync!');
+        if (!buwanaId) {
+            alert('Buwana ID is missing. Please log in again.');
             return;
         }
 
-        let userChoice;
+        // Step 2: Check server for user's existing calendars
+        const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId })
+        });
 
-        if (new Date(localMetadata.lastModified) > new Date(serverMetadata.last_updated)) {
-            // Local data is newer
-            userChoice = confirm(
-                "Your local dateCycles are newer than the server's. Do you want to overwrite the server copy?"
-            ) ? 'keepLocal' : 'useServer';
-        } else if (new Date(localMetadata.lastModified) < new Date(serverMetadata.last_updated)) {
-            // Server data is newer
-            userChoice = confirm(
-                "The server's dateCycles are newer than your local copy. Do you want to overwrite your local copy?"
-            ) ? 'useServer' : 'keepLocal';
-        } else {
-            // Divergent changes
-            userChoice = prompt(
-                "Both your local and server dateCycles have been modified. Choose an option:\n1. Keep Local\n2. Use Server\n3. Merge",
-                "3"
-            );
+        const serverData = await response.json();
+        if (!serverData.success) {
+            throw new Error(serverData.message || 'Failed to retrieve calendar data from server.');
         }
 
-        // Step 4: Handle sync decision
-        switch (userChoice) {
-            case 'keepLocal':
-            case '1': // Handle prompt input
-                await updateServer(localDateCycles);
-                break;
+        const serverCalendars = serverData.data.map(c => c.calendar_name);
+        const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
 
-            case 'useServer':
-            case '2': // Handle prompt input
-                await updateLocal(serverMetadata.datecycles);
-                break;
+        // Step 3: Handle unsynced calendars
+        if (unsyncedCalendars.length > 0) {
+            const confirmSync = confirm(
+                `Looks like ${unsyncedCalendars.join(', ')} have not yet been synced with your Buwana account! Shall we go ahead and sync them?`
+            );
 
-            case 'merge':
-            case '3': // Handle prompt input
-                const mergedDateCycles = mergeLocalAndServer(localDateCycles, serverMetadata.datecycles);
-                await updateServer(mergedDateCycles);
-                updateLocal(mergedDateCycles);
-                break;
+            if (confirmSync) {
+                for (const calendarName of unsyncedCalendars) {
+                    const calendarColor = 'blue'; // Default value
+                    const calendarPublic = 0; // Default value
 
-            default:
-                alert('Sync canceled. No changes made.');
-                return;
+                    const createResponse = await fetch('https://gobrik.com/api/create_calendar.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            buwana_id: buwanaId,
+                            calendar_name: calendarName,
+                            calendar_color: calendarColor,
+                            calendar_public: calendarPublic
+                        })
+                    });
+
+                    const createData = await createResponse.json();
+                    if (!createData.success) {
+                        throw new Error(`Failed to create calendar: ${calendarName}. ${createData.message}`);
+                    }
+                }
+
+                alert('Unsynced calendars have been successfully created and synced!');
+            }
+        }
+
+        // Step 4: Compare and sync dateCycles
+        // Fetch server calendar metadata
+        const serverCalendarsMetadata = serverData.data;
+
+        for (const localCalendarName of localCalendars) {
+            const serverCalendar = serverCalendarsMetadata.find(c => c.calendar_name === localCalendarName);
+            const localDateCyclesForCalendar = localDateCycles.filter(dc => dc.selectCalendar === localCalendarName);
+
+            if (serverCalendar) {
+                const serverLastUpdated = new Date(serverCalendar.last_updated);
+                const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
+
+                if (localLastModified > serverLastUpdated) {
+                    // Local is newer; update the server
+                    await updateServer(localDateCyclesForCalendar, localCalendarName, buwanaId);
+                } else if (serverLastUpdated > localLastModified) {
+                    // Server is newer; update local
+                    await updateLocal(serverCalendar.events_json_blob, localCalendarName);
+                }
+            }
         }
 
         alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
-        alert('An error occurred while syncing your dateCycles. Please try again.');
+        alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
 
-async function updateServer(dateCycles) {
+async function updateServer(dateCycles, calendarName, buwanaId) {
     // Update the server with the provided dateCycles
     const response = await fetch('https://gobrik.com/api/update_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            buwana_id: localStorage.getItem('buwana_id'),
-            calendar_name: 'My Calendar',
+            buwana_id: buwanaId,
+            calendar_name: calendarName,
             datecycles: dateCycles
         })
     });
@@ -1164,18 +1176,13 @@ async function updateServer(dateCycles) {
     localStorage.setItem('dateCycles_last_modified', result.last_updated);
 }
 
-function updateLocal(dateCycles) {
+function updateLocal(serverDateCycles, calendarName) {
     // Update the local storage with the provided dateCycles
-    localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+    const existingDateCycles = fetchDateCycles() || [];
+    const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
+    const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
+
+    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
     localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
 }
 
-function mergeLocalAndServer(localDateCycles, serverDateCycles) {
-    // Merge local and server dateCycles, retaining unique entries
-    const allDateCycles = [...localDateCycles, ...serverDateCycles];
-    const uniqueDateCycles = Array.from(
-        new Map(allDateCycles.map(dc => [dc.ID, dc])).values()
-    );
-
-    return uniqueDateCycles;
-}
