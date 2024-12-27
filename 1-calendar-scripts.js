@@ -733,11 +733,11 @@ function displayUserData() {
     // Set the initial content of the div with id 'user-timezone-lang'
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
     userTimezoneLangDiv.innerHTML = `
-        <p>
+
             <span id="current-user-time"></span>
             <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
             ${isUserLoggedIn ? '<span id="logged-in-green">🟢</span>' : ''}
-        </p>`;
+        `;
 
     // Update the time immediately
     updateTime();
