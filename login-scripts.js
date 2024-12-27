@@ -113,6 +113,7 @@ function shakeElement(element) {
 }
 
 
+
 // Function to generate the logged-in view
 function generateLoggedInView(userDetails) {
     const loggedInView = document.getElementById("logged-in-view");
@@ -125,24 +126,40 @@ function generateLoggedInView(userDetails) {
     // Fetch translations based on the selected language
     const translations = loggedInTranslations[language] || loggedInTranslations.EN;
 
+    // Retrieve last sync time and calendar names from localStorage
+    const lastSyncedTs = localStorage.getItem('last_sync_ts') || '0:00';
+    const calendarNames = localStorage.getItem('calendar_names')
+        ? localStorage.getItem('calendar_names').split(',').join(', ')
+        : null;
+
+    // Determine sync status message
+    const syncMessage = calendarNames && lastSyncedTs !== '0:00'
+        ? `<p>Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
+        : `<p>Your dateCycles haven't been synced yet.</p>`;
+
     // Dynamically set the logged-in content
     loggedInView.innerHTML = `
-
-            <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">${translations.welcome} ${userDetails.first_name || 'User'}.</h3>
-            <div id="logged-in-buttons" style="width:90%;margin:auto;">
-                <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()"> ${translations.syncButton}
-                </button>
-                <button onclick="logoutBuwana()" class="confirmation-blur-button cancel" >
-                    ${translations.logout}
-                </button>
-            </div>
-
-        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);" >${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}</p>
+        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+            ${translations.welcome} ${userDetails.first_name || 'User'}.
+        </h3>
+        <div id="logged-in-buttons" style="width:90%;margin:auto;">
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+                ${translations.syncButton}
+            </button>
+            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+                ${translations.logout}
+            </button>
+        </div>
+        ${syncMessage}
+        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+            ${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}
+        </p>
     `;
 
     // Show the logged-in view
     loggedInView.style.display = "block";
 }
+
 
 
 
