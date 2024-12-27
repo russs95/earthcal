@@ -1057,10 +1057,10 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
+
 async function syncUserEvents() {
     try {
         const localDateCycles = fetchDateCycles() || [];
-        const localCalendars = [...new Set(localDateCycles.map(dc => dc.selectCalendar))];
         const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
@@ -1068,11 +1068,11 @@ async function syncUserEvents() {
             return;
         }
 
-        // Fetch calendars from the server
+        // Fetch "My Calendar" data from the server
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId })
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_name: 'My Calendar' })
         });
 
         const serverData = await response.json();
@@ -1081,102 +1081,51 @@ async function syncUserEvents() {
             throw new Error(serverData.message || 'Failed to retrieve calendar data.');
         }
 
-        const serverCalendars = serverData.data.map(c => c.calendar_name);
+        const serverCalendar = serverData.data; // Assuming "My Calendar" is returned
+        const serverLastUpdated = new Date(serverCalendar.last_updated || '1970-01-01T00:00:00Z');
+        const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || '1970-01-01T00:00:00Z');
 
-        if (serverCalendars.length === 0) {
-            // No calendars exist on the server
-            console.warn('No calendars found for the user on the server.');
-
-            if (localCalendars.length > 0) {
-                const confirmCreate = confirm(
-                    `It looks like you don’t have any calendars synced to your Buwana account yet. Do you want to create calendars for the following: ${localCalendars.join(', ')}?`
-                );
-
-                if (confirmCreate) {
-                    for (const calendarName of localCalendars) {
-                        await createCalendar(buwanaId, calendarName);
-                    }
-
-                    alert('Your calendars have been created on the server!');
-                    return; // Exit the function after creating calendars
-                } else {
-                    alert('No calendars were created. Sync aborted.');
-                    return; // Exit if the user doesn’t want to create calendars
-                }
-            } else {
-                alert('No local calendars found. Please add a calendar to sync.');
-                return; // Exit if there are no local calendars
-            }
-        }
-
-        // Handle unsynced calendars
-        const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
-        if (unsyncedCalendars.length > 0) {
-            console.log('Unsynced Calendars Detected:', unsyncedCalendars);
-            const confirmSync = confirm(
-                `Looks like ${unsyncedCalendars.join(', ')} have not yet been synced with your Buwana account! Shall we go ahead and sync them?`
-            );
-
-            if (confirmSync) {
-                for (const calendarName of unsyncedCalendars) {
-                    await createCalendar(buwanaId, calendarName);
-                }
-
-                alert('Unsynced calendars have been successfully created and synced!');
-            }
-        }
-
-        // Step 4: Compare and sync dateCycles for each local calendar
-        const serverCalendarsMetadata = serverData.data;
-
-        for (const localCalendarName of localCalendars) {
-            const serverCalendar = serverCalendarsMetadata.find(c => c.calendar_name === localCalendarName);
-            const localDateCyclesForCalendar = localDateCycles.filter(dc => dc.selectCalendar === localCalendarName);
-
-            if (serverCalendar) {
-                const serverLastUpdated = new Date(serverCalendar.last_updated);
-                const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
-
-                if (localLastModified > serverLastUpdated) {
-                    console.log(`Updating server with newer local data for calendar: ${localCalendarName}`);
-                    await updateServer(localDateCyclesForCalendar, localCalendarName, buwanaId);
-                } else if (serverLastUpdated > localLastModified) {
-                    console.log(`Updating local data with newer server data for calendar: ${localCalendarName}`);
-                    updateLocal(serverCalendar.events_json_blob, localCalendarName);
-                } else {
-                    console.log(`No updates needed for calendar: ${localCalendarName}`);
-                }
-            }
+        if (localLastModified > serverLastUpdated) {
+            console.log('Updating server with newer local data for "My Calendar".');
+            await updateServer(localDateCycles, 'My Calendar', buwanaId);
+        } else if (serverLastUpdated > localLastModified) {
+            console.log('Updating local data with newer server data for "My Calendar".');
+            updateLocal(serverCalendar.events_json_blob, 'My Calendar');
+        } else {
+            console.log('No updates needed for "My Calendar".');
         }
 
         alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
-        alert('An error occurred while syncing your calendars. Please try again.');
+        alert('An error occurred while syncing your calendar. Please try again.');
     }
 }
+
 
 
 // Helper function to create a new calendar
-async function createCalendar(buwanaId, calendarName) {
-    const response = await fetch('https://gobrik.com/api/create_calendar.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            buwana_id: buwanaId,
-            calendar_name: calendarName,
-            calendar_color: 'red', // Default color
-            calendar_public: 0 // Default visibility
-        })
-    });
+//async function createCalendar(buwanaId, calendarName) {
+//    const response = await fetch('https://gobrik.com/api/create_calendar.php', {
+//        method: 'POST',
+//        headers: { 'Content-Type': 'application/json' },
+//        body: JSON.stringify({
+//            buwana_id: buwanaId,
+//            calendar_name: calendarName,
+//            calendar_color: 'red', // Default color
+//            calendar_public: 0 // Default visibility
+//        })
+//    });
+//
+//    const createData = await response.json();
+//    if (!createData.success) {
+//        console.error('Error Creating Calendar:', createData.message);
+//        throw new Error(`Failed to create calendar: ${calendarName}`);
+//    }
+//    console.log(`Calendar "${calendarName}" created successfully.`);
+//}
 
-    const createData = await response.json();
-    if (!createData.success) {
-        console.error('Error Creating Calendar:', createData.message);
-        throw new Error(`Failed to create calendar: ${calendarName}`);
-    }
-    console.log(`Calendar "${calendarName}" created successfully.`);
-}
+
 
 // Helper function to update the server with local dateCycles
 async function updateServer(dateCycles, calendarName, buwanaId) {
@@ -1201,8 +1150,8 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
 
     // Update the local metadata with the new server's last_updated timestamp
     localStorage.setItem('dateCycles_last_modified', result.last_updated);
-    console.log(`Server updated for calendar: ${calendarName}`);
 }
+
 
 // Helper function to update local storage with server dateCycles
 function updateLocal(serverDateCycles, calendarName) {
@@ -1212,6 +1161,6 @@ function updateLocal(serverDateCycles, calendarName) {
 
     localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
     localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
-    console.log(`Local storage updated for calendar: ${calendarName}`);
 }
+
 
