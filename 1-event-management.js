@@ -1054,11 +1054,8 @@ function handleKeyPress(event) {
 }
 
 
-
 //*********************************
-
 // SYNC DATECYCLES
-
 //*********************************
 
 async function syncUserEvents() {
@@ -1104,7 +1101,7 @@ async function syncUserEvents() {
             }
         }
 
-        // Step 4: Compare and sync dateCycles
+        // Compare and sync dateCycles for each local calendar
         const serverCalendarsMetadata = serverData.data;
 
         for (const localCalendarName of localCalendars) {
@@ -1116,11 +1113,13 @@ async function syncUserEvents() {
                 const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
 
                 if (localLastModified > serverLastUpdated) {
-                    // Local is newer; update the server
+                    console.log(`Updating server with newer local data for calendar: ${localCalendarName}`);
                     await updateServer(localDateCyclesForCalendar, localCalendarName, buwanaId);
                 } else if (serverLastUpdated > localLastModified) {
-                    // Server is newer; update local
+                    console.log(`Updating local data with newer server data for calendar: ${localCalendarName}`);
                     updateLocal(serverCalendar.events_json_blob, localCalendarName);
+                } else {
+                    console.log(`No updates needed for calendar: ${localCalendarName}`);
                 }
             }
         }
@@ -1153,39 +1152,8 @@ async function createCalendar(buwanaId, calendarName) {
     console.log(`Calendar "${calendarName}" created successfully.`);
 }
 
-
-
-        // Step 4: Compare and sync dateCycles
-        // Fetch server calendar metadata
-        const serverCalendarsMetadata = serverData.data;
-
-        for (const localCalendarName of localCalendars) {
-            const serverCalendar = serverCalendarsMetadata.find(c => c.calendar_name === localCalendarName);
-            const localDateCyclesForCalendar = localDateCycles.filter(dc => dc.selectCalendar === localCalendarName);
-
-            if (serverCalendar) {
-                const serverLastUpdated = new Date(serverCalendar.last_updated);
-                const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
-
-                if (localLastModified > serverLastUpdated) {
-                    // Local is newer; update the server
-                    await updateServer(localDateCyclesForCalendar, localCalendarName, buwanaId);
-                } else if (serverLastUpdated > localLastModified) {
-                    // Server is newer; update local
-                    await updateLocal(serverCalendar.events_json_blob, localCalendarName);
-                }
-            }
-        }
-
-        alert('DateCycles have been successfully synced!');
-    } catch (error) {
-        console.error('Error during sync:', error);
-        alert('An error occurred while syncing your calendars. Please try again.');
-    }
-}
-
+// Helper function to update the server with local dateCycles
 async function updateServer(dateCycles, calendarName, buwanaId) {
-    // Update the server with the provided dateCycles
     const response = await fetch('https://gobrik.com/api/update_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1207,15 +1175,17 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
 
     // Update the local metadata with the new server's last_updated timestamp
     localStorage.setItem('dateCycles_last_modified', result.last_updated);
+    console.log(`Server updated for calendar: ${calendarName}`);
 }
 
+// Helper function to update local storage with server dateCycles
 function updateLocal(serverDateCycles, calendarName) {
-    // Update the local storage with the provided dateCycles
     const existingDateCycles = fetchDateCycles() || [];
     const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
     const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
 
     localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
     localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
+    console.log(`Local storage updated for calendar: ${calendarName}`);
 }
 
