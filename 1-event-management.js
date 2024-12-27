@@ -1058,6 +1058,7 @@ function handleKeyPress(event) {
 // SYNC DATECYCLES
 //*********************************
 
+
 async function syncUserEvents() {
     try {
         const localDateCycles = fetchDateCycles() || [];
@@ -1068,11 +1069,11 @@ async function syncUserEvents() {
             return;
         }
 
-        // Fetch "My Calendar" data from the server
+        // Fetch calendar data for "My Calendar" from the server
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId, calendar_name: 'My Calendar' })
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_name: "My Calendar" })
         });
 
         const serverData = await response.json();
@@ -1081,51 +1082,32 @@ async function syncUserEvents() {
             throw new Error(serverData.message || 'Failed to retrieve calendar data.');
         }
 
-        const serverCalendar = serverData.data; // Assuming "My Calendar" is returned
-        const serverLastUpdated = new Date(serverCalendar.last_updated || '1970-01-01T00:00:00Z');
-        const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || '1970-01-01T00:00:00Z');
+        const serverCalendar = serverData.data;
+        const serverLastUpdated = new Date(serverCalendar.last_updated);
+        const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
 
-        if (localLastModified > serverLastUpdated) {
-            console.log('Updating server with newer local data for "My Calendar".');
-            await updateServer(localDateCycles, 'My Calendar', buwanaId);
+        if (serverCalendar.events_json_blob === null || serverCalendar.events_json_blob.length === 0) {
+            // Server calendar is empty or NULL; upload local data
+            console.log('Server calendar is empty. Uploading local dateCycles.');
+            await updateServer(localDateCycles, "My Calendar", buwanaId);
+        } else if (localLastModified > serverLastUpdated) {
+            // Local data is newer; upload to server
+            console.log('Local data is newer. Updating server.');
+            await updateServer(localDateCycles, "My Calendar", buwanaId);
         } else if (serverLastUpdated > localLastModified) {
-            console.log('Updating local data with newer server data for "My Calendar".');
-            updateLocal(serverCalendar.events_json_blob, 'My Calendar');
+            // Server data is newer; update local data
+            console.log('Server data is newer. Updating local data.');
+            updateLocal(serverCalendar.events_json_blob, "My Calendar");
         } else {
-            console.log('No updates needed for "My Calendar".');
+            console.log('No updates needed.');
         }
 
         alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
-        alert('An error occurred while syncing your calendar. Please try again.');
+        alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
-
-
-
-// Helper function to create a new calendar
-//async function createCalendar(buwanaId, calendarName) {
-//    const response = await fetch('https://gobrik.com/api/create_calendar.php', {
-//        method: 'POST',
-//        headers: { 'Content-Type': 'application/json' },
-//        body: JSON.stringify({
-//            buwana_id: buwanaId,
-//            calendar_name: calendarName,
-//            calendar_color: 'red', // Default color
-//            calendar_public: 0 // Default visibility
-//        })
-//    });
-//
-//    const createData = await response.json();
-//    if (!createData.success) {
-//        console.error('Error Creating Calendar:', createData.message);
-//        throw new Error(`Failed to create calendar: ${calendarName}`);
-//    }
-//    console.log(`Calendar "${calendarName}" created successfully.`);
-//}
-
-
 
 // Helper function to update the server with local dateCycles
 async function updateServer(dateCycles, calendarName, buwanaId) {
@@ -1148,12 +1130,11 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
         throw new Error(result.message || 'Unknown error occurred on server.');
     }
 
-    // Update the local metadata with the new server's last_updated timestamp
+    // Update the local metadata with the server's last_updated timestamp
     localStorage.setItem('dateCycles_last_modified', result.last_updated);
 }
 
-
-// Helper function to update local storage with server dateCycles
+// Helper function to update local storage with server data
 function updateLocal(serverDateCycles, calendarName) {
     const existingDateCycles = fetchDateCycles() || [];
     const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
