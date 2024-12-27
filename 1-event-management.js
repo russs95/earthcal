@@ -1057,7 +1057,6 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
-
 async function syncUserEvents() {
     try {
         const localDateCycles = fetchDateCycles() || [];
@@ -1083,9 +1082,35 @@ async function syncUserEvents() {
         }
 
         const serverCalendars = serverData.data.map(c => c.calendar_name);
-        const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
+
+        if (serverCalendars.length === 0) {
+            // No calendars exist on the server
+            console.warn('No calendars found for the user on the server.');
+
+            if (localCalendars.length > 0) {
+                const confirmCreate = confirm(
+                    `It looks like you don’t have any calendars synced to your Buwana account yet. Do you want to create calendars for the following: ${localCalendars.join(', ')}?`
+                );
+
+                if (confirmCreate) {
+                    for (const calendarName of localCalendars) {
+                        await createCalendar(buwanaId, calendarName);
+                    }
+
+                    alert('Your calendars have been created on the server!');
+                    return; // Exit the function after creating calendars
+                } else {
+                    alert('No calendars were created. Sync aborted.');
+                    return; // Exit if the user doesn’t want to create calendars
+                }
+            } else {
+                alert('No local calendars found. Please add a calendar to sync.');
+                return; // Exit if there are no local calendars
+            }
+        }
 
         // Handle unsynced calendars
+        const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
         if (unsyncedCalendars.length > 0) {
             console.log('Unsynced Calendars Detected:', unsyncedCalendars);
             const confirmSync = confirm(
@@ -1094,14 +1119,14 @@ async function syncUserEvents() {
 
             if (confirmSync) {
                 for (const calendarName of unsyncedCalendars) {
-                    await createCalendar(buwanaId, calendarName); // Call a helper function
+                    await createCalendar(buwanaId, calendarName);
                 }
 
                 alert('Unsynced calendars have been successfully created and synced!');
             }
         }
 
-        // Compare and sync dateCycles for each local calendar
+        // Step 4: Compare and sync dateCycles for each local calendar
         const serverCalendarsMetadata = serverData.data;
 
         for (const localCalendarName of localCalendars) {
@@ -1130,6 +1155,7 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 // Helper function to create a new calendar
 async function createCalendar(buwanaId, calendarName) {
