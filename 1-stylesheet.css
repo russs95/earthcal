@@ -12,7 +12,7 @@ p {
     font-size: 0.8em;
     color: var(--subdued-text);
     font-family: 'Mulish', sans-serif;
-    margin-top: -6px;
+    margin-top: 4px;
     margin-left:auto;
     z-index:20;
     }
