@@ -341,7 +341,7 @@ function displayCheckBoxToHideSubscription() {
   //document.addEventListener('DOMContentLoaded', invite2Register);
 
   
-  async function sendUpRegistration() {
+  function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
 
@@ -360,57 +360,18 @@ function displayCheckBoxToHideSubscription() {
     // Check if the user session is active
     if (checkUserSession()) {
         try {
-            // Fetch user data from the server
-            const buwanaId = localStorage.getItem('buwana_id');
-            const response = await fetch('https://gobrik.com/api/earthcal_login_process.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId })
-            });
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to fetch user data.');
-            }
-
-            // Update local storage with user data
-            localStorage.setItem('buwana_id', data.buwana_id);
-            localStorage.setItem('first_name', data.first_name);
-            localStorage.setItem('continent_code', data.continent_code);
-            localStorage.setItem('location_full', data.location_full);
-            localStorage.setItem('connected_apps', data.connected_apps);
-
-            const connectedApps = (data.connected_apps || '').split(',');
+            const connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
             const earthcalAppId = '0002'; // EarthCal App ID
 
             if (connectedApps.includes(earthcalAppId)) {
                 // User is logged in and registered on EarthCal
-                // Fetch calendar data from EarthCal
-                const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buwana_id: buwanaId })
-                });
-
-                const calendarData = await calendarResponse.json();
-                if (!calendarData.success) {
-                    throw new Error(calendarData.message || 'Failed to fetch calendar data.');
-                }
-
-                if (calendarData.data.length === 0) {
-                    alert('No calendars found in your EarthCal account. Please create a calendar.');
-                } else {
-                    // Update local storage with calendar data
-                    localStorage.setItem('calendars', JSON.stringify(calendarData.data));
-                }
-
                 showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount);
             } else {
                 // User is logged in but not registered on EarthCal
                 showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount);
             }
         } catch (error) {
-            console.error('Error during sendUpRegistration:', error);
+            console.error('Error accessing localStorage:', error);
             showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
         }
     } else {
