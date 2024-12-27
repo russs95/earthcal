@@ -1058,7 +1058,6 @@ function handleKeyPress(event) {
 // SYNC DATECYCLES
 //*********************************
 
-
 async function syncUserEvents() {
     try {
         const localDateCycles = fetchDateCycles() || [];
@@ -1086,20 +1085,53 @@ async function syncUserEvents() {
         const serverLastUpdated = new Date(serverCalendar.last_updated);
         const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
 
+        let userChoice;
+
         if (serverCalendar.events_json_blob === null || serverCalendar.events_json_blob.length === 0) {
             // Server calendar is empty or NULL; upload local data
             console.log('Server calendar is empty. Uploading local dateCycles.');
-            await updateServer(localDateCycles, "My Calendar", buwanaId);
-        } else if (localLastModified > serverLastUpdated) {
-            // Local data is newer; upload to server
-            console.log('Local data is newer. Updating server.');
-            await updateServer(localDateCycles, "My Calendar", buwanaId);
-        } else if (serverLastUpdated > localLastModified) {
-            // Server data is newer; update local data
-            console.log('Server data is newer. Updating local data.');
-            updateLocal(serverCalendar.events_json_blob, "My Calendar");
+            userChoice = 2; // Default to local data if server is empty
         } else {
-            console.log('No updates needed.');
+            // Prompt user for sync choice
+            userChoice = parseInt(
+                prompt(
+                    `Sync options:\n1. Use server data\n2. Use local data\n3. Merge both\n\nEnter your choice (1, 2, or 3):`,
+                    "1"
+                )
+            );
+        }
+
+        switch (userChoice) {
+            case 1:
+                // Use server data to overwrite local data
+                console.log('User chose to use server data.');
+                updateLocal(serverCalendar.events_json_blob, "My Calendar");
+                alert('Local data has been updated with server data.');
+                break;
+
+            case 2:
+                // Use local data to overwrite server data
+                console.log('User chose to use local data.');
+                await updateServer(localDateCycles, "My Calendar", buwanaId);
+                alert('Server data has been updated with local data.');
+                break;
+
+            case 3:
+                // Merge both local and server data
+                console.log('User chose to merge data.');
+                const mergedData = mergeDateCycles(
+                    serverCalendar.events_json_blob || [],
+                    localDateCycles
+                );
+                await updateServer(mergedData, "My Calendar", buwanaId);
+                updateLocal(mergedData, "My Calendar");
+                alert('Data has been merged and updated.');
+                break;
+
+            default:
+                console.log('Invalid choice or sync canceled.');
+                alert('Sync operation canceled.');
+                return; // Exit if the user cancels or enters an invalid choice
         }
 
         alert('DateCycles have been successfully synced!');
@@ -1109,7 +1141,26 @@ async function syncUserEvents() {
     }
 }
 
-// Helper function to update the server with local dateCycles
+// Helper function to merge server and local dateCycles
+function mergeDateCycles(serverData, localData) {
+    const mergedData = [...serverData]; // Start with server data
+
+    // Add local data that is not already present in server data
+    localData.forEach(localCycle => {
+        const exists = serverData.some(
+            serverCycle =>
+                serverCycle.ID === localCycle.ID &&
+                serverCycle.Event_name === localCycle.Event_name
+        );
+        if (!exists) {
+            mergedData.push(localCycle);
+        }
+    });
+
+    return mergedData;
+}
+
+// Helper function to update the server with dateCycles
 async function updateServer(dateCycles, calendarName, buwanaId) {
     const response = await fetch('https://gobrik.com/api/update_calendar.php', {
         method: 'POST',
