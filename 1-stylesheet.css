@@ -8,7 +8,7 @@ p {
   color:var(--h1);
   }
 
-user-timezone-lang {
+#user-timezone-lang {
     font-size: 0.8em;
     color: var(--subdued-text);
     font-family: 'Mulish', sans-serif;
@@ -20,7 +20,7 @@ user-timezone-lang {
 
   @media screen and (max-width: 700px) {
 
-  user-timezone-lang {
+  #user-timezone-lang {
     margin-right:-55px;
     }
 
