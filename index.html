@@ -1244,7 +1244,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
         if (data.success) {
             const connectedApps = data.connected_apps ? data.connected_apps.split(',') : [];
-            const earthcalAppId = '0002'; // Assuming "0002" is the ID for EarthCal
+            const earthcalAppId = '00002'; // Assuming "0002" is the ID for EarthCal
 
             // Check if the user is registered on EarthCal
             if (connectedApps.includes(earthcalAppId)) {
