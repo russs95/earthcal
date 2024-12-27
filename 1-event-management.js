@@ -1061,7 +1061,6 @@ function handleKeyPress(event) {
 
 //*********************************
 
-
 async function syncUserEvents() {
     try {
         const localDateCycles = fetchDateCycles() || [];
@@ -1073,6 +1072,7 @@ async function syncUserEvents() {
             return;
         }
 
+        // Fetch calendars from the server
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1088,6 +1088,7 @@ async function syncUserEvents() {
         const serverCalendars = serverData.data.map(c => c.calendar_name);
         const unsyncedCalendars = localCalendars.filter(name => !serverCalendars.includes(name));
 
+        // Handle unsynced calendars
         if (unsyncedCalendars.length > 0) {
             console.log('Unsynced Calendars Detected:', unsyncedCalendars);
             const confirmSync = confirm(
@@ -1096,25 +1097,31 @@ async function syncUserEvents() {
 
             if (confirmSync) {
                 for (const calendarName of unsyncedCalendars) {
-                    const createResponse = await fetch('https://gobrik.com/api/create_calendar.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            buwana_id: buwanaId,
-                            calendar_name: calendarName,
-                            calendar_color: 'red', // Example value
-                            calendar_public: 0 // Example value
-                        })
-                    });
-
-                    const createData = await createResponse.json();
-                    if (!createData.success) {
-                        console.error('Error Creating Calendar:', createData.message);
-                        throw new Error(`Failed to create calendar: ${calendarName}`);
-                    }
+                    await createCalendar(buwanaId, calendarName); // Call a helper function
                 }
 
                 alert('Unsynced calendars have been successfully created and synced!');
+            }
+        }
+
+        // Step 4: Compare and sync dateCycles
+        const serverCalendarsMetadata = serverData.data;
+
+        for (const localCalendarName of localCalendars) {
+            const serverCalendar = serverCalendarsMetadata.find(c => c.calendar_name === localCalendarName);
+            const localDateCyclesForCalendar = localDateCycles.filter(dc => dc.selectCalendar === localCalendarName);
+
+            if (serverCalendar) {
+                const serverLastUpdated = new Date(serverCalendar.last_updated);
+                const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
+
+                if (localLastModified > serverLastUpdated) {
+                    // Local is newer; update the server
+                    await updateServer(localDateCyclesForCalendar, localCalendarName, buwanaId);
+                } else if (serverLastUpdated > localLastModified) {
+                    // Server is newer; update local
+                    updateLocal(serverCalendar.events_json_blob, localCalendarName);
+                }
             }
         }
 
@@ -1124,6 +1131,28 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
+// Helper function to create a new calendar
+async function createCalendar(buwanaId, calendarName) {
+    const response = await fetch('https://gobrik.com/api/create_calendar.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            buwana_id: buwanaId,
+            calendar_name: calendarName,
+            calendar_color: 'red', // Default color
+            calendar_public: 0 // Default visibility
+        })
+    });
+
+    const createData = await response.json();
+    if (!createData.success) {
+        console.error('Error Creating Calendar:', createData.message);
+        throw new Error(`Failed to create calendar: ${calendarName}`);
+    }
+    console.log(`Calendar "${calendarName}" created successfully.`);
+}
+
 
 
         // Step 4: Compare and sync dateCycles
