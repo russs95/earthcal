@@ -1113,9 +1113,8 @@ async function syncUserEvents(choice) {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
-
 //*********************************
-// SINK HELPER FUNCTIONS
+// SYNC HELPER FUNCTIONS
 //*********************************
 
 // Update the server with dateCycles
@@ -1142,6 +1141,9 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
 
         // Update the local metadata with the server's last_updated timestamp
         localStorage.setItem('dateCycles_last_modified', result.last_updated);
+
+        // Update last sync timestamp in local storage and UI
+        showLastSynkTimePassed(result.last_updated);
     } catch (error) {
         console.error('Error in updateServer:', error);
         throw error;
@@ -1152,6 +1154,9 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
 async function useServerData(serverData, calendarName) {
     console.log('Using server data to overwrite local data.');
     updateLocal(serverData, calendarName);
+    const lastSyncTs = new Date().toISOString();
+    localStorage.setItem('last_sync_ts', lastSyncTs);
+    showLastSynkTimePassed(lastSyncTs);
     alert('Local data has been updated with server data.');
 }
 
@@ -1198,6 +1203,23 @@ function mergeDateCycles(serverData, localData) {
     });
 
     return mergedData;
+}
+
+// Helper function to update the UI with the last sync timestamp
+function showLastSynkTimePassed(lastSyncTs) {
+    // Update local storage with the new last sync time
+    localStorage.setItem('last_sync_ts', lastSyncTs);
+
+    // Retrieve and format calendar names from local storage
+    const calendarNames = localStorage.getItem('calendar_names')
+        ? localStorage.getItem('calendar_names').split(',').join(', ')
+        : 'My Calendar';
+
+    // Update the UI with the last sync time
+    const lastSyncedDiv = document.getElementById('last-synced-time');
+    if (lastSyncedDiv) {
+        lastSyncedDiv.innerHTML = `Your calendar(s): ${calendarNames} was last synced on ${lastSyncTs}.`;
+    }
 }
 
 
