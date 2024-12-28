@@ -1252,11 +1252,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
             if (connectedApps.includes(earthcalAppId)) {
                 // User is registered on EarthCal, proceed to logged-in view
                 document.getElementById('login-form-section').style.display = 'none';
-                generateLoggedInView({
-                    first_name: data.first_name,
-                    continent_code: data.continent_code,
-                    location_full: data.location_full
-                });
+                showLoggedInView();
 
                 // Save user data locally
                 localStorage.setItem('buwana_id', data.buwana_id);

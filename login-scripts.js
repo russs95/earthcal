@@ -63,11 +63,7 @@ async function activateEarthcalAccount() {
                 localStorage.setItem('location_full', data.user_data.location_full || '');
 
                 // Call generateLoggedInView directly after activation
-                generateLoggedInView({
-                    first_name: data.user_data.first_name,
-                    continent_code: data.user_data.continent_code,
-                    location_full: data.user_data.location_full
-                });
+                showLoggedInView();
             } else {
                 console.error("Missing user_data in response");
             }
