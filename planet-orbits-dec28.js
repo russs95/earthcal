@@ -1,134 +1,154 @@
+// Declare a global variable 'planetAnimation2' which will be used later for animations
+//
+
+// Define the Planet class to create planet objects and animate them
 class Planet {
+  // Constructor method initializes new instances of the Planet class
   constructor(element_id, orbit_id, orbit_days) {
-    this.element_id = element_id; // ID of the SVG planet element
-    this.orbit_id = orbit_id; // ID of the SVG orbit element
-    this.orbit_days = orbit_days; // Number of days the planet takes to orbit
+    // Assign the provided values to the instance properties
+    this.element_id = element_id;  // ID of the SVG planet element
+    this.orbit_id = orbit_id;      // ID of the SVG orbit element
+    this.orbit_days = orbit_days;  // Number of days the planet takes to orbit
+    //this.planetAnimation2;
+    // Log to the console that the instance has been created
+    // console.log("Initiating");
   }
 
+  // Define the animate method to move the planet along its orbit
   animate() {
-    const planetElement = document.getElementById(this.element_id);
-    const planetOrbitElement = document.getElementById(this.orbit_id);
+    // Get the SVG elements for the planet and its orbit using their IDs
+    let planetElement = document.getElementById(this.element_id);
+    let planetOrbitElement = document.getElementById(this.orbit_id);
+    // Set a reference date of January 1, 2023 - WHAT?  why isn't this 2024 now that the vector positions are updated?
 
-    // Reference date
-    const yearStart = new Date(2023, 0, 1);
-    console.log("Initiating:" + yearStart + startDate);
+    let yearStart = new Date(2023, 0, 1);
+     console.log("Initiating:"+ yearStart + startDate);
 
-    // Calculate days and ratios
-    const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
-    const daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
-    const totalDays = daysSinceYearStart + daysSinceTargetDate;
+    let planetAnimation2;
 
-    const orbitRatio1 = daysSinceYearStart / this.orbit_days;
-    const orbitRatio2 = totalDays / this.orbit_days;
+    // Calculate the number of days since the reference date 'yearStart'
+    let daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
+    // Calculate the number of days from the 'startDate' to the 'targetDate'
+    let daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+    // Sum the two durations to get the total days
+    let totalDays = daysSinceYearStart + daysSinceTargetDate;
 
-    // Pre-calculate trigonometric values
-    const orbitRadius = planetOrbitElement.r.baseVal.value;
-    const finalCoords1 = {
-      x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio1),
-      y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio1),
-    };
-    const finalCoords2 = {
-      x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio2),
-      y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio2),
-    };
+    console.log("days since target date:"+ daysSinceTargetDate);
 
-    // GPU optimization with `will-change`
-    planetElement.style.willChange = "transform";
 
-    // Set the planet's position to the starting coordinates
-    if (startCoords.cx == 0 && startCoords.cy == 0) {
-      startCoords = {
-        cx: parseFloat(planetElement.getAttribute("cx") || 0),
-        cy: parseFloat(planetElement.getAttribute("cy") || 0),
-      };
+
+    // Calculate the ratio of days passed to the total orbit days for the start and target dates
+    let orbitRatio1 = daysSinceYearStart / this.orbit_days;
+    let orbitRatio2 = totalDays / this.orbit_days;
+
+ // If the initial coordinates are (0,0), update them with the current coordinates of the planet
+if (startCoords.cx == 0 && startCoords.cy == 0) {
+  startCoords = {
+      cx: parseFloat(planetElement.getAttribute("cx") || 0),
+      cy: parseFloat(planetElement.getAttribute("cy") || 0)
+  };
+}
+
+
+
+// Set the planet's position to the starting coordinates
+planetElement.setAttribute("cx", startCoords.cx);
+planetElement.setAttribute("cy", startCoords.cy);
+
+    // Calculate the ending coordinates for the planet for both start and target dates using trigonometry
+    let finalCoordsX1 = planetOrbitElement.r.baseVal.value * Math.sin(2 * Math.PI * orbitRatio1);
+    let finalCoordsY1 = planetOrbitElement.r.baseVal.value * Math.cos(2 * Math.PI * orbitRatio1);
+    // Convert the Y-coordinate to a pixel value with 2 decimal places
+    finalCoordsY1 = finalCoordsY1.toFixed(2) + "px";
+
+    let finalCoordsX2 = planetOrbitElement.r.baseVal.value * Math.sin(2 * Math.PI * orbitRatio2);
+    let finalCoordsY2 = planetOrbitElement.r.baseVal.value * Math.cos(2 * Math.PI * orbitRatio2);
+    // Convert the Y-coordinate to a pixel value with 2 decimal places
+    finalCoordsY2 = finalCoordsY2.toFixed(2) + "px";
+
+
+    finalCoordsX1 = finalCoordsX1.toFixed(2) + "px";
+finalCoordsX2 = finalCoordsX2.toFixed(2) + "px";
+
+
+//     // Log the start coordinates
+//     console.log("Start Coordinate cx (type, value):", typeof startCoords.cx, startCoords.cx);
+//     console.log("Start Coordinate cy (type, value):", typeof startCoords.cy, startCoords.cy);
+
+
+//  // Log the final coordinates for the startDate
+//  console.log("Final Coordinate for startDate cx (type, value):", typeof finalCoordsX1, finalCoordsX1);
+//  console.log("Final Coordinate for startDate cy (type, value):", typeof finalCoordsY1, finalCoordsY1);
+
+//    // Log the final coordinates for the targetDate
+//    console.log("Final Coordinate for targetDate cx (type, value):", typeof finalCoordsX2, finalCoordsX2);
+//    console.log("Final Coordinate for targetDate cy (type, value):", typeof finalCoordsY2, finalCoordsY2);
+
+
+    // Create the first animation from the starting coordinates to the coordinates calculated for 'startDate'
+    let planetAnimation1 = planetElement.animate([
+      { cx: startCoords.cx, cy: startCoords.cy, transform: `rotate(0deg)` },
+      { cx: finalCoordsX1, cy: finalCoordsY1, transform: `rotate(${orbitRatio1 * 360}deg)` }
+    ], {
+      duration: 0,       // The animation happens immediately
+      easing: "linear",  // The animation pace is consistent from start to end
+      fill: "forwards"   // The animation will persist the end state after completion
+    });
+
+    // Once the first animation completes, start the second animation from 'startDate' to 'targetDate'
+
+    planetAnimation1.onfinish = function () {
+
+
+    let animationDuration;
+    if (daysSinceTargetDate < 30) {
+      animationDuration = 500;
+    } else if (daysSinceTargetDate < 60) {
+      animationDuration = 1000;
+    } else if (daysSinceTargetDate < 120) {
+      animationDuration = 1500;
+    } else if (daysSinceTargetDate < 180) {
+      animationDuration = 2000;
+    // ... Add more conditions as needed
+    } else if (daysSinceTargetDate <= 366) {
+      animationDuration = 3000; // Example: set a default for the max range
+    } else {
+      animationDuration = 4000; // Default duration if daysToTargetDate is out of expected range
     }
 
-    planetElement.setAttribute("cx", startCoords.cx);
-    planetElement.setAttribute("cy", startCoords.cy);
 
-    // Create the first animation
-    const planetAnimation1 = planetElement.animate(
-      [
-        {
-          cx: startCoords.cx,
-          cy: startCoords.cy,
-          transform: `rotate(0deg)`,
-        },
-        {
-          cx: finalCoords1.x.toFixed(2) + "px",
-          cy: finalCoords1.y.toFixed(2) + "px",
-          transform: `rotate(${orbitRatio1 * 360}deg)`,
-        },
-      ],
-      {
-        duration: 0, // Immediate
+
+
+      planetAnimation2 = planetElement.animate([
+        { cx: finalCoordsX1, cy: finalCoordsY1, transform: `rotate(${orbitRatio1 * 360}deg)` },
+        { cx: finalCoordsX2, cy: finalCoordsY2, transform: `rotate(${orbitRatio2 * 360}deg)` }
+      ], {
+        duration: animationDuration,     // The animation lasts 1 second
         easing: "linear",
-        fill: "forwards",
-      }
-    );
+        fill: "forwards"
+      });
+    }
 
-    // Chain the second animation
-    planetAnimation1.onfinish = () => {
-      let animationDuration;
-      if (daysSinceTargetDate < 30) {
-        animationDuration = 500;
-      } else if (daysSinceTargetDate < 60) {
-        animationDuration = 1000;
-      } else if (daysSinceTargetDate < 120) {
-        animationDuration = 1500;
-      } else if (daysSinceTargetDate < 180) {
-        animationDuration = 2000;
-      } else if (daysSinceTargetDate <= 366) {
-        animationDuration = 3000;
-      } else {
-        animationDuration = 4000;
-      }
 
-      planetElement.animate(
-        [
-          {
-            cx: finalCoords1.x.toFixed(2) + "px",
-            cy: finalCoords1.y.toFixed(2) + "px",
-            transform: `rotate(${orbitRatio1 * 360}deg)`,
-          },
-          {
-            cx: finalCoords2.x.toFixed(2) + "px",
-            cy: finalCoords2.y.toFixed(2) + "px",
-            transform: `rotate(${orbitRatio2 * 360}deg)`,
-          },
-        ],
-        {
-          duration: animationDuration,
-          easing: "linear",
-          fill: "forwards",
-        }
-      );
-    };
   }
 }
 
-// Create instances of the Planet class
-const mercury = new Planet("mercury", "mercury-orbit", 88);
-const venus = new Planet("venus", "venus-orbit", 224.7);
-const earth = new Planet("earth", "earth-orbit", 365);
-const mars = new Planet("mars", "mars-orbit", 687);
-const jupiter = new Planet("jupiter", "jupiter-orbit", 4333);
-const saturn = new Planet("saturn", "saturn-orbit", 10759);
-const uranus = new Planet("uranus", "uranus-orbit", 30687);
-const neptune = new Planet("neptune", "neptune-orbit", 60190);
+// Create a new instance of the Planet classes
+const mercury = new Planet(element_id = "mercury", orbit_id = "mercury-orbit", orbit_days = 88)
 
-// Trigger animations
-const startDate = new Date(2024, 0, 1); // Example start date
-const targetDate = new Date(2024, 6, 1); // Example target date
+const venus = new Planet(element_id = "venus", orbit_id = "venus-orbit", orbit_days = 224.7)
 
-mercury.animate(startDate, targetDate);
-venus.animate(startDate, targetDate);
-earth.animate(startDate, targetDate);
-mars.animate(startDate, targetDate);
-jupiter.animate(startDate, targetDate);
-saturn.animate(startDate, targetDate);
-uranus.animate(startDate, targetDate);
-neptune.animate(startDate, targetDate);
+const earth = new Planet(element_id = "earth", orbit_id = "earth-orbit", orbit_days = 365)
+
+const mars = new Planet(element_id = "mars", orbit_id = "mars-orbit", orbit_days = 687)
+
+const jupiter = new Planet(element_id = "jupiter", orbit_id = "jupiter-orbit", orbit_days = 4333)
+
+const saturn = new Planet(element_id = "saturn", orbit_id = "saturn-orbit", orbit_days = 10759)
+
+const uranus = new Planet(element_id = "uranus", orbit_id = "uranus-orbit", orbit_days = 30687)
+
+const neptune = new Planet(element_id = "neptune", orbit_id = "neptune-orbit", orbit_days = 60190)
 
 
 /*----------------------------------
