@@ -1113,12 +1113,36 @@ async function syncUserEvents(choice) {
     }
 }
 
-// Handlers for specific sync options
-async function useServerData(serverData, calendarName) {
-    console.log('Using server data to overwrite local data.');
-    updateLocal(serverData, calendarName);
-    alert('Local data has been updated with server data.');
+// Helper function to update the server with dateCycles
+async function updateServer(dateCycles, calendarName, buwanaId) {
+    try {
+        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                buwana_id: buwanaId,
+                calendar_name: calendarName,
+                datecycles: dateCycles
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update server data.');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || 'Unknown error occurred on server.');
+        }
+
+        // Update the local metadata with the server's last_updated timestamp
+        localStorage.setItem('dateCycles_last_modified', result.last_updated);
+    } catch (error) {
+        console.error('Error in updateServer:', error);
+        throw error;
+    }
 }
+
 
 async function useLocalData(localData, buwanaId) {
     console.log('Using local data to overwrite server data.');
