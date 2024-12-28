@@ -359,7 +359,7 @@ function sendUpRegistration() {
 
             if (connectedApps.includes(earthcalAppId)) {
                 // User is logged in and registered on EarthCal
-                showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount);
+                showLoggedInView();
             } else if (connectedAppsRaw === '') {
                 console.warn('Connected apps are missing in localStorage.');
                 showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
@@ -385,19 +385,70 @@ function sendUpRegistration() {
 }
 
 // Helper Functions
-function showLoggedInView(emailRegistration, loggedInView, activateEarthCalAccount) {
+function showLoggedInView() {
+
+    const loggedInView = document.getElementById("logged-in-view");
+    const emailRegistration = document.getElementById("login-form-section");
+    const activateEarthCalAccount = document.getElementById("activate-earthcal-account");
+
+    // Hide unnecessary sections
     emailRegistration.style.display = "none";
     activateEarthCalAccount.style.display = "none";
     loggedInView.style.display = "block";
 
-    const userData = {
-        first_name: localStorage.getItem('first_name') || '',
-        continent_code: localStorage.getItem('continent_code') || '',
-        location_full: localStorage.getItem('location_full') || ''
+    // Clear existing content in the logged-in view
+    loggedInView.innerHTML = "";
+
+    // Fetch translations based on the selected language
+    const translations = loggedInTranslations[language] || loggedInTranslations.EN;
+
+    // Retrieve user data from localStorage
+    const userDetails = {
+        first_name: localStorage.getItem('first_name') || 'User',
+        continent_code: localStorage.getItem('continent_code') || 'N/A',
+        location_full: localStorage.getItem('location_full') || 'Unknown Location'
     };
 
-    generateLoggedInView(userData);
+    // Retrieve sync information from localStorage
+    const lastSyncedTs = localStorage.getItem('last_sync_ts') || '0:00';
+    const calendarNames = localStorage.getItem('calendar_names')
+        ? localStorage.getItem('calendar_names').split(',').join(', ')
+        : null;
+
+    // Determine sync status message
+    const syncMessage = calendarNames && lastSyncedTs !== '0:00'
+        ? `<p>Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
+        : `<p>Your dateCycles haven't been synced yet.</p>`;
+
+    // Dynamically generate the logged-in view content
+    loggedInView.innerHTML = `
+        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+            ${translations.welcome} ${userDetails.first_name}.
+        </h3>
+        <div id="logged-in-buttons" style="width:90%;margin:auto;">
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(1)">
+                Use Server Data
+            </button>
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(2)">
+                Use Local Data
+            </button>
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(3)">
+                Merge Data
+            </button>
+            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+                ${translations.logout}
+            </button>
+        </div>
+        ${syncMessage}
+        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+            ${userDetails.location_full}, ${userDetails.continent_code}
+        </p>
+    `;
 }
+
+
+
+
 
 function showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount) {
     emailRegistration.style.display = "none";

@@ -231,7 +231,7 @@ app.on('window-all-closed', () => {
 //sudo snap install --dangerous dist/earthcal_0.9.0_amd64.snap
 //snapcraft login
 //snapcraft upload dist/earthcal_0.9.0_amd64.snap
-//snapcraft release earthcal 63 stable
+//snapcraft release earthcal 68 edge
 
 
 
