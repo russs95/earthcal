@@ -156,7 +156,7 @@ function showLoggedInView() {
     // Generate sync status message
     let syncMessage = `<p id="last-synced-time">`;
     if (userData.last_sync_ts !== '0:00' && formattedCalendarNames) {
-        syncMessage += `Your calendar(s): ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
+        syncMessage += `✅ ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
     } else {
         syncMessage += `Your dateCycles haven't been synced yet.`;
     }
