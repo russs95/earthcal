@@ -163,7 +163,7 @@ function showLoggedInView() {
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             ${translations.welcome} ${localStorage.getItem('first_name') || 'User'}.
         </h3>
-        <div id="logged-in-buttons" style="width:90%;margin:auto;">
+        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(1)">
                 ⬇️ Use Server Data
             </button>
