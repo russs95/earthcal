@@ -1053,21 +1053,20 @@ function handleKeyPress(event) {
   }
 }
 
-
 //*********************************
 // SYNC DATECYCLES
 //*********************************
 async function syncUserEvents(choice) {
     try {
-        const localDateCycles = fetchDateCycles() || [];
-        const buwanaId = localStorage.getItem('buwana_id');
+        const localDateCycles = fetchDateCycles() || []; // Retrieve local dateCycles
+        const buwanaId = localStorage.getItem('buwana_id'); // Retrieve Buwana ID from localStorage
 
         if (!buwanaId) {
             alert('Buwana ID is missing. Please log in again.');
             return;
         }
 
-        // Fetch calendar data for "My Calendar" from the server
+        // Step 1: Fetch calendar data for "My Calendar" from the server
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1084,12 +1083,14 @@ async function syncUserEvents(choice) {
         const serverLastUpdated = new Date(serverCalendar.last_updated);
         const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
 
+        // Step 2: Handle case where server has no data (new user scenario)
         if (serverCalendar.events_json_blob === null || serverCalendar.events_json_blob.length === 0) {
             console.log('Server calendar is empty. Uploading local dateCycles.');
             await useLocalData(localDateCycles, buwanaId);
             return;
         }
 
+        // Step 3: Execute sync operation based on user's choice
         switch (choice) {
             case 1: // Use server data
                 await useServerData(serverCalendar.events_json_blob, "My Calendar");
@@ -1106,6 +1107,7 @@ async function syncUserEvents(choice) {
                 return;
         }
 
+        // Step 4: Notify the user of successful sync
         alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
@@ -1113,7 +1115,11 @@ async function syncUserEvents(choice) {
     }
 }
 
-// Helper function to update the server with dateCycles
+//*********************************
+// SINK HELPER FUNCTIONS
+//*********************************
+
+// Update the server with dateCycles
 async function updateServer(dateCycles, calendarName, buwanaId) {
     try {
         const response = await fetch('https://gobrik.com/api/update_calendar.php', {
@@ -1143,13 +1149,14 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
     }
 }
 
-
+// Overwrite server data with local data
 async function useLocalData(localData, buwanaId) {
     console.log('Using local data to overwrite server data.');
     await updateServer(localData, "My Calendar", buwanaId);
     alert('Server data has been updated with local data.');
 }
 
+// Merge server and local data
 async function mergeData(serverData, localData, buwanaId) {
     console.log('Merging server and local data.');
     const mergedData = mergeDateCycles(serverData, localData);
@@ -1157,4 +1164,34 @@ async function mergeData(serverData, localData, buwanaId) {
     updateLocal(mergedData, "My Calendar");
     alert('Data has been merged and updated.');
 }
+
+// Helper function to update local storage with server data
+function updateLocal(serverDateCycles, calendarName) {
+    const existingDateCycles = fetchDateCycles() || [];
+    const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
+    const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
+
+    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
+    localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
+}
+
+// Helper function to merge server and local dateCycles
+function mergeDateCycles(serverData, localData) {
+    const mergedData = [...serverData]; // Start with server data
+
+    // Add local data that is not already present in server data
+    localData.forEach(localCycle => {
+        const exists = serverData.some(
+            serverCycle =>
+                serverCycle.ID === localCycle.ID &&
+                serverCycle.Event_name === localCycle.Event_name
+        );
+        if (!exists) {
+            mergedData.push(localCycle);
+        }
+    });
+
+    return mergedData;
+}
+
 
