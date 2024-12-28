@@ -117,9 +117,6 @@ const saturn = new Planet("saturn", "saturn-orbit", 10759);
 const uranus = new Planet("uranus", "uranus-orbit", 30687);
 const neptune = new Planet("neptune", "neptune-orbit", 60190);
 
-// Trigger animations
-const startDate = new Date(2024, 0, 1); // Example start date
-const targetDate = new Date(2024, 6, 1); // Example target date
 
 mercury.animate(startDate, targetDate);
 venus.animate(startDate, targetDate);
