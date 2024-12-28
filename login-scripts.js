@@ -133,13 +133,21 @@ async function activateEarthcalAccount() {
 
 
 
-
 // Helper Functions
 function showLoggedInView() {
-
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
     activateView.style.display = "none";
+
+    // Log user data from local storage for debugging
+    const userData = {
+        first_name: localStorage.getItem('first_name') || '',
+        last_sync_ts: localStorage.getItem('last_sync_ts') || '0:00',
+        calendar_names: localStorage.getItem('calendar_names') || '',
+        location_full: localStorage.getItem('location_full') || 'Unknown Location',
+        continent_code: localStorage.getItem('continent_code') || 'N/A'
+    };
+    console.log('User Data Retrieved from Local Storage:', userData);
 
     // Clear existing content
     loggedInView.innerHTML = "";
@@ -147,21 +155,15 @@ function showLoggedInView() {
     // Fetch translations based on the selected language
     const translations = loggedInTranslations[language] || loggedInTranslations.EN;
 
-    // Retrieve last sync time and calendar names from localStorage
-    const lastSyncedTs = localStorage.getItem('last_sync_ts') || '0:00';
-    const calendarNames = localStorage.getItem('calendar_names')
-        ? localStorage.getItem('calendar_names').split(',').join(', ')
-        : null;
-
     // Determine sync status message
-    const syncMessage = calendarNames && lastSyncedTs !== '0:00'
-        ? `<p>Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
+    const syncMessage = userData.calendar_names && userData.last_sync_ts !== '0:00'
+        ? `<p>Your calendar(s): ${userData.calendar_names.split(',').join(', ')} was last synced on ${userData.last_sync_ts}.</p>`
         : `<p>Your dateCycles haven't been synced yet.</p>`;
 
     // Dynamically generate the logged-in view content
     loggedInView.innerHTML = `
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            ${translations.welcome} ${localStorage.getItem('first_name') || 'User'}.
+            ${translations.welcome} ${userData.first_name || 'User'}.
         </h3>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(1)">
@@ -179,12 +181,13 @@ function showLoggedInView() {
         </div>
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
-            ${localStorage.getItem('location_full') || 'Unknown Location'}, ${localStorage.getItem('continent_code') || 'N/A'}
+            ${userData.location_full}, ${userData.continent_code}
         </p>
     `;
 
     loggedInView.style.display = "block";
 }
+
 
 
 
