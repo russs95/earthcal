@@ -1052,7 +1052,6 @@ function handleKeyPress(event) {
      addNewCalendar(); // Call your search function without arguments
   }
 }
-
 //*********************************
 // SYNC DATECYCLES
 //*********************************
@@ -1147,6 +1146,13 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
         console.error('Error in updateServer:', error);
         throw error;
     }
+}
+
+// Overwrite local data with server data
+async function useServerData(serverData, calendarName) {
+    console.log('Using server data to overwrite local data.');
+    updateLocal(serverData, calendarName);
+    alert('Local data has been updated with server data.');
 }
 
 // Overwrite server data with local data
