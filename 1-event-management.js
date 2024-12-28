@@ -1218,7 +1218,7 @@ function showLastSynkTimePassed(lastSyncTs) {
     // Update the UI with the last sync time
     const lastSyncedDiv = document.getElementById('last-synced-time');
     if (lastSyncedDiv) {
-        lastSyncedDiv.innerHTML = `Your calendar(s): ${calendarNames} was last synced on ${lastSyncTs}.`;
+        lastSyncedDiv.innerHTML = `✅ ${calendarNames} was last synced on ${lastSyncTs}.`;
     }
 }
 

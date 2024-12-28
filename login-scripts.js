@@ -131,8 +131,7 @@ async function activateEarthcalAccount() {
 
 
 
-
-// Helper Functions
+// Helper Function
 function showLoggedInView() {
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
@@ -152,12 +151,16 @@ function showLoggedInView() {
     // Ensure proper formatting of calendar names
     const formattedCalendarNames = userData.calendar_names
         ? userData.calendar_names.split(',').join(', ')
-        : null;
+        : 'My Calendar'; // Default to "My Calendar" if no other names are available
 
     // Generate sync status message
-    const syncMessage = formattedCalendarNames && userData.last_sync_ts !== '0:00'
-        ? `<p id="last-synced-time">Your calendar(s): ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.</p>`
-        : `<p id="last-synced-time">Your dateCycles haven't been synced yet.</p>`;
+    let syncMessage = `<p id="last-synced-time">`;
+    if (userData.last_sync_ts !== '0:00' && formattedCalendarNames) {
+        syncMessage += `Your calendar(s): ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
+    } else {
+        syncMessage += `Your dateCycles haven't been synced yet.`;
+    }
+    syncMessage += `</p>`;
 
     // Clear existing content
     loggedInView.innerHTML = "";
@@ -180,7 +183,7 @@ function showLoggedInView() {
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(3)">
                 ↕️ Merge Data
             </button>
-            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳
                 ${translations.logout}
             </button>
         </div>
@@ -193,6 +196,7 @@ function showLoggedInView() {
     // Display the logged-in view
     loggedInView.style.display = "block";
 }
+
 
 
 
@@ -236,6 +240,7 @@ function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount
     emailRegistration.style.display = "none";
     upArrow.style.display = "block";
     downArrow.style.display = "none";
+    calendarRefresh();
 
   }
 
@@ -288,7 +293,7 @@ function generateLoggedInView(userDetails) {
 
     // Determine sync status message
     const syncMessage = calendarNames && lastSyncedTs !== '0:00'
-        ? `<p>Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
+        ? `<p >Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
         : `<p>Your dateCycles haven't been synced yet.</p>`;
 
     // Dynamically set the logged-in content

@@ -483,7 +483,7 @@ function getTheDayOfYear(targetDate) {
         let year = pathIdArr[3];
         targetDate = new Date(year, month, day);
 
-        calendarRefresh()
+        calendarRefresh();
 
         startDate = targetDate;
         // document.getElementById("reset").style.display = "block";
