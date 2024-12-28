@@ -317,7 +317,7 @@ flex-direction: row;
 }
 
 #current-datecycle-info2 .date-info:hover {
- background:grey;
+ background:var(--grey-trans-over);
   cursor:pointer;
   }
 

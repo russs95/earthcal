@@ -20,6 +20,8 @@
     --modal-background: rgba(0, 0, 0, 0.352);
     --night-day: #191919;
     --grey-trans: rgba(0, 0, 0, 0.718);
+    --grey-trans: grey;
+
     --hover-over: #02E1E2;
 
     --form-field-background: #0000007a;
