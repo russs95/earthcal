@@ -165,13 +165,13 @@ function showLoggedInView() {
         </h3>
         <div id="logged-in-buttons" style="width:90%;margin:auto;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(1)">
-                Use Server Data
+                ⬇️ Use Server Data
             </button>
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(2)">
-                Use Local Data
+                ⬆️ Use Local Data
             </button>
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(3)">
-                Merge Data
+                ↕️ Merge Data
             </button>
             <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
                 ${translations.logout}
