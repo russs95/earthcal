@@ -414,10 +414,10 @@ function showUserCalSettings() {
                     ${languageOptions}
                 </select>
             </div>
-            <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;">
-            <div style="font-size:1.25em">
+            <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;text-">
+            <div style="text-align:center;">
                 <dark-mode-toggle
-                id="dark-mode-toggle-5" style="padding:10px;font-size:small;"
+                id="dark-mode-toggle-5" style="padding:10px;"
                 class="slider"
                 legend="Toggle dark and light mode:"
                 remember="Remember for all pages"
