@@ -154,9 +154,9 @@ function showLoggedInView() {
         : 'My Calendar'; // Default to "My Calendar" if no other names are available
 
     // Generate sync status message
-    let syncMessage = `<p id="last-synced-time">`;
+    let syncMessage = `<p id="last-synced-time" style="font-size:smaller">`;
     if (userData.last_sync_ts !== '0:00' && formattedCalendarNames) {
-        syncMessage += `✅ ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
+        syncMessage += `✔ ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
     } else {
         syncMessage += `Your dateCycles haven't been synced yet.`;
     }
@@ -293,14 +293,15 @@ function generateLoggedInView(userDetails) {
 
     // Determine sync status message
     const syncMessage = calendarNames && lastSyncedTs !== '0:00'
-        ? `<p >Your calendar(s): ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
+        ? `<p>Your ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
         : `<p>Your dateCycles haven't been synced yet.</p>`;
 
     // Dynamically set the logged-in content
     loggedInView.innerHTML = `
-        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+        <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             ${translations.welcome} ${userDetails.first_name || 'User'}.
-        </h3>
+        </h2>
+        <p>Synk your calendar:</p>
         <div id="logged-in-buttons" style="width:90%;margin:auto;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 ${translations.syncButton}
@@ -310,7 +311,7 @@ function generateLoggedInView(userDetails) {
             </button>
         </div>
         ${syncMessage}
-        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+        <p style="font-family:'Mulish',sans-serif;font-size:smallest;color:var(--subdued-text);">
             ${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}
         </p>
     `;

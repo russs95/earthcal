@@ -1107,7 +1107,7 @@ async function syncUserEvents(choice) {
         }
 
         // Step 4: Notify the user of successful sync
-        alert('DateCycles have been successfully synced!');
+        // alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
@@ -1157,7 +1157,7 @@ async function useServerData(serverData, calendarName) {
     const lastSyncTs = new Date().toISOString();
     localStorage.setItem('last_sync_ts', lastSyncTs);
     showLastSynkTimePassed(lastSyncTs);
-    alert('Local data has been updated with server data.');
+    alert('✔ Local data has been updated with server data.');
 }
 
 // Overwrite server data with local data
