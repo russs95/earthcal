@@ -13,7 +13,6 @@ let dayOfYear;
  * Sets the current date and initializes targetDate and startDate
  */
 
-
 //THE NEXT FOCUS PROJECT
 //Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
 
@@ -864,6 +863,7 @@ document.querySelector("#information-six .back").onclick = function() {
 
 
 /*****************************/
+
 
 // LISTEN FOR BREAKOUT CLICK
 function listenForMonthBreakout() {
