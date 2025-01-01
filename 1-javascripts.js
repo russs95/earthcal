@@ -5,7 +5,7 @@ let startCoords = { cx: 0, cy: 0 };
 
 let targetDate;
 let startDate;
-let year = 2024;
+let year = 2025;
 let currentDate;
 let dayOfYear;
 
