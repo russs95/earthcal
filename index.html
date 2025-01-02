@@ -772,7 +772,7 @@ setTimeout(showIntroModal, 5000);
 
       <div id="datecycle-setter"></div>
 
-        <select id="dateCycle-type" style="width: 70%; font-size: 1em; text-align: center; height: 35px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()" class="blur-form-field">
+        <select id="dateCycle-type" style="width: 70%; font-size: 1em; text-align: center; height: 45px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()" class="blur-form-field">
           <option value="" disabled >Select frequency...</option>
           <option value="One-time" selected >One-time</option>
           <!--<option value="Monthly" >Monthly</option> Problem with matching -month- as well as matching -day--->
@@ -784,7 +784,7 @@ setTimeout(showIntroModal, 5000);
 
 
         <div id="dateCycle-year-option"  >
-          <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:35px;margin-top:10px" class="blur-form-field" >
+          <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:45px;margin-top:10px" class="blur-form-field" >
             <option value="" disabled >Select year...</option>
             <option>2023</option>
             <option>2024</option>
@@ -795,7 +795,7 @@ setTimeout(showIntroModal, 5000);
 
         <div id="set-date" > <!-- style="display:none;" -->
           <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;margin-left: auto;" >
-            <select name="day" id="day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;" class="blur-form-field" >
+            <select name="day" id="day-field2" style="width: 22%; margin-right: 10px; font-size: 1em;height:45px; text-align: center;" class="blur-form-field" >
               <option value="" disabled selected>Select day...</option>
               <option value="1">1</option>
               <option value="2">2</option>
@@ -831,7 +831,7 @@ setTimeout(showIntroModal, 5000);
           </select>
 
 
-          <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 35px;margin-right: auto;
+          <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 45px;margin-right: auto;
   margin-left: 0px;" class="blur-form-field"><!--onchange="showDateCycleTitleSetter()"-->
             <option value="" disabled selected>Select month...</option>
             <option value="1">January</option>
@@ -887,15 +887,13 @@ setTimeout(showIntroModal, 5000);
           <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
         </div>
 
-        <button type="button" id="confirm-dateCycle-button" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();" class="confirmation-blur-button" style="width:70%">+ Add Event</button>
+        <button type="button" id="confirm-dateCycle-button" onclick="submitAddCycleForm();closeAddCycle(),closeDateCycleExports(),highlightDateCycles();" class="confirmation-blur-button enabled" style="width:70%;height:45px">+ Add Event</button>
 <!--checkAndDisplayMatchingDateCycles()-->
 
       </div>
     </div>
 
     </form>
-
-
 
 
     <div id="export-hover-box" class="export-my-dates" style="width: 80%; padding: 20px; background: #00000030; border-radius: 10px; margin: auto; margin-top: 40px; margin-bottom: 0px;">
