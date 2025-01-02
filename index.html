@@ -554,12 +554,14 @@ setTimeout(showIntroModal, 5000);
 
         <div class="form-container" id="login-form-section">
             <div style="text-align:center;width:100%;margin:auto;" >
-                <div id="status-message">Login to Earthcal</div>
-                <div id="sub-status-message">Please signin with your Buwana account credentials.</div>
+                <div id="status-message">Login & Sync</div>
+                <div id="sub-status-message">EarthCal now uses Buwana accounts to store your dates in the cloud so you can sync multiple devices with your dateCycles.</div>
             </div>
             <!-- Form starts here-->
             <form id="login" action="https://gobrik.com/api/buwana_login_process.php" method="POST">
+
                 <div class="form-item">
+                    <p>Login with your Buwana account credentials...</p>
                     <div id="credential-input-field" class="input-wrapper" style="position: relative;">
                         <input type="text" id="credential_key" name="credential_key" required placeholder="Your e-mail...">
                         <span class="toggle-select-key" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🌏</span>
@@ -612,7 +614,9 @@ setTimeout(showIntroModal, 5000);
                     <div id="code-error" data-lang-id="002-password-wrong" class="form-field-error" style="display:none;margin-top: 5px;margin-bottom:-15px;">👉 Entry is incorrect.</div>
                 </div>
             </form>
+            <p style="text-align:center; font-size:0.9em;margin-top:30px;">Don't yet have a Buwana account? Sign up on <a href="https://gobrik.com/en/signup.php" target="_blank">GoBrik</a>.</p>
         </div><!--Login Form -->
+
         <!-- To be shown upon login without activation -->
 <div id="activate-earthcal-account" style="display:none; text-align:center; margin:auto;">
     <p>It looks like you haven't yet connected your Buwana account with Earthcal.</p>
