@@ -373,8 +373,8 @@ function displayDayInfo(date) {
   currentDateInfoDiv.innerHTML = `${dateString}`;
 
   // Update the inner HTML of the div with id 'current-day-info' to display the day of the year
-  const currentDayInfoDiv = document.getElementById('current-day-info');
-  currentDayInfoDiv.innerHTML = `<p style="margin: -12px 0px -10px 0px;">${dayOfYearString}</p>`;
+  //const currentDayInfoDiv = document.getElementById('current-day-info');
+  //currentDayInfoDiv.innerHTML = `<p style="margin: -12px 0px -10px 0px;">${dayOfYearString}</p>`;
 }
 
 

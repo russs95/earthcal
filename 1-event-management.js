@@ -361,7 +361,31 @@ function displayMatchingDateCycle() {
     pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
     pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
   }
+
+  // Update `current-day-info` with summary information
+  const currentDayInfoDiv = document.getElementById('current-day-info');
+  if (currentDayInfoDiv) {
+    const totalEvents = matchingDateCycles.length + pinnedDateCycles.length;
+    const pinnedCount = pinnedDateCycles.length;
+    currentDayInfoDiv.innerText = `Hide: ${totalEvents} events and ${pinnedCount} pinned.`; // Default to "Hide"
+
+    // Add a click listener to toggle visibility of the divs and update the label
+    currentDayInfoDiv.addEventListener('click', () => {
+      const isPinnedVisible = pinnedDiv.style.display === 'block';
+      const isMatchingVisible = matchingDiv.style.display === 'block';
+
+      // Toggle visibility
+      pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
+      matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
+
+      // Update the label to "Show" or "Hide"
+      const actionLabel = isPinnedVisible && isMatchingVisible ? 'Show' : 'Hide';
+      currentDayInfoDiv.innerText = `${actionLabel}: ${totalEvents} events and ${pinnedCount} pinned.`;
+    });
+  }
 }
+
+
 
 
 
