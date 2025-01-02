@@ -325,7 +325,6 @@ async function highlightDateCycles() {
   });
 }
 
-
 function displayMatchingDateCycle() {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
@@ -333,12 +332,11 @@ function displayMatchingDateCycle() {
     return;
   }
 
-  // Separate pinned dateCycles (explicitly set to "yes")
+  // Separate pinned and unpinned dateCycles
   const pinnedDateCycles = dateCycles.filter(dc =>
     (dc.Pinned || '').trim().toLowerCase() === 'yes'
   );
 
-  // Separate unpinned dateCycles (not explicitly pinned)
   const unpinnedDateCycles = dateCycles.filter(dc =>
     (dc.Pinned || '').trim().toLowerCase() !== 'yes'
   );
@@ -348,14 +346,6 @@ function displayMatchingDateCycle() {
     findMatchingDateCycles([dc]).length > 0
   );
 
-  // Update `pinned-datecycles` with pinned dateCycles
-  const pinnedDiv = document.getElementById('pinned-datecycles');
-  if (pinnedDiv) {
-    pinnedDiv.innerHTML = ""; // Clear previous data
-    pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
-    pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
-  }
-
   // Update `current-datecycles` with matching unpinned dateCycles
   const matchingDiv = document.getElementById('current-datecycles');
   if (matchingDiv) {
@@ -363,7 +353,16 @@ function displayMatchingDateCycle() {
     matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
     matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
   }
+
+  // Update `pinned-datecycles` with pinned dateCycles
+  const pinnedDiv = document.getElementById('pinned-datecycles');
+  if (pinnedDiv) {
+    pinnedDiv.innerHTML = ""; // Clear previous data
+    pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
+    pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+  }
 }
+
 
 
 
