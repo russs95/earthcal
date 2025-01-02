@@ -272,13 +272,13 @@ function openMainMenu() {
 
         <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">${translations.guide}</a></div>
 
-        <div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">${translations.purchasePrint}</a></div>
+        <!--<div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">${translations.purchasePrint}</a></div>-->
 
         <div class="menu-page-item"><a href="https://guide.earthen.io/about" target="_blank">${translations.about}</a></div>
 
-        <br><br>
 
-        <a href="https://snapcraft.io/earthcal">
+
+        <a href="https://snapcraft.io/earthcal" style="margin-top:20px">
             <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
         </a>
 

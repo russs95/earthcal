@@ -11,8 +11,8 @@ app.commandLine.appendSwitch('disable-features', 'RendererCodeIntegrity');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 769,
     icon: path.join(__dirname, 'icons', 'earthcal-app.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

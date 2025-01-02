@@ -44,6 +44,8 @@
     AR: 'من'
   };
 
+
+
 const versioningTranslations = {
     EN: {
         title: "Welcome to EarthCal 0.9!",
