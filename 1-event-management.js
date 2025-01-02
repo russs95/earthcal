@@ -326,39 +326,92 @@ async function highlightDateCycles() {
 }
 
 
-
-
-
-// MATCH AND SHOW INFO OF CURRENT DATECYCLE
-
-// Fetch and write info of matching dateCycles  :  Is something missing here?
 function displayMatchingDateCycle() {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
-      console.log("No dateCycles found in storage.");
-      return;
-  }
-
-  const matchingDateCycles = findMatchingDateCycles(dateCycles);
-  if (!matchingDateCycles.length) {
-    const currentDateCycleInfo = document.getElementById('current-datecycle-info2');
-    if (currentDateCycleInfo) {
-      currentDateCycleInfo.style.display = 'none';
-    }
-    console.log("No matching dateCycles found.");
+    console.log("No dateCycles found in storage.");
     return;
   }
 
-  // Clear out any previous data
-  const divElement = document.getElementById('current-datecycle-info2');
-  if (divElement) {
-    divElement.innerHTML = "";
-    divElement.style.display = 'block';
+  // Separate pinned dateCycles (explicitly set to "yes")
+  const pinnedDateCycles = dateCycles.filter(dc =>
+    (dc.Pinned || '').trim().toLowerCase() === 'yes'
+  );
+
+  // Separate unpinned dateCycles (not explicitly pinned)
+  const unpinnedDateCycles = dateCycles.filter(dc =>
+    (dc.Pinned || '').trim().toLowerCase() !== 'yes'
+  );
+
+  // Filter unpinned dateCycles further to match the target date
+  const matchingDateCycles = unpinnedDateCycles.filter(dc =>
+    findMatchingDateCycles([dc]).length > 0
+  );
+
+  // Update `pinned-datecycles` with pinned dateCycles
+  const pinnedDiv = document.getElementById('pinned-datecycles');
+  if (pinnedDiv) {
+    pinnedDiv.innerHTML = ""; // Clear previous data
+    pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
+    pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
   }
 
-  // Write matching dateCycles to the div
-  matchingDateCycles.forEach(dc => writeMatchingDateCycles(divElement, dc));
+  // Update `current-datecycles` with matching unpinned dateCycles
+  const matchingDiv = document.getElementById('current-datecycles');
+  if (matchingDiv) {
+    matchingDiv.innerHTML = ""; // Clear previous data
+    matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+    matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+  }
 }
+
+
+
+
+function writeMatchingDateCycles(divElement, dateCycle) {
+  // Determine styles based on whether the dateCycle is completed or not
+  const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
+  let calendarColorContent;
+
+  // Set content based on Completed and Pinned status
+  if (dateCycle.Completed === 'yes') {
+    calendarColorContent = '✔';
+  } else if (dateCycle.Pinned === 'yes') {
+    calendarColorContent = '📌';
+  } else {
+    calendarColorContent = '⬤';
+  }
+
+  divElement.innerHTML += `
+    <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')">
+        <div class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
+            ${dateCycle.Completed !== 'yes' ? `<button
+                class="pin-button"
+                aria-label="${dateCycle.Pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
+                title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                onclick="pinThisDatecycle(this); event.stopPropagation();"
+                onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '❌' : '📌'}';"
+                onmouseout="this.textContent = '${calendarColorContent}';"
+                style="font-size: small; margin: 0px 4px 8px 0px; border: none; background: none; cursor: pointer; color: inherit;"
+            >${calendarColorContent}</button>` : `<span style="font-size: small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span>`}
+            ${dateCycle.Event_name}
+        </div>
+        <div class="current-datecycle-data">
+            <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
+            <div>|</div>
+            <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
+        </div>
+        <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
+        <div style="display:flex;flex-flow:row;">
+            <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}'); event.stopPropagation();">➜</div>
+            <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this); event.stopPropagation();">✔</div>
+            <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();">✘</div>
+        </div>
+    </div>
+  `;
+}
+
+
 
 function strikeDateCycle(element) {
   // Retrieve stored dateCycles from localStorage
@@ -414,48 +467,6 @@ function findMatchingDateCycles(dateCycles) {
 }
 
 
-// Write the provided dateCycle to the provided div element
-function writeMatchingDateCycles(divElement, dateCycle) {
-    // Determine styles based on whether the dateCycle is completed or not
-    const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
-    let calendarColorContent;
-
-    // Set content based on Completed and Pinned status
-    if (dateCycle.Completed === 'yes') {
-        calendarColorContent = '✔';
-    } else if (dateCycle.Pinned === 'yes') {
-        calendarColorContent = '📌';
-    } else {
-        calendarColorContent = '⬤';
-    }
-
-    divElement.innerHTML += `
-      <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')">
-          <div class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
-              ${dateCycle.Completed !== 'yes' ? `<button
-                  class="pin-button"
-                  title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
-                  onclick="pinThisDatecycle(this); event.stopPropagation();"
-                  onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '❌' : '📌'}';"
-                  onmouseout="this.textContent = '${calendarColorContent}';"
-                  style="font-size: small; margin: 0px 4px 8px 0px; border: none; background: none; cursor: pointer; color: inherit;"
-              >${calendarColorContent}</button>` : `<span style="font-size: small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span>`}
-              ${dateCycle.Event_name}
-          </div>
-          <div class="current-datecycle-data">
-              <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
-              <div>|</div>
-              <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
-          </div>
-          <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
-          <div style="display:flex;flex-flow:row;">
-              <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}'); event.stopPropagation();">➜</div>
-              <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this); event.stopPropagation();">✔</div>
-              <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();">✘</div>
-          </div>
-      </div>
-    `;
-}
 
 
 function pinThisDatecycle(element) {

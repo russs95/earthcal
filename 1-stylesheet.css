@@ -316,7 +316,12 @@ flex-direction: row;
 
 }
 
-#current-datecycle-info2 .date-info:hover {
+#current-datecycles .date-info:hover {
+ background:var(--grey-trans-over);
+  cursor:pointer;
+  }
+
+  #pinned-datecycles .date-info:hover {
  background:var(--grey-trans-over);
   cursor:pointer;
   }
@@ -2089,7 +2094,7 @@ background-color: var(--button-2-1);
 
 
  
-#current-datecycle-info2 .date-info {
+#current-datecycles .date-info {
   margin-top:20px;
   margin-bottom: 0px;
   background: var(--grey-trans);
@@ -2098,6 +2103,17 @@ background-color: var(--button-2-1);
   position: relative;
   z-index: 20;
   
+}
+
+#pinned-datecycles .date-info {
+  margin-top:20px;
+  margin-bottom: 0px;
+  background: var(--grey-trans);
+  border-radius: 10px;
+  padding: 15px;
+  position: relative;
+  z-index: 20;
+
 }
 
 .current-date-info-title {
