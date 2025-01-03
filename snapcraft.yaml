@@ -1,5 +1,5 @@
-name: Earthcal
-version: '0.9.3'
+name: earthcal
+version: '0.9.2'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.

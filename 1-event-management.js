@@ -102,39 +102,33 @@ function closeDateCycleExports() {
   exportImportDiv.style.display = 'none';
 }
 
-
-//ADD A DATECYCLE -- triggered on submit to add dateCyle to cache and page
 function submitAddCycleForm() {
-  // First, we'll check if all required fields are filled out
+  // Check if all required fields are filled out
   var dayField = document.getElementById('day-field2').value;
   var monthField = document.getElementById('month-field2').value;
   var addDateTitle = document.getElementById('add-date-title').value;
   var dashOrNot = '-';
-  
+
   if (!dayField || !monthField || !addDateTitle) {
     alert("Please be sure to fill out all the fields to add a new dateCycle to the Calendar.");
-    //return;  // Exit the function early
+    return; // Exit the function early
   }
 
-  // If the required fields are filled out, then continue with the rest of the function
+  // Get additional form inputs
   var selCalendarElement = document.getElementById('select-calendar');
-  var selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].text; // Get the name of the calendar, not the ID
+  var selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].text; // Get the name of the calendar
   var dateCycleType = document.getElementById('dateCycle-type').value;
 
-  // Add logic to set Year to blank if the Frequency is 'Annual'
-  var yearField = dateCycleType === 'Annual' ? "" : (document.getElementById('year-field2').value || "");
-  
-    // Logic for "Monthly" Frequency
-    var yearField, monthField;
-    if (dateCycleType === 'Monthly') {
-      yearField = '';
-      monthField = '';
-      dashOrNot = '';
-    } else {
-      // Get values from the form
-      monthField = document.getElementById('month-field2').value;
-      yearField = dateCycleType === 'Annual' ? "" : (document.getElementById('year-field2').value || "");
-    }
+  // Handle "Monthly" Frequency
+  var yearField, monthField;
+  if (dateCycleType === 'Monthly') {
+    yearField = '';
+    monthField = '';
+    dashOrNot = '';
+  } else {
+    monthField = document.getElementById('month-field2').value;
+    yearField = dateCycleType === 'Annual' ? "" : (document.getElementById('year-field2').value || "");
+  }
 
   var addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
   var addDateNote = document.getElementById('add-date-note').value;
@@ -142,17 +136,20 @@ function submitAddCycleForm() {
 
   // Get the stored dateCycles and find the maximum ID
   var storedDateCycles = JSON.parse(localStorage.getItem('dateCycles') || '[]');
-  var maxID = 0; 
+  var maxID = 0;
   storedDateCycles.forEach(function(dc) {
-      var id = parseInt(dc.ID || "0");
-      if (id > maxID) {
-          maxID = id;
-      }
+    var id = parseInt(dc.ID || "0");
+    if (id > maxID) {
+      maxID = id;
+    }
   });
 
-  var newID = (maxID + 1).toString().padStart(3, '0'); 
+  var newID = (maxID + 1).toString().padStart(3, '0');
 
-  // Create an object with the data
+  // Get the current date and time for last_edited
+  var currentDateTime = new Date().toISOString();
+
+  // Create the dateCycle object
   var dateCycle = {
     "ID": newID,
     "selectCalendar": selCalendar,
@@ -165,6 +162,8 @@ function submitAddCycleForm() {
     "comment": addNoteCheckbox,
     "Comments": addDateNote,
     "Completed": 'no',
+    "Pinned": 'no', // New field
+    "last_edited": currentDateTime, // New field
     "calendar_color": DateColorPicker,
   };
 
@@ -182,6 +181,7 @@ function submitAddCycleForm() {
   console.log("Stored dateCycle:", dateCycle);
   displayMatchingDateCycle();
 }
+
 
 
 
@@ -365,11 +365,20 @@ function displayMatchingDateCycle() {
   // Update `current-day-info` with summary information
   const currentDayInfoDiv = document.getElementById('current-day-info');
   if (currentDayInfoDiv) {
-    const totalEvents = matchingDateCycles.length + pinnedDateCycles.length;
+    const totalEvents = matchingDateCycles.length;
     const pinnedCount = pinnedDateCycles.length;
-    currentDayInfoDiv.innerText = `Hide: ${totalEvents} events and ${pinnedCount} pinned.`; // Default to "Hide"
+    const unpinnedCount = totalEvents - pinnedCount;
 
-    // Add a click listener to toggle visibility of the divs and update the label
+    currentDayInfoDiv.innerText = `Hide: ${totalEvents} events (${unpinnedCount} current, ${pinnedCount} pinned).`;
+  }
+}
+
+function initializeToggleListener() {
+  const currentDayInfoDiv = document.getElementById('current-day-info');
+  const pinnedDiv = document.getElementById('pinned-datecycles');
+  const matchingDiv = document.getElementById('current-datecycles');
+
+  if (currentDayInfoDiv && pinnedDiv && matchingDiv) {
     currentDayInfoDiv.addEventListener('click', () => {
       const isPinnedVisible = pinnedDiv.style.display === 'block';
       const isMatchingVisible = matchingDiv.style.display === 'block';
@@ -379,11 +388,15 @@ function displayMatchingDateCycle() {
       matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
 
       // Update the label to "Show" or "Hide"
+      const totalEvents = matchingDiv.children.length + pinnedDiv.children.length;
+      const pinnedCount = pinnedDiv.children.length;
+      const unpinnedCount = totalEvents - pinnedCount;
       const actionLabel = isPinnedVisible && isMatchingVisible ? 'Show' : 'Hide';
-      currentDayInfoDiv.innerText = `${actionLabel}: ${totalEvents} events and ${pinnedCount} pinned.`;
+      currentDayInfoDiv.innerText = `${actionLabel}: ${totalEvents} events (${unpinnedCount} current, ${pinnedCount} pinned).`;
     });
   }
 }
+
 
 
 
@@ -541,31 +554,30 @@ function editDateCycle(dateCycleID) {
 
   const modalContent = document.getElementById('modal-content');
   modalContent.innerHTML = `
-
-
-
     <div id="edit-datecycle-setter" style="width:100%;text-align:center;color:var(--text-color)"><h1>Edit DateCycle</h1></div>
 
-    <select id="edit-dateCycle-type" class="blur-form-field" style="font-size: 1em; text-align: center; height: 35px; margin: auto; margin-bottom: 10px;width: 100%;" onchange="showYearMonthDaySetter()">
+    <select id="edit-dateCycle-type" class="blur-form-field" style="font-size: 1em; text-align: center; height: 45px; margin: auto; margin-bottom: 10px;width: 100%;" onchange="showYearMonthDaySetter()">
       <option value="" disabled>Select frequency...</option>
       <option value="One-time" ${dateCycle.Frequency === 'One-time' ? 'selected' : ''}>One-time</option>
       <option value="Annual" ${dateCycle.Frequency === 'Annual' ? 'selected' : ''}>Annual</option>
+      <option value="Weekly" disabled>Weekly</option>
+      <option value="Monthly" disabled>Monthly</option>
     </select>
 
     <div id="edit-dateCycle-year-option" >
-      <select name="year" id="edit-year-field2" style="width: 100%; font-size: 1em; text-align: center; height: 35px; margin-top: 10px;" class="blur-form-field">
+      <select name="year" id="edit-year-field2" style="width: 100%; font-size: 1em; text-align: center; height: 45px; margin-top: 10px;" class="blur-form-field">
         <option value="" disabled>Select year...</option>
-        ${[2023, 2024, 2025, 2026].map(year => `<option value="${year}" ${dateCycle.Year === String(year) ? 'selected' : ''}>${year}</option>`).join('')}
+        ${[2025, 2026, 2027, 2028].map(year => `<option value="${year}" ${dateCycle.Year === String(year) ? 'selected' : ''}>${year}</option>`).join('')}
       </select>
     </div>
 
     <div id="edit-set-date">
       <div class="date-search fields" style="display: flex; flex-flow: row; margin: auto; justify-content: center;" >
-        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 35px;margin-left: 0px;" class="blur-form-field">
+        <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 45px;margin-left: 0px;" class="blur-form-field">
           <option value="" disabled>Select day...</option>
           ${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${dateCycle.Day === String(i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
         </select>
-        <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 35px;margin-right: 0px;" class="blur-form-field">
+        <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 45px;margin-right: 0px;" class="blur-form-field">
           <option value="" disabled>Select month...</option>
           ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
             .map((month, i) => `<option value="${i + 1}" ${dateCycle.Month === String(i + 1) ? 'selected' : ''}>${month}</option>`).join('')}
@@ -586,7 +598,7 @@ function editDateCycle(dateCycleID) {
       <div id="edit-add-note-form" style="margin-top: 0px; margin-bottom: 0px;">
         <textarea id="edit-add-date-note" class="blur-form-field" style="width: calc(100% - 10px);padding-right:0px;" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
       </div>
-      <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button" style="width: 100%;" onclick="saveDateCycleEditedChanges('${dateCycleID}')">Save Changes</button>
+      <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width: 100%;" onclick="saveDateCycleEditedChanges('${dateCycleID}')">🐿️ Save Changes</button>
     </div>
   `;
 
@@ -596,6 +608,7 @@ function editDateCycle(dateCycleID) {
   modal.classList.add('modal-visible');
   document.getElementById("page-content").classList.add("blur");
 }
+
 
 
 // Function to save edited dateCycle changes
@@ -1009,45 +1022,45 @@ document.addEventListener("DOMContentLoaded", function() {
 // }
 
 
-// PUSH DATE TO TODAY
-
 function push2today(id) {
+  // Fetch the dateCycles from localStorage
   const dateCycles = fetchDateCycles();
-  if (!dateCycles) {
-    console.log("No dateCycles found in storage.");
-    return;
-  }
 
+  // Find the dateCycle by ID
   const dateCycle = dateCycles.find(dc => dc.ID === id);
-  if (!dateCycle) {
-    console.log("No dateCycle found with the provided ID.");
-    return;
-  }
 
   // Create a Date object for today's date
   const currentDate = new Date();
-  
-  // No need to add one day, as we're setting it to today
-  
+  const formattedDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`; // Today's date string
+
   // Update the dateCycle object
   dateCycle.Day = currentDate.getDate();
   dateCycle.Month = currentDate.getMonth() + 1; // Months are zero-indexed in JavaScript Dates
   dateCycle.Year = currentDate.getFullYear();
-  dateCycle.Date = `-${dateCycle.Day}-${dateCycle.Month}-${dateCycle.Year}`; // Update the Date string as well
-  
+  dateCycle.Date = formattedDate;
+
+  // Update "last_edited" to the current datetime
+  dateCycle.last_edited = currentDate.toISOString();
+
+  // If Pinned hasn't been set, update it to "no"
+  if (!dateCycle.Pinned) {
+    dateCycle.Pinned = 'no';
+  }
+
+  // Update the Comments field to indicate the original date
+  const originalDate = dateCycle.Date || 'an unspecified date';
+  dateCycle.Comments = `Originally set to ${originalDate}`;
+
   // Save the updated array back to localStorage
   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-  
-  // Optionally: Refresh the display or show a message to user
+
+  // Refresh the display or show a message to the user
   console.log(`Updated dateCycle with ID: ${id} to today`);
-  
-  // Refreshing the display
-  const divElement = document.getElementById('current-datecycle-info2');
-  if (divElement) {
-    divElement.innerHTML = "";  
+
+
     highlightDateCycles();
     displayMatchingDateCycle();
-  }
+
 }
 
 
