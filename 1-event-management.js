@@ -325,6 +325,7 @@ async function highlightDateCycles() {
   });
 }
 
+
 function displayMatchingDateCycle() {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
@@ -346,6 +347,13 @@ function displayMatchingDateCycle() {
     findMatchingDateCycles([dc]).length > 0
   );
 
+  // Get the current date in the same format as targetDate
+  const currentDate = new Date();
+  const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+
+  // Determine if the target date is the current date
+  const isToday = findMatchingDateCycles([{ Date: formattedCurrentDate }]).length > 0;
+
   // Update `current-datecycles` with matching unpinned dateCycles
   const matchingDiv = document.getElementById('current-datecycles');
   if (matchingDiv) {
@@ -354,22 +362,26 @@ function displayMatchingDateCycle() {
     matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
   }
 
-  // Update `pinned-datecycles` with pinned dateCycles
+  // Update `pinned-datecycles` with pinned dateCycles only if it's today
   const pinnedDiv = document.getElementById('pinned-datecycles');
   if (pinnedDiv) {
     pinnedDiv.innerHTML = ""; // Clear previous data
-    pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
-    pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+    if (isToday) {
+      pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
+      pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+    } else {
+      pinnedDiv.style.display = 'none';
+    }
   }
 
-  // Update `current-day-info` with summary information
+  // Update `current-day-info` with event counts
   const currentDayInfoDiv = document.getElementById('current-day-info');
   if (currentDayInfoDiv) {
-    const totalEvents = matchingDateCycles.length;
-    const pinnedCount = pinnedDateCycles.length;
-    const unpinnedCount = totalEvents - pinnedCount;
+    const displayedCurrentEvents = matchingDiv.children.length;
+    const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
+    const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
 
-    currentDayInfoDiv.innerText = `Hide: ${totalEvents} events (${unpinnedCount} current, ${pinnedCount} pinned).`;
+    currentDayInfoDiv.innerText = `${totalEvents} events today`; // Default to "hiding"
   }
 }
 
@@ -387,12 +399,11 @@ function initializeToggleListener() {
       pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
       matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
 
-      // Update the label to "Show" or "Hide"
-      const totalEvents = matchingDiv.children.length + pinnedDiv.children.length;
-      const pinnedCount = pinnedDiv.children.length;
-      const unpinnedCount = totalEvents - pinnedCount;
-      const actionLabel = isPinnedVisible && isMatchingVisible ? 'Show' : 'Hide';
-      currentDayInfoDiv.innerText = `${actionLabel}: ${totalEvents} events (${unpinnedCount} current, ${pinnedCount} pinned).`;
+      // Update the label to show or hide
+      const totalEvents = matchingDiv.children.length + (pinnedDiv.style.display === 'block' ? pinnedDiv.children.length : 0);
+      const actionLabel = (pinnedDiv.style.display === 'block' && matchingDiv.style.display === 'block') ? '' : '👁';
+
+      currentDayInfoDiv.innerText = `${actionLabel} ${totalEvents} events today`;
     });
   }
 }
