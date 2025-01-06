@@ -210,7 +210,7 @@ path[id*="week-"] {
 
 #reg-up-button {
     margin: 0px auto -2px auto;
-    width: 100%;
+    width: 200px;
 }
 
 #registration-footer {
@@ -221,8 +221,7 @@ path[id*="week-"] {
     margin-bottom: -65px;
 }
 
-/* This rule changes the margin of #reg-up-button when it itself is hovered, 
-   not when #registration-footer is hovered. */
+
 #reg-up-button:hover {
     margin: 0px auto 6px auto;   
 }
@@ -967,10 +966,13 @@ setTimeout(showIntroModal, 5000);
       </div>
     </div>
 
-    <div id="date-controls" style="margin-left: auto;z-index: 29;margin-right: 10px;border-radius: 5px;padding: 8px;position: fixed;bottom: 10px;left: 10px;background-color: var(--general-background);
-  border-radius: 15px;
+    <div id="date-controls" style="margin-left: auto;z-index: 29;margin-right: 10px;border-radius: 5px;padding: 8px;position: fixed;bottom:0px;left: 10px;background-color: var(--general-background);
+  border-radius: 0px 15px 0px 15px;
   padding-top: 18px;">
-        <div id="current-day-info" style="font-size: 0.92em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;"></div>
+        <div id="current-day-info" style="font-size: 0.92em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;padding: 0px 0px 5px 0px;
+  margin-bottom: 15px;
+  border-bottom: 1px #80808061 dashed;
+  margin-right: 10px;"></div>
         <div id="time-controller" style="display: flex;flex-flow: row;width: 200px;height: 50px;">
           <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
 
@@ -996,7 +998,8 @@ setTimeout(showIntroModal, 5000);
 
 
 
-  <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;">
+  <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;background: var(--general-background);
+  border-radius: 15px;">
 
     <div><button type="button" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
     

@@ -1042,7 +1042,7 @@ function breakoutTheMonth(monthName, monthNumber) {
       setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
     }
 
-    // Highlight the first day of the month
+    // Highlight the first day of the month FIX
     const dayId = `01-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
     setTimeout(() => setDisplay(dayId, 'block', 'active-break'), 22);
 

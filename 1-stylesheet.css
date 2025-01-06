@@ -21,7 +21,7 @@ p {
   @media screen and (max-width: 700px) {
 
   #user-timezone-lang {
-    margin-right:-55px;
+    /*margin-right:-55px;*/
     }
 
   .date-info h2 {
@@ -312,7 +312,6 @@ flex-direction: row;
   font-family:'Mulish', sans-serif; 
   color: var(--text-color); 
   padding: 0px 5px 15px 15px;
-  direction: ltr;
 
 }
 
@@ -2102,7 +2101,7 @@ background-color: var(--button-2-1);
   padding: 15px;
   position: relative;
   z-index: 20;
-  
+    direction: ltr;
 }
 
 #pinned-datecycles .date-info {
@@ -2113,6 +2112,7 @@ background-color: var(--button-2-1);
   padding: 15px;
   position: relative;
   z-index: 20;
+
 
 }
 
@@ -2666,7 +2666,7 @@ svg path #june:hover {
 
 .active-break {
   opacity: 1;
-  fill: white;
+  filter: invert(1);
 }
 
 .active-month {

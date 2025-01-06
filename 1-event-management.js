@@ -445,8 +445,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
         <div class="current-datecycle-data">
             <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
-            <div>|</div>
-            <div class="current-date-frequency">${dateCycle.Frequency} Event</div>
+            <!--<div>|</div>
+            <div class="current-date-frequency">${dateCycle.Frequency} Event</div>-->
         </div>
         <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
         <div style="display:flex;flex-flow:row;">
@@ -990,48 +990,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-// //PUSH DATE TO TOMORRRW
-
-// function push2tomorrow(id) {
-//   const dateCycles = fetchDateCycles();
-//   if (!dateCycles) {
-//     console.log("No dateCycles found in storage.");
-//     return;
-//   }
-
-//   const dateCycle = dateCycles.find(dc => dc.ID === id);
-//   if (!dateCycle) {
-//     console.log("No dateCycle found with the provided ID.");
-//     return;
-//   }
-
-//   // Create a Date object for the current dateCycle
-//   const currentDate = new Date(dateCycle.Year, dateCycle.Month - 1, dateCycle.Day);
-  
-//   // Add one day
-//   currentDate.setDate(currentDate.getDate() + 1);
-  
-//   // Update the dateCycle object
-//   dateCycle.Day = currentDate.getDate();
-//   dateCycle.Month = currentDate.getMonth() + 1; // Months are zero-indexed in JavaScript Dates
-//   dateCycle.Year = currentDate.getFullYear();
-//   dateCycle.Date = `-${dateCycle.Day}-${dateCycle.Month}-${dateCycle.Year}`; // Update the Date string as well
-  
-//   // Save the updated array back to localStorage
-//   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-  
-//   // Optionally: Refresh the display or show a message to user
-//   console.log(`Pushed dateCycle with ID: ${id} to tomorrow`);
-  
-//   // Refreshing the display
-//   const divElement = document.getElementById('current-datecycle-info2');
-//   if (divElement) {
-//     divElement.innerHTML = "";  
-//     highlightDateCycles();
-//     displayMatchingDateCycle();
-//   }
-// }
-
 
 function push2today(id) {
   // Fetch the dateCycles from localStorage
@@ -1060,7 +1018,7 @@ function push2today(id) {
 
   // Update the Comments field to indicate the original date
   const originalDate = dateCycle.Date || 'an unspecified date';
-  dateCycle.Comments = `Originally set to ${originalDate}`;
+  //dateCycle.Comments = `Originally set to ${originalDate}`;
 
   // Save the updated array back to localStorage
   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
