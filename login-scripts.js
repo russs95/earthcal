@@ -129,8 +129,6 @@ async function activateEarthcalAccount() {
 }
 
 
-
-
 // Helper Function
 function showLoggedInView() {
     const loggedInView = document.getElementById("logged-in-view");
@@ -174,14 +172,8 @@ function showLoggedInView() {
             ${translations.welcome} ${userData.first_name}.
         </h3>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(1)">
-                ⬇️ Use Server Data
-            </button>
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(2)">
-                ⬆️ Use Local Data
-            </button>
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(3)">
-                ↕️ Merge Data
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+                🔄 Sync Now
             </button>
             <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳
                 ${translations.logout}
@@ -196,8 +188,6 @@ function showLoggedInView() {
     // Display the logged-in view
     loggedInView.style.display = "block";
 }
-
-
 
 
 
