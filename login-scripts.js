@@ -272,8 +272,6 @@ function shakeElement(element) {
 }
 
 
-
-// Function to generate the logged-in view
 function generateLoggedInView(userDetails) {
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
@@ -286,24 +284,26 @@ function generateLoggedInView(userDetails) {
     const translations = loggedInTranslations[language] || loggedInTranslations.EN;
 
     // Retrieve last sync time and calendar names from localStorage
-    const lastSyncedTs = localStorage.getItem('last_sync_ts') || '0:00';
+    const lastSyncedTs = localStorage.getItem('last_sync_ts') || 'Never';
     const calendarNames = localStorage.getItem('calendar_names')
         ? localStorage.getItem('calendar_names').split(',').join(', ')
-        : null;
+        : "My Calendar";
 
-    // Determine sync status message
-    const syncMessage = calendarNames && lastSyncedTs !== '0:00'
-        ? `<p>Your ${calendarNames} was last synced on ${lastSyncedTs}.</p>`
-        : `<p>Your dateCycles haven't been synced yet.</p>`;
+    // Generate sync status message
+    const syncMessage = `
+        <p style="font-family:'Mulish',sans-serif;">
+            ${calendarNames} ${lastSyncedTs !== 'Never'
+                ? `was last synced on ${lastSyncedTs}.`
+                : "hasn't been synced yet."}
+        </p>`;
 
     // Dynamically set the logged-in content
     loggedInView.innerHTML = `
         <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             ${translations.welcome} ${userDetails.first_name || 'User'}.
         </h2>
-        <p>Synk your calendar:</p>
         <div id="logged-in-buttons" style="width:90%;margin:auto;">
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+            <button class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 ${translations.syncButton}
             </button>
             <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
@@ -319,6 +319,7 @@ function generateLoggedInView(userDetails) {
     // Show the logged-in view
     loggedInView.style.display = "block";
 }
+
 
 
 

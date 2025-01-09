@@ -1,106 +1,6 @@
+// MAnagement of DateCycles
 
 
-
-// Function to show the add-note-check-boxed div and confirm-dateCycle button
-function showAddNoteCheckbox() {
-  const addDateTitleTextarea = document.getElementById('add-date-title');
-  const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
-  const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
-
-  if (addDateTitleTextarea.value.trim() !== '') {
-    addNoteCheckboxDiv.style.display = 'block';
-    confirmDateCycleButton.style.display = 'block';
-  } else {
-    addNoteCheckboxDiv.style.display = 'none';
-    confirmDateCycleButton.style.display = 'none';
-  }
-}
-
-// Function to show/hide the add-note-form based on add-note-checkbox
-function toggleAddNoteForm() {
-  const addNoteCheckbox = document.getElementById('add-note-checkbox');
-  const addNoteForm = document.getElementById('add-note-form');
-
-  if (addNoteCheckbox.checked) {
-    addNoteForm.style.display = 'block';
-  } else {
-    addNoteForm.style.display = 'none';
-  }
-}
-
-// Attach event listeners to call the functions when needed
-document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
-document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
-
-function showDateCycleSetter() {
-  document.getElementById("datecycle-setter").style.display = "block";
-  document.getElementById('dateCycle-type').value = 'Select frequency...';
-
-}
-
-function showYearMonthDaySetter() {
-  let dateCycleType = document.getElementById("dateCycle-type").value;
-  let setDateDiv = document.getElementById("set-date");
-  let dateCycleYearOptionDiv = document.getElementById("dateCycle-year-option");
-  let dateCycleName = document.getElementById("name-event");
-
-  document.getElementById('add-date-title').style.display = 'unset';
-
-
-  // Show/hide divs based on selected date cycle type
-  if (dateCycleType === "Annual") {
-      setDateDiv.style.display = "block";
-      dateCycleYearOptionDiv.style.display = "none";
-      dateCycleName.style.display = "block";
-
-  } else if (dateCycleType === "One-time") {
-      setDateDiv.style.display = "block";
-      dateCycleYearOptionDiv.style.display = "block";
-      dateCycleName.style.display = "block";
-
-  }
-  
-  // Set the year, month, and day fields using the global variable targetDate
-  document.getElementById("year-field2").value = targetDate.getFullYear();
-  document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
-  document.getElementById("day-field2").value = targetDate.getDate();
-}
-
-
-
-//DATECYCLE CALENDAR EXPORTS
-
-    // Function to open the export-import div and hide the export-down-arrow
-function openDateCycleExports() {
-  const exportDownArrow = document.getElementById('export-down-arrow');
-  const exportImportDiv = document.getElementById('export-import');
-  const exportUpArrow = document.getElementById('export-up-arrow');
-
-  // Hide the down arrow and show the export-import div
-  exportDownArrow.style.display = 'none';
-  exportImportDiv.style.display = 'block';
-
-  // Animate the increase in size of the export-import div
-  exportImportDiv.style.animation = 'expand 1s';
-
-  // Show the up arrow
-  exportUpArrow.style.display = 'block';
-}
-
-// Function to close and reset the export-import div
-function closeDateCycleExports() {
-  const exportDownArrow = document.getElementById('export-down-arrow');
-  const exportImportDiv = document.getElementById('export-import');
-  const exportUpArrow = document.getElementById('export-up-arrow');
-
-  // Hide the up arrow and reset the export-import div
-  exportUpArrow.style.display = 'none';
-  exportImportDiv.style.animation = 'none';
-
-  // Show the down arrow and hide the export-import div
-  exportDownArrow.style.display = 'block';
-  exportImportDiv.style.display = 'none';
-}
 
 function submitAddCycleForm() {
   // Check if all required fields are filled out
@@ -183,79 +83,17 @@ function submitAddCycleForm() {
 }
 
 
-
-
-function uploadDateCycles() {
-  const fileInput = document.getElementById('jsonUpload');
-  
-  if (fileInput.files.length === 0) {
-      alert('Please select a JSON file to upload.');
-      return;
-  }
-  
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(event) {
-      const jsonString = event.target.result;
-      try {
-          const dateCycles = JSON.parse(jsonString);
-          if (Array.isArray(dateCycles)) {
-              // Store dateCycles in browser's cache or any desired storage
-              localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-              alert('DateCycles uploaded and stored.');
-          } else {
-              alert('Uploaded JSON does not contain valid dateCycles.');
-          }
-      } catch (error) {
-          alert('Error parsing JSON file: ' + error.message);
-      }
-  };
-
-  reader.readAsText(file);
-  fetchDateCycles()
-}
-
-
-//Download Datecycles
-
-function downloadDateCycles() {
-  // Fetch dateCycles from localStorage
-  const dateCyclesString = localStorage.getItem('dateCycles');
-  
-  if (!dateCyclesString) {
-      alert('No dateCycles found in cache to download.');
-      return;
-  }
-  
-  // Convert the dateCycles string to a Blob
-  const blob = new Blob([dateCyclesString], { type: 'application/json' });
-  
-  // Create a URL for the Blob
-  const url = URL.createObjectURL(blob);
-  
-  // Create a temporary <a> element and trigger download
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'dateCycles.json'; // Filename to download
-  document.body.appendChild(a); // Append to the document
-  a.click(); // Trigger download
-  
-  // Clean up by revoking the Blob URL and removing the <a> element
-  URL.revokeObjectURL(url);
-  a.remove();
-}
-
+/////
 
 
 // Fetches dateCycles data from local storage
 function fetchDateCycles() {
   const dateCyclesString = localStorage.getItem('dateCycles');
-  
+
   if (!dateCyclesString) {
       return null;
   }
-  
+
   try {
       const dateCycles = JSON.parse(dateCyclesString);
       if (Array.isArray(dateCycles)) {
@@ -279,7 +117,7 @@ function fetchDateCycles() {
 async function highlightDateCycles() {
   // 1. Scan the entire HTML document and remove the class "date_event" from date paths
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-  
+
   elementsWithDateEvent.forEach(element => {
     element.classList.remove("date_event");
   });
@@ -539,8 +377,6 @@ function pinThisDatecycle(element) {
 
             displayMatchingDateCycle();
 
-            // Optional: Show an alert with the updated dateCycle JSON
-            // alert(JSON.stringify(storedDateCycles[dateCycleIndex], null, 2));
         }
     }
 }
@@ -549,6 +385,181 @@ function pinThisDatecycle(element) {
 
 
 
+
+
+
+// Function to show the add-note-check-boxed div and confirm-dateCycle button
+function showAddNoteCheckbox() {
+  const addDateTitleTextarea = document.getElementById('add-date-title');
+  const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
+  const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
+
+  if (addDateTitleTextarea.value.trim() !== '') {
+    addNoteCheckboxDiv.style.display = 'block';
+    confirmDateCycleButton.style.display = 'block';
+  } else {
+    addNoteCheckboxDiv.style.display = 'none';
+    confirmDateCycleButton.style.display = 'none';
+  }
+}
+
+// Function to show/hide the add-note-form based on add-note-checkbox
+function toggleAddNoteForm() {
+  const addNoteCheckbox = document.getElementById('add-note-checkbox');
+  const addNoteForm = document.getElementById('add-note-form');
+
+  if (addNoteCheckbox.checked) {
+    addNoteForm.style.display = 'block';
+  } else {
+    addNoteForm.style.display = 'none';
+  }
+}
+
+// Attach event listeners to call the functions when needed
+document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
+document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
+
+function showDateCycleSetter() {
+  document.getElementById("datecycle-setter").style.display = "block";
+  document.getElementById('dateCycle-type').value = 'Select frequency...';
+
+}
+
+function showYearMonthDaySetter() {
+  let dateCycleType = document.getElementById("dateCycle-type").value;
+  let setDateDiv = document.getElementById("set-date");
+  let dateCycleYearOptionDiv = document.getElementById("dateCycle-year-option");
+  let dateCycleName = document.getElementById("name-event");
+
+  document.getElementById('add-date-title').style.display = 'unset';
+
+
+  // Show/hide divs based on selected date cycle type
+  if (dateCycleType === "Annual") {
+      setDateDiv.style.display = "block";
+      dateCycleYearOptionDiv.style.display = "none";
+      dateCycleName.style.display = "block";
+
+  } else if (dateCycleType === "One-time") {
+      setDateDiv.style.display = "block";
+      dateCycleYearOptionDiv.style.display = "block";
+      dateCycleName.style.display = "block";
+
+  }
+  
+  // Set the year, month, and day fields using the global variable targetDate
+  document.getElementById("year-field2").value = targetDate.getFullYear();
+  document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
+  document.getElementById("day-field2").value = targetDate.getDate();
+}
+
+
+
+//DATECYCLE CALENDAR EXPORTS
+
+    // Function to open the export-import div and hide the export-down-arrow
+function openDateCycleExports() {
+  const exportDownArrow = document.getElementById('export-down-arrow');
+  const exportImportDiv = document.getElementById('export-import');
+  const exportUpArrow = document.getElementById('export-up-arrow');
+
+  // Hide the down arrow and show the export-import div
+  exportDownArrow.style.display = 'none';
+  exportImportDiv.style.display = 'block';
+
+  // Animate the increase in size of the export-import div
+  exportImportDiv.style.animation = 'expand 1s';
+
+  // Show the up arrow
+  exportUpArrow.style.display = 'block';
+}
+
+// Function to close and reset the export-import div
+function closeDateCycleExports() {
+  const exportDownArrow = document.getElementById('export-down-arrow');
+  const exportImportDiv = document.getElementById('export-import');
+  const exportUpArrow = document.getElementById('export-up-arrow');
+
+  // Hide the up arrow and reset the export-import div
+  exportUpArrow.style.display = 'none';
+  exportImportDiv.style.animation = 'none';
+
+  // Show the down arrow and hide the export-import div
+  exportDownArrow.style.display = 'block';
+  exportImportDiv.style.display = 'none';
+}
+
+
+
+
+
+
+
+function uploadDateCycles() {
+  const fileInput = document.getElementById('jsonUpload');
+  
+  if (fileInput.files.length === 0) {
+      alert('Please select a JSON file to upload.');
+      return;
+  }
+  
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+      const jsonString = event.target.result;
+      try {
+          const dateCycles = JSON.parse(jsonString);
+          if (Array.isArray(dateCycles)) {
+              // Store dateCycles in browser's cache or any desired storage
+              localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+              alert('DateCycles uploaded and stored.');
+          } else {
+              alert('Uploaded JSON does not contain valid dateCycles.');
+          }
+      } catch (error) {
+          alert('Error parsing JSON file: ' + error.message);
+      }
+  };
+
+  reader.readAsText(file);
+  fetchDateCycles()
+}
+
+
+//Download Datecycles
+
+function downloadDateCycles() {
+  // Fetch dateCycles from localStorage
+  const dateCyclesString = localStorage.getItem('dateCycles');
+  
+  if (!dateCyclesString) {
+      alert('No dateCycles found in cache to download.');
+      return;
+  }
+  
+  // Convert the dateCycles string to a Blob
+  const blob = new Blob([dateCyclesString], { type: 'application/json' });
+  
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
+  
+  // Create a temporary <a> element and trigger download
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dateCycles.json'; // Filename to download
+  document.body.appendChild(a); // Append to the document
+  a.click(); // Trigger download
+  
+  // Clean up by revoking the Blob URL and removing the <a> element
+  URL.revokeObjectURL(url);
+  a.remove();
+}
+
+
+
+
+//EDITING
 
 
 // Open modal dialogue to let the user edit the dateCycle:
@@ -622,41 +633,6 @@ function editDateCycle(dateCycleID) {
 
 
 
-// Function to save edited dateCycle changes
-function saveDateCycleEditedChanges(dateCycleID) {
-  // Retrieve the stored dateCycles from localStorage
-  const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
-  const dateCycleIndex = dateCycles.findIndex(dc => dc.ID === dateCycleID);
-
-  // If no matching dateCycle is found, show an error message on the button
-  if (dateCycleIndex === -1) {
-    const confirmButton = document.getElementById('edit-confirm-dateCycle');
-    confirmButton.textContent = "Error Updating DateCycle";
-    return;
-  }
-
-  // Get updated values from the form
-  const updatedTitle = document.getElementById('edit-add-date-title').value;
-  const updatedDay = document.getElementById('edit-day-field2').value;
-  const updatedMonth = document.getElementById('edit-month-field2').value;
-  const updatedYear = document.getElementById('edit-year-field2').value || ""; // Empty if not selected
-  const updatedFrequency = document.getElementById('edit-dateCycle-type').value;
-  const updatedCalendarColor = document.getElementById('edit-DateColorPicker').value;
-  const updatedComments = document.getElementById('edit-add-date-note').value;
-
-  // Update the dateCycle object
-  const updatedDateCycle = {
-    ...dateCycles[dateCycleIndex],  // Preserve existing data
-    Event_name: updatedTitle,
-    Day: updatedDay,
-    Month: updatedMonth,
-    Year: updatedYear,
-    Date: `-${updatedDay}-${updatedMonth}${updatedYear ? '-' + updatedYear : ''}`,
-    Frequency: updatedFrequency,
-    calendar_color: updatedCalendarColor,
-    Comments: updatedComments
-  };
-
   // Replace the original dateCycle with the updated version
   dateCycles[dateCycleIndex] = updatedDateCycle;
 
@@ -685,22 +661,6 @@ function saveDateCycleEditedChanges(dateCycleID) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function closeDatecycleInfo(element) {
   const dateInfoDiv = element.closest('.date-info');
   if (dateInfoDiv) {
@@ -709,6 +669,7 @@ function closeDatecycleInfo(element) {
 }
 
 
+//FIX:  Needs a synking solution
 
 function deleteDateCycle(id) {
   const dateCycles = fetchDateCycles();
@@ -780,11 +741,6 @@ function clearAllDateCycles() {
 
 
 
-
-
-
-
-//NEW
 
 // Loading the userCalendars from local storage or setting a default value.
 function loadUserCalendars() {
@@ -923,7 +879,7 @@ function handleAddNewCal() {
 
 
 
-//DELETE SLECTOR
+//DELETE CALENDAR SELECTOR
 function populateCalendarDropdown() {
   const selectElement = document.getElementById('calendarToDelete');
   const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
@@ -1017,7 +973,7 @@ function push2today(id) {
   }
 
   // Update the Comments field to indicate the original date
-  const originalDate = dateCycle.Date || 'an unspecified date';
+  //const originalDate = dateCycle.Date || 'an unspecified date';
   //dateCycle.Comments = `Originally set to ${originalDate}`;
 
   // Save the updated array back to localStorage
@@ -1041,25 +997,6 @@ function closeDatecycleInfo(element) {
   }
 }
 
-// // Wait for the DOM to be fully loaded
-// document.addEventListener('DOMContentLoaded', function() {
-//   // Attach an event listener to the form
-//   document.getElementById('calendar-adding-form').addEventListener('keypress', function(event) {
-//     // Check if the Enter key was pressed
-//     if (event.key === 'Enter') {
-//       // Prevent the default form submission behavior
-//       event.preventDefault();
-//       // Call the addNewCalendar function
-//       addNewCalendar();
-//     }
-//   });
-// });
-
-// // Your addNewCalendar function goes here
-// function addNewCalendar() {
-//   // Function logic
-// }
-
 
 
 function handleKeyPress(event) {
@@ -1068,20 +1005,23 @@ function handleKeyPress(event) {
      addNewCalendar(); // Call your search function without arguments
   }
 }
+
+
 //*********************************
 // SYNC DATECYCLES
 //*********************************
-async function syncUserEvents(choice) {
+
+async function syncUserEvents() {
     try {
-        const localDateCycles = fetchDateCycles() || []; // Retrieve local dateCycles
-        const buwanaId = localStorage.getItem('buwana_id'); // Retrieve Buwana ID from localStorage
+        const localDateCycles = fetchDateCycles() || [];
+        const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
             alert('Buwana ID is missing. Please log in again.');
             return;
         }
 
-        // Step 1: Fetch calendar data for "My Calendar" from the server
+        // Fetch server data
         const response = await fetch('https://gobrik.com/api/get_calendar_data.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1089,137 +1029,143 @@ async function syncUserEvents(choice) {
         });
 
         const serverData = await response.json();
+
         if (!serverData.success) {
             console.error('Server Error:', serverData.message);
             throw new Error(serverData.message || 'Failed to retrieve calendar data.');
         }
 
-        const serverCalendar = serverData.data;
-        const serverLastUpdated = new Date(serverCalendar.last_updated);
-        const localLastModified = new Date(localStorage.getItem('dateCycles_last_modified') || new Date());
+        const serverCalendar = serverData.data?.events_json_blob || [];
+        const mergedData = mergeDateCycles(serverCalendar, localDateCycles);
 
-        // Step 2: Handle case where server has no data (new user scenario)
-        if (serverCalendar.events_json_blob === null || serverCalendar.events_json_blob.length === 0) {
-            console.log('Server calendar is empty. Uploading local dateCycles.');
-            await useLocalData(localDateCycles, buwanaId);
-            return;
-        }
+        // Update server and local storage
+        await updateServer(mergedData, "My Calendar", buwanaId);
+        updateLocal(mergedData, "My Calendar");
 
-        // Step 3: Execute sync operation based on user's choice
-        switch (choice) {
-            case 1: // Use server data
-                await useServerData(serverCalendar.events_json_blob, "My Calendar");
-                break;
-            case 2: // Use local data
-                await useLocalData(localDateCycles, buwanaId);
-                break;
-            case 3: // Merge both
-                await mergeData(serverCalendar.events_json_blob || [], localDateCycles, buwanaId);
-                break;
-            default:
-                console.log('Invalid choice.');
-                alert('Invalid operation. Please try again.');
-                return;
-        }
-
-        // Step 4: Notify the user of successful sync
-        // alert('DateCycles have been successfully synced!');
+        alert('DateCycles have been successfully synced!');
     } catch (error) {
         console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
+
+
 //*********************************
 // SYNC HELPER FUNCTIONS
 //*********************************
 
-// Update the server with dateCycles
-async function updateServer(dateCycles, calendarName, buwanaId) {
-    try {
-        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_name: calendarName,
-                datecycles: dateCycles
-            })
-        });
 
-        if (!response.ok) {
-            throw new Error('Failed to update server data.');
-        }
-
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message || 'Unknown error occurred on server.');
-        }
-
-        // Update the local metadata with the server's last_updated timestamp
-        localStorage.setItem('dateCycles_last_modified', result.last_updated);
-
-        // Update last sync timestamp in local storage and UI
-        showLastSynkTimePassed(result.last_updated);
-    } catch (error) {
-        console.error('Error in updateServer:', error);
-        throw error;
-    }
-}
-
-// Overwrite local data with server data
-async function useServerData(serverData, calendarName) {
-    console.log('Using server data to overwrite local data.');
-    updateLocal(serverData, calendarName);
-    const lastSyncTs = new Date().toISOString();
-    localStorage.setItem('last_sync_ts', lastSyncTs);
-    showLastSynkTimePassed(lastSyncTs);
-    alert('✔ Local data has been updated with server data.');
-}
-
-// Overwrite server data with local data
-async function useLocalData(localData, buwanaId) {
-    console.log('Using local data to overwrite server data.');
-    await updateServer(localData, "My Calendar", buwanaId);
-    alert('Server data has been updated with local data.');
-}
-
-// Merge server and local data
-async function mergeData(serverData, localData, buwanaId) {
-    console.log('Merging server and local data.');
-    const mergedData = mergeDateCycles(serverData, localData);
-    await updateServer(mergedData, "My Calendar", buwanaId);
-    updateLocal(mergedData, "My Calendar");
-    alert('Data has been merged and updated.');
-}
-
-// Helper function to update local storage with server data
-function updateLocal(serverDateCycles, calendarName) {
-    const existingDateCycles = fetchDateCycles() || [];
-    const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
-    const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
-
-    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
-    localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
-}
-
-// Helper function to merge server and local dateCycles
 function mergeDateCycles(serverData, localData) {
-    const mergedData = [...serverData]; // Start with server data
+    const mergedData = [];
 
-    // Add local data that is not already present in server data
-    localData.forEach(localCycle => {
-        const exists = serverData.some(
-            serverCycle =>
-                serverCycle.ID === localCycle.ID &&
-                serverCycle.Event_name === localCycle.Event_name
-        );
-        if (!exists) {
-            mergedData.push(localCycle);
+    // Combine all data and prioritize the latest by 'last_edited'
+    const allCycles = [...serverData, ...localData];
+
+    // Use a map to store the most recent version of each DateCycle
+    const latestCycles = new Map();
+
+    allCycles.forEach(cycle => {
+        const existing = latestCycles.get(cycle.ID);
+        if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
+            latestCycles.set(cycle.ID, cycle);
         }
     });
 
+    // Push the unique and latest cycles into the merged data
+    mergedData.push(...latestCycles.values());
+
     return mergedData;
 }
+
+
+//// Update the server with dateCycles
+//async function updateServer(dateCycles, calendarName, buwanaId) {
+//    try {
+//        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
+//            method: 'POST',
+//            headers: { 'Content-Type': 'application/json' },
+//            body: JSON.stringify({
+//                buwana_id: buwanaId,
+//                calendar_name: calendarName,
+//                datecycles: dateCycles
+//            })
+//        });
+//
+//        if (!response.ok) {
+//            throw new Error('Failed to update server data.');
+//        }
+//
+//        const result = await response.json();
+//        if (!result.success) {
+//            throw new Error(result.message || 'Unknown error occurred on server.');
+//        }
+//
+//        // Update the local metadata with the server's last_updated timestamp
+//        localStorage.setItem('dateCycles_last_modified', result.last_updated);
+//
+//        // Update last sync timestamp in local storage and UI
+//        showLastSynkTimePassed(result.last_updated);
+//    } catch (error) {
+//        console.error('Error in updateServer:', error);
+//        throw error;
+//    }
+//}
+//
+//// Overwrite local data with server data
+//async function useServerData(serverData, calendarName) {
+//    console.log('Using server data to overwrite local data.');
+//    updateLocal(serverData, calendarName);
+//    const lastSyncTs = new Date().toISOString();
+//    localStorage.setItem('last_sync_ts', lastSyncTs);
+//    showLastSynkTimePassed(lastSyncTs);
+//    alert('✔ Local data has been updated with server data.');
+//}
+//
+//// Overwrite server data with local data
+//async function useLocalData(localData, buwanaId) {
+//    console.log('Using local data to overwrite server data.');
+//    await updateServer(localData, "My Calendar", buwanaId);
+//    alert('Server data has been updated with local data.');
+//}
+//
+//// Merge server and local data
+//async function mergeData(serverData, localData, buwanaId) {
+//    console.log('Merging server and local data.');
+//    const mergedData = mergeDateCycles(serverData, localData);
+//    await updateServer(mergedData, "My Calendar", buwanaId);
+//    updateLocal(mergedData, "My Calendar");
+//    alert('Data has been merged and updated.');
+//}
+//
+//// Helper function to update local storage with server data
+//function updateLocal(serverDateCycles, calendarName) {
+//    const existingDateCycles = fetchDateCycles() || [];
+//    const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
+//    const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
+//
+//    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
+//    localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
+//}
+//
+//// Helper function to merge server and local dateCycles
+//function mergeDateCycles(serverData, localData) {
+//    const mergedData = [...serverData]; // Start with server data
+//
+//    // Add local data that is not already present in server data
+//    localData.forEach(localCycle => {
+//        const exists = serverData.some(
+//            serverCycle =>
+//                serverCycle.ID === localCycle.ID &&
+//                serverCycle.Event_name === localCycle.Event_name
+//        );
+//        if (!exists) {
+//            mergedData.push(localCycle);
+//        }
+//    });
+//
+//    return mergedData;
+//}
 
 // Helper function to update the UI with the last sync timestamp
 function showLastSynkTimePassed(lastSyncTs) {
@@ -1238,4 +1184,89 @@ function showLastSynkTimePassed(lastSyncTs) {
     }
 }
 
+
+function saveDateCycleEditedChanges(dateCycleID) {
+  // Retrieve the stored dateCycles from localStorage
+  const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
+  const dateCycleIndex = dateCycles.findIndex(dc => dc.ID === dateCycleID);
+
+  // If no matching dateCycle is found, show an error message on the button
+  if (dateCycleIndex === -1) {
+    const confirmButton = document.getElementById('edit-confirm-dateCycle');
+    confirmButton.textContent = "Error Updating DateCycle";
+    return;
+  }
+
+  // Get updated values from the form
+  const updatedTitle = document.getElementById('edit-add-date-title').value;
+  const updatedDay = document.getElementById('edit-day-field2').value;
+  const updatedMonth = document.getElementById('edit-month-field2').value;
+  const updatedYear = document.getElementById('edit-year-field2').value || ""; // Empty if not selected
+  const updatedFrequency = document.getElementById('edit-dateCycle-type').value;
+  const updatedCalendarColor = document.getElementById('edit-DateColorPicker').value;
+  const updatedComments = document.getElementById('edit-add-date-note').value;
+
+  // Get the current date and time for 'last_edited'
+  const currentDateTime = new Date().toISOString();
+
+  // Update the dateCycle object
+  const updatedDateCycle = {
+    ...dateCycles[dateCycleIndex], // Preserve existing data
+    Event_name: updatedTitle,
+    Day: updatedDay,
+    Month: updatedMonth,
+    Year: updatedYear,
+    Date: `-${updatedDay}-${updatedMonth}${updatedYear ? '-' + updatedYear : ''}`,
+    Frequency: updatedFrequency,
+    calendar_color: updatedCalendarColor,
+    Comments: updatedComments,
+    last_edited: currentDateTime // Update 'last_edited'
+  };
+
+  // Replace the original dateCycle with the updated version
+  dateCycles[dateCycleIndex] = updatedDateCycle;
+
+  // Save the updated array back to localStorage
+  localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+
+  // Hide the edit modal after successful update
+  const addNewCalendarDiv = document.getElementById('edit-addNewCalendar');
+  if (addNewCalendarDiv) {
+    addNewCalendarDiv.style.display = "none";
+  }
+
+  // Refresh UI
+  displayMatchingDateCycle();
+}
+
+
+
+function strikeDateCycle(element) {
+  // Retrieve stored dateCycles from localStorage
+  const storedDateCycles = JSON.parse(localStorage.getItem('dateCycles') || '[]');
+
+  // Find the ancestor .date-info div of the clicked element
+  const dateInfoDiv = element.closest('.date-info');
+
+  if (dateInfoDiv) {
+    // Get the ID from the class list of dateInfoDiv
+    const dateCycleID = dateInfoDiv.classList[1];
+
+    // Find the corresponding dateCycle object
+    const dateCycleIndex = storedDateCycles.findIndex(dc => dc.ID === dateCycleID);
+    if (dateCycleIndex !== -1) {
+      // Toggle the 'Completed' status
+      storedDateCycles[dateCycleIndex].Completed = storedDateCycles[dateCycleIndex].Completed === 'no' ? 'yes' : 'no';
+
+      // Update 'last_edited' with the current date and time
+      storedDateCycles[dateCycleIndex].last_edited = new Date().toISOString();
+
+      // Update the localStorage with the new state
+      localStorage.setItem('dateCycles', JSON.stringify(storedDateCycles));
+
+      // Refresh the UI
+      displayMatchingDateCycle();
+    }
+  }
+}
 

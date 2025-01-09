@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Awesome Rainbow Button - Updated</title>
+
+  <!-- Mulish font import -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ============ Basic Reset/Setup (optional) ============ */
+    body {
+      margin: 2rem;
+      font-family: sans-serif;
+    }
+
+    /* ============ Awesome Button Styles ============ */
+    .awesome-button {
+      /* This padding simulates our “rainbow border” thickness, now 2px */
+      padding: 2px;
+      border: none; /* remove default button border */
+      border-radius: 25px; /* updated border radius */
+      cursor: pointer;
+
+      /* Rainbow gradient as the background */
+      background: linear-gradient(
+        90deg,
+        yellow,
+        orange,
+        red,
+        purple,
+        blue,
+        green
+      );
+      background-size: 400% 400%;
+
+      /* Start the rainbow animation in a paused state; spin on hover */
+      animation: rainbow-slow 10s linear infinite paused;
+
+      /* Inline-block so we can size neatly around the span */
+      display: inline-block;
+      position: relative;
+    }
+
+    /* Inner span as the “center” area of the button */
+    .awesome-button span {
+      display: inline-block;
+      background: #f0f0f0;    /* Updated resting background color */
+      border-radius: 24px;    /* 1px less than the parent for a clean border reveal */
+
+      /* Typography */
+      font-family: 'Mulish', sans-serif;
+      font-size: 1.1em;
+      line-height: 45px; /* 45px tall */
+      color: rgba(0, 0, 0, 0.75); /* 75% black */
+
+      /* Horizontal padding for breathing room */
+      padding: 0 20px;
+
+      /* Smooth transitions on hover/click */
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* ============ Hover State ============ */
+    .awesome-button:hover {
+      /* Spin the rainbow border slowly on hover */
+      animation-play-state: running;
+    }
+    .awesome-button:hover span {
+      /* Change center to white on hover */
+      background: #fff;
+      /* You can also set text to full black if desired */
+      color: #000;
+    }
+
+    /* ============ Active (Click) State ============ */
+    .awesome-button:active {
+      /* Increase border thickness from 2px to 3px on click (optional) */
+      /* Remove or adjust if you don’t want this behavior */
+      padding: 3px;
+
+      /* Spin the rainbow border fast while held down */
+      animation: rainbow-fast 1s linear infinite;
+    }
+    .awesome-button:active span {
+      /* On click: ~60% grey (#999) background, white text */
+      background: #999;
+      color: #fff;
+    }
+
+    /* ============ Keyframes for the Rainbow Spin ============ */
+    @keyframes rainbow-slow {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 400% 50%;
+      }
+    }
+    @keyframes rainbow-fast {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 400% 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Our Awesome Button -->
+  <button class="awesome-button">
+    <span>Awesome Button</span>
+  </button>
+
+</body>
+</html>
