@@ -83,8 +83,6 @@ function submitAddCycleForm() {
 }
 
 
-/////
-
 
 // Fetches dateCycles data from local storage
 function fetchDateCycles() {
@@ -245,9 +243,6 @@ function initializeToggleListener() {
     });
   }
 }
-
-
-
 
 
 
@@ -557,13 +552,6 @@ function downloadDateCycles() {
 }
 
 
-
-
-//EDITING
-
-
-// Open modal dialogue to let the user edit the dateCycle:
-// Function to open modal dialogue and populate form with dateCycle data for editing
 function editDateCycle(dateCycleID) {
   // Fetch dateCycles from localStorage
   const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
@@ -630,35 +618,6 @@ function editDateCycle(dateCycleID) {
   modal.classList.add('modal-visible');
   document.getElementById("page-content").classList.add("blur");
 }
-
-
-
-  // Replace the original dateCycle with the updated version
-  dateCycles[dateCycleIndex] = updatedDateCycle;
-
-  // Save the updated array back to localStorage
-  localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-
-  // Hide the edit-addNewCalendar div after successful completion
-  const addNewCalendarDiv = document.getElementById('edit-addNewCalendar');
-  if (addNewCalendarDiv) {
-    addNewCalendarDiv.style.display = "none";
-  }
-
-  // Close modal, unblur page, and refresh the display
-  const modal = document.getElementById('form-modal-message');
-  modal.classList.add('modal-hidden');
-  document.getElementById("page-content").classList.remove("blur");
-
-  // Run the specified functions to update UI
-  closeAddCycle();
-  highlightDateCycles();
-  displayMatchingDateCycle();
-  closeTheModal();
-}
-
-
-
 
 
 function closeDatecycleInfo(element) {
@@ -1079,93 +1038,6 @@ function mergeDateCycles(serverData, localData) {
 }
 
 
-//// Update the server with dateCycles
-//async function updateServer(dateCycles, calendarName, buwanaId) {
-//    try {
-//        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
-//            method: 'POST',
-//            headers: { 'Content-Type': 'application/json' },
-//            body: JSON.stringify({
-//                buwana_id: buwanaId,
-//                calendar_name: calendarName,
-//                datecycles: dateCycles
-//            })
-//        });
-//
-//        if (!response.ok) {
-//            throw new Error('Failed to update server data.');
-//        }
-//
-//        const result = await response.json();
-//        if (!result.success) {
-//            throw new Error(result.message || 'Unknown error occurred on server.');
-//        }
-//
-//        // Update the local metadata with the server's last_updated timestamp
-//        localStorage.setItem('dateCycles_last_modified', result.last_updated);
-//
-//        // Update last sync timestamp in local storage and UI
-//        showLastSynkTimePassed(result.last_updated);
-//    } catch (error) {
-//        console.error('Error in updateServer:', error);
-//        throw error;
-//    }
-//}
-//
-//// Overwrite local data with server data
-//async function useServerData(serverData, calendarName) {
-//    console.log('Using server data to overwrite local data.');
-//    updateLocal(serverData, calendarName);
-//    const lastSyncTs = new Date().toISOString();
-//    localStorage.setItem('last_sync_ts', lastSyncTs);
-//    showLastSynkTimePassed(lastSyncTs);
-//    alert('✔ Local data has been updated with server data.');
-//}
-//
-//// Overwrite server data with local data
-//async function useLocalData(localData, buwanaId) {
-//    console.log('Using local data to overwrite server data.');
-//    await updateServer(localData, "My Calendar", buwanaId);
-//    alert('Server data has been updated with local data.');
-//}
-//
-//// Merge server and local data
-//async function mergeData(serverData, localData, buwanaId) {
-//    console.log('Merging server and local data.');
-//    const mergedData = mergeDateCycles(serverData, localData);
-//    await updateServer(mergedData, "My Calendar", buwanaId);
-//    updateLocal(mergedData, "My Calendar");
-//    alert('Data has been merged and updated.');
-//}
-//
-//// Helper function to update local storage with server data
-//function updateLocal(serverDateCycles, calendarName) {
-//    const existingDateCycles = fetchDateCycles() || [];
-//    const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
-//    const updatedDateCycles = [...filteredDateCycles, ...serverDateCycles];
-//
-//    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
-//    localStorage.setItem('dateCycles_last_modified', new Date().toISOString());
-//}
-//
-//// Helper function to merge server and local dateCycles
-//function mergeDateCycles(serverData, localData) {
-//    const mergedData = [...serverData]; // Start with server data
-//
-//    // Add local data that is not already present in server data
-//    localData.forEach(localCycle => {
-//        const exists = serverData.some(
-//            serverCycle =>
-//                serverCycle.ID === localCycle.ID &&
-//                serverCycle.Event_name === localCycle.Event_name
-//        );
-//        if (!exists) {
-//            mergedData.push(localCycle);
-//        }
-//    });
-//
-//    return mergedData;
-//}
 
 // Helper function to update the UI with the last sync timestamp
 function showLastSynkTimePassed(lastSyncTs) {
