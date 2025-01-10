@@ -1009,6 +1009,46 @@ async function syncUserEvents() {
 }
 
 
+async function updateServer(dateCycles, calendarName, buwanaId) {
+    try {
+        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                buwana_id: buwanaId,
+                calendar_name: calendarName,
+                datecycles: dateCycles
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update server data.');
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || 'Unknown error occurred on server.');
+        }
+
+        // Update the local metadata with the server's last_updated timestamp
+        localStorage.setItem('dateCycles_last_modified', result.last_updated);
+
+        // Update last sync timestamp in local storage
+        const lastSyncTs = new Date(result.last_updated).toISOString();
+        localStorage.setItem('last_sync_ts', lastSyncTs);
+
+        // Optionally update the UI to show the last sync time
+        showLastSynkTimePassed(lastSyncTs);
+
+        console.log('Server successfully updated with DateCycles.');
+    } catch (error) {
+        console.error('Error in updateServer:', error);
+        throw error;
+    }
+}
+
+
 
 //*********************************
 // SYNC HELPER FUNCTIONS
