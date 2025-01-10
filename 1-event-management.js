@@ -1048,6 +1048,31 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
     }
 }
 
+function updateLocal(dateCycles, calendarName) {
+    try {
+        // Retrieve existing local dateCycles
+        const existingDateCycles = fetchDateCycles() || [];
+
+        // Filter out DateCycles from the specific calendar being updated
+        const filteredDateCycles = existingDateCycles.filter(dc => dc.selectCalendar !== calendarName);
+
+        // Combine the filtered data with the new data
+        const updatedDateCycles = [...filteredDateCycles, ...dateCycles];
+
+        // Save the updated DateCycles to localStorage
+        localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
+
+        // Update the last modified timestamp for local storage
+        const lastModifiedTs = new Date().toISOString();
+        localStorage.setItem('dateCycles_last_modified', lastModifiedTs);
+
+        console.log(`Local storage updated for calendar: ${calendarName}`);
+    } catch (error) {
+        console.error('Error updating local storage:', error);
+    }
+}
+
+
 
 
 //*********************************
