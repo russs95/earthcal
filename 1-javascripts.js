@@ -865,6 +865,74 @@ document.querySelector("#information-six .back").onclick = function() {
 /*****************************/
 
 
+/* BREAKOUT SCRIPTS */
+
+
+//Open the current month breakout (on load)
+function openCurrentMonthBreakout() {
+  // Array of month names in lowercase to match element IDs
+  const monthNames = [
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december',
+  ];
+
+  // Get today's date
+  const today = new Date();
+
+  // Determine the current month and year
+  const currentMonthNumber = today.getMonth() + 1; // Months are 0-based, so add 1
+  const currentMonthName = monthNames[today.getMonth()]; // Get the name of the current month
+
+  // Call breakoutTheMonth for the current month
+  breakoutTheMonth(currentMonthName, currentMonthNumber);
+}
+
+
+
+
+   function triggerBreakoutDay() {
+  // Parent container for all day-breakout elements
+  const breakoutContainer = document.querySelector('svg'); // Adjust this selector to target the appropriate container for day elements
+
+  // Check if container exists
+  if (!breakoutContainer) return;
+
+  // Add a single click listener to the container (event delegation)
+  breakoutContainer.addEventListener('click', function (event) {
+    const clickedElement = event.target.closest('g[id*="day-breakout"]');
+
+    // Ensure the clicked element is a valid day-breakout group
+    if (!clickedElement) return;
+
+    // Remove the "active-break" class from all day-breakout elements
+    document.querySelectorAll('g.active-break').forEach(group => {
+      group.classList.remove('active-break');
+    });
+
+    // Add the "active-break" class to the clicked element
+    clickedElement.classList.add('active-break');
+
+    // Determine the year from the targetDate or default to the current year
+    const year = targetDate instanceof Date ? targetDate.getFullYear() : new Date().getFullYear();
+
+    // Extract day and month from the ID (e.g., "01-05-day-breakout")
+    const idParts = clickedElement.id.split('-');
+    const day = parseInt(idParts[0], 10); // First part is the day
+    const month = parseInt(idParts[1], 10) - 1; // Second part is the month (adjusted for zero index)
+
+    // Update the global targetDate with the new date
+    targetDate = new Date(year, month, day);
+
+    // Refresh the calendar
+    calendarRefresh();
+  });
+}
+
+
+
+
+
+
 // LISTEN FOR BREAKOUT CLICK
 function listenForMonthBreakout() {
   const monthNames = [
@@ -872,38 +940,113 @@ function listenForMonthBreakout() {
     'july', 'august', 'september', 'october', 'november', 'december',
   ];
 
-  const solarCenterDiv = document.getElementById('solar-system-center');
-  const dayLinesDiv = document.getElementById('days-of-year-lines');
-  const allDaymarkers = document.getElementById('all-daymarkers');
-  const lunarMonths = document.getElementById('lunar_months-12');
-
-  monthNames.forEach((month, index) => {
+  monthNames.forEach((month) => {
     const monthDiv = document.getElementById(`${month}_366`);
-    const monthIntentions = document.getElementById(`${month}-intentions`);
     const monthNumber = monthNames.indexOf(month) + 1;
-    const intentionsDiv = document.getElementById(`${month}-intention-month-name`);
 
-    // OPEN:
+    // Listen for click on the monthDiv
     monthDiv.addEventListener('click', () => {
-      allDaymarkers.style.opacity = '0';
-      dayLinesDiv.style.opacity = '0';
-      lunarMonths.style.opacity = '0';
-      intentionsDiv.style.display = 'block';
-
-      setTimeout(() => {
-        solarCenterDiv.style.opacity = '0';
-        monthDiv.style.opacity = '1';
-      }, 500);
-
-      setTimeout(() => breakoutTheMonth(month, monthNumber), 700);
-
-      setTimeout(() => {
-        monthIntentions.style.display = 'block';
-        monthIntentions.style.opacity = '1';
-      }, 1000);
+      breakoutTheMonth(month, monthNumber); // Delegate the logic to breakoutTheMonth
     });
   });
 }
+
+
+
+
+
+function breakoutTheMonth(monthName, monthNumber) {
+  closeCurrentBreakout(() => {
+    const monthBreakout = document.getElementById(`${monthName}-breakout`);
+    const solarCenterDiv = document.getElementById('solar-system-center');
+    const dayLinesDiv = document.getElementById('days-of-year-lines');
+    const allDaymarkers = document.getElementById('all-daymarkers');
+    const lunarMonths = document.getElementById('lunar_months-12');
+    const monthIntentions = document.getElementById(`${monthName}-intentions`);
+    const intentionsDiv = document.getElementById(`${monthName}-intention-month-name`);
+
+    // Function to change the display style of day divs and possibly add a class
+    const setDisplay = (id, displayStyle, addClass) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = displayStyle;
+        if (addClass) {
+          element.classList.add(addClass);
+        }
+      }
+    };
+
+    // Fade out general calendar elements
+    allDaymarkers.style.opacity = '0';
+    dayLinesDiv.style.opacity = '0';
+    lunarMonths.style.opacity = '0';
+    intentionsDiv.style.display = 'block';
+
+    // Fade out the solar center and highlight the clicked month
+    setTimeout(() => {
+      solarCenterDiv.style.opacity = '0';
+      document.getElementById(`${monthName}_366`).style.opacity = '1';
+    }, 500);
+
+    // Show the breakout view after delay
+    setTimeout(() => {
+      monthBreakout.style.display = 'block';
+
+      // Get the current year from the div with id 'current-year'
+      const currentYear = parseInt(document.getElementById('current-year').textContent);
+
+      // Get today's date
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === currentYear && today.getMonth() + 1 === monthNumber;
+
+      // Determine if the targetDate is within the breakout month
+      const isTargetDateInBreakoutMonth = targetDate &&
+        targetDate.getFullYear() === currentYear &&
+        targetDate.getMonth() + 1 === monthNumber;
+
+      // Only update targetDate if the selected month does not contain the current date
+      if (!isCurrentMonth) {
+        targetDate = new Date(currentYear, monthNumber - 1, 1); // Set to the first day of the selected month
+      }
+
+      // Set all day div groups to display none
+      const daysInMonth = new Date(currentYear, monthNumber, 0).getDate(); // Get the number of days in the month
+      for (let i = 1; i <= daysInMonth; i++) {
+        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setDisplay(dayId, 'none');
+      }
+
+      // Sequentially set each day div to display block
+      for (let i = 1; i <= daysInMonth; i++) {
+        let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+        setTimeout(() => setDisplay(dayId, 'block'), i * 22); // 0.22 seconds apart
+      }
+
+      // Highlight the appropriate day:
+      const dayToHighlight = isCurrentMonth
+        ? today.getDate().toString().padStart(2, '0') // Highlight today's date if in breakout month
+        : isTargetDateInBreakoutMonth
+        ? targetDate.getDate().toString().padStart(2, '0') // Highlight targetDate if within breakout month
+        : '01'; // Otherwise, highlight the first day of the month
+
+      const highlightDayId = `${dayToHighlight}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
+      setTimeout(() => setDisplay(highlightDayId, 'block', 'active-break'), 800);
+
+      // Update breakout days of the week
+      updateBreakoutDaysOfWeek(targetDate);
+
+      calendarRefresh();
+      listenForCloseBreakout(); // Initialize the close listeners after refreshing the calendar
+    }, 700);
+
+    // Show and fade in the intentions section for the month
+    setTimeout(() => {
+      monthIntentions.style.display = 'block';
+      monthIntentions.style.opacity = '1';
+    }, 1000);
+  });
+}
+
 
 
 // LISTEN FOR BREAKOUT CLOSE CLICK
@@ -1000,59 +1143,6 @@ function closeCurrentBreakout(callback) {
 
 
 
-
-
-
-
-
-function breakoutTheMonth(monthName, monthNumber) {
-  closeCurrentBreakout(() => {
-    const monthBreakout = document.getElementById(`${monthName}-breakout`);
-
-    // Function to change the display style of day divs and possibly add a class
-    const setDisplay = (id, displayStyle, addClass) => {
-      const element = document.getElementById(id);
-      if (element) {
-        element.style.display = displayStyle;
-        if (addClass) {
-          element.classList.add(addClass);
-        }
-      }
-    };
-
-    // Get the current year from the div with id 'current-year'
-    const currentYear = parseInt(document.getElementById('current-year').textContent);
-
-    // Set global targetDate to the first day of the selected month
-    targetDate = new Date(currentYear, monthNumber - 1, 1);
-
-    // Set all day div groups to display none
-    const daysInMonth = new Date(currentYear, monthNumber, 0).getDate(); // Get the number of days in the month
-    for (let i = 1; i <= daysInMonth; i++) {
-      let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-      setDisplay(dayId, 'none');
-    }
-
-    // Set the month breakout to display block
-    monthBreakout.style.display = 'block';
-
-    // Sequentially set each day div to display block
-    for (let i = 1; i <= daysInMonth; i++) {
-      let dayId = `${i.toString().padStart(2, '0')}-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-      setTimeout(() => setDisplay(dayId, 'block'), i * 22);  // 0.22 seconds apart
-    }
-
-    // Highlight the first day of the month FIX
-    const dayId = `01-${monthNumber.toString().padStart(2, '0')}-day-breakout`;
-    setTimeout(() => setDisplay(dayId, 'block', 'active-break'), 22);
-
-    // Update breakout days of the week
-    updateBreakoutDaysOfWeek(targetDate);
-
-    calendarRefresh();
-    listenForCloseBreakout();  // Initialize the close listeners after refreshing the calendar
-  });
-}
 
 function updateBreakoutDaysOfWeek(targetDate) {
   const daysInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate();

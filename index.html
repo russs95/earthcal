@@ -462,8 +462,8 @@ const tokenKey = 'newVersionInfoSeen';
     if (!localStorage.getItem(tokenKey)) {
 setTimeout(showIntroModal, 5000);
 };
-//setTimeout(openCurrentMonthBreakout,6000);
-//setTimeout(triggerBreakoutDay,7000);
+setTimeout(openCurrentMonthBreakout,4000);
+setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
 
 };
 
@@ -1306,103 +1306,6 @@ function determineErrorType(message) {
 
 
 
-
-
-// Important calendar functions
-
-
-
-//Open the current month breakout (on load)
-
-// FUNCTION TO OPEN CURRENT MONTH BREAKOUT
-function openCurrentMonthBreakout() {
-    // Array of month names to map indices to names
-    const monthNames = [
-        'january', 'february', 'march', 'april', 'may', 'june',
-        'july', 'august', 'september', 'october', 'november', 'december'
-    ];
-
-    // Get the current date
-    const now = new Date();
-
-    // Extract the current month index (0 for January, 11 for December)
-    const currentMonthIndex = now.getMonth();
-
-    // Get the current month's name
-    const currentMonthName = monthNames[currentMonthIndex];
-
-    // Log the current date and month name
-    console.log('Current date:', now.toString());
-    console.log('Current month:', currentMonthName);
-
-    // Find the div for the current month's breakout
-    const monthDiv = document.getElementById(`${currentMonthName}_366`);
-    const intentionsDiv = document.getElementById(`${currentMonthName}-intentions`);
-
-    if (monthDiv && intentionsDiv) {
-        // Perform similar actions as the click listener
-        const solarCenterDiv = document.getElementById('solar-system-center');
-        const dayLinesDiv = document.getElementById('days-of-year-lines');
-        const allDaymarkers = document.getElementById('all-daymarkers');
-        const lunarMonths = document.getElementById('lunar_months-12');
-
-        allDaymarkers.style.opacity = '0';
-        dayLinesDiv.style.opacity = '0';
-        lunarMonths.style.opacity = '0';
-        intentionsDiv.style.display = 'block';
-
-        setTimeout(() => {
-            solarCenterDiv.style.opacity = '0';
-            monthDiv.style.opacity = '1';
-        }, 500);
-
-        const monthNumber = currentMonthIndex + 1; // Adjust for 1-based month number
-        setTimeout(() => breakoutTheMonth(currentMonthName, monthNumber), 700);
-
-        setTimeout(() => {
-            intentionsDiv.style.opacity = '1';
-        }, 1000);
-    } else {
-        console.error('Error: Month div or intentions div not found for', currentMonthName);
-    }
-}
-
-
-
-    function triggerBreakoutDay() {
-    // This sets the target date on an open month breakout.
-
-
-    //Find all SVG groups with IDs that include 'day-breakout'
-    const dayBreakouts = document.querySelectorAll('g[id*="day-breakout"]');
-
-    // Add click listeners to each group
-    dayBreakouts.forEach(group => {
-        group.addEventListener('click', function() {
-
-    // Remove the "active-break" class from all day-breakout elements
-    dayBreakouts.forEach(group => {
-        group.classList.remove('active-break');
-    });
-            // Add the "active" class to the clicked element
-            this.classList.add('active-break');
-
-            // Check if targetDate is already defined and extract the year from it
-            let year = targetDate instanceof Date ? targetDate.getFullYear() : new Date().getFullYear();
-
-            // Extract day and month from the ID (e.g., "01-05-day-breakout")
-            const idParts = this.id.split('-');
-            const day = parseInt(idParts[0], 10); // First part is the day
-            const month = parseInt(idParts[1], 10) - 1; // Second part is the month, adjust for zero index
-
-            // Update the targetDate global variable with the new date
-            targetDate = new Date(year, month, day);
-
-            // Alert the formatted targetDate
-            calendarRefresh();
-        });
-    });
-}
 
 
 

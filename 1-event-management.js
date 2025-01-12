@@ -1048,6 +1048,8 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
     }
 }
 
+
+
 function updateLocal(dateCycles, calendarName) {
     try {
         // Retrieve existing local dateCycles
@@ -1174,6 +1176,7 @@ function saveDateCycleEditedChanges(dateCycleID) {
 
   // Refresh UI
   displayMatchingDateCycle();
+  closeTheModal();
 }
 
 
