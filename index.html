@@ -989,7 +989,7 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
       </div>
       <!--PINNED-->
-        <div style="height: 80vh; margin-right: 12px; margin-top: 140px; position: relative; overflow: hidden;">
+        <div style="height:calc(100vh - 265px); margin-top: 140px; position: relative; overflow: hidden;">
         <!-- Top gradient overlay -->
             <div id="top-gradient-pinned" class="top-gradient-overlay"></div>
 
@@ -1009,10 +1009,16 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
     <!-- Bottom gradient overlay -->
     <div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>
 </div>
-
-        <div id="current-datecycles" class="date-info" style="overflow-y: auto;height:calc(100vh - 155px);overflow-x: hidden;width:fit-content;margin-left:auto;margin-right:12px;margin-top:105px; background: #fff0;"></div>
-          
-    </div>  
+<!--CURRENT-->
+<div style="overflow-y: auto;height:calc(100vh - 265px);width:fit-content;margin-left:auto;margin-right:12px;margin-top:140px;  position: relative;">
+    <div id="top-gradient-current" class="top-gradient-overlay"></div>
+    <div id="current-datecycles" class="date-info" style="height: 100%;overflow-y: auto;width: fit-content;position: relative;
+                z-index: 21;
+                background:var(--transparent);">
+    </div>
+    <div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>
+</div>
+      </div>
 
 
 
