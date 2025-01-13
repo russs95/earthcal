@@ -988,41 +988,26 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
 
       </div>
+      <!--PINNED-->
         <div style="height: 80vh; margin-right: 12px; margin-top: 140px; position: relative; overflow: hidden;">
-    <!-- Top gradient overlay -->
-    <div id="top-gradient" style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 30px;
-        background: linear-gradient(var(--general-background), var(--transparent));
-        z-index: 22;">
-    </div>
+        <!-- Top gradient overlay -->
+            <div id="top-gradient-pinned" class="top-gradient-overlay"></div>
 
-    <!-- Scrollable datecycles container -->
-    <div id="pinned-datecycles" class="date-info" style="
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        width: fit-content;
-        padding: 0 12px;
-        position: relative;
-        z-index: 21;
-        background:var(--transparent);
-        ">
-    </div>
+            <!-- Scrollable datecycles container -->
+            <div id="pinned-datecycles" class="date-info" style="
+                height: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                width: fit-content;
+                padding: 0 12px;
+                position: relative;
+                z-index: 21;
+                background:var(--transparent);
+                ">
+            </div>
 
     <!-- Bottom gradient overlay -->
-    <div id="bottom-gradient" style="
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 30px;
-        background: linear-gradient(var(--transparent), var(--general-background));
-        z-index: 22;">
-    </div>
+    <div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>
 </div>
 
         <div id="current-datecycles" class="date-info" style="overflow-y: auto;height:calc(100vh - 155px);overflow-x: hidden;width:fit-content;margin-left:auto;margin-right:12px;margin-top:105px; background: #fff0;"></div>

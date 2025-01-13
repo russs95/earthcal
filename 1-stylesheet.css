@@ -2686,3 +2686,26 @@ svg path #june:hover {
 [id$="lunar_show-button"]:hover {
   opacity: 1; /* Change opacity to 100% on hover */
 }
+
+
+.top-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(var(--general-background), var(--transparent));
+    z-index: 22;
+}
+
+.bottom-gradient-overlay {
+
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        background: linear-gradient(var(--transparent), var(--general-background));
+        z-index: 22;
+        }
+

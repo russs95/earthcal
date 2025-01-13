@@ -244,7 +244,6 @@ function initializeToggleListener() {
   }
 }
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
   // Determine styles based on whether the dateCycle is completed or not
   const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
@@ -322,7 +321,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 style="
                     font-size: larger;
                     cursor: pointer;
-                    color: ${dateCycle.Completed === 'yes' ? 'black' : 'inherit'};">
+                    ${dateCycle.Completed === 'yes' ? 'color: black;' : ''}">
                 ✔
             </div>
         </div>
