@@ -2147,16 +2147,14 @@ div.current-datecycle-data > div {
 }
 
 .current-date-notes {
-  font-size: medium;
+  font-size: 0.9em;
+  margin-right: 25px;
 }
 
 .close-button-datecycle {
-  position: absolute;
-  right: 10px;
-  top: 35px;
-  cursor: pointer;
-  font-size: larger;
-  color: #b2b1b1;
+cursor: pointer;
+font-size: larger;
+color: #b2b1b1;
 }
 
 .close-button-datecycle:hover {
@@ -2164,11 +2162,8 @@ div.current-datecycle-data > div {
 }
 
 .delete-button-datecycle {
-  position: absolute;
-  right: 10px;
-  top: 10px;
   cursor: pointer;
-  font-size: larger;
+  font-size: medium;
   color: #b2b1b1;
 }
 
@@ -2177,12 +2172,9 @@ div.current-datecycle-data > div {
 }
 
 .forward-button-datecycle {
-  position: absolute;
-  right: 10px;
-  top: 58px;
+  color: #b2b1b1;
   cursor: pointer;
   font-size: larger;
-  color: #b2b1b1;
 }
  
 .forward-button-datecycle:hover {

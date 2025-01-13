@@ -15,6 +15,7 @@
     --h1: black;
     --gallery: grey;
     --general-background: rgb(245, 245, 245);
+    --transparent: rgba(0, 0, 0, 0);
     --general-background-highlight: #f9f9f9ff;
     --weeks-circle: #b3b3b3ff; /*30% grey*/
     --months-lunar: rgb(240, 239, 239); /*40%grey*/

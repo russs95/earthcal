@@ -245,51 +245,112 @@ function initializeToggleListener() {
 }
 
 
-
-
-
 function writeMatchingDateCycles(divElement, dateCycle) {
   // Determine styles based on whether the dateCycle is completed or not
   const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
-  let calendarColorContent;
+  const calendarColor = dateCycle.calendar_color;
 
-  // Set content based on Completed and Pinned status
+  // Set content for the bullet or delete button based on Completed status
+  let actionButton;
   if (dateCycle.Completed === 'yes') {
-    calendarColorContent = '✔';
-  } else if (dateCycle.Pinned === 'yes') {
-    calendarColorContent = '📌';
+    // Render the delete button when the dateCycle is completed
+    actionButton = `
+      <div class="delete-button-datecycle"
+          title="❌ Delete this dateCycle"
+          onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();"
+          style="
+            font-size: medium;
+            color: ${calendarColor};
+            cursor: pointer;">
+        ❌
+      </div>`;
   } else {
-    calendarColorContent = '⬤';
+    // Render the pin/unpin button for incomplete dateCycles
+    actionButton = `
+      <button
+          class="bullet-pin-button"
+          aria-label="${dateCycle.Pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
+          title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+          onclick="pinThisDatecycle(this); event.stopPropagation();"
+          onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '↗️' : '📌'}';"
+          onmouseout="this.textContent = '${dateCycle.Pinned === 'yes' ? '📌' : '⬤'}';"
+          style="
+              font-size: medium;
+              margin: 0;
+              margin-bottom: 2px;
+              border: none;
+              background: none;
+              cursor: pointer;
+              color: ${calendarColor};"
+      >${dateCycle.Pinned === 'yes' ? '📌' : '⬤'}</button>`;
   }
 
   divElement.innerHTML += `
-    <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')">
-        <div class="current-date-info-title" style="${eventNameStyle};color:${dateCycle.calendar_color};">
-            ${dateCycle.Completed !== 'yes' ? `<button
-                class="pin-button"
-                aria-label="${dateCycle.Pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
-                title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
-                onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '❌' : '📌'}';"
-                onmouseout="this.textContent = '${calendarColorContent}';"
-                style="font-size: small; margin: 0px 4px 8px 0px; border: none; background: none; cursor: pointer; color: inherit;"
-            >${calendarColorContent}</button>` : `<span style="font-size: small; margin: 0px 4px 8px 0px;">${calendarColorContent}</span>`}
+    <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')" style="
+        position: relative;
+        padding: 16px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        border-radius: 8px;">
+
+        <!-- Action Buttons Column -->
+        <div style="
+            position: absolute;
+            top: 10px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;">
+
+            <!-- Dynamic Action Button (Bullet or Delete) -->
+            ${actionButton}
+
+            <!-- Forward Button -->
+            <div class="forward-button-datecycle" title="➡️ Push to today"
+                onclick="push2today('${dateCycle.ID}'); event.stopPropagation();"
+                style="
+                    font-size: larger;
+                    cursor: pointer;">
+                ➜
+            </div>
+
+            <!-- Check Button -->
+            <div class="close-button-datecycle"
+                title="✅ Done! Check."
+                onclick="strikeDateCycle(this); event.stopPropagation();"
+                style="
+                    font-size: larger;
+                    cursor: pointer;
+                    color: ${dateCycle.Completed === 'yes' ? 'black' : 'inherit'};">
+                ✔
+            </div>
+        </div>
+
+        <!-- DateCycle Title and Event Name -->
+        <div class="current-date-info-title" style="${eventNameStyle}; color:${calendarColor};">
             ${dateCycle.Event_name}
         </div>
+
+        <!-- Additional Data -->
         <div class="current-datecycle-data">
             <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
-            <!--<div>|</div>
-            <div class="current-date-frequency">${dateCycle.Frequency} Event</div>-->
         </div>
-        <div class="current-date-notes" style="height:fit-content;">${dateCycle.Comments}</div>
-        <div style="display:flex;flex-flow:row;">
-            <div class="forward-button-datecycle" title="➡️ Push to today" onclick="push2today('${dateCycle.ID}'); event.stopPropagation();">➜</div>
-            <div class="close-button-datecycle" title="✅ Done! Hide." onclick="strikeDateCycle(this); event.stopPropagation();">✔</div>
-            <div class="delete-button-datecycle" title="❌ Remove from ${dateCycle.selectCalendar}" onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();">✘</div>
+
+        <!-- Notes -->
+        <div class="current-date-notes" style="height: fit-content;">
+            ${dateCycle.Comments}
         </div>
     </div>
   `;
 }
+
+
+
+
+
+
+
 
 
 
