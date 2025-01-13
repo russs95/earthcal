@@ -980,6 +980,7 @@ function breakoutTheMonth(monthName, monthNumber) {
     allDaymarkers.style.opacity = '0';
     dayLinesDiv.style.opacity = '0';
     lunarMonths.style.opacity = '0';
+    lunarMonths.style.pointerEvents = 'none';
     intentionsDiv.style.display = 'block';
 
     // Fade out the solar center and highlight the clicked month
