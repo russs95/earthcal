@@ -92,10 +92,11 @@ function showLoggedInView(userData) {
             Welcome, ${user.first_name}.
         </h3>
         <p>Your syncing with the following personal and public calendars:</p>
-        <ul>
+        <p><ul>
             <li><b>Personal Calendars:</b> ${formattedPersonalCalendars}</li>
             <li><b>Subscribed Calendars:</b> ${formattedSubscribedCalendars}</li>
         </ul>
+        </p>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 🔄 Sync Now
@@ -110,7 +111,6 @@ function showLoggedInView(userData) {
 
     loggedInView.style.display = "block";
 }
-
 
 
 
@@ -149,11 +149,25 @@ async function activateEarthcalAccount() {
                 localStorage.setItem('first_name', data.user_data.first_name || '');
                 localStorage.setItem('continent_code', data.user_data.continent_code || '');
                 localStorage.setItem('location_full', data.user_data.location_full || '');
-
-                // Call generateLoggedInView directly after activation PROBLEM
-                showLoggedInView();
             } else {
                 console.error("Missing user_data in response");
+            }
+
+            // Fetch user and calendar data dynamically
+            const fetchResponse = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
+
+            const calendarData = await fetchResponse.json();
+
+            if (calendarData.success) {
+                // Call showLoggedInView with fetched data
+                showLoggedInView(calendarData);
+            } else {
+                console.error("Error fetching user and calendar data:", calendarData.message);
+                alert("Failed to retrieve your calendar data after activation. Please try again.");
             }
         } else {
             alert(`Activation failed: ${data.message}`);
@@ -163,6 +177,7 @@ async function activateEarthcalAccount() {
         alert('An error occurred while activating your EarthCal account. Please try again.');
     }
 }
+
 
 
 
