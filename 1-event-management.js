@@ -1029,9 +1029,10 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
+
+
 async function syncUserEvents() {
     try {
-        const localDateCycles = fetchDateCycles() || [];
         const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
@@ -1071,6 +1072,7 @@ async function syncUserEvents() {
             }
 
             const serverCalendar = calendarData.data?.events_json_blob || [];
+            const localDateCycles = fetchDateCycles() || [];
             const mergedData = mergeDateCycles(serverCalendar, localDateCycles);
 
             // Update the server and local storage
@@ -1103,6 +1105,7 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
