@@ -24,12 +24,10 @@ function checkUserSession() {
 }
 
 
-
 function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
 
-    // Exit if the guided tour modal is visible
     if (guidedTourModal && guidedTourModal.style.display !== "none") {
         return;
     }
@@ -41,40 +39,78 @@ function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // Check if the user session is active
     if (checkUserSession()) {
-        try {
-            // Retrieve and validate connected_apps from localStorage
-            const connectedAppsRaw = localStorage.getItem('connected_apps') || '';
-            const connectedApps = connectedAppsRaw.split(',').map(app => app.trim());
-            const earthcalAppId = '00002'; // EarthCal App ID
-
-            if (connectedApps.includes(earthcalAppId)) {
-                // User is logged in and registered on EarthCal
-                showLoggedInView();
-            } else if (connectedAppsRaw === '') {
-                console.warn('Connected apps are missing in localStorage.');
-                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-            } else {
-                // User is logged in but not registered on EarthCal
-                showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount);
-            }
-        } catch (error) {
-            console.error('Error accessing or parsing connected_apps in localStorage:', error);
+        const buwanaId = localStorage.getItem('buwana_id'); // Ensure user ID is available
+        if (buwanaId) {
+            fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showLoggedInView(data);
+                    } else {
+                        console.error('Error fetching user data:', data.message);
+                        showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+                });
+        } else {
             showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
         }
     } else {
-        // User is not logged in, show the login form
         showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
     }
 
-    // Adjust the height of the registration footer
     footer.style.height = "102vh";
-
-    // Show or hide the arrows
     upArrow.style.display = "none";
     downArrow.style.display = "block";
 }
+
+
+function showLoggedInView(userData) {
+    const loggedInView = document.getElementById("logged-in-view");
+    const activateView = document.getElementById("activate-earthcal-account");
+    activateView.style.display = "none";
+
+    const { user, personal_calendars, subscribed_calendars } = userData;
+
+    const formattedPersonalCalendars = personal_calendars.map(cal => cal.calendar_name).join(', ') || 'No personal calendars';
+    const formattedSubscribedCalendars = subscribed_calendars.map(cal => cal.calendar_name).join(', ') || 'No public calendars subscribed';
+
+    const syncMessage = user.last_synk_ts
+        ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
+        : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
+
+    loggedInView.innerHTML = `
+        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+            Welcome, ${user.first_name}.
+        </h3>
+        <p>Your syncing with the following personal and public calendars:</p>
+        <ul>
+            <li><b>Personal Calendars:</b> ${formattedPersonalCalendars}</li>
+            <li><b>Subscribed Calendars:</b> ${formattedSubscribedCalendars}</li>
+        </ul>
+        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+                🔄 Sync Now
+            </button>
+            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
+        </div>
+        ${syncMessage}
+        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+            ${user.location_full}, ${user.continent_code}
+        </p>
+    `;
+
+    loggedInView.style.display = "block";
+}
+
 
 
 
@@ -128,66 +164,6 @@ async function activateEarthcalAccount() {
     }
 }
 
-
-// Helper Function
-function showLoggedInView() {
-    const loggedInView = document.getElementById("logged-in-view");
-    const activateView = document.getElementById("activate-earthcal-account");
-    activateView.style.display = "none";
-
-    // Retrieve user data from local storage
-    const userData = {
-        first_name: localStorage.getItem('first_name') || 'User',
-        last_sync_ts: localStorage.getItem('last_sync_ts') || '0:00',
-        calendar_names: localStorage.getItem('calendar_names') || '',
-        location_full: localStorage.getItem('location_full') || 'Unknown Location',
-        continent_code: localStorage.getItem('continent_code') || 'N/A'
-    };
-
-    console.log('User Data Retrieved from Local Storage:', userData);
-
-    // Ensure proper formatting of calendar names
-    const formattedCalendarNames = userData.calendar_names
-        ? userData.calendar_names.split(',').join(', ')
-        : 'My Calendar'; // Default to "My Calendar" if no other names are available
-
-    // Generate sync status message
-    let syncMessage = `<p id="last-synced-time" style="font-size:smaller">`;
-    if (userData.last_sync_ts !== '0:00' && formattedCalendarNames) {
-        syncMessage += `✔ ${formattedCalendarNames} was last synced on ${userData.last_sync_ts}.`;
-    } else {
-        syncMessage += `Your dateCycles haven't been synced yet.`;
-    }
-    syncMessage += `</p>`;
-
-    // Clear existing content
-    loggedInView.innerHTML = "";
-
-    // Fetch translations based on the selected language
-    const translations = loggedInTranslations[language] || loggedInTranslations.EN;
-
-    // Dynamically generate the logged-in view content
-    loggedInView.innerHTML = `
-        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            ${translations.welcome} ${userData.first_name}.
-        </h3>
-        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
-                🔄 Sync Now
-            </button>
-            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳
-                ${translations.logout}
-            </button>
-        </div>
-        ${syncMessage}
-        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
-            ${userData.location_full}, ${userData.continent_code}
-        </p>
-    `;
-
-    // Display the logged-in view
-    loggedInView.style.display = "block";
-}
 
 
 
