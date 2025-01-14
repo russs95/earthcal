@@ -114,7 +114,7 @@ async function activateEarthcalAccount() {
                 localStorage.setItem('continent_code', data.user_data.continent_code || '');
                 localStorage.setItem('location_full', data.user_data.location_full || '');
 
-                // Call generateLoggedInView directly after activation
+                // Call generateLoggedInView directly after activation PROBLEM
                 showLoggedInView();
             } else {
                 console.error("Missing user_data in response");
@@ -261,54 +261,54 @@ function shakeElement(element) {
     setTimeout(() => element.classList.remove('shake'), 500); // Remove shake class after 0.5s
 }
 
-
-function generateLoggedInView(userDetails) {
-    const loggedInView = document.getElementById("logged-in-view");
-    const activateView = document.getElementById("activate-earthcal-account");
-    activateView.style.display = "none";
-
-    // Clear existing content
-    loggedInView.innerHTML = "";
-
-    // Fetch translations based on the selected language
-    const translations = loggedInTranslations[language] || loggedInTranslations.EN;
-
-    // Retrieve last sync time and calendar names from localStorage
-    const lastSyncedTs = localStorage.getItem('last_sync_ts') || 'Never';
-    const calendarNames = localStorage.getItem('calendar_names')
-        ? localStorage.getItem('calendar_names').split(',').join(', ')
-        : "My Calendar";
-
-    // Generate sync status message
-    const syncMessage = `
-        <p style="font-family:'Mulish',sans-serif;">
-            ${calendarNames} ${lastSyncedTs !== 'Never'
-                ? `was last synced on ${lastSyncedTs}.`
-                : "hasn't been synced yet."}
-        </p>`;
-
-    // Dynamically set the logged-in content
-    loggedInView.innerHTML = `
-        <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            ${translations.welcome} ${userDetails.first_name || 'User'}.
-        </h2>
-        <div id="logged-in-buttons" style="width:90%;margin:auto;">
-            <button class="confirmation-blur-button enabled" onclick="syncUserEvents()">
-                ${translations.syncButton}
-            </button>
-            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
-                ${translations.logout}
-            </button>
-        </div>
-        ${syncMessage}
-        <p style="font-family:'Mulish',sans-serif;font-size:smallest;color:var(--subdued-text);">
-            ${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}
-        </p>
-    `;
-
-    // Show the logged-in view
-    loggedInView.style.display = "block";
-}
+//
+//function generateLoggedInView(userDetails) {
+//    const loggedInView = document.getElementById("logged-in-view");
+//    const activateView = document.getElementById("activate-earthcal-account");
+//    activateView.style.display = "none";
+//
+//    // Clear existing content
+//    loggedInView.innerHTML = "";
+//
+//    // Fetch translations based on the selected language
+//    const translations = loggedInTranslations[language] || loggedInTranslations.EN;
+//
+//    // Retrieve last sync time and calendar names from localStorage
+//    const lastSyncedTs = localStorage.getItem('last_sync_ts') || 'Never';
+//    const calendarNames = localStorage.getItem('calendar_names')
+//        ? localStorage.getItem('calendar_names').split(',').join(', ')
+//        : "My Calendar";
+//
+//    // Generate sync status message
+//    const syncMessage = `
+//        <p style="font-family:'Mulish',sans-serif;">
+//            ${calendarNames} ${lastSyncedTs !== 'Never'
+//                ? `was last synced on ${lastSyncedTs}.`
+//                : "hasn't been synced yet."}
+//        </p>`;
+//
+//    // Dynamically set the logged-in content
+//    loggedInView.innerHTML = `
+//        <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+//            ${translations.welcome} ${userDetails.first_name || 'User'}.
+//        </h2>
+//        <div id="logged-in-buttons" style="width:90%;margin:auto;">
+//            <button class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+//                ${translations.syncButton}
+//            </button>
+//            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+//                ${translations.logout}
+//            </button>
+//        </div>
+//        ${syncMessage}
+//        <p style="font-family:'Mulish',sans-serif;font-size:smallest;color:var(--subdued-text);">
+//            ${userDetails.location_full || 'Unknown Location'}, ${userDetails.continent_code || 'N/A'}
+//        </p>
+//    `;
+//
+//    // Show the logged-in view
+//    loggedInView.style.display = "block";
+//}
 
 
 

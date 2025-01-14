@@ -11,8 +11,8 @@ app.commandLine.appendSwitch('disable-features', 'RendererCodeIntegrity');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1028,
+    height: 769,
     icon: path.join(__dirname, 'icons', 'earthcal-app.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -232,6 +232,8 @@ app.on('window-all-closed', () => {
 //snapcraft login
 //snapcraft upload dist/earthcal_0.9.0_amd64.snap
 //snapcraft release earthcal 68 edge
+//ulimit -n 4096
+
 
 
 
