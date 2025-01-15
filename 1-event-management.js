@@ -167,6 +167,7 @@ async function highlightDateCycles() {
 }
 
 
+
 function displayMatchingDateCycle() {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
@@ -183,8 +184,10 @@ function displayMatchingDateCycle() {
     (dc.Pinned || '').trim().toLowerCase() !== 'yes'
   );
 
-  // Find matching unpinned dateCycles
-  const matchingDateCycles = findMatchingDateCycles(unpinnedDateCycles);
+  // Filter unpinned dateCycles further to match the target date
+  const matchingDateCycles = unpinnedDateCycles.filter(dc =>
+    findMatchingDateCycles([dc]).length > 0
+  );
 
   // Get the current date in the same format as targetDate
   const currentDate = new Date();
@@ -223,7 +226,6 @@ function displayMatchingDateCycle() {
     currentDayInfoDiv.innerText = `${totalEvents} events today`; // Default to "hiding"
   }
 }
-
 
 function initializeToggleListener() {
   const currentDayInfoDiv = document.getElementById('current-day-info');
