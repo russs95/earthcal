@@ -866,46 +866,35 @@ function deleteDateCycle(id) {
 
  
 
-
 function clearAllDateCycles() {
-  let hasDateCycles = localStorage.getItem('dateCycles');
-  let hasUserCalendars = localStorage.getItem('userCalendars');
-  let hasTourToken = localStorage.getItem('tourToken');
-  let hasEarthenRegistration = localStorage.getItem('earthenRegistration'); // Added line for earthenRegistration
+    // Step 1: Collect all relevant keys for removal
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    const additionalKeys = ['tourToken', 'earthenRegistration', 'userCalendars']; // Add any additional keys here
+    const allKeys = [...calendarKeys, ...additionalKeys];
 
-  if (hasDateCycles || hasUserCalendars || hasTourToken || hasEarthenRegistration) { // Updated condition to include hasEarthenRegistration
-    // Ask the user for confirmation
-    const userConfirmed = confirm('Are you certain you want to delete all your EarthCal data? This can\'t be undone!');
+    // Step 2: Check if there is any data to clear
+    if (allKeys.length > 0) {
+        // Ask the user for confirmation
+        const userConfirmed = confirm('Are you certain you want to delete all your EarthCal data? This can\'t be undone!');
 
-    if (userConfirmed) {
-      if (hasDateCycles) {
-        localStorage.removeItem('dateCycles');
-      }
+        if (userConfirmed) {
+            // Step 3: Remove all collected keys from localStorage
+            allKeys.forEach(key => localStorage.removeItem(key));
 
-      if (hasUserCalendars) {
-        localStorage.removeItem('userCalendars');
-      }
-
-      if (hasTourToken) { // Ensure tourToken is specifically checked
-        localStorage.removeItem('tourToken');
-      }
-
-      if (hasEarthenRegistration) { // Remove earthenRegistration if it exists
-        localStorage.removeItem('earthenRegistration');
-      }
-
-      alert('All EarthCal data has been cleared from storage.');
+            alert('All EarthCal data has been cleared from storage.');
+        } else {
+            alert('Deletion cancelled. Your EarthCal data and settings are safe.');
+        }
     } else {
-      alert('Deletion cancelled. Your EarthCal data and tourToken are safe.');
+        alert('No EarthCal data found in storage.');
     }
-  } else {
-    alert('No EarthCal data found in storage.');
-  }
 
-  closeAddCycle();
-  closeDateCycleExports();
-  highlightDateCycles();
+    // Step 4: Perform any UI updates or cleanup actions
+    closeAddCycle();
+    closeDateCycleExports();
+    highlightDateCycles();
 }
+
 
 
 
