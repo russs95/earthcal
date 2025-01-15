@@ -146,7 +146,6 @@ function fetchDateCycles() {
 
 
 
-
 async function highlightDateCycles() {
   // 1. Remove the "date_event" class from all previously highlighted elements
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -166,19 +165,22 @@ async function highlightDateCycles() {
 
   // 4. Iterate over each dateCycle and highlight matching paths
   dateCycleEvent.forEach(dateCycle => {
-    // Normalize the dateCycle.Date
+    // Normalize dateCycle.Date
     const normalizedDate = (dateCycle.Date || '').replace(/^-/, '').replace(/-$/, '');
 
-    // Process for exact date match
+    // Ensure normalized date matches exact day-month-year format
     const exactDateMatchPaths = allPaths.filter(path => {
       const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return pathId.includes(normalizedDate);
+      return pathId === normalizedDate; // Use strict equality
     });
 
-    // Process for annual cycles
+    // For annual cycles, match only day and month
     const annualCyclePaths = allPaths.filter(path => {
       const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return dateCycle.Frequency === 'Annual' && pathId.includes(`-${dateCycle.Day}-${dateCycle.Month}-`);
+      return (
+        dateCycle.Frequency === 'Annual' &&
+        pathId === `-${dateCycle.Day}-${dateCycle.Month}-`
+      );
     });
 
     // Combine both path arrays
@@ -209,6 +211,7 @@ async function highlightDateCycles() {
 
   console.log('DateCycles highlighted successfully.');
 }
+
 
 
 
