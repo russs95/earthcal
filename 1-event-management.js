@@ -83,29 +83,29 @@ function submitAddCycleForm() {
 }
 
 
-
-// Fetches dateCycles data from local storage
 function fetchDateCycles() {
-  const dateCyclesString = localStorage.getItem('dateCycles');
+    const dateCyclesString = localStorage.getItem('dateCycles');
 
-  if (!dateCyclesString) {
-      return null;
-  }
+    if (!dateCyclesString) {
+        console.log('No dateCycles data found in localStorage.');
+        return null;
+    }
 
-  try {
-      const dateCycles = JSON.parse(dateCyclesString);
-      if (Array.isArray(dateCycles)) {
-          return dateCycles;
-      } else {
-          console.log('Stored data is not a valid array of dateCycles.');
-          return null;
-      }
-  } catch (error) {
-      console.log('Error parsing stored JSON: ' + error.message);
-      return null;
-  }
-
+    try {
+        const dateCycles = JSON.parse(dateCyclesString);
+        if (Array.isArray(dateCycles)) {
+            console.log('Fetched dateCycles:', dateCycles);
+            return dateCycles;
+        } else {
+            console.log('Stored data is not a valid array of dateCycles.');
+            return null;
+        }
+    } catch (error) {
+        console.log('Error parsing stored JSON for dateCycles: ' + error.message);
+        return null;
+    }
 }
+
 
 
 
@@ -396,10 +396,7 @@ function findMatchingDateCycles(dateCycles) {
     const month = targetDateObj.getMonth() + 1; // JavaScript months are 0-indexed
     const year = targetDateObj.getFullYear();
 
-    // Construct formatted dates
-    const exactDate = `-${day}-${month}-${year}`;
-    const annualDate = `-${day}-${month}-`;
-
+    const dashedDate = `-${day}-${month}-${year}`;
     const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
     // Define the color priority for sorting
@@ -408,17 +405,17 @@ function findMatchingDateCycles(dateCycles) {
     // Filter, map, and sort the dateCycles
     return dateCycles
         .filter(dc => {
-            // Match exact date or annual date
-            const isExactMatch = dc.Date === exactDate;
-            const isAnnualMatch = dc.Frequency === 'Annual' && dc.Date === annualDate;
-            return isExactMatch || isAnnualMatch;
-        })
+            const normalizedDate = (dc.Date || '').replace(/^-/, '').replace(/-$/, '');
+            const normalizedTargetDate = dashedDate.replace(/^-/, '').replace(/-$/, '');
+            return normalizedTargetDate === normalizedDate;
+        }) // Match the target date
         .map(dc => ({
             ...dc,
             monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
         }))
         .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
+
 
 
 
