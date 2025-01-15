@@ -1318,7 +1318,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 }
 
                 // Fetch public calendars
-                const publicCalendarsResponse = await fetch('https://gobrik.com/api/grab_public_cals.php', {
+                const publicCalendarsResponse = await fetch('https://gobrik.com/api/fetch_public_calendars.php', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
