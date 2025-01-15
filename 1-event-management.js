@@ -388,6 +388,8 @@ function strikeDateCycle(element) {
 }
 
 
+
+// Find matching dateCycles and sort them by color
 function findMatchingDateCycles(dateCycles) {
     const targetDateObj = new Date(targetDate);
     const day = targetDateObj.getDate();
@@ -395,7 +397,6 @@ function findMatchingDateCycles(dateCycles) {
     const year = targetDateObj.getFullYear();
 
     const dashedDate = `-${day}-${month}-${year}`;
-    const shortDashedDate = `-${day}-${month}-`; // Strip the year for matching with dc.Date
     const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
     // Define the color priority for sorting
@@ -403,14 +404,13 @@ function findMatchingDateCycles(dateCycles) {
 
     // Filter, map, and sort the dateCycles
     return dateCycles
-        .filter(dc => dc.Date === shortDashedDate) // Match the short dashed date
+        .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
         .map(dc => ({
             ...dc,
             monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
         }))
         .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
-
 
 
 
