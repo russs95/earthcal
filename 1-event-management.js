@@ -167,7 +167,6 @@ async function highlightDateCycles() {
 }
 
 
-
 function displayMatchingDateCycle() {
   const dateCycles = fetchDateCycles();
   if (!dateCycles) {
@@ -184,10 +183,8 @@ function displayMatchingDateCycle() {
     (dc.Pinned || '').trim().toLowerCase() !== 'yes'
   );
 
-  // Filter unpinned dateCycles further to match the target date
-  const matchingDateCycles = unpinnedDateCycles.filter(dc =>
-    findMatchingDateCycles([dc]).length > 0
-  );
+  // Find matching unpinned dateCycles
+  const matchingDateCycles = findMatchingDateCycles(unpinnedDateCycles);
 
   // Get the current date in the same format as targetDate
   const currentDate = new Date();
@@ -226,6 +223,7 @@ function displayMatchingDateCycle() {
     currentDayInfoDiv.innerText = `${totalEvents} events today`; // Default to "hiding"
   }
 }
+
 
 function initializeToggleListener() {
   const currentDayInfoDiv = document.getElementById('current-day-info');
@@ -388,8 +386,6 @@ function strikeDateCycle(element) {
 }
 
 
-
-// Find matching dateCycles and sort them by color
 function findMatchingDateCycles(dateCycles) {
     const targetDateObj = new Date(targetDate);
     const day = targetDateObj.getDate();
@@ -397,6 +393,7 @@ function findMatchingDateCycles(dateCycles) {
     const year = targetDateObj.getFullYear();
 
     const dashedDate = `-${day}-${month}-${year}`;
+    const shortDashedDate = `-${day}-${month}-`; // Strip the year for matching with dc.Date
     const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
     // Define the color priority for sorting
@@ -404,13 +401,14 @@ function findMatchingDateCycles(dateCycles) {
 
     // Filter, map, and sort the dateCycles
     return dateCycles
-        .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
+        .filter(dc => dc.Date === shortDashedDate) // Match the short dashed date
         .map(dc => ({
             ...dc,
             monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
         }))
         .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
+
 
 
 
