@@ -376,8 +376,8 @@ window.onload = function() {
 
 
 
-   //highlightDateCycles();
-   //displayMatchingDateCycle();
+   highlightDateCycles();
+   displayMatchingDateCycle();
 initializeToggleListener();  //to show or hide datecycles?
 
 
@@ -462,8 +462,8 @@ const tokenKey = 'newVersionInfoSeen';
     if (!localStorage.getItem(tokenKey)) {
 setTimeout(showIntroModal, 5000);
 };
-setTimeout(openCurrentMonthBreakout,4000);
-setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
+//setTimeout(openCurrentMonthBreakout,4000);
+//setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
 
 };
 
