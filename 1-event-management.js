@@ -167,65 +167,36 @@ async function highlightDateCycles() {
 }
 
 
+function findMatchingDateCycles(dateCycles) {
+    const targetDateObj = new Date(targetDate);
+    const day = targetDateObj.getDate();
+    const month = targetDateObj.getMonth() + 1; // JavaScript months are 0-indexed
+    const year = targetDateObj.getFullYear();
 
-function displayMatchingDateCycle() {
-  const dateCycles = fetchDateCycles();
-  if (!dateCycles) {
-    console.log("No dateCycles found in storage.");
-    return;
-  }
+    // Construct formatted dates
+    const exactDate = `-${day}-${month}-${year}`;
+    const annualDate = `-${day}-${month}-`;
 
-  // Separate pinned and unpinned dateCycles
-  const pinnedDateCycles = dateCycles.filter(dc =>
-    (dc.Pinned || '').trim().toLowerCase() === 'yes'
-  );
+    const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
-  const unpinnedDateCycles = dateCycles.filter(dc =>
-    (dc.Pinned || '').trim().toLowerCase() !== 'yes'
-  );
+    // Define the color priority for sorting
+    const colorPriority = { red: 1, orange: 2, yellow: 3, green: 4, blue: 5 };
 
-  // Filter unpinned dateCycles further to match the target date
-  const matchingDateCycles = unpinnedDateCycles.filter(dc =>
-    findMatchingDateCycles([dc]).length > 0
-  );
-
-  // Get the current date in the same format as targetDate
-  const currentDate = new Date();
-  const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-
-  // Determine if the target date is the current date
-  const isToday = findMatchingDateCycles([{ Date: formattedCurrentDate }]).length > 0;
-
-  // Update `current-datecycles` with matching unpinned dateCycles
-  const matchingDiv = document.getElementById('current-datecycles');
-  if (matchingDiv) {
-    matchingDiv.innerHTML = ""; // Clear previous data
-    matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
-    matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
-  }
-
-  // Update `pinned-datecycles` with pinned dateCycles only if it's today
-  const pinnedDiv = document.getElementById('pinned-datecycles');
-  if (pinnedDiv) {
-    pinnedDiv.innerHTML = ""; // Clear previous data
-    if (isToday) {
-      pinnedDiv.style.display = pinnedDateCycles.length ? 'block' : 'none';
-      pinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
-    } else {
-      pinnedDiv.style.display = 'none';
-    }
-  }
-
-  // Update `current-day-info` with event counts
-  const currentDayInfoDiv = document.getElementById('current-day-info');
-  if (currentDayInfoDiv) {
-    const displayedCurrentEvents = matchingDiv.children.length;
-    const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
-    const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
-
-    currentDayInfoDiv.innerText = `${totalEvents} events today`; // Default to "hiding"
-  }
+    // Filter, map, and sort the dateCycles
+    return dateCycles
+        .filter(dc => {
+            // Match exact date or annual date
+            const isExactMatch = dc.Date === exactDate;
+            const isAnnualMatch = dc.Frequency === 'Annual' && dc.Date === annualDate;
+            return isExactMatch || isAnnualMatch;
+        })
+        .map(dc => ({
+            ...dc,
+            monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
+        }))
+        .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
+
 
 function initializeToggleListener() {
   const currentDayInfoDiv = document.getElementById('current-day-info');
