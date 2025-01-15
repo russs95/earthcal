@@ -1270,6 +1270,7 @@ setTimeout(showIntroModal, 5000);
 // BUWANA LOGIN
 
 // Handle form submission
+
 // Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevent default form submission
@@ -1302,28 +1303,28 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 // User is registered on EarthCal
                 document.getElementById('login-form-section').style.display = 'none';
 
-                // Fetch user calendars
-                const userCalendarsResponse = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buwana_id: data.buwana_id })
-                });
+                // Fetch both user calendars and public calendars
+                const [userCalendarsResponse, publicCalendarsResponse] = await Promise.all([
+                    fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ buwana_id: data.buwana_id })
+                    }),
+                    fetch('https://gobrik.com/api/fetch_public_calendars.php', {
+                        method: 'POST', // Updated to POST
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({}) // Send an empty JSON object
+                    })
+                ]);
 
                 const userCalendarData = await userCalendarsResponse.json();
+                const publicCalendarData = await publicCalendarsResponse.json();
 
                 if (!userCalendarData.success) {
                     console.error('Error fetching user calendars:', userCalendarData.message);
                     alert('Failed to fetch user calendars. Please try again later.');
                     return;
                 }
-
-                // Fetch public calendars
-                const publicCalendarsResponse = await fetch('https://gobrik.com/api/fetch_public_calendars.php', {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const publicCalendarData = await publicCalendarsResponse.json();
 
                 if (!publicCalendarData.success) {
                     console.error('Error fetching public calendars:', publicCalendarData.message);
@@ -1334,7 +1335,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 // Combine both user and public calendar data for the view
                 const combinedCalendarData = {
                     ...userCalendarData,
-                    public_calendars: publicCalendarData.calendars || []
+                    public_calendars: publicCalendarData.public_calendars || []
                 };
 
                 // Show the logged-in view with combined data
