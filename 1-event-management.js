@@ -1333,6 +1333,30 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
 
 
 
+function fetchLocalCalendar(calId) {
+    // Retrieve the specific calendar from localStorage based on calId
+    const calendarKey = `calendar_${calId}`;
+    const calendarData = localStorage.getItem(calendarKey);
+
+    if (!calendarData) {
+        console.log(`No calendar found with ID: ${calId}`);
+        return null;
+    }
+
+    try {
+        const parsedCalendar = JSON.parse(calendarData);
+        if (Array.isArray(parsedCalendar)) {
+            console.log(`Fetched calendar with ID: ${calId}`, parsedCalendar);
+            return parsedCalendar;
+        } else {
+            console.log(`Invalid data format for calendar ID: ${calId}`);
+            return null;
+        }
+    } catch (error) {
+        console.log(`Error parsing calendar data for ID: ${calId}: ${error.message}`);
+        return null;
+    }
+}
 
 
 
