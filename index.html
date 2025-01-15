@@ -1270,6 +1270,7 @@ setTimeout(showIntroModal, 5000);
 // BUWANA LOGIN
 
 // Handle form submission
+// Handle form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
     e.preventDefault(); // Prevent default form submission
 
@@ -1301,25 +1302,43 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 // User is registered on EarthCal
                 document.getElementById('login-form-section').style.display = 'none';
 
-                // Fetch user and calendar data dynamically
-                fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+                // Fetch user calendars
+                const userCalendarsResponse = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ buwana_id: data.buwana_id })
-                })
-                    .then(response => response.json())
-                    .then(calendarData => {
-                        if (calendarData.success) {
-                            showLoggedInView(calendarData); // Pass the dynamic data to showLoggedInView
-                        } else {
-                            console.error('Error fetching calendar data:', calendarData.message);
-                            alert('Failed to fetch calendar data. Please try again later.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Network error while fetching calendar data:', error);
-                        alert('Unable to fetch calendar data. Please check your internet connection.');
-                    });
+                });
+
+                const userCalendarData = await userCalendarsResponse.json();
+
+                if (!userCalendarData.success) {
+                    console.error('Error fetching user calendars:', userCalendarData.message);
+                    alert('Failed to fetch user calendars. Please try again later.');
+                    return;
+                }
+
+                // Fetch public calendars
+                const publicCalendarsResponse = await fetch('https://gobrik.com/api/grab_public_cals.php', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const publicCalendarData = await publicCalendarsResponse.json();
+
+                if (!publicCalendarData.success) {
+                    console.error('Error fetching public calendars:', publicCalendarData.message);
+                    alert('Failed to fetch public calendars. Please try again later.');
+                    return;
+                }
+
+                // Combine both user and public calendar data for the view
+                const combinedCalendarData = {
+                    ...userCalendarData,
+                    public_calendars: publicCalendarData.calendars || []
+                };
+
+                // Show the logged-in view with combined data
+                showLoggedInView(combinedCalendarData);
             } else {
                 // User is not registered on EarthCal, show activation div
                 document.getElementById('login-form-section').style.display = 'none';
@@ -1335,6 +1354,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
         alert('Unable to connect to the server. Please check your internet connection and try again.');
     }
 });
+
 
 
 

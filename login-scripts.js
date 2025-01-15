@@ -83,36 +83,35 @@ function sendUpRegistration() {
     downArrow.style.display = "block";
 }
 
-
 function showLoggedInView(userData) {
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
     activateView.style.display = "none";
 
-    const { user, personal_calendars, subscribed_calendars, public_calendars } = userData;
+    const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
 
     const syncMessage = user.last_synk_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
         : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
 
-    let personalCalendarHTML = personal_calendars
-        .map(cal => `
+    const personalCalendarHTML = personal_calendars.length > 0
+        ? personal_calendars.map(cal => `
             <div>
                 <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
                 <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
             </div>
-        `)
-        .join('');
+        `).join('')
+        : '<p>No personal calendars available.</p>';
 
-    let publicCalendarHTML = public_calendars
-        .map(cal => `
+    const publicCalendarHTML = public_calendars.length > 0
+        ? public_calendars.map(cal => `
             <div>
                 <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
                 ${subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id) ? 'checked' : ''} />
                 <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
             </div>
-        `)
-        .join('');
+        `).join('')
+        : '<p>No public calendars available.</p>';
 
     loggedInView.innerHTML = `
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
