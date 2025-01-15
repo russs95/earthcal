@@ -94,7 +94,7 @@ function fetchDateCycles() {
     try {
         const dateCycles = JSON.parse(dateCyclesString);
         if (Array.isArray(dateCycles)) {
-            console.log('Fetched dateCycles:', dateCycles);
+            console.log('Here are the Fetched dateCycles:', dateCycles);
             return dateCycles;
         } else {
             console.log('Stored data is not a valid array of dateCycles.');
@@ -563,6 +563,7 @@ function closeDateCycleExports() {
 
 function uploadDateCycles() {
   const fileInput = document.getElementById('jsonUpload');
+  alert('hello!');
   
   if (fileInput.files.length === 0) {
       alert('Please select a JSON file to upload.');
