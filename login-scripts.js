@@ -23,6 +23,8 @@ function checkUserSession() {
     return buwanaId !== null && buwanaId !== '';
 }
 
+
+
 function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
@@ -38,50 +40,54 @@ function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    if (checkUserSession()) {
-        const buwanaId = localStorage.getItem('buwana_id'); // Ensure user ID is available
-        if (buwanaId) {
-            // Fetch both user calendars and public calendars
-            Promise.all([
-                fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buwana_id: buwanaId })
-                }).then(response => response.json()),
-                fetch(`https://gobrik.com/api/fetch_public_calendars.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(response => response.json())
-            ])
-                .then(([userCalendars, publicCalendars]) => {
-                    if (userCalendars.success && publicCalendars.success) {
-                        const combinedData = {
-                            user: userCalendars.user,
-                            personal_calendars: userCalendars.personal_calendars,
-                            subscribed_calendars: userCalendars.subscribed_calendars,
-                            public_calendars: publicCalendars.public_calendars
-                        };
-                        showLoggedInView(combinedData);
-                    } else {
-                        console.error('Error fetching calendar data:', userCalendars.message, publicCalendars.message);
-                        showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-                    }
-                })
-                .catch(error => {
-                    console.error('Network error:', error);
-                    showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-                });
-        } else {
-            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-        }
-    } else {
+    const buwanaId = localStorage.getItem('buwana_id'); // Fetch `buwana_id` from localStorage
+
+    if (!checkUserSession() || !buwanaId) {
+        console.warn("User session invalid or Buwana ID missing. Showing login form.");
         showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
+        return;
     }
+
+    // Fetch user calendars and public calendars
+    Promise.all([
+        fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId }) // Ensure `buwana_id` is passed
+        }).then(response => response.json()),
+        fetch(`https://gobrik.com/api/fetch_public_calendars.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        }).then(response => response.json())
+    ])
+        .then(([userCalendars, publicCalendars]) => {
+            if (userCalendars.success && publicCalendars.success) {
+                const combinedData = {
+                    user: userCalendars.user,
+                    personal_calendars: userCalendars.personal_calendars,
+                    subscribed_calendars: userCalendars.subscribed_calendars,
+                    public_calendars: publicCalendars.public_calendars
+                };
+                showLoggedInView(combinedData);
+            } else {
+                console.error(
+                    'Error fetching calendar data:',
+                    userCalendars.message || 'User calendars error',
+                    publicCalendars.message || 'Public calendars error'
+                );
+                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+            }
+        })
+        .catch(error => {
+            console.error('Network error:', error);
+            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+        });
 
     footer.style.height = "102vh";
     upArrow.style.display = "none";
     downArrow.style.display = "block";
 }
+
 
 function showLoggedInView(userData) {
     const loggedInView = document.getElementById("logged-in-view");
