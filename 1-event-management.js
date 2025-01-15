@@ -83,28 +83,28 @@ function submitAddCycleForm() {
 }
 
 
+
+// Fetches dateCycles data from local storage
 function fetchDateCycles() {
-alert('fetching!');
-    const dateCyclesString = localStorage.getItem('dateCycles');
+  const dateCyclesString = localStorage.getItem('dateCycles');
 
-    if (!dateCyclesString) {
-        console.log('No dateCycles data found in localStorage.');
-        return null;
-    }
+  if (!dateCyclesString) {
+      return null;
+  }
 
-    try {
-        const dateCycles = JSON.parse(dateCyclesString);
-        if (Array.isArray(dateCycles)) {
-            console.log('Here are the Fetched dateCycles:', dateCycles);
-            return dateCycles;
-        } else {
-            console.log('Stored data is not a valid array of dateCycles.');
-            return null;
-        }
-    } catch (error) {
-        console.log('Error parsing stored JSON for dateCycles: ' + error.message);
-        return null;
-    }
+  try {
+      const dateCycles = JSON.parse(dateCyclesString);
+      if (Array.isArray(dateCycles)) {
+          return dateCycles;
+      } else {
+          console.log('Stored data is not a valid array of dateCycles.');
+          return null;
+      }
+  } catch (error) {
+      console.log('Error parsing stored JSON: ' + error.message);
+      return null;
+  }
+
 }
 
 
@@ -113,8 +113,9 @@ alert('fetching!');
 
 
 async function highlightDateCycles() {
-  // 1. Remove the "date_event" class from all previously highlighted elements
+  // 1. Scan the entire HTML document and remove the class "date_event" from date paths
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
+
   elementsWithDateEvent.forEach(element => {
     element.classList.remove("date_event");
   });
@@ -123,28 +124,21 @@ async function highlightDateCycles() {
   const dateCycleEvent = await fetchDateCycles();
 
   if (!dateCycleEvent) {
-    console.log("No dateCycles found in storage.");
-    return;
+      console.log("No dateCycles found in storage.");
+      return;
   }
 
-  // 3. Get all paths with IDs
   const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
   dateCycleEvent.forEach(dateCycle => {
-    // Normalize `Date` to ensure consistent formatting
-    const formattedDate = dateCycle.Date.replace(/^-/, '').replace(/-$/, ''); // Remove leading/trailing dashes
-
     // Process for exact date match
-    const exactDateMatchPaths = allPaths.filter(path => {
-      const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return pathId.includes(formattedDate);
-    });
+    const exactDateMatchPaths = allPaths.filter(path => path.id.includes(dateCycle.Date));
 
     // Process for annual cycles
-    const annualCyclePaths = allPaths.filter(path => {
-      const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return dateCycle.Frequency === 'Annual' && pathId.includes(`-${dateCycle.Day}-${dateCycle.Month}-`);
-    });
+    const annualCyclePaths = allPaths.filter(path =>
+      dateCycle.Frequency === 'Annual' &&
+      path.id.includes(`-${dateCycle.Day}-${dateCycle.Month}-`)
+    );
 
     // Combine both path arrays
     const combinedPaths = [...exactDateMatchPaths, ...annualCyclePaths];
@@ -153,7 +147,7 @@ async function highlightDateCycles() {
       const isDayMarker = path.id.endsWith('-day-marker');
       const currentTitle = path.getAttribute('title');
 
-      // Update title for paths that are not day markers
+      // Only change the title for paths ending with "-day" and if the original title does not include "|"
       if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
         const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
         path.setAttribute('title', newTitle);
@@ -166,7 +160,6 @@ async function highlightDateCycles() {
     });
   });
 }
-
 
 
 function displayMatchingDateCycle() {
@@ -405,18 +398,13 @@ function findMatchingDateCycles(dateCycles) {
 
     // Filter, map, and sort the dateCycles
     return dateCycles
-        .filter(dc => {
-            const normalizedDate = (dc.Date || '').replace(/^-/, '').replace(/-$/, '');
-            const normalizedTargetDate = dashedDate.replace(/^-/, '').replace(/-$/, '');
-            return normalizedTargetDate === normalizedDate;
-        }) // Match the target date
+        .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
         .map(dc => ({
             ...dc,
             monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
         }))
         .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
 }
-
 
 
 
@@ -564,7 +552,6 @@ function closeDateCycleExports() {
 
 function uploadDateCycles() {
   const fileInput = document.getElementById('jsonUpload');
-  alert('hello!');
   
   if (fileInput.files.length === 0) {
       alert('Please select a JSON file to upload.');
