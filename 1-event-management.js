@@ -84,6 +84,7 @@ function submitAddCycleForm() {
 
 
 function fetchDateCycles() {
+alert('fetching!');
     const dateCyclesString = localStorage.getItem('dateCycles');
 
     if (!dateCyclesString) {
