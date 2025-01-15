@@ -145,7 +145,6 @@ function fetchDateCycles() {
 
 
 
-
 async function highlightDateCycles() {
   // 1. Remove the "date_event" class from all previously highlighted elements
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -156,8 +155,8 @@ async function highlightDateCycles() {
   // 2. Fetch all dateCycles from localStorage
   const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all calendars
   if (!dateCycleEvent || dateCycleEvent.length === 0) {
-      console.log("No dateCycles found in storage.");
-      return;
+    console.log("No dateCycles found in storage.");
+    return;
   }
 
   // 3. Get all paths with IDs in the calendar visualization
@@ -165,29 +164,17 @@ async function highlightDateCycles() {
 
   // 4. Iterate over each dateCycle and highlight matching paths
   dateCycleEvent.forEach(dateCycle => {
-    // Normalize dateCycle.Date
-    const normalizedDate = (dateCycle.Date || '').replace(/^-/, '').replace(/-$/, '');
+    // Normalize the dateCycle.Date
+    const normalizedDate = dateCycle.Date || '';
 
-    // Ensure normalized date matches exact day-month-year format
-    const exactDateMatchPaths = allPaths.filter(path => {
-      const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return pathId === normalizedDate; // Use strict equality
+    // Process for matching paths by checking if normalizedDate exists in path.id
+    const matchingPaths = allPaths.filter(path => {
+      const pathId = path.id;
+      return pathId.includes(normalizedDate); // Check if the date is part of the path ID
     });
-
-    // For annual cycles, match only day and month
-    const annualCyclePaths = allPaths.filter(path => {
-      const pathId = path.id.replace(/^-/, '').replace(/-$/, ''); // Normalize path ID
-      return (
-        dateCycle.Frequency === 'Annual' &&
-        pathId === `-${dateCycle.Day}-${dateCycle.Month}-`
-      );
-    });
-
-    // Combine both path arrays
-    const combinedPaths = [...exactDateMatchPaths, ...annualCyclePaths];
 
     // Highlight the matching paths
-    combinedPaths.forEach(path => {
+    matchingPaths.forEach(path => {
       const isDayMarker = path.id.endsWith('-day-marker');
       const currentTitle = path.getAttribute('title');
 
@@ -204,7 +191,7 @@ async function highlightDateCycles() {
     });
 
     // Log any unmatched dateCycles for debugging
-    if (combinedPaths.length === 0) {
+    if (matchingPaths.length === 0) {
       console.log(`No matching paths found for dateCycle:`, dateCycle);
     }
   });
