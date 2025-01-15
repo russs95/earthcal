@@ -1358,6 +1358,29 @@ function fetchLocalCalendar(calId) {
     }
 }
 
+function updateLocal(dateCycles, calendarName, calId) {
+    try {
+        // Generate the key for the calendar
+        const calendarKey = `calendar_${calId}`;
+
+        // Retrieve the existing calendar array from localStorage
+        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
+
+        // Filter out DateCycles from the specific calendar being updated
+        const filteredDateCycles = existingCalendarData.filter(dc => dc.selectCalendar !== calendarName);
+
+        // Combine the filtered data with the new data
+        const updatedDateCycles = [...filteredDateCycles, ...dateCycles];
+
+        // Save the updated DateCycles array back to localStorage
+        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
+
+        // Log the successful update
+        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
+    } catch (error) {
+        console.error('Error updating local storage:', error);
+    }
+}
 
 
 // Helper function to update the UI with the last sync timestamp
