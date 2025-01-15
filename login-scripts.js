@@ -72,31 +72,48 @@ function sendUpRegistration() {
     downArrow.style.display = "block";
 }
 
-
 function showLoggedInView(userData) {
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
     activateView.style.display = "none";
 
-    const { user, personal_calendars, subscribed_calendars } = userData;
-
-    const formattedPersonalCalendars = personal_calendars.map(cal => cal.calendar_name).join(', ') || 'No personal calendars';
-    const formattedSubscribedCalendars = subscribed_calendars.map(cal => cal.calendar_name).join(', ') || 'No public calendars subscribed';
+    const { user, personal_calendars, subscribed_calendars, public_calendars } = userData;
 
     const syncMessage = user.last_synk_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
         : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
 
+    let personalCalendarHTML = personal_calendars
+        .map(cal => `
+            <div>
+                <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
+                <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
+            </div>
+        `)
+        .join('');
+
+    let publicCalendarHTML = public_calendars
+        .map(cal => `
+            <div>
+                <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
+                ${subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id) ? 'checked' : ''} />
+                <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
+            </div>
+        `)
+        .join('');
+
     loggedInView.innerHTML = `
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             Welcome, ${user.first_name}.
         </h3>
-        <p>Your syncing with the following personal and public calendars:</p>
-        <p><ul>
-            <li><b>Personal Calendars:</b> ${formattedPersonalCalendars}</li>
-            <li><b>Subscribed Calendars:</b> ${formattedSubscribedCalendars}</li>
-        </ul>
-        </p>
+        <p>Select calendars to sync with:</p>
+        <form id="calendar-selection-form">
+            <h4>Personal Calendars</h4>
+            ${personalCalendarHTML}
+            <h4>Public Calendars</h4>
+            ${publicCalendarHTML}
+            <button type="button" onclick="updateCalendarSubscriptions()">Update Subscriptions</button>
+        </form>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 🔄 Sync Now
@@ -111,6 +128,7 @@ function showLoggedInView(userData) {
 
     loggedInView.style.display = "block";
 }
+
 
 
 
