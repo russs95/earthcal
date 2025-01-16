@@ -1208,6 +1208,7 @@ async function syncUserEvents() {
             const localCalendar = fetchLocalCalendar(calendar.calendar_name);
 
             if (calendar.calendar_id === '000') {
+            alert('checking id...');
                 await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
             }
 
