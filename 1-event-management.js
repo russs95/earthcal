@@ -1250,56 +1250,94 @@ async function syncUserEvents() {
 // SYNC HELPER FUNCTIONS
 //*********************************
 
-async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
-    try {
-        let newCalId;
+<?php
+require_once '../earthenAuth_helper.php';
+require_once '../buwanaconn_env.php';
+require_once '../calconn_env.php';
 
-        if (calendarName === 'My Calendar') {
-            // Link the calendar to an existing or new ID
-            const response = await fetch('https://gobrik.com/api/link_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+ini_set('display_errors', '0');
 
-            const result = await response.json();
+$allowed_origins = [
+    'https://cycles.earthen.io',
+    'https://ecobricks.org',
+    'https://gobrik.com',
+    'http://localhost',
+    'file://'
+];
 
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to link calendar.');
-            }
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? rtrim($_SERVER['HTTP_ORIGIN'], '/') : '';
 
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        } else {
-            // Create a new calendar for custom names
-            const response = await fetch('https://gobrik.com/api/create_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to create calendar.');
-            }
-
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        }
-
-        // Update the localCalendar with the new calendar ID
-        if (newCalId) {
-            localCalendar.forEach(dc => (dc.cal_id = newCalId));
-            updateLocal(localCalendar, calendarName); // Update local storage
-            console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
-        } else {
-            throw new Error('Received undefined calendar_id.');
-        }
-    } catch (error) {
-        console.error('Error in handleNewOrUnlinkedCalendar:', error);
-        alert('An error occurred while linking or creating the calendar. Please try again.');
-    }
+if (empty($origin)) {
+    header('Access-Control-Allow-Origin: *');
+} elseif (in_array($origin, $allowed_origins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    error_log('CORS error: Invalid or missing HTTP_ORIGIN - ' . $origin);
+    header('HTTP/1.1 403 Forbidden');
+    echo json_encode(['success' => false, 'message' => 'CORS error: Invalid origin']);
+    exit();
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method. Use POST.']);
+    exit();
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+$buwana_id = $input['buwana_id'] ?? null;
+$calendar_name = trim($input['calendar_name'] ?? '');
+
+if (empty($calendar_name) || strlen($calendar_name) > 255 || (!is_numeric($buwana_id) && $buwana_id !== null)) {
+    echo json_encode(['success' => false, 'message' => 'Invalid input.']);
+    exit();
+}
+
+try {
+    $sql = "SELECT calendar_id FROM calendars_tb WHERE buwana_id = ? AND calendar_name = ?";
+    $stmt = $cal_conn->prepare($sql);
+
+    if (!$stmt) {
+        throw new Exception("Database error: " . $cal_conn->error);
+    }
+
+    $stmt->bind_param("is", $buwana_id, $calendar_name);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        echo json_encode(['success' => true, 'calendar_id' => $row['calendar_id'], 'calendar_name' => $calendar_name]);
+    } else {
+        $insertSql = "INSERT INTO calendars_tb (buwana_id, calendar_name, calendar_public) VALUES (?, ?, 0)";
+        $insertStmt = $cal_conn->prepare($insertSql);
+
+        if (!$insertStmt) {
+            throw new Exception("Database error: " . $cal_conn->error);
+        }
+
+        $insertStmt->bind_param("is", $buwana_id, $calendar_name);
+        $insertStmt->execute();
+
+        if ($insertStmt->affected_rows > 0) {
+            $newCalendarId = $insertStmt->insert_id;
+            echo json_encode(['success' => true, 'calendar_id' => $newCalendarId, 'calendar_name' => $calendar_name]);
+        } else {
+            throw new Exception("Failed to create new calendar.");
+        }
+    }
+} catch (Exception $e) {
+    error_log('Error in link_calendar.php: ' . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'An error occurred while processing your request.']);
+} finally {
+    $cal_conn->close();
+}
 
 
 
