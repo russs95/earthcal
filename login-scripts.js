@@ -128,12 +128,11 @@ function showLoggedInView(userData) {
             Welcome, ${user.first_name}.
         </h3>
         <p>Select calendars to sync with:</p>
-        <form id="calendar-selection-form">
-            <h4>Personal Calendars</h4>
+        <form id="calendar-selection-form" style="text-align:left;">
+
             ${personalCalendarHTML}
-            <h4>Public Calendars</h4>
             ${publicCalendarHTML}
-            <button type="button" onclick="updateCalendarSubscriptions()">Update Subscriptions</button>
+            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="updateCalendarSubscriptions()">Update Subscriptions</button>
         </form>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
             <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
