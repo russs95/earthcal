@@ -1157,13 +1157,19 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
-
 async function syncUserEvents() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
             alert('Buwana ID is missing. Please log in again.');
+            return;
+        }
+
+        // Check for local data
+        const localCalendars = fetchDateCycleCalendars();
+        if (!localCalendars || localCalendars.length === 0) {
+            alert('Sorry, you haven’t yet added a dateCycle, so there is nothing to sync! Add some events or select a public calendar to synchronize local and server calendars.');
             return;
         }
 
@@ -1236,7 +1242,6 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
-
 
 
 
