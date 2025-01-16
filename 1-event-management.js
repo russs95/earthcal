@@ -1190,33 +1190,36 @@ async function syncUserEvents() {
         const { personal_calendars, subscribed_calendars } = serverData;
 
         // Sync personal calendars
-        for (const calendar of personal_calendars) {
-            const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendar.calendar_name })
-            });
+       // Sync personal calendars
+for (const calendar of personal_calendars) {
+    const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendar.calendar_name })
+    });
 
-            const calendarData = await calendarResponse.json();
+    const calendarData = await calendarResponse.json();
 
-            if (!calendarData.success) {
-                console.error(`Failed to sync calendar: ${calendar.calendar_name}`, calendarData.message);
-                continue;
-            }
+    if (!calendarData.success) {
+        console.error(`Failed to sync calendar: ${calendar.calendar_name}`, calendarData.message);
+        continue;
+    }
 
-            const serverCalendar = calendarData.data?.events_json_blob || [];
-            const localCalendar = fetchLocalCalendar(calendar.calendar_name);
+    const serverCalendar = calendarData.data?.events_json_blob || [];
+    const localCalendar = fetchLocalCalendar(calendar.calendar_name);
 
-            if (calendar.calendar_id === '000') {
-            alert('checking id...');
-                await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
-            }
+    // Check local calendar for unlinked calendars (cal_id === '000')
+    if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
+        alert('Checking ID...');
+        await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
+    }
 
-            const mergedData = mergeDateCycles(serverCalendar, localCalendar);
+    const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
-            await updateServer(mergedData, calendar.calendar_name, buwanaId);
-            updateLocal(mergedData, calendar.calendar_name);
-        }
+    await updateServer(mergedData, calendar.calendar_name, buwanaId);
+    updateLocal(mergedData, calendar.calendar_name);
+}
+
 
         // Sync public calendars (read-only)
         for (const calendar of subscribed_calendars) {
@@ -1251,56 +1254,38 @@ async function syncUserEvents() {
 // SYNC HELPER FUNCTIONS
 //*********************************
 
+
 async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
-    try {
-        let newCalId;
+    if (calendarName === 'My Calendar') {
+        const response = await fetch('https://gobrik.com/api/link_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
+        });
 
-        if (calendarName === 'My Calendar') {
-            // Link the calendar to an existing or new ID
-            const response = await fetch('https://gobrik.com/api/link_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
+        const result = await response.json();
 
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to link calendar.');
-            }
-
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        } else {
-            // Create a new calendar for custom names
-            const response = await fetch('https://gobrik.com/api/create_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to create calendar.');
-            }
-
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        }
-
-        // Update the localCalendar with the new calendar ID
-        if (newCalId) {
+        if (result.success) {
+            const newCalId = result.calendar_id;
             localCalendar.forEach(dc => (dc.cal_id = newCalId));
-            updateLocal(localCalendar, calendarName); // Update local storage
-            console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
-        } else {
-            throw new Error('Received undefined calendar_id.');
+            updateLocal(localCalendar, calendarName);
         }
-    } catch (error) {
-        console.error('Error in handleNewOrUnlinkedCalendar:', error);
-        alert('An error occurred while linking or creating the calendar. Please try again.');
+    } else {
+        const response = await fetch('https://gobrik.com/api/create_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const newCalId = result.calendar_id;
+            localCalendar.forEach(dc => (dc.cal_id = newCalId));
+            updateLocal(localCalendar, calendarName);
+        }
     }
 }
-
 
 
 
