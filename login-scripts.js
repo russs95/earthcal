@@ -24,11 +24,11 @@ function checkUserSession() {
 }
 
 
-
 function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
 
+    // Prevent action if the guided tour modal is open
     if (guidedTourModal && guidedTourModal.style.display !== "none") {
         return;
     }
@@ -42,51 +42,55 @@ function sendUpRegistration() {
 
     const buwanaId = localStorage.getItem('buwana_id'); // Fetch `buwana_id` from localStorage
 
+    // Check if user session is valid
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
         showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
-        return;
+        console.log("Login form displayed successfully.");
+    } else {
+        // If the user is logged in, fetch user calendars and public calendars
+        Promise.all([
+            fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            }).then(response => response.json()),
+            fetch(`https://gobrik.com/api/fetch_public_calendars.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(response => response.json())
+        ])
+            .then(([userCalendars, publicCalendars]) => {
+                if (userCalendars.success && publicCalendars.success) {
+                    const combinedData = {
+                        user: userCalendars.user,
+                        personal_calendars: userCalendars.personal_calendars,
+                        subscribed_calendars: userCalendars.subscribed_calendars,
+                        public_calendars: publicCalendars.public_calendars
+                    };
+                    showLoggedInView(combinedData);
+                } else {
+                    console.error(
+                        'Error fetching calendar data:',
+                        userCalendars.message || 'User calendars error',
+                        publicCalendars.message || 'Public calendars error'
+                    );
+                    showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+            });
     }
 
-    // Fetch user calendars and public calendars
-    Promise.all([
-        fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId }) // Ensure `buwana_id` is passed
-        }).then(response => response.json()),
-        fetch(`https://gobrik.com/api/fetch_public_calendars.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        }).then(response => response.json())
-    ])
-        .then(([userCalendars, publicCalendars]) => {
-            if (userCalendars.success && publicCalendars.success) {
-                const combinedData = {
-                    user: userCalendars.user,
-                    personal_calendars: userCalendars.personal_calendars,
-                    subscribed_calendars: userCalendars.subscribed_calendars,
-                    public_calendars: publicCalendars.public_calendars
-                };
-                showLoggedInView(combinedData);
-            } else {
-                console.error(
-                    'Error fetching calendar data:',
-                    userCalendars.message || 'User calendars error',
-                    publicCalendars.message || 'Public calendars error'
-                );
-                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-            }
-        })
-        .catch(error => {
-            console.error('Network error:', error);
-            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-        });
-
+    // Always update footer and arrow UI, regardless of user state
     footer.style.height = "102vh";
     upArrow.style.display = "none";
     downArrow.style.display = "block";
 }
+
+
 
 
 function showLoggedInView(userData) {
