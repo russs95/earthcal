@@ -1253,9 +1253,6 @@ async function syncUserEvents() {
             const publicCalendar = calendarData.data?.events_json_blob || [];
             updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
         }
-alert('cleaning!');
-        // Global cleanup of lingering dateCycles with `000_` in their `ID`
-        cleanupLingeringDateCycles();
 
         // Update last sync timestamp in UI and localStorage
         if (lastSyncTs) {
@@ -1346,6 +1343,10 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
             // Update local storage
             updateLocal(updatedCalendar, calendarName, newCalId);
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
+            alert('cleaning!');
+        // Global cleanup of lingering dateCycles with `000_` in their `ID`
+        cleanupLingeringDateCycles();
+        console.log(`cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
         }
