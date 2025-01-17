@@ -1221,7 +1221,7 @@ async function syncUserEvents() {
 
             if (!isNewCalendar) {
                 // Filter localCalendar to ensure only relevant dateCycles are included
-                localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
+                //localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
 
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
