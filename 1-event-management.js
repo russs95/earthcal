@@ -1253,7 +1253,7 @@ async function syncUserEvents() {
             const publicCalendar = calendarData.data?.events_json_blob || [];
             updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
         }
-
+alert('cleaning!');
         // Global cleanup of lingering dateCycles with `000_` in their `ID`
         cleanupLingeringDateCycles();
 
@@ -1274,6 +1274,7 @@ async function syncUserEvents() {
 
 function cleanupLingeringDateCycles() {
     try {
+    alert('cleaning!!');
         // Loop through all localStorage keys
         Object.keys(localStorage).forEach(key => {
             // Check if the key is a calendar (starts with "calendar_")
