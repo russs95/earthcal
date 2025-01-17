@@ -1190,15 +1190,7 @@ async function syncUserEvents() {
         const { personal_calendars, subscribed_calendars } = serverData;
 
         // Sync personal calendars
-const processedCalendars = new Set();
-
-for (const calendar of personal_calendars) {
-    // Skip processing if this calendar has already been handled
-    if (processedCalendars.has(calendar.calendar_name)) {
-        console.log(`Skipping duplicate processing for calendar: ${calendar.calendar_name}`);
-        continue;
-    }
-
+   for (const calendar of personal_calendars) {
     const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1213,21 +1205,22 @@ for (const calendar of personal_calendars) {
     }
 
     const serverCalendar = calendarData.data?.events_json_blob || [];
-    const localCalendar = fetchLocalCalendar(calendar.calendar_name);
+    let localCalendar = fetchLocalCalendar(calendar.calendar_name);
 
     // Check local calendar for unlinked calendars (cal_id === '000')
+    let isNewCalendar = false;
     if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
-        alert('Checking ID...');
+        console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
         await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
+        isNewCalendar = true; // Mark calendar as updated
     }
 
-    const mergedData = mergeDateCycles(serverCalendar, localCalendar);
-
-    await updateServer(mergedData, calendar.calendar_name, buwanaId);
-    updateLocal(mergedData, calendar.calendar_name);
-
-    // Mark calendar as processed
-    processedCalendars.add(calendar.calendar_name);
+    // Merge and update only if it's not a new calendar (prevent overwriting)
+    if (!isNewCalendar) {
+        const mergedData = mergeDateCycles(serverCalendar, localCalendar);
+        await updateServer(mergedData, calendar.calendar_name, buwanaId);
+        updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
+    }
 }
 
 
