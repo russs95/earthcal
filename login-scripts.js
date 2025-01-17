@@ -102,7 +102,7 @@ function showLoggedInView(userData) {
 
     const syncMessage = user.last_synk_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
-        : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
+        : `<p id="last-synced-time" style="font-size:smaller">Huh... Your dateCycles haven’t been synced yet.</p>`;
 
     const personalCalendarHTML = personal_calendars.length > 0
         ? personal_calendars.map(cal => `
@@ -124,10 +124,9 @@ function showLoggedInView(userData) {
         : '<p>No public calendars available.</p>';
 
     loggedInView.innerHTML = `
+        <h1>🗓️</h1>
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome, ${user.first_name}.
-        </h3>
-        <p>You are synking the following personal and public calendars:</p>
+            Welcome, ${user.first_name}, You are synking the following personal and public calendars:</h3>
         <form id="calendar-selection-form" style="text-align:left;width:300px;margin:auto;">
 
             ${personalCalendarHTML}
