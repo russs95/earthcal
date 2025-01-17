@@ -1190,8 +1190,15 @@ async function syncUserEvents() {
         const { personal_calendars, subscribed_calendars } = serverData;
 
         // Sync personal calendars
-       // Sync personal calendars
+const processedCalendars = new Set();
+
 for (const calendar of personal_calendars) {
+    // Skip processing if this calendar has already been handled
+    if (processedCalendars.has(calendar.calendar_name)) {
+        console.log(`Skipping duplicate processing for calendar: ${calendar.calendar_name}`);
+        continue;
+    }
+
     const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1218,7 +1225,11 @@ for (const calendar of personal_calendars) {
 
     await updateServer(mergedData, calendar.calendar_name, buwanaId);
     updateLocal(mergedData, calendar.calendar_name);
+
+    // Mark calendar as processed
+    processedCalendars.add(calendar.calendar_name);
 }
+
 
 
         // Sync public calendars (read-only)
