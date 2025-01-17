@@ -92,25 +92,29 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 
-
 function showLoggedInView(userData) {
-    // Log the entire userData object to inspect its contents
-    console.log("User Data Passed to showLoggedInView:", JSON.stringify(userData, null, 2));
-
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
     activateView.style.display = "none";
 
-    // Destructure userData to extract user and calendars
     const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
 
-    // Log the extracted user object and last_synk_ts
-    console.log("Extracted User Data:", user);
-    console.log("Last Synced Timestamp:", user?.last_synk_ts);
+    // Continent code to Earth emoji mapping
+    const continentEmojis = {
+        AS: '🌏', // Asia
+        EU: '🌍', // Europe
+        NA: '🌎', // North America
+        SA: '🌎', // South America
+        AF: '🌍', // Africa
+        OC: '🌏', // Oceania
+        AN: '🌐'  // Antarctica
+    };
 
-    // Generate the sync message
-    const syncMessage = user?.last_sync_ts
-        ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
+    // Get the appropriate emoji for the continent code, default to a globe if not found
+    const continentEmoji = continentEmojis[user.continent_code] || '🌍';
+
+    const syncMessage = user.last_sync_ts
+        ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_sync_ts}.</p>`
         : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
 
     // Generate personal calendar HTML
@@ -141,7 +145,7 @@ function showLoggedInView(userData) {
     loggedInView.innerHTML = `
         <h1>🗓️</h1>
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome, ${user?.first_name || "User"}! You are syncing the following personal and public calendars:
+            Welcome, ${user.first_name}! You are syncing the following personal and public calendars:
         </h3>
         <form id="calendar-selection-form" style="text-align:left;width:300px;margin:auto;">
             <h4>Personal Calendars</h4>
@@ -160,13 +164,14 @@ function showLoggedInView(userData) {
         </div>
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
-            ${user?.location_full || "Location Unknown"}, ${user?.continent_code || ""}
+            ${user.location_full}, ${continentEmoji}
         </p>
     `;
 
     // Display the logged-in view
     loggedInView.style.display = "block";
 }
+
 
 
 
