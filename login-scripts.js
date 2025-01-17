@@ -127,7 +127,7 @@ function showLoggedInView(userData) {
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             Welcome, ${user.first_name}.
         </h3>
-        <p>Select calendars to sync with:</p>
+        <p>You are synking the following personal and public calendars:</p>
         <form id="calendar-selection-form" style="text-align:left;width:300px;margin:auto;">
 
             ${personalCalendarHTML}
