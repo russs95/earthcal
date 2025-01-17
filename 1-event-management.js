@@ -1274,26 +1274,27 @@ alert('cleaning!');
 
 function cleanupLingeringDateCycles() {
     try {
-    alert('cleaning!!');
-        // Loop through all localStorage keys
-        Object.keys(localStorage).forEach(key => {
-            // Check if the key is a calendar (starts with "calendar_")
-            if (key.startsWith("calendar_")) {
-                const calendarData = JSON.parse(localStorage.getItem(key)) || [];
+        const allKeys = Object.keys(localStorage).filter(key => key.startsWith("calendar_"));
+        const cleanedCalendars = {};
 
-                // Filter out dateCycles with `000_` in their `ID`
-                const cleanedCalendarData = calendarData.filter(dc => !dc.ID.startsWith('000_'));
+        // Iterate through each calendar key and clean up its data
+        allKeys.forEach(key => {
+            const calendarData = JSON.parse(localStorage.getItem(key)) || [];
 
-                // Update local storage with the cleaned data
-                localStorage.setItem(key, JSON.stringify(cleanedCalendarData));
+            // Filter out `000_` IDs
+            cleanedCalendars[key] = calendarData.filter(dc => !dc.ID.startsWith('000_'));
+        });
 
-                console.log(`Cleaned up lingering dateCycles with '000_' in ID for key: ${key}`);
-            }
+        // Update localStorage with cleaned data
+        Object.entries(cleanedCalendars).forEach(([key, cleanedData]) => {
+            localStorage.setItem(key, JSON.stringify(cleanedData));
+            console.log(`Cleaned up lingering dateCycles with '000_' in ID for key: ${key}`);
         });
     } catch (error) {
         console.error('Error cleaning up lingering dateCycles:', error);
     }
 }
+
 
 
 
