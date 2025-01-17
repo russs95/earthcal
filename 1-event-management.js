@@ -1338,16 +1338,23 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
         }
 
         if (newCalId) {
+            // Ensure all dateCycles have `Delete: "No"` if not already set to "Yes"
+            localCalendar.forEach(cycle => {
+                if (cycle.delete !== "yes") {
+                    cycle.delete = "no"; // Set to "No" explicitly
+                }
+            });
+
             // Update the localCalendar with the new calendar ID and IDs
             const updatedCalendar = mergeDateCycles([], localCalendar, newCalId);
 
             // Update local storage
             updateLocal(updatedCalendar, calendarName, newCalId);
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
-            alert('cleaning!');
-        // Global cleanup of lingering dateCycles with `000_` in their `ID`
-        cleanupLingeringDateCycles();
-        console.log(`cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
+
+            // Global cleanup of lingering dateCycles with `000_` in their `ID`
+            cleanupLingeringDateCycles();
+            console.log(`Cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
         }
@@ -1356,6 +1363,7 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
         alert('An error occurred while linking or creating the calendar. Please try again.');
     }
 }
+
 
 
 
@@ -1451,29 +1459,27 @@ function fetchLocalCalendar(calId) {
     }
 }
 
+
 function updateLocal(dateCycles, calendarName, calId) {
     try {
-        // Generate the key for the calendar
         const calendarKey = `calendar_${calId}`;
-
-        // Retrieve the existing calendar array from localStorage
         const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
 
-        // Filter out DateCycles from the specific calendar being updated
-        const filteredDateCycles = existingCalendarData.filter(dc => dc.selectCalendar !== calendarName);
+        // Remove only cycles explicitly marked for deletion
+        const filteredDateCycles = existingCalendarData.filter(
+            dc => !dateCycles.some(newCycle => newCycle.ID === dc.ID)
+        );
 
-        // Combine the filtered data with the new data
         const updatedDateCycles = [...filteredDateCycles, ...dateCycles];
-
-        // Save the updated DateCycles array back to localStorage
         localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
 
-        // Log the successful update
         console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
     } catch (error) {
         console.error('Error updating local storage:', error);
     }
 }
+
+
 
 
 // Helper function to update the UI with the last sync timestamp
