@@ -1232,6 +1232,9 @@ async function syncUserEvents() {
                 }
 
                 updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
+
+                // Cleanup lingering dateCycles with `000` in their `ID`
+                cleanupLingeringDateCycles(calendar.calendar_name, calendar.calendar_id);
             }
         }
 
@@ -1252,6 +1255,9 @@ async function syncUserEvents() {
 
             const publicCalendar = calendarData.data?.events_json_blob || [];
             updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
+
+            // Cleanup lingering dateCycles with `000` in their `ID`
+            cleanupLingeringDateCycles(calendar.calendar_name, calendar.calendar_id);
         }
 
         // Update last sync timestamp in UI and localStorage
@@ -1265,6 +1271,24 @@ async function syncUserEvents() {
     } catch (error) {
         console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
+    }
+}
+
+
+function cleanupLingeringDateCycles(calendarName, calId) {
+    try {
+        const calendarKey = `calendar_${calId}`;
+        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
+
+        // Filter out lingering `dateCycles` with `000` in their ID
+        const cleanedCalendarData = existingCalendarData.filter(dc => !dc.ID.startsWith("000_"));
+
+        // Save the cleaned data back to localStorage
+        localStorage.setItem(calendarKey, JSON.stringify(cleanedCalendarData));
+
+        console.log(`Cleaned lingering dateCycles with '000' in their ID for calendar: ${calendarName} (ID: ${calId})`);
+    } catch (error) {
+        console.error('Error during cleanupLingeringDateCycles:', error);
     }
 }
 
