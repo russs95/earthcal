@@ -109,7 +109,7 @@ function showLoggedInView(userData) {
     console.log("Last Synced Timestamp:", user?.last_synk_ts);
 
     // Generate the sync message
-    const syncMessage = user?.last_synk_ts
+    const syncMessage = user?.last_sync_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
         : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
 
