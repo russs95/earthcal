@@ -1276,6 +1276,7 @@ async function syncUserEvents() {
 
 
 function cleanupLingeringDateCycles(calendarName, calId) {
+alert('cleaning!');
     try {
         const calendarKey = `calendar_${calId}`;
         const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
