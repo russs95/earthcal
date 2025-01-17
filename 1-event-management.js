@@ -64,7 +64,8 @@ function submitAddCycleForm() {
         "Pinned": 'no', // New field
         "last_edited": currentDateTime, // New field
         "calendar_color": DateColorPicker,
-        "public": "No"
+        "public": "No",
+        "Delete": "No"
     };
 
     // Add the new dateCycle to the existing calendar array
