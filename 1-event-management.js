@@ -1400,17 +1400,22 @@ function mergeDateCycles(serverData, localData, newCalId = null) {
 }
 
 
-
 async function updateServer(dateCycles, calendarName, buwanaId) {
     try {
+        console.log("Preparing to send to server:", {
+            buwana_id: buwanaId,
+            calendar_name: calendarName,
+            datecycles: dateCycles,
+        });
+
         const response = await fetch('https://gobrik.com/api/update_calendar.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 buwana_id: buwanaId,
                 calendar_name: calendarName,
-                datecycles: dateCycles // Ensure this contains the updated cycles
-            })
+                datecycles: dateCycles,
+            }),
         });
 
         if (!response.ok) {
@@ -1418,11 +1423,11 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
         }
 
         const result = await response.json();
-
         if (!result.success) {
             throw new Error(result.message || 'Unknown error occurred on server.');
         }
 
+        console.log("Server update response:", result);
         return { last_updated: result.last_updated }; // Return the latest sync timestamp
     } catch (error) {
         console.error('Error in updateServer:', error);
