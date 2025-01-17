@@ -1312,10 +1312,10 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
             newCalId = result.calendar_id; // Extract the new calendar ID
         }
 
-        // Update the localCalendar with the new calendar ID
+        // Update the localCalendar with the new calendar ID and IDs
         if (newCalId) {
-            localCalendar.forEach(dc => (dc.cal_id = newCalId));
-            updateLocal(localCalendar, calendarName, newCalId); // Save updated data back to localStorage
+            const updatedCalendar = mergeDateCycles([], localCalendar, newCalId); // Update IDs and cal_id
+            updateLocal(updatedCalendar, calendarName, newCalId); // Update local storage
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
@@ -1327,7 +1327,8 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 }
 
 
-function mergeDateCycles(serverData, localData) {
+
+function mergeDateCycles(serverData, localData, newCalId = null) {
     const mergedData = [];
 
     // Combine all data and filter out entries marked for deletion early
@@ -1337,6 +1338,13 @@ function mergeDateCycles(serverData, localData) {
     const latestCycles = new Map();
 
     allCycles.forEach(cycle => {
+        // If newCalId is provided, update cal_id and adjust ID
+        if (newCalId && cycle.cal_id === "000") {
+            const [, uniqueId] = cycle.ID.split("_"); // Extract the unique ID part
+            cycle.cal_id = newCalId;
+            cycle.ID = `${newCalId}_${uniqueId}`; // Update the ID with the new cal_id
+        }
+
         const existing = latestCycles.get(cycle.ID);
 
         // Keep the latest version by comparing `last_edited`
