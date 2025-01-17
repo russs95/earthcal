@@ -1207,16 +1207,19 @@ async function syncUserEvents() {
     const serverCalendar = calendarData.data?.events_json_blob || [];
     let localCalendar = fetchLocalCalendar(calendar.calendar_name);
 
-    // Check local calendar for unlinked calendars (cal_id === '000')
     let isNewCalendar = false;
+
+    // Check for unlinked calendars
     if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
         console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
         await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
-        isNewCalendar = true; // Mark calendar as updated
+        isNewCalendar = true;
     }
 
-    // Merge and update only if it's not a new calendar (prevent overwriting)
     if (!isNewCalendar) {
+        // Filter localCalendar to ensure only relevant dateCycles are included
+        localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
+
         const mergedData = mergeDateCycles(serverCalendar, localCalendar);
         await updateServer(mergedData, calendar.calendar_name, buwanaId);
         updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
@@ -1297,7 +1300,7 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
         // Update the localCalendar with the new calendar ID
         if (newCalId) {
             localCalendar.forEach(dc => (dc.cal_id = newCalId));
-            updateLocal(localCalendar, calendarName); // Update local storage
+            updateLocal(localCalendar, calendarName, newCalId); // Save updated data back to localStorage
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
@@ -1309,26 +1312,30 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 }
 
 
-
-
 function mergeDateCycles(serverData, localData) {
     const mergedData = [];
-    const allCycles = [...serverData, ...localData];
 
+    // Combine all data and filter out entries marked for deletion early
+    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes" && cycle.ID);
+
+    // Use a Map to store the latest version of each DateCycle
     const latestCycles = new Map();
 
     allCycles.forEach(cycle => {
         const existing = latestCycles.get(cycle.ID);
+
+        // Keep the latest version by comparing `last_edited`
         if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
-            if (cycle.delete !== "yes") {
-                latestCycles.set(cycle.ID, cycle);
-            }
+            latestCycles.set(cycle.ID, cycle);
         }
     });
 
+    // Push the unique, latest cycles into the merged data
     mergedData.push(...latestCycles.values());
+
     return mergedData;
 }
+
 
 
 async function updateServer(dateCycles, calendarName, buwanaId) {
