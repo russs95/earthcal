@@ -157,9 +157,7 @@ function showLoggedInView(userData) {
             <button type="button" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 🔄 Sync Now
             </button>
-            <button type="button" class="confirmation-blur-button enabled" onclick="updateCalendarSubscriptions()">
-                📂 Update Subscriptions
-            </button>
+
             <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
         </div>
         ${syncMessage}
