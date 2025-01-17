@@ -1315,11 +1315,8 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
             // Update the localCalendar with the new calendar ID and IDs
             const updatedCalendar = mergeDateCycles([], localCalendar, newCalId);
 
-            // Remove any lingering dateCycles with cal_id: 000
-            const cleanedCalendar = updatedCalendar.filter(dc => dc.cal_id !== "000");
-
             // Update local storage
-            updateLocal(cleanedCalendar, calendarName, newCalId);
+            updateLocal(updatedCalendar, calendarName, newCalId);
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
@@ -1331,18 +1328,19 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 }
 
 
+
 function mergeDateCycles(serverData, localData, newCalId = null) {
     const mergedData = [];
 
-    // Combine all data and filter out entries marked for deletion or with invalid IDs
-    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes" && cycle.ID);
+    // Combine all data and filter out entries marked for deletion
+    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes");
 
     // Use a Map to store the latest version of each DateCycle
     const latestCycles = new Map();
 
     allCycles.forEach(cycle => {
-        // If newCalId is provided, update cal_id and adjust ID
-        if (newCalId && cycle.cal_id === "000") {
+        // Update `cal_id` and `ID` if newCalId is provided
+        if (newCalId && cycle.ID.startsWith("000_")) {
             const [, uniqueId] = cycle.ID.split("_"); // Extract the unique ID part
             cycle.cal_id = newCalId;
             cycle.ID = `${newCalId}_${uniqueId}`; // Update the ID with the new cal_id
@@ -1359,8 +1357,10 @@ function mergeDateCycles(serverData, localData, newCalId = null) {
     // Push the unique, latest cycles into the merged data
     mergedData.push(...latestCycles.values());
 
-    return mergedData;
+    // Filter out any lingering `dateCycles` with `000` in their ID
+    return mergedData.filter(dc => !dc.ID.startsWith("000_"));
 }
+
 
 
 
