@@ -1157,6 +1157,7 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
+
 async function syncUserEvents() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1189,44 +1190,50 @@ async function syncUserEvents() {
 
         const { personal_calendars, subscribed_calendars } = serverData;
 
+        let lastSyncTs = null; // Variable to store the latest sync timestamp
+
         // Sync personal calendars
-   for (const calendar of personal_calendars) {
-    const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendar.calendar_name })
-    });
+        for (const calendar of personal_calendars) {
+            const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendar.calendar_name })
+            });
 
-    const calendarData = await calendarResponse.json();
+            const calendarData = await calendarResponse.json();
 
-    if (!calendarData.success) {
-        console.error(`Failed to sync calendar: ${calendar.calendar_name}`, calendarData.message);
-        continue;
-    }
+            if (!calendarData.success) {
+                console.error(`Failed to sync calendar: ${calendar.calendar_name}`, calendarData.message);
+                continue;
+            }
 
-    const serverCalendar = calendarData.data?.events_json_blob || [];
-    let localCalendar = fetchLocalCalendar(calendar.calendar_name);
+            const serverCalendar = calendarData.data?.events_json_blob || [];
+            let localCalendar = fetchLocalCalendar(calendar.calendar_name);
 
-    let isNewCalendar = false;
+            let isNewCalendar = false;
 
-    // Check for unlinked calendars
-    if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
-        console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
-        await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
-        isNewCalendar = true;
-    }
+            // Check for unlinked calendars
+            if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
+                console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
+                await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
+                isNewCalendar = true;
+            }
 
-    if (!isNewCalendar) {
-        // Filter localCalendar to ensure only relevant dateCycles are included
-        localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
+            if (!isNewCalendar) {
+                // Filter localCalendar to ensure only relevant dateCycles are included
+                localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
 
-        const mergedData = mergeDateCycles(serverCalendar, localCalendar);
-        await updateServer(mergedData, calendar.calendar_name, buwanaId);
-        updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
-    }
-}
+                const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
+                const serverUpdate = await updateServer(mergedData, calendar.calendar_name, buwanaId);
 
+                if (serverUpdate && serverUpdate.last_updated) {
+                    lastSyncTs = serverUpdate.last_updated; // Store the latest sync timestamp
+                }
+
+                updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
+            }
+        }
 
         // Sync public calendars (read-only)
         for (const calendar of subscribed_calendars) {
@@ -1244,7 +1251,14 @@ async function syncUserEvents() {
             }
 
             const publicCalendar = calendarData.data?.events_json_blob || [];
-            updateLocal(publicCalendar, calendar.calendar_name); // Update local storage only
+            updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
+        }
+
+        // Update last sync timestamp in UI and localStorage
+        if (lastSyncTs) {
+            showLastSynkTimePassed(lastSyncTs);
+        } else {
+            console.warn('Last sync timestamp not received from server.');
         }
 
         alert('DateCycles have been successfully synced!');
@@ -1253,6 +1267,7 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
@@ -1337,10 +1352,7 @@ function mergeDateCycles(serverData, localData) {
 }
 
 
-
 async function updateServer(dateCycles, calendarName, buwanaId) {
-    const filteredCycles = dateCycles.filter(dc => dc.delete !== "yes");
-
     try {
         const response = await fetch('https://gobrik.com/api/update_calendar.php', {
             method: 'POST',
@@ -1348,7 +1360,7 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
             body: JSON.stringify({
                 buwana_id: buwanaId,
                 calendar_name: calendarName,
-                datecycles: filteredCycles
+                datecycles: dateCycles
             })
         });
 
@@ -1362,12 +1374,13 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
             throw new Error(result.message || 'Unknown error occurred on server.');
         }
 
-        console.log('Server successfully updated with DateCycles.');
+        return { last_updated: result.last_updated }; // Return the latest sync timestamp
     } catch (error) {
         console.error('Error in updateServer:', error);
         throw error;
     }
 }
+
 
 
 
