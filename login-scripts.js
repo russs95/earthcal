@@ -47,48 +47,48 @@ function sendUpRegistration() {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
         showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
         console.log("Login form displayed successfully.");
-    } else {
-        // If the user is logged in, fetch user data, personal data and public calendars
-        Promise.all([
-            fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId })
-            }).then(response => response.json()),
-            fetch(`https://gobrik.com/api/fetch_public_calendars.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            }).then(response => response.json())
-        ])
-            .then(([userCalendars, publicCalendars]) => {
-                if (userCalendars.success && publicCalendars.success) {
-                    const combinedData = {
-                        user: userCalendars.user,
-                        personal_calendars: userCalendars.personal_calendars,
-                        subscribed_calendars: userCalendars.subscribed_calendars,
-                        public_calendars: publicCalendars.public_calendars
-                    };
-                    showLoggedInView(combinedData);
-                } else {
-                    console.error(
-                        'Error fetching calendar data:',
-                        userCalendars.message || 'User calendars error',
-                        publicCalendars.message || 'Public calendars error'
-                    );
-                    showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-                }
-            })
-            .catch(error => {
-                console.error('Network error:', error);
-                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
-            });
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
     }
 
+    // Fetch all necessary data in a single API call
+    fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buwana_id: buwanaId })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Combine all data and pass to `showLoggedInView`
+                const combinedData = {
+                    user: data.user,
+                    personal_calendars: data.personal_calendars || [],
+                    subscribed_calendars: data.subscribed_calendars || [],
+                    public_calendars: data.public_calendars || []
+                };
+                showLoggedInView(combinedData);
+            } else {
+                console.error('Error fetching calendar data:', data.message || 'Unknown error');
+                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+            }
+        })
+        .catch(error => {
+            console.error('Network error:', error);
+            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+        });
+
     // Always update footer and arrow UI, regardless of user state
+    updateFooterAndArrowUI(footer, upArrow, downArrow);
+}
+
+// Helper function to update footer and arrows
+function updateFooterAndArrowUI(footer, upArrow, downArrow) {
     footer.style.height = "102vh";
     upArrow.style.display = "none";
     downArrow.style.display = "block";
 }
+
 
 
 
@@ -102,42 +102,52 @@ function showLoggedInView(userData) {
 
     const syncMessage = user.last_synk_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
-        : `<p id="last-synced-time" style="font-size:smaller">Huh... Your dateCycles haven’t been synced yet.</p>`;
+        : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
 
+    // Generate personal calendar HTML
     const personalCalendarHTML = personal_calendars.length > 0
         ? personal_calendars.map(cal => `
-            <div>
+            <div class="calendar-item">
                 <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
                 <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
             </div>
         `).join('')
         : '<p>No personal calendars available.</p>';
 
+    // Generate public calendar HTML
     const publicCalendarHTML = public_calendars.length > 0
-        ? public_calendars.map(cal => `
-            <div>
-                <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
-                ${subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id) ? 'checked' : ''} />
-                <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
-            </div>
-        `).join('')
+        ? public_calendars.map(cal => {
+            const isChecked = subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id);
+            return `
+                <div class="calendar-item">
+                    <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
+                    ${isChecked ? 'checked' : ''} />
+                    <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
+                </div>
+            `;
+        }).join('')
         : '<p>No public calendars available.</p>';
 
+    // Render the HTML
     loggedInView.innerHTML = `
         <h1>🗓️</h1>
         <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome, ${user.first_name}, You are synking the following personal and public calendars:</h3>
+            Welcome, ${user.first_name}! You are syncing the following personal and public calendars:
+        </h3>
         <form id="calendar-selection-form" style="text-align:left;width:300px;margin:auto;">
-
+            <h4>Personal Calendars</h4>
             ${personalCalendarHTML}
+            <h4>Public Calendars</h4>
             ${publicCalendarHTML}
-            <!--<button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="updateCalendarSubscriptions()">Update Subscriptions</button>-->
         </form>
-        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-flow: column;">
-            <button style="margin-bottom:0px;" class="confirmation-blur-button enabled" onclick="syncUserEvents(), updateCalendarSubscriptions();">
+        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-direction: column; gap: 10px;">
+            <button type="button" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
                 🔄 Sync Now
             </button>
-            <button onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
+            <button type="button" class="confirmation-blur-button enabled" onclick="updateCalendarSubscriptions()">
+                📂 Update Subscriptions
+            </button>
+            <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
         </div>
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
@@ -145,8 +155,10 @@ function showLoggedInView(userData) {
         </p>
     `;
 
+    // Display the logged-in view
     loggedInView.style.display = "block";
 }
+
 
 
 
