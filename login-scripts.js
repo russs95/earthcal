@@ -95,7 +95,7 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 function showLoggedInView(userData) {
-console.log("API Response User Data:", JSON.stringify(data.user, null, 2));
+//console.log("API Response User Data:", JSON.stringify(data.user, null, 2));
 
     const loggedInView = document.getElementById("logged-in-view");
     const activateView = document.getElementById("activate-earthcal-account");
