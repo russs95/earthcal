@@ -48,7 +48,7 @@ function sendUpRegistration() {
         showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
         console.log("Login form displayed successfully.");
     } else {
-        // If the user is logged in, fetch user calendars and public calendars
+        // If the user is logged in, fetch user data, personal data and public calendars
         Promise.all([
             fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
                 method: 'POST',

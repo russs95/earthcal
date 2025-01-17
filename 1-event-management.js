@@ -1275,7 +1275,6 @@ async function syncUserEvents() {
 //*********************************
 // SYNC HELPER FUNCTIONS
 //*********************************
-
 async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
     try {
         let newCalId;
@@ -1312,10 +1311,15 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
             newCalId = result.calendar_id; // Extract the new calendar ID
         }
 
-        // Update the localCalendar with the new calendar ID and IDs
         if (newCalId) {
-            const updatedCalendar = mergeDateCycles([], localCalendar, newCalId); // Update IDs and cal_id
-            updateLocal(updatedCalendar, calendarName, newCalId); // Update local storage
+            // Update the localCalendar with the new calendar ID and IDs
+            const updatedCalendar = mergeDateCycles([], localCalendar, newCalId);
+
+            // Remove any lingering dateCycles with cal_id: 000
+            const cleanedCalendar = updatedCalendar.filter(dc => dc.cal_id !== "000");
+
+            // Update local storage
+            updateLocal(cleanedCalendar, calendarName, newCalId);
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
@@ -1327,11 +1331,10 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 }
 
 
-
 function mergeDateCycles(serverData, localData, newCalId = null) {
     const mergedData = [];
 
-    // Combine all data and filter out entries marked for deletion early
+    // Combine all data and filter out entries marked for deletion or with invalid IDs
     const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes" && cycle.ID);
 
     // Use a Map to store the latest version of each DateCycle
@@ -1358,6 +1361,7 @@ function mergeDateCycles(serverData, localData, newCalId = null) {
 
     return mergedData;
 }
+
 
 
 async function updateServer(dateCycles, calendarName, buwanaId) {
