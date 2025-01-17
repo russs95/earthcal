@@ -1401,7 +1401,6 @@ function mergeDateCycles(serverData, localData, newCalId = null) {
 
 
 
-
 async function updateServer(dateCycles, calendarName, buwanaId) {
     try {
         const response = await fetch('https://gobrik.com/api/update_calendar.php', {
@@ -1410,7 +1409,7 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
             body: JSON.stringify({
                 buwana_id: buwanaId,
                 calendar_name: calendarName,
-                datecycles: dateCycles
+                datecycles: dateCycles // Ensure this contains the updated cycles
             })
         });
 
@@ -1430,6 +1429,7 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
         throw error;
     }
 }
+
 
 
 
