@@ -99,7 +99,7 @@ function showLoggedInView(userData) {
     activateView.style.display = "none";
 
     const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
-
+console.log("Last synced timestamp:", user.last_synk_ts);
     const syncMessage = user.last_synk_ts
         ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_synk_ts}.</p>`
         : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
