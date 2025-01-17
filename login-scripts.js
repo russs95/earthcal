@@ -25,6 +25,8 @@ function checkUserSession() {
 
 
 function sendUpRegistration() {
+console.log("API Response User Data:", JSON.stringify(data.user, null, 2));
+
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = document.querySelector('#guided-tour .modal');
 

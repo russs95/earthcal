@@ -1232,9 +1232,6 @@ async function syncUserEvents() {
                 }
 
                 updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
-
-                // Cleanup lingering dateCycles with `000` in their `ID`
-                cleanupLingeringDateCycles(calendar.calendar_name, calendar.calendar_id);
             }
         }
 
@@ -1255,10 +1252,10 @@ async function syncUserEvents() {
 
             const publicCalendar = calendarData.data?.events_json_blob || [];
             updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
-
-            // Cleanup lingering dateCycles with `000` in their `ID`
-            cleanupLingeringDateCycles(calendar.calendar_name, calendar.calendar_id);
         }
+
+        // Global cleanup of lingering dateCycles with `000_` in their `ID`
+        cleanupLingeringDateCycles();
 
         // Update last sync timestamp in UI and localStorage
         if (lastSyncTs) {
@@ -1275,21 +1272,25 @@ async function syncUserEvents() {
 }
 
 
-function cleanupLingeringDateCycles(calendarName, calId) {
-alert('cleaning!');
+function cleanupLingeringDateCycles() {
     try {
-        const calendarKey = `calendar_${calId}`;
-        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
+        // Loop through all localStorage keys
+        Object.keys(localStorage).forEach(key => {
+            // Check if the key is a calendar (starts with "calendar_")
+            if (key.startsWith("calendar_")) {
+                const calendarData = JSON.parse(localStorage.getItem(key)) || [];
 
-        // Filter out lingering `dateCycles` with `000` in their ID
-        const cleanedCalendarData = existingCalendarData.filter(dc => !dc.ID.startsWith("000_"));
+                // Filter out dateCycles with `000_` in their `ID`
+                const cleanedCalendarData = calendarData.filter(dc => !dc.ID.startsWith('000_'));
 
-        // Save the cleaned data back to localStorage
-        localStorage.setItem(calendarKey, JSON.stringify(cleanedCalendarData));
+                // Update local storage with the cleaned data
+                localStorage.setItem(key, JSON.stringify(cleanedCalendarData));
 
-        console.log(`Cleaned lingering dateCycles with '000' in their ID for calendar: ${calendarName} (ID: ${calId})`);
+                console.log(`Cleaned up lingering dateCycles with '000_' in ID for key: ${key}`);
+            }
+        });
     } catch (error) {
-        console.error('Error during cleanupLingeringDateCycles:', error);
+        console.error('Error cleaning up lingering dateCycles:', error);
     }
 }
 
