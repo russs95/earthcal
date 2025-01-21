@@ -326,7 +326,6 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
-/* ADD CYCLE OVERLAY */
 async function openAddCycle() {
   // Prepare the modal for display
   document.body.style.overflowY = "hidden";
@@ -349,9 +348,8 @@ async function openAddCycle() {
   document.addEventListener("keydown", handleEnterKeySubmit);
 
   // Check if the user is logged in
-  if (checkUserSession()) {
-    const buwanaId = localStorage.getItem('buwana_id');
-
+  const buwanaId = localStorage.getItem('buwana_id');
+  if (buwanaId) {
     // Call the API to fetch user's calendars
     try {
       const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
@@ -373,13 +371,19 @@ async function openAddCycle() {
       alert('A network error occurred while fetching your calendars. Please try again later.');
     }
   } else {
-    // If user is not logged in, show a default option in the dropdown
-    const calendarDropdown = document.getElementById('select-calendar');
-    calendarDropdown.innerHTML = '<option disabled selected>Please log in to select a calendar</option>';
+    // If user is not logged in, show local calendars or prompt to log in
+    const localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
+    if (localCalendars.length > 0) {
+      populateCalendarDropdown(localCalendars);
+    } else {
+      const calendarDropdown = document.getElementById('select-calendar');
+      calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
+    }
   }
 }
 
-// Helper function to populate the calendar dropdown
+
+
 function populateCalendarDropdown(calendars) {
   const calendarDropdown = document.getElementById('select-calendar');
   calendarDropdown.innerHTML = ''; // Clear any existing options
@@ -394,7 +398,7 @@ function populateCalendarDropdown(calendars) {
   // Populate the dropdown with calendars
   calendars.forEach(calendar => {
     const option = document.createElement('option');
-    option.value = calendar.id; // Use calendar ID for the value
+    option.value = calendar.id || calendar.local_id; // Use `id` if synced, otherwise `local_id`
     option.textContent = `${calendar.name} (${calendar.color})`; // Show name and color
     calendarDropdown.appendChild(option);
   });
@@ -402,6 +406,7 @@ function populateCalendarDropdown(calendars) {
   // Hide the new calendar form since calendars are available
   document.getElementById('addNewCalendar').style.display = 'none';
 }
+
 
 
 
