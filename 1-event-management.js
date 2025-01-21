@@ -75,7 +75,7 @@ async function submitAddCycleForm() {
     // Attempt to sync with the server if internet is available
     if (navigator.onLine) {
         try {
-            const response = await fetch('/api/datecycles', {
+            const response = await fetch('https://gobrik.com/earthcal/add-datecycle.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dateCycle)
