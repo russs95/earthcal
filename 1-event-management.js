@@ -950,6 +950,7 @@ function generateID() {
 
 
 
+
 async function addNewCalendar() {
     // Get input values from the form
     const calendarNameInput = document.getElementById('calendarName');
@@ -1042,34 +1043,6 @@ async function syncCalendarWithServer(calendar, buwanaId) {
 
 
 
-  // alert(JSON.stringify(newCalendar, null, 2));
-
-  userCalendars.push(newCalendar);
-  localStorage.setItem('userCalendars', JSON.stringify(userCalendars));
-
-  // Append the new calendar to the dropdown.
-  const select = document.getElementById('select-calendar');
-  const option = document.createElement('option');
-  option.value = newCalendar.id;
-  option.textContent = newCalendar.name;
-  select.appendChild(option);
-
-  // Make the newly added option the selected one.
-  select.value = newCalendar.id;
-
-  // Clear the calendarName input field.
-  calendarNameInput.value = '';
-
-  // Hide the form.
-  document.getElementById('addNewCalendar').style.display = "none";
-  document.getElementById('dateCycle-type').style.display = "block";
-  document.getElementById('set-date').style.display = "block";
-
-  alert('Your new personal Calendar has been added.  You can now add dateCycles to it.');
-
-  showDateCycleSetter();
-
-}
 
 function populateDropdown() {
 
