@@ -389,7 +389,6 @@ async function openAddCycle(forceRefresh = false) {
 }
 
 
-
 function populateCalendarDropdown(calendars, preselectId = null) {
   const calendarDropdown = document.getElementById('select-calendar');
   calendarDropdown.innerHTML = ''; // Clear any existing options
@@ -397,7 +396,7 @@ function populateCalendarDropdown(calendars, preselectId = null) {
   if (calendars.length === 0) {
     // If no calendars exist, show an option to create a new one
     calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
-    document.getElementById('addNewCalendar').style.display = 'block'; // Show the "Add New Calendar" form
+    document.getElementById('addNewCalendar').style.display = 'block'; // Show the new calendar form
     return;
   }
 
@@ -421,9 +420,10 @@ function populateCalendarDropdown(calendars, preselectId = null) {
     calendarDropdown.appendChild(option);
   });
 
-  // Hide the "Add New Calendar" form since calendars are available
+  // Hide the "Add New Calendar" form since calendars are now available
   document.getElementById('addNewCalendar').style.display = 'none';
 }
+
 
 
 
