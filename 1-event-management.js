@@ -1,14 +1,13 @@
 // MAnagement of DateCycles
 
-
-function submitAddCycleForm() {
+async function submitAddCycleForm() {
     // Check if all required fields are filled out
     const dayField = document.getElementById('day-field2').value;
     const monthField = document.getElementById('month-field2').value;
     const addDateTitle = document.getElementById('add-date-title').value;
 
     if (!dayField || !monthField || !addDateTitle) {
-        alert("Please be sure to fill out all the fields to add a new dateCycle to the Calendar.");
+        alert("Please fill out all the fields to add a new dateCycle to the Calendar.");
         return; // Exit the function early
     }
 
@@ -39,17 +38,17 @@ function submitAddCycleForm() {
     let existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
     let calId = existingCalendar.length > 0 ? existingCalendar[0].cal_id : "000";
 
-    // Generate a unique ID for the new dateCycle
+    // Generate a temporary unique ID for the new dateCycle (prefix with "temp" for unsynced records)
     const maxID = existingCalendar.reduce((max, dc) => {
         const id = parseInt((dc.ID || "0").split("_").pop());
         return id > max ? id : max;
     }, 0);
 
-    const newID = `${calId}_${(maxID + 1).toString().padStart(3, '0')}`;
+    const newID = `temp_${calId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
     // Create the dateCycle object
     const dateCycle = {
-        "ID": newID,
+        "ID": newID, // Temporary ID for unsynced records
         "cal_id": calId,
         "selectCalendar": selCalendar,
         "Frequency": dateCycleType,
@@ -65,12 +64,43 @@ function submitAddCycleForm() {
         "last_edited": currentDateTime, // New field
         "calendar_color": DateColorPicker,
         "public": "No",
-        "Delete": "No"
+        "Delete": "No",
+        "synked": "No" // Initially set to unsynced
     };
 
     // Add the new dateCycle to the existing calendar array
     existingCalendar.push(dateCycle);
     localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+
+    // Attempt to sync with the server if internet is available
+    if (navigator.onLine) {
+        try {
+            const response = await fetch('/api/datecycles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dateCycle)
+            });
+
+            if (response.ok) {
+                const serverData = await response.json();
+                dateCycle.ID = serverData.id; // Update ID with the server-generated ID
+                dateCycle.synked = "Yes"; // Mark as synced
+
+                // Update local storage with the updated dateCycle
+                const updatedCalendar = existingCalendar.map(dc =>
+                    dc.ID === newID ? { ...dc, ID: serverData.id, synked: "Yes" } : dc
+                );
+                localStorage.setItem(calendarStorageKey, JSON.stringify(updatedCalendar));
+                console.log(`DateCycle synced with server:`, dateCycle);
+            } else {
+                console.error(`Failed to sync with server. Status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error syncing with server:', error);
+        }
+    } else {
+        console.warn('Offline: DateCycle saved locally and marked as unsynced.');
+    }
 
     // Clear the form fields
     document.getElementById('select-calendar').value = 'Select Calendar...';
