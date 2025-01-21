@@ -1170,31 +1170,49 @@ async function syncUserEvents() {
 
         // Check for local data
         const localCalendars = fetchDateCycleCalendars();
-        if (!localCalendars || localCalendars.length === 0) {
+        const hasLocalCalendars = localCalendars && localCalendars.length > 0;
+
+        let serverCalendars = [];
+        let hasInternetConnection = true;
+
+        try {
+            // Fetch server calendar data
+            const response = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
+
+            const serverData = await response.json();
+
+            if (!serverData.success) {
+                throw new Error(serverData.message || 'Failed to retrieve calendar data.');
+            }
+
+            serverCalendars = serverData.personal_calendars || [];
+        } catch (error) {
+            console.warn('Unable to fetch server data:', error);
+            hasInternetConnection = false;
+        }
+
+        const hasServerCalendars = serverCalendars.length > 0;
+
+        // Alert only if no local and no server calendars, and internet connection exists
+        if (!hasLocalCalendars && !hasServerCalendars && hasInternetConnection) {
             alert('Sorry, you haven’t yet added a dateCycle, so there is nothing to sync! Add some events or select a public calendar to synchronize local and server calendars.');
             return;
         }
 
-        // Fetch server calendar data
-        const response = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId })
-        });
-
-        const serverData = await response.json();
-
-        if (!serverData.success) {
-            console.error('Server Error:', serverData.message);
-            throw new Error(serverData.message || 'Failed to retrieve calendar data.');
+        if (!hasLocalCalendars && !hasInternetConnection) {
+            console.warn('No local calendars and no internet connection. Skipping sync.');
+            return;
         }
 
-        const { personal_calendars, subscribed_calendars } = serverData;
-
+        // Proceed with sync logic here
         let lastSyncTs = null; // Variable to store the latest sync timestamp
 
         // Sync personal calendars
-        for (const calendar of personal_calendars) {
+        for (const calendar of serverCalendars) {
             const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1213,7 +1231,6 @@ async function syncUserEvents() {
 
             let isNewCalendar = false;
 
-            // Check for unlinked calendars
             if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
                 console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
                 await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
@@ -1221,11 +1238,7 @@ async function syncUserEvents() {
             }
 
             if (!isNewCalendar) {
-                // Filter localCalendar to ensure only relevant dateCycles are included
-                //localCalendar = localCalendar.filter(dc => dc.cal_id === calendar.calendar_id);
-
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
-
                 const serverUpdate = await updateServer(mergedData, calendar.calendar_name, buwanaId);
 
                 if (serverUpdate && serverUpdate.last_updated) {
@@ -1234,25 +1247,6 @@ async function syncUserEvents() {
 
                 updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
             }
-        }
-
-        // Sync public calendars (read-only)
-        for (const calendar of subscribed_calendars) {
-            const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ calendar_name: calendar.calendar_name })
-            });
-
-            const calendarData = await calendarResponse.json();
-
-            if (!calendarData.success) {
-                console.error(`Failed to fetch public calendar: ${calendar.calendar_name}`, calendarData.message);
-                continue;
-            }
-
-            const publicCalendar = calendarData.data?.events_json_blob || [];
-            updateLocal(publicCalendar, calendar.calendar_name, calendar.calendar_id);
         }
 
         // Update last sync timestamp in UI and localStorage
@@ -1268,6 +1262,7 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 function cleanupLingeringDateCycles() {
