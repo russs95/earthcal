@@ -1,5 +1,4 @@
 // MAnagement of DateCycles
-
 async function submitAddCycleForm() {
     // Check if all required fields are filled out
     const dayField = document.getElementById('day-field2').value;
@@ -8,12 +7,12 @@ async function submitAddCycleForm() {
 
     if (!dayField || !monthField || !addDateTitle) {
         alert("Please fill out all the fields to add a new dateCycle to the Calendar.");
-        return; // Exit the function early
+        return;
     }
 
     // Get additional form inputs
     const selCalendarElement = document.getElementById('select-calendar');
-    const selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].text; // Get the calendar name
+    const selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].value; // Use value (cal_id or local_id)
     const dateCycleType = document.getElementById('dateCycle-type').value;
 
     let yearField = "";
@@ -33,47 +32,46 @@ async function submitAddCycleForm() {
     // Get the current date and time for last_edited
     const currentDateTime = new Date().toISOString();
 
-    // Check if there's already a calendar with this name
+    // Fetch calendar data from local storage
     const calendarStorageKey = `calendar_${selCalendar}`;
     let existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
-    let calId = existingCalendar.length > 0 ? existingCalendar[0].cal_id : "000";
+    let calId = selCalendar.startsWith('temp_') ? selCalendar : existingCalendar[0]?.cal_id || "000";
 
-    // Generate a temporary unique ID for the new dateCycle (prefix with "temp" for unsynced records)
+    // Generate a temporary unique ID for the new dateCycle
     const maxID = existingCalendar.reduce((max, dc) => {
         const id = parseInt((dc.ID || "0").split("_").pop());
         return id > max ? id : max;
     }, 0);
-
     const newID = `temp_${calId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
     // Create the dateCycle object
     const dateCycle = {
-        "ID": newID, // Temporary ID for unsynced records
-        "cal_id": calId,
-        "selectCalendar": selCalendar,
-        "Frequency": dateCycleType,
-        "Event_name": addDateTitle,
-        "Day": dayField,
-        "Month": monthField,
-        "Year": yearField,
-        "Date": `-${dayField}-${monthField}${dashOrNot}${yearField}`,
-        "comment": addNoteCheckbox,
-        "Comments": addDateNote,
-        "Completed": 'no',
-        "Pinned": 'no', // New field
-        "last_edited": currentDateTime, // New field
-        "calendar_color": DateColorPicker,
-        "public": "No",
-        "Delete": "No",
-        "synked": "No" // Initially set to unsynced
+        ID: newID,
+        cal_id: calId,
+        selectCalendar: selCalendar,
+        Frequency: dateCycleType,
+        Event_name: addDateTitle,
+        Day: dayField,
+        Month: monthField,
+        Year: yearField,
+        Date: `-${dayField}-${monthField}${dashOrNot}${yearField}`,
+        comment: addNoteCheckbox,
+        Comments: addDateNote,
+        Completed: 'no',
+        Pinned: 'no',
+        last_edited: currentDateTime,
+        calendar_color: DateColorPicker,
+        public: "No",
+        Delete: "No",
+        synked: "No" // Initially set to unsynced
     };
 
     // Add the new dateCycle to the existing calendar array
     existingCalendar.push(dateCycle);
     localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
 
-    // Attempt to sync with the server if internet is available
-    if (navigator.onLine) {
+    // Attempt to sync with the server if online and the calendar is synced
+    if (navigator.onLine && !selCalendar.startsWith('temp_')) {
         try {
             const response = await fetch('https://gobrik.com/earthcal/add-datecycle.php', {
                 method: 'POST',
@@ -99,7 +97,7 @@ async function submitAddCycleForm() {
             console.error('Error syncing with server:', error);
         }
     } else {
-        console.warn('Offline: DateCycle saved locally and marked as unsynced.');
+        console.warn('Offline or unsynced calendar: DateCycle saved locally.');
     }
 
     // Clear the form fields
@@ -114,6 +112,8 @@ async function submitAddCycleForm() {
 }
 
 
+
+
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -123,13 +123,12 @@ function fetchDateCycleCalendars() {
     }
 
     try {
-        // Collect and combine all valid dateCycles from calendar arrays
         const allDateCycles = calendarKeys.reduce((acc, key) => {
             const calendarData = JSON.parse(localStorage.getItem(key));
             if (Array.isArray(calendarData)) {
-                // Filter out dateCycles marked for deletion
-                const validDateCycles = calendarData.filter(dc => dc.delete !== "yes");
-                acc.push(...validDateCycles); // Add valid dateCycles to the accumulator
+                // Include only valid, non-deleted dateCycles
+                const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
+                acc.push(...validDateCycles);
             } else {
                 console.log(`Invalid data format for key: ${key}`);
             }
@@ -139,40 +138,11 @@ function fetchDateCycleCalendars() {
         console.log('Fetched and combined valid dateCycles:', allDateCycles);
         return allDateCycles;
     } catch (error) {
-        console.log('Error fetching dateCycles from localStorage: ' + error.message);
+        console.log('Error fetching dateCycles from localStorage:', error.message);
         return [];
     }
 }
 
-
-
-
-
-
-
-
-// Fetches dateCycles data from local storage
-function fetchDateCycles() {
-  const dateCyclesString = localStorage.getItem('dateCycles');
-
-  if (!dateCyclesString) {
-      return null;
-  }
-
-  try {
-      const dateCycles = JSON.parse(dateCyclesString);
-      if (Array.isArray(dateCycles)) {
-          return dateCycles;
-      } else {
-          console.log('Stored data is not a valid array of dateCycles.');
-          return null;
-      }
-  } catch (error) {
-      console.log('Error parsing stored JSON: ' + error.message);
-      return null;
-  }
-
-}
 
 
 
