@@ -950,9 +950,7 @@ function generateID() {
 
 
 
-
-// Function to handle the addition of a new calendar.
-function addNewCalendar() {
+async function addNewCalendar() {
     // Get input values from the form
     const calendarNameInput = document.getElementById('calendarName');
     const calendarName = calendarNameInput.value.trim();
@@ -967,6 +965,10 @@ function addNewCalendar() {
 
     // Generate a temporary local ID
     const localId = `temp_${Date.now()}`;
+
+    // Check if the user is logged in
+    const buwanaId = localStorage.getItem('buwana_id');
+    const isLoggedIn = buwanaId !== null && buwanaId !== '';
 
     // Create the new calendar object
     const newCalendar = {
@@ -984,11 +986,12 @@ function addNewCalendar() {
     localCalendars.push(newCalendar);
     localStorage.setItem('local_calendars', JSON.stringify(localCalendars));
 
-    // Attempt to sync with the server
-    if (navigator.onLine) {
-        syncCalendarWithServer(newCalendar);
+    // Attempt to sync with the server only if the user is online and logged in
+    if (navigator.onLine && isLoggedIn) {
+        await syncCalendarWithServer(newCalendar, buwanaId);
     } else {
-        alert("Calendar saved locally. It will be synced with the server once you're online.");
+        const reason = !navigator.onLine ? "offline" : "not logged in";
+        alert(`Calendar saved locally because you are ${reason}. It will be synced when you're online and logged in.`);
     }
 
     // Clear the form fields
@@ -997,17 +1000,23 @@ function addNewCalendar() {
 }
 
 // Function to sync the calendar with the server
-async function syncCalendarWithServer(calendar) {
+async function syncCalendarWithServer(calendar, buwanaId) {
     try {
-        const response = await fetch('/api/add-calendar.php', {
+        const response = await fetch('https://gobrik.com/earthcal/create_calendar.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(calendar)
+            body: JSON.stringify({
+                local_id: calendar.local_id,
+                name: calendar.name,
+                color: calendar.color,
+                public: calendar.public,
+                buwana_id: buwanaId // Add the user ID to associate the calendar
+            })
         });
 
         const result = await response.json();
 
-        if (result.success) {
+        if (response.ok && result.success) {
             // Update local storage with the server's ID and mark as synced
             let localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
             localCalendars = localCalendars.map(cal => {
@@ -1028,6 +1037,8 @@ async function syncCalendarWithServer(calendar) {
         alert("A network error occurred while syncing the calendar.");
     }
 }
+
+
 
 
 
