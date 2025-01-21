@@ -325,8 +325,7 @@ function modalCloseCurtains(event) {
 
 document.addEventListener("keydown", modalCloseCurtains);
 
-
-async function openAddCycle() {
+async function openAddCycle(forceRefresh = false) {
   // Prepare the modal for display
   document.body.style.overflowY = "hidden";
   document.body.style.maxHeight = "101vh";
@@ -350,25 +349,32 @@ async function openAddCycle() {
   // Check if the user is logged in
   const buwanaId = localStorage.getItem('buwana_id');
   if (buwanaId) {
-    // Call the API to fetch user's calendars
-    try {
-      const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ buwana_id: buwanaId })
-      });
+    if (forceRefresh || !localStorage.getItem('user_calendars')) {
+      // Call the API to fetch user's calendars
+      try {
+        const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ buwana_id: buwanaId })
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (response.ok && result.success) {
-        populateCalendarDropdown(result.calendars);
-      } else {
-        console.error('Failed to fetch user calendars:', result.message);
-        alert('Unable to fetch your calendars. Please try again later.');
+        if (response.ok && result.success) {
+          localStorage.setItem('user_calendars', JSON.stringify(result.calendars)); // Cache calendars locally
+          populateCalendarDropdown(result.calendars);
+        } else {
+          console.error('Failed to fetch user calendars:', result.message);
+          alert('Unable to fetch your calendars. Please try again later.');
+        }
+      } catch (error) {
+        console.error('Error fetching calendars:', error);
+        alert('A network error occurred while fetching your calendars. Please try again later.');
       }
-    } catch (error) {
-      console.error('Error fetching calendars:', error);
-      alert('A network error occurred while fetching your calendars. Please try again later.');
+    } else {
+      // Use cached calendars if available
+      const cachedCalendars = JSON.parse(localStorage.getItem('user_calendars'));
+      populateCalendarDropdown(cachedCalendars);
     }
   } else {
     // If user is not logged in, show local calendars or prompt to log in
@@ -381,6 +387,7 @@ async function openAddCycle() {
     }
   }
 }
+
 
 
 

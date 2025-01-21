@@ -1014,6 +1014,11 @@ async function syncCalendarWithServer(calendar, buwanaId) {
 
 
 
+
+
+
+
+
 function populateDropdown() {
 
   // Set the year, month, and day fields using the global variable targetDate
