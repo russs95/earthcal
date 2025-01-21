@@ -745,33 +745,31 @@ setTimeout(showIntroModal, 5000);
             </select>
           </div>
 
+<div id="addNewCalendar" style="display: none; background-color: var(--button-1-1-over);
+border-radius: 10px;
+padding: 20px;
+width: fit-content;
+margin: auto;
+margin-bottom: 25px;">
+    <form id="calendar-adding-form">
+        <label for="calendarName">Name:</label>
+        <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
 
-      <div id="addNewCalendar" style="display: none;background-color: var(--button-1-1-over);
-      border-radius: 10px;
-      padding: 20px;
-      width: fit-content;
-      margin: auto;
-      margin-bottom:25px;" >
-        <form id="calendar-adding-form">
-          <label for="calendarName">Name:</label>
-          <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
-
-          <label for="colorPicker">Choose a color:</label>
-          <select id="colorPicker" name="color">
+        <label for="colorPicker">Choose a color:</label>
+        <select id="colorPicker" name="color">
             <option value="red">🔴 Red</option>
             <option value="blue">🔵 Blue</option>
             <option value="green">🟢 Green</option>
-            <option value="green">🟠 Orange</option>
+            <option value="orange">🟠 Orange</option>
+        </select><br>
 
-            <!-- Add other color options as needed -->
-          </select><br>
+        <input type="checkbox" id="publicCalendar" name="publicCalendar">
+        <label for="publicCalendar">Public Calendar</label><br><br>
 
-          <input type="checkbox" id="publicCalendar" name="publicCalendar">
-          <label for="publicCalendar">Public Calendar</label><br><br>
+        <button type="button" id="add-new-cal" onclick="addNewCalendar()" class="confirmation-blur-button">+ Add Calendar</button>
+    </form>
+</div>
 
-          <button type="button" id="add-new-cal" onclick="addNewCalendar()">+ Add Calendar</button>
-        </form>
-      </div>
 
 
       <div id="datecycle-setter"></div>

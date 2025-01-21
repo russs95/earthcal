@@ -948,19 +948,88 @@ function generateID() {
   }
 }
 
+
+
+
 // Function to handle the addition of a new calendar.
 function addNewCalendar() {
-  const calendarNameInput = document.getElementById('calendarName');
-  const calendarName = calendarNameInput.value;
-  const color = document.getElementById('colorPicker').value;
-  const isPublic = document.getElementById('publicCalendar').checked;
+    // Get input values from the form
+    const calendarNameInput = document.getElementById('calendarName');
+    const calendarName = calendarNameInput.value.trim();
+    const color = document.getElementById('colorPicker').value;
+    const isPublic = document.getElementById('publicCalendar').checked;
 
-  const newCalendar = {
-    id: generateID(),
-    name: calendarName,
-    color: color,
-    public: isPublic ? 'yes' : 'no'
-  };
+    // Validate input
+    if (!calendarName) {
+        alert("Please enter a calendar name.");
+        return;
+    }
+
+    // Generate a temporary local ID
+    const localId = `temp_${Date.now()}`;
+
+    // Create the new calendar object
+    const newCalendar = {
+        local_id: localId,
+        name: calendarName,
+        color: color,
+        public: isPublic ? 1 : 0, // Store as 1 (public) or 0 (private)
+        synked: 0, // Not yet synced with the server
+        deleted: 0, // Active calendar
+        conflict_flag: 0 // No conflicts
+    };
+
+    // Save to local storage
+    let localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
+    localCalendars.push(newCalendar);
+    localStorage.setItem('local_calendars', JSON.stringify(localCalendars));
+
+    // Attempt to sync with the server
+    if (navigator.onLine) {
+        syncCalendarWithServer(newCalendar);
+    } else {
+        alert("Calendar saved locally. It will be synced with the server once you're online.");
+    }
+
+    // Clear the form fields
+    calendarNameInput.value = '';
+    document.getElementById('publicCalendar').checked = false;
+}
+
+// Function to sync the calendar with the server
+async function syncCalendarWithServer(calendar) {
+    try {
+        const response = await fetch('/api/add-calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(calendar)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Update local storage with the server's ID and mark as synced
+            let localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
+            localCalendars = localCalendars.map(cal => {
+                if (cal.local_id === calendar.local_id) {
+                    return { ...cal, calendar_id: result.calendar_id, synked: 1 };
+                }
+                return cal;
+            });
+            localStorage.setItem('local_calendars', JSON.stringify(localCalendars));
+
+            alert("Calendar synced with the server!");
+        } else {
+            console.error("Failed to sync calendar:", result.message);
+            alert("Failed to sync the calendar with the server. It remains saved locally.");
+        }
+    } catch (error) {
+        console.error("Error syncing calendar:", error);
+        alert("A network error occurred while syncing the calendar.");
+    }
+}
+
+
 
   // alert(JSON.stringify(newCalendar, null, 2));
 

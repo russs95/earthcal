@@ -327,31 +327,83 @@ document.addEventListener("keydown", modalCloseCurtains);
 
 
 /* ADD CYCLE OVERLAY */
-
-function openAddCycle() {
-  //document.getElementById("add-a-datecycle").style.display = "block";
-  // document.getElementById("add-datecycle").style.width = "100%";
+async function openAddCycle() {
+  // Prepare the modal for display
   document.body.style.overflowY = "hidden";
   document.body.style.maxHeight = "101vh";
   document.getElementById("add-datecycle").classList.remove('modal-hidden');
   document.getElementById("add-datecycle").classList.add('modal-shown');
   document.getElementById("page-content").classList.add("blur");
 
-  // Extract and format the date
+  // Format the current date for display
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const targetDate = new Date(); // Assuming targetDate is defined somewhere in your code
+  const targetDate = new Date();
   let formattedDate = targetDate.toLocaleDateString('en-US', options);
+  formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
-  // Replace spaces between the date elements with non-breaking spaces
-  formattedDate = formattedDate.replace(/ /g, '\u00A0');
-
-  // Update the text in the div
+  // Update the modal title
   const titleElement = document.getElementById("add-event-title");
   titleElement.textContent = `Add an event for ${formattedDate}`;
 
   // Add listener for Enter key to submit the form
   document.addEventListener("keydown", handleEnterKeySubmit);
+
+  // Check if the user is logged in
+  if (checkUserSession()) {
+    const buwanaId = localStorage.getItem('buwana_id');
+
+    // Call the API to fetch user's calendars
+    try {
+      const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buwana_id: buwanaId })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        populateCalendarDropdown(result.calendars);
+      } else {
+        console.error('Failed to fetch user calendars:', result.message);
+        alert('Unable to fetch your calendars. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error fetching calendars:', error);
+      alert('A network error occurred while fetching your calendars. Please try again later.');
+    }
+  } else {
+    // If user is not logged in, show a default option in the dropdown
+    const calendarDropdown = document.getElementById('select-calendar');
+    calendarDropdown.innerHTML = '<option disabled selected>Please log in to select a calendar</option>';
+  }
 }
+
+// Helper function to populate the calendar dropdown
+function populateCalendarDropdown(calendars) {
+  const calendarDropdown = document.getElementById('select-calendar');
+  calendarDropdown.innerHTML = ''; // Clear any existing options
+
+  if (calendars.length === 0) {
+    // If no calendars exist, show an option to create a new one
+    calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
+    document.getElementById('addNewCalendar').style.display = 'block'; // Show the new calendar form
+    return;
+  }
+
+  // Populate the dropdown with calendars
+  calendars.forEach(calendar => {
+    const option = document.createElement('option');
+    option.value = calendar.id; // Use calendar ID for the value
+    option.textContent = `${calendar.name} (${calendar.color})`; // Show name and color
+    calendarDropdown.appendChild(option);
+  });
+
+  // Hide the new calendar form since calendars are available
+  document.getElementById('addNewCalendar').style.display = 'none';
+}
+
+
 
 function handleEnterKeySubmit(event) {
   if (event.key === "Enter") {
