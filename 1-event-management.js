@@ -1216,7 +1216,6 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
-
 async function syncUserEvents() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1235,7 +1234,7 @@ async function syncUserEvents() {
 
         try {
             // Fetch server calendar data
-            const response = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+            const response = await fetch('https://gobrik.com/earthcal/get_user_calendars.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: buwanaId })
@@ -1247,7 +1246,8 @@ async function syncUserEvents() {
                 throw new Error(serverData.message || 'Failed to retrieve calendar data.');
             }
 
-            serverCalendars = serverData.personal_calendars || [];
+            // Update the structure to match the new API's response
+            serverCalendars = serverData.calendars || [];
         } catch (error) {
             console.warn('Unable to fetch server data:', error);
             hasInternetConnection = false;
@@ -1271,39 +1271,43 @@ async function syncUserEvents() {
 
         // Sync personal calendars
         for (const calendar of serverCalendars) {
-            const calendarResponse = await fetch('https://gobrik.com/api/get_calendar_data.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendar.calendar_name })
-            });
+            try {
+                const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendar.id })
+                });
 
-            const calendarData = await calendarResponse.json();
+                const calendarData = await calendarResponse.json();
 
-            if (!calendarData.success) {
-                console.error(`Failed to sync calendar: ${calendar.calendar_name}`, calendarData.message);
-                continue;
-            }
-
-            const serverCalendar = calendarData.data?.events_json_blob || [];
-            let localCalendar = fetchLocalCalendar(calendar.calendar_name);
-
-            let isNewCalendar = false;
-
-            if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
-                console.log(`Unlinked calendar detected: ${calendar.calendar_name}`);
-                await handleNewOrUnlinkedCalendar(localCalendar, calendar.calendar_name, buwanaId);
-                isNewCalendar = true;
-            }
-
-            if (!isNewCalendar) {
-                const mergedData = mergeDateCycles(serverCalendar, localCalendar);
-                const serverUpdate = await updateServer(mergedData, calendar.calendar_name, buwanaId);
-
-                if (serverUpdate && serverUpdate.last_updated) {
-                    lastSyncTs = serverUpdate.last_updated; // Store the latest sync timestamp
+                if (!calendarData.success) {
+                    console.error(`Failed to sync calendar: ${calendar.name}`, calendarData.message);
+                    continue;
                 }
 
-                updateLocal(mergedData, calendar.calendar_name, calendar.calendar_id);
+                const serverCalendar = calendarData.data?.events_json_blob || [];
+                let localCalendar = fetchLocalCalendar(calendar.name);
+
+                let isNewCalendar = false;
+
+                if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
+                    console.log(`Unlinked calendar detected: ${calendar.name}`);
+                    await handleNewOrUnlinkedCalendar(localCalendar, calendar.name, buwanaId);
+                    isNewCalendar = true;
+                }
+
+                if (!isNewCalendar) {
+                    const mergedData = mergeDateCycles(serverCalendar, localCalendar);
+                    const serverUpdate = await updateServer(mergedData, calendar.name, buwanaId);
+
+                    if (serverUpdate && serverUpdate.last_updated) {
+                        lastSyncTs = serverUpdate.last_updated; // Store the latest sync timestamp
+                    }
+
+                    updateLocal(mergedData, calendar.name, calendar.id);
+                }
+            } catch (error) {
+                console.error(`Error syncing calendar '${calendar.name}':`, error);
             }
         }
 
@@ -1320,6 +1324,7 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
