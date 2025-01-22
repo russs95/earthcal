@@ -410,62 +410,57 @@ async function openAddCycle(forceRefresh = true) {
 
 
 function populateCalendarDropdown(calendars) {
-    console.log('populateCalendarDropdown WAS called with:', calendars); // Log the input
+    console.log('populateCalendarDropdown called with:', calendars); // Debug log
 
     const calendarDropdown = document.getElementById('select-calendar');
-
     if (!calendarDropdown) {
-        console.error('Calendar dropdown element not found in the DOM!');
+        console.error('Dropdown element not found or inaccessible.');
         return;
     }
 
-    calendarDropdown.innerHTML = ''; // Clear any existing options
+    calendarDropdown.innerHTML = ''; // Clear existing options
 
     if (!Array.isArray(calendars) || calendars.length === 0) {
         console.log('No calendars found to populate.');
-        // If no calendars exist, show an option to create a new one
         calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
-        document.getElementById('addNewCalendar').style.display = 'block'; // Show the new calendar form
+        document.getElementById('addNewCalendar').style.display = 'block';
         return;
     }
 
-    // Populate the dropdown with calendars and track if "My Calendar" exists
     let myCalendarFound = false;
 
     calendars.forEach(calendar => {
-        // Skip invalid calendar objects
         if (!calendar.name || !calendar.color) {
             console.warn('Skipping invalid calendar:', calendar);
             return;
         }
 
         const option = document.createElement('option');
-        option.value = calendar.id || calendar.local_id; // Use `id` if synced, otherwise `local_id`
-        option.textContent = `${calendar.name} (${calendar.color})`; // Show name and color
+        option.value = calendar.id || calendar.local_id;
+        option.textContent = `${calendar.name} (${calendar.color})`;
 
-        // Preselect "My Calendar" if it exists
         if (calendar.name === "My Calendar") {
             option.selected = true;
             myCalendarFound = true;
         }
 
         calendarDropdown.appendChild(option);
+        console.log(`Added option: ${option.textContent}`); // Debug log for each option
     });
 
-    // If "My Calendar" was not found, add a placeholder option
     if (!myCalendarFound) {
         const placeholderOption = document.createElement('option');
         placeholderOption.textContent = "Select calendar...";
         placeholderOption.disabled = true;
         placeholderOption.selected = true;
-        calendarDropdown.prepend(placeholderOption); // Add the placeholder at the top
+        calendarDropdown.prepend(placeholderOption);
+        console.log('Placeholder added.');
     }
 
-    console.log('Dropdown populated successfully.');
-
-    // Hide the "Add New Calendar" form since calendars are now available
     document.getElementById('addNewCalendar').style.display = 'none';
+    console.log('Dropdown populated successfully.');
 }
+
 
 
 
