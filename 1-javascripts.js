@@ -326,118 +326,82 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
-
 async function openAddCycle(forceRefresh = true) {
-  console.log('openAddCycle called'); // Log function call
+    console.log('openAddCycle called'); // Log function call
 
-  // Prepare the modal for display
-  document.body.style.overflowY = "hidden";
-  document.body.style.maxHeight = "101vh";
-  document.getElementById("add-datecycle").classList.remove('modal-hidden');
-  document.getElementById("add-datecycle").classList.add('modal-shown');
-  document.getElementById("page-content").classList.add("blur");
+    // Prepare the modal for display
+    document.body.style.overflowY = "hidden";
+    document.body.style.maxHeight = "101vh";
+    document.getElementById("add-datecycle").classList.remove('modal-hidden');
+    document.getElementById("add-datecycle").classList.add('modal-shown');
+    document.getElementById("page-content").classList.add("blur");
 
-  // Format the current date for display
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const targetDate = new Date();
-  let formattedDate = targetDate.toLocaleDateString('en-US', options);
-  formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
+    // Format the current date for display
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const targetDate = new Date();
+    let formattedDate = targetDate.toLocaleDateString('en-US', options);
+    formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
-  // Update the modal title
-  const titleElement = document.getElementById("add-event-title");
-  titleElement.textContent = `Add an event for ${formattedDate}`;
+    // Update the modal title
+    const titleElement = document.getElementById("add-event-title");
+    titleElement.textContent = `Add an event for ${formattedDate}`;
 
-  console.log('Formatted date set in modal');
+    console.log('Formatted date set in modal');
 
-  // Add listener for Enter key to submit the form
-  document.addEventListener("keydown", handleEnterKeySubmit);
+    // Add listener for Enter key to submit the form
+    document.addEventListener("keydown", handleEnterKeySubmit);
 
-  // Check if the user is logged in
-  const buwanaId = localStorage.getItem('buwana_id');
-  console.log('buwana_id:', buwanaId);
+    // Check if the user is logged in
+    const buwanaId = localStorage.getItem('buwana_id');
+    console.log('buwana_id:', buwanaId);
 
-  if (buwanaId) {
-    if (forceRefresh || !localStorage.getItem('user_calendars')) {
-      console.log('Fetching calendars from API...');
-      // Call the API to fetch user's calendars
-      try {
-        const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ buwana_id: buwanaId })
-        });
+    if (buwanaId) {
+        if (forceRefresh || !localStorage.getItem('user_calendars')) {
+            console.log('Fetching calendars from API...');
+            // Call the API to fetch user's calendars
+            try {
+                const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buwana_id: buwanaId })
+                });
 
-        console.log('API response received:', response);
+                console.log('API response received:', response);
 
-        const result = await response.json();
-        console.log('Parsed API result:', result);
+                const result = await response.json();
+                console.log('Parsed API result:', result);
 
-        if (response.ok && result.success) {
-          localStorage.setItem('user_calendars', JSON.stringify(result.calendars)); // Cache calendars locally
-          console.log('Calendars cached locally');
-          populateCalendarDropdown(result.calendars);
+                if (response.ok && result.success) {
+                    localStorage.setItem('user_calendars', JSON.stringify(result.calendars)); // Cache calendars locally
+                    console.log('Calendars cached locally');
+                    console.log('Calling populateCalendarDropdown with:', result.calendars);
+                    populateCalendarDropdown(result.calendars);
+                } else {
+                    console.error('Failed to fetch user calendars:', result.message);
+                    alert('Unable to fetch your calendars. Please try again later.');
+                }
+            } catch (error) {
+                console.error('Error fetching calendars:', error);
+                alert('A network error occurred while fetching your calendars. Please try again later.');
+            }
         } else {
-          console.error('Failed to fetch user calendars:', result.message);
-          alert('Unable to fetch your calendars. Please try again later.');
+            console.log('Using cached calendars');
+            // Use cached calendars if available
+            const cachedCalendars = JSON.parse(localStorage.getItem('user_calendars'));
+            console.log('Cached calendars:', cachedCalendars);
+            populateCalendarDropdown(cachedCalendars);
         }
-      } catch (error) {
-        console.error('Error fetching calendars:', error);
-        alert('A network error occurred while fetching your calendars. Please try again later.');
-      }
     } else {
-      console.log('Using cached calendars');
-      // Use cached calendars if available
-      const cachedCalendars = JSON.parse(localStorage.getItem('user_calendars'));
-      populateCalendarDropdown(cachedCalendars);
+        console.log('User not logged in. Using local calendars');
+        // If user is not logged in, show local calendars or prompt to log in
+        const localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
+        if (localCalendars.length > 0) {
+            populateCalendarDropdown(localCalendars);
+        } else {
+            const calendarDropdown = document.getElementById('select-calendar');
+            calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
+        }
     }
-  } else {
-    console.log('User not logged in. Using local calendars');
-    // If user is not logged in, show local calendars or prompt to log in
-    const localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]');
-    if (localCalendars.length > 0) {
-      populateCalendarDropdown(localCalendars);
-    } else {
-      const calendarDropdown = document.getElementById('select-calendar');
-      calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
-    }
-  }
-}
-
-
-function populateCalendarDropdown(calendars, preselectId = null) {
-alert('populate!');
-  const calendarDropdown = document.getElementById('select-calendar');
-  calendarDropdown.innerHTML = ''; // Clear any existing options
-
-  if (calendars.length === 0) {
-    // If no calendars exist, show an option to create a new one
-    calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
-    document.getElementById('addNewCalendar').style.display = 'block'; // Show the new calendar form
-    return;
-  }
-
-  // Populate the dropdown with calendars
-  calendars.forEach(calendar => {
-    // Skip invalid calendar objects
-    if (!calendar.name || !calendar.color) {
-      console.warn('Skipping invalid calendar:', calendar);
-      return;
-    }
-
-    const option = document.createElement('option');
-    option.value = calendar.id || calendar.local_id; // Use `id` if synced, otherwise `local_id`
-    option.textContent = `${calendar.name} (${calendar.color})`; // Show name and color
-
-    // Preselect the newly added calendar if `preselectId` matches
-    if (preselectId && (calendar.id === preselectId || calendar.local_id === preselectId)) {
-      option.selected = true;
-    }
-
-    calendarDropdown.appendChild(option);
-  });
-
-  // Hide the "Add New Calendar" form since calendars are now available
-  document.getElementById('addNewCalendar').style.display = 'none';
 }
 
 
