@@ -326,7 +326,6 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
-
 async function openAddCycle() {
     console.log('openAddCycle called'); // Log function call
 
@@ -348,6 +347,9 @@ async function openAddCycle() {
     titleElement.textContent = `Add an event for ${formattedDate}`;
     console.log('Formatted date set in modal');
 
+    // Populate the date fields
+    populateDateFields(targetDate);
+
     // Add listener for Enter key to submit the form
     document.addEventListener("keydown", handleEnterKeySubmit);
 
@@ -363,6 +365,10 @@ async function openAddCycle() {
     console.log('User is logged in. Buwana ID:', buwanaId);
     populateCalendarDropdown(buwanaId);
 }
+
+
+
+
 
 
 
@@ -448,6 +454,64 @@ async function populateCalendarDropdown(buwanaId) {
     }
 }
 
+
+
+function populateDateFields(targetDate) {
+    console.log('populateDateFields called with targetDate:', targetDate);
+
+    // Ensure targetDate is a valid Date object
+    if (!(targetDate instanceof Date) || isNaN(targetDate)) {
+        console.error('Invalid targetDate provided to populateDateFields.');
+        return;
+    }
+
+    // Frequency dropdown
+    const frequencyDropdown = document.getElementById('dateCycle-type');
+    if (!frequencyDropdown) {
+        console.error('Frequency dropdown element not found.');
+        return;
+    }
+
+    // Clear and populate frequency options
+    frequencyDropdown.innerHTML = `
+        <option value="One-time">One-time</option>
+        <option value="One-time + pinned">One-time + pinned</option>
+        <option value="Annual">Annual</option>
+    `;
+
+    // Set default frequency to "One-time"
+    frequencyDropdown.value = "One-time";
+    console.log('Frequency dropdown preset to "One-time".');
+
+    // Day dropdown
+    const dayDropdown = document.getElementById('day-field2');
+    if (dayDropdown) {
+        dayDropdown.value = targetDate.getDate().toString(); // Set to current day
+        console.log(`Day dropdown preset to: ${dayDropdown.value}`);
+    } else {
+        console.error('Day dropdown element not found.');
+    }
+
+    // Month dropdown
+    const monthDropdown = document.getElementById('month-field2');
+    if (monthDropdown) {
+        monthDropdown.value = (targetDate.getMonth() + 1).toString(); // Months are 0-based, so add 1
+        console.log(`Month dropdown preset to: ${monthDropdown.value}`);
+    } else {
+        console.error('Month dropdown element not found.');
+    }
+
+    // Year dropdown
+    const yearDropdown = document.getElementById('year-field2');
+    if (yearDropdown) {
+        yearDropdown.value = targetDate.getFullYear().toString(); // Set to current year
+        console.log(`Year dropdown preset to: ${yearDropdown.value}`);
+    } else {
+        console.error('Year dropdown element not found.');
+    }
+
+    console.log('Date fields populated successfully.');
+}
 
 
 
