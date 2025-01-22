@@ -1086,38 +1086,38 @@ function handleAddNewCal() {
 
 
 //DELETE CALENDAR SELECTOR
-function populateCalendarDropdown() {
-  const selectElement = document.getElementById('calendarToDelete');
-  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
-
-  // 1. Clear existing options
-  selectElement.innerHTML = '';
-
-  // 2. Add the two specific options
-  const defaultOptions = [
-    {text: 'Select Calendar...', value: '', disabled: true, selected: true},
-    {text: 'My Calendar', value: 'My Calendar'}
-  ];
-
-  defaultOptions.forEach(optionData => {
-    const option = document.createElement('option');
-    option.textContent = optionData.text;
-    option.value = optionData.value;
-
-    if (optionData.disabled) option.disabled = true;
-    if (optionData.selected) option.selected = true;
-
-    selectElement.appendChild(option);
-  });
-
-  // 3. Continue adding options from userCalendars
-  userCalendars.forEach(calendar => {
-      const option = document.createElement('option');
-      option.value = calendar.id;
-      option.textContent = calendar.name;
-      selectElement.appendChild(option);
-  });
-}
+//function populateCalendarDropdown() {
+//  const selectElement = document.getElementById('calendarToDelete');
+//  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
+//
+//  // 1. Clear existing options
+//  selectElement.innerHTML = '';
+//
+//  // 2. Add the two specific options
+//  const defaultOptions = [
+//    {text: 'Select Calendar...', value: '', disabled: true, selected: true},
+//    {text: 'My Calendar', value: 'My Calendar'}
+//  ];
+//
+//  defaultOptions.forEach(optionData => {
+//    const option = document.createElement('option');
+//    option.textContent = optionData.text;
+//    option.value = optionData.value;
+//
+//    if (optionData.disabled) option.disabled = true;
+//    if (optionData.selected) option.selected = true;
+//
+//    selectElement.appendChild(option);
+//  });
+//
+//  // 3. Continue adding options from userCalendars
+//  userCalendars.forEach(calendar => {
+//      const option = document.createElement('option');
+//      option.value = calendar.id;
+//      option.textContent = calendar.name;
+//      selectElement.appendChild(option);
+//  });
+//}
 
 
 // Function to delete the selected userCalendar and associated dateCycles
