@@ -377,7 +377,7 @@ async function openAddCycle(forceRefresh = true) {
                 if (response.ok && result.success) {
                     localStorage.setItem('user_calendars', JSON.stringify(result.calendars)); // Cache calendars locally
                     console.log('Calendars cached locally');
-                    console.log('Calling populateCalendarDropdown with:', result.calendars);
+                    console.log('Now Calling populateCalendarDropdown with:', result.calendars);
                     populateCalendarDropdown(result.calendars);
                 } else {
                     console.error('Failed to fetch user calendars:', result.message);
