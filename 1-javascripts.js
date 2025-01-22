@@ -327,7 +327,7 @@ document.addEventListener("keydown", modalCloseCurtains);
 
 
 
-async function openAddCycle(forceRefresh = false) {
+async function openAddCycle(forceRefresh = true) {
   console.log('openAddCycle called'); // Log function call
 
   // Prepare the modal for display
