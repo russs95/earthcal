@@ -353,7 +353,7 @@ async function openAddCycle(forceRefresh = true) {
 
     // Add listener for Enter key to submit the form
     document.addEventListener("keydown", handleEnterKeySubmit);
-
+populateCalendarDropdown(cachedCalendars);
     // Check if the user is logged in
     const buwanaId = localStorage.getItem('buwana_id');
     console.log('buwana_id:', buwanaId);
