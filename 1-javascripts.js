@@ -410,7 +410,6 @@ async function openAddCycle(forceRefresh = true) {
 
 
 
-
 function populateCalendarDropdown(calendars, preselectId = null) {
 alert('populate!');
   const calendarDropdown = document.getElementById('select-calendar');
@@ -446,6 +445,9 @@ alert('populate!');
   // Hide the "Add New Calendar" form since calendars are now available
   document.getElementById('addNewCalendar').style.display = 'none';
 }
+
+
+
 
 function handleEnterKeySubmit(event) {
   if (event.key === "Enter") {
