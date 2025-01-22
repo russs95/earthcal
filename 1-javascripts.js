@@ -410,8 +410,8 @@ async function openAddCycle(forceRefresh = true) {
 
 
 function populateCalendarDropdown(calendars, preselectId = null) {
-    console.log('populateCalendarDropdown called with:', calendars); // Log the input
-
+    console.log('populateCalendarDropdown was called with:', calendars); // Log the input
+    alert('popuate!');
     const calendarDropdown = document.getElementById('select-calendar');
 
     if (!calendarDropdown) {
