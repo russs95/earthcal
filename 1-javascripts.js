@@ -326,6 +326,9 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
+
+
+
 async function openAddCycle(forceRefresh = true) {
     console.log('openAddCycle called'); // Log function call
 
@@ -408,6 +411,41 @@ async function openAddCycle(forceRefresh = true) {
 
 
 
+function populateCalendarDropdown(calendars, preselectId = null) {
+alert('populate!');
+  const calendarDropdown = document.getElementById('select-calendar');
+  calendarDropdown.innerHTML = ''; // Clear any existing options
+
+  if (calendars.length === 0) {
+    // If no calendars exist, show an option to create a new one
+    calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
+    document.getElementById('addNewCalendar').style.display = 'block'; // Show the new calendar form
+    return;
+  }
+
+  // Populate the dropdown with calendars
+  calendars.forEach(calendar => {
+    // Skip invalid calendar objects
+    if (!calendar.name || !calendar.color) {
+      console.warn('Skipping invalid calendar:', calendar);
+      return;
+    }
+
+    const option = document.createElement('option');
+    option.value = calendar.id || calendar.local_id; // Use id if synced, otherwise local_id
+    option.textContent = ${calendar.name} (${calendar.color}); // Show name and color
+
+    // Preselect the newly added calendar if preselectId matches
+    if (preselectId && (calendar.id === preselectId || calendar.local_id === preselectId)) {
+      option.selected = true;
+    }
+
+    calendarDropdown.appendChild(option);
+  });
+
+  // Hide the "Add New Calendar" form since calendars are now available
+  document.getElementById('addNewCalendar').style.display = 'none';
+}
 
 function handleEnterKeySubmit(event) {
   if (event.key === "Enter") {
