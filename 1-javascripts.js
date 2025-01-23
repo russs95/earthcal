@@ -326,47 +326,57 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
-async function openAddCycle() {
-    console.log('openAddCycle called'); // Log function call
 
-    // Prepare the modal for display
-    document.body.style.overflowY = "hidden";
-    document.body.style.maxHeight = "101vh";
-    document.getElementById("add-datecycle").classList.remove('modal-hidden');
-    document.getElementById("add-datecycle").classList.add('modal-shown');
-    document.getElementById("page-content").classList.add("blur");
 
-    // Format the current date for display
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const targetDate = new Date();
-    let formattedDate = targetDate.toLocaleDateString('en-US', options);
-    formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
+async function addNewCalendar() {
+    console.log('addNewCalendar called.');
 
-    // Update the modal title
-    const titleElement = document.getElementById("add-event-title");
-    titleElement.textContent = `Add an event for ${formattedDate}`;
-    console.log('Formatted date set in modal');
+    const calendarName = document.getElementById('calendarName').value;
+    const color = document.getElementById('colorPicker').value;
+    const isPublic = document.getElementById('publicCalendar').checked;
 
-    // Populate the date fields
-    populateDateFields(targetDate);
-
-    // Add listener for Enter key to submit the form
-    document.addEventListener("keydown", handleEnterKeySubmit);
-
-    // Check if the user is logged in
-    const buwanaId = localStorage.getItem('buwana_id');
-    if (!buwanaId) {
-        console.log('User not logged in. Displaying placeholder in dropdown.');
-        const calendarDropdown = document.getElementById('select-calendar');
-        calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
+    if (!calendarName || !color) {
+        alert('Please provide a name and select a color for the calendar.');
         return;
     }
 
-    console.log('User is logged in. Buwana ID:', buwanaId);
-    populateCalendarDropdown(buwanaId);
+    const buwanaId = localStorage.getItem('buwana_id');
+    if (!buwanaId) {
+        alert('You must be logged in to create a calendar.');
+        return;
+    }
+
+    const newCalendar = {
+        buwana_id: buwanaId,
+        name: calendarName,
+        color: color,
+        public: isPublic ? 1 : 0
+    };
+
+    try {
+        const response = await fetch('https://gobrik.com/earthcal/create_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCalendar)
+        });
+
+        const result = await response.json();
+        console.log('Response from create_calendar API:', result);
+
+        if (result.success) {
+            alert('New calendar added successfully!');
+            document.getElementById('addNewCalendar').style.display = 'none'; // Hide the form
+
+            // Re-populate the dropdown with the new calendar
+            populateCalendarDropdown(buwanaId);
+        } else {
+            throw new Error(result.message || 'Failed to add new calendar.');
+        }
+    } catch (error) {
+        console.error('Error creating new calendar:', error);
+        alert('An error occurred while adding the calendar. Please try again later.');
+    }
 }
-
-
 
 
 
@@ -425,7 +435,16 @@ async function populateCalendarDropdown(buwanaId) {
 
             const option = document.createElement('option');
             option.value = calendar.id || calendar.local_id;
-            option.textContent = `${calendar.name} (${calendar.color})`;
+
+            // Set the text or emoji color for the calendar name
+            const emojiBullet = {
+                red: "🔴",
+                blue: "🔵",
+                green: "🟢",
+                orange: "🟠"
+            }[calendar.color] || "⚪"; // Default bullet if color is not listed
+
+            option.innerHTML = `${emojiBullet} ${calendar.name}`; // Add emoji + name
 
             if (calendar.name === "My Calendar") {
                 option.selected = true;
@@ -446,13 +465,28 @@ async function populateCalendarDropdown(buwanaId) {
             console.log('Placeholder added.');
         }
 
-        document.getElementById('addNewCalendar').style.display = 'none';
+        // Add "+ Add New Calendar..." option at the end
+        const addNewOption = document.createElement('option');
+        addNewOption.value = "add_new_calendar"; // Custom value for detection
+        addNewOption.textContent = "+ Add New Calendar...";
+        calendarDropdown.appendChild(addNewOption);
+        console.log('Added "+ Add New Calendar..." option.');
+
+        // Listen for the selection of "+ Add New Calendar..."
+        calendarDropdown.addEventListener('change', (event) => {
+            if (event.target.value === "add_new_calendar") {
+                console.log('"Add New Calendar" option selected.');
+                document.getElementById('addNewCalendar').style.display = 'block'; // Show the form
+            }
+        });
+
         console.log('Dropdown populated successfully.');
     } catch (error) {
         console.error('Error populating dropdown:', error);
         calendarDropdown.innerHTML = '<option disabled selected>Error loading calendars. Try again later.</option>';
     }
 }
+
 
 
 
