@@ -556,6 +556,58 @@ function populateDateFields(targetDate) {
 }
 
 
+async function addNewCalendar() {
+    console.log('addNewCalendar called.');
+
+    const calendarName = document.getElementById('calendarName').value;
+    const color = document.getElementById('colorPicker').value;
+    const isPublic = document.getElementById('publicCalendar').checked;
+
+    if (!calendarName || !color) {
+        alert('Please provide a name and select a color for the calendar.');
+        return;
+    }
+
+    const buwanaId = localStorage.getItem('buwana_id');
+    if (!buwanaId) {
+        alert('You must be logged in to create a calendar.');
+        return;
+    }
+
+    const newCalendar = {
+        buwana_id: buwanaId,
+        name: calendarName,
+        color: color,
+        public: isPublic ? 1 : 0
+    };
+
+    try {
+        const response = await fetch('https://gobrik.com/earthcal/create_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCalendar)
+        });
+
+        const result = await response.json();
+        console.log('Response from create_calendar API:', result);
+
+        if (result.success) {
+            alert('New calendar added successfully!');
+            document.getElementById('addNewCalendar').style.display = 'none'; // Hide the form
+
+            // Re-populate the dropdown with the new calendar
+            populateCalendarDropdown(buwanaId);
+        } else {
+            throw new Error(result.message || 'Failed to add new calendar.');
+        }
+    } catch (error) {
+        console.error('Error creating new calendar:', error);
+        alert('An error occurred while adding the calendar. Please try again later.');
+    }
+}
+
+
+
 
 
 
