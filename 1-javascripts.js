@@ -478,6 +478,71 @@ async function populateCalendarDropdown(buwanaId) {
 
 
 
+function renderCalendarsDropdown(calendars, calendarDropdown) {
+    console.log('Rendering dropdown with calendars:', calendars);
+
+    // Clear existing options
+    calendarDropdown.innerHTML = '';
+
+    let myCalendarFound = false;
+
+    // Populate the dropdown with calendars
+    calendars.forEach(calendar => {
+        if (!calendar.name || !calendar.color) {
+            console.warn('Skipping invalid calendar:', calendar);
+            return;
+        }
+
+        const option = document.createElement('option');
+        option.value = calendar.id || calendar.local_id;
+
+        // Set the text or emoji color for the calendar name
+        const emojiBullet = {
+            red: "🔴",
+            blue: "🔵",
+            green: "🟢",
+            orange: "🟠"
+        }[calendar.color] || "⚪"; // Default bullet if color is not listed
+
+        option.innerHTML = `${emojiBullet} ${calendar.name}`; // Add emoji + name
+
+        if (calendar.name === "My Calendar") {
+            option.selected = true;
+            myCalendarFound = true;
+        }
+
+        calendarDropdown.appendChild(option);
+        console.log(`Added option: ${option.textContent}`);
+    });
+
+    // Add placeholder if "My Calendar" was not found
+    if (!myCalendarFound) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.textContent = "Select calendar...";
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        calendarDropdown.prepend(placeholderOption);
+        console.log('Placeholder added.');
+    }
+
+    // Add "+ Add New Calendar..." option at the end
+    const addNewOption = document.createElement('option');
+    addNewOption.value = "add_new_calendar"; // Custom value for detection
+    addNewOption.textContent = "+ Add New Calendar...";
+    calendarDropdown.appendChild(addNewOption);
+    console.log('Added "+ Add New Calendar..." option.');
+
+    // Listen for the selection of "+ Add New Calendar..."
+    calendarDropdown.addEventListener('change', (event) => {
+        if (event.target.value === "add_new_calendar") {
+            console.log('"Add New Calendar" option selected.');
+            document.getElementById('addNewCalendar').style.display = 'block'; // Show the form
+        }
+    });
+
+    console.log('Dropdown rendered successfully.');
+}
+
 
 
 
