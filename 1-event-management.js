@@ -1027,65 +1027,70 @@ async function populateCalendarDropdown(buwanaId) {
 
 
 
-function populateDropdown() {
 
-  // Set the year, month, and day fields using the global variable targetDate
-  document.getElementById("year-field2").value = targetDate.getFullYear();
-  document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
-  document.getElementById("day-field2").value = targetDate.getDate();
-  document.getElementById("dateCycle-type").value = 'One-time';
-  const select = document.getElementById('select-calendar');
-  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
 
-  // 1. Clear any existing options
-  select.innerHTML = '';
 
-  // 2. Add the specific options with your desired order
-  const defaultOptions = [
-    { text: 'Select Calendar...', value: '', disabled: true }, // Set 'disabled' to true
-    { text: 'My Calendar', value: 'My Calendar' }
-  ];
-
-  defaultOptions.forEach(optionData => {
-    const option = document.createElement('option');
-    option.textContent = optionData.text;
-    option.value = optionData.value;
-    
-    if (optionData.disabled) {
-      option.disabled = true;
-    }
-    
-    select.appendChild(option);
-  });
-
-  // 3. Continue adding options from userCalendars
-  userCalendars.forEach(calendar => {
-    const option = document.createElement('option');
-    option.value = calendar.id;
-    option.textContent = calendar.name;
-    select.appendChild(option);
-  });
-
-  // 4. Finally, add the "+ Add New Calendar" option at the end
-  const addNewOption = document.createElement('option');
-  addNewOption.textContent = '+ Add New Calendar';
-  addNewOption.value = 'AddNew';
-  select.appendChild(addNewOption);
-
-  // 5. Select "My Calendar" by default
-  select.value = 'My Calendar';
-}
-
-// Function to handle the dropdown change event
-function handleAddNewCal() {
-  const select = document.getElementById('select-calendar');
-  const selectedValue = select.value;
-
-  if (selectedValue === 'AddNew') {
-    // Call the showAdderForm() function when "+ Add New Calendar" is selected
-    showAdderForm();
-  }
-}
+//
+//
+//function populateDropdown() {
+//
+//  // Set the year, month, and day fields using the global variable targetDate
+//  document.getElementById("year-field2").value = targetDate.getFullYear();
+//  document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
+//  document.getElementById("day-field2").value = targetDate.getDate();
+//  document.getElementById("dateCycle-type").value = 'One-time';
+//  const select = document.getElementById('select-calendar');
+//  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
+//
+//  // 1. Clear any existing options
+//  select.innerHTML = '';
+//
+//  // 2. Add the specific options with your desired order
+//  const defaultOptions = [
+//    { text: 'Select Calendar...', value: '', disabled: true }, // Set 'disabled' to true
+//    { text: 'My Calendar', value: 'My Calendar' }
+//  ];
+//
+//  defaultOptions.forEach(optionData => {
+//    const option = document.createElement('option');
+//    option.textContent = optionData.text;
+//    option.value = optionData.value;
+//
+//    if (optionData.disabled) {
+//      option.disabled = true;
+//    }
+//
+//    select.appendChild(option);
+//  });
+//
+//  // 3. Continue adding options from userCalendars
+//  userCalendars.forEach(calendar => {
+//    const option = document.createElement('option');
+//    option.value = calendar.id;
+//    option.textContent = calendar.name;
+//    select.appendChild(option);
+//  });
+//
+//  // 4. Finally, add the "+ Add New Calendar" option at the end
+//  const addNewOption = document.createElement('option');
+//  addNewOption.textContent = '+ Add New Calendar';
+//  addNewOption.value = 'AddNew';
+//  select.appendChild(addNewOption);
+//
+//  // 5. Select "My Calendar" by default
+//  select.value = 'My Calendar';
+//}
+//
+//// Function to handle the dropdown change event
+//function handleAddNewCal() {
+//  const select = document.getElementById('select-calendar');
+//  const selectedValue = select.value;
+//
+//  if (selectedValue === 'AddNew') {
+//    // Call the showAdderForm() function when "+ Add New Calendar" is selected
+//    showAdderForm();
+//  }
+//}
 
 // Call the function on page load to populate the dropdown.
 //populateDropdown();
