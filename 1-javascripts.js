@@ -368,7 +368,7 @@ async function openAddCycle() {
 
 
 
-async function populateCalendarDropdown(buwanaId) {
+function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
     const calendarDropdown = document.getElementById('select-calendar');
