@@ -338,7 +338,7 @@ async function openAddCycle() {
 
     // Format the current date for display
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const targetDate = new Date();
+    //const targetDate = new Date();
     let formattedDate = targetDate.toLocaleDateString('en-US', options);
     formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
@@ -358,7 +358,7 @@ async function openAddCycle() {
     if (!buwanaId) {
         console.log('User not logged in. Displaying placeholder in dropdown.');
         const calendarDropdown = document.getElementById('select-calendar');
-        calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
+        calendarDropdown.innerHTML = '<option selected>My Calendar</option>';
         return;
     }
 
