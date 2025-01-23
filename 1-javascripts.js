@@ -326,63 +326,50 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
+async function openAddCycle() {
+    console.log('openAddCycle called'); // Log function call
 
+    // Prepare the modal for display
+    document.body.style.overflowY = "hidden";
+    document.body.style.maxHeight = "101vh";
+    document.getElementById("add-datecycle").classList.remove('modal-hidden');
+    document.getElementById("add-datecycle").classList.add('modal-shown');
+    document.getElementById("page-content").classList.add("blur");
 
-async function addNewCalendar() {
-    console.log('addNewCalendar called.');
+    // Format the current date for display
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const targetDate = new Date();
+    let formattedDate = targetDate.toLocaleDateString('en-US', options);
+    formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
-    const calendarName = document.getElementById('calendarName').value;
-    const color = document.getElementById('colorPicker').value;
-    const isPublic = document.getElementById('publicCalendar').checked;
+    // Update the modal title
+    const titleElement = document.getElementById("add-event-title");
+    titleElement.textContent = `Add an event for ${formattedDate}`;
+    console.log('Formatted date set in modal');
 
-    if (!calendarName || !color) {
-        alert('Please provide a name and select a color for the calendar.');
-        return;
-    }
+    // Populate the date fields
+    populateDateFields(targetDate);
 
+    // Add listener for Enter key to submit the form
+    document.addEventListener("keydown", handleEnterKeySubmit);
+
+    // Check if the user is logged in
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
-        alert('You must be logged in to create a calendar.');
+        console.log('User not logged in. Displaying placeholder in dropdown.');
+        const calendarDropdown = document.getElementById('select-calendar');
+        calendarDropdown.innerHTML = '<option disabled selected>Please log in or create a local calendar</option>';
         return;
     }
 
-    const newCalendar = {
-        buwana_id: buwanaId,
-        name: calendarName,
-        color: color,
-        public: isPublic ? 1 : 0
-    };
-
-    try {
-        const response = await fetch('https://gobrik.com/earthcal/create_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newCalendar)
-        });
-
-        const result = await response.json();
-        console.log('Response from create_calendar API:', result);
-
-        if (result.success) {
-            alert('New calendar added successfully!');
-            document.getElementById('addNewCalendar').style.display = 'none'; // Hide the form
-
-            // Re-populate the dropdown with the new calendar
-            populateCalendarDropdown(buwanaId);
-        } else {
-            throw new Error(result.message || 'Failed to add new calendar.');
-        }
-    } catch (error) {
-        console.error('Error creating new calendar:', error);
-        alert('An error occurred while adding the calendar. Please try again later.');
-    }
+    console.log('User is logged in. Buwana ID:', buwanaId);
+    populateCalendarDropdown(buwanaId);
 }
 
 
 
 
-
-async function populateCalendarDropdown(buwanaId) {
+async function populateCalendarDropdown(buwanaId = null) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
     const calendarDropdown = document.getElementById('select-calendar');
@@ -392,100 +379,121 @@ async function populateCalendarDropdown(buwanaId) {
     }
 
     try {
-        // Call the API to fetch user's calendars
-        console.log('Fetching calendars from API...');
-        const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId })
-        });
+        // Try fetching calendars from the server if the user is logged in
+        if (buwanaId) {
+            console.log('Fetching calendars from API...');
+            const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
 
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Parsed API result:', result);
+
+            if (result.success) {
+                const calendars = result.calendars || [];
+                console.log('Fetched calendars:', calendars);
+
+                // Cache the calendars locally
+                localStorage.setItem('user_calendars', JSON.stringify(calendars));
+                console.log('Calendars cached successfully.');
+
+                // Populate dropdown with fetched calendars
+                renderCalendarsDropdown(calendars, calendarDropdown);
+                return;
+            } else {
+                throw new Error(result.message || 'Failed to fetch user calendars.');
+            }
+        } else {
+            console.log('User is offline or logged out. Attempting to use cached calendars...');
         }
+    } catch (error) {
+        console.error('Error fetching calendars:', error);
+    }
 
-        const result = await response.json();
-        console.log('Parsed API result:', result);
+    // If offline or fetching failed, load from cache or use default
+    const cachedCalendars = JSON.parse(localStorage.getItem('user_calendars') || '[]');
+    if (cachedCalendars.length > 0) {
+        console.log('Using cached calendars:', cachedCalendars);
+        renderCalendarsDropdown(cachedCalendars, calendarDropdown);
+    } else {
+        console.log('No cached calendars found. Using default "My Calendar (blue)".');
+        const defaultCalendar = [{ id: 'default_my_calendar', name: 'My Calendar', color: 'blue' }];
+        renderCalendarsDropdown(defaultCalendar, calendarDropdown);
+    }
+}
 
-        if (!result.success) {
-            throw new Error(result.message || 'Failed to fetch user calendars.');
-        }
 
-        const calendars = result.calendars || [];
-        console.log('Fetched calendars:', calendars);
+function renderCalendarsDropdown(calendars, calendarDropdown) {
+    console.log('Rendering dropdown with calendars:', calendars);
 
-        // Clear existing options
-        calendarDropdown.innerHTML = '';
+    // Clear existing options
+    calendarDropdown.innerHTML = '';
 
-        if (calendars.length === 0) {
-            console.log('No calendars found. Adding placeholder.');
-            calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
-            document.getElementById('addNewCalendar').style.display = 'block';
+    let myCalendarFound = false;
+
+    // Populate the dropdown with calendars
+    calendars.forEach(calendar => {
+        if (!calendar.name || !calendar.color) {
+            console.warn('Skipping invalid calendar:', calendar);
             return;
         }
 
-        let myCalendarFound = false;
+        const option = document.createElement('option');
+        option.value = calendar.id || calendar.local_id;
 
-        // Populate the dropdown with calendars
-        calendars.forEach(calendar => {
-            if (!calendar.name || !calendar.color) {
-                console.warn('Skipping invalid calendar:', calendar);
-                return;
-            }
+        // Set the text or emoji color for the calendar name
+        const emojiBullet = {
+            red: "🔴",
+            blue: "🔵",
+            green: "🟢",
+            orange: "🟠"
+        }[calendar.color] || "⚪"; // Default bullet if color is not listed
 
-            const option = document.createElement('option');
-            option.value = calendar.id || calendar.local_id;
+        option.innerHTML = `${emojiBullet} ${calendar.name}`; // Add emoji + name
 
-            // Set the text or emoji color for the calendar name
-            const emojiBullet = {
-                red: "🔴",
-                blue: "🔵",
-                green: "🟢",
-                orange: "🟠"
-            }[calendar.color] || "⚪"; // Default bullet if color is not listed
-
-            option.innerHTML = `${emojiBullet} ${calendar.name}`; // Add emoji + name
-
-            if (calendar.name === "My Calendar") {
-                option.selected = true;
-                myCalendarFound = true;
-            }
-
-            calendarDropdown.appendChild(option);
-            console.log(`Added option: ${option.textContent}`);
-        });
-
-        // Add placeholder if "My Calendar" was not found
-        if (!myCalendarFound) {
-            const placeholderOption = document.createElement('option');
-            placeholderOption.textContent = "Select calendar...";
-            placeholderOption.disabled = true;
-            placeholderOption.selected = true;
-            calendarDropdown.prepend(placeholderOption);
-            console.log('Placeholder added.');
+        if (calendar.name === "My Calendar") {
+            option.selected = true;
+            myCalendarFound = true;
         }
 
-        // Add "+ Add New Calendar..." option at the end
-        const addNewOption = document.createElement('option');
-        addNewOption.value = "add_new_calendar"; // Custom value for detection
-        addNewOption.textContent = "+ Add New Calendar...";
-        calendarDropdown.appendChild(addNewOption);
-        console.log('Added "+ Add New Calendar..." option.');
+        calendarDropdown.appendChild(option);
+        console.log(`Added option: ${option.textContent}`);
+    });
 
-        // Listen for the selection of "+ Add New Calendar..."
-        calendarDropdown.addEventListener('change', (event) => {
-            if (event.target.value === "add_new_calendar") {
-                console.log('"Add New Calendar" option selected.');
-                document.getElementById('addNewCalendar').style.display = 'block'; // Show the form
-            }
-        });
-
-        console.log('Dropdown populated successfully.');
-    } catch (error) {
-        console.error('Error populating dropdown:', error);
-        calendarDropdown.innerHTML = '<option disabled selected>Error loading calendars. Try again later.</option>';
+    // Add placeholder if "My Calendar" was not found
+    if (!myCalendarFound) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.textContent = "Select calendar...";
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        calendarDropdown.prepend(placeholderOption);
+        console.log('Placeholder added.');
     }
+
+    // Add "+ Add New Calendar..." option at the end
+    const addNewOption = document.createElement('option');
+    addNewOption.value = "add_new_calendar"; // Custom value for detection
+    addNewOption.textContent = "+ Add New Calendar...";
+    calendarDropdown.appendChild(addNewOption);
+    console.log('Added "+ Add New Calendar..." option.');
+
+    // Listen for the selection of "+ Add New Calendar..."
+    calendarDropdown.addEventListener('change', (event) => {
+        if (event.target.value === "add_new_calendar") {
+            console.log('"Add New Calendar" option selected.');
+            document.getElementById('addNewCalendar').style.display = 'block'; // Show the form
+        }
+    });
+
+    console.log('Dropdown rendered successfully.');
 }
+
 
 
 
