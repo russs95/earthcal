@@ -43,6 +43,106 @@ async function openAddCycle() {
 }
 
 
+async function populateCalendarDropdown(buwanaId) {
+    console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
+
+    const calendarDropdown = document.getElementById('select-calendar');
+    if (!calendarDropdown) {
+        console.error('Dropdown element not found or inaccessible.');
+        return;
+    }
+
+    try {
+        // Call the API to fetch user's calendars
+        console.log('Fetching calendars from API...');
+        const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Parsed API result:', result);
+
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch user calendars.');
+        }
+
+        const calendars = result.calendars || [];
+        console.log('Fetched calendars:', calendars);
+
+        // Clear existing options
+        calendarDropdown.innerHTML = '';
+
+        if (calendars.length === 0) {
+            console.log('No calendars found. Adding placeholder.');
+            calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
+            document.getElementById('addNewCalendar').style.display = 'block';
+            return;
+        }
+
+        let myCalendarFound = false;
+
+        // Populate the dropdown with calendars
+        calendars.forEach(calendar => {
+            if (!calendar.name || !calendar.color) {
+                console.warn('Skipping invalid calendar:', calendar);
+                return;
+            }
+
+            const option = document.createElement('option');
+            option.value = calendar.id || calendar.local_id;
+
+            // Apply the color to the calendar name
+            option.style.color = calendar.color.toLowerCase(); // Set the text color to match the calendar color
+            option.textContent = calendar.name; // Set the calendar name as the option text
+
+            if (calendar.name === "My Calendar") {
+                option.selected = true;
+                myCalendarFound = true;
+            }
+
+            calendarDropdown.appendChild(option);
+            console.log(`Added option with color: ${calendar.color}`);
+        });
+
+        // Add placeholder if "My Calendar" was not found
+        if (!myCalendarFound) {
+            const placeholderOption = document.createElement('option');
+            placeholderOption.textContent = "Select calendar...";
+            placeholderOption.disabled = true;
+            placeholderOption.selected = true;
+            calendarDropdown.prepend(placeholderOption);
+            console.log('Placeholder added.');
+        }
+
+        // Add "+ Add New Calendar..." option at the end
+        const addNewOption = document.createElement('option');
+        addNewOption.value = "add_new_calendar"; // Custom value for detection
+        addNewOption.textContent = "+ Add New Calendar...";
+        calendarDropdown.appendChild(addNewOption);
+        console.log('Added "+ Add New Calendar..." option.');
+
+        // Listen for the selection of "+ Add New Calendar..."
+        calendarDropdown.addEventListener('change', (event) => {
+            if (event.target.value === "add_new_calendar") {
+                console.log('"Add New Calendar" option selected.');
+                showAdderForm(); // Show the form for adding a new calendar
+            }
+        });
+
+        document.getElementById('addNewCalendar').style.display = 'none';
+        console.log('Dropdown populated successfully.');
+    } catch (error) {
+        console.error('Error populating dropdown:', error);
+        calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
+    }
+}
+
 
 
 
@@ -248,6 +348,8 @@ document.addEventListener('keydown', modalCloseCurtains);
 // CREATING A DateCycles
 
 
+
+
 async function submitAddCycleForm() {
     console.log('submitAddCycleForm called.');
 
@@ -356,6 +458,9 @@ async function submitAddCycleForm() {
     console.log('DateCycle form submission completed.');
     displayMatchingDateCycle();
 }
+
+
+
 
 
 function fetchDateCycleCalendars() {
