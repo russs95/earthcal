@@ -44,7 +44,6 @@ async function openAddCycle() {
 
 
 
-
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -89,14 +88,6 @@ async function populateCalendarDropdown(buwanaId) {
 
         let myCalendarFound = false;
 
-        // Emoji bullets for colors
-        const emojiBullets = {
-            red: "🔴",
-            blue: "🔵",
-            green: "🟢",
-            orange: "🟠",
-        };
-
         // Populate the dropdown with calendars
         calendars.forEach(calendar => {
             if (!calendar.name || !calendar.color) {
@@ -107,9 +98,9 @@ async function populateCalendarDropdown(buwanaId) {
             const option = document.createElement('option');
             option.value = calendar.id || calendar.local_id;
 
-            // Prepend emoji bullet to calendar name
-            const emojiBullet = emojiBullets[calendar.color.toLowerCase()] || "⚪"; // Default to white circle
-            option.innerHTML = `${emojiBullet} ${calendar.name}`; // Use `innerHTML` for emoji
+            // Apply the color to the calendar name
+            option.style.color = calendar.color.toLowerCase(); // Set the text color to match the calendar color
+            option.textContent = calendar.name; // Set the calendar name as the option text
 
             if (calendar.name === "My Calendar") {
                 option.selected = true;
@@ -117,7 +108,7 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             calendarDropdown.appendChild(option);
-            console.log(`Added option: ${option.innerHTML}`);
+            console.log(`Added option with color: ${calendar.color}`);
         });
 
         // Add placeholder if "My Calendar" was not found
@@ -152,7 +143,6 @@ async function populateCalendarDropdown(buwanaId) {
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
-
 
 
 
