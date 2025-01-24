@@ -1330,109 +1330,6 @@ function generateID() {
 
 
 
-//
-//
-//function populateDropdown() {
-//
-//  // Set the year, month, and day fields using the global variable targetDate
-//  document.getElementById("year-field2").value = targetDate.getFullYear();
-//  document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
-//  document.getElementById("day-field2").value = targetDate.getDate();
-//  document.getElementById("dateCycle-type").value = 'One-time';
-//  const select = document.getElementById('select-calendar');
-//  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
-//
-//  // 1. Clear any existing options
-//  select.innerHTML = '';
-//
-//  // 2. Add the specific options with your desired order
-//  const defaultOptions = [
-//    { text: 'Select Calendar...', value: '', disabled: true }, // Set 'disabled' to true
-//    { text: 'My Calendar', value: 'My Calendar' }
-//  ];
-//
-//  defaultOptions.forEach(optionData => {
-//    const option = document.createElement('option');
-//    option.textContent = optionData.text;
-//    option.value = optionData.value;
-//
-//    if (optionData.disabled) {
-//      option.disabled = true;
-//    }
-//
-//    select.appendChild(option);
-//  });
-//
-//  // 3. Continue adding options from userCalendars
-//  userCalendars.forEach(calendar => {
-//    const option = document.createElement('option');
-//    option.value = calendar.id;
-//    option.textContent = calendar.name;
-//    select.appendChild(option);
-//  });
-//
-//  // 4. Finally, add the "+ Add New Calendar" option at the end
-//  const addNewOption = document.createElement('option');
-//  addNewOption.textContent = '+ Add New Calendar';
-//  addNewOption.value = 'AddNew';
-//  select.appendChild(addNewOption);
-//
-//  // 5. Select "My Calendar" by default
-//  select.value = 'My Calendar';
-//}
-//
-//// Function to handle the dropdown change event
-//function handleAddNewCal() {
-//  const select = document.getElementById('select-calendar');
-//  const selectedValue = select.value;
-//
-//  if (selectedValue === 'AddNew') {
-//    // Call the showAdderForm() function when "+ Add New Calendar" is selected
-//    showAdderForm();
-//  }
-//}
-
-// Call the function on page load to populate the dropdown.
-//populateDropdown();
-
-
-
-
-//DELETE CALENDAR SELECTOR
-//function populateCalendarDropdown() {
-//  const selectElement = document.getElementById('calendarToDelete');
-//  const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
-//
-//  // 1. Clear existing options
-//  selectElement.innerHTML = '';
-//
-//  // 2. Add the two specific options
-//  const defaultOptions = [
-//    {text: 'Select Calendar...', value: '', disabled: true, selected: true},
-//    {text: 'My Calendar', value: 'My Calendar'}
-//  ];
-//
-//  defaultOptions.forEach(optionData => {
-//    const option = document.createElement('option');
-//    option.textContent = optionData.text;
-//    option.value = optionData.value;
-//
-//    if (optionData.disabled) option.disabled = true;
-//    if (optionData.selected) option.selected = true;
-//
-//    selectElement.appendChild(option);
-//  });
-//
-//  // 3. Continue adding options from userCalendars
-//  userCalendars.forEach(calendar => {
-//      const option = document.createElement('option');
-//      option.value = calendar.id;
-//      option.textContent = calendar.name;
-//      selectElement.appendChild(option);
-//  });
-//}
-
-
 // Function to delete the selected userCalendar and associated dateCycles
 function deleteSelectedCalendar() {
   const selectedCalendarId = document.getElementById('calendarToDelete').value;
@@ -1524,6 +1421,8 @@ function handleKeyPress(event) {
      addNewCalendar(); // Call your search function without arguments
   }
 }
+
+
 
 
 //*********************************
@@ -1937,8 +1836,9 @@ function saveDateCycleEditedChanges(dateCycleID, calendarKey) {
 }
 
 
+async function strikeDateCycle(element) {
+    console.log('strikeDateCycle called.');
 
-function strikeDateCycle(element) {
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -1960,6 +1860,8 @@ function strikeDateCycle(element) {
     console.log(`Attempting to toggle 'Completed' status for dateCycle ID: ${dateCycleID}`);
 
     let found = false;
+    let dateCycle = null;
+    let calendarKey = null;
 
     // Step 3: Iterate through calendar arrays to find and update the dateCycle
     for (const key of calendarKeys) {
@@ -1970,19 +1872,22 @@ function strikeDateCycle(element) {
         const dateCycleIndex = calendarData.findIndex(dc => dc.ID === dateCycleID);
         if (dateCycleIndex !== -1) {
             // Step 4: Toggle the 'Completed' status
-            const dateCycle = calendarData[dateCycleIndex];
+            dateCycle = calendarData[dateCycleIndex];
             dateCycle.Completed = dateCycle.Completed === 'no' ? 'yes' : 'no';
 
             console.log(`Toggled 'Completed' status for dateCycle:`, dateCycle);
 
-            // Step 5: Update the localStorage with the modified calendar array
+            // Update the localStorage with the modified calendar array
+            calendarData.splice(dateCycleIndex, 1); // Temporarily remove the updated dateCycle
+            if (!navigator.onLine) {
+                dateCycle.sync_status = "pending"; // Mark for sync if offline
+            }
+            calendarData.push(dateCycle); // Add it back
             localStorage.setItem(key, JSON.stringify(calendarData));
 
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 6: Refresh the displayed dateCycles
-            displayMatchingDateCycle();
-
+            calendarKey = key; // Store the key for potential server update
             found = true;
             break; // Exit the loop once the dateCycle is found and updated
         }
@@ -1991,8 +1896,46 @@ function strikeDateCycle(element) {
     // Handle case where the dateCycle ID was not found
     if (!found) {
         console.error(`No dateCycle found with ID: ${dateCycleID}. Verify ID and localStorage data.`);
+        return;
     }
+
+    // Step 5: If online, attempt to update the server
+    if (navigator.onLine && dateCycle) {
+        const buwanaId = localStorage.getItem('buwana_id');
+        if (!buwanaId) {
+            console.log('User is not logged in. Cannot update server data.');
+        } else {
+            try {
+                const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        buwana_id: buwanaId,
+                        datecycle_id: dateCycleID,
+                        completed: dateCycle.Completed
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Server response for updating Completed status:', result);
+
+                if (!result.success) {
+                    console.error('Failed to update dateCycle on server:', result.message);
+                    alert('Server update failed. It will be retried during the next sync.');
+                } else {
+                    console.log(`DateCycle with ID: ${dateCycleID} updated on the server.`);
+                }
+            } catch (error) {
+                console.error('Error updating dateCycle on the server:', error);
+                alert('An error occurred while updating on the server. It will be retried during the next sync.');
+            }
+        }
+    }
+
+    // Step 6: Refresh the displayed dateCycles
+    displayMatchingDateCycle();
 }
+
 
 
 
