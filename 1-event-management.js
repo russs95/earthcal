@@ -43,6 +43,8 @@ async function openAddCycle() {
 }
 
 
+
+
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -87,6 +89,14 @@ async function populateCalendarDropdown(buwanaId) {
 
         let myCalendarFound = false;
 
+        // Emoji bullets for colors
+        const emojiBullets = {
+            red: "🔴",
+            blue: "🔵",
+            green: "🟢",
+            orange: "🟠",
+        };
+
         // Populate the dropdown with calendars
         calendars.forEach(calendar => {
             if (!calendar.name || !calendar.color) {
@@ -97,9 +107,9 @@ async function populateCalendarDropdown(buwanaId) {
             const option = document.createElement('option');
             option.value = calendar.id || calendar.local_id;
 
-            // Apply the color to the calendar name
-            option.style.color = calendar.color.toLowerCase(); // Set the text color to match the calendar color
-            option.textContent = calendar.name; // Set the calendar name as the option text
+            // Prepend emoji bullet to calendar name
+            const emojiBullet = emojiBullets[calendar.color.toLowerCase()] || "⚪"; // Default to white circle
+            option.innerHTML = `${emojiBullet} ${calendar.name}`; // Use `innerHTML` for emoji
 
             if (calendar.name === "My Calendar") {
                 option.selected = true;
@@ -107,7 +117,7 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             calendarDropdown.appendChild(option);
-            console.log(`Added option with color: ${calendar.color}`);
+            console.log(`Added option: ${option.innerHTML}`);
         });
 
         // Add placeholder if "My Calendar" was not found
@@ -142,6 +152,7 @@ async function populateCalendarDropdown(buwanaId) {
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
+
 
 
 
@@ -1150,38 +1161,44 @@ function closeDatecycleInfo(element) {
 }
 
 
-function deleteDateCycle(id) {
+async function deleteDateCycle(id) {
+    console.log(`deleteDateCycle called for ID: ${id}`);
+
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
     if (calendarKeys.length === 0) {
         console.log("No calendar data found in storage.");
         return;
     }
 
     // Confirm with the user
-    const userResponse = confirm('Are you sure you want to mark this event for deletion?');
+    const userResponse = confirm('Are you sure you want to delete this event?');
     if (!userResponse) return; // If user clicks "Cancel", exit the function
 
     let found = false;
+    let dateCycle = null;
+    let calendarKey = null;
 
-    // Step 2: Iterate through calendar arrays to find and mark the dateCycle
+    // Step 2: Find the dateCycle in local storage
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-
         const dateCycleIndex = calendarData.findIndex(dc => dc.ID === id);
+
         if (dateCycleIndex !== -1) {
-            // Step 3: Mark the dateCycle for deletion
-            const dateCycle = calendarData[dateCycleIndex];
-            dateCycle.delete = "yes"; // Add the delete property
+            dateCycle = calendarData[dateCycleIndex];
+            dateCycle.delete = navigator.onLine ? "yes" : "pending"; // "yes" if online, "pending" if offline
+            calendarKey = key;
 
-            // Step 4: Update the localStorage with the modified calendar array
+            // Update the local calendar array
+            calendarData.splice(dateCycleIndex, 1); // Remove the dateCycle from the array if online
+            if (!navigator.onLine) {
+                calendarData.push(dateCycle); // If offline, re-add it as marked for deletion
+            }
+
             localStorage.setItem(key, JSON.stringify(calendarData));
-
-            console.log(`Marked dateCycle with ID: ${id} for deletion in calendar: ${key}`);
+            console.log(`Updated dateCycle with ID: ${id} in calendar: ${key}`);
             found = true;
 
-            // Break after marking the dateCycle
             break;
         }
     }
@@ -1192,16 +1209,48 @@ function deleteDateCycle(id) {
         return;
     }
 
-    // Step 5: Refresh the display
+    // Step 3: If online, attempt to delete from the server
+    if (navigator.onLine && dateCycle) {
+        const buwanaId = localStorage.getItem('buwana_id');
+        if (!buwanaId) {
+            console.log('User is not logged in. Cannot delete server data.');
+        } else {
+            try {
+                const response = await fetch('https://gobrik.com/earthcal/delete_datecycle.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        buwana_id: buwanaId,
+                        datecycle_id: id // Send the ID of the dateCycle to delete
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Server response for deletion:', result);
+
+                if (!result.success) {
+                    console.error('Failed to delete dateCycle from server:', result.message);
+                    alert('Server deletion failed. It will be retried during the next sync.');
+                } else {
+                    console.log(`DateCycle with ID: ${id} deleted from the server.`);
+                }
+            } catch (error) {
+                console.error('Error deleting dateCycle from the server:', error);
+                alert('An error occurred while deleting from the server. It will be retried during the next sync.');
+            }
+        }
+    }
+
+    // Step 4: Refresh the UI
     const divElement = document.getElementById('current-datecycle-info2');
     if (divElement) {
         divElement.innerHTML = ""; // Clear any displayed info
     }
 
-    // Refresh highlights and matching dateCycles
     highlightDateCycles();
     displayMatchingDateCycle();
 }
+
 
 
  
