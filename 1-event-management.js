@@ -43,106 +43,6 @@ async function openAddCycle() {
 }
 
 
-async function populateCalendarDropdown(buwanaId) {
-    console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
-
-    const calendarDropdown = document.getElementById('select-calendar');
-    if (!calendarDropdown) {
-        console.error('Dropdown element not found or inaccessible.');
-        return;
-    }
-
-    try {
-        // Call the API to fetch user's calendars
-        console.log('Fetching calendars from API...');
-        const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId })
-        });
-
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Parsed API result:', result);
-
-        if (!result.success) {
-            throw new Error(result.message || 'Failed to fetch user calendars.');
-        }
-
-        const calendars = result.calendars || [];
-        console.log('Fetched calendars:', calendars);
-
-        // Clear existing options
-        calendarDropdown.innerHTML = '';
-
-        if (calendars.length === 0) {
-            console.log('No calendars found. Adding placeholder.');
-            calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
-            document.getElementById('addNewCalendar').style.display = 'block';
-            return;
-        }
-
-        let myCalendarFound = false;
-
-        // Populate the dropdown with calendars
-        calendars.forEach(calendar => {
-            if (!calendar.name || !calendar.color) {
-                console.warn('Skipping invalid calendar:', calendar);
-                return;
-            }
-
-            const option = document.createElement('option');
-            option.value = calendar.id || calendar.local_id;
-
-            // Apply the color to the calendar name
-            option.style.color = calendar.color.toLowerCase(); // Set the text color to match the calendar color
-            option.textContent = calendar.name; // Set the calendar name as the option text
-
-            if (calendar.name === "My Calendar") {
-                option.selected = true;
-                myCalendarFound = true;
-            }
-
-            calendarDropdown.appendChild(option);
-            console.log(`Added option with color: ${calendar.color}`);
-        });
-
-        // Add placeholder if "My Calendar" was not found
-        if (!myCalendarFound) {
-            const placeholderOption = document.createElement('option');
-            placeholderOption.textContent = "Select calendar...";
-            placeholderOption.disabled = true;
-            placeholderOption.selected = true;
-            calendarDropdown.prepend(placeholderOption);
-            console.log('Placeholder added.');
-        }
-
-        // Add "+ Add New Calendar..." option at the end
-        const addNewOption = document.createElement('option');
-        addNewOption.value = "add_new_calendar"; // Custom value for detection
-        addNewOption.textContent = "+ Add New Calendar...";
-        calendarDropdown.appendChild(addNewOption);
-        console.log('Added "+ Add New Calendar..." option.');
-
-        // Listen for the selection of "+ Add New Calendar..."
-        calendarDropdown.addEventListener('change', (event) => {
-            if (event.target.value === "add_new_calendar") {
-                console.log('"Add New Calendar" option selected.');
-                showAdderForm(); // Show the form for adding a new calendar
-            }
-        });
-
-        document.getElementById('addNewCalendar').style.display = 'none';
-        console.log('Dropdown populated successfully.');
-    } catch (error) {
-        console.error('Error populating dropdown:', error);
-        calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
-    }
-}
-
 
 
 
@@ -348,80 +248,72 @@ document.addEventListener('keydown', modalCloseCurtains);
 // CREATING A DateCycles
 
 
-
 async function submitAddCycleForm() {
-    // Check if all required fields are filled out
+    console.log('submitAddCycleForm called.');
+
+    // Retrieve and validate form fields
     const dayField = document.getElementById('day-field2').value;
     const monthField = document.getElementById('month-field2').value;
     const addDateTitle = document.getElementById('add-date-title').value;
 
     if (!dayField || !monthField || !addDateTitle) {
-        alert("Please fill out all the fields to add a new dateCycle to the Calendar.");
-        return;
+        alert("Please fill out all the fields to add a new dateCycle to the calendar.");
+        return; // Exit the function if validation fails
     }
 
-    // Get additional form inputs
     const selCalendarElement = document.getElementById('select-calendar');
-    const selCalendar = selCalendarElement.options[selCalendarElement.selectedIndex].value; // Use value (cal_id or local_id)
-    const dateCycleType = document.getElementById('dateCycle-type').value;
+    const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
 
-    let yearField = "";
-    let dashOrNot = "-";
-
-    if (dateCycleType === 'Monthly') {
-        yearField = '';
-        dashOrNot = '';
-    } else if (dateCycleType !== 'Annual') {
-        yearField = document.getElementById('year-field2').value || "";
+    if (!selCalendarName || selCalendarName === "Select calendar...") {
+        alert("Please select a valid calendar.");
+        return; // Exit if no valid calendar is selected
     }
+
+    const dateCycleType = document.getElementById('dateCycle-type').value;
+    const yearField = dateCycleType === "Annual" ? document.getElementById('year-field2').value || "" : targetDate.getFullYear();
 
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
     const DateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Get the current date and time for last_edited
-    const currentDateTime = new Date().toISOString();
-
-    // Fetch calendar data from local storage
-    const calendarStorageKey = `calendar_${selCalendar}`;
-    let existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
-    let calId = selCalendar.startsWith('temp_') ? selCalendar : existingCalendar[0]?.cal_id || "000";
-
-    // Generate a temporary unique ID for the new dateCycle
+    // Generate a dateCycle ID (temporary for unsynced records)
+    const calendarStorageKey = `calendar_${selCalendarName}`;
+    const existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
     const maxID = existingCalendar.reduce((max, dc) => {
         const id = parseInt((dc.ID || "0").split("_").pop());
         return id > max ? id : max;
     }, 0);
-    const newID = `temp_${calId}_${(maxID + 1).toString().padStart(3, '0')}`;
+    const newID = `temp_${selCalendarName}_${(maxID + 1).toString().padStart(3, '0')}`;
 
-    // Create the dateCycle object
+    // Create the dateCycle JSON
     const dateCycle = {
         ID: newID,
-        cal_id: calId,
-        selectCalendar: selCalendar,
+        cal_id: "000", // Default for unsynced calendars
+        selectCalendar: selCalendarName, // Calendar name, not ID
         Frequency: dateCycleType,
         Event_name: addDateTitle,
         Day: dayField,
         Month: monthField,
         Year: yearField,
-        Date: `-${dayField}-${monthField}${dashOrNot}${yearField}`,
+        Date: `-${dayField}-${monthField}-${yearField}`,
         comment: addNoteCheckbox,
         Comments: addDateNote,
-        Completed: 'no',
-        Pinned: 'no',
-        last_edited: currentDateTime,
+        Completed: "no",
+        Pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
+        last_edited: new Date().toISOString(),
         calendar_color: DateColorPicker,
         public: "No",
         Delete: "No",
-        synked: "No" // Initially set to unsynced
+        synked: navigator.onLine ? "Yes" : "No" // Mark as synced if online
     };
 
-    // Add the new dateCycle to the existing calendar array
+    // Add the new dateCycle to the local storage calendar
     existingCalendar.push(dateCycle);
     localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+    console.log(`Stored dateCycle locally in calendar '${selCalendarName}':`, dateCycle);
 
-    // Attempt to sync with the server if online and the calendar is synced
-    if (navigator.onLine && !selCalendar.startsWith('temp_')) {
+    // Attempt to sync with the server if online
+    if (navigator.onLine) {
         try {
             const response = await fetch('https://gobrik.com/earthcal/add-datecycle.php', {
                 method: 'POST',
@@ -431,37 +323,39 @@ async function submitAddCycleForm() {
 
             if (response.ok) {
                 const serverData = await response.json();
-                dateCycle.ID = serverData.id; // Update ID with the server-generated ID
-                dateCycle.synked = "Yes"; // Mark as synced
 
-                // Update local storage with the updated dateCycle
-                const updatedCalendar = existingCalendar.map(dc =>
-                    dc.ID === newID ? { ...dc, ID: serverData.id, synked: "Yes" } : dc
-                );
-                localStorage.setItem(calendarStorageKey, JSON.stringify(updatedCalendar));
-                console.log(`DateCycle synced with server:`, dateCycle);
+                if (serverData.success) {
+                    // Update the local dateCycle ID with the server-generated ID
+                    const updatedCalendar = existingCalendar.map(dc =>
+                        dc.ID === newID
+                            ? { ...dc, ID: serverData.id, synked: "Yes" }
+                            : dc
+                    );
+                    localStorage.setItem(calendarStorageKey, JSON.stringify(updatedCalendar));
+                    console.log('DateCycle synced successfully:', serverData);
+                } else {
+                    console.error('Server sync failed:', serverData.message);
+                }
             } else {
-                console.error(`Failed to sync with server. Status: ${response.status}`);
+                console.error('Failed to sync with server. Status:', response.status);
             }
         } catch (error) {
             console.error('Error syncing with server:', error);
         }
     } else {
-        console.warn('Offline or unsynced calendar: DateCycle saved locally.');
+        console.warn('Offline: DateCycle saved locally and marked as unsynced.');
     }
 
-    // Clear the form fields
-    document.getElementById('select-calendar').value = 'Select Calendar...';
-    document.getElementById('dateCycle-type').value = 'Select frequency...';
+    // Clear form fields
+    document.getElementById('select-calendar').value = 'Select calendar...';
+    document.getElementById('dateCycle-type').value = 'One-time';
     document.getElementById('add-date-title').value = '';
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
 
-    console.log(`Stored dateCycle in calendar '${selCalendar}':`, dateCycle);
+    console.log('DateCycle form submission completed.');
     displayMatchingDateCycle();
 }
-
-
 
 
 function fetchDateCycleCalendars() {
