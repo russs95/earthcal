@@ -369,7 +369,6 @@ function fetchDateCycleCalendars() {
 
 
 
-
 function prepLocalDatecycles(localCalendars) {
     const preparedCycles = [];
 
@@ -412,6 +411,7 @@ function prepLocalDatecycles(localCalendars) {
     console.log('Final prepared cycles:', preparedCycles); // Log all processed cycles
     return preparedCycles;
 }
+
 
 
 
