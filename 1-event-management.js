@@ -366,8 +366,6 @@ function fetchDateCycleCalendars() {
 
 
 
-
-
 function prepLocalDatecycles(localCalendars) {
     const preparedCycles = [];
 
@@ -377,33 +375,44 @@ function prepLocalDatecycles(localCalendars) {
             try {
                 parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
             } catch (error) {
-                console.error('Error parsing raw_json for dateCycle:', error);
+                // Handle JSON parsing errors
+                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
             }
 
+            // Map the new database/JSON field names
             const preparedCycle = {
                 buwana_id: localStorage.getItem('buwana_id') || 'missing',
-                calendar_id: dateCycle.cal_id || parsedData.cal_id || 'missing',
+                cal_id: dateCycle.cal_id || parsedData.cal_id || 'missing', // Corrected field
                 event_name: dateCycle.title || parsedData.title || 'missing',
                 date: dateCycle.date || parsedData.date || 'missing',
+                time: dateCycle.time || parsedData.time || 'under dev',
+                time_zone: dateCycle.time_zone || parsedData.time_zone || 'under dev',
+                day: dateCycle.day || parsedData.day || 'missing',
+                month: dateCycle.month || parsedData.month || 'missing',
+                year: dateCycle.year || parsedData.year || 'missing',
+                comment: dateCycle.comment || parsedData.comment || 'No',
+                comments: dateCycle.comments || parsedData.comments || '',
                 frequency: dateCycle.frequency || parsedData.frequency || 'One-time',
-                completed: dateCycle.completed || parsedData.completed || 'No',
                 pinned: dateCycle.pinned || parsedData.pinned || 'No',
+                completed: dateCycle.completed || parsedData.completed || 'No',
                 public: dateCycle.public || parsedData.public || 'No',
-                comment: dateCycle.comment || parsedData.comment || '',
-                color: dateCycle.datecycle_color || parsedData.datecycle_color || 'missing',
-                cal_color: dateCycle.cal_color || parsedData.cal_color || 'missing',
+                delete: dateCycle.delete || parsedData.delete || 'No',
                 synced: dateCycle.synced || parsedData.synced || 'No',
+                conflict: dateCycle.conflict || parsedData.conflict || 'No',
+                datecycle_color: dateCycle.datecycle_color || parsedData.datecycle_color || 'missing',
+                cal_name: dateCycle.cal_name || parsedData.cal_name || 'missing',
+                cal_color: dateCycle.cal_color || parsedData.cal_color || 'missing',
                 last_edited: dateCycle.last_edited || parsedData.last_edited || new Date().toISOString(),
-                raw_json: JSON.stringify(dateCycle),
+                raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
             };
 
+            // Push the prepared cycle into the array
             preparedCycles.push(preparedCycle);
         });
     });
 
-    return preparedCycles;
+    return preparedCycles; // Return the array of prepared dateCycles
 }
-
 
 
 
@@ -1421,7 +1430,6 @@ async function addDatecycle() {
     //displayMatchingDateCycle();
 }
 
-
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1554,38 +1562,29 @@ async function syncDatecycles() {
 
 
 
+function fetchDateCycleCalendars() {
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
-function mergeDateCycles(serverData, localData, newCalId = null) {
-    const mergedData = [];
-    const allCycles = [...serverData, ...localData].filter(cycle => cycle.Delete !== "Yes");
+    if (calendarKeys.length === 0) {
+        return []; // Return an empty array if no calendars are found
+    }
 
-    const latestCycles = new Map();
+    try {
+        const allDateCycles = calendarKeys.reduce((acc, key) => {
+            const calendarData = JSON.parse(localStorage.getItem(key));
+            if (Array.isArray(calendarData)) {
+                // Include only valid, non-deleted dateCycles
+                const validDateCycles = calendarData.filter(dc => dc.delete !== "Yes");
+                acc.push(...validDateCycles);
+            }
+            return acc;
+        }, []);
 
-    allCycles.forEach(cycle => {
-        // Ensure ID exists and is a string
-        if (!cycle.ID || typeof cycle.ID !== 'string') {
-            console.warn('Invalid or missing ID for cycle:', cycle);
-            return; // Skip invalid entries
-        }
-
-        // Update `cal_id` and `ID` if newCalId is provided
-        if (newCalId && cycle.ID.startsWith("000_")) {
-            const [, uniqueId] = cycle.ID.split("_"); // Extract unique ID part
-            cycle.cal_id = newCalId;
-            cycle.ID = `${newCalId}_${uniqueId}`;
-        }
-
-        const existing = latestCycles.get(cycle.ID);
-
-        // Keep the latest version by comparing `last_edited`
-        if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
-            latestCycles.set(cycle.ID, cycle);
-        }
-    });
-
-    mergedData.push(...latestCycles.values());
-
-    return mergedData.filter(dc => !dc.ID.startsWith("000_")); // Remove invalid temporary IDs
+        return allDateCycles; // Return the combined dateCycles
+    } catch (error) {
+        console.error('Error fetching dateCycles from localStorage:', error.message);
+        return []; // Return an empty array in case of an error
+    }
 }
 
 
