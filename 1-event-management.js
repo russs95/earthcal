@@ -348,92 +348,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-// CREATING A DateCycles
-
-
-
-async function submitAddCycleForm() {
-    console.log('submitAddCycleForm called.');
-
-    // Retrieve and validate form fields
-    const dayField = document.getElementById('day-field2').value;
-    const monthField = document.getElementById('month-field2').value;
-    const addDateTitle = document.getElementById('add-date-title').value;
-
-    if (!dayField || !monthField || !addDateTitle) {
-        alert("Please fill out all the fields to add a new dateCycle to the calendar.");
-        return; // Exit the function if validation fails
-    }
-
-    const selCalendarElement = document.getElementById('select-calendar');
-    const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
-    const selCalendarId = selCalendarElement.value;
-
-    if (!selCalendarName || selCalendarName === "Select calendar...") {
-        alert("Please select a valid calendar.");
-        return; // Exit if no valid calendar is selected
-    }
-
-    const dateCycleType = document.getElementById('dateCycle-type').value;
-    const yearField = dateCycleType === "Annual" ? document.getElementById('year-field2').value || "" : targetDate.getFullYear();
-
-    const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
-    const addDateNote = document.getElementById('add-date-note').value;
-    const DateColorPicker = document.getElementById('DateColorPicker').value;
-
-    // Generate a dateCycle ID (temporary for unsynced records) using cal_id
-    const calendarStorageKey = `calendar_${selCalendarId}`;
-    const existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
-    const maxID = existingCalendar.reduce((max, dc) => {
-        const id = parseInt((dc.ID || "0").split("_").pop());
-        return id > max ? id : max;
-    }, 0);
-    const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
-
-    // Create the dateCycle JSON
-    const dateCycle = {
-        ID: newID,
-        cal_id: selCalendarId, // Use calendar ID instead of name
-        selectCalendar: selCalendarName, // Calendar name for display purposes
-        Frequency: dateCycleType,
-        Event_name: addDateTitle,
-        Day: dayField,
-        Month: monthField,
-        Year: yearField,
-        Date: `-${dayField}-${monthField}-${yearField}`,
-        comment: addNoteCheckbox,
-        Comments: addDateNote,
-        Completed: "no",
-        Pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
-        last_edited: new Date().toISOString(),
-        datecycle_color: DateColorPicker, // Updated field name
-        calendar_color: "under development", // Placeholder field
-        public: "No",
-        Delete: "No",
-        synced: "No" // Mark as not synced initially
-    };
-
-    // Add the new dateCycle to the local storage calendar
-    existingCalendar.push(dateCycle);
-    localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
-    console.log(`Stored dateCycle locally in calendar '${selCalendarName}':`, dateCycle);
-
-    // Attempt to sync with the server
-    syncUserEvents(); // Separate sync handling
-
-    // Clear form fields
-    document.getElementById('select-calendar').value = 'Select calendar...';
-    document.getElementById('dateCycle-type').value = 'One-time';
-    document.getElementById('add-date-title').value = '';
-    document.getElementById('add-note-checkbox').checked = false;
-    document.getElementById('add-date-note').value = '';
-
-    console.log('DateCycle form submission completed.');
-    displayMatchingDateCycle();
-}
-
-
-
 
 
 
@@ -1385,13 +1299,93 @@ function handleKeyPress(event) {
 
 
 
+//**************************
+// ADD DATECYCLE
+//**************
+async function addDatecycle() {
+    console.log('addDatecycle called.');
+
+    // Retrieve and validate form fields
+    const dayField = document.getElementById('day-field2').value;
+    const monthField = document.getElementById('month-field2').value;
+    const addDateTitle = document.getElementById('add-date-title').value;
+
+    if (!dayField || !monthField || !addDateTitle) {
+        alert("Please fill out all the fields to add a new dateCycle to the calendar.");
+        return; // Exit the function if validation fails
+    }
+
+    const selCalendarElement = document.getElementById('select-calendar');
+    const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
+    const selCalendarId = selCalendarElement.value;
+
+    if (!selCalendarName || selCalendarName === "Select calendar...") {
+        alert("Please select a valid calendar.");
+        return; // Exit if no valid calendar is selected
+    }
+
+    const dateCycleType = document.getElementById('dateCycle-type').value;
+    const yearField = dateCycleType === "Annual" ? document.getElementById('year-field2').value || "" : new Date().getFullYear();
+
+    const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
+    const addDateNote = document.getElementById('add-date-note').value;
+    const DateColorPicker = document.getElementById('DateColorPicker').value;
+
+    // Generate a dateCycle ID (temporary for unsynced records) using calendar ID
+    const calendarStorageKey = `calendar_${selCalendarId}`;
+    const existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
+    const maxID = existingCalendar.reduce((max, dc) => {
+        const id = parseInt((dc.ID || "0").split("_").pop());
+        return id > max ? id : max;
+    }, 0);
+    const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
+
+    // Create the dateCycle object
+    const dateCycle = {
+        ID: newID,
+        cal_id: selCalendarId,
+        selectCalendar: selCalendarName,
+        Frequency: dateCycleType,
+        Event_name: addDateTitle,
+        Day: dayField,
+        Month: monthField,
+        Year: yearField,
+        Date: `-${dayField}-${monthField}-${yearField}`,
+        comment: addNoteCheckbox,
+        Comments: addDateNote,
+        Completed: "no",
+        Pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
+        last_edited: new Date().toISOString(),
+        datecycle_color: DateColorPicker,
+        calendar_color: "under development",
+        public: "No",
+        Delete: "No",
+        synced: "No"
+    };
+
+    // Add the new dateCycle to the local storage calendar
+    existingCalendar.push(dateCycle);
+    localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+    console.log(`Stored dateCycle locally in calendar '${selCalendarName}':`, dateCycle);
+
+    // Attempt to sync with the server
+    syncDatecycles(); // Separate sync handling
+
+    // Clear form fields
+    document.getElementById('select-calendar').value = 'Select calendar...';
+    document.getElementById('dateCycle-type').value = 'One-time';
+    document.getElementById('add-date-title').value = '';
+    document.getElementById('add-note-checkbox').checked = false;
+    document.getElementById('add-date-note').value = '';
+
+    console.log('DateCycle form submission completed.');
+    displayMatchingDateCycle();
+}
+
 //*********************************
 // SYNC DATECYCLES
 //*********************************
-//*********************************
-// SYNC DATECYCLES
-//*********************************
-async function syncUserEvents() {
+async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
 
@@ -1433,9 +1427,8 @@ async function syncUserEvents() {
 
         const hasServerCalendars = serverCalendars.length > 0;
 
-        // Alert if no local or server calendars exist and internet is available
         if (!hasLocalCalendars && !hasServerCalendars && hasInternetConnection) {
-            alert('Sorry, you haven’t yet added a dateCycle. Add some events or select a public calendar to synchronize.');
+            alert('No dateCycles available to sync. Add some or select a public calendar.');
             return;
         }
 
@@ -1444,12 +1437,10 @@ async function syncUserEvents() {
             return;
         }
 
-        // Sync logic starts here
-        let lastSyncTs = null; // To store the latest sync timestamp
+        let lastSyncTs = null;
 
         for (const calendar of serverCalendars) {
             try {
-                // Fetch detailed server calendar data
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1468,11 +1459,7 @@ async function syncUserEvents() {
                 }
 
                 const serverCalendar = calendarData.data?.events_json_blob || [];
-                const localCalendar = fetchLocalCalendarByCalId(calendar.id); // Fetch by cal_id
-
-                if (!localCalendar || localCalendar.length === 0) {
-                    console.warn(`No local data found for cal_id: ${calendar.id}`);
-                }
+                const localCalendar = fetchLocalCalendarByCalId(calendar.id) || [];
 
                 // Handle unsynced dateCycles locally
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
@@ -1490,7 +1477,6 @@ async function syncUserEvents() {
 
                         const syncData = await syncResponse.json();
                         if (syncData.success) {
-                            // Update the local calendar with the new ID and mark as synced
                             unsyncedEvent.ID = syncData.id;
                             unsyncedEvent.synced = "Yes";
                             console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
@@ -1502,23 +1488,19 @@ async function syncUserEvents() {
                     }
                 }
 
-                // Merge server and local calendar data
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
-                // Push merged data to the server
                 const serverUpdate = await updateServer(mergedData, calendar.id, buwanaId);
                 if (serverUpdate && serverUpdate.last_updated) {
                     lastSyncTs = serverUpdate.last_updated;
                 }
 
-                // Update the local calendar with merged data
                 updateLocal(mergedData, calendar.id);
             } catch (error) {
                 console.error(`Error syncing calendar '${calendar.name}':`, error);
             }
         }
 
-        // Update last sync timestamp in UI and localStorage
         if (lastSyncTs) {
             showLastSynkTimePassed(lastSyncTs);
         } else {
@@ -1531,6 +1513,8 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
+
 /**
  * Fetch a local calendar by its cal_id from localStorage.
  * Ensures all required fields are present; missing fields are filled with "missing".
