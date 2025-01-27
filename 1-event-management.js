@@ -423,7 +423,7 @@ async function highlightDateCycles() {
   });
 
   // 2. Fetch all dateCycles from localStorage
-  const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all calendars
+  const dateCycleEvent = prepDateCycleCalendars(); // Fetch all calendars
   if (!dateCycleEvent || dateCycleEvent.length === 0) {
     console.log("No dateCycles found in storage.");
     return;
@@ -477,7 +477,7 @@ async function highlightDateCycles() {
 
 
 function displayMatchingDateCycle() {
-    const dateCycles = fetchDateCycleCalendars();
+    const dateCycles = prepDateCycleCalendars();
     if (!dateCycles || dateCycles.length === 0) {
         console.log("No dateCycles found in storage.");
         return;
