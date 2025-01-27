@@ -346,7 +346,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -359,6 +358,9 @@ function fetchDateCycleCalendars() {
         const allDateCycles = calendarKeys.reduce((acc, key) => {
             const calendarData = JSON.parse(localStorage.getItem(key));
             if (Array.isArray(calendarData)) {
+                // Log the data being processed
+                console.log(`Saving the data that is about to be parsed from calendar key '${key}':`, calendarData);
+
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
 
                 // Process each dateCycle
@@ -407,6 +409,7 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
+
 
 
 
@@ -1498,32 +1501,32 @@ async function syncDatecycles() {
                 // Handle unsynced dateCycles locally
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
               for (const unsyncedEvent of unsyncedDateCycles) {
-    try {
-        // Debugging the unsyncedEvent before sending it to the server
-        console.log('Preparing unsyncedEvent for add_datecycle:', JSON.stringify(unsyncedEvent, null, 2));
+                    try {
+                        // Debugging the unsyncedEvent before sending it to the server
+                        console.log('Preparing unsyncedEvent for add_datecycle:', JSON.stringify(unsyncedEvent, null, 2));
 
-        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(unsyncedEvent),
-        });
+                        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(unsyncedEvent),
+                        });
 
-        if (!syncResponse.ok) {
-            throw new Error(`Failed to sync event ${unsyncedEvent.event_name}. HTTP Status: ${syncResponse.status}`);
-        }
+                        if (!syncResponse.ok) {
+                            throw new Error(`Failed to sync event ${unsyncedEvent.event_name}. HTTP Status: ${syncResponse.status}`);
+                        }
 
-        const syncData = await syncResponse.json();
-        if (syncData.success) {
-            unsyncedEvent.ID = syncData.id;
-            unsyncedEvent.synced = "Yes";
-            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
-        } else {
-            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
-        }
-    } catch (error) {
-        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
-    }
-}
+                        const syncData = await syncResponse.json();
+                        if (syncData.success) {
+                            unsyncedEvent.ID = syncData.id;
+                            unsyncedEvent.synced = "Yes";
+                            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
+                        } else {
+                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
+                        }
+                    } catch (error) {
+                        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
+                    }
+                }
 
 
 
