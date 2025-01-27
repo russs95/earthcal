@@ -1316,10 +1316,7 @@ function deleteSelectedCalendar() {
   populateDropdown();
 }
 
-// Call the populate function on DOMContentLoaded to ensure the dropdown is filled when the page loads
-document.addEventListener("DOMContentLoaded", function() {
-  populateCalendarDropdown();
-});
+
 
 
 
