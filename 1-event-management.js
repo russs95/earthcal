@@ -387,7 +387,7 @@ function prepLocalDatecycles(localCalendars) {
             }
 
             const preparedCycle = {
-                user_id: localStorage.getItem('buwana_id') || 'missing',
+                buwana_id: localStorage.getItem('buwana_id') || 'missing',
                 calendar_id: dateCycle.cal_id || parsedData.cal_id || 'missing',
                 event_name: dateCycle.Event_name || parsedData.Event_name || 'missing',
                 date: dateCycle.Date || parsedData.Date || 'missing',
@@ -1385,24 +1385,28 @@ async function addDatecycle() {
     // Create the dateCycle object
     const dateCycle = {
         ID: newID,
+        buwana_id: "undefined",
         cal_id: selCalendarId,
-        selectCalendar: selCalendarName,
-        Frequency: dateCycleType,
-        Event_name: addDateTitle,
-        Day: dayField,
-        Month: monthField,
-        Year: yearField,
-        Date: `-${dayField}-${monthField}-${yearField}`,
+        title: addDateTitle,
+        date: `-${dayField}-${monthField}-${yearField}`,
+        time: "under dev",
+        time_zone: "under dev"
+        day: dayField,
+        month: monthField,
+        year: yearField,
         comment: addNoteCheckbox,
-        Comments: addDateNote,
-        Completed: "no",
-        Pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
+        comments: addDateNote,
         last_edited: new Date().toISOString(),
         datecycle_color: DateColorPicker,
-        calendar_color: "under development",
+        cal_name: selCalendarName,
+        cal_color: "under development",
+        frequency: dateCycleType,
+        pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
+        completed: "no",
         public: "No",
-        Delete: "No",
-        synced: "No"
+        delete: "No",
+        synced: "No",
+        conflict: "No",
     };
 
     // Add the new dateCycle to the local storage calendar
