@@ -1467,7 +1467,7 @@ async function syncDatecycles() {
         // Prepare local dateCycles
         const processedDateCycles = prepLocalDatecycles(localCalendars);
         const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
-
+console.log('Processed localCalendars:', processedDateCycles);
         if (!hasLocalCalendars) {
             return; // No local dateCycles to sync
         }
