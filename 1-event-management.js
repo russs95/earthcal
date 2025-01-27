@@ -345,7 +345,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -358,7 +357,7 @@ function fetchDateCycleCalendars() {
         const allDateCycles = calendarKeys.reduce((acc, key) => {
             const calendarData = JSON.parse(localStorage.getItem(key));
             if (Array.isArray(calendarData)) {
-                // Log the data being processed
+                // Log the raw data for debugging
                 console.log(`Saving the data that is about to be parsed from calendar key '${key}':`, calendarData);
 
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
@@ -371,26 +370,27 @@ function fetchDateCycleCalendars() {
                     if (dc.raw_json) {
                         try {
                             parsedData = JSON.parse(dc.raw_json);
+                            console.log(`Parsed raw_json for ID '${dc.ID}':`, parsedData);
                         } catch (error) {
                             console.error('Failed to parse raw_json:', error, dc.raw_json);
                         }
                     }
 
-                    // Ensure all required fields are populated
+                    // Use parsedData (from raw_json) or fallback to original fields in dc
                     return {
                         user_id: localStorage.getItem('buwana_id') || 'missing',
-                        calendar_id: parsedData.cal_id || key.replace('calendar_', ''),
-                        event_name: parsedData.Event_name || 'Unnamed Event',
-                        date: parsedData.Date || `${parsedData.Year || '0000'}-${parsedData.Month || '00'}-${parsedData.Day || '00'}`,
-                        frequency: parsedData.Frequency || 'One-time',
-                        completed: parsedData.Completed || 'no',
-                        pinned: parsedData.Pinned || 'no',
-                        public: parsedData.public || 'No',
-                        comment: parsedData.comment || 'No',
-                        color: parsedData.datecycle_color || 'gray',
-                        cal_color: parsedData.calendar_color || 'blue',
-                        synced: parsedData.synced || 'No',
-                        last_edited: parsedData.last_edited || new Date().toISOString(),
+                        calendar_id: parsedData.cal_id || dc.cal_id || key.replace('calendar_', ''),
+                        event_name: parsedData.Event_name || dc.Event_name || 'Unnamed Event',
+                        date: parsedData.Date || dc.Date || `${parsedData.Year || dc.Year || '0000'}-${parsedData.Month || dc.Month || '00'}-${parsedData.Day || dc.Day || '00'}`,
+                        frequency: parsedData.Frequency || dc.Frequency || 'One-time',
+                        completed: parsedData.Completed || dc.Completed || 'no',
+                        pinned: parsedData.Pinned || dc.Pinned || 'no',
+                        public: parsedData.public || dc.public || 'No',
+                        comment: parsedData.comment || dc.comment || 'No',
+                        color: parsedData.datecycle_color || dc.datecycle_color || 'gray',
+                        cal_color: parsedData.calendar_color || dc.calendar_color || 'blue',
+                        synced: parsedData.synced || dc.synced || 'No',
+                        last_edited: parsedData.last_edited || dc.last_edited || new Date().toISOString(),
                         raw_json: JSON.stringify(parsedData), // Retain raw JSON for debugging
                     };
                 });
@@ -409,6 +409,7 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
+
 
 
 
@@ -1264,6 +1265,7 @@ function deleteSelectedCalendar() {
   populateCalendarDropdown();
   populateDropdown();
 }
+
 
 
 
