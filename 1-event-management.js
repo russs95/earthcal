@@ -350,7 +350,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -363,9 +362,27 @@ function fetchDateCycleCalendars() {
         const allDateCycles = calendarKeys.reduce((acc, key) => {
             const calendarData = JSON.parse(localStorage.getItem(key));
             if (Array.isArray(calendarData)) {
-                // Include only valid, non-deleted dateCycles
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
-                acc.push(...validDateCycles);
+
+                // Ensure all required fields are populated
+                const processedDateCycles = validDateCycles.map(dc => ({
+                    user_id: localStorage.getItem('buwana_id') || 'missing',
+                    calendar_id: dc.cal_id || key.replace('calendar_', ''),
+                    event_name: dc.Event_name || 'missing',
+                    date: dc.Date || `${dc.Year || '0000'}-${dc.Month || '00'}-${dc.Day || '00'}`,
+                    frequency: dc.Frequency || 'missing',
+                    completed: dc.Completed || 'missing',
+                    pinned: dc.Pinned || 'missing',
+                    public: dc.public || 'No',
+                    comment: dc.comment || 'No',
+                    color: dc.datecycle_color || 'missing',
+                    cal_color: dc.calendar_color || 'missing',
+                    synced: dc.synced || 'No',
+                    last_edited: dc.last_edited || new Date().toISOString(),
+                    raw_json: JSON.stringify(dc), // Include raw data for debugging
+                }));
+
+                acc.push(...processedDateCycles);
             } else {
                 console.log(`Invalid data format for key: ${key}`);
             }
@@ -379,6 +396,7 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
+
 
 
 
