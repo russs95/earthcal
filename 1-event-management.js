@@ -1518,6 +1518,36 @@ async function syncUserEvents() {
     }
 }
 
+/**
+ * Fetch a local calendar by its cal_id from localStorage.
+ * @param {string} calId - The ID of the calendar to fetch.
+ * @returns {Array} An array of dateCycles for the calendar, or an empty array if not found.
+ */
+function fetchLocalCalendarByCalId(calId) {
+    if (!calId) {
+        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId');
+        return [];
+    }
+
+    // Generate the key for localStorage
+    const calendarKey = `calendar_${calId}`;
+
+    // Fetch the data from localStorage
+    const calendarData = localStorage.getItem(calendarKey);
+
+    // Parse and return the data if available, or return an empty array
+    if (calendarData) {
+        try {
+            return JSON.parse(calendarData);
+        } catch (error) {
+            console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
+        }
+    }
+
+    return [];
+}
+
+
 
 
 
