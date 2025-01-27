@@ -349,7 +349,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -364,23 +363,37 @@ function fetchDateCycleCalendars() {
             if (Array.isArray(calendarData)) {
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
 
-                // Ensure all required fields are populated
-                const processedDateCycles = validDateCycles.map(dc => ({
-                    user_id: localStorage.getItem('buwana_id') || 'missing',
-                    calendar_id: dc.cal_id || key.replace('calendar_', ''),
-                    event_name: dc.Event_name || 'missing',
-                    date: dc.Date || `${dc.Year || '0000'}-${dc.Month || '00'}-${dc.Day || '00'}`,
-                    frequency: dc.Frequency || 'missing',
-                    completed: dc.Completed || 'missing',
-                    pinned: dc.Pinned || 'missing',
-                    public: dc.public || 'No',
-                    comment: dc.comment || 'No',
-                    color: dc.datecycle_color || 'missing',
-                    cal_color: dc.calendar_color || 'missing',
-                    synced: dc.synced || 'No',
-                    last_edited: dc.last_edited || new Date().toISOString(),
-                    raw_json: JSON.stringify(dc), // Include raw data for debugging
-                }));
+                // Process each dateCycle
+                const processedDateCycles = validDateCycles.map(dc => {
+                    let parsedData = dc;
+
+                    // Parse raw_json if it exists
+                    if (dc.raw_json) {
+                        try {
+                            parsedData = JSON.parse(dc.raw_json);
+                        } catch (error) {
+                            console.error('Failed to parse raw_json:', error, dc.raw_json);
+                        }
+                    }
+
+                    // Map fields from parsed data or fallback to defaults
+                    return {
+                        user_id: localStorage.getItem('buwana_id') || 'missing',
+                        calendar_id: parsedData.cal_id || key.replace('calendar_', ''),
+                        event_name: parsedData.Event_name || 'missing',
+                        date: parsedData.Date || `${parsedData.Year || '0000'}-${parsedData.Month || '00'}-${parsedData.Day || '00'}`,
+                        frequency: parsedData.Frequency || 'missing',
+                        completed: parsedData.Completed || 'missing',
+                        pinned: parsedData.Pinned || 'missing',
+                        public: parsedData.public || 'No',
+                        comment: parsedData.comment || 'No',
+                        color: parsedData.datecycle_color || 'missing',
+                        cal_color: parsedData.calendar_color || 'missing',
+                        synced: parsedData.synced || 'No',
+                        last_edited: parsedData.last_edited || new Date().toISOString(),
+                        raw_json: JSON.stringify(parsedData), // Retain the raw JSON for debugging
+                    };
+                });
 
                 acc.push(...processedDateCycles);
             } else {
@@ -396,6 +409,7 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
+
 
 
 
@@ -454,6 +468,7 @@ async function highlightDateCycles() {
 
   console.log('DateCycles highlighted successfully.');
 }
+
 
 
 
