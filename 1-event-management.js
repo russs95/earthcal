@@ -208,6 +208,7 @@ function populateDateFields(targetDate) {
 
 
 
+
 async function addNewCalendar() {
     console.log('addNewCalendar called.');
 
@@ -250,7 +251,7 @@ async function addNewCalendar() {
             // Update local cache
             const userCalendars = JSON.parse(localStorage.getItem('userCalendars') || '[]');
             userCalendars.push({
-                cal_id: result.cal_id, // Updated to use `cal_id`
+                id: result.calendar_id,
                 name: calendarName,
                 color: color,
                 public: isPublic
@@ -267,7 +268,6 @@ async function addNewCalendar() {
         alert('An error occurred while adding the calendar. Please try again later.');
     }
 }
-
 
 
 
@@ -1713,16 +1713,17 @@ function fetchLocalCalendarByCalId(calId) {
 
             // Ensure each dateCycle has all required fields
             return parsedData.map(dateCycle => ({
-                user_id: dateCycle.user_id || "missing",
-                calendar_id: dateCycle.calendar_id || "missing",
-                event_name: dateCycle.event_name || "missing",
+                buwana_id: dateCycle.buwana_id || "missing", // Updated field
+                cal_id: dateCycle.cal_id || "missing", // Updated to `cal_id`
+                title: dateCycle.title || "missing", // Updated field name
                 date: dateCycle.date || "missing",
                 frequency: dateCycle.frequency || "missing",
                 completed: dateCycle.completed || "missing",
                 pinned: dateCycle.pinned || "missing",
                 public: dateCycle.public || "missing",
                 comment: dateCycle.comment || "missing",
-                color: dateCycle.color || "missing",
+                comments: dateCycle.comments || "", // Updated to match new name
+                datecycle_color: dateCycle.datecycle_color || "missing", // Updated field name
                 cal_color: dateCycle.cal_color || "missing",
                 synced: dateCycle.synced || "missing",
                 last_edited: dateCycle.last_edited || "missing",
@@ -1735,6 +1736,7 @@ function fetchLocalCalendarByCalId(calId) {
 
     return [];
 }
+
 
 
 function cleanupLingeringDateCycles() {
