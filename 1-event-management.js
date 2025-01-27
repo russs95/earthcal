@@ -1388,6 +1388,9 @@ function handleKeyPress(event) {
 //*********************************
 // SYNC DATECYCLES
 //*********************************
+//*********************************
+// SYNC DATECYCLES
+//*********************************
 async function syncUserEvents() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1411,6 +1414,10 @@ async function syncUserEvents() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: buwanaId })
             });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch server calendars. HTTP Status: ${response.status}`);
+            }
 
             const serverData = await response.json();
 
@@ -1449,6 +1456,10 @@ async function syncUserEvents() {
                     body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendar.id })
                 });
 
+                if (!calendarResponse.ok) {
+                    throw new Error(`Failed to fetch data for calendar ID ${calendar.id}. HTTP Status: ${calendarResponse.status}`);
+                }
+
                 const calendarData = await calendarResponse.json();
 
                 if (!calendarData.success) {
@@ -1459,9 +1470,8 @@ async function syncUserEvents() {
                 const serverCalendar = calendarData.data?.events_json_blob || [];
                 const localCalendar = fetchLocalCalendarByCalId(calendar.id); // Fetch by cal_id
 
-                if (!localCalendar) {
-                    console.warn(`Local calendar not found for cal_id: ${calendar.id}`);
-                    continue;
+                if (!localCalendar || localCalendar.length === 0) {
+                    console.warn(`No local data found for cal_id: ${calendar.id}`);
                 }
 
                 // Handle unsynced dateCycles locally
@@ -1474,17 +1484,21 @@ async function syncUserEvents() {
                             body: JSON.stringify(unsyncedEvent)
                         });
 
+                        if (!syncResponse.ok) {
+                            throw new Error(`Failed to sync event ${unsyncedEvent.event_name}. HTTP Status: ${syncResponse.status}`);
+                        }
+
                         const syncData = await syncResponse.json();
                         if (syncData.success) {
                             // Update the local calendar with the new ID and mark as synced
                             unsyncedEvent.ID = syncData.id;
                             unsyncedEvent.synced = "Yes";
-                            console.log(`DateCycle synced successfully: ${unsyncedEvent.Event_name}`);
+                            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
                         } else {
-                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.Event_name}`, syncData.message);
+                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
                         }
                     } catch (error) {
-                        console.error('Error syncing dateCycle:', unsyncedEvent.Event_name, error);
+                        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
                     }
                 }
 
@@ -1517,9 +1531,10 @@ async function syncUserEvents() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
-
 /**
  * Fetch a local calendar by its cal_id from localStorage.
+ * Ensures all required fields are present; missing fields are filled with "missing".
+ *
  * @param {string} calId - The ID of the calendar to fetch.
  * @returns {Array} An array of dateCycles for the calendar, or an empty array if not found.
  */
@@ -1535,10 +1550,28 @@ function fetchLocalCalendarByCalId(calId) {
     // Fetch the data from localStorage
     const calendarData = localStorage.getItem(calendarKey);
 
-    // Parse and return the data if available, or return an empty array
+    // Parse the data if available
     if (calendarData) {
         try {
-            return JSON.parse(calendarData);
+            const parsedData = JSON.parse(calendarData);
+
+            // Ensure each dateCycle has all required fields
+            return parsedData.map(dateCycle => ({
+                user_id: dateCycle.user_id || "missing",
+                calendar_id: dateCycle.calendar_id || "missing",
+                event_name: dateCycle.event_name || "missing",
+                date: dateCycle.date || "missing",
+                frequency: dateCycle.frequency || "missing",
+                completed: dateCycle.completed || "missing",
+                pinned: dateCycle.pinned || "missing",
+                public: dateCycle.public || "missing",
+                comment: dateCycle.comment || "missing",
+                color: dateCycle.color || "missing",
+                cal_color: dateCycle.cal_color || "missing",
+                synced: dateCycle.synced || "missing",
+                last_edited: dateCycle.last_edited || "missing",
+                raw_json: dateCycle.raw_json || JSON.stringify(dateCycle), // Store raw data if available
+            }));
         } catch (error) {
             console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
         }
