@@ -208,7 +208,6 @@ function populateDateFields(targetDate) {
 
 
 
-
 async function addNewCalendar() {
     console.log('addNewCalendar called.');
 
@@ -251,7 +250,7 @@ async function addNewCalendar() {
             // Update local cache
             const userCalendars = JSON.parse(localStorage.getItem('userCalendars') || '[]');
             userCalendars.push({
-                id: result.calendar_id,
+                cal_id: result.cal_id, // Updated to use `cal_id`
                 name: calendarName,
                 color: color,
                 public: isPublic
@@ -268,6 +267,7 @@ async function addNewCalendar() {
         alert('An error occurred while adding the calendar. Please try again later.');
     }
 }
+
 
 
 
