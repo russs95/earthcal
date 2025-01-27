@@ -352,7 +352,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 async function submitAddCycleForm() {
     console.log('submitAddCycleForm called.');
 
@@ -368,6 +367,7 @@ async function submitAddCycleForm() {
 
     const selCalendarElement = document.getElementById('select-calendar');
     const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
+    const selCalendarId = selCalendarElement.value;
 
     if (!selCalendarName || selCalendarName === "Select calendar...") {
         alert("Please select a valid calendar.");
@@ -381,20 +381,20 @@ async function submitAddCycleForm() {
     const addDateNote = document.getElementById('add-date-note').value;
     const DateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate a dateCycle ID (temporary for unsynced records)
-    const calendarStorageKey = `calendar_${selCalendarName}`;
+    // Generate a dateCycle ID (temporary for unsynced records) using cal_id
+    const calendarStorageKey = `calendar_${selCalendarId}`;
     const existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
     const maxID = existingCalendar.reduce((max, dc) => {
         const id = parseInt((dc.ID || "0").split("_").pop());
         return id > max ? id : max;
     }, 0);
-    const newID = `temp_${selCalendarName}_${(maxID + 1).toString().padStart(3, '0')}`;
+    const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
     // Create the dateCycle JSON
     const dateCycle = {
         ID: newID,
-        cal_id: "000", // Default for unsynced calendars
-        selectCalendar: selCalendarName, // Calendar name, not ID
+        cal_id: selCalendarId, // Use calendar ID instead of name
+        selectCalendar: selCalendarName, // Calendar name for display purposes
         Frequency: dateCycleType,
         Event_name: addDateTitle,
         Day: dayField,
@@ -406,10 +406,11 @@ async function submitAddCycleForm() {
         Completed: "no",
         Pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
         last_edited: new Date().toISOString(),
-        calendar_color: DateColorPicker,
+        datecycle_color: DateColorPicker, // Updated field name
+        calendar_color: "under development", // Placeholder field
         public: "No",
         Delete: "No",
-        synked: navigator.onLine ? "Yes" : "No" // Mark as synced if online
+        synced: "No" // Mark as not synced initially
     };
 
     // Add the new dateCycle to the local storage calendar
@@ -417,39 +418,8 @@ async function submitAddCycleForm() {
     localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
     console.log(`Stored dateCycle locally in calendar '${selCalendarName}':`, dateCycle);
 
-    // Attempt to sync with the server if online
-    if (navigator.onLine) {
-        try {
-            const response = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dateCycle)
-            });
-
-            if (response.ok) {
-                const serverData = await response.json();
-
-                if (serverData.success) {
-                    // Update the local dateCycle ID with the server-generated ID
-                    const updatedCalendar = existingCalendar.map(dc =>
-                        dc.ID === newID
-                            ? { ...dc, ID: serverData.id, synked: "Yes" }
-                            : dc
-                    );
-                    localStorage.setItem(calendarStorageKey, JSON.stringify(updatedCalendar));
-                    console.log('DateCycle synced successfully:', serverData);
-                } else {
-                    console.error('Server sync failed:', serverData.message);
-                }
-            } else {
-                console.error('Failed to sync with server. Status:', response.status);
-            }
-        } catch (error) {
-            console.error('Error syncing with server:', error);
-        }
-    } else {
-        console.warn('Offline: DateCycle saved locally and marked as unsynced.');
-    }
+    // Attempt to sync with the server
+    syncUserEvents(); // Separate sync handling
 
     // Clear form fields
     document.getElementById('select-calendar').value = 'Select calendar...';
@@ -461,6 +431,7 @@ async function submitAddCycleForm() {
     console.log('DateCycle form submission completed.');
     displayMatchingDateCycle();
 }
+
 
 
 
