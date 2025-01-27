@@ -1382,6 +1382,8 @@ async function addDatecycle() {
     displayMatchingDateCycle();
 }
 
+
+
 //*********************************
 // SYNC DATECYCLES
 //*********************************
@@ -1515,6 +1517,113 @@ async function syncDatecycles() {
 }
 
 
+
+function mergeDateCycles(serverData, localData, newCalId = null) {
+    const mergedData = [];
+    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes");
+
+    const latestCycles = new Map();
+
+    allCycles.forEach(cycle => {
+        // Ensure all required fields are present
+        cycle.cal_id = cycle.cal_id || newCalId || "unknown";
+        cycle.last_edited = cycle.last_edited || new Date().toISOString();
+        cycle.synced = cycle.synced || "No";
+
+        if (newCalId && cycle.ID.startsWith("000_")) {
+            const [, uniqueId] = cycle.ID.split("_");
+            cycle.ID = `${newCalId}_${uniqueId}`;
+            cycle.cal_id = newCalId;
+        }
+
+        const existing = latestCycles.get(cycle.ID);
+        if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
+            latestCycles.set(cycle.ID, cycle);
+        }
+    });
+
+    mergedData.push(...latestCycles.values());
+
+    // Remove cycles with placeholder IDs that were not updated
+    return mergedData.filter(dc => dc.ID && !dc.ID.startsWith("000_"));
+}
+
+
+async function updateServer(dateCycles, calendarName, buwanaId) {
+    try {
+        // Ensure all dateCycles have required fields
+        const validCycles = dateCycles.map(dc => ({
+            ...dc,
+            Event_name: dc.Event_name || "Unnamed Event",
+            Day: dc.Day || "01",
+            Month: dc.Month || "01",
+            Year: dc.Year || new Date().getFullYear().toString(),
+            synced: "Yes", // Mark cycles as synced before sending
+        }));
+
+        console.log("Sending to server:", {
+            buwana_id: buwanaId,
+            calendar_name: calendarName,
+            datecycles: validCycles,
+        });
+
+        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                buwana_id: buwanaId,
+                calendar_name: calendarName,
+                datecycles: validCycles,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update server data.');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || 'Unknown server error.');
+        }
+
+        console.log("Server update response:", result);
+        return { last_updated: result.last_updated }; // Return the latest sync timestamp
+    } catch (error) {
+        console.error('Error in updateServer:', error);
+        throw error;
+    }
+}
+
+
+function updateLocal(dateCycles, calendarName, calId) {
+    try {
+        const calendarKey = `calendar_${calId}`;
+        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
+
+        // Ensure all new cycles have required fields
+        const validDateCycles = dateCycles.map(dc => ({
+            ...dc,
+            synced: dc.synced || "Yes", // Default to "Yes" if not explicitly set
+        }));
+
+        // Remove only cycles explicitly marked for deletion or replaced by new data
+        const filteredDateCycles = existingCalendarData.filter(
+            dc => !validDateCycles.some(newCycle => newCycle.ID === dc.ID)
+        );
+
+        const updatedDateCycles = [...filteredDateCycles, ...validDateCycles];
+        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
+
+        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
+    } catch (error) {
+        console.error('Error updating local storage:', error);
+    }
+}
+
+
+
+
+
 /**
  * Fetch a local calendar by its cal_id from localStorage.
  * Ensures all required fields are present; missing fields are filled with "missing".
@@ -1566,6 +1675,33 @@ function fetchLocalCalendarByCalId(calId) {
 
 
 
+
+
+//
+//function fetchLocalCalendar(calId) {
+//    // Retrieve the specific calendar from localStorage based on calId
+//    const calendarKey = `calendar_${calId}`;
+//    const calendarData = localStorage.getItem(calendarKey);
+//
+//    if (!calendarData) {
+//        console.log(`No calendar found with ID: ${calId}`);
+//        return null;
+//    }
+//
+//    try {
+//        const parsedCalendar = JSON.parse(calendarData);
+//        if (Array.isArray(parsedCalendar)) {
+//            console.log(`Fetched calendar with ID: ${calId}`, parsedCalendar);
+//            return parsedCalendar;
+//        } else {
+//            console.log(`Invalid data format for calendar ID: ${calId}`);
+//            return null;
+//        }
+//    } catch (error) {
+//        console.log(`Error parsing calendar data for ID: ${calId}: ${error.message}`);
+//        return null;
+//    }
+//}
 
 
 function cleanupLingeringDateCycles() {
@@ -1665,122 +1801,8 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 
 
 
-function mergeDateCycles(serverData, localData, newCalId = null) {
-    const mergedData = [];
-
-    // Combine all data and filter out entries marked for deletion
-    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes");
-
-    // Use a Map to store the latest version of each DateCycle
-    const latestCycles = new Map();
-
-    allCycles.forEach(cycle => {
-        // Update `cal_id` and `ID` if newCalId is provided
-        if (newCalId && cycle.ID.startsWith("000_")) {
-            const [, uniqueId] = cycle.ID.split("_"); // Extract the unique ID part
-            cycle.cal_id = newCalId;
-            cycle.ID = `${newCalId}_${uniqueId}`; // Update the ID with the new cal_id
-        }
-
-        const existing = latestCycles.get(cycle.ID);
-
-        // Keep the latest version by comparing `last_edited`
-        if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
-            latestCycles.set(cycle.ID, cycle);
-        }
-    });
-
-    // Push the unique, latest cycles into the merged data
-    mergedData.push(...latestCycles.values());
-
-    // Filter out any lingering `dateCycles` with `000` in their ID
-    return mergedData.filter(dc => !dc.ID.startsWith("000_"));
-}
 
 
-async function updateServer(dateCycles, calendarName, buwanaId) {
-    try {
-        console.log("Preparing to send to server:", {
-            buwana_id: buwanaId,
-            calendar_name: calendarName,
-            datecycles: dateCycles,
-        });
-
-        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_name: calendarName,
-                datecycles: dateCycles,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update server data.');
-        }
-
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message || 'Unknown error occurred on server.');
-        }
-
-        console.log("Server update response:", result);
-        return { last_updated: result.last_updated }; // Return the latest sync timestamp
-    } catch (error) {
-        console.error('Error in updateServer:', error);
-        throw error;
-    }
-}
-
-
-
-
-
-function fetchLocalCalendar(calId) {
-    // Retrieve the specific calendar from localStorage based on calId
-    const calendarKey = `calendar_${calId}`;
-    const calendarData = localStorage.getItem(calendarKey);
-
-    if (!calendarData) {
-        console.log(`No calendar found with ID: ${calId}`);
-        return null;
-    }
-
-    try {
-        const parsedCalendar = JSON.parse(calendarData);
-        if (Array.isArray(parsedCalendar)) {
-            console.log(`Fetched calendar with ID: ${calId}`, parsedCalendar);
-            return parsedCalendar;
-        } else {
-            console.log(`Invalid data format for calendar ID: ${calId}`);
-            return null;
-        }
-    } catch (error) {
-        console.log(`Error parsing calendar data for ID: ${calId}: ${error.message}`);
-        return null;
-    }
-}
-
-
-function updateLocal(dateCycles, calendarName, calId) {
-    try {
-        const calendarKey = `calendar_${calId}`;
-        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
-
-        // Remove only cycles explicitly marked for deletion
-        const filteredDateCycles = existingCalendarData.filter(
-            dc => !dateCycles.some(newCycle => newCycle.ID === dc.ID)
-        );
-
-        const updatedDateCycles = [...filteredDateCycles, ...dateCycles];
-        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
-
-        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
-    } catch (error) {
-        console.error('Error updating local storage:', error);
-    }
-}
 
 
 
