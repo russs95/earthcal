@@ -368,49 +368,42 @@ function fetchDateCycleCalendars() {
 
 
 
-
 function prepLocalDatecycles(localCalendars) {
     const preparedCycles = [];
 
-    console.log('Raw localCalendars:', localCalendars); // Debug the input
-
     localCalendars.forEach(calendar => {
         calendar.forEach(dateCycle => {
-            console.log('Processing dateCycle:', dateCycle); // Log the original dateCycle
-
             let parsedData = null;
             try {
                 parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
-                console.log('Parsed raw_json:', parsedData);
             } catch (error) {
-                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
+                console.error('Error parsing raw_json for dateCycle:', error);
             }
 
             const preparedCycle = {
                 buwana_id: localStorage.getItem('buwana_id') || 'missing',
                 calendar_id: dateCycle.cal_id || parsedData.cal_id || 'missing',
-                event_name: dateCycle.Event_name || parsedData.Event_name || 'missing',
-                date: dateCycle.Date || parsedData.Date || 'missing',
-                frequency: dateCycle.Frequency || parsedData.Frequency || 'missing',
-                completed: dateCycle.Completed || parsedData.Completed || 'missing',
-                pinned: dateCycle.Pinned || parsedData.Pinned || 'missing',
+                event_name: dateCycle.title || parsedData.title || 'missing',
+                date: dateCycle.date || parsedData.date || 'missing',
+                frequency: dateCycle.frequency || parsedData.frequency || 'One-time',
+                completed: dateCycle.completed || parsedData.completed || 'No',
+                pinned: dateCycle.pinned || parsedData.pinned || 'No',
                 public: dateCycle.public || parsedData.public || 'No',
-                comment: dateCycle.comment || parsedData.comment || 'No',
+                comment: dateCycle.comment || parsedData.comment || '',
                 color: dateCycle.datecycle_color || parsedData.datecycle_color || 'missing',
-                cal_color: dateCycle.calendar_color || parsedData.calendar_color || 'missing',
+                cal_color: dateCycle.cal_color || parsedData.cal_color || 'missing',
                 synced: dateCycle.synced || parsedData.synced || 'No',
                 last_edited: dateCycle.last_edited || parsedData.last_edited || new Date().toISOString(),
                 raw_json: JSON.stringify(dateCycle),
             };
 
-            console.log('Prepared cycle:', preparedCycle); // Log the processed cycle
             preparedCycles.push(preparedCycle);
         });
     });
 
-    console.log('Final prepared cycles:', preparedCycles); // Log all processed cycles
     return preparedCycles;
 }
+
 
 
 
@@ -1443,18 +1436,13 @@ async function syncDatecycles() {
             .filter(key => key.startsWith('calendar_')) // Only keys starting with 'calendar_'
             .map(key => JSON.parse(localStorage.getItem(key))); // Parse the data for each key
 
-        console.log('Local array of calendars before processing:', localCalendars);
-
-        // Prepare local dateCycles using the new function
+        // Prepare local dateCycles
         const processedDateCycles = prepLocalDatecycles(localCalendars);
         const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
 
         if (!hasLocalCalendars) {
-            console.log('No local dateCycles found for syncing.');
-            return;
+            return; // No local dateCycles to sync
         }
-
-        console.log('Prepared dateCycles for syncing:', processedDateCycles);
 
         let serverCalendars = [];
         let hasInternetConnection = true;
@@ -1491,8 +1479,7 @@ async function syncDatecycles() {
         }
 
         if (!hasLocalCalendars && !hasInternetConnection) {
-            console.warn('No local calendars and no internet connection. Skipping sync.');
-            return;
+            return; // No local calendars and no internet connection
         }
 
         let lastSyncTs = null;
@@ -1512,8 +1499,7 @@ async function syncDatecycles() {
                 const calendarData = await calendarResponse.json();
 
                 if (!calendarData.success) {
-                    console.error(`Failed to sync calendar: ${calendar.name}`, calendarData.message);
-                    continue;
+                    continue; // Skip this calendar if syncing fails
                 }
 
                 const serverCalendar = calendarData.data?.events_json_blob || [];
@@ -1523,9 +1509,6 @@ async function syncDatecycles() {
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
                 for (const unsyncedEvent of unsyncedDateCycles) {
                     try {
-                        // Debugging the unsyncedEvent before sending it to the server
-                        console.log('Preparing unsyncedEvent for add_datecycle:', JSON.stringify(unsyncedEvent, null, 2));
-
                         const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1540,12 +1523,9 @@ async function syncDatecycles() {
                         if (syncData.success) {
                             unsyncedEvent.ID = syncData.id;
                             unsyncedEvent.synced = "Yes";
-                            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
-                        } else {
-                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
                         }
                     } catch (error) {
-                        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
+                        console.error('Error syncing dateCycle:', error);
                     }
                 }
 
@@ -1564,16 +1544,14 @@ async function syncDatecycles() {
 
         if (lastSyncTs) {
             showLastSynkTimePassed(lastSyncTs);
-        } else {
-            console.warn('Last sync timestamp not received from server.');
         }
 
         alert('syncDatecycles has run!');
     } catch (error) {
-        console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
