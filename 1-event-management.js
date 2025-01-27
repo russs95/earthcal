@@ -370,69 +370,49 @@ function fetchDateCycleCalendars() {
 
 
 
-
-
 function prepLocalDatecycles(localCalendars) {
-    if (!localCalendars || !Array.isArray(localCalendars)) {
-        console.log('No valid local calendar data provided.');
-        return [];
-    }
+    const preparedCycles = [];
 
-    try {
-        const allDateCycles = localCalendars.reduce((acc, calendarData) => {
-            if (Array.isArray(calendarData)) {
-                // Log the data being processed
-                console.log('Saving the data that is about to be parsed:', calendarData);
+    console.log('Raw localCalendars:', localCalendars); // Debug the input
 
-                const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
+    localCalendars.forEach(calendar => {
+        calendar.forEach(dateCycle => {
+            console.log('Processing dateCycle:', dateCycle); // Log the original dateCycle
 
-                // Process each dateCycle
-                const processedDateCycles = validDateCycles.map(dc => {
-                    let parsedData = dc;
-
-                    // Parse raw_json if it exists
-                    if (dc.raw_json) {
-                        try {
-                            parsedData = JSON.parse(dc.raw_json);
-                            console.log(`Parsed raw_json for ID '${dc.ID}':`, parsedData);
-                        } catch (error) {
-                            console.error('Failed to parse raw_json:', error, dc.raw_json);
-                        }
-                    }
-
-                    // Use parsedData (from raw_json) or fallback to original fields in dc
-                    return {
-                        user_id: localStorage.getItem('buwana_id') || 'missing',
-                        calendar_id: parsedData.cal_id || dc.cal_id || 'unknown_calendar',
-                        event_name: parsedData.Event_name || dc.Event_name || 'Unnamed Event',
-                        date: parsedData.Date || dc.Date || `${parsedData.Year || dc.Year || '0000'}-${parsedData.Month || dc.Month || '00'}-${parsedData.Day || dc.Day || '00'}`,
-                        frequency: parsedData.Frequency || dc.Frequency || 'One-time',
-                        completed: parsedData.Completed || dc.Completed || 'no',
-                        pinned: parsedData.Pinned || dc.Pinned || 'no',
-                        public: parsedData.public || dc.public || 'No',
-                        comment: parsedData.comment || dc.comment || 'No',
-                        color: parsedData.datecycle_color || dc.datecycle_color || 'gray',
-                        cal_color: parsedData.calendar_color || dc.calendar_color || 'blue',
-                        synced: parsedData.synced || dc.synced || 'No',
-                        last_edited: parsedData.last_edited || dc.last_edited || new Date().toISOString(),
-                        raw_json: JSON.stringify(parsedData), // Retain raw JSON for debugging
-                    };
-                });
-
-                acc.push(...processedDateCycles);
-            } else {
-                console.log('Invalid data format in calendarData:', calendarData);
+            let parsedData = null;
+            try {
+                parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
+                console.log('Parsed raw_json:', parsedData);
+            } catch (error) {
+                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
             }
-            return acc;
-        }, []);
 
-        console.log('Fetched and combined valid dateCycles:', allDateCycles);
-        return allDateCycles;
-    } catch (error) {
-        console.error('Error processing local dateCycles:', error.message);
-        return [];
-    }
+            const preparedCycle = {
+                user_id: localStorage.getItem('buwana_id') || 'missing',
+                calendar_id: dateCycle.cal_id || parsedData.cal_id || 'missing',
+                event_name: dateCycle.Event_name || parsedData.Event_name || 'missing',
+                date: dateCycle.Date || parsedData.Date || 'missing',
+                frequency: dateCycle.Frequency || parsedData.Frequency || 'missing',
+                completed: dateCycle.Completed || parsedData.Completed || 'missing',
+                pinned: dateCycle.Pinned || parsedData.Pinned || 'missing',
+                public: dateCycle.public || parsedData.public || 'No',
+                comment: dateCycle.comment || parsedData.comment || 'No',
+                color: dateCycle.datecycle_color || parsedData.datecycle_color || 'missing',
+                cal_color: dateCycle.calendar_color || parsedData.calendar_color || 'missing',
+                synced: dateCycle.synced || parsedData.synced || 'No',
+                last_edited: dateCycle.last_edited || parsedData.last_edited || new Date().toISOString(),
+                raw_json: JSON.stringify(dateCycle),
+            };
+
+            console.log('Prepared cycle:', preparedCycle); // Log the processed cycle
+            preparedCycles.push(preparedCycle);
+        });
+    });
+
+    console.log('Final prepared cycles:', preparedCycles); // Log all processed cycles
+    return preparedCycles;
 }
+
 
 
 
@@ -1584,7 +1564,7 @@ async function syncDatecycles() {
             console.warn('Last sync timestamp not received from server.');
         }
 
-        alert('syncDatecycles has run.');
+        alert('syncDatecycles has run!');
     } catch (error) {
         console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
