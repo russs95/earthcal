@@ -1400,7 +1400,7 @@ async function syncUserEvents() {
             return;
         }
 
-        // Check for local data
+        // Fetch local calendar data
         const localCalendars = fetchDateCycleCalendars();
         const hasLocalCalendars = localCalendars && localCalendars.length > 0;
 
@@ -1421,7 +1421,6 @@ async function syncUserEvents() {
                 throw new Error(serverData.message || 'Failed to retrieve calendar data.');
             }
 
-            // Update the structure to match the new API's response
             serverCalendars = serverData.calendars || [];
         } catch (error) {
             console.warn('Unable to fetch server data:', error);
@@ -1430,9 +1429,9 @@ async function syncUserEvents() {
 
         const hasServerCalendars = serverCalendars.length > 0;
 
-        // Alert only if no local and no server calendars, and internet connection exists
+        // Alert if no local or server calendars exist and internet is available
         if (!hasLocalCalendars && !hasServerCalendars && hasInternetConnection) {
-            alert('Sorry, you haven’t yet added a dateCycle, so there is nothing to sync! Add some events or select a public calendar to synchronize local and server calendars.');
+            alert('Sorry, you haven’t yet added a dateCycle. Add some events or select a public calendar to synchronize.');
             return;
         }
 
@@ -1441,12 +1440,12 @@ async function syncUserEvents() {
             return;
         }
 
-        // Proceed with sync logic here
-        let lastSyncTs = null; // Variable to store the latest sync timestamp
+        // Sync logic starts here
+        let lastSyncTs = null; // To store the latest sync timestamp
 
-        // Sync personal calendars
         for (const calendar of serverCalendars) {
             try {
+                // Fetch detailed server calendar data
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1461,26 +1460,48 @@ async function syncUserEvents() {
                 }
 
                 const serverCalendar = calendarData.data?.events_json_blob || [];
-                let localCalendar = fetchLocalCalendar(calendar.name);
+                const localCalendar = fetchLocalCalendarByCalId(calendar.id); // Fetch by cal_id
 
-                let isNewCalendar = false;
-
-                if (localCalendar && localCalendar.some(dc => dc.cal_id === '000')) {
-                    console.log(`Unlinked calendar detected: ${calendar.name}`);
-                    await handleNewOrUnlinkedCalendar(localCalendar, calendar.name, buwanaId);
-                    isNewCalendar = true;
+                if (!localCalendar) {
+                    console.warn(`Local calendar not found for cal_id: ${calendar.id}`);
+                    continue;
                 }
 
-                if (!isNewCalendar) {
-                    const mergedData = mergeDateCycles(serverCalendar, localCalendar);
-                    const serverUpdate = await updateServer(mergedData, calendar.name, buwanaId);
+                // Handle unsynced dateCycles locally
+                const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
+                for (const unsyncedEvent of unsyncedDateCycles) {
+                    try {
+                        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(unsyncedEvent)
+                        });
 
-                    if (serverUpdate && serverUpdate.last_updated) {
-                        lastSyncTs = serverUpdate.last_updated; // Store the latest sync timestamp
+                        const syncData = await syncResponse.json();
+                        if (syncData.success) {
+                            // Update the local calendar with the new ID and mark as synced
+                            unsyncedEvent.ID = syncData.id;
+                            unsyncedEvent.synced = "Yes";
+                            console.log(`DateCycle synced successfully: ${unsyncedEvent.Event_name}`);
+                        } else {
+                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.Event_name}`, syncData.message);
+                        }
+                    } catch (error) {
+                        console.error('Error syncing dateCycle:', unsyncedEvent.Event_name, error);
                     }
-
-                    updateLocal(mergedData, calendar.name, calendar.id);
                 }
+
+                // Merge server and local calendar data
+                const mergedData = mergeDateCycles(serverCalendar, localCalendar);
+
+                // Push merged data to the server
+                const serverUpdate = await updateServer(mergedData, calendar.id, buwanaId);
+                if (serverUpdate && serverUpdate.last_updated) {
+                    lastSyncTs = serverUpdate.last_updated;
+                }
+
+                // Update the local calendar with merged data
+                updateLocal(mergedData, calendar.id);
             } catch (error) {
                 console.error(`Error syncing calendar '${calendar.name}':`, error);
             }
