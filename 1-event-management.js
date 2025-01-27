@@ -348,7 +348,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -363,7 +362,6 @@ function fetchDateCycleCalendars() {
             if (Array.isArray(calendarData)) {
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
 
-                // Process each dateCycle
                 const processedDateCycles = validDateCycles.map(dc => {
                     let parsedData = dc;
 
@@ -391,7 +389,7 @@ function fetchDateCycleCalendars() {
                         cal_color: parsedData.calendar_color || 'missing',
                         synced: parsedData.synced || 'No',
                         last_edited: parsedData.last_edited || new Date().toISOString(),
-                        raw_json: JSON.stringify(parsedData), // Retain the raw JSON for debugging
+                        raw_json: JSON.stringify(parsedData), // Retain raw JSON for debugging
                     };
                 });
 
@@ -1498,31 +1496,34 @@ async function syncDatecycles() {
 
                 // Handle unsynced dateCycles locally
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
-                for (const unsyncedEvent of unsyncedDateCycles) {
-                    try {
-                            console.log("Sending unsyncedEvent to add_datecycle endpoint:", JSON.stringify(unsyncedEvent, null, 2));
-                        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(unsyncedEvent)
-                        });
+               for (const unsyncedEvent of unsyncedDateCycles) {
+    try {
+        // Log the unsyncedEvent being sent
+        console.log('Preparing unsyncedEvent for add_datecycle:', unsyncedEvent);
 
-                        if (!syncResponse.ok) {
-                            throw new Error(`Failed to sync event ${unsyncedEvent.event_name}. HTTP Status: ${syncResponse.status}`);
-                        }
+        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(unsyncedEvent),
+        });
 
-                        const syncData = await syncResponse.json();
-                        if (syncData.success) {
-                            unsyncedEvent.ID = syncData.id;
-                            unsyncedEvent.synced = "Yes";
-                            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
-                        } else {
-                            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
-                        }
-                    } catch (error) {
-                        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
-                    }
-                }
+        if (!syncResponse.ok) {
+            throw new Error(`Failed to sync event ${unsyncedEvent.event_name}. HTTP Status: ${syncResponse.status}`);
+        }
+
+        const syncData = await syncResponse.json();
+        if (syncData.success) {
+            unsyncedEvent.ID = syncData.id;
+            unsyncedEvent.synced = "Yes";
+            console.log(`DateCycle synced successfully: ${unsyncedEvent.event_name}`);
+        } else {
+            console.error(`Failed to sync dateCycle: ${unsyncedEvent.event_name}`, syncData.message);
+        }
+    } catch (error) {
+        console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
+    }
+}
+
 
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
@@ -1551,26 +1552,29 @@ async function syncDatecycles() {
 }
 
 
-
 function mergeDateCycles(serverData, localData, newCalId = null) {
     const mergedData = [];
-    const allCycles = [...serverData, ...localData].filter(cycle => cycle.delete !== "yes");
+    const allCycles = [...serverData, ...localData].filter(cycle => cycle.Delete !== "Yes");
 
     const latestCycles = new Map();
 
     allCycles.forEach(cycle => {
-        // Ensure all required fields are present
-        cycle.cal_id = cycle.cal_id || newCalId || "unknown";
-        cycle.last_edited = cycle.last_edited || new Date().toISOString();
-        cycle.synced = cycle.synced || "No";
+        // Ensure ID exists and is a string
+        if (!cycle.ID || typeof cycle.ID !== 'string') {
+            console.warn('Invalid or missing ID for cycle:', cycle);
+            return; // Skip invalid entries
+        }
 
+        // Update `cal_id` and `ID` if newCalId is provided
         if (newCalId && cycle.ID.startsWith("000_")) {
-            const [, uniqueId] = cycle.ID.split("_");
-            cycle.ID = `${newCalId}_${uniqueId}`;
+            const [, uniqueId] = cycle.ID.split("_"); // Extract unique ID part
             cycle.cal_id = newCalId;
+            cycle.ID = `${newCalId}_${uniqueId}`;
         }
 
         const existing = latestCycles.get(cycle.ID);
+
+        // Keep the latest version by comparing `last_edited`
         if (!existing || new Date(cycle.last_edited) > new Date(existing.last_edited)) {
             latestCycles.set(cycle.ID, cycle);
         }
@@ -1578,9 +1582,11 @@ function mergeDateCycles(serverData, localData, newCalId = null) {
 
     mergedData.push(...latestCycles.values());
 
-    // Remove cycles with placeholder IDs that were not updated
-    return mergedData.filter(dc => dc.ID && !dc.ID.startsWith("000_"));
+    return mergedData.filter(dc => !dc.ID.startsWith("000_")); // Remove invalid temporary IDs
 }
+
+
+
 
 
 async function updateServer(dateCycles, calendarName, buwanaId) {
