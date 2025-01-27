@@ -154,7 +154,7 @@ function showLoggedInView(userData) {
             ${publicCalendarHTML}
         </form>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-direction: column; gap: 10px;">
-            <button type="button" class="confirmation-blur-button enabled" onclick="syncUserEvents()">
+            <button type="button" class="confirmation-blur-button enabled" onclick="syncUserEvents()" style="margin-bottom:-10px;">
                 🔄 Sync Now
             </button>
 
