@@ -334,6 +334,34 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
+function fetchDateCycleCalendars() {
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+
+    if (calendarKeys.length === 0) {
+        console.log('No calendar data found in localStorage.');
+        return [];
+    }
+
+    try {
+        const allDateCycles = calendarKeys.reduce((acc, key) => {
+            const calendarData = JSON.parse(localStorage.getItem(key));
+            if (Array.isArray(calendarData)) {
+                // Include only valid, non-deleted dateCycles
+                const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
+                acc.push(...validDateCycles);
+            } else {
+                console.log(`Invalid data format for key: ${key}`);
+            }
+            return acc;
+        }, []);
+
+        console.log('Fetched and combined valid dateCycles:', allDateCycles);
+        return allDateCycles;
+    } catch (error) {
+        console.log('Error fetching dateCycles from localStorage:', error.message);
+        return [];
+    }
+}
 
 
 
@@ -423,7 +451,7 @@ async function highlightDateCycles() {
   });
 
   // 2. Fetch all dateCycles from localStorage
-  const dateCycleEvent = prepDateCycleCalendars(); // Fetch all calendars
+  const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all calendars
   if (!dateCycleEvent || dateCycleEvent.length === 0) {
     console.log("No dateCycles found in storage.");
     return;
@@ -477,7 +505,7 @@ async function highlightDateCycles() {
 
 
 function displayMatchingDateCycle() {
-    const dateCycles = prepDateCycleCalendars();
+    const dateCycles = fetchDateCycleCalendars();
     if (!dateCycles || dateCycles.length === 0) {
         console.log("No dateCycles found in storage.");
         return;
