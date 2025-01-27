@@ -1379,7 +1379,7 @@ async function addDatecycle() {
     document.getElementById('add-date-note').value = '';
 
     console.log('DateCycle form submission completed.');
-    displayMatchingDateCycle();
+    //displayMatchingDateCycle();
 }
 
 
@@ -1467,6 +1467,7 @@ async function syncDatecycles() {
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
                 for (const unsyncedEvent of unsyncedDateCycles) {
                     try {
+                            console.log("Sending unsyncedEvent to add_datecycle endpoint:", JSON.stringify(unsyncedEvent, null, 2));
                         const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
