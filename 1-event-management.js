@@ -1462,6 +1462,12 @@ async function syncDatecycles() {
             .filter(key => key.startsWith('calendar_')) // Only keys starting with 'calendar_'
             .map(key => JSON.parse(localStorage.getItem(key))); // Parse the data for each key
 
+
+
+        // Log the localCalendars array to the console before passing to the prep function
+        console.log('Fetched localCalendars:', localCalendars);
+
+
         // Prepare local dateCycles
         const processedDateCycles = prepLocalDatecycles(localCalendars);
         const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
@@ -1732,36 +1738,6 @@ function fetchLocalCalendarByCalId(calId) {
 
     return [];
 }
-
-
-
-
-
-//
-//function fetchLocalCalendar(calId) {
-//    // Retrieve the specific calendar from localStorage based on calId
-//    const calendarKey = `calendar_${calId}`;
-//    const calendarData = localStorage.getItem(calendarKey);
-//
-//    if (!calendarData) {
-//        console.log(`No calendar found with ID: ${calId}`);
-//        return null;
-//    }
-//
-//    try {
-//        const parsedCalendar = JSON.parse(calendarData);
-//        if (Array.isArray(parsedCalendar)) {
-//            console.log(`Fetched calendar with ID: ${calId}`, parsedCalendar);
-//            return parsedCalendar;
-//        } else {
-//            console.log(`Invalid data format for calendar ID: ${calId}`);
-//            return null;
-//        }
-//    } catch (error) {
-//        console.log(`Error parsing calendar data for ID: ${calId}: ${error.message}`);
-//        return null;
-//    }
-//}
 
 
 function cleanupLingeringDateCycles() {
