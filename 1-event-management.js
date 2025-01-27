@@ -1346,10 +1346,11 @@ function handleKeyPress(event) {
 //**************************
 // ADD DATECYCLE
 //**************
-async function addDatecycle() {
-    console.log('addDatecycle called.');
 
-    // Retrieve and validate form fields
+
+
+async function addDatecycle() {
+    // Validate form fields
     const dayField = document.getElementById('day-field2').value;
     const monthField = document.getElementById('month-field2').value;
     const addDateTitle = document.getElementById('add-date-title').value;
@@ -1373,11 +1374,19 @@ async function addDatecycle() {
 
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
-    const DateColorPicker = document.getElementById('DateColorPicker').value;
+    const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate a dateCycle ID (temporary for unsynced records) using calendar ID
+    // Generate a dateCycle ID
     const calendarStorageKey = `calendar_${selCalendarId}`;
-    const existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey) || '[]');
+    let existingCalendar = [];
+    try {
+        existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey)) || [];
+    } catch (error) {
+        console.error(`Error parsing calendar data for key: ${calendarStorageKey}`, error);
+        alert("An error occurred while accessing calendar data.");
+        return;
+    }
+
     const maxID = existingCalendar.reduce((max, dc) => {
         const id = parseInt((dc.ID || "0").split("_").pop());
         return id > max ? id : max;
@@ -1392,14 +1401,14 @@ async function addDatecycle() {
         title: addDateTitle,
         date: `-${dayField}-${monthField}-${yearField}`,
         time: "under dev",
-        time_zone: "under dev"
+        time_zone: "under dev",
         day: dayField,
         month: monthField,
         year: yearField,
         comment: addNoteCheckbox,
         comments: addDateNote,
         last_edited: new Date().toISOString(),
-        datecycle_color: DateColorPicker,
+        datecycle_color: dateColorPicker,
         cal_name: selCalendarName,
         cal_color: "under development",
         frequency: dateCycleType,
@@ -1411,13 +1420,18 @@ async function addDatecycle() {
         conflict: "No",
     };
 
-    // Add the new dateCycle to the local storage calendar
-    existingCalendar.push(dateCycle);
-    localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
-    console.log(`Stored dateCycle locally in calendar '${selCalendarName}':`, dateCycle);
+    // Add the new dateCycle to localStorage
+    try {
+        existingCalendar.push(dateCycle);
+        localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+    } catch (error) {
+        console.error(`Error saving calendar data for key: ${calendarStorageKey}`, error);
+        alert("An error occurred while saving the dateCycle.");
+        return;
+    }
 
     // Attempt to sync with the server
-    syncDatecycles(); // Separate sync handling
+    syncDatecycles();
 
     // Clear form fields
     document.getElementById('select-calendar').value = 'Select calendar...';
@@ -1426,9 +1440,13 @@ async function addDatecycle() {
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
 
-    console.log('DateCycle form submission completed.');
-    //displayMatchingDateCycle();
+    console.log('DateCycle added successfully.');
 }
+
+
+
+
+
 
 async function syncDatecycles() {
     try {
