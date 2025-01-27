@@ -347,7 +347,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -362,6 +361,7 @@ function fetchDateCycleCalendars() {
             if (Array.isArray(calendarData)) {
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
 
+                // Process each dateCycle
                 const processedDateCycles = validDateCycles.map(dc => {
                     let parsedData = dc;
 
@@ -374,19 +374,19 @@ function fetchDateCycleCalendars() {
                         }
                     }
 
-                    // Map fields from parsed data or fallback to defaults
+                    // Ensure all required fields are populated
                     return {
                         user_id: localStorage.getItem('buwana_id') || 'missing',
                         calendar_id: parsedData.cal_id || key.replace('calendar_', ''),
-                        event_name: parsedData.Event_name || 'missing',
+                        event_name: parsedData.Event_name || 'Unnamed Event',
                         date: parsedData.Date || `${parsedData.Year || '0000'}-${parsedData.Month || '00'}-${parsedData.Day || '00'}`,
-                        frequency: parsedData.Frequency || 'missing',
-                        completed: parsedData.Completed || 'missing',
-                        pinned: parsedData.Pinned || 'missing',
+                        frequency: parsedData.Frequency || 'One-time',
+                        completed: parsedData.Completed || 'no',
+                        pinned: parsedData.Pinned || 'no',
                         public: parsedData.public || 'No',
                         comment: parsedData.comment || 'No',
-                        color: parsedData.datecycle_color || 'missing',
-                        cal_color: parsedData.calendar_color || 'missing',
+                        color: parsedData.datecycle_color || 'gray',
+                        cal_color: parsedData.calendar_color || 'blue',
                         synced: parsedData.synced || 'No',
                         last_edited: parsedData.last_edited || new Date().toISOString(),
                         raw_json: JSON.stringify(parsedData), // Retain raw JSON for debugging
@@ -403,10 +403,11 @@ function fetchDateCycleCalendars() {
         console.log('Fetched and combined valid dateCycles:', allDateCycles);
         return allDateCycles;
     } catch (error) {
-        console.log('Error fetching dateCycles from localStorage:', error.message);
+        console.error('Error fetching dateCycles from localStorage:', error.message);
         return [];
     }
 }
+
 
 
 
@@ -1496,10 +1497,10 @@ async function syncDatecycles() {
 
                 // Handle unsynced dateCycles locally
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
-               for (const unsyncedEvent of unsyncedDateCycles) {
+              for (const unsyncedEvent of unsyncedDateCycles) {
     try {
-        // Log the unsyncedEvent being sent
-        console.log('Preparing unsyncedEvent for add_datecycle:', unsyncedEvent);
+        // Debugging the unsyncedEvent before sending it to the server
+        console.log('Preparing unsyncedEvent for add_datecycle:', JSON.stringify(unsyncedEvent, null, 2));
 
         const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
             method: 'POST',
@@ -1523,6 +1524,7 @@ async function syncDatecycles() {
         console.error('Error syncing dateCycle:', unsyncedEvent.event_name, error);
     }
 }
+
 
 
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
