@@ -1447,7 +1447,6 @@ async function addDatecycle() {
 
 
 
-
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1462,11 +1461,8 @@ async function syncDatecycles() {
             .filter(key => key.startsWith('calendar_')) // Only keys starting with 'calendar_'
             .map(key => JSON.parse(localStorage.getItem(key))); // Parse the data for each key
 
-
-
         // Log the localCalendars array to the console before passing to the prep function
         console.log('Fetched localCalendars:', localCalendars);
-
 
         // Prepare local dateCycles
         const processedDateCycles = prepLocalDatecycles(localCalendars);
@@ -1521,11 +1517,11 @@ async function syncDatecycles() {
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendar.id }),
+                    body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendar.cal_id }), // Updated to use `cal_id`
                 });
 
                 if (!calendarResponse.ok) {
-                    throw new Error(`Failed to fetch data for calendar ID ${calendar.id}. HTTP Status: ${calendarResponse.status}`);
+                    throw new Error(`Failed to fetch data for calendar ID ${calendar.cal_id}. HTTP Status: ${calendarResponse.status}`);
                 }
 
                 const calendarData = await calendarResponse.json();
@@ -1535,7 +1531,7 @@ async function syncDatecycles() {
                 }
 
                 const serverCalendar = calendarData.data?.events_json_blob || [];
-                const localCalendar = fetchLocalCalendarByCalId(calendar.id) || [];
+                const localCalendar = fetchLocalCalendarByCalId(calendar.cal_id) || []; // Updated to use `cal_id`
 
                 // Handle unsynced dateCycles locally
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced === "No");
@@ -1563,12 +1559,12 @@ async function syncDatecycles() {
 
                 const mergedData = mergeDateCycles(serverCalendar, localCalendar);
 
-                const serverUpdate = await updateServer(mergedData, calendar.id, buwanaId);
+                const serverUpdate = await updateServer(mergedData, calendar.cal_id, buwanaId); // Updated to use `cal_id`
                 if (serverUpdate && serverUpdate.last_updated) {
                     lastSyncTs = serverUpdate.last_updated;
                 }
 
-                updateLocal(mergedData, calendar.id);
+                updateLocal(mergedData, calendar.cal_id); // Updated to use `cal_id`
             } catch (error) {
                 console.error(`Error syncing calendar '${calendar.name}':`, error);
             }
@@ -1583,6 +1579,7 @@ async function syncDatecycles() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
