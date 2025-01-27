@@ -344,21 +344,17 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    if (calendarKeys.length === 0) {
-        console.log('No calendar data found in localStorage.');
+function prepLocalDatecycles(localCalendars) {
+    if (!localCalendars || !Array.isArray(localCalendars)) {
+        console.log('No valid local calendar data provided.');
         return [];
     }
 
     try {
-        const allDateCycles = calendarKeys.reduce((acc, key) => {
-            const calendarData = JSON.parse(localStorage.getItem(key));
+        const allDateCycles = localCalendars.reduce((acc, calendarData) => {
             if (Array.isArray(calendarData)) {
-                // Log the raw data for debugging
-                console.log(`Saving the data that is about to be parsed from calendar key '${key}':`, calendarData);
+                // Log the data being processed
+                console.log('Saving the data that is about to be parsed:', calendarData);
 
                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
 
@@ -379,7 +375,7 @@ function fetchDateCycleCalendars() {
                     // Use parsedData (from raw_json) or fallback to original fields in dc
                     return {
                         user_id: localStorage.getItem('buwana_id') || 'missing',
-                        calendar_id: parsedData.cal_id || dc.cal_id || key.replace('calendar_', ''),
+                        calendar_id: parsedData.cal_id || dc.cal_id || 'unknown_calendar',
                         event_name: parsedData.Event_name || dc.Event_name || 'Unnamed Event',
                         date: parsedData.Date || dc.Date || `${parsedData.Year || dc.Year || '0000'}-${parsedData.Month || dc.Month || '00'}-${parsedData.Day || dc.Day || '00'}`,
                         frequency: parsedData.Frequency || dc.Frequency || 'One-time',
@@ -397,7 +393,7 @@ function fetchDateCycleCalendars() {
 
                 acc.push(...processedDateCycles);
             } else {
-                console.log(`Invalid data format for key: ${key}`);
+                console.log('Invalid data format in calendarData:', calendarData);
             }
             return acc;
         }, []);
@@ -405,10 +401,11 @@ function fetchDateCycleCalendars() {
         console.log('Fetched and combined valid dateCycles:', allDateCycles);
         return allDateCycles;
     } catch (error) {
-        console.error('Error fetching dateCycles from localStorage:', error.message);
+        console.error('Error processing local dateCycles:', error.message);
         return [];
     }
 }
+
 
 
 
@@ -1434,8 +1431,19 @@ async function syncDatecycles() {
         }
 
         // Fetch local calendar data
-        const localCalendars = fetchDateCycleCalendars();
-        const hasLocalCalendars = localCalendars && localCalendars.length > 0;
+        const localCalendars = JSON.parse(localStorage.getItem('local_calendars') || '[]'); // Grab the array of local calendars
+        console.log('Local array of calendars before processing:', localCalendars);
+
+        // Prepare local dateCycles using the new function
+        const processedDateCycles = prepLocalDatecycles(localCalendars);
+        const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
+
+        if (!hasLocalCalendars) {
+            console.log('No local dateCycles found for syncing.');
+            return;
+        }
+
+        console.log('Prepared dateCycles for syncing:', processedDateCycles);
 
         let serverCalendars = [];
         let hasInternetConnection = true;
@@ -1551,7 +1559,7 @@ async function syncDatecycles() {
             console.warn('Last sync timestamp not received from server.');
         }
 
-        alert('DateCycles have been successfully synced!');
+        alert('syncDatecycles has run.');
     } catch (error) {
         console.error('Error during sync:', error);
         alert('An error occurred while syncing your calendars. Please try again.');
