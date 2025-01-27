@@ -207,6 +207,8 @@ function populateDateFields(targetDate) {
 }
 
 
+
+
 async function addNewCalendar() {
     console.log('addNewCalendar called.');
 
