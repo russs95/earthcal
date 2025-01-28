@@ -43,7 +43,6 @@ async function openAddCycle() {
 }
 
 
-
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -54,8 +53,6 @@ async function populateCalendarDropdown(buwanaId) {
     }
 
     try {
-        // Call the API to fetch user's calendars
-        console.log('Fetching calendars from API...');
         const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -76,11 +73,9 @@ async function populateCalendarDropdown(buwanaId) {
         const calendars = result.calendars || [];
         console.log('Fetched calendars:', calendars);
 
-        // Clear existing options
         calendarDropdown.innerHTML = '';
 
         if (calendars.length === 0) {
-            console.log('No calendars found. Adding placeholder.');
             calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
             document.getElementById('addNewCalendar').style.display = 'block';
             return;
@@ -88,7 +83,6 @@ async function populateCalendarDropdown(buwanaId) {
 
         let myCalendarFound = false;
 
-        // Populate the dropdown with calendars
         calendars.forEach(calendar => {
             if (!calendar.name || !calendar.color) {
                 console.warn('Skipping invalid calendar:', calendar);
@@ -97,10 +91,8 @@ async function populateCalendarDropdown(buwanaId) {
 
             const option = document.createElement('option');
             option.value = calendar.id || calendar.local_id;
-
-            // Apply the color to the calendar name
-            option.style.color = calendar.color.toLowerCase(); // Set the text color to match the calendar color
-            option.textContent = calendar.name; // Set the calendar name as the option text
+            option.style.color = calendar.color.toLowerCase();
+            option.textContent = calendar.name;
 
             if (calendar.name === "My Calendar") {
                 option.selected = true;
@@ -108,32 +100,36 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             calendarDropdown.appendChild(option);
-            console.log(`Added option with color: ${calendar.color}`);
         });
 
-        // Add placeholder if "My Calendar" was not found
         if (!myCalendarFound) {
             const placeholderOption = document.createElement('option');
             placeholderOption.textContent = "Select calendar...";
             placeholderOption.disabled = true;
             placeholderOption.selected = true;
             calendarDropdown.prepend(placeholderOption);
-            console.log('Placeholder added.');
         }
 
-        // Add "+ Add New Calendar..." option at the end
         const addNewOption = document.createElement('option');
-        addNewOption.value = "add_new_calendar"; // Custom value for detection
+        addNewOption.value = "add_new_calendar";
         addNewOption.textContent = "+ Add New Calendar...";
         calendarDropdown.appendChild(addNewOption);
-        console.log('Added "+ Add New Calendar..." option.');
 
-        // Listen for the selection of "+ Add New Calendar..."
         calendarDropdown.addEventListener('change', (event) => {
-            if (event.target.value === "add_new_calendar") {
-                console.log('"Add New Calendar" option selected.');
-                showAdderForm(); // Show the form for adding a new calendar
+            const selectedOption = event.target.selectedOptions[0];
+            const selectedCalendarId = selectedOption.value;
+            const selectedCalendarColor = selectedOption.style.color || '';
+            const selectedCalendarName = selectedOption.textContent;
+
+            // Update hidden fields
+            document.getElementById('set-calendar-id').value = selectedCalendarId;
+            document.getElementById('set-calendar-color').value = selectedCalendarColor;
+
+            if (selectedCalendarId === "add_new_calendar") {
+                showAdderForm();
             }
+
+            console.log('Updated hidden fields:', { selectedCalendarId, selectedCalendarColor, selectedCalendarName });
         });
 
         document.getElementById('addNewCalendar').style.display = 'none';
@@ -143,6 +139,7 @@ async function populateCalendarDropdown(buwanaId) {
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
+
 
 
 
@@ -1348,7 +1345,6 @@ function handleKeyPress(event) {
 //**************
 
 
-
 async function addDatecycle() {
     // Validate form fields
     const dayField = document.getElementById('day-field2').value;
@@ -1360,18 +1356,25 @@ async function addDatecycle() {
         return; // Exit the function if validation fails
     }
 
+    // Get selected calendar details
     const selCalendarElement = document.getElementById('select-calendar');
+    const selCalendarId = document.getElementById('set-calendar-id').value;
+    const selCalendarColor = document.getElementById('set-calendar-color').value;
     const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
-    const selCalendarId = selCalendarElement.value;
 
     if (!selCalendarName || selCalendarName === "Select calendar...") {
         alert("Please select a valid calendar.");
         return; // Exit if no valid calendar is selected
     }
 
+    // Determine date cycle type and year
     const dateCycleType = document.getElementById('dateCycle-type').value;
-    const yearField = dateCycleType === "Annual" ? document.getElementById('year-field2').value || "" : new Date().getFullYear();
+    const yearField =
+        dateCycleType === "Annual"
+            ? document.getElementById('year-field2').value || ""
+            : new Date().getFullYear();
 
+    // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
@@ -1398,6 +1401,8 @@ async function addDatecycle() {
         ID: newID,
         buwana_id: "undefined",
         cal_id: selCalendarId,
+        cal_name: selCalendarName,
+        cal_color: selCalendarColor,
         title: addDateTitle,
         date: `-${dayField}-${monthField}-${yearField}`,
         time: "under dev",
@@ -1409,8 +1414,6 @@ async function addDatecycle() {
         comments: addDateNote,
         last_edited: new Date().toISOString(),
         datecycle_color: dateColorPicker,
-        cal_name: selCalendarName,
-        cal_color: "under development",
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
         completed: "no",
@@ -1447,6 +1450,7 @@ async function addDatecycle() {
 
 
 
+
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1467,7 +1471,7 @@ async function syncDatecycles() {
         // Prepare local dateCycles
         const processedDateCycles = prepLocalDatecycles(localCalendars);
         const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
-console.log('Processed localCalendars:', processedDateCycles);
+        console.log('Processed localCalendars:', processedDateCycles);
         if (!hasLocalCalendars) {
             return; // No local dateCycles to sync
         }
