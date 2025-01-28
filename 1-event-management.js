@@ -1395,18 +1395,25 @@ async function addDatecycle() {
         return; // Exit the function if validation fails
     }
 
+    // Get selected calendar details
     const selCalendarElement = document.getElementById('select-calendar');
+    const selCalendarId = document.getElementById('set-calendar-id').value;
+    const selCalendarColor = document.getElementById('set-calendar-color').value; // Get calendar color
     const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
-    const selCalendarId = selCalendarElement.value;
 
     if (!selCalendarName || selCalendarName === "Select calendar...") {
         alert("Please select a valid calendar.");
         return; // Exit if no valid calendar is selected
     }
 
+    // Determine date cycle type and year
     const dateCycleType = document.getElementById('dateCycle-type').value;
-    const yearField = dateCycleType === "Annual" ? document.getElementById('year-field2').value || "" : new Date().getFullYear();
+    const yearField =
+        dateCycleType === "Annual"
+            ? document.getElementById('year-field2').value || ""
+            : new Date().getFullYear();
 
+    // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
@@ -1433,6 +1440,8 @@ async function addDatecycle() {
         ID: newID,
         buwana_id: "undefined",
         cal_id: selCalendarId,
+        cal_name: selCalendarName,
+        cal_color: selCalendarColor, // Use the actual calendar color
         title: addDateTitle,
         date: `-${dayField}-${monthField}-${yearField}`,
         time: "under dev",
@@ -1444,8 +1453,6 @@ async function addDatecycle() {
         comments: addDateNote,
         last_edited: new Date().toISOString(),
         datecycle_color: dateColorPicker,
-        cal_name: selCalendarName,
-        cal_color: "under development",
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
         completed: "no",
@@ -1475,8 +1482,9 @@ async function addDatecycle() {
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
 
-    console.log('DateCycle added successfully.');
+    console.log('DateCycle added successfully:', dateCycle);
 }
+
 
 
 
