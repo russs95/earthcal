@@ -1730,29 +1730,27 @@ function updateLocal(dateCycles, calendarName, calId) {
 }
 
 
-
 function fetchLocalCalendarByCalId(calId) {
+    // Log the passed calId
+    console.log('passed to fetchLocalCalendarByCalId:', calId);
 
- // Log all localStorage keys and their contents
+    // Validate calId
+    if (calId === undefined || calId === null || isNaN(calId)) {
+        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
+        return [];
+    }
+
+    // Generate the key for localStorage
+    const calendarKey = `calendar_${calId}`; // No need to convert to a string explicitly
+    console.log('Generated localStorage key:', calendarKey);
+
+    // Log all localStorage keys and their contents
     console.log('Current localStorage state:');
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith('calendar_')) {
             console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
         }
     });
-
-    // Validate calId
-    console.log('passed to fetchLocalCalendarByCalId:', calId);
-    if (!calId || typeof calId !== 'string' || calId.trim() === '') {
-        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
-        return [];
-    }
-
-
-
-    // Ensure calId is a string
-    const calendarKey = `calendar_${String(calId)}`;
-    console.log('Generated localStorage key:', calendarKey);
 
     // Fetch the data from localStorage
     const calendarData = localStorage.getItem(calendarKey);
@@ -1799,6 +1797,7 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 }
+
 
 
 
