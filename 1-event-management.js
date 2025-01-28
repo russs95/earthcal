@@ -1736,56 +1736,67 @@ function updateLocal(dateCycles, calendarName, calId) {
  * @returns {Array} An array of dateCycles for the calendar, or an empty array if not found.
  */
 function fetchLocalCalendarByCalId(calId) {
-    if (!calId) {
-        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId');
+    // Validate calId
+    if (!calId || typeof calId !== 'string' || calId.trim() === '') {
+        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
         return [];
     }
 
+    // Log the calId being processed
+    console.log('Fetching local calendar with cal_id:', calId);
+
     // Generate the key for localStorage
     const calendarKey = `calendar_${calId}`;
+    console.log('Generated localStorage key:', calendarKey);
 
     // Fetch the data from localStorage
     const calendarData = localStorage.getItem(calendarKey);
 
-    // Parse the data if available
-    if (calendarData) {
-        try {
-            const parsedData = JSON.parse(calendarData);
-
-            // Ensure each dateCycle has all required fields
-            return parsedData.map(dateCycle => ({
-                ID: dateCycle.ID || "missing", // Unique dateCycle ID
-                buwana_id: dateCycle.buwana_id || "missing", // User ID
-                cal_id: dateCycle.cal_id || "missing", // Calendar ID
-                title: dateCycle.title || "missing", // Event title
-                date: dateCycle.date || "missing", // Date of the event
-                time: dateCycle.time || "missing", // Time of the event
-                time_zone: dateCycle.time_zone || "missing", // Time zone
-                day: dateCycle.day || "missing", // Day of the event
-                month: dateCycle.month || "missing", // Month of the event
-                year: dateCycle.year || "missing", // Year of the event
-                frequency: dateCycle.frequency || "missing", // Event recurrence frequency
-                completed: dateCycle.completed || "No", // Completion status
-                pinned: dateCycle.pinned || "No", // Pinned status
-                public: dateCycle.public || "No", // Public/private status
-                comment: dateCycle.comment || "No", // Note checkbox
-                comments: dateCycle.comments || "", // Additional notes
-                datecycle_color: dateCycle.datecycle_color || "missing", // Color of the event
-                cal_name: dateCycle.cal_name || "missing", // Calendar name
-                cal_color: dateCycle.cal_color || "missing", // Calendar color
-                synced: dateCycle.synced || "No", // Sync status
-                conflict: dateCycle.conflict || "No", // Conflict flag
-                delete: dateCycle.delete || "No", // Deletion status
-                last_edited: dateCycle.last_edited || new Date().toISOString(), // Last edited timestamp
-                raw_json: dateCycle.raw_json || JSON.stringify(dateCycle), // Raw JSON for debugging
-            }));
-        } catch (error) {
-            console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
-        }
+    // Check if data exists
+    if (!calendarData) {
+        console.warn(`No data found in localStorage for cal_id: ${calId}`);
+        return [];
     }
 
-    return [];
+    try {
+        // Parse the data
+        const parsedData = JSON.parse(calendarData);
+        console.log(`Parsed data for cal_id ${calId}:`, parsedData);
+
+        // Map over the parsed data to ensure each dateCycle has required fields
+        return parsedData.map(dateCycle => ({
+            ID: dateCycle.ID || "missing", // Unique dateCycle ID
+            buwana_id: dateCycle.buwana_id || "missing", // User ID
+            cal_id: dateCycle.cal_id || "missing", // Calendar ID
+            title: dateCycle.title || "missing", // Event title
+            date: dateCycle.date || "missing", // Date of the event
+            time: dateCycle.time || "missing", // Time of the event
+            time_zone: dateCycle.time_zone || "missing", // Time zone
+            day: dateCycle.day || "missing", // Day of the event
+            month: dateCycle.month || "missing", // Month of the event
+            year: dateCycle.year || "missing", // Year of the event
+            frequency: dateCycle.frequency || "missing", // Event recurrence frequency
+            completed: dateCycle.completed || "No", // Completion status
+            pinned: dateCycle.pinned || "No", // Pinned status
+            public: dateCycle.public || "No", // Public/private status
+            comment: dateCycle.comment || "No", // Note checkbox
+            comments: dateCycle.comments || "", // Additional notes
+            datecycle_color: dateCycle.datecycle_color || "missing", // Color of the event
+            cal_name: dateCycle.cal_name || "missing", // Calendar name
+            cal_color: dateCycle.cal_color || "missing", // Calendar color
+            synced: dateCycle.synced || "No", // Sync status
+            conflict: dateCycle.conflict || "No", // Conflict flag
+            delete: dateCycle.delete || "No", // Deletion status
+            last_edited: dateCycle.last_edited || new Date().toISOString(), // Last edited timestamp
+            raw_json: JSON.stringify(dateCycle), // Raw JSON for debugging
+        }));
+    } catch (error) {
+        // Handle JSON parsing errors
+        console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
+        return [];
+    }
 }
+
 
 
 
