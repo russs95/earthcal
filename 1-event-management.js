@@ -42,6 +42,9 @@ async function openAddCycle() {
     populateCalendarDropdown(buwanaId);
 }
 
+
+
+
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -86,10 +89,10 @@ async function populateCalendarDropdown(buwanaId) {
             if (myCalendar) {
                 myCalendarFound = true;
                 // Prepopulate the hidden fields with "My Calendar" details
-                hiddenCalendarId.value = myCalendar.calendar_id;
-                hiddenCalendarColor.value = myCalendar.calendar_color;
+                hiddenCalendarId.value = myCalendar.id; // Corrected field access
+                hiddenCalendarColor.value = myCalendar.color; // Corrected field access
 
-                console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.calendar_id}, Color = ${myCalendar.calendar_color}`);
+                console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.id}, Color = ${myCalendar.color}`);
             }
         }
 
@@ -99,14 +102,14 @@ async function populateCalendarDropdown(buwanaId) {
         if (!myCalendarFound) {
             console.log('My Calendar not found in database, using default settings.');
 
-            // If not logged in or "My Calendar" not found, use default values
+            // If not logged in or "My Calendar" is not found, use default values
             hiddenCalendarId.value = '000';
             hiddenCalendarColor.value = 'Blue';
 
             console.log('Default values set in hidden fields: ID = 000, Color = Blue');
 
             calendars.unshift({
-                calendar_id: '000',
+                id: '000',
                 name: 'My Calendar',
                 color: 'Blue',
             });
@@ -127,7 +130,7 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             const option = document.createElement('option');
-            option.value = calendar.calendar_id || calendar.local_id;
+            option.value = calendar.id; // Corrected field access
             option.style.color = calendar.color.toLowerCase();
             option.textContent = calendar.name;
 
