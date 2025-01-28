@@ -143,7 +143,7 @@ function showLoggedInView(userData) {
 
     // Render the HTML
     loggedInView.innerHTML = `
-        <h1>${continentEmoji}</h1>
+        <h1 style="font-size: 5em;margin-bottom: 20px;"> ${continentEmoji}</h1>
         <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             Welcome, ${user.first_name}!
         </h2>

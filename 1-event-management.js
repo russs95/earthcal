@@ -1618,7 +1618,7 @@ async function syncDatecycles() {
             showLastSynkTimePassed(lastSyncTs);
         }
 
-        alert('syncDatecycles has run!');
+        alert(lastSyncTs);
     } catch (error) {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
@@ -1732,6 +1732,15 @@ function updateLocal(dateCycles, calendarName, calId) {
 
 
 function fetchLocalCalendarByCalId(calId) {
+
+ // Log all localStorage keys and their contents
+    console.log('Current localStorage state:');
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('calendar_')) {
+            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
+        }
+    });
+
     // Validate calId
     console.log('passed to fetchLocalCalendarByCalId:', calId);
     if (!calId || typeof calId !== 'string' || calId.trim() === '') {
@@ -1739,13 +1748,7 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 
-    // Log all localStorage keys and their contents
-    console.log('Current localStorage state:');
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('calendar_')) {
-            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
-        }
-    });
+
 
     // Ensure calId is a string
     const calendarKey = `calendar_${String(calId)}`;
