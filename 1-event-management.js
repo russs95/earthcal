@@ -43,7 +43,6 @@ async function openAddCycle() {
 }
 
 
-
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -91,10 +90,10 @@ async function populateCalendarDropdown(buwanaId) {
 
             if (myCalendar) {
                 myCalendarFound = true;
-                hiddenCalendarId.value = myCalendar.id;
+                hiddenCalendarId.value = myCalendar.cal_id; // Use cal_id
                 hiddenCalendarColor.value = myCalendar.color;
 
-                console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.id}, Color = ${myCalendar.color}`);
+                console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.cal_id}, Color = ${myCalendar.color}`);
             }
         }
 
@@ -109,7 +108,7 @@ async function populateCalendarDropdown(buwanaId) {
             console.log('Default values set in hidden fields: ID = 000, Color = Blue');
 
             calendars.unshift({
-                id: '000',
+                cal_id: '000', // Use cal_id
                 name: 'My Calendar',
                 color: 'Blue',
             });
@@ -130,7 +129,7 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             const option = document.createElement('option');
-            option.value = calendar.id;
+            option.value = calendar.cal_id; // Use cal_id
             option.style.color = calendar.color.toLowerCase();
             option.textContent = calendar.name;
 
@@ -172,6 +171,7 @@ async function populateCalendarDropdown(buwanaId) {
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
+
 
 
 
@@ -1485,7 +1485,6 @@ async function addDatecycle() {
 
 
 
-
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1624,6 +1623,7 @@ async function syncDatecycles() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
