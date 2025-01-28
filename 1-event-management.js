@@ -1801,6 +1801,43 @@ function fetchLocalCalendarByCalId(calId) {
 
 
 
+function mergeDateCycles(serverCalendar, localCalendar) {
+    const mergedCycles = [];
+
+    // Create a map for server cycles by ID
+    const serverCycleMap = new Map();
+    serverCalendar.forEach(serverCycle => {
+        serverCycleMap.set(serverCycle.ID, serverCycle);
+    });
+
+    // Iterate over local cycles and merge
+    localCalendar.forEach(localCycle => {
+        const serverCycle = serverCycleMap.get(localCycle.ID);
+
+        if (serverCycle) {
+            // Resolve conflicts (e.g., last_edited timestamp)
+            if (new Date(localCycle.last_edited) > new Date(serverCycle.last_edited)) {
+                // Local is newer
+                mergedCycles.push(localCycle);
+            } else {
+                // Server is newer
+                mergedCycles.push(serverCycle);
+            }
+
+            // Remove from the server map to avoid duplicates
+            serverCycleMap.delete(localCycle.ID);
+        } else {
+            // Local cycle does not exist on the server
+            mergedCycles.push(localCycle);
+        }
+    });
+
+    // Add remaining server cycles that weren't in local
+    serverCycleMap.forEach(serverCycle => mergedCycles.push(serverCycle));
+
+    console.log('Merged dateCycles:', mergedCycles);
+    return mergedCycles;
+}
 
 
 
