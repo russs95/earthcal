@@ -1731,15 +1731,6 @@ function updateLocal(dateCycles, calendarName, calId) {
 
 
 
-
-
-/**
- * Fetch a local calendar by its cal_id from localStorage.
- * Ensures all required fields are present; missing fields are filled with "missing".
- *
- * @param {string} calId - The ID of the calendar to fetch.
- * @returns {Array} An array of dateCycles for the calendar, or an empty array if not found.
- */
 function fetchLocalCalendarByCalId(calId) {
     // Validate calId
     console.log('passed to fetchLocalCalendarByCalId:', calId);
@@ -1748,12 +1739,17 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 
+    // Log all localStorage keys and their contents
+    console.log('Current localStorage state:');
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('calendar_')) {
+            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
+        }
+    });
+
     // Ensure calId is a string
     const calendarKey = `calendar_${String(calId)}`;
     console.log('Generated localStorage key:', calendarKey);
-
-    // Log all localStorage keys for debugging
-    console.log('Existing localStorage keys:', Object.keys(localStorage));
 
     // Fetch the data from localStorage
     const calendarData = localStorage.getItem(calendarKey);
@@ -1800,6 +1796,7 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 }
+
 
 
 
