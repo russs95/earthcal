@@ -143,14 +143,13 @@ function showLoggedInView(userData) {
 
     // Render the HTML
     loggedInView.innerHTML = `
-        <h1>🗓️</h1>
-        <h3 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome, ${user.first_name}! You are syncing the following personal and public calendars:
-        </h3>
-        <form id="calendar-selection-form" style="text-align:left;width:300px;margin:auto;">
-            <h4>Personal Calendars</h4>
+        <h1>${continentEmoji}</h1>
+        <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+            Welcome, ${user.first_name}!
+        </h2>
+        <p>You are syncing the following personal and public calendars:</p>
+        <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
             ${personalCalendarHTML}
-            <h4>Public Calendars</h4>
             ${publicCalendarHTML}
         </form>
         <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-direction: column; gap: 10px;">
@@ -162,7 +161,7 @@ function showLoggedInView(userData) {
         </div>
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
-            ${user.location_full}, ${continentEmoji}
+            ${user.location_full}
         </p>
     `;
 
