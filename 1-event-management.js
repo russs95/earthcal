@@ -44,15 +44,15 @@ async function openAddCycle() {
 
 
 
-
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
     const calendarDropdown = document.getElementById('select-calendar');
     const hiddenCalendarId = document.getElementById('set-calendar-id');
     const hiddenCalendarColor = document.getElementById('set-calendar-color');
+    const hiddenBuwanaId = document.getElementById('buwana-id'); // Reference to the hidden buwana_id field
 
-    if (!calendarDropdown || !hiddenCalendarId || !hiddenCalendarColor) {
+    if (!calendarDropdown || !hiddenCalendarId || !hiddenCalendarColor || !hiddenBuwanaId) {
         console.error('Dropdown or hidden fields not found or inaccessible.');
         return;
     }
@@ -62,7 +62,6 @@ async function populateCalendarDropdown(buwanaId) {
         let myCalendarFound = false;
 
         if (buwanaId) {
-            // User is logged in, fetch calendars from the database
             console.log('Fetching calendars from API...');
             const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
                 method: 'POST',
@@ -81,6 +80,10 @@ async function populateCalendarDropdown(buwanaId) {
                 throw new Error(result.message || 'Failed to fetch user calendars.');
             }
 
+            // Store buwana_id in the hidden field
+            hiddenBuwanaId.value = result.buwana_id;
+            console.log(`buwana_id set to: ${result.buwana_id}`);
+
             calendars = result.calendars || [];
 
             // Look for "My Calendar"
@@ -88,9 +91,8 @@ async function populateCalendarDropdown(buwanaId) {
 
             if (myCalendar) {
                 myCalendarFound = true;
-                // Prepopulate the hidden fields with "My Calendar" details
-                hiddenCalendarId.value = myCalendar.id; // Corrected field access
-                hiddenCalendarColor.value = myCalendar.color; // Corrected field access
+                hiddenCalendarId.value = myCalendar.id;
+                hiddenCalendarColor.value = myCalendar.color;
 
                 console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.id}, Color = ${myCalendar.color}`);
             }
@@ -101,11 +103,9 @@ async function populateCalendarDropdown(buwanaId) {
 
         if (!myCalendarFound) {
             console.log('My Calendar not found in database, using default settings.');
-
-            // If not logged in or "My Calendar" is not found, use default values
             hiddenCalendarId.value = '000';
             hiddenCalendarColor.value = 'Blue';
-
+            hiddenBuwanaId.value = 'undefined'; // Set a default buwana_id for offline use
             console.log('Default values set in hidden fields: ID = 000, Color = Blue');
 
             calendars.unshift({
@@ -130,11 +130,10 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             const option = document.createElement('option');
-            option.value = calendar.id; // Corrected field access
+            option.value = calendar.id;
             option.style.color = calendar.color.toLowerCase();
             option.textContent = calendar.name;
 
-            // Preselect "My Calendar" if it exists
             if (calendar.name === "My Calendar") {
                 option.selected = true;
             }
@@ -143,21 +142,18 @@ async function populateCalendarDropdown(buwanaId) {
             console.log(`Added option with color: ${calendar.color}`);
         });
 
-        // Add "+ Add New Calendar..." option at the end
         const addNewOption = document.createElement('option');
         addNewOption.value = "add_new_calendar";
         addNewOption.textContent = "+ Add New Calendar...";
         calendarDropdown.appendChild(addNewOption);
         console.log('Added "+ Add New Calendar..." option.');
 
-        // Listen for the selection of "+ Add New Calendar..."
         calendarDropdown.addEventListener('change', (event) => {
             const selectedOption = event.target.selectedOptions[0];
             const selectedCalendarId = selectedOption.value;
             const selectedCalendarColor = selectedOption.style.color || '';
             const selectedCalendarName = selectedOption.textContent;
 
-            // Update hidden fields
             hiddenCalendarId.value = selectedCalendarId;
             hiddenCalendarColor.value = selectedCalendarColor;
 
@@ -165,7 +161,7 @@ async function populateCalendarDropdown(buwanaId) {
 
             if (selectedCalendarId === "add_new_calendar") {
                 console.log('"Add New Calendar" option selected.');
-                showAdderForm(); // Show the form for adding a new calendar
+                showAdderForm();
             }
         });
 
@@ -176,6 +172,7 @@ async function populateCalendarDropdown(buwanaId) {
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
+
 
 
 
@@ -1435,13 +1432,14 @@ async function addDatecycle() {
     }, 0);
     const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
-    // Create the dateCycle object
+  const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
+
     const dateCycle = {
         ID: newID,
-        buwana_id: "undefined",
+        buwana_id: buwanaId, // Include the buwana_id
         cal_id: selCalendarId,
         cal_name: selCalendarName,
-        cal_color: selCalendarColor, // Use the actual calendar color
+        cal_color: selCalendarColor,
         title: addDateTitle,
         date: `-${dayField}-${monthField}-${yearField}`,
         time: "under dev",
