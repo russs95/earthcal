@@ -1656,8 +1656,6 @@ function fetchDateCycleCalendars() {
 
 
 
-
-
 async function updateServer(dateCycles, calendarName, buwanaId) {
     try {
         // Ensure all dateCycles have required fields
@@ -1676,7 +1674,7 @@ async function updateServer(dateCycles, calendarName, buwanaId) {
             datecycles: validCycles,
         });
 
-        const response = await fetch('https://gobrik.com/api/update_calendar.php', {
+        const response = await fetch('https://gobrik.com/earthcal/update_calendar.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
