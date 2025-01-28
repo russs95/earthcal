@@ -1748,17 +1748,16 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 
-    // Log the calId being processed
-    console.log('Fetching local calendar with cal_id:', calId);
-
-    // Generate the key for localStorage
-    const calendarKey = `calendar_${calId}`;
+    // Ensure calId is a string
+    const calendarKey = `calendar_${String(calId)}`;
     console.log('Generated localStorage key:', calendarKey);
+
+    // Log all localStorage keys for debugging
+    console.log('Existing localStorage keys:', Object.keys(localStorage));
 
     // Fetch the data from localStorage
     const calendarData = localStorage.getItem(calendarKey);
 
-    // Check if data exists
     if (!calendarData) {
         console.warn(`No data found in localStorage for cal_id: ${calId}`);
         return [];
@@ -1771,37 +1770,37 @@ function fetchLocalCalendarByCalId(calId) {
 
         // Map over the parsed data to ensure each dateCycle has required fields
         return parsedData.map(dateCycle => ({
-            ID: dateCycle.ID || "missing", // Unique dateCycle ID
-            buwana_id: dateCycle.buwana_id || "missing", // User ID
-            cal_id: dateCycle.cal_id || "missing", // Calendar ID
-            title: dateCycle.title || "missing", // Event title
-            date: dateCycle.date || "missing", // Date of the event
-            time: dateCycle.time || "missing", // Time of the event
-            time_zone: dateCycle.time_zone || "missing", // Time zone
-            day: dateCycle.day || "missing", // Day of the event
-            month: dateCycle.month || "missing", // Month of the event
-            year: dateCycle.year || "missing", // Year of the event
-            frequency: dateCycle.frequency || "missing", // Event recurrence frequency
-            completed: dateCycle.completed || "No", // Completion status
-            pinned: dateCycle.pinned || "No", // Pinned status
-            public: dateCycle.public || "No", // Public/private status
-            comment: dateCycle.comment || "No", // Note checkbox
-            comments: dateCycle.comments || "", // Additional notes
-            datecycle_color: dateCycle.datecycle_color || "missing", // Color of the event
-            cal_name: dateCycle.cal_name || "missing", // Calendar name
-            cal_color: dateCycle.cal_color || "missing", // Calendar color
-            synced: dateCycle.synced || "No", // Sync status
-            conflict: dateCycle.conflict || "No", // Conflict flag
-            delete: dateCycle.delete || "No", // Deletion status
-            last_edited: dateCycle.last_edited || new Date().toISOString(), // Last edited timestamp
-            raw_json: JSON.stringify(dateCycle), // Raw JSON for debugging
+            ID: dateCycle.ID || "missing",
+            buwana_id: dateCycle.buwana_id || "missing",
+            cal_id: dateCycle.cal_id || "missing",
+            title: dateCycle.title || "missing",
+            date: dateCycle.date || "missing",
+            time: dateCycle.time || "missing",
+            time_zone: dateCycle.time_zone || "missing",
+            day: dateCycle.day || "missing",
+            month: dateCycle.month || "missing",
+            year: dateCycle.year || "missing",
+            frequency: dateCycle.frequency || "missing",
+            completed: dateCycle.completed || "No",
+            pinned: dateCycle.pinned || "No",
+            public: dateCycle.public || "No",
+            comment: dateCycle.comment || "No",
+            comments: dateCycle.comments || "",
+            datecycle_color: dateCycle.datecycle_color || "missing",
+            cal_name: dateCycle.cal_name || "missing",
+            cal_color: dateCycle.cal_color || "missing",
+            synced: dateCycle.synced || "No",
+            conflict: dateCycle.conflict || "No",
+            delete: dateCycle.delete || "No",
+            last_edited: dateCycle.last_edited || new Date().toISOString(),
+            raw_json: JSON.stringify(dateCycle),
         }));
     } catch (error) {
-        // Handle JSON parsing errors
         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
         return [];
     }
 }
+
 
 
 
