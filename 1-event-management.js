@@ -397,7 +397,6 @@ function fetchDateCycleCalendars() {
 
 
 
-
 function prepLocalDatecycles(localCalendars) {
     const preparedCycles = [];
 
@@ -407,44 +406,43 @@ function prepLocalDatecycles(localCalendars) {
             try {
                 parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
             } catch (error) {
-                // Handle JSON parsing errors
                 console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
             }
 
             // Map the new database/JSON field names
             const preparedCycle = {
                 buwana_id: localStorage.getItem('buwana_id') || 'missing',
-                cal_id: dateCycle.cal_id || parsedData.cal_id || 'missing', // Corrected field
-                event_name: dateCycle.title || parsedData.title || 'missing',
-                date: dateCycle.date || parsedData.date || 'missing',
-                time: dateCycle.time || parsedData.time || 'under dev',
-                time_zone: dateCycle.time_zone || parsedData.time_zone || 'under dev',
-                day: dateCycle.day || parsedData.day || 'missing',
-                month: dateCycle.month || parsedData.month || 'missing',
-                year: dateCycle.year || parsedData.year || 'missing',
-                comment: dateCycle.comment || parsedData.comment || 'No',
-                comments: dateCycle.comments || parsedData.comments || '',
-                frequency: dateCycle.frequency || parsedData.frequency || 'One-time',
-                pinned: dateCycle.pinned || parsedData.pinned || 'No',
-                completed: dateCycle.completed || parsedData.completed || 'No',
-                public: dateCycle.public || parsedData.public || 'No',
-                delete: dateCycle.delete || parsedData.delete || 'No',
-                synced: dateCycle.synced || parsedData.synced || 'No',
-                conflict: dateCycle.conflict || parsedData.conflict || 'No',
-                datecycle_color: dateCycle.datecycle_color || parsedData.datecycle_color || 'missing',
-                cal_name: dateCycle.cal_name || parsedData.cal_name || 'missing',
-                cal_color: dateCycle.cal_color || parsedData.cal_color || 'missing',
-                last_edited: dateCycle.last_edited || parsedData.last_edited || new Date().toISOString(),
+                cal_id: dateCycle.cal_id || parsedData?.cal_id || 'missing',
+                event_name: dateCycle.title || parsedData?.title || 'missing',
+                date: dateCycle.date || parsedData?.date || 'missing',
+                time: dateCycle.time || parsedData?.time || 'under dev',
+                time_zone: dateCycle.time_zone || parsedData?.time_zone || 'under dev',
+                day: dateCycle.day || parsedData?.day || 'missing',
+                month: dateCycle.month || parsedData?.month || 'missing',
+                year: dateCycle.year || parsedData?.year || 'missing',
+                comment: dateCycle.comment || parsedData?.comment || 'No',
+                comments: dateCycle.comments || parsedData?.comments || '',
+                frequency: dateCycle.frequency || parsedData?.frequency || 'One-time',
+                pinned: dateCycle.pinned || parsedData?.pinned || 'No',
+                completed: dateCycle.completed || parsedData?.completed || 'No',
+                public: dateCycle.public || parsedData?.public || 'No',
+                delete_it: dateCycle.delete_it || parsedData?.delete_it || 'No', // ✅ Updated field name
+                synced: dateCycle.synced || parsedData?.synced || 'No',
+                conflict: dateCycle.conflict || parsedData?.conflict || 'No',
+                datecycle_color: dateCycle.datecycle_color || parsedData?.datecycle_color || 'missing',
+                cal_name: dateCycle.cal_name || parsedData?.cal_name || 'missing',
+                cal_color: dateCycle.cal_color || parsedData?.cal_color || 'missing',
+                last_edited: dateCycle.last_edited || parsedData?.last_edited || new Date().toISOString(),
                 raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
             };
 
-            // Push the prepared cycle into the array
             preparedCycles.push(preparedCycle);
         });
     });
 
     return preparedCycles; // Return the array of prepared dateCycles
 }
+
 
 
 
@@ -1482,7 +1480,6 @@ async function addDatecycle() {
     console.log('DateCycle added successfully:', dateCycle);
 }
 
-
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1492,14 +1489,14 @@ async function syncDatecycles() {
             return;
         }
 
-        // Fetch local calendar data dynamically from localStorage
+        // 🔹 **Fetch all locally stored calendars**
         const localCalendars = Object.keys(localStorage)
             .filter(key => key.startsWith('calendar_'))
             .map(key => JSON.parse(localStorage.getItem(key)));
 
         console.log('Fetched localCalendars:', localCalendars);
 
-        // Prepare local dateCycles
+        // 🔹 **Prepare local dateCycles for processing**
         const processedDateCycles = prepLocalDatecycles(localCalendars);
         const hasLocalCalendars = processedDateCycles && processedDateCycles.length > 0;
         console.log('Processed localCalendars:', processedDateCycles);
@@ -1512,6 +1509,7 @@ async function syncDatecycles() {
         let hasInternetConnection = true;
 
         try {
+            // 🔹 **Fetch server calendar list**
             const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1552,6 +1550,7 @@ async function syncDatecycles() {
             try {
                 console.log('Processing calendar:', calendar);
 
+                // 🔹 **Fetch server calendar data**
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1575,7 +1574,7 @@ async function syncDatecycles() {
                 const localCalendar = fetchLocalCalendarByCalId(calendar.cal_id) || [];
                 console.log('Local calendar data fetched for cal_id:', calendar.cal_id, localCalendar);
 
-                // 🔹 **Filter only unsynced events**
+                // 🔹 **Filter out only unsynced events**
                 const unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
 
                 for (const unsyncedEvent of unsyncedDateCycles) {
@@ -1593,14 +1592,14 @@ async function syncDatecycles() {
                         const syncData = await syncResponse.json();
                         if (syncData.success) {
                             unsyncedEvent.ID = syncData.id;
-                            unsyncedEvent.synced = "Yes"; // Mark event as synced in memory
+                            unsyncedEvent.synced = "Yes"; // ✅ Mark as synced
                         }
                     } catch (error) {
                         console.error('Error syncing dateCycle:', error);
                     }
                 }
 
-                // 🔹 **Ensure localStorage is updated**
+                // 🔹 **Update localStorage with synced events**
                 const updatedLocalCalendar = localCalendar.map(dc => {
                     if (unsyncedDateCycles.find(unsynced => unsynced.ID === dc.ID)) {
                         return { ...dc, synced: "Yes" };
@@ -1610,14 +1609,6 @@ async function syncDatecycles() {
 
                 localStorage.setItem(`calendar_${calendar.cal_id}`, JSON.stringify(updatedLocalCalendar));
 
-                const mergedData = mergeDateCycles(serverCalendar, updatedLocalCalendar);
-
-                const serverUpdate = await updateServer(mergedData, calendar.cal_id, buwanaId);
-                if (serverUpdate && serverUpdate.last_updated) {
-                    lastSyncTs = serverUpdate.last_updated;
-                }
-
-                updateLocal(mergedData, calendar.cal_id);
             } catch (error) {
                 console.error(`Error syncing calendar '${calendar.name}':`, error);
             }
@@ -1627,7 +1618,7 @@ async function syncDatecycles() {
             showLastSynkTimePassed(lastSyncTs);
         }
 
-        // 🔹 **Log final state of localStorage**
+        // 🔹 **Log final state of localStorage after sync**
         console.log("Local calendars after sync:");
         Object.keys(localStorage).forEach(key => {
             if (key.startsWith('calendar_')) {
@@ -1639,6 +1630,7 @@ async function syncDatecycles() {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
