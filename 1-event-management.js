@@ -1111,6 +1111,7 @@ function closeDatecycleInfo(element) {
 }
 
 
+
 async function deleteDateCycle(id) {
     console.log(`deleteDateCycle called for ID: ${id}`);
 
@@ -1136,30 +1137,30 @@ async function deleteDateCycle(id) {
 
         if (dateCycleIndex !== -1) {
             dateCycle = calendarData[dateCycleIndex];
-            dateCycle.delete = navigator.onLine ? "yes" : "pending"; // "yes" if online, "pending" if offline
+            dateCycle.delete_it = navigator.onLine ? "yes" : "pending"; // "yes" if online, "pending" if offline
             calendarKey = key;
 
-            // Update the local calendar array
-            calendarData.splice(dateCycleIndex, 1); // Remove the dateCycle from the array if online
-            if (!navigator.onLine) {
-                calendarData.push(dateCycle); // If offline, re-add it as marked for deletion
+            // If online, remove the dateCycle from localStorage, otherwise mark it for deletion
+            if (navigator.onLine) {
+                calendarData.splice(dateCycleIndex, 1);
+            } else {
+                calendarData[dateCycleIndex] = dateCycle;
             }
 
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle with ID: ${id} in calendar: ${key}`);
             found = true;
-
             break;
         }
     }
 
-    // Handle case where the dateCycle ID was not found
+    // Step 3: Handle case where the dateCycle ID was not found
     if (!found) {
         console.log(`No dateCycle found with ID: ${id}`);
         return;
     }
 
-    // Step 3: If online, attempt to delete from the server
+    // Step 4: If online, attempt to delete from the server
     if (navigator.onLine && dateCycle) {
         const buwanaId = localStorage.getItem('buwana_id');
         if (!buwanaId) {
@@ -1191,15 +1192,18 @@ async function deleteDateCycle(id) {
         }
     }
 
-    // Step 4: Refresh the UI
-    const divElement = document.getElementById('current-datecycle-info2');
-    if (divElement) {
-        divElement.innerHTML = ""; // Clear any displayed info
-    }
-
+    // Step 5: Refresh the UI
     highlightDateCycles();
     displayMatchingDateCycle();
+
+    console.log(`Final state of localStorage after deletion:`);
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('calendar_')) {
+            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
+        }
+    });
 }
+
 
 
 
