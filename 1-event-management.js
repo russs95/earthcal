@@ -607,14 +607,15 @@ function initializeToggleListener() {
 }
 
 
+
 function writeMatchingDateCycles(divElement, dateCycle) {
     // Determine styles based on whether the dateCycle is completed or not
-    const eventNameStyle = dateCycle.Completed === 'yes' ? 'text-decoration: line-through;' : '';
-    const calendarColor = dateCycle.calendar_color;
+    const eventNameStyle = dateCycle.completed === 'yes' ? 'text-decoration: line-through;' : '';
+    const calendarColor = dateCycle.cal_color || '#000'; // Default color if missing
 
-    // Set content for the bullet or delete button based on Completed status
+    // Set content for the bullet or delete button based on completed status
     let actionButton;
-    if (dateCycle.Completed === 'yes') {
+    if (dateCycle.completed === 'yes') {
         // Render the delete button when the dateCycle is completed
         actionButton = `
             <div class="delete-button-datecycle"
@@ -631,11 +632,11 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         actionButton = `
             <button
                 class="bullet-pin-button"
-                aria-label="${dateCycle.Pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
-                title="${dateCycle.Pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
+                title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.Pinned === 'yes' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.Pinned === 'yes' ? '📌' : '⬤'}';"
+                onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
                 style="
                     font-size: medium;
                     margin: 0;
@@ -644,7 +645,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     background: none;
                     cursor: pointer;
                     color: ${calendarColor};"
-            >${dateCycle.Pinned === 'yes' ? '📌' : '⬤'}</button>`;
+            >${dateCycle.pinned === 'yes' ? '📌' : '⬤'}</button>`;
     }
 
     // Add a public label if the dateCycle is from a public calendar
@@ -691,24 +692,24 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     style="
                         font-size: larger;
                         cursor: pointer;
-                        ${dateCycle.Completed === 'yes' ? 'color: black;' : ''}">
+                        ${dateCycle.completed === 'yes' ? 'color: black;' : ''}">
                     ✔
                 </div>
             </div>
 
             <!-- DateCycle Title and Event Name -->
             <div class="current-date-info-title" style="${eventNameStyle}; color:${calendarColor};">
-                ${dateCycle.Event_name}
+                ${dateCycle.event_name}
             </div>
 
             <!-- Additional Data -->
             <div class="current-datecycle-data">
-                <div class="current-date-calendar">${dateCycle.selectCalendar}</div>
+                <div class="current-date-calendar">${dateCycle.cal_name}</div>
             </div>
 
             <!-- Notes -->
             <div class="current-date-notes" style="height: fit-content;">
-                ${dateCycle.Comments}
+                ${dateCycle.comments}
             </div>
 
             <!-- Public Label -->
