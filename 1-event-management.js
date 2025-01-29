@@ -1424,9 +1424,12 @@ async function addDatecycle() {
     }
 
     const maxID = existingCalendar.reduce((max, dc) => {
-        const id = parseInt((dc.ID || "0").split("_").pop());
-        return id > max ? id : max;
-    }, 0);
+    const idString = String(dc.ID || "temp_0_000"); // Ensure it's a string
+    const id = parseInt(idString.split("_").pop()) || 0; // Extract and parse last part
+    return id > max ? id : max;
+}, 0);
+console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
+
     const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
   const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
