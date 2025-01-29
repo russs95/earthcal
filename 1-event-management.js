@@ -514,7 +514,6 @@ async function highlightDateCycles() {
 
 
 
-
 function displayMatchingDateCycle() {
     const dateCycles = fetchDateCycleCalendars();
     if (!dateCycles || dateCycles.length === 0) {
@@ -523,12 +522,13 @@ function displayMatchingDateCycle() {
     }
 
     // Separate public, pinned, and unpinned dateCycles
-    const publicDateCycles = dateCycles.filter(dc => dc.public === 'Yes');
+    const publicDateCycles = dateCycles.filter(dc => dc.public.toLowerCase() === 'yes');
     const pinnedDateCycles = dateCycles.filter(dc =>
-        (dc.Pinned || '').trim().toLowerCase() === 'yes' && dc.public !== 'Yes' // Exclude public ones already in publicDateCycles
+        (dc.pinned || '').trim().toLowerCase() === 'yes' && dc.public.toLowerCase() !== 'yes' // Exclude public ones
     );
     const unpinnedDateCycles = dateCycles.filter(dc =>
-        (dc.Pinned || '').trim().toLowerCase() !== 'yes' && dc.public !== 'Yes'
+        (dc.pinned || '').trim().toLowerCase() !== 'yes' && dc.public.toLowerCase() !== 'yes' &&
+        (dc.delete_it || '').trim().toLowerCase() !== 'yes' // Exclude deleted cycles
     );
 
     // Filter unpinned dateCycles further to match the target date
@@ -541,9 +541,9 @@ function displayMatchingDateCycle() {
     const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
 
     // Determine if the target date is the current date
-    const isToday = findMatchingDateCycles([{ Date: formattedCurrentDate }]).length > 0;
+    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
 
-    // Update `current-datecycles` with matching unpinned dateCycles
+    // 🔹 **Update `current-datecycles` with matching unpinned dateCycles**
     const matchingDiv = document.getElementById('current-datecycles');
     if (matchingDiv) {
         matchingDiv.innerHTML = ""; // Clear previous data
@@ -551,7 +551,7 @@ function displayMatchingDateCycle() {
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
 
-    // Update `pinned-datecycles` with pinned dateCycles and public dateCycles
+    // 🔹 **Update `pinned-datecycles` with pinned & public dateCycles**
     const pinnedDiv = document.getElementById('pinned-datecycles');
     if (pinnedDiv) {
         pinnedDiv.innerHTML = ""; // Clear previous data
@@ -565,16 +565,17 @@ function displayMatchingDateCycle() {
         }
     }
 
-    // Update `current-day-info` with event counts
+    // 🔹 **Update `current-day-info` with event counts**
     const currentDayInfoDiv = document.getElementById('current-day-info');
     if (currentDayInfoDiv) {
         const displayedCurrentEvents = matchingDiv.children.length;
         const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
         const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
 
-        currentDayInfoDiv.innerText = `${totalEvents} events today`; // Default to "hiding"
+        currentDayInfoDiv.innerText = `${totalEvents} events today`;
     }
 }
+
 
 
 
