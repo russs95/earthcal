@@ -453,59 +453,91 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-
 async function highlightDateCycles() {
-  // 1. Remove the "date_event" class from all previously highlighted elements
-  const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-  elementsWithDateEvent.forEach(element => {
-    element.classList.remove("date_event");
-  });
+    // 1️⃣ Remove old highlights
+    document.querySelectorAll("div.date_event, path.date_event").forEach(element => element.classList.remove("date_event"));
 
-  // 2. Fetch all dateCycles from localStorage
-  const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all calendars
-  if (!dateCycleEvent || dateCycleEvent.length === 0) {
-    console.log("No dateCycles found in storage.");
-    return;
-  }
-
-  // 3. Get all paths with IDs in the calendar visualization
-  const allPaths = Array.from(document.querySelectorAll("path[id]"));
-
-  // 4. Iterate over each dateCycle and highlight matching paths
-  dateCycleEvent.forEach(dateCycle => {
-    // Normalize the dateCycle date field
-    const normalizedDate = dateCycle.date || ''; // Ensure we use the correct field
-
-    // Process for matching paths by checking if normalizedDate exists in path.id
-    const matchingPaths = allPaths.filter(path => {
-      const pathId = path.id;
-      return pathId.includes(normalizedDate); // Check if the date is part of the path ID
-    });
-
-    // Highlight the matching paths
-    matchingPaths.forEach(path => {
-      const isDayMarker = path.id.endsWith('-day-marker');
-      const currentTitle = path.getAttribute('title');
-
-      // Update the title for paths that are not day markers
-      if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-        const newTitle = `${dateCycle.title} | ${currentTitle}`;
-        path.setAttribute('title', newTitle);
-      }
-
-      // Add "date_event" class only to paths ending with "-day-marker"
-      if (isDayMarker) {
-        path.classList.add("date_event");
-      }
-    });
-
-    // Log any unmatched dateCycles for debugging
-    if (matchingPaths.length === 0) {
-      console.log(`No matching paths found for dateCycle:`, dateCycle);
+    // 2️⃣ Fetch all local dateCycles
+    const dateCycleEvent = fetchDateCycleCalendars();
+    if (!dateCycleEvent || dateCycleEvent.length === 0) {
+        console.log("No dateCycles found in storage.");
+        return;
     }
-  });
 
-  console.log('DateCycles highlighted successfully.');
+    console.log("Fetched dateCycles:", dateCycleEvent);
+
+    // 3️⃣ Get all paths with IDs in the calendar visualization
+    const allPaths = Array.from(document.querySelectorAll("path[id]"));
+    const matchingDateCycles = [];
+    const pinnedDateCycles = [];
+    const publicDateCycles = [];
+
+    // 4️⃣ Iterate through each dateCycle
+    dateCycleEvent.forEach(dateCycle => {
+        const normalizedDate = dateCycle.date || ''; // Ensure we use the correct field
+
+        // 🔹 Highlight matching paths in the calendar
+        const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
+        matchingPaths.forEach(path => {
+            if (path.id.endsWith('-day-marker')) {
+                path.classList.add("date_event"); // Highlight the date
+            }
+            const currentTitle = path.getAttribute('title');
+            if (currentTitle && !currentTitle.includes('|')) {
+                path.setAttribute('title', `${dateCycle.title} | ${currentTitle}`);
+            }
+        });
+
+        // 🔹 Categorize the dateCycle into pinned, public, or matching for display
+        if (dateCycle.public.toLowerCase() === 'yes') {
+            publicDateCycles.push(dateCycle);
+        } else if (dateCycle.pinned.toLowerCase() === 'yes') {
+            pinnedDateCycles.push(dateCycle);
+        } else if (findMatchingDateCycles([dateCycle]).length > 0) {
+            matchingDateCycles.push(dateCycle);
+        }
+    });
+
+    console.log("Matching dateCycles:", matchingDateCycles);
+    console.log("Pinned dateCycles:", pinnedDateCycles);
+    console.log("Public dateCycles:", publicDateCycles);
+
+    // 5️⃣ Get the current date and check if it's today
+    const currentDate = new Date();
+    const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
+
+    // 6️⃣ Update `current-datecycles` with matching dateCycles
+    const matchingDiv = document.getElementById('current-datecycles');
+    if (matchingDiv) {
+        matchingDiv.innerHTML = ""; // Clear old data
+        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+    }
+
+    // 7️⃣ Update `pinned-datecycles` with pinned & public dateCycles
+    const pinnedDiv = document.getElementById('pinned-datecycles');
+    if (pinnedDiv) {
+        pinnedDiv.innerHTML = ""; // Clear old data
+        if (isToday) {
+            const allPinnedDateCycles = [...pinnedDateCycles, ...publicDateCycles];
+            pinnedDiv.style.display = allPinnedDateCycles.length ? 'block' : 'none';
+            allPinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+        } else {
+            pinnedDiv.style.display = 'none';
+        }
+    }
+
+    // 8️⃣ Update `current-day-info` with event counts
+    const currentDayInfoDiv = document.getElementById('current-day-info');
+    if (currentDayInfoDiv) {
+        const displayedCurrentEvents = matchingDiv.children.length;
+        const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
+        const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
+        currentDayInfoDiv.innerText = `${totalEvents} events today`;
+    }
+
+    console.log('DateCycles highlighted and displayed successfully.');
 }
 
 
