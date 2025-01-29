@@ -448,13 +448,11 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-async function highlightDateCycles(targetDate) {
-    if (!targetDate) {
-        console.warn("No targetDate provided for highlighting.");
-        return;
-    }
 
-    console.log(`Highlighting dateCycles for targetDate: ${targetDate}`);
+
+
+async function highlightDateCycles(targetDate) {
+    console.log(`highlightDateCycles called with targetDate: ${targetDate}`);
 
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -463,30 +461,42 @@ async function highlightDateCycles(targetDate) {
     });
 
     // 2. Fetch all dateCycles from localStorage
-    const dateCycleEvents = fetchDateCycleCalendars();
+    const dateCycleEvents = fetchDateCycleCalendars(); // Fetch all date cycles
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.log("No dateCycles found in storage.");
         return;
     }
 
-    // 3. Highlight matching dateCycles on the calendar visualization
+    console.log("All fetched dateCycles:", dateCycleEvents);
+
+    // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
-    const matchingDateCycles = []; // To store dateCycles matching the targetDate
 
+    // 4. Variables to store matching dateCycles
+    let matchingDateCycles = []; // To collect dateCycles that match the `targetDate`
+
+    // 5. Iterate over each dateCycle and highlight matching paths
     dateCycleEvents.forEach(dateCycle => {
-        const normalizedDate = dateCycle.date || ''; // Ensure we use the correct field
+        // Normalize the dateCycle date field
+        const normalizedDate = dateCycle.date?.trim() || ''; // Ensure we use the correct field
 
-        // Check if the dateCycle matches the current targetDate
+        // Log the date comparison for debugging
+        console.log(`Checking dateCycle with date: ${normalizedDate} against targetDate: ${targetDate}`);
+
+        // Check if the dateCycle matches the provided targetDate
         if (normalizedDate === targetDate) {
-            matchingDateCycles.push(dateCycle); // Collect matching dateCycles for rendering
+            matchingDateCycles.push(dateCycle); // Add to matching dateCycles if the date matches the targetDate
         }
 
-        // Highlight paths on the calendar
+        // Process for matching paths by checking if normalizedDate exists in path.id
         const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
+
+        // Highlight the matching paths
         matchingPaths.forEach(path => {
             const isDayMarker = path.id.endsWith('-day-marker');
             const currentTitle = path.getAttribute('title');
 
+            // Update the title for paths that are not day markers
             if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
                 const newTitle = `${dateCycle.event_name} | ${currentTitle}`;
                 path.setAttribute('title', newTitle);
@@ -498,124 +508,30 @@ async function highlightDateCycles(targetDate) {
             }
         });
 
+        // Log any unmatched dateCycles for debugging
         if (matchingPaths.length === 0) {
             console.log(`No matching paths found for dateCycle:`, dateCycle);
         }
     });
 
-    console.log('DateCycles highlighted successfully.');
+    console.log("DateCycles highlighted successfully.");
 
-    // 4. Render the matching dateCycles into the `current_datecycles` div
-    const matchingDiv = document.getElementById('current_datecycles');
-    if (matchingDiv) {
-        matchingDiv.innerHTML = ""; // Clear previous data
-        if (matchingDateCycles.length > 0) {
-            matchingDiv.style.display = 'block';
-            matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
-        } else {
-            matchingDiv.style.display = 'none';
-            console.log(`No dateCycles matching targetDate: ${targetDate}`);
-        }
-    }
-}
-
-
-
-
-
-
-
-function displayMatchingDateCycle() {
-    const dateCycles = fetchDateCycleCalendars();
-    if (!dateCycles || dateCycles.length === 0) {
-        console.log("No dateCycles found in storage.");
-        return;
-    }
-
-    // Separate public, pinned, and unpinned dateCycles
-    const publicDateCycles = dateCycles.filter(dc => dc.public.toLowerCase() === 'yes');
-    const pinnedDateCycles = dateCycles.filter(dc =>
-        (dc.pinned || '').trim().toLowerCase() === 'yes' && dc.public.toLowerCase() !== 'yes' // Exclude public ones
-    );
-    const unpinnedDateCycles = dateCycles.filter(dc =>
-        (dc.pinned || '').trim().toLowerCase() !== 'yes' && dc.public.toLowerCase() !== 'yes' &&
-        (dc.delete_it || '').trim().toLowerCase() !== 'yes' // Exclude deleted cycles
-    );
-
-    // Filter unpinned dateCycles further to match the target date
-    const matchingDateCycles = unpinnedDateCycles.filter(dc =>
-        findMatchingDateCycles([dc]).length > 0
-    );
-
-    // Get the current date in the same format as targetDate
-    const currentDate = new Date();
-    const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-
-    // Determine if the target date is the current date
-    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
-
-    // 🔹 **Update `current-datecycles` with matching unpinned dateCycles**
+    // 6. Write matching dateCycles to the `current_datecycles` div
     const matchingDiv = document.getElementById('current-datecycles');
     if (matchingDiv) {
         matchingDiv.innerHTML = ""; // Clear previous data
         matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+
+        // Write each matching dateCycle to the div
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
 
-    // 🔹 **Update `pinned-datecycles` with pinned & public dateCycles**
-    const pinnedDiv = document.getElementById('pinned-datecycles');
-    if (pinnedDiv) {
-        pinnedDiv.innerHTML = ""; // Clear previous data
-        if (isToday) {
-            // Combine pinned and public dateCycles for display
-            const allPinnedDateCycles = [...pinnedDateCycles, ...publicDateCycles];
-            pinnedDiv.style.display = allPinnedDateCycles.length ? 'block' : 'none';
-            allPinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
-        } else {
-            pinnedDiv.style.display = 'none';
-        }
-    }
-
-    // 🔹 **Update `current-day-info` with event counts**
-    const currentDayInfoDiv = document.getElementById('current-day-info');
-    if (currentDayInfoDiv) {
-        const displayedCurrentEvents = matchingDiv.children.length;
-        const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
-        const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
-
-        currentDayInfoDiv.innerText = `${totalEvents} events today`;
-    }
+    // Log the dateCycles that match the targetDate
+    console.log(`DateCycles matching targetDate (${targetDate}):`, matchingDateCycles);
 }
 
 
 
-
-
-
-
-
-function initializeToggleListener() {
-  const currentDayInfoDiv = document.getElementById('current-day-info');
-  const pinnedDiv = document.getElementById('pinned-datecycles');
-  const matchingDiv = document.getElementById('current-datecycles');
-
-  if (currentDayInfoDiv && pinnedDiv && matchingDiv) {
-    currentDayInfoDiv.addEventListener('click', () => {
-      const isPinnedVisible = pinnedDiv.style.display === 'block';
-      const isMatchingVisible = matchingDiv.style.display === 'block';
-
-      // Toggle visibility
-      pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
-      matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
-
-      // Update the label to show or hide
-      const totalEvents = matchingDiv.children.length + (pinnedDiv.style.display === 'block' ? pinnedDiv.children.length : 0);
-      const actionLabel = (pinnedDiv.style.display === 'block' && matchingDiv.style.display === 'block') ? '' : '👁';
-
-      currentDayInfoDiv.innerText = `${actionLabel} ${totalEvents} events today`;
-    });
-  }
-}
 
 
 
@@ -729,6 +645,104 @@ alert(dateCycle);
         </div>
     `;
 }
+
+
+
+
+
+function displayMatchingDateCycle() {
+    const dateCycles = fetchDateCycleCalendars();
+    if (!dateCycles || dateCycles.length === 0) {
+        console.log("No dateCycles found in storage.");
+        return;
+    }
+
+    // Separate public, pinned, and unpinned dateCycles
+    const publicDateCycles = dateCycles.filter(dc => dc.public.toLowerCase() === 'yes');
+    const pinnedDateCycles = dateCycles.filter(dc =>
+        (dc.pinned || '').trim().toLowerCase() === 'yes' && dc.public.toLowerCase() !== 'yes' // Exclude public ones
+    );
+    const unpinnedDateCycles = dateCycles.filter(dc =>
+        (dc.pinned || '').trim().toLowerCase() !== 'yes' && dc.public.toLowerCase() !== 'yes' &&
+        (dc.delete_it || '').trim().toLowerCase() !== 'yes' // Exclude deleted cycles
+    );
+
+    // Filter unpinned dateCycles further to match the target date
+    const matchingDateCycles = unpinnedDateCycles.filter(dc =>
+        findMatchingDateCycles([dc]).length > 0
+    );
+
+    // Get the current date in the same format as targetDate
+    const currentDate = new Date();
+    const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+
+    // Determine if the target date is the current date
+    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
+
+    // 🔹 **Update `current-datecycles` with matching unpinned dateCycles**
+    const matchingDiv = document.getElementById('current-datecycles');
+    if (matchingDiv) {
+        matchingDiv.innerHTML = ""; // Clear previous data
+        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+    }
+
+    // 🔹 **Update `pinned-datecycles` with pinned & public dateCycles**
+    const pinnedDiv = document.getElementById('pinned-datecycles');
+    if (pinnedDiv) {
+        pinnedDiv.innerHTML = ""; // Clear previous data
+        if (isToday) {
+            // Combine pinned and public dateCycles for display
+            const allPinnedDateCycles = [...pinnedDateCycles, ...publicDateCycles];
+            pinnedDiv.style.display = allPinnedDateCycles.length ? 'block' : 'none';
+            allPinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+        } else {
+            pinnedDiv.style.display = 'none';
+        }
+    }
+
+    // 🔹 **Update `current-day-info` with event counts**
+    const currentDayInfoDiv = document.getElementById('current-day-info');
+    if (currentDayInfoDiv) {
+        const displayedCurrentEvents = matchingDiv.children.length;
+        const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
+        const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
+
+        currentDayInfoDiv.innerText = `${totalEvents} events today`;
+    }
+}
+
+
+
+
+
+
+
+
+function initializeToggleListener() {
+  const currentDayInfoDiv = document.getElementById('current-day-info');
+  const pinnedDiv = document.getElementById('pinned-datecycles');
+  const matchingDiv = document.getElementById('current-datecycles');
+
+  if (currentDayInfoDiv && pinnedDiv && matchingDiv) {
+    currentDayInfoDiv.addEventListener('click', () => {
+      const isPinnedVisible = pinnedDiv.style.display === 'block';
+      const isMatchingVisible = matchingDiv.style.display === 'block';
+
+      // Toggle visibility
+      pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
+      matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
+
+      // Update the label to show or hide
+      const totalEvents = matchingDiv.children.length + (pinnedDiv.style.display === 'block' ? pinnedDiv.children.length : 0);
+      const actionLabel = (pinnedDiv.style.display === 'block' && matchingDiv.style.display === 'block') ? '' : '👁';
+
+      currentDayInfoDiv.innerText = `${actionLabel} ${totalEvents} events today`;
+    });
+  }
+}
+
+
 
 
 
