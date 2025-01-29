@@ -1454,7 +1454,7 @@ async function addDatecycle() {
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
         completed: "no",
         public: "No",
-        delete: "No",
+        delete_it: "No",
         synced: "No",
         conflict: "No",
     };
@@ -1812,7 +1812,7 @@ function fetchLocalCalendarByCalId(calId) {
             cal_color: dateCycle.cal_color || "missing",
             synced: dateCycle.synced || "No",
             conflict: dateCycle.conflict || "No",
-            delete: dateCycle.delete || "No",
+            delete_it: dateCycle.delete || "No",
             last_edited: dateCycle.last_edited || new Date().toISOString(),
             raw_json: JSON.stringify(dateCycle),
         }));
