@@ -450,9 +450,12 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-
 async function highlightDateCycles(targetDate) {
     console.log(`highlightDateCycles called with targetDate: ${targetDate}`);
+
+    // Normalize `targetDate` to match the stored dateCycle format
+    const formattedTargetDate = `-${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
+    console.log(`Normalized targetDate for comparison: ${formattedTargetDate}`);
 
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -481,10 +484,10 @@ async function highlightDateCycles(targetDate) {
         const normalizedDate = dateCycle.date?.trim() || ''; // Ensure we use the correct field
 
         // Log the date comparison for debugging
-        console.log(`Checking dateCycle with date: ${normalizedDate} against targetDate: ${targetDate}`);
+        console.log(`Checking dateCycle with date: ${normalizedDate} against targetDate: ${formattedTargetDate}`);
 
-        // Check if the dateCycle matches the provided targetDate
-        if (normalizedDate === targetDate) {
+        // Check if the dateCycle matches the formatted targetDate
+        if (normalizedDate === formattedTargetDate) {
             matchingDateCycles.push(dateCycle); // Add to matching dateCycles if the date matches the targetDate
         }
 
@@ -527,7 +530,7 @@ async function highlightDateCycles(targetDate) {
     }
 
     // Log the dateCycles that match the targetDate
-    console.log(`DateCycles matching targetDate (${targetDate}):`, matchingDateCycles);
+    console.log(`DateCycles matching targetDate (${formattedTargetDate}):`, matchingDateCycles);
 }
 
 
