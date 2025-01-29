@@ -455,39 +455,60 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in localStorage.");
-        return []; // Return an empty array if no calendars are found
+
+async function highlightDateCycles() {
+  // 1. Remove the "date_event" class from all previously highlighted elements
+  const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
+  elementsWithDateEvent.forEach(element => {
+    element.classList.remove("date_event");
+  });
+
+  // 2. Fetch all dateCycles from localStorage
+  const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all calendars
+  if (!dateCycleEvent || dateCycleEvent.length === 0) {
+    console.log("No dateCycles found in storage.");
+    return;
+  }
+
+  // 3. Get all paths with IDs in the calendar visualization
+  const allPaths = Array.from(document.querySelectorAll("path[id]"));
+
+  // 4. Iterate over each dateCycle and highlight matching paths
+  dateCycleEvent.forEach(dateCycle => {
+    // Normalize the dateCycle.Date
+    const normalizedDate = dateCycle.Date || '';
+
+    // Process for matching paths by checking if normalizedDate exists in path.id
+    const matchingPaths = allPaths.filter(path => {
+      const pathId = path.id;
+      return pathId.includes(normalizedDate); // Check if the date is part of the path ID
+    });
+
+    // Highlight the matching paths
+    matchingPaths.forEach(path => {
+      const isDayMarker = path.id.endsWith('-day-marker');
+      const currentTitle = path.getAttribute('title');
+
+      // Update the title for paths that are not day markers
+      if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
+        const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
+        path.setAttribute('title', newTitle);
+      }
+
+      // Add "date_event" class only to paths ending with "-day-marker"
+      if (isDayMarker) {
+        path.classList.add("date_event");
+      }
+    });
+
+    // Log any unmatched dateCycles for debugging
+    if (matchingPaths.length === 0) {
+      console.log(`No matching paths found for dateCycle:`, dateCycle);
     }
+  });
 
-    try {
-        let allDateCycles = [];
-
-        calendarKeys.forEach(key => {
-            try {
-                const calendarData = JSON.parse(localStorage.getItem(key));
-
-                if (Array.isArray(calendarData)) {
-                    // Include only valid, non-deleted dateCycles
-                    const validDateCycles = calendarData.filter(dc => dc.delete_it !== "Yes");
-                    allDateCycles.push(...validDateCycles);
-                } else {
-                    console.warn(`Unexpected format in localStorage for key: ${key}`);
-                }
-            } catch (error) {
-                console.error(`Error parsing localStorage data for key ${key}:`, error);
-            }
-        });
-
-        console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
-        return allDateCycles; // Return the combined dateCycles
-    } catch (error) {
-        console.error('Error fetching dateCycles from localStorage:', error.message);
-        return []; // Return an empty array in case of an error
-    }
+  console.log('DateCycles highlighted successfully.');
 }
 
 
@@ -1607,31 +1628,41 @@ async function syncDatecycles() {
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
     if (calendarKeys.length === 0) {
+        console.log("No calendar data found in localStorage.");
         return []; // Return an empty array if no calendars are found
     }
 
     try {
-        const allDateCycles = calendarKeys.reduce((acc, key) => {
-            const calendarData = JSON.parse(localStorage.getItem(key));
-            if (Array.isArray(calendarData)) {
-                // Include only valid, non-deleted dateCycles
-                const validDateCycles = calendarData.filter(dc => dc.delete !== "Yes");
-                acc.push(...validDateCycles);
-            }
-            return acc;
-        }, []);
+        let allDateCycles = [];
 
+        calendarKeys.forEach(key => {
+            try {
+                const calendarData = JSON.parse(localStorage.getItem(key));
+
+                if (Array.isArray(calendarData)) {
+                    // Include only valid, non-deleted dateCycles
+                    const validDateCycles = calendarData.filter(dc => dc.delete_it !== "Yes");
+                    allDateCycles.push(...validDateCycles);
+                } else {
+                    console.warn(`Unexpected format in localStorage for key: ${key}`);
+                }
+            } catch (error) {
+                console.error(`Error parsing localStorage data for key ${key}:`, error);
+            }
+        });
+
+        console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
         return allDateCycles; // Return the combined dateCycles
     } catch (error) {
         console.error('Error fetching dateCycles from localStorage:', error.message);
         return []; // Return an empty array in case of an error
     }
 }
+
 
 
 
