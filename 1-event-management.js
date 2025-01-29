@@ -1675,7 +1675,6 @@ async function syncDatecycles() {
 
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -1719,6 +1718,7 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
+
 
 
 
