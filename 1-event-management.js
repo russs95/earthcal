@@ -609,6 +609,7 @@ function initializeToggleListener() {
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
+alert(dateCycle);
     // Determine styles based on whether the dateCycle is completed or not
     const eventNameStyle = dateCycle.completed === 'yes' ? 'text-decoration: line-through;' : '';
     const calendarColor = dateCycle.cal_color || '#000'; // Default color if missing
