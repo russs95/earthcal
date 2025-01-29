@@ -445,8 +445,8 @@ function getTheDayOfYear(targetDate) {
 
 
 
-    highlightDateCycles();
-    displayMatchingDateCycle();
+    highlightDateCycles(targetDate);
+    //displayMatchingDateCycle();
 
 
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon

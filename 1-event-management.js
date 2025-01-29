@@ -448,8 +448,14 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
+async function highlightDateCycles(targetDate) {
+    if (!targetDate) {
+        console.warn("No targetDate provided for highlighting.");
+        return;
+    }
 
-async function highlightDateCycles() {
+    console.log(`Highlighting dateCycles for targetDate: ${targetDate}`);
+
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => {
@@ -457,44 +463,32 @@ async function highlightDateCycles() {
     });
 
     // 2. Fetch all dateCycles from localStorage
-    const dateCycleEvent = fetchDateCycleCalendars(); // Fetch all date cycles
-    if (!dateCycleEvent || dateCycleEvent.length === 0) {
+    const dateCycleEvents = fetchDateCycleCalendars();
+    if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.log("No dateCycles found in storage.");
         return;
     }
 
-    console.log("All fetched dateCycles:", dateCycleEvent);
-
-    // 3. Get all paths with IDs in the calendar visualization
+    // 3. Highlight matching dateCycles on the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
+    const matchingDateCycles = []; // To store dateCycles matching the targetDate
 
-    // 4. Variables to store matching dateCycles
-    let matchingDateCycles = []; // To collect dateCycles that match the `targetDate`
-
-    // 5. Iterate over each dateCycle and highlight matching paths
-    dateCycleEvent.forEach(dateCycle => {
-        // Normalize the dateCycle date field
+    dateCycleEvents.forEach(dateCycle => {
         const normalizedDate = dateCycle.date || ''; // Ensure we use the correct field
 
-        // Check if the dateCycle matches the globally declared targetDate
+        // Check if the dateCycle matches the current targetDate
         if (normalizedDate === targetDate) {
-            matchingDateCycles.push(dateCycle); // Add to matching dateCycles if the date matches the targetDate
+            matchingDateCycles.push(dateCycle); // Collect matching dateCycles for rendering
         }
 
-        // Process for matching paths by checking if normalizedDate exists in path.id
-        const matchingPaths = allPaths.filter(path => {
-            const pathId = path.id;
-            return pathId.includes(normalizedDate); // Check if the date is part of the path ID
-        });
-
-        // Highlight the matching paths
+        // Highlight paths on the calendar
+        const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
         matchingPaths.forEach(path => {
             const isDayMarker = path.id.endsWith('-day-marker');
             const currentTitle = path.getAttribute('title');
 
-            // Update the title for paths that are not day markers
             if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-                const newTitle = `${dateCycle.title} | ${currentTitle}`;
+                const newTitle = `${dateCycle.event_name} | ${currentTitle}`;
                 path.setAttribute('title', newTitle);
             }
 
@@ -504,26 +498,25 @@ async function highlightDateCycles() {
             }
         });
 
-        // Log any unmatched dateCycles for debugging
         if (matchingPaths.length === 0) {
             console.log(`No matching paths found for dateCycle:`, dateCycle);
         }
     });
 
-    console.log("DateCycles highlighted successfully.");
+    console.log('DateCycles highlighted successfully.');
 
-    // 6. Write matching dateCycles to the `current_datecycles` div
-    const matchingDiv = document.getElementById('current-datecycles');
+    // 4. Render the matching dateCycles into the `current_datecycles` div
+    const matchingDiv = document.getElementById('current_datecycles');
     if (matchingDiv) {
         matchingDiv.innerHTML = ""; // Clear previous data
-        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
-
-        // Write each matching dateCycle to the div
-        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+        if (matchingDateCycles.length > 0) {
+            matchingDiv.style.display = 'block';
+            matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+        } else {
+            matchingDiv.style.display = 'none';
+            console.log(`No dateCycles matching targetDate: ${targetDate}`);
+        }
     }
-
-    // Log the dateCycles that match the targetDate
-    console.log("DateCycles matching the targetDate:", matchingDateCycles);
 }
 
 
