@@ -456,7 +456,6 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-
 async function highlightDateCycles() {
   // 1. Remove the "date_event" class from all previously highlighted elements
   const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -476,8 +475,8 @@ async function highlightDateCycles() {
 
   // 4. Iterate over each dateCycle and highlight matching paths
   dateCycleEvent.forEach(dateCycle => {
-    // Normalize the dateCycle.Date
-    const normalizedDate = dateCycle.Date || '';
+    // Normalize the dateCycle date field
+    const normalizedDate = dateCycle.date || ''; // Ensure we use the correct field
 
     // Process for matching paths by checking if normalizedDate exists in path.id
     const matchingPaths = allPaths.filter(path => {
@@ -492,7 +491,7 @@ async function highlightDateCycles() {
 
       // Update the title for paths that are not day markers
       if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-        const newTitle = `${dateCycle.Event_name} | ${currentTitle}`;
+        const newTitle = `${dateCycle.title} | ${currentTitle}`;
         path.setAttribute('title', newTitle);
       }
 
@@ -1618,7 +1617,6 @@ async function syncDatecycles() {
             showLastSynkTimePassed(lastSyncTs);
         }
 
-        alert(lastSyncTs);
     } catch (error) {
         alert('An error occurred while syncing your calendars. Please try again.');
     }
