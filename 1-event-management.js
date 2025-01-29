@@ -449,13 +449,9 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-
 async function highlightDateCycles(targetDate) {
-    console.log(`highlightDateCycles called with targetDate: ${targetDate}`);
-
     // Normalize `targetDate` to match the stored dateCycle format
     const formattedTargetDate = `-${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
-    console.log(`Normalized targetDate for comparison: ${formattedTargetDate}`);
 
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -464,31 +460,24 @@ async function highlightDateCycles(targetDate) {
     });
 
     // 2. Fetch all dateCycles from localStorage
-    const dateCycleEvents = fetchDateCycleCalendars(); // Fetch all date cycles
+    const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
-        console.log("No dateCycles found in storage.");
         return;
     }
-
-    console.log("All fetched dateCycles:", dateCycleEvents);
 
     // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
     // 4. Variables to store matching dateCycles
-    let matchingDateCycles = []; // To collect dateCycles that match the `targetDate`
+    let matchingDateCycles = [];
 
     // 5. Iterate over each dateCycle and highlight matching paths
     dateCycleEvents.forEach(dateCycle => {
-        // Normalize the dateCycle date field
-        const normalizedDate = dateCycle.date?.trim() || ''; // Ensure we use the correct field
-
-        // Log the date comparison for debugging
-        console.log(`Checking dateCycle with date: ${normalizedDate} against targetDate: ${formattedTargetDate}`);
+        const normalizedDate = dateCycle.date?.trim() || '';
 
         // Check if the dateCycle matches the formatted targetDate
         if (normalizedDate === formattedTargetDate) {
-            matchingDateCycles.push(dateCycle); // Add to matching dateCycles if the date matches the targetDate
+            matchingDateCycles.push(dateCycle);
         }
 
         // Process for matching paths by checking if normalizedDate exists in path.id
@@ -510,27 +499,17 @@ async function highlightDateCycles(targetDate) {
                 path.classList.add("date_event");
             }
         });
-
-        // Log any unmatched dateCycles for debugging
-        if (matchingPaths.length === 0) {
-            console.log(`No matching paths found for dateCycle:`, dateCycle);
-        }
     });
-
-    console.log("DateCycles highlighted successfully.");
 
     // 6. Write matching dateCycles to the `current_datecycles` div
     const matchingDiv = document.getElementById('current-datecycles');
     if (matchingDiv) {
-        matchingDiv.innerHTML = ""; // Clear previous data
+        matchingDiv.innerHTML = "";
         matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
 
         // Write each matching dateCycle to the div
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
-
-    // Log the dateCycles that match the targetDate
-    console.log(`DateCycles matching targetDate (${formattedTargetDate}):`, matchingDateCycles);
 }
 
 
@@ -539,44 +518,34 @@ async function highlightDateCycles(targetDate) {
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
-alert(dateCycle);
+    // 🔹 Console log the full dateCycle JSON before writing
+    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+
     // Determine styles based on whether the dateCycle is completed or not
     const eventNameStyle = dateCycle.completed === 'yes' ? 'text-decoration: line-through;' : '';
-    const calendarColor = dateCycle.cal_color || '#000'; // Default color if missing
+    const calendarColor = dateCycle.cal_color || '#000';
 
     // Set content for the bullet or delete button based on completed status
     let actionButton;
     if (dateCycle.completed === 'yes') {
-        // Render the delete button when the dateCycle is completed
         actionButton = `
             <div class="delete-button-datecycle"
                 title="❌ Delete this dateCycle"
                 onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();"
-                style="
-                    font-size: medium;
-                    color: ${calendarColor};
-                    cursor: pointer;">
+                style="font-size: medium; color: ${calendarColor}; cursor: pointer;">
                 ❌
             </div>`;
     } else {
-        // Render the pin/unpin button for incomplete dateCycles
         actionButton = `
-            <button
-                class="bullet-pin-button"
+            <button class="bullet-pin-button"
                 aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
                 title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
                 onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
                 onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
-                style="
-                    font-size: medium;
-                    margin: 0;
-                    margin-bottom: 2px;
-                    border: none;
-                    background: none;
-                    cursor: pointer;
-                    color: ${calendarColor};"
-            >${dateCycle.pinned === 'yes' ? '📌' : '⬤'}</button>`;
+                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${calendarColor};">
+                ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
+            </button>`;
     }
 
     // Add a public label if the dateCycle is from a public calendar
@@ -604,15 +573,12 @@ alert(dateCycle);
                 align-items: center;
                 gap: 2px;">
 
-                <!-- Dynamic Action Button (Bullet or Delete) -->
                 ${actionButton}
 
                 <!-- Forward Button -->
                 <div class="forward-button-datecycle" title="➡️ Push to today"
                     onclick="push2today('${dateCycle.ID}'); event.stopPropagation();"
-                    style="
-                        font-size: larger;
-                        cursor: pointer;">
+                    style="font-size: larger; cursor: pointer;">
                     ➜
                 </div>
 
@@ -620,10 +586,7 @@ alert(dateCycle);
                 <div class="close-button-datecycle"
                     title="✅ Done! Check."
                     onclick="strikeDateCycle(this); event.stopPropagation();"
-                    style="
-                        font-size: larger;
-                        cursor: pointer;
-                        ${dateCycle.completed === 'yes' ? 'color: black;' : ''}">
+                    style="font-size: larger; cursor: pointer; ${dateCycle.completed === 'yes' ? 'color: black;' : ''}">
                     ✔
                 </div>
             </div>
@@ -643,11 +606,11 @@ alert(dateCycle);
                 ${dateCycle.comments}
             </div>
 
-            <!-- Public Label -->
             ${publicLabel}
         </div>
     `;
 }
+
 
 
 
