@@ -449,9 +449,6 @@ function prepLocalDatecycles(localCalendars) {
 
 
 
-
-
-
 async function highlightDateCycles() {
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
