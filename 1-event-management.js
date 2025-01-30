@@ -1503,6 +1503,7 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
 
 
 
+
 async function syncDatecycles() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1518,7 +1519,7 @@ async function syncDatecycles() {
         let hasInternetConnection = true;
 
         try {
-            // 🔹 **Fetch server calendar list (Now from `datecycles_tb`)**
+            // 🔹 **Fetch server calendar list**
             const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1530,10 +1531,7 @@ async function syncDatecycles() {
             }
 
             const serverData = await response.json();
-
-            if (!serverData.success) {
-                throw new Error(serverData.message || 'Failed to retrieve calendar data.');
-            }
+            if (!serverData.success) throw new Error(serverData.message || 'Failed to retrieve calendar data.');
 
             serverCalendars = serverData.calendars || [];
             console.log('✅ Fetched server calendars:', serverCalendars);
@@ -1542,23 +1540,18 @@ async function syncDatecycles() {
             hasInternetConnection = false;
         }
 
-        if (!hasInternetConnection) {
-            console.warn("No internet connection. Local sync only.");
-            return;
-        }
+        if (!hasInternetConnection) return;
 
         if (serverCalendars.length === 0) {
             console.warn("No calendars found for this user.");
             return;
         }
 
-        let lastSyncTs = null;
-
         for (const calendar of serverCalendars) {
             try {
-                console.log('Processing calendar:', calendar);
+                console.log('📂 Processing calendar:', calendar);
 
-                // 🔹 **Fetch dateCycles from `datecycles_tb` instead of JSON blob**
+                // 🔹 **Fetch dateCycles for this calendar**
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1570,15 +1563,16 @@ async function syncDatecycles() {
                 }
 
                 const calendarData = await calendarResponse.json();
+                console.log("🌍 Full Server Response:", calendarData);
 
-                if (!calendarData.success) {
-                    console.warn(`⚠️ Server calendar sync failed for cal_id: ${calendar.cal_id}`);
+                if (!calendarData.success || !calendarData.dateCycles) {
+                    console.warn(`⚠️ No dateCycles found for cal_id: ${calendar.cal_id}`);
                     continue;
                 }
 
-                // 🔹 **Now storing individual dateCycles instead of JSON blob**
-                const serverDateCycles = calendarData.data?.dateCycles || [];
-                console.log('📥 Fetched server dateCycles for cal_id:', calendar.cal_id, serverDateCycles);
+                // ✅ Fix: Extracting dateCycles correctly
+                const serverDateCycles = calendarData.dateCycles;
+                console.log('✅ Extracted server dateCycles for cal_id:', calendar.cal_id, serverDateCycles);
 
                 // 🔹 **Fetch local calendar data for comparison**
                 const localCalendar = JSON.parse(localStorage.getItem(`calendar_${calendar.cal_id}`)) || [];
@@ -1620,15 +1614,12 @@ async function syncDatecycles() {
             }
         }
 
-        if (lastSyncTs) {
-            showLastSynkTimePassed(lastSyncTs);
-        }
-
         console.log("✅ Sync complete. Local calendars updated.");
     } catch (error) {
         alert('⚠️ An error occurred while syncing your calendars. Please try again.');
     }
 }
+
 
 
 
