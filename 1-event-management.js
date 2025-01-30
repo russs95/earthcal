@@ -515,45 +515,43 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-
 function writeMatchingDateCycles(divElement, dateCycle) {
-    // 🔹 Console log the full dateCycle JSON before writing
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
-    // Determine styles based on whether the dateCycle is completed or not
-    const eventNameStyle = dateCycle.completed === 'yes' ? 'text-decoration: line-through;' : '';
-    const calendarColor = dateCycle.cal_color || '#000';
+    // Ensure correct field names
+    const eventName = dateCycle.title || "Untitled Event";  // Using 'title' instead of 'event_name'
+    const bulletColor = dateCycle.datecycle_color || "#000"; // Bullet uses 'datecycle_color'
+    const calendarColor = dateCycle.cal_color || "#000"; // Calendar name uses 'cal_color'
 
-    // Set content for the bullet or delete button based on completed status
+    const eventNameStyle = dateCycle.completed === "yes" ? "text-decoration: line-through;" : "";
+
     let actionButton;
-    if (dateCycle.completed === 'yes') {
+    if (dateCycle.completed === "yes") {
         actionButton = `
             <div class="delete-button-datecycle"
                 title="❌ Delete this dateCycle"
                 onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();"
-                style="font-size: medium; color: ${calendarColor}; cursor: pointer;">
+                style="font-size: medium; color: ${bulletColor}; cursor: pointer;">
                 ❌
             </div>`;
     } else {
         actionButton = `
             <button class="bullet-pin-button"
-                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this dateCycle'}"
+                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
                 title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
                 onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
                 onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
-                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${calendarColor};">
+                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
                 ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
             </button>`;
     }
 
-    // Add a public label if the dateCycle is from a public calendar
-    const publicLabel = dateCycle.public === 'Yes'
+    const publicLabel = dateCycle.public === "Yes"
         ? `<div class="public-label" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
                 Public
            </div>`
-        : '';
+        : "";
 
     divElement.innerHTML += `
         <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')" style="
@@ -563,7 +561,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             margin-bottom: 10px;
             border-radius: 8px;">
 
-            <!-- Action Buttons Column -->
             <div style="
                 position: absolute;
                 top: 10px;
@@ -575,14 +572,12 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
                 ${actionButton}
 
-                <!-- Forward Button -->
                 <div class="forward-button-datecycle" title="➡️ Push to today"
                     onclick="push2today('${dateCycle.ID}'); event.stopPropagation();"
                     style="font-size: larger; cursor: pointer;">
                     ➜
                 </div>
 
-                <!-- Check Button -->
                 <div class="close-button-datecycle"
                     title="✅ Done! Check."
                     onclick="strikeDateCycle(this); event.stopPropagation();"
@@ -591,17 +586,14 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 </div>
             </div>
 
-            <!-- DateCycle Title and Event Name -->
             <div class="current-date-info-title" style="${eventNameStyle}; color:${calendarColor};">
-                ${dateCycle.event_name}
+                ${eventName}
             </div>
 
-            <!-- Additional Data -->
             <div class="current-datecycle-data">
-                <div class="current-date-calendar">${dateCycle.cal_name}</div>
+                <div class="current-date-calendar" style="color: ${calendarColor};">${dateCycle.cal_name}</div>
             </div>
 
-            <!-- Notes -->
             <div class="current-date-notes" style="height: fit-content;">
                 ${dateCycle.comments}
             </div>
