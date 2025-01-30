@@ -1626,8 +1626,13 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
+    const buwanaId = localStorage.getItem('buwana_id'); // Ensure we get the buwana_id
+    if (!buwanaId) {
+        console.error("❌ Missing buwana_id. Cannot sync dateCycles.");
+        return;
+    }
+
     const localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
     const unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
 
@@ -1636,24 +1641,35 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
+    console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
+
     for (const unsyncedEvent of unsyncedDateCycles) {
         try {
+            const payload = {
+                buwana_id: buwanaId,
+                cal_id: cal_id,
+                calendarName: unsyncedEvent.cal_name, // Ensuring calendarName is passed
+                dateCycle: unsyncedEvent
+            };
+
             const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(unsyncedEvent),
+                body: JSON.stringify(payload),
             });
 
-            if (!syncResponse.ok) {
-                throw new Error(`Failed to sync event ${unsyncedEvent.title}. HTTP Status: ${syncResponse.status}`);
+            const syncData = await syncResponse.json();
+
+            if (!syncResponse.ok || !syncData.success) {
+                throw new Error(syncData.message || `Failed to sync event ${unsyncedEvent.title}.`);
             }
 
-            const syncData = await syncResponse.json();
-            if (syncData.success) {
-                // ✅ Update Local Storage Copy to "Yes"
-                unsyncedEvent.ID = syncData.id;
-                unsyncedEvent.synced = "Yes";
-            }
+            console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
+
+            // ✅ Update Local Storage Copy to "Yes"
+            unsyncedEvent.ID = syncData.id;
+            unsyncedEvent.synced = "Yes";
+
         } catch (error) {
             console.error('⚠️ Error syncing dateCycle:', error);
         }
