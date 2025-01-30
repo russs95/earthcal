@@ -152,13 +152,16 @@ function showLoggedInView(userData) {
             ${personalCalendarHTML}
             ${publicCalendarHTML}
         </form>
-        <div id="logged-in-buttons" style="width:90%;margin:auto;display: flex;flex-direction: column; gap: 10px;">
-            <button type="button" class="confirmation-blur-button enabled" onclick="syncUserEvents()" style="margin-bottom:-10px;">
-                🔄 Sync Now
-            </button>
+        <div id="logged-in-buttons" style="width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
+    <button id="sync-button" type="button" class="confirmation-blur-button enabled" onclick="syncDatecycles()">
+        🔄 Sync Now
+    </button>
 
-            <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
-        </div>
+    <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
+</div>
+
+<div id="cal-datecycle-count">Your 2 calendars and 14 datecycles were updated</div>
+
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
             ${user.location_full}
