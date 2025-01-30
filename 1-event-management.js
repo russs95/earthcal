@@ -749,7 +749,7 @@ function strikeDateCycle(dateCycleID) {
 
     // Step 6: Handle case where the dateCycle ID was not found
     if (!found) {
-        console.error(`❌ No dateCycle found with ID: ${targetID}`);
+        console.error(`❌ Huh...No dateCycle found with ID: ${targetID}`);
     } else {
         // Step 7: Refresh the UI
         highlightDateCycles(targetDate);
