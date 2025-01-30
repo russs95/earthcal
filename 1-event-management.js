@@ -707,10 +707,11 @@ function initializeToggleListener() {
 
 
 
-
-
 function strikeDateCycle(dateCycleID) {
     console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
+
+    // Ensure the ID is a string for consistent comparison
+    const targetID = String(dateCycleID);
 
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
@@ -721,39 +722,40 @@ function strikeDateCycle(dateCycleID) {
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
 
-        const dateCycleIndex = calendarData.findIndex(dc => dc.ID === dateCycleID);
+        // Convert stored IDs to strings for comparison
+        const dateCycleIndex = calendarData.findIndex(dc => String(dc.ID) === targetID);
+
         if (dateCycleIndex !== -1) {
-            // Step 3: Toggle the 'Completed' status
+            // Step 3: Toggle the 'completed' status
             let dateCycle = calendarData[dateCycleIndex];
             dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
 
-            // Step 4: If Synced is 'Yes', change it to 'No' (to indicate local edit)
+            // Step 4: If 'synced' is 'Yes', change it to 'No' and update the server
             if (dateCycle.synced === 'Yes') {
                 dateCycle.synced = 'No';
-
-                // Step 5: Update the server record asynchronously
                 updateServerDateCycle(dateCycle);
             }
 
-            // Step 6: Update localStorage with the modified calendar data
+            // Step 5: Update localStorage with the modified calendar data
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
 
-            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
+            console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
             updatedDateCycle = dateCycle;
             found = true;
             break; // Exit loop once updated
         }
     }
 
-    // Step 7: Handle case where the dateCycle ID was not found
+    // Step 6: Handle case where the dateCycle ID was not found
     if (!found) {
-        console.log(`No dateCycle found with ID: ${dateCycleID}`);
+        console.error(`❌ No dateCycle found with ID: ${targetID}`);
     } else {
-        // Step 8: Refresh the UI
+        // Step 7: Refresh the UI
         highlightDateCycles(targetDate);
     }
 }
+
 
 
 function updateServerDateCycle(dateCycle) {
