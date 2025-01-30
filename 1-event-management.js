@@ -751,7 +751,7 @@ function strikeDateCycle(dateCycleID) {
         console.log(`No dateCycle found with ID: ${dateCycleID}`);
     } else {
         // Step 8: Refresh the UI
-        displayMatchingDateCycle();
+        highlightDateCycles(targetDate);
     }
 }
 
@@ -2065,106 +2065,52 @@ function saveDateCycleEditedChanges(dateCycleID, calendarKey) {
     console.log(`DateCycle with ID ${dateCycleID} updated in calendar ${calendarKey}:`, updatedDateCycle);
 }
 
-
-async function strikeDateCycle(element) {
-    console.log('strikeDateCycle called.');
+function strikeDateCycle(dateCycleID) {
+    console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
 
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    // Find the ancestor .date-info div of the clicked element
-    const dateInfoDiv = element.closest('.date-info');
-
-    if (!dateInfoDiv) {
-        console.error("No date-info element found. Check the DOM structure.");
-        return;
-    }
-
-    // Step 2: Get the ID from the class list of dateInfoDiv
-    const dateCycleID = dateInfoDiv.classList[1];
-    if (!dateCycleID) {
-        console.error("No valid dateCycle ID found in date-info classes:", dateInfoDiv.classList);
-        return;
-    }
-
-    console.log(`Attempting to toggle 'Completed' status for dateCycle ID: ${dateCycleID}`);
-
     let found = false;
-    let dateCycle = null;
-    let calendarKey = null;
+    let updatedDateCycle = null;
 
-    // Step 3: Iterate through calendar arrays to find and update the dateCycle
+    // Step 2: Iterate through calendar arrays to find and update the dateCycle
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
 
-        console.log(`Checking calendar: ${key}`, calendarData);
-
         const dateCycleIndex = calendarData.findIndex(dc => dc.ID === dateCycleID);
         if (dateCycleIndex !== -1) {
-            // Step 4: Toggle the 'Completed' status
-            dateCycle = calendarData[dateCycleIndex];
-            dateCycle.Completed = dateCycle.Completed === 'no' ? 'yes' : 'no';
+            // Step 3: Toggle the 'Completed' status
+            let dateCycle = calendarData[dateCycleIndex];
+            dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
 
-            console.log(`Toggled 'Completed' status for dateCycle:`, dateCycle);
+            // Step 4: If Synced is 'Yes', change it to 'No' (to indicate local edit)
+            if (dateCycle.synced === 'Yes') {
+                dateCycle.synced = 'No';
 
-            // Update the localStorage with the modified calendar array
-            calendarData.splice(dateCycleIndex, 1); // Temporarily remove the updated dateCycle
-            if (!navigator.onLine) {
-                dateCycle.sync_status = "pending"; // Mark for sync if offline
+                // Step 5: Update the server record asynchronously
+                updateServerDateCycle(dateCycle);
             }
-            calendarData.push(dateCycle); // Add it back
+
+            // Step 6: Update localStorage with the modified calendar data
+            calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
 
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
-
-            calendarKey = key; // Store the key for potential server update
+            updatedDateCycle = dateCycle;
             found = true;
-            break; // Exit the loop once the dateCycle is found and updated
+            break; // Exit loop once updated
         }
     }
 
-    // Handle case where the dateCycle ID was not found
+    // Step 7: Handle case where the dateCycle ID was not found
     if (!found) {
-        console.error(`No dateCycle found with ID: ${dateCycleID}. Verify ID and localStorage data.`);
-        return;
+        console.log(`No dateCycle found with ID: ${dateCycleID}`);
+    } else {
+        // Step 8: Refresh the UI
+        displayMatchingDateCycle();
     }
-
-    // Step 5: If online, attempt to update the server
-    if (navigator.onLine && dateCycle) {
-        const buwanaId = localStorage.getItem('buwana_id');
-        if (!buwanaId) {
-            console.log('User is not logged in. Cannot update server data.');
-        } else {
-            try {
-                const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        buwana_id: buwanaId,
-                        datecycle_id: dateCycleID,
-                        completed: dateCycle.Completed
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Server response for updating Completed status:', result);
-
-                if (!result.success) {
-                    console.error('Failed to update dateCycle on server:', result.message);
-                    alert('Server update failed. It will be retried during the next sync.');
-                } else {
-                    console.log(`DateCycle with ID: ${dateCycleID} updated on the server.`);
-                }
-            } catch (error) {
-                console.error('Error updating dateCycle on the server:', error);
-                alert('An error occurred while updating on the server. It will be retried during the next sync.');
-            }
-        }
-    }
-
-    // Step 6: Refresh the displayed dateCycles
-    displayMatchingDateCycle();
 }
+
 
 
 
