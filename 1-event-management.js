@@ -1206,8 +1206,8 @@ async function deleteDateCycle(id) {
     }
 
     // Step 5: Refresh the UI
-    highlightDateCycles();
-    displayMatchingDateCycle();
+    highlightDateCycles(targetDate);
+    //displayMatchingDateCycle();
 
     console.log(`Final state of localStorage after deletion:`);
     Object.keys(localStorage).forEach(key => {
@@ -1248,7 +1248,7 @@ function clearAllDateCycles() {
     // Step 4: Perform any UI updates or cleanup actions
     closeAddCycle();
     closeDateCycleExports();
-    highlightDateCycles();
+    highlightDateCycles(targetDate);
 }
 
 
@@ -1364,8 +1364,8 @@ function push2today(id) {
   console.log(`Updated dateCycle with ID: ${id} to today`);
 
 
-    highlightDateCycles();
-    displayMatchingDateCycle();
+    highlightDateCycles(targetDate);
+    //displayMatchingDateCycle();
 
 }
 
@@ -1502,6 +1502,7 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
 }
 
 
+
 async function syncDatecycles() {
     try {
         const syncButton = document.getElementById('sync-button');
@@ -1593,6 +1594,7 @@ async function syncDatecycles() {
         countDiv.innerText = `Your ${serverCalendars.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
 
         console.log("✅ Sync complete. Local calendars updated.");
+        highlightDateCycles(targetDate);
     } catch (error) {
         alert('⚠️ An error occurred while syncing your calendars. Please try again.');
     }
