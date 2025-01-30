@@ -1502,8 +1502,6 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
 }
 
 
-
-
 async function syncDatecycles() {
     try {
         const syncButton = document.getElementById('sync-button');
@@ -1553,7 +1551,7 @@ async function syncDatecycles() {
             try {
                 console.log('📂 Processing calendar:', calendar);
 
-                // 🔹 Fetch dateCycles for this calendar
+                // 🔹 Fetch dateCycles from the server
                 const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1572,45 +1570,15 @@ async function syncDatecycles() {
                     continue;
                 }
 
-                // ✅ Extracting dateCycles correctly
+                // ✅ Extract server dateCycles
                 const serverDateCycles = calendarData.dateCycles;
                 totalDateCyclesUpdated += serverDateCycles.length;
-                console.log('✅ Extracted server dateCycles for cal_id:', calendar.cal_id, serverDateCycles);
 
-                // 🔹 Fetch local calendar data for comparison
-                const localCalendar = JSON.parse(localStorage.getItem(`calendar_${calendar.cal_id}`)) || [];
-                console.log('📂 Local calendar data:', localCalendar);
+                // 🔹 Update the Server with Unsynced Local dateCycles
+                await updateServerDatecycles(calendar.cal_id, serverDateCycles);
 
-                // 🔹 Find unsynced dateCycles in local storage
-                const unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
-
-                // 🔹 Sync local unsynced events to the server
-                for (const unsyncedEvent of unsyncedDateCycles) {
-                    try {
-                        const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(unsyncedEvent),
-                        });
-
-                        if (!syncResponse.ok) {
-                            throw new Error(`Failed to sync event ${unsyncedEvent.title}. HTTP Status: ${syncResponse.status}`);
-                        }
-
-                        const syncData = await syncResponse.json();
-                        if (syncData.success) {
-                            unsyncedEvent.ID = syncData.id;
-                            unsyncedEvent.synced = "Yes"; // ✅ Mark as synced
-                        }
-                    } catch (error) {
-                        console.error('⚠️ Error syncing dateCycle:', error);
-                    }
-                }
-
-                // 🔹 Merge and update local storage with server-fetched events
-                const mergedCalendar = [...serverDateCycles, ...unsyncedDateCycles.map(dc => ({ ...dc, synced: "Yes" }))];
-
-                localStorage.setItem(`calendar_${calendar.cal_id}`, JSON.stringify(mergedCalendar));
+                // 🔹 Update Local Storage with Server dateCycles
+                await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
 
             } catch (error) {
                 console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);
@@ -1630,6 +1598,68 @@ async function syncDatecycles() {
     }
 }
 
+
+
+async function updateServerDatecycles(cal_id, serverDateCycles) {
+    const localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
+    const unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
+
+    for (const unsyncedEvent of unsyncedDateCycles) {
+        try {
+            const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(unsyncedEvent),
+            });
+
+            if (!syncResponse.ok) {
+                throw new Error(`Failed to sync event ${unsyncedEvent.title}. HTTP Status: ${syncResponse.status}`);
+            }
+
+            const syncData = await syncResponse.json();
+            if (syncData.success) {
+                // ✅ Update Local Storage Copy to "Yes"
+                unsyncedEvent.ID = syncData.id;
+                unsyncedEvent.synced = "Yes";
+            }
+        } catch (error) {
+            console.error('⚠️ Error syncing dateCycle:', error);
+        }
+    }
+
+    // 🔹 Save updated local storage after syncing
+    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
+}
+
+
+async function updateLocalDatecycles(cal_id, serverDateCycles) {
+    let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
+
+    // 🔹 Convert local storage into a dictionary for faster lookups
+    let localDateCycleMap = {};
+    localCalendar.forEach(dc => {
+        localDateCycleMap[dc.ID] = dc;
+    });
+
+    let updatedLocalCalendar = [...localCalendar];
+
+    for (const serverDateCycle of serverDateCycles) {
+        const localCopy = localDateCycleMap[serverDateCycle.ID];
+
+        if (!localCopy) {
+            // 🔹 If dateCycle is missing in local storage, add it
+            updatedLocalCalendar.push(serverDateCycle);
+            console.log(`📥 Downloaded new dateCycle: ${serverDateCycle.title}`);
+        } else if (new Date(serverDateCycle.last_edited) > new Date(localCopy.last_edited)) {
+            // 🔹 If the server version is newer, overwrite local
+            Object.assign(localCopy, serverDateCycle);
+            console.log(`🔄 Overwriting local dateCycle: ${serverDateCycle.title} with newer server version.`);
+        }
+    }
+
+    // 🔹 Save updated local storage
+    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
+}
 
 
 
@@ -1680,77 +1710,77 @@ function fetchDateCycleCalendars() {
 
 
 
-
-async function updateServer(dateCycles, calendarName, buwanaId) {
-    try {
-        // Ensure all dateCycles have required fields
-        const validCycles = dateCycles.map(dc => ({
-            ...dc,
-            Event_name: dc.Event_name || "Unnamed Event",
-            Day: dc.Day || "01",
-            Month: dc.Month || "01",
-            Year: dc.Year || new Date().getFullYear().toString(),
-            synced: "Yes", // Mark cycles as synced before sending
-        }));
-
-        console.log("Sending to server:", {
-            buwana_id: buwanaId,
-            calendar_name: calendarName,
-            datecycles: validCycles,
-        });
-
-        const response = await fetch('https://gobrik.com/earthcal/update_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_name: calendarName,
-                datecycles: validCycles,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update server data.');
-        }
-
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message || 'Unknown server error.');
-        }
-
-        console.log("Server update response:", result);
-        return { last_updated: result.last_updated }; // Return the latest sync timestamp
-    } catch (error) {
-        console.error('Error in updateServer:', error);
-        throw error;
-    }
-}
-
-
-function updateLocal(dateCycles, calendarName, calId) {
-    try {
-        const calendarKey = `calendar_${calId}`;
-        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
-
-        // Ensure all new cycles have required fields
-        const validDateCycles = dateCycles.map(dc => ({
-            ...dc,
-            synced: dc.synced || "Yes", // Default to "Yes" if not explicitly set
-        }));
-
-        // Remove only cycles explicitly marked for deletion or replaced by new data
-        const filteredDateCycles = existingCalendarData.filter(
-            dc => !validDateCycles.some(newCycle => newCycle.ID === dc.ID)
-        );
-
-        const updatedDateCycles = [...filteredDateCycles, ...validDateCycles];
-        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
-
-        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
-    } catch (error) {
-        console.error('Error updating local storage:', error);
-    }
-}
+//
+//async function updateServer(dateCycles, calendarName, buwanaId) {
+//    try {
+//        // Ensure all dateCycles have required fields
+//        const validCycles = dateCycles.map(dc => ({
+//            ...dc,
+//            Event_name: dc.Event_name || "Unnamed Event",
+//            Day: dc.Day || "01",
+//            Month: dc.Month || "01",
+//            Year: dc.Year || new Date().getFullYear().toString(),
+//            synced: "Yes", // Mark cycles as synced before sending
+//        }));
+//
+//        console.log("Sending to server:", {
+//            buwana_id: buwanaId,
+//            calendar_name: calendarName,
+//            datecycles: validCycles,
+//        });
+//
+//        const response = await fetch('https://gobrik.com/earthcal/update_calendar.php', {
+//            method: 'POST',
+//            headers: { 'Content-Type': 'application/json' },
+//            body: JSON.stringify({
+//                buwana_id: buwanaId,
+//                calendar_name: calendarName,
+//                datecycles: validCycles,
+//            }),
+//        });
+//
+//        if (!response.ok) {
+//            throw new Error('Failed to update server data.');
+//        }
+//
+//        const result = await response.json();
+//        if (!result.success) {
+//            throw new Error(result.message || 'Unknown server error.');
+//        }
+//
+//        console.log("Server update response:", result);
+//        return { last_updated: result.last_updated }; // Return the latest sync timestamp
+//    } catch (error) {
+//        console.error('Error in updateServer:', error);
+//        throw error;
+//    }
+//}
+//
+//
+//function updateLocal(dateCycles, calendarName, calId) {
+//    try {
+//        const calendarKey = `calendar_${calId}`;
+//        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
+//
+//        // Ensure all new cycles have required fields
+//        const validDateCycles = dateCycles.map(dc => ({
+//            ...dc,
+//            synced: dc.synced || "Yes", // Default to "Yes" if not explicitly set
+//        }));
+//
+//        // Remove only cycles explicitly marked for deletion or replaced by new data
+//        const filteredDateCycles = existingCalendarData.filter(
+//            dc => !validDateCycles.some(newCycle => newCycle.ID === dc.ID)
+//        );
+//
+//        const updatedDateCycles = [...filteredDateCycles, ...validDateCycles];
+//        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
+//
+//        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
+//    } catch (error) {
+//        console.error('Error updating local storage:', error);
+//    }
+//}
 
 
 function fetchLocalCalendarByCalId(calId) {

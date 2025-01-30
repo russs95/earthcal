@@ -338,7 +338,6 @@ window.onload = function() {
 
 
 
-syncDatecycles();
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
@@ -431,6 +430,9 @@ attachBreakoutTouchListeners();
   setYearsMonthsOn();
 
    updateTargetMonth();
+
+
+syncDatecycles();
    highlightDateCycles(targetDate);
 
   // displayMatchingDateCycle();
