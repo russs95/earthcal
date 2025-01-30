@@ -403,11 +403,11 @@ function prepLocalDatecycles(localCalendars) {
     localCalendars.forEach(calendar => {
         calendar.forEach(dateCycle => {
             let parsedData = null;
-            try {
-                parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
-            } catch (error) {
-                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
-            }
+//            try {
+//                parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
+//            } catch (error) {
+//                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
+//            }
 
             // Map the new database/JSON field names
             const preparedCycle = {
@@ -433,7 +433,7 @@ function prepLocalDatecycles(localCalendars) {
                 cal_name: dateCycle.cal_name || parsedData?.cal_name || 'missing',
                 cal_color: dateCycle.cal_color || parsedData?.cal_color || 'missing',
                 last_edited: dateCycle.last_edited || parsedData?.last_edited || new Date().toISOString(),
-                raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
+                //raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
             };
 
             preparedCycles.push(preparedCycle);
@@ -1831,7 +1831,7 @@ function fetchLocalCalendarByCalId(calId) {
             conflict: dateCycle.conflict || "No",
             delete_it: dateCycle.delete || "No",
             last_edited: dateCycle.last_edited || new Date().toISOString(),
-            raw_json: JSON.stringify(dateCycle),
+            //raw_json: JSON.stringify(dateCycle),
         }));
     } catch (error) {
         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
