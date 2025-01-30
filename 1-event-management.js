@@ -1527,11 +1527,11 @@ function animateSyncButton() {
     });
 }
 
-
 async function syncDatecycles() {
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
+
         if (!buwanaId) {
             alert('Buwana ID is missing. Please log in again.');
             return;
@@ -1582,24 +1582,44 @@ async function syncDatecycles() {
             try {
                 console.log('📂 Processing calendar:', calendar);
 
+                // 🔹 **Validate `buwanaId` and `cal_id` Before API Call**
+                if (!buwanaId) {
+                    console.error("❌ Missing buwana_id. Cannot fetch calendar data.");
+                    continue;
+                }
+
+                if (!calendar.cal_id) {
+                    console.error("❌ Missing cal_id for calendar:", calendar);
+                    continue;
+                }
+
+                console.log(`📡 Fetching dateCycles for cal_id: ${calendar.cal_id}, buwana_id: ${buwanaId}`);
+
                 // 🔹 Fetch dateCycles from the server (if the calendar exists on the server)
                 let serverDateCycles = [];
                 if (serverCalendars.length > 0) {
-                    const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendar.cal_id }),
-                    });
+                    const payload = {
+                        buwana_id: buwanaId,
+                        cal_id: calendar.cal_id
+                    };
 
-                    if (!calendarResponse.ok) {
-                        throw new Error(`Failed to fetch dateCycles for calendar ID ${calendar.cal_id}. HTTP Status: ${calendarResponse.status}`);
-                    }
+                    try {
+                        const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
 
-                    const calendarData = await calendarResponse.json();
-                    console.log("🌍 Full Server Response:", calendarData);
+                        const responseData = await calendarResponse.json();
 
-                    if (calendarData.success && calendarData.dateCycles) {
-                        serverDateCycles = calendarData.dateCycles;
+                        if (!responseData.success) {
+                            console.error(`⚠️ API Error: ${responseData.message}`);
+                        } else {
+                            console.log("✅ Server dateCycles fetched successfully:", responseData.dateCycles);
+                            serverDateCycles = responseData.dateCycles || [];
+                        }
+                    } catch (error) {
+                        console.error("⚠️ Fetch error when retrieving dateCycles:", error);
                     }
                 }
 
@@ -1623,6 +1643,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 
