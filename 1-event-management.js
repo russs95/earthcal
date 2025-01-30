@@ -1502,16 +1502,35 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
 }
 
 
+function animateSyncButton() {
+    const syncButton = document.getElementById('sync-button');
+    const countDiv = document.getElementById('cal-datecycle-count');
+
+    if (!syncButton) return; // Exit if button doesn't exist
+
+    // 🔄 Start Loading Animation
+    syncButton.classList.add('loading');
+    syncButton.innerText = "Syncing...";
+
+    // Wait for `syncDatecycles()` to finish before updating UI
+    syncDatecycles().then((syncSummary) => {
+        syncButton.classList.remove('loading');
+        syncButton.innerText = "✅ Sync Successful!";
+
+        if (syncSummary) {
+            countDiv.innerText = syncSummary;
+        }
+    }).catch((error) => {
+        syncButton.classList.remove('loading');
+        syncButton.innerText = "⚠️ Sync Failed!";
+        console.error("Sync failed:", error);
+    });
+}
+
+
 
 async function syncDatecycles() {
     try {
-        const syncButton = document.getElementById('sync-button');
-        const countDiv = document.getElementById('cal-datecycle-count');
-
-        // 🔄 Start Loading Animation
-        syncButton.classList.add('loading');
-        syncButton.innerText = "Syncing...";
-
         const buwanaId = localStorage.getItem('buwana_id');
         if (!buwanaId) {
             alert('Buwana ID is missing. Please log in again.');
@@ -1543,9 +1562,11 @@ async function syncDatecycles() {
         }
 
         if (!hasInternetConnection) return;
+
+        // 🔹 **Handle case where no calendars exist on the server**
         if (serverCalendars.length === 0) {
-            console.warn("No calendars found for this user.");
-            return;
+            console.warn("⚠️ No calendars found for this user. Sync completed.");
+            return "No updates available. Your data is already up to date.";
         }
 
         for (const calendar of serverCalendars) {
@@ -1566,8 +1587,8 @@ async function syncDatecycles() {
                 const calendarData = await calendarResponse.json();
                 console.log("🌍 Full Server Response:", calendarData);
 
-                if (!calendarData.success || !calendarData.dateCycles) {
-                    console.warn(`⚠️ No dateCycles found for cal_id: ${calendar.cal_id}`);
+                if (!calendarData.success || !calendarData.dateCycles || calendarData.dateCycles.length === 0) {
+                    console.warn(`⚠️ No dateCycles found for cal_id: ${calendar.cal_id}, skipping.`);
                     continue;
                 }
 
@@ -1586,19 +1607,14 @@ async function syncDatecycles() {
             }
         }
 
-        // ✅ Stop Loading Animation & Show Success
-        syncButton.classList.remove('loading');
-        syncButton.innerText = "✅ Sync Successful!";
-
-        // ✅ Update the count display
-        countDiv.innerText = `Your ${serverCalendars.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
-
         console.log("✅ Sync complete. Local calendars updated.");
-        highlightDateCycles(targetDate);
+        return `Your ${serverCalendars.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
     } catch (error) {
-        alert('⚠️ An error occurred while syncing your calendars. Please try again.');
+        console.error("Sync failed:", error);
+        return "⚠️ Sync failed!";
     }
 }
+
 
 
 

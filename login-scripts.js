@@ -153,9 +153,11 @@ function showLoggedInView(userData) {
             ${publicCalendarHTML}
         </form>
         <div id="logged-in-buttons" style="width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-    <button id="sync-button" type="button" class="confirmation-blur-button enabled" onclick="syncDatecycles()">
-        🔄 Sync Now
-    </button>
+    <button id="sync-button" type="button" class="confirmation-blur-button enabled"
+        onclick="animateSyncButton(); syncDatecycles();">
+    🔄 Sync Now
+</button>
+
 
     <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
 </div>
