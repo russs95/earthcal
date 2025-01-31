@@ -1,4 +1,4 @@
-//  OPENING THE ADD DATECYLCE FORM
+//  OPENING THE ADD DATECYCLE FORM
 // noinspection ExceptionCaughtLocallyJS
 
 
@@ -1625,9 +1625,8 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
-    const buwanaId = localStorage.getItem('buwana_id'); // Ensure we get the buwana_id
+    const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
         console.error("❌ Missing buwana_id. Cannot sync dateCycles.");
         return;
@@ -1649,10 +1648,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     for (let i = 0; i < unsyncedDateCycles.length; i++) {
         let unsyncedEvent = unsyncedDateCycles[i];
 
-        // Ensure the event does not already exist in serverDateCycles (by comparing title, date, etc.)
+        // Ensure the event does not already exist in serverDateCycles (by comparing created_at)
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
-            dc.title === unsyncedEvent.title &&
-            dc.date === unsyncedEvent.date &&
+            dc.created_at === unsyncedEvent.created_at &&
             dc.cal_id == unsyncedEvent.cal_id
         );
 
@@ -1663,6 +1661,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
 
         try {
+            // Generate a created_at timestamp if missing
+            if (!unsyncedEvent.created_at) {
+                unsyncedEvent.created_at = new Date().toISOString(); // Ensure it's recorded
+            }
+
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
@@ -1677,6 +1680,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comment: unsyncedEvent.comment,
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
+                created_at: unsyncedEvent.created_at, // ✅ Include created_at
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
                 pinned: unsyncedEvent.pinned,
@@ -1718,6 +1722,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage after syncing
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
 }
+
 
 
 
