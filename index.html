@@ -306,8 +306,8 @@ cursor:pointer;}
   display:none;}
 
   .modal-visible {
-  display: block;
-
+      display: block;
+  }
 
   #user-details {
 cursor:pointer !important;
@@ -638,7 +638,7 @@ setTimeout(showIntroModal, 5000);
 
 
         <!--To be shown upon login-->
-        <div id="logged-in-view" style="display:none; text-align-center; margin:auto;">
+        <div id="logged-in-view" style="display:none; text-align:center; margin:auto;">
 
         </div>
     </div>
@@ -901,7 +901,7 @@ margin-bottom: 25px;">
           <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
         </div>
 
-        <button type="button" id="confirm-dateCycle-button" onclick="addDatecycle();" class="confirmation-blur-button enabled" style="width:70%;height:45px">+ Add Event</button>
+        <button type="button" id="confirm-dateCycle-button" onclick="addDatecycle();" class="confirmation-blur-button enabled" style="width:70%;height:45px">+ Add Event Please</button>
 <!--checkAndDisplayMatchingDateCycles()-->
 
       </div>
@@ -1029,7 +1029,7 @@ margin-bottom: 25px;">
                 z-index: 21;
                 ">
     </div>
-    <div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>
+    <div id="bottom-gradient-current" class="bottom-gradient-overlay"></div>
 </div>
       </div>
 
