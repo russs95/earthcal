@@ -42,6 +42,8 @@ async function openAddCycle() {
     populateCalendarDropdown(buwanaId);
 }
 
+
+
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
@@ -184,11 +186,6 @@ async function populateCalendarDropdown(buwanaId) {
 
 
 
-
-
-
-
-
 function populateDateFields(targetDate) {
     console.log('populateDateFields called with targetDate:', targetDate);
 
@@ -248,7 +245,6 @@ function populateDateFields(targetDate) {
 
 
 
-
 async function addNewCalendar() {
     console.log('addNewCalendar called.');
 
@@ -267,11 +263,15 @@ async function addNewCalendar() {
         return;
     }
 
+    // 🔹 Generate `created_at` timestamp in milliseconds
+    const createdAt = Date.now();
+
     const newCalendar = {
         buwana_id: buwanaId,
         name: calendarName,
         color: color,
-        public: isPublic ? 1 : 0 // Convert boolean to 1/0 for PHP
+        public: isPublic ? 1 : 0, // Convert boolean to 1/0 for PHP
+        created_at: createdAt // ✅ Pass the created_at timestamp
     };
 
     try {
@@ -294,7 +294,8 @@ async function addNewCalendar() {
                 id: result.calendar_id,
                 name: calendarName,
                 color: color,
-                public: isPublic
+                public: isPublic,
+                created_at: createdAt // ✅ Store created_at locally
             });
             localStorage.setItem('userCalendars', JSON.stringify(userCalendars));
 
@@ -308,10 +309,6 @@ async function addNewCalendar() {
         alert('An error occurred while adding the calendar. Please try again later.');
     }
 }
-
-
-
-
 
 
 
@@ -1057,20 +1054,20 @@ function editDateCycle(dateCycleID) {
 
         <div id="edit-set-date">
           <div class="date-search fields" style="display: flex; flex-flow: row; margin: auto; justify-content: center;" >
-            <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 45px;margin-left: 0px;" class="blur-form-field">
+            <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 45px;margin-left: 0;" class="blur-form-field">
               <option value="" disabled>Select day...</option>
               ${Array.from({length: 31}, (_, i) => `<option value="${i + 1}" ${dateCycle.Day === String(i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
             </select>
-            <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 45px;margin-right: 0px;" class="blur-form-field">
+            <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 45px;margin-right: 0;" class="blur-form-field">
               <option value="" disabled>Select month...</option>
               ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         .map((month, i) => `<option value="${i + 1}" ${dateCycle.Month === String(i + 1) ? 'selected' : ''}>${month}</option>`).join('')}
             </select>
           </div>
 
-          <div id="edit-name-event" style="margin-top: 0px; display: flex; justify-content: center;margin-left: 0px;margin-right: auto; border-radius: 10px 0px 0px 10px;width: 100%;">
-            <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left: 0px;margin-right: auto; border-radius: 10px 0 0 10px;width: calc(100% - 80px);">${dateCycle.Event_name || ''}</textarea>
-            <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding: 10px; border-radius: 0px 10px 10px 0px; font-size: 1.5em;width:60px; margin-left: -40px;margin-right: 0px;">
+          <div id="edit-name-event" style="margin-top: 0; display: flex; justify-content: center;margin-left: 0;margin-right: auto; border-radius: 10px 0 0 10px;width: 100%;">
+            <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left: 0;margin-right: auto; border-radius: 10px 0 0 10px;width: calc(100% - 80px);">${dateCycle.Event_name || ''}</textarea>
+            <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding: 10px; border-radius: 0 10px 10px 0; font-size: 1.5em;width:60px; margin-left: -40px;margin-right: 0;">
               <option value="green" ${dateCycle.calendar_color === 'green' ? 'selected' : ''}>🟢</option>
               <option value="yellow" ${dateCycle.calendar_color === 'yellow' ? 'selected' : ''}>🟡</option>
               <option value="orange" ${dateCycle.calendar_color === 'orange' ? 'selected' : ''}>🟠</option>
@@ -1079,8 +1076,8 @@ function editDateCycle(dateCycleID) {
             </select>
           </div>
 
-          <div id="edit-add-note-form" style="margin-top: 0px; margin-bottom: 0px;">
-            <textarea id="edit-add-date-note" class="blur-form-field" style="width: calc(100% - 10px);padding-right:0px;" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
+          <div id="edit-add-note-form" style="margin-top: 0; margin-bottom: 0;">
+            <textarea id="edit-add-date-note" class="blur-form-field" style="width: calc(100% - 10px);padding-right:0;" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
           </div>
           <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width: 100%;" onclick="saveDateCycleEditedChanges('${dateCycleID}', '${calendarKey}')">🐿️ Save Changes</button>
         </div>
