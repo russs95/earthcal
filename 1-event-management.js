@@ -42,14 +42,13 @@ async function openAddCycle() {
     populateCalendarDropdown(buwanaId);
 }
 
-
 async function populateCalendarDropdown(buwanaId) {
     console.log('populateCalendarDropdown called with buwanaId:', buwanaId);
 
     const calendarDropdown = document.getElementById('select-calendar');
     const hiddenCalendarId = document.getElementById('set-calendar-id');
     const hiddenCalendarColor = document.getElementById('set-calendar-color');
-    const hiddenBuwanaId = document.getElementById('buwana-id'); // Reference to the hidden buwana_id field
+    const hiddenBuwanaId = document.getElementById('buwana-id');
 
     if (!calendarDropdown || !hiddenCalendarId || !hiddenCalendarColor || !hiddenBuwanaId) {
         console.error('Dropdown or hidden fields not found or inaccessible.');
@@ -83,53 +82,59 @@ async function populateCalendarDropdown(buwanaId) {
             hiddenBuwanaId.value = result.buwana_id;
             console.log(`buwana_id set to: ${result.buwana_id}`);
 
-            calendars = result.calendars || [];
+            // 🔹 **Ensure correct key mapping (`calendar_id` → `cal_id`, `calendar_name` → `name`)**
+            calendars = result.calendars.map(calendar => ({
+                cal_id: calendar.calendar_id || calendar.cal_id, // Normalize key names
+                name: calendar.calendar_name || calendar.name,
+                color: calendar.calendar_color || calendar.color,
+            }));
 
-            // Look for "My Calendar"
+            // 🔹 **Look for "My Calendar" in the API response**
             const myCalendar = calendars.find(calendar => calendar.name === "My Calendar");
 
             if (myCalendar) {
                 myCalendarFound = true;
-                hiddenCalendarId.value = myCalendar.cal_id; // Use cal_id
+                hiddenCalendarId.value = myCalendar.cal_id;
                 hiddenCalendarColor.value = myCalendar.color;
 
-                console.log(`Prepopulated hidden fields with My Calendar: ID = ${myCalendar.cal_id}, Color = ${myCalendar.color}`);
+                console.log(`✅ Prepopulated hidden fields with My Calendar: ID = ${myCalendar.cal_id}, Color = ${myCalendar.color}`);
             }
         }
 
-        // Clear existing options
+        // 🔹 **Clear existing options**
         calendarDropdown.innerHTML = '';
 
         if (!myCalendarFound) {
-            console.log('My Calendar not found in database, using default settings.');
+            console.log('⚠️ My Calendar not found in database, using default settings.');
             hiddenCalendarId.value = '000';
             hiddenCalendarColor.value = 'Blue';
-            hiddenBuwanaId.value = 'undefined'; // Set a default buwana_id for offline use
-            console.log('Default values set in hidden fields: ID = 000, Color = Blue');
+            hiddenBuwanaId.value = 'undefined';
+
+            console.log('✅ Default values set in hidden fields: ID = 000, Color = Blue');
 
             calendars.unshift({
-                cal_id: '000', // Use cal_id
+                cal_id: '000',
                 name: 'My Calendar',
                 color: 'Blue',
             });
         }
 
         if (calendars.length === 0) {
-            console.log('No calendars found. Adding placeholder.');
+            console.log('⚠️ No calendars found. Adding placeholder.');
             calendarDropdown.innerHTML = '<option disabled selected>No calendars found. Add a new one below.</option>';
             document.getElementById('addNewCalendar').style.display = 'block';
             return;
         }
 
-        // Populate the dropdown with calendars
+        // 🔹 **Populate the dropdown**
         calendars.forEach(calendar => {
             if (!calendar.name || !calendar.color) {
-                console.warn('Skipping invalid calendar:', calendar);
+                console.warn('⚠️ Skipping invalid calendar:', calendar);
                 return;
             }
 
             const option = document.createElement('option');
-            option.value = calendar.cal_id; // Use cal_id
+            option.value = calendar.cal_id;
             option.style.color = calendar.color.toLowerCase();
             option.textContent = calendar.name;
 
@@ -138,15 +143,17 @@ async function populateCalendarDropdown(buwanaId) {
             }
 
             calendarDropdown.appendChild(option);
-            console.log(`Added option with color: ${calendar.color}`);
+            console.log(`✅ Added option with color: ${calendar.color}`);
         });
 
+        // 🔹 **Add "Add New Calendar" option**
         const addNewOption = document.createElement('option');
         addNewOption.value = "add_new_calendar";
         addNewOption.textContent = "+ Add New Calendar...";
         calendarDropdown.appendChild(addNewOption);
-        console.log('Added "+ Add New Calendar..." option.');
+        console.log('✅ Added "+ Add New Calendar..." option.');
 
+        // 🔹 **Dropdown Change Event**
         calendarDropdown.addEventListener('change', (event) => {
             const selectedOption = event.target.selectedOptions[0];
             const selectedCalendarId = selectedOption.value;
@@ -156,21 +163,22 @@ async function populateCalendarDropdown(buwanaId) {
             hiddenCalendarId.value = selectedCalendarId;
             hiddenCalendarColor.value = selectedCalendarColor;
 
-            console.log(`Updated hidden fields: ID = ${selectedCalendarId}, Color = ${selectedCalendarColor}, Name = ${selectedCalendarName}`);
+            console.log(`🔄 Updated hidden fields: ID = ${selectedCalendarId}, Color = ${selectedCalendarColor}, Name = ${selectedCalendarName}`);
 
             if (selectedCalendarId === "add_new_calendar") {
-                console.log('"Add New Calendar" option selected.');
+                console.log('🆕 "Add New Calendar" option selected.');
                 showAdderForm();
             }
         });
 
         document.getElementById('addNewCalendar').style.display = 'none';
-        console.log('Dropdown populated successfully.');
+        console.log('✅ Dropdown populated successfully.');
     } catch (error) {
-        console.error('Error populating dropdown:', error);
+        console.error('❌ Error populating dropdown:', error);
         calendarDropdown.innerHTML = '<option disabled selected>Loading calendars....</option>';
     }
 }
+
 
 
 
