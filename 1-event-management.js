@@ -677,56 +677,56 @@ function initializeToggleListener() {
 
 
 
-
-
-function strikeDateCycle(dateCycleID) {
-    console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
-
-    // Ensure the ID is a string for consistent comparison
-    const targetID = String(dateCycleID);
-
-    // Step 1: Retrieve all calendar keys from localStorage
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
-    let updatedDateCycle = null;
-
-    // Step 2: Iterate through calendar arrays to find and update the dateCycle
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-
-        // Convert stored IDs to strings for comparison
-        const dateCycleIndex = calendarData.findIndex(dc => String(dc.ID) === targetID);
-
-        if (dateCycleIndex !== -1) {
-            // Step 3: Toggle the 'completed' status
-            let dateCycle = calendarData[dateCycleIndex];
-            dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
-
-            // Step 4: If 'synced' is 'Yes', change it to 'No' and update the server
-            if (dateCycle.synced === 'Yes') {
-                dateCycle.synced = 'No';
-                updateServerDateCycle(dateCycle);
-            }
-
-            // Step 5: Update localStorage with the modified calendar data
-            calendarData[dateCycleIndex] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-
-            console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
-            updatedDateCycle = dateCycle;
-            found = true;
-            break; // Exit loop once updated
-        }
-    }
-
-    // Step 6: Handle case where the dateCycle ID was not found
-    if (!found) {
-        console.error(`❌ Huh...No dateCycle found with ID: ${targetID}`);
-    } else {
-        // Step 7: Refresh the UI
-        highlightDateCycles(targetDate);
-    }
-}
+//
+//
+// function strikeDateCycle(dateCycleID) {
+//     console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
+//
+//     // Ensure the ID is a string for consistent comparison
+//     const targetID = String(dateCycleID);
+//
+//     // Step 1: Retrieve all calendar keys from localStorage
+//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+//     let found = false;
+//     let updatedDateCycle = null;
+//
+//     // Step 2: Iterate through calendar arrays to find and update the dateCycle
+//     for (const key of calendarKeys) {
+//         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+//
+//         // Convert stored IDs to strings for comparison
+//         const dateCycleIndex = calendarData.findIndex(dc => String(dc.ID) === targetID);
+//
+//         if (dateCycleIndex !== -1) {
+//             // Step 3: Toggle the 'completed' status
+//             let dateCycle = calendarData[dateCycleIndex];
+//             dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
+//
+//             // Step 4: If 'synced' is 'Yes', change it to 'No' and update the server
+//             if (dateCycle.synced === 'Yes') {
+//                 dateCycle.synced = 'No';
+//                 updateServerDateCycle(dateCycle);
+//             }
+//
+//             // Step 5: Update localStorage with the modified calendar data
+//             calendarData[dateCycleIndex] = dateCycle;
+//             localStorage.setItem(key, JSON.stringify(calendarData));
+//
+//             console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
+//             updatedDateCycle = dateCycle;
+//             found = true;
+//             break; // Exit loop once updated
+//         }
+//     }
+//
+//     // Step 6: Handle case where the dateCycle ID was not found
+//     if (!found) {
+//         console.error(`❌ Huh...No dateCycle found with ID: ${targetID}`);
+//     } else {
+//         // Step 7: Refresh the UI
+//         highlightDateCycles(targetDate);
+//     }
+// }
 
 
 
@@ -1468,6 +1468,10 @@ async function addDatecycle() {
     document.getElementById('add-date-note').value = '';
 
     console.log("✅ DateCycle added successfully:", dateCycle);
+    closeAddCycle();
+    closeDateCycleExports();
+    await highlightDateCycles(targetDate);
+
 }
 
 
@@ -1722,6 +1726,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage after syncing
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
 }
+
+
+
 
 
 
