@@ -1450,9 +1450,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
-    for (let i = 0; i < unsyncedDateCycles.length; i++) {
-        let unsyncedEvent = unsyncedDateCycles[i];
-
+    for (let unsyncedEvent of unsyncedDateCycles) {
         // Ensure `created_at` is defined
         if (!unsyncedEvent.created_at) {
             unsyncedEvent.created_at = new Date().toISOString(); // ✅ Ensure it exists
@@ -1460,13 +1458,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
         // Ensure the event does not already exist in serverDateCycles (by comparing created_at)
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
-            dc.created_at === unsyncedEvent.created_at &&
-            dc.cal_id == unsyncedEvent.cal_id
+            dc.created_at === unsyncedEvent.created_at && dc.cal_id == unsyncedEvent.cal_id
         );
 
         if (alreadyExistsOnServer) {
             console.log(`🚫 Skipping already synced event: ${unsyncedEvent.title}`);
-            unsyncedEvent.synced = "Yes"; // Mark it as synced locally
             continue;
         }
 
@@ -1474,8 +1470,8 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
-                cal_name: unsyncedEvent.cal_name,  // ✅ Corrected name
-                cal_color: unsyncedEvent.cal_color,  // ✅ Added cal_color
+                cal_name: unsyncedEvent.cal_name,
+                cal_color: unsyncedEvent.cal_color,
                 title: unsyncedEvent.title,
                 date: unsyncedEvent.date,
                 time: unsyncedEvent.time,
@@ -1513,12 +1509,16 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
 
-            // ✅ Update the correct item inside localStorage
-            unsyncedEvent.ID = syncData.id;
-            unsyncedEvent.synced = "Yes";
+            // ✅ Find the correct item in `localCalendar` and update it
+            let matchingEventIndex = localCalendar.findIndex(dc => dc.created_at === unsyncedEvent.created_at);
 
-            // Replace the item in the localCalendar array with the updated version
-            localCalendar[i] = unsyncedEvent;
+            if (matchingEventIndex !== -1) {
+                localCalendar[matchingEventIndex].ID = syncData.id;
+                localCalendar[matchingEventIndex].synced = "Yes"; // ✅ Ensure it's updated after successful sync
+            } else {
+                console.warn(`⚠️ Warning: Could not find the original dateCycle to update after syncing! 
+                Title: ${unsyncedEvent.title}, Created At: ${unsyncedEvent.created_at}, Calendar ID: ${cal_id}`);
+            }
 
         } catch (error) {
             console.error('⚠️ Error syncing dateCycle:', error);
