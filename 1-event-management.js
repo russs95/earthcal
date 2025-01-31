@@ -1527,6 +1527,7 @@ function animateSyncButton() {
     });
 }
 
+
 async function syncDatecycles() {
     try {
         console.log("Starting dateCycle sync...");
@@ -1553,8 +1554,16 @@ async function syncDatecycles() {
             const serverData = await response.json();
             if (!serverData.success) throw new Error(serverData.message || 'Failed to retrieve calendar data.');
 
-            serverCalendars = serverData.calendars || [];
-            console.log('✅ Fetched server calendars:', serverCalendars);
+            // 🔹 **Standardize `calendar_id` to `cal_id`**
+            serverCalendars = serverData.calendars.map(calendar => ({
+                cal_id: calendar.calendar_id, // Rename key
+                cal_name: calendar.calendar_name,
+                cal_color: calendar.calendar_color,
+                calendar_public: calendar.calendar_public,
+                last_updated: calendar.last_updated
+            }));
+
+            console.log('✅ Fetched and transformed server calendars:', serverCalendars);
         } catch (error) {
             console.warn('⚠️ Unable to fetch server data:', error);
             hasInternetConnection = false;
@@ -1643,6 +1652,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 

@@ -190,7 +190,7 @@ async function activateEarthcalAccount() {
             return;
         }
 
-        const response = await fetch('https://gobrik.com/api/earthcal_activate.php', {
+        const response = await fetch('https://gobrik.com/earthcal/earthcal_activate.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -220,7 +220,7 @@ async function activateEarthcalAccount() {
             }
 
             // Fetch user and calendar data dynamically
-            const fetchResponse = await fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+            const fetchResponse = await fetch('https://gobrik.com/earthcal/fetch_user_data.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: buwanaId })
