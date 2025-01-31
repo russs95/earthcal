@@ -2724,8 +2724,8 @@ svg path #june:hover {
     border-radius: 10px;
     border: none;
     font-size: larger;
-    background-color: var(--form-conf-background);
-    color: var(--form-conf-text);
+    background-color: var(--button-2-1);
+    color: var(--top-header);
     margin: 20px auto 0px auto;
     cursor: pointer;
 }
@@ -2757,5 +2757,6 @@ svg path #june:hover {
 
 
   #sync-button:hover {
-  background-color: var(--form-conf-background-over);
+ background-color: var(--button-2-1-over);
+    color: var(--text-color);
   }
