@@ -376,7 +376,7 @@ async function highlightDateCycles(targetDate) {
     // 2. Fetch all dateCycles from localStorage
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
-        console.warn("⚠️ No dateCycles found in storage.");
+        console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         return;
     }
 
