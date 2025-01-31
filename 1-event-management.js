@@ -582,10 +582,6 @@ function updateServerDateCycle(dateCycle) {
 
 
 
-
-
-
-
 function pinThisDatecycle(element) {
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
