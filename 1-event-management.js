@@ -1423,7 +1423,6 @@ async function syncDatecycles() {
 }
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1434,7 +1433,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // Retrieve local calendar events
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // Filter unsynced dateCycles
+    // Filter only unsynced dateCycles
     let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
 
     if (unsyncedDateCycles.length === 0) {
@@ -1445,9 +1444,15 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
+        // ✅ Skip any event that is already synced (extra safeguard)
+        if (unsyncedEvent.synced === "Yes") {
+            console.log(`🚫 Skipping already synced event: ${unsyncedEvent.title}`);
+            continue;
+        }
+
         // Ensure `created_at` exists
         if (!unsyncedEvent.created_at) {
-            unsyncedEvent.created_at = new Date().toISOString(); // ✅ Ensure created_at is set
+            unsyncedEvent.created_at = new Date().toISOString();
         }
 
         try {
