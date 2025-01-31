@@ -1359,7 +1359,6 @@ function handleKeyPress(event) {
 // ADD DATECYCLE
 //**************
 
-
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1390,13 +1389,16 @@ async function addDatecycle() {
         ? document.getElementById('year-field2').value || ""
         : new Date().getFullYear();
 
+    // Construct the JavaScript `Date` object properly
+    const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
+
     // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
     // Generate `created_at` timestamp
-    const createdAt = new Date().toISOString(); // ✅ Use ISO 8601 format (milliseconds included)
+    const createdAt = new Date().toISOString(); // ✅ Use ISO 8601 format
 
     // Generate a dateCycle ID
     const calendarStorageKey = `calendar_${selCalendarId}`;
@@ -1427,7 +1429,7 @@ async function addDatecycle() {
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
         title: addDateTitle,
-        date: `-${dayField}-${monthField}-${yearField}`,
+        date: `${yearField}-${monthField}-${dayField}`, // ✅ Correct format
         time: "under dev",
         time_zone: "under dev",
         day: dayField,
@@ -1447,7 +1449,6 @@ async function addDatecycle() {
         conflict: "No",
     };
 
-
     // Add the new dateCycle to localStorage
     try {
         existingCalendar.push(dateCycle);
@@ -1458,8 +1459,11 @@ async function addDatecycle() {
         return;
     }
 
+    console.log(`📥 Stored new dateCycle in localStorage:`, JSON.stringify(dateCycle, null, 2));
+
+
     // Attempt to sync with the server
-    syncDatecycles();
+    await syncDatecycles();
 
     // Clear form fields
     document.getElementById('select-calendar').value = 'Select calendar...';
@@ -1471,9 +1475,12 @@ async function addDatecycle() {
     console.log("✅ DateCycle added successfully:", dateCycle);
     closeAddCycle();
     closeDateCycleExports();
-    await highlightDateCycles(targetDate);
 
+    // ✅ Ensure `highlightDateCycles` gets the correct date
+    console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
+    await highlightDateCycles(targetDate);
 }
+
 
 
 
