@@ -2721,14 +2721,13 @@ svg path #june:hover {
 #sync-button {
     position: relative;
     padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
+    border-radius: 10px;
     border: none;
-    border-radius: 5px;
+    font-size: larger;
+    background-color: var(--form-conf-background);
+    color: var(--form-conf-text);
+    margin: 20px auto 0px auto;
     cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    transition: background-color 0.3s ease-in-out;
 }
 
 #sync-button.loading {
@@ -2754,3 +2753,9 @@ svg path #june:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+
+  #sync-button:hover {
+  background-color: var(--form-conf-background-over);
+  }
