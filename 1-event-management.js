@@ -360,10 +360,12 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
-    // Normalize `targetDate` to match the stored dateCycle format
-    const formattedTargetDate = `-${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}`;
+    // ✅ Ensure targetDate is a Date object and normalize it to match stored format
+    const targetDateObj = new Date(targetDate);
+    const formattedTargetDate = `-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
+
+    console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
 
     // 1. Remove the "date_event" class from all previously highlighted elements
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -374,6 +376,7 @@ async function highlightDateCycles(targetDate) {
     // 2. Fetch all dateCycles from localStorage
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
+        console.warn("⚠️ No dateCycles found in storage.");
         return;
     }
 
@@ -423,6 +426,7 @@ async function highlightDateCycles(targetDate) {
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
 }
+
 
 
 
