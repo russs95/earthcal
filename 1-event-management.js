@@ -1254,7 +1254,7 @@ async function addDatecycle() {
 
 
     // Attempt to sync with the server
-    await syncDatecycles();
+    //await syncDatecycles();
 
     // Clear form fields
     document.getElementById('select-calendar').value = 'Select calendar...';
