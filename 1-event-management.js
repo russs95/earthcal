@@ -356,66 +356,6 @@ function closeAddCycle() {
 
 
 
-//
-// function modalCloseCurtains ( e ) {
-//   if ( !e.keyCode || e.keyCode === 27 ) {
-//
-//   document.body.style.overflowY = "unset";
-//   document.getElementById("right-settings-overlay").style.width = "0%";
-//   /*document.getElementById("knack-overlay-curtain").style.height = "0%";*/
-//
-//   }
-// }
-//
-// document.addEventListener('keydown', modalCloseCurtains);
-//
-
-
-
-
-
-function prepLocalDatecycles(localCalendars) {
-    const preparedCycles = [];
-
-    localCalendars.forEach(calendar => {
-        calendar.forEach(dateCycle => {
-            let parsedData = null;
-
-            // Map the new database/JSON field names
-            const preparedCycle = {
-                buwana_id: localStorage.getItem('buwana_id') || 'missing',
-                cal_id: dateCycle.cal_id || parsedData?.cal_id || 'missing',
-                event_name: dateCycle.title || parsedData?.title || 'missing',
-                date: dateCycle.date || parsedData?.date || 'missing',
-                time: dateCycle.time || parsedData?.time || 'under dev',
-                time_zone: dateCycle.time_zone || parsedData?.time_zone || 'under dev',
-                day: dateCycle.day || parsedData?.day || 'missing',
-                month: dateCycle.month || parsedData?.month || 'missing',
-                year: dateCycle.year || parsedData?.year || 'missing',
-                comment: dateCycle.comment || parsedData?.comment || 'No',
-                comments: dateCycle.comments || parsedData?.comments || '',
-                frequency: dateCycle.frequency || parsedData?.frequency || 'One-time',
-                pinned: dateCycle.pinned || parsedData?.pinned || 'No',
-                completed: dateCycle.completed || parsedData?.completed || 'No',
-                public: dateCycle.public || parsedData?.public || 'No',
-                delete_it: dateCycle.delete_it || parsedData?.delete_it || 'No', // ✅ Updated field name
-                synced: dateCycle.synced || parsedData?.synced || 'No',
-                conflict: dateCycle.conflict || parsedData?.conflict || 'No',
-                datecycle_color: dateCycle.datecycle_color || parsedData?.datecycle_color || 'missing',
-                cal_name: dateCycle.cal_name || parsedData?.cal_name || 'missing',
-                cal_color: dateCycle.cal_color || parsedData?.cal_color || 'missing',
-                last_edited: dateCycle.last_edited || parsedData?.last_edited || new Date().toISOString(),
-                //raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
-            };
-
-            preparedCycles.push(preparedCycle);
-        });
-    });
-
-    return preparedCycles; // Return the array of prepared dateCycles
-}
-
-
 
 
 
@@ -577,72 +517,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
-//
-//
-//
-//function displayMatchingDateCycle() {
-//    const dateCycles = fetchDateCycleCalendars();
-//    if (!dateCycles || dateCycles.length === 0) {
-//        console.log("No dateCycles found in storage.");
-//        return;
-//    }
-//
-//    // Separate public, pinned, and unpinned dateCycles
-//    const publicDateCycles = dateCycles.filter(dc => dc.public.toLowerCase() === 'yes');
-//    const pinnedDateCycles = dateCycles.filter(dc =>
-//        (dc.pinned || '').trim().toLowerCase() === 'yes' && dc.public.toLowerCase() !== 'yes' // Exclude public ones
-//    );
-//    const unpinnedDateCycles = dateCycles.filter(dc =>
-//        (dc.pinned || '').trim().toLowerCase() !== 'yes' && dc.public.toLowerCase() !== 'yes' &&
-//        (dc.delete_it || '').trim().toLowerCase() !== 'yes' // Exclude deleted cycles
-//    );
-//
-//    // Filter unpinned dateCycles further to match the target date
-//    const matchingDateCycles = unpinnedDateCycles.filter(dc =>
-//        findMatchingDateCycles([dc]).length > 0
-//    );
-//
-//    // Get the current date in the same format as targetDate
-//    const currentDate = new Date();
-//    const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-//
-//    // Determine if the target date is the current date
-//    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
-//
-//    // 🔹 **Update `current-datecycles` with matching unpinned dateCycles**
-//    const matchingDiv = document.getElementById('current-datecycles');
-//    if (matchingDiv) {
-//        matchingDiv.innerHTML = ""; // Clear previous data
-//        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
-//        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
-//    }
-//
-//    // 🔹 **Update `pinned-datecycles` with pinned & public dateCycles**
-//    const pinnedDiv = document.getElementById('pinned-datecycles');
-//    if (pinnedDiv) {
-//        pinnedDiv.innerHTML = ""; // Clear previous data
-//        if (isToday) {
-//            // Combine pinned and public dateCycles for display
-//            const allPinnedDateCycles = [...pinnedDateCycles, ...publicDateCycles];
-//            pinnedDiv.style.display = allPinnedDateCycles.length ? 'block' : 'none';
-//            allPinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
-//        } else {
-//            pinnedDiv.style.display = 'none';
-//        }
-//    }
-//
-//    // 🔹 **Update `current-day-info` with event counts**
-//    const currentDayInfoDiv = document.getElementById('current-day-info');
-//    if (currentDayInfoDiv) {
-//        const displayedCurrentEvents = matchingDiv.children.length;
-//        const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
-//        const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
-//
-//        currentDayInfoDiv.innerText = `${totalEvents} events today`;
-//    }
-//}
-
-
 
 
 
@@ -677,56 +551,6 @@ function initializeToggleListener() {
 
 
 
-//
-//
-// function strikeDateCycle(dateCycleID) {
-//     console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
-//
-//     // Ensure the ID is a string for consistent comparison
-//     const targetID = String(dateCycleID);
-//
-//     // Step 1: Retrieve all calendar keys from localStorage
-//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-//     let found = false;
-//     let updatedDateCycle = null;
-//
-//     // Step 2: Iterate through calendar arrays to find and update the dateCycle
-//     for (const key of calendarKeys) {
-//         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-//
-//         // Convert stored IDs to strings for comparison
-//         const dateCycleIndex = calendarData.findIndex(dc => String(dc.ID) === targetID);
-//
-//         if (dateCycleIndex !== -1) {
-//             // Step 3: Toggle the 'completed' status
-//             let dateCycle = calendarData[dateCycleIndex];
-//             dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
-//
-//             // Step 4: If 'synced' is 'Yes', change it to 'No' and update the server
-//             if (dateCycle.synced === 'Yes') {
-//                 dateCycle.synced = 'No';
-//                 updateServerDateCycle(dateCycle);
-//             }
-//
-//             // Step 5: Update localStorage with the modified calendar data
-//             calendarData[dateCycleIndex] = dateCycle;
-//             localStorage.setItem(key, JSON.stringify(calendarData));
-//
-//             console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
-//             updatedDateCycle = dateCycle;
-//             found = true;
-//             break; // Exit loop once updated
-//         }
-//     }
-//
-//     // Step 6: Handle case where the dateCycle ID was not found
-//     if (!found) {
-//         console.error(`❌ Huh...No dateCycle found with ID: ${targetID}`);
-//     } else {
-//         // Step 7: Refresh the UI
-//         highlightDateCycles(targetDate);
-//     }
-// }
 
 
 
@@ -757,29 +581,6 @@ function updateServerDateCycle(dateCycle) {
 
 
 
-
-// Find matching dateCycles and sort them by color
-function findMatchingDateCycles(dateCycles) {
-    const targetDateObj = new Date(targetDate);
-    const day = targetDateObj.getDate();
-    const month = targetDateObj.getMonth() + 1; // JavaScript months are 0-indexed
-    const year = targetDateObj.getFullYear();
-
-    const dashedDate = `-${day}-${month}-${year}`;
-    const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-
-    // Define the color priority for sorting
-    const colorPriority = { red: 1, orange: 2, yellow: 3, green: 4, blue: 5 };
-
-    // Filter, map, and sort the dateCycles
-    return dateCycles
-        .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
-        .map(dc => ({
-            ...dc,
-            monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
-        }))
-        .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
-}
 
 
 
@@ -867,11 +668,14 @@ function toggleAddNoteForm() {
 document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
 document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
 
-function showDateCycleSetter() {
-  document.getElementById("datecycle-setter").style.display = "block";
-  document.getElementById('dateCycle-type').value = 'Select frequency...';
 
-}
+
+//
+// function showDateCycleSetter() {
+//   document.getElementById("datecycle-setter").style.display = "block";
+//   document.getElementById('dateCycle-type').value = 'Select frequency...';
+//
+// }
 
 function showYearMonthDaySetter() {
   let dateCycleType = document.getElementById("dateCycle-type").value;
@@ -1235,18 +1039,8 @@ function showAdderForm() {
   calendarForm.style.display = "block";
 }
 
-function generateID() {
-  const storedUserCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
 
-  if (storedUserCalendars && storedUserCalendars.length > 0) {
-      // Convert all the existing IDs to numbers, find the maximum value, and add 1
-      const newIdNumber = Math.max(...storedUserCalendars.map(calendar => Number(calendar.id))) + 1;
-      return String(newIdNumber).padStart(3, '0');
-  } else {
-      // If userCalendars is empty or doesn't exist, start with ID '001'
-      return '001';
-  }
-}
+
 
 
 
@@ -1318,9 +1112,6 @@ function push2today(id) {
     dateCycle.Pinned = 'no';
   }
 
-  // Update the Comments field to indicate the original date
-  //const originalDate = dateCycle.Date || 'an unspecified date';
-  //dateCycle.Comments = `Originally set to ${originalDate}`;
 
   // Save the updated array back to localStorage
   localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
@@ -1335,22 +1126,22 @@ function push2today(id) {
 }
 
 
-
-function closeDatecycleInfo(element) {
-  const dateInfoDiv = element.closest('.date-info');
-  if (dateInfoDiv) {
-    dateInfoDiv.style.display = 'none';
-  }
-}
-
-
-
-function handleKeyPress(event) {
-  if (event.keyCode === 13) { // 13 is the key code for the enter key
-     event.preventDefault(); // Prevent the default action to stop form submission
-     addNewCalendar(); // Call your search function without arguments
-  }
-}
+//
+// function closeDatecycleInfo(element) {
+//   const dateInfoDiv = element.closest('.date-info');
+//   if (dateInfoDiv) {
+//     dateInfoDiv.style.display = 'none';
+//   }
+// }
+//
+//
+//
+// function handleKeyPress(event) {
+//   if (event.keyCode === 13) { // 13 is the key code for the enter key
+//      event.preventDefault(); // Prevent the default action to stop form submission
+//      addNewCalendar(); // Call your search function without arguments
+//   }
+// }
 
 
 
@@ -2177,3 +1968,223 @@ function strikeDateCycle(dateCycleID) {
 
 
 
+//
+// function generateID() {
+//   const storedUserCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
+//
+//   if (storedUserCalendars && storedUserCalendars.length > 0) {
+//       // Convert all the existing IDs to numbers, find the maximum value, and add 1
+//       const newIdNumber = Math.max(...storedUserCalendars.map(calendar => Number(calendar.id))) + 1;
+//       return String(newIdNumber).padStart(3, '0');
+//   } else {
+//       // If userCalendars is empty or doesn't exist, start with ID '001'
+//       return '001';
+//   }
+// }
+
+
+
+
+// Find matching dateCycles and sort them by color
+// function findMatchingDateCycles(dateCycles) {
+//     const targetDateObj = new Date(targetDate);
+//     const day = targetDateObj.getDate();
+//     const month = targetDateObj.getMonth() + 1; // JavaScript months are 0-indexed
+//     const year = targetDateObj.getFullYear();
+//
+//     const dashedDate = `-${day}-${month}-${year}`;
+//     const monthsNames = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+//
+//     // Define the color priority for sorting
+//     const colorPriority = { red: 1, orange: 2, yellow: 3, green: 4, blue: 5 };
+//
+//     // Filter, map, and sort the dateCycles
+//     return dateCycles
+//         .filter(dc => dashedDate.includes(dc.Date)) // Match the target date
+//         .map(dc => ({
+//             ...dc,
+//             monthName: dc.Completed === 'no' ? monthsNames[month - 1] : '' // Add month name if not completed
+//         }))
+//         .sort((a, b) => (colorPriority[a.calendar_color.toLowerCase()] || 99) - (colorPriority[b.calendar_color.toLowerCase()] || 99)); // Sort by color priority
+// }
+
+
+
+//
+// function modalCloseCurtains ( e ) {
+//   if ( !e.keyCode || e.keyCode === 27 ) {
+//
+//   document.body.style.overflowY = "unset";
+//   document.getElementById("right-settings-overlay").style.width = "0%";
+//   /*document.getElementById("knack-overlay-curtain").style.height = "0%";*/
+//
+//   }
+// }
+//
+// document.addEventListener('keydown', modalCloseCurtains);
+//
+
+
+
+
+//
+// function prepLocalDatecycles(localCalendars) {
+//     const preparedCycles = [];
+//
+//     localCalendars.forEach(calendar => {
+//         calendar.forEach(dateCycle => {
+//             let parsedData = null;
+//
+//             // Map the new database/JSON field names
+//             const preparedCycle = {
+//                 buwana_id: localStorage.getItem('buwana_id') || 'missing',
+//                 cal_id: dateCycle.cal_id || parsedData?.cal_id || 'missing',
+//                 event_name: dateCycle.title || parsedData?.title || 'missing',
+//                 date: dateCycle.date || parsedData?.date || 'missing',
+//                 time: dateCycle.time || parsedData?.time || 'under dev',
+//                 time_zone: dateCycle.time_zone || parsedData?.time_zone || 'under dev',
+//                 day: dateCycle.day || parsedData?.day || 'missing',
+//                 month: dateCycle.month || parsedData?.month || 'missing',
+//                 year: dateCycle.year || parsedData?.year || 'missing',
+//                 comment: dateCycle.comment || parsedData?.comment || 'No',
+//                 comments: dateCycle.comments || parsedData?.comments || '',
+//                 frequency: dateCycle.frequency || parsedData?.frequency || 'One-time',
+//                 pinned: dateCycle.pinned || parsedData?.pinned || 'No',
+//                 completed: dateCycle.completed || parsedData?.completed || 'No',
+//                 public: dateCycle.public || parsedData?.public || 'No',
+//                 delete_it: dateCycle.delete_it || parsedData?.delete_it || 'No', // ✅ Updated field name
+//                 synced: dateCycle.synced || parsedData?.synced || 'No',
+//                 conflict: dateCycle.conflict || parsedData?.conflict || 'No',
+//                 datecycle_color: dateCycle.datecycle_color || parsedData?.datecycle_color || 'missing',
+//                 cal_name: dateCycle.cal_name || parsedData?.cal_name || 'missing',
+//                 cal_color: dateCycle.cal_color || parsedData?.cal_color || 'missing',
+//                 last_edited: dateCycle.last_edited || parsedData?.last_edited || new Date().toISOString(),
+//                 //raw_json: JSON.stringify(dateCycle), // Store the original object as JSON for debugging or re-parsing
+//             };
+//
+//             preparedCycles.push(preparedCycle);
+//         });
+//     });
+//
+//     return preparedCycles; // Return the array of prepared dateCycles
+// }
+
+
+
+
+
+//
+//
+//
+//function displayMatchingDateCycle() {
+//    const dateCycles = fetchDateCycleCalendars();
+//    if (!dateCycles || dateCycles.length === 0) {
+//        console.log("No dateCycles found in storage.");
+//        return;
+//    }
+//
+//    // Separate public, pinned, and unpinned dateCycles
+//    const publicDateCycles = dateCycles.filter(dc => dc.public.toLowerCase() === 'yes');
+//    const pinnedDateCycles = dateCycles.filter(dc =>
+//        (dc.pinned || '').trim().toLowerCase() === 'yes' && dc.public.toLowerCase() !== 'yes' // Exclude public ones
+//    );
+//    const unpinnedDateCycles = dateCycles.filter(dc =>
+//        (dc.pinned || '').trim().toLowerCase() !== 'yes' && dc.public.toLowerCase() !== 'yes' &&
+//        (dc.delete_it || '').trim().toLowerCase() !== 'yes' // Exclude deleted cycles
+//    );
+//
+//    // Filter unpinned dateCycles further to match the target date
+//    const matchingDateCycles = unpinnedDateCycles.filter(dc =>
+//        findMatchingDateCycles([dc]).length > 0
+//    );
+//
+//    // Get the current date in the same format as targetDate
+//    const currentDate = new Date();
+//    const formattedCurrentDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+//
+//    // Determine if the target date is the current date
+//    const isToday = findMatchingDateCycles([{ date: formattedCurrentDate }]).length > 0;
+//
+//    // 🔹 **Update `current-datecycles` with matching unpinned dateCycles**
+//    const matchingDiv = document.getElementById('current-datecycles');
+//    if (matchingDiv) {
+//        matchingDiv.innerHTML = ""; // Clear previous data
+//        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+//        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+//    }
+//
+//    // 🔹 **Update `pinned-datecycles` with pinned & public dateCycles**
+//    const pinnedDiv = document.getElementById('pinned-datecycles');
+//    if (pinnedDiv) {
+//        pinnedDiv.innerHTML = ""; // Clear previous data
+//        if (isToday) {
+//            // Combine pinned and public dateCycles for display
+//            const allPinnedDateCycles = [...pinnedDateCycles, ...publicDateCycles];
+//            pinnedDiv.style.display = allPinnedDateCycles.length ? 'block' : 'none';
+//            allPinnedDateCycles.forEach(dc => writeMatchingDateCycles(pinnedDiv, dc));
+//        } else {
+//            pinnedDiv.style.display = 'none';
+//        }
+//    }
+//
+//    // 🔹 **Update `current-day-info` with event counts**
+//    const currentDayInfoDiv = document.getElementById('current-day-info');
+//    if (currentDayInfoDiv) {
+//        const displayedCurrentEvents = matchingDiv.children.length;
+//        const displayedPinnedEvents = isToday ? pinnedDiv.children.length : 0;
+//        const totalEvents = displayedCurrentEvents + displayedPinnedEvents;
+//
+//        currentDayInfoDiv.innerText = `${totalEvents} events today`;
+//    }
+//}
+
+//
+//
+// function strikeDateCycle(dateCycleID) {
+//     console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
+//
+//     // Ensure the ID is a string for consistent comparison
+//     const targetID = String(dateCycleID);
+//
+//     // Step 1: Retrieve all calendar keys from localStorage
+//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+//     let found = false;
+//     let updatedDateCycle = null;
+//
+//     // Step 2: Iterate through calendar arrays to find and update the dateCycle
+//     for (const key of calendarKeys) {
+//         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+//
+//         // Convert stored IDs to strings for comparison
+//         const dateCycleIndex = calendarData.findIndex(dc => String(dc.ID) === targetID);
+//
+//         if (dateCycleIndex !== -1) {
+//             // Step 3: Toggle the 'completed' status
+//             let dateCycle = calendarData[dateCycleIndex];
+//             dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
+//
+//             // Step 4: If 'synced' is 'Yes', change it to 'No' and update the server
+//             if (dateCycle.synced === 'Yes') {
+//                 dateCycle.synced = 'No';
+//                 updateServerDateCycle(dateCycle);
+//             }
+//
+//             // Step 5: Update localStorage with the modified calendar data
+//             calendarData[dateCycleIndex] = dateCycle;
+//             localStorage.setItem(key, JSON.stringify(calendarData));
+//
+//             console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
+//             updatedDateCycle = dateCycle;
+//             found = true;
+//             break; // Exit loop once updated
+//         }
+//     }
+//
+//     // Step 6: Handle case where the dateCycle ID was not found
+//     if (!found) {
+//         console.error(`❌ Huh...No dateCycle found with ID: ${targetID}`);
+//     } else {
+//         // Step 7: Refresh the UI
+//         highlightDateCycles(targetDate);
+//     }
+// }
