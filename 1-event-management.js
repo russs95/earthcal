@@ -358,52 +358,42 @@ function closeAddCycle() {
 
 
 
-async function highlightDateCycles() {
-    console.log("🔍 Highlighting all dateCycles");
+function getDayOfYear2(date) {
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
+}
 
-    // 1. Remove the "date_event" class from all previously highlighted elements
-    const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-    elementsWithDateEvent.forEach(element => {
+async function highlightDateCycles(targetDate) {
+    const targetDateObj = new Date(targetDate);
+    const dayOfYear = getDayOfYear2(targetDateObj);
+    const formattedTargetDate = `${dayOfYear}-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}-day`;
+
+    console.log(`🔍 Searching for ID: ${formattedTargetDate}`);
+
+    document.querySelectorAll("div.date_event, path.date_event").forEach(element => {
         element.classList.remove("date_event");
     });
 
-    // 2. Fetch all dateCycles from localStorage
-    const dateCycleEvents = fetchDateCycleCalendars();
-    if (!dateCycleEvents || dateCycleEvents.length === 0) {
-        console.warn("⚠️ Highlighter: No dateCycles found in storage.");
-        return;
-    }
-
-    // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
-    // 4. Iterate over each dateCycle and highlight matching paths
-    dateCycleEvents.forEach(dateCycle => {
-        const normalizedDate = dateCycle.date?.trim() || '';
+    const matchingPaths = allPaths.filter(path => path.id.includes(formattedTargetDate));
 
-        // Process for matching paths by checking if normalizedDate exists in path.id
-        const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
-
-        // Highlight the matching paths
-        matchingPaths.forEach(path => {
-            const isDayMarker = path.id.endsWith('-day-marker');
-            const currentTitle = path.getAttribute('title');
-
-            // Update the title for paths that are not day markers
-            if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-                const newTitle = `${dateCycle.title} | ${currentTitle}`;
-                path.setAttribute('title', newTitle);
-            }
-
-            // Add "date_event" class only to paths ending with "-day-marker"
-            if (isDayMarker) {
-                path.classList.add("date_event");
-            }
-        });
+    matchingPaths.forEach(path => {
+        const isDayMarker = path.id.endsWith('-day');
+        if (isDayMarker) {
+            path.classList.add("date_event");
+        }
     });
 
-    console.log("✅ All dateCycles highlighted.");
+    const matchingDiv = document.getElementById('current-datecycles');
+    if (matchingDiv) {
+        matchingDiv.innerHTML = "";
+        matchingDiv.style.display = matchingPaths.length ? 'block' : 'none';
+    }
 }
+
 
 
 
