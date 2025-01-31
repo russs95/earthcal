@@ -1663,7 +1663,6 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id'); // Ensure we get the buwana_id
     if (!buwanaId) {
@@ -1671,8 +1670,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
+    // Retrieve local calendar events
     const localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
-    const unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
+
+    // Filter unsynced dateCycles
+    let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
 
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
@@ -1681,13 +1683,28 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
-    for (const unsyncedEvent of unsyncedDateCycles) {
+    for (let i = 0; i < unsyncedDateCycles.length; i++) {
+        let unsyncedEvent = unsyncedDateCycles[i];
+
+        // Ensure the event does not already exist in serverDateCycles (by comparing title, date, etc.)
+        const alreadyExistsOnServer = serverDateCycles.some(dc =>
+            dc.title === unsyncedEvent.title &&
+            dc.date === unsyncedEvent.date &&
+            dc.cal_id == unsyncedEvent.cal_id
+        );
+
+        if (alreadyExistsOnServer) {
+            console.log(`🚫 Skipping already synced event: ${unsyncedEvent.title}`);
+            unsyncedEvent.synced = "Yes"; // Mark it as synced locally
+            continue;
+        }
+
         try {
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
                 calendarName: unsyncedEvent.cal_name,
-                title: unsyncedEvent.title,  // ✅ Ensure title is passed correctly
+                title: unsyncedEvent.title,
                 date: unsyncedEvent.date,
                 time: unsyncedEvent.time,
                 time_zone: unsyncedEvent.time_zone,
@@ -1703,7 +1720,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
-                synced: "Yes", // ✅ Mark as synced before sending
+                synced: "Yes",
                 conflict: unsyncedEvent.conflict
             };
 
@@ -1723,9 +1740,12 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
 
-            // ✅ Update Local Storage Copy to "Yes"
+            // ✅ Update the correct item inside localStorage
             unsyncedEvent.ID = syncData.id;
             unsyncedEvent.synced = "Yes";
+
+            // Replace the item in the localCalendar array with the updated version
+            localCalendar[i] = unsyncedEvent;
 
         } catch (error) {
             console.error('⚠️ Error syncing dateCycle:', error);
@@ -1735,6 +1755,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage after syncing
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
 }
+
 
 
 
