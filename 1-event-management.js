@@ -1,4 +1,5 @@
 //  OPENING THE ADD DATECYLCE FORM
+// noinspection ExceptionCaughtLocallyJS
 
 
 
@@ -355,19 +356,19 @@ function closeAddCycle() {
 
 
 
-
-function modalCloseCurtains ( e ) {
-  if ( !e.keyCode || e.keyCode === 27 ) {
-
-  document.body.style.overflowY = "unset";
-  document.getElementById("right-settings-overlay").style.width = "0%";
-  /*document.getElementById("knack-overlay-curtain").style.height = "0%";*/
-
-  }
-}
-
-document.addEventListener('keydown', modalCloseCurtains);
-
+//
+// function modalCloseCurtains ( e ) {
+//   if ( !e.keyCode || e.keyCode === 27 ) {
+//
+//   document.body.style.overflowY = "unset";
+//   document.getElementById("right-settings-overlay").style.width = "0%";
+//   /*document.getElementById("knack-overlay-curtain").style.height = "0%";*/
+//
+//   }
+// }
+//
+// document.addEventListener('keydown', modalCloseCurtains);
+//
 
 
 
@@ -379,11 +380,6 @@ function prepLocalDatecycles(localCalendars) {
     localCalendars.forEach(calendar => {
         calendar.forEach(dateCycle => {
             let parsedData = null;
-//            try {
-//                parsedData = JSON.parse(dateCycle.raw_json || '{}'); // Parse raw JSON safely
-//            } catch (error) {
-//                console.error('Error parsing raw_json for dateCycle:', dateCycle, error);
-//            }
 
             // Map the new database/JSON field names
             const preparedCycle = {
@@ -1065,7 +1061,7 @@ function editDateCycle(dateCycleID) {
             </select>
           </div>
 
-          <div id="edit-name-event" style="margin-top: 0; display: flex; justify-content: center;margin-left: 0;margin-right: auto; border-radius: 10px 0 0 10px;width: 100%;">
+          <div id="edit-name-event" style="margin-top: 0; display: flex; justify-content: center;margin-left:0;margin-right: auto; border-radius: 10px;width: 100%;">
             <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left: 0;margin-right: auto; border-radius: 10px 0 0 10px;width: calc(100% - 80px);">${dateCycle.Event_name || ''}</textarea>
             <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding: 10px; border-radius: 0 10px 10px 0; font-size: 1.5em;width:60px; margin-left: -40px;margin-right: 0;">
               <option value="green" ${dateCycle.calendar_color === 'green' ? 'selected' : ''}>🟢</option>
@@ -1371,8 +1367,9 @@ function handleKeyPress(event) {
 //**************
 
 
-
 async function addDatecycle() {
+    console.log("addDatecycle called");
+
     // Validate form fields
     const dayField = document.getElementById('day-field2').value;
     const monthField = document.getElementById('month-field2').value;
@@ -1396,15 +1393,17 @@ async function addDatecycle() {
 
     // Determine date cycle type and year
     const dateCycleType = document.getElementById('dateCycle-type').value;
-    const yearField =
-        dateCycleType === "Annual"
-            ? document.getElementById('year-field2').value || ""
-            : new Date().getFullYear();
+    const yearField = dateCycleType === "Annual"
+        ? document.getElementById('year-field2').value || ""
+        : new Date().getFullYear();
 
     // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "Yes" : "No";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
+
+    // Generate `created_at` timestamp
+    const createdAt = Date.now();
 
     // Generate a dateCycle ID
     const calendarStorageKey = `calendar_${selCalendarId}`;
@@ -1418,19 +1417,19 @@ async function addDatecycle() {
     }
 
     const maxID = existingCalendar.reduce((max, dc) => {
-    const idString = String(dc.ID || "temp_0_000"); // Ensure it's a string
-    const id = parseInt(idString.split("_").pop()) || 0; // Extract and parse last part
-    return id > max ? id : max;
-}, 0);
-console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
+        const idString = String(dc.ID || "temp_0_000"); // Ensure it's a string
+        const id = parseInt(idString.split("_").pop()) || 0; // Extract and parse last part
+        return id > max ? id : max;
+    }, 0);
+
+    console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
 
     const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
-
-  const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
+    const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
 
     const dateCycle = {
         ID: newID,
-        buwana_id: buwanaId, // Include the buwana_id
+        buwana_id: buwanaId,
         cal_id: selCalendarId,
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
@@ -1444,6 +1443,7 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
         comment: addNoteCheckbox,
         comments: addDateNote,
         last_edited: new Date().toISOString(),
+        created_at: createdAt, // ✅ Add created_at timestamp
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
@@ -1474,34 +1474,9 @@ console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
 
-    console.log('DateCycle added successfully:', dateCycle);
+    console.log("✅ DateCycle added successfully:", dateCycle);
 }
 
-
-function animateSyncButton() {
-    const syncButton = document.getElementById('sync-button');
-    const countDiv = document.getElementById('cal-datecycle-count');
-
-    if (!syncButton) return; // Exit if button doesn't exist
-
-    // 🔄 Start Loading Animation
-    syncButton.classList.add('loading');
-    syncButton.innerText = "Syncing...";
-
-    // Wait for `syncDatecycles()` to finish before updating UI
-    syncDatecycles().then((syncSummary) => {
-        syncButton.classList.remove('loading');
-        syncButton.innerText = "✅ Sync Successful!";
-
-        if (syncSummary) {
-            countDiv.innerText = syncSummary;
-        }
-    }).catch((error) => {
-        syncButton.classList.remove('loading');
-        syncButton.innerText = "⚠️ Sync Failed!";
-        console.error("Sync failed:", error);
-    });
-}
 
 
 async function syncDatecycles() {
