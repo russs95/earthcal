@@ -1482,8 +1482,6 @@ async function syncDatecycles() {
 
 
 
-
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1494,7 +1492,15 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // Retrieve local calendar events
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // Filter only unsynced dateCycles
+    // 🔹 Convert local storage into a dictionary for faster lookup using `created_at`
+    let localDateCycleMap = {};
+    localCalendar.forEach(dc => {
+        if (dc.created_at) {
+            localDateCycleMap[dc.created_at] = dc;
+        }
+    });
+
+    // 🔹 Filter only unsynced dateCycles
     let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "Yes");
 
     if (unsyncedDateCycles.length === 0) {
@@ -1505,15 +1511,25 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
-        // ✅ Skip any event that is already synced (extra safeguard)
+        // ✅ Skip any event that is already synced
         if (unsyncedEvent.synced === "Yes") {
             console.log(`🚫 Skipping already synced event: ${unsyncedEvent.title}`);
             continue;
         }
 
-        // Ensure `created_at` exists
+        // ✅ Ensure `created_at` exists
         if (!unsyncedEvent.created_at) {
             unsyncedEvent.created_at = new Date().toISOString();
+        }
+
+        // ✅ Check if the record already exists on the server
+        const alreadyExistsOnServer = serverDateCycles.some(dc =>
+            dc.created_at === unsyncedEvent.created_at && dc.cal_id == unsyncedEvent.cal_id
+        );
+
+        if (alreadyExistsOnServer) {
+            console.log(`🚫 Skipping already existing event on server: ${unsyncedEvent.title}`);
+            continue;
         }
 
         try {
@@ -1532,7 +1548,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comment: unsyncedEvent.comment,
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
-                created_at: unsyncedEvent.created_at, // ✅ Ensure created_at is included
+                created_at: unsyncedEvent.created_at,
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
                 pinned: unsyncedEvent.pinned,
@@ -1559,21 +1575,10 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
 
-            // ✅ Find the correct local entry by matching `created_at`
-            let matchingEventIndex = localCalendar.findIndex(dc => dc.created_at === unsyncedEvent.created_at);
-
-            if (matchingEventIndex !== -1) {
-                // ✅ Update the local entry with server ID and mark as synced
-                localCalendar[matchingEventIndex].ID = syncData.id;
-                localCalendar[matchingEventIndex].synced = "Yes";
-            } else {
-                // ❌ If no match is found, show an alert
-                alert(`⚠️ Cannot find a local dateCycle to match record with datecycle_id: ${syncData.id} and created_at: ${unsyncedEvent.created_at}`);
-                console.warn(`⚠️ Warning: Could not find the original dateCycle to update!`, {
-                    title: unsyncedEvent.title,
-                    created_at: unsyncedEvent.created_at,
-                    cal_id: cal_id
-                });
+            // ✅ Update the local entry with the correct ID and mark as synced
+            if (localDateCycleMap[unsyncedEvent.created_at]) {
+                localDateCycleMap[unsyncedEvent.created_at].ID = syncData.id;
+                localDateCycleMap[unsyncedEvent.created_at].synced = "Yes";
             }
 
         } catch (error) {
@@ -1581,11 +1586,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
     }
 
-    // 🔹 Save updated local storage after syncing
-    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
+    // 🔹 Save updated local storage
+    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
 }
-
-
 
 
 
@@ -1598,34 +1601,36 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // 🔹 Convert local storage into a dictionary for faster lookups
+    // 🔹 Convert local storage into a dictionary for faster lookup using `created_at`
     let localDateCycleMap = {};
     localCalendar.forEach((dc, index) => {
-        localDateCycleMap[dc.created_at] = { data: dc, index: index }; // ✅ Use `created_at` for lookup
+        if (dc.created_at) {
+            localDateCycleMap[dc.created_at] = { data: dc, index: index };
+        }
     });
 
-    let updatedLocalCalendar = [...localCalendar]; // Copy array to modify safely
+    let updatedLocalCalendar = [...localCalendar];
 
     for (const serverDateCycle of serverDateCycles) {
-        // Ensure the server entry has a `created_at` timestamp
+        // ✅ Ensure `created_at` is defined
         if (!serverDateCycle.created_at) {
             console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDateCycle.title}`);
             serverDateCycle.created_at = new Date().toISOString(); // Assign a fallback timestamp
         }
 
-        const localEntry = localDateCycleMap[serverDateCycle.created_at]; // ✅ Match using `created_at`
+        const localEntry = localDateCycleMap[serverDateCycle.created_at];
 
         if (!localEntry) {
-            // 🔹 If dateCycle is missing in local storage, add it
+            // ✅ If no match is found, log a warning before adding it
+            console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDateCycle.title}`);
             updatedLocalCalendar.push(serverDateCycle);
-            console.log(`📥 Downloaded new dateCycle: ${serverDateCycle.title}`);
         } else {
             const { data: localCopy, index: localIndex } = localEntry;
 
             if (new Date(serverDateCycle.last_edited) > new Date(localCopy.last_edited)) {
-                // 🔹 If the server version is newer, overwrite the local copy
-                updatedLocalCalendar[localIndex] = { ...serverDateCycle }; // Properly replace the entry
-                console.log(`🔄 Overwriting local dateCycle: ${serverDateCycle.title} with newer server version.`);
+                // ✅ Overwrite with server data if it's newer
+                updatedLocalCalendar[localIndex] = { ...serverDateCycle };
+                console.log(`🔄 Updated local dateCycle: ${serverDateCycle.title}`);
             }
         }
     }
