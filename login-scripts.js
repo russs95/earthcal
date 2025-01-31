@@ -162,7 +162,7 @@ function showLoggedInView(userData) {
     <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
 </div>
 
-<div id="cal-datecycle-count">Your 2 calendars and 14 datecycles were updated</div>
+<div id="cal-datecycle-count"></div>
 
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
