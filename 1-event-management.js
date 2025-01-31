@@ -373,35 +373,6 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-//
-// function fetchDateCycleCalendars() {
-//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-//
-//     if (calendarKeys.length === 0) {
-//         console.log('No calendar data found in localStorage.');
-//         return [];
-//     }
-//
-//     try {
-//         const allDateCycles = calendarKeys.reduce((acc, key) => {
-//             const calendarData = JSON.parse(localStorage.getItem(key));
-//             if (Array.isArray(calendarData)) {
-//                 // Include only valid, non-deleted dateCycles
-//                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
-//                 acc.push(...validDateCycles);
-//             } else {
-//                 console.log(`Invalid data format for key: ${key}`);
-//             }
-//             return acc;
-//         }, []);
-//
-//         console.log('Fetched and combined valid dateCycles:', allDateCycles);
-//         return allDateCycles;
-//     } catch (error) {
-//         console.log('Error fetching dateCycles from localStorage:', error.message);
-//         return [];
-//     }
-// }
 
 
 
@@ -1761,35 +1732,41 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
     // 🔹 Convert local storage into a dictionary for faster lookups
     let localDateCycleMap = {};
-    localCalendar.forEach(dc => {
-        localDateCycleMap[dc.ID] = dc;
+    localCalendar.forEach((dc, index) => {
+        localDateCycleMap[dc.ID] = { data: dc, index: index };
     });
 
-    let updatedLocalCalendar = [...localCalendar];
+    let updatedLocalCalendar = [...localCalendar]; // Copy array to modify safely
 
     for (const serverDateCycle of serverDateCycles) {
-        const localCopy = localDateCycleMap[serverDateCycle.ID];
+        const localEntry = localDateCycleMap[serverDateCycle.ID];
 
-        if (!localCopy) {
+        if (!localEntry) {
             // 🔹 If dateCycle is missing in local storage, add it
             updatedLocalCalendar.push(serverDateCycle);
             console.log(`📥 Downloaded new dateCycle: ${serverDateCycle.title}`);
-        } else if (new Date(serverDateCycle.last_edited) > new Date(localCopy.last_edited)) {
-            // 🔹 If the server version is newer, overwrite local
-            Object.assign(localCopy, serverDateCycle);
-            console.log(`🔄 Overwriting local dateCycle: ${serverDateCycle.title} with newer server version.`);
+        } else {
+            const { data: localCopy, index: localIndex } = localEntry;
+
+            if (new Date(serverDateCycle.last_edited) > new Date(localCopy.last_edited)) {
+                // 🔹 If the server version is newer, overwrite the local copy
+                updatedLocalCalendar[localIndex] = { ...serverDateCycle }; // Properly replace the entry
+                console.log(`🔄 Overwriting local dateCycle: ${serverDateCycle.title} with newer server version.`);
+            }
         }
     }
 
     // 🔹 Save updated local storage
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
+
+
+
 
 
 function fetchDateCycleCalendars() {
