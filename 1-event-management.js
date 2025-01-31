@@ -1735,20 +1735,25 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
     // 🔹 Convert local storage into a dictionary for faster lookups
     let localDateCycleMap = {};
     localCalendar.forEach((dc, index) => {
-        localDateCycleMap[dc.ID] = { data: dc, index: index };
+        localDateCycleMap[dc.created_at] = { data: dc, index: index }; // ✅ Use `created_at` for lookup
     });
 
     let updatedLocalCalendar = [...localCalendar]; // Copy array to modify safely
 
     for (const serverDateCycle of serverDateCycles) {
-        const localEntry = localDateCycleMap[serverDateCycle.ID];
+        // Ensure the server entry has a `created_at` timestamp
+        if (!serverDateCycle.created_at) {
+            console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDateCycle.title}`);
+            serverDateCycle.created_at = new Date().toISOString(); // Assign a fallback timestamp
+        }
+
+        const localEntry = localDateCycleMap[serverDateCycle.created_at]; // ✅ Match using `created_at`
 
         if (!localEntry) {
             // 🔹 If dateCycle is missing in local storage, add it
@@ -1768,6 +1773,7 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
+
 
 
 
