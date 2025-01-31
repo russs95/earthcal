@@ -1664,7 +1664,6 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id'); // Ensure we get the buwana_id
     if (!buwanaId) {
@@ -1687,9 +1686,28 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
-                calendarName: unsyncedEvent.cal_name, // Ensuring calendarName is passed
-                dateCycle: unsyncedEvent
+                calendarName: unsyncedEvent.cal_name,
+                title: unsyncedEvent.title,  // ✅ Ensure title is passed correctly
+                date: unsyncedEvent.date,
+                time: unsyncedEvent.time,
+                time_zone: unsyncedEvent.time_zone,
+                day: unsyncedEvent.day,
+                month: unsyncedEvent.month,
+                year: unsyncedEvent.year,
+                comment: unsyncedEvent.comment,
+                comments: unsyncedEvent.comments,
+                last_edited: unsyncedEvent.last_edited,
+                datecycle_color: unsyncedEvent.datecycle_color,
+                frequency: unsyncedEvent.frequency,
+                pinned: unsyncedEvent.pinned,
+                completed: unsyncedEvent.completed,
+                public: unsyncedEvent.public,
+                delete_it: unsyncedEvent.delete_it,
+                synced: "Yes", // ✅ Mark as synced before sending
+                conflict: unsyncedEvent.conflict
             };
+
+            console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
             const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
                 method: 'POST',
