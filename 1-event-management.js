@@ -373,35 +373,35 @@ document.addEventListener('keydown', modalCloseCurtains);
 
 
 
-
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    if (calendarKeys.length === 0) {
-        console.log('No calendar data found in localStorage.');
-        return [];
-    }
-
-    try {
-        const allDateCycles = calendarKeys.reduce((acc, key) => {
-            const calendarData = JSON.parse(localStorage.getItem(key));
-            if (Array.isArray(calendarData)) {
-                // Include only valid, non-deleted dateCycles
-                const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
-                acc.push(...validDateCycles);
-            } else {
-                console.log(`Invalid data format for key: ${key}`);
-            }
-            return acc;
-        }, []);
-
-        console.log('Fetched and combined valid dateCycles:', allDateCycles);
-        return allDateCycles;
-    } catch (error) {
-        console.log('Error fetching dateCycles from localStorage:', error.message);
-        return [];
-    }
-}
+//
+// function fetchDateCycleCalendars() {
+//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+//
+//     if (calendarKeys.length === 0) {
+//         console.log('No calendar data found in localStorage.');
+//         return [];
+//     }
+//
+//     try {
+//         const allDateCycles = calendarKeys.reduce((acc, key) => {
+//             const calendarData = JSON.parse(localStorage.getItem(key));
+//             if (Array.isArray(calendarData)) {
+//                 // Include only valid, non-deleted dateCycles
+//                 const validDateCycles = calendarData.filter(dc => dc.Delete !== "Yes");
+//                 acc.push(...validDateCycles);
+//             } else {
+//                 console.log(`Invalid data format for key: ${key}`);
+//             }
+//             return acc;
+//         }, []);
+//
+//         console.log('Fetched and combined valid dateCycles:', allDateCycles);
+//         return allDateCycles;
+//     } catch (error) {
+//         console.log('Error fetching dateCycles from localStorage:', error.message);
+//         return [];
+//     }
+// }
 
 
 
@@ -1792,7 +1792,6 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
 }
 
 
-
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
@@ -1838,79 +1837,6 @@ function fetchDateCycleCalendars() {
 }
 
 
-
-
-//
-//async function updateServer(dateCycles, calendarName, buwanaId) {
-//    try {
-//        // Ensure all dateCycles have required fields
-//        const validCycles = dateCycles.map(dc => ({
-//            ...dc,
-//            Event_name: dc.Event_name || "Unnamed Event",
-//            Day: dc.Day || "01",
-//            Month: dc.Month || "01",
-//            Year: dc.Year || new Date().getFullYear().toString(),
-//            synced: "Yes", // Mark cycles as synced before sending
-//        }));
-//
-//        console.log("Sending to server:", {
-//            buwana_id: buwanaId,
-//            calendar_name: calendarName,
-//            datecycles: validCycles,
-//        });
-//
-//        const response = await fetch('https://gobrik.com/earthcal/update_calendar.php', {
-//            method: 'POST',
-//            headers: { 'Content-Type': 'application/json' },
-//            body: JSON.stringify({
-//                buwana_id: buwanaId,
-//                calendar_name: calendarName,
-//                datecycles: validCycles,
-//            }),
-//        });
-//
-//        if (!response.ok) {
-//            throw new Error('Failed to update server data.');
-//        }
-//
-//        const result = await response.json();
-//        if (!result.success) {
-//            throw new Error(result.message || 'Unknown server error.');
-//        }
-//
-//        console.log("Server update response:", result);
-//        return { last_updated: result.last_updated }; // Return the latest sync timestamp
-//    } catch (error) {
-//        console.error('Error in updateServer:', error);
-//        throw error;
-//    }
-//}
-//
-//
-//function updateLocal(dateCycles, calendarName, calId) {
-//    try {
-//        const calendarKey = `calendar_${calId}`;
-//        const existingCalendarData = JSON.parse(localStorage.getItem(calendarKey)) || [];
-//
-//        // Ensure all new cycles have required fields
-//        const validDateCycles = dateCycles.map(dc => ({
-//            ...dc,
-//            synced: dc.synced || "Yes", // Default to "Yes" if not explicitly set
-//        }));
-//
-//        // Remove only cycles explicitly marked for deletion or replaced by new data
-//        const filteredDateCycles = existingCalendarData.filter(
-//            dc => !validDateCycles.some(newCycle => newCycle.ID === dc.ID)
-//        );
-//
-//        const updatedDateCycles = [...filteredDateCycles, ...validDateCycles];
-//        localStorage.setItem(calendarKey, JSON.stringify(updatedDateCycles));
-//
-//        console.log(`Local storage updated for calendar: ${calendarName} (ID: ${calId})`);
-//    } catch (error) {
-//        console.error('Error updating local storage:', error);
-//    }
-//}
 
 
 function fetchLocalCalendarByCalId(calId) {
