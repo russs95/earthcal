@@ -1088,13 +1088,6 @@ function editDateCycle(dateCycleID) {
 
 
 
-function closeDatecycleInfo(element) {
-  const dateInfoDiv = element.closest('.date-info');
-  if (dateInfoDiv) {
-    dateInfoDiv.style.display = 'none';
-  }
-}
-
 
 
 async function deleteDateCycle(id) {
@@ -1443,7 +1436,6 @@ async function addDatecycle() {
         comment: addNoteCheckbox,
         comments: addDateNote,
         last_edited: new Date().toISOString(),
-        created_at: createdAt, // ✅ Add created_at timestamp
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
@@ -1452,6 +1444,7 @@ async function addDatecycle() {
         delete_it: "No",
         synced: "No",
         conflict: "No",
+        created_at: createdAt, // ✅ Add created_at timestamp
     };
 
     // Add the new dateCycle to localStorage
@@ -1475,6 +1468,33 @@ async function addDatecycle() {
     document.getElementById('add-date-note').value = '';
 
     console.log("✅ DateCycle added successfully:", dateCycle);
+}
+
+
+
+function animateSyncButton() {
+    const syncButton = document.getElementById('sync-button');
+    const countDiv = document.getElementById('cal-datecycle-count');
+
+    if (!syncButton) return; // Exit if button doesn't exist
+
+    // 🔄 Start Loading Animation
+    syncButton.classList.add('loading');
+    syncButton.innerText = "Syncing...";
+
+    // Wait for `syncDatecycles()` to finish before updating UI
+    syncDatecycles().then((syncSummary) => {
+        syncButton.classList.remove('loading');
+        syncButton.innerText = "✅ Sync Successful!";
+
+        if (syncSummary) {
+            countDiv.innerText = syncSummary;
+        }
+    }).catch((error) => {
+        syncButton.classList.remove('loading');
+        syncButton.innerText = "⚠️ Sync Failed!";
+        console.error("Sync failed:", error);
+    });
 }
 
 
@@ -1505,13 +1525,14 @@ async function syncDatecycles() {
             const serverData = await response.json();
             if (!serverData.success) throw new Error(serverData.message || 'Failed to retrieve calendar data.');
 
-            // 🔹 **Standardize `calendar_id` to `cal_id`**
+            // 🔹 **Standardize `calendar_id` to `cal_id` and include `created_at`**
             serverCalendars = serverData.calendars.map(calendar => ({
-                cal_id: calendar.calendar_id, // Rename key
+                cal_id: calendar.calendar_id,
                 cal_name: calendar.calendar_name,
                 cal_color: calendar.calendar_color,
                 calendar_public: calendar.calendar_public,
-                last_updated: calendar.last_updated
+                last_updated: calendar.last_updated,
+                created_at: calendar.created_at // ✅ Include created_at for sync comparison
             }));
 
             console.log('✅ Fetched and transformed server calendars:', serverCalendars);
@@ -1525,39 +1546,37 @@ async function syncDatecycles() {
         // 🔹 **If no calendars exist on the server, check local storage**
         const localCalendars = Object.keys(localStorage)
             .filter(key => key.startsWith('calendar_'))
-            .map(key => ({
-                cal_id: key.replace('calendar_', ''), // Extract calendar ID
-                data: JSON.parse(localStorage.getItem(key) || '[]'),
-            }));
+            .map(key => {
+                let storedData = JSON.parse(localStorage.getItem(key) || '[]');
+                return {
+                    cal_id: key.replace('calendar_', ''),
+                    created_at: storedData.created_at || 0, // Default to 0 if not available
+                    data: storedData
+                };
+            });
 
         if (serverCalendars.length === 0 && localCalendars.length === 0) {
             console.warn("⚠️ No calendars found on server or locally. Sync completed.");
             return "No updates available. Your data is already up to date.";
         }
 
-        const calendarsToSync = serverCalendars.length > 0 ? serverCalendars : localCalendars;
+        const calendarsToSync = [...new Map([...serverCalendars, ...localCalendars].map(item => [item.cal_id, item])).values()];
         console.log("📂 Syncing calendars:", calendarsToSync);
 
         for (const calendar of calendarsToSync) {
             try {
                 console.log('📂 Processing calendar:', calendar);
 
-                // 🔹 **Validate `buwanaId` and `cal_id` Before API Call**
-                if (!buwanaId) {
-                    console.error("❌ Missing buwana_id. Cannot fetch calendar data.");
-                    continue;
-                }
-
-                if (!calendar.cal_id) {
-                    console.error("❌ Missing cal_id for calendar:", calendar);
+                if (!buwanaId || !calendar.cal_id) {
+                    console.error("❌ Missing buwana_id or cal_id. Cannot fetch calendar data.");
                     continue;
                 }
 
                 console.log(`📡 Fetching dateCycles for cal_id: ${calendar.cal_id}, buwana_id: ${buwanaId}`);
 
-                // 🔹 Fetch dateCycles from the server (if the calendar exists on the server)
+                // 🔹 Fetch dateCycles from the server
                 let serverDateCycles = [];
-                if (serverCalendars.length > 0) {
+                if (serverCalendars.some(c => c.cal_id === calendar.cal_id)) {
                     const payload = {
                         buwana_id: buwanaId,
                         cal_id: calendar.cal_id
@@ -1603,6 +1622,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 
