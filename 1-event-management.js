@@ -22,7 +22,6 @@ async function openAddCycle() {
     // Update the modal title
     const titleElement = document.getElementById("add-event-title");
     titleElement.textContent = `Add an event for ${formattedDate}`;
-    console.log('Formatted date set in modal');
 
     // Populate the date fields
     populateDateFields(targetDate);
@@ -188,8 +187,6 @@ async function populateCalendarDropdown(buwanaId) {
 
 
 function populateDateFields(targetDate) {
-    console.log('populateDateFields called with targetDate:', targetDate);
-
     // Ensure targetDate is a valid Date object
     if (!(targetDate instanceof Date) || isNaN(targetDate)) {
         console.error('Invalid targetDate provided to populateDateFields.');
@@ -212,13 +209,11 @@ function populateDateFields(targetDate) {
 
     // Set default frequency to "One-time"
     frequencyDropdown.value = "One-time";
-    console.log('Frequency dropdown preset to "One-time".');
 
     // Day dropdown
     const dayDropdown = document.getElementById('day-field2');
     if (dayDropdown) {
         dayDropdown.value = targetDate.getDate().toString(); // Set to current day
-        console.log(`Day dropdown preset to: ${dayDropdown.value}`);
     } else {
         console.error('Day dropdown element not found.');
     }
@@ -227,7 +222,6 @@ function populateDateFields(targetDate) {
     const monthDropdown = document.getElementById('month-field2');
     if (monthDropdown) {
         monthDropdown.value = (targetDate.getMonth() + 1).toString(); // Months are 0-based, so add 1
-        console.log(`Month dropdown preset to: ${monthDropdown.value}`);
     } else {
         console.error('Month dropdown element not found.');
     }
@@ -236,7 +230,6 @@ function populateDateFields(targetDate) {
     const yearDropdown = document.getElementById('year-field2');
     if (yearDropdown) {
         yearDropdown.value = targetDate.getFullYear().toString(); // Set to current year
-        console.log(`Year dropdown preset to: ${yearDropdown.value}`);
     } else {
         console.error('Year dropdown element not found.');
     }
@@ -1369,7 +1362,7 @@ async function syncDatecycles() {
 
         for (const calendar of calendarsToSync) {
             try {
-                console.log('📂 Processing calendar:', calendar);
+                console.log('📂 Syncing calendar:', calendar);
 
                 if (!buwanaId || !calendar.cal_id) {
                     console.error("❌ Missing buwana_id or cal_id. Cannot fetch calendar data.");
@@ -1420,6 +1413,8 @@ async function syncDatecycles() {
         }
 
         console.log("✅ Sync complete. Local calendars updated.");
+        console.log("📥 All locally stored dateCycles:", JSON.stringify(localStorage, null, 2));
+
         return `Your ${calendarsToSync.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
     } catch (error) {
         console.error("Sync failed:", error);
