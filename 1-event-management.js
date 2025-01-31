@@ -358,16 +358,12 @@ function closeAddCycle() {
 
 
 
-
-async function highlightDateCycles(targetDate) {
-    // ✅ Ensure targetDate is a Date object and normalize it
-    const targetDateObj = new Date(targetDate);
-    const formattedTargetDate = `-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
-
-    console.log(`🔍 Normalized target date for filtering: ${formattedTargetDate}`);
+async function highlightDateCycles() {
+    console.log("🔍 Highlighting all dateCycles");
 
     // 1. Remove the "date_event" class from all previously highlighted elements
-    document.querySelectorAll("div.date_event, path.date_event").forEach(element => {
+    const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
+    elementsWithDateEvent.forEach(element => {
         element.classList.remove("date_event");
     });
 
@@ -381,14 +377,14 @@ async function highlightDateCycles(targetDate) {
     // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
-    // 4. Highlight all dateCycles in the calendar (no filtering yet)
+    // 4. Iterate over each dateCycle and highlight matching paths
     dateCycleEvents.forEach(dateCycle => {
         const normalizedDate = dateCycle.date?.trim() || '';
 
-        // Find all paths matching this dateCycle
+        // Process for matching paths by checking if normalizedDate exists in path.id
         const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
 
-        // Highlight the paths
+        // Highlight the matching paths
         matchingPaths.forEach(path => {
             const isDayMarker = path.id.endsWith('-day-marker');
             const currentTitle = path.getAttribute('title');
@@ -406,18 +402,7 @@ async function highlightDateCycles(targetDate) {
         });
     });
 
-    // 5. Filter dateCycles that match `targetDate` for UI display
-    const matchingDateCycles = dateCycleEvents.filter(dc => dc.date?.trim() === formattedTargetDate);
-
-    // 6. Write matching dateCycles to the `current_datecycles` div
-    const matchingDiv = document.getElementById('current-datecycles');
-    if (matchingDiv) {
-        matchingDiv.innerHTML = "";
-        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
-
-        // Write only the filtered dateCycles to the UI
-        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
-    }
+    console.log("✅ All dateCycles highlighted.");
 }
 
 
