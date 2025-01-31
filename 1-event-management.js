@@ -1396,7 +1396,7 @@ async function addDatecycle() {
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
     // Generate `created_at` timestamp
-    const createdAt = Date.now();
+    const createdAt = new Date().toISOString(); // ✅ Use ISO 8601 format (milliseconds included)
 
     // Generate a dateCycle ID
     const calendarStorageKey = `calendar_${selCalendarId}`;
@@ -1436,6 +1436,7 @@ async function addDatecycle() {
         comment: addNoteCheckbox,
         comments: addDateNote,
         last_edited: new Date().toISOString(),
+        created_at: createdAt, // ✅ Ensure it's correctly formatted
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "yes" : "no",
@@ -1444,8 +1445,8 @@ async function addDatecycle() {
         delete_it: "No",
         synced: "No",
         conflict: "No",
-        created_at: createdAt, // ✅ Add created_at timestamp
     };
+
 
     // Add the new dateCycle to localStorage
     try {
@@ -1628,7 +1629,6 @@ async function syncDatecycles() {
 }
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1652,6 +1652,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     for (let i = 0; i < unsyncedDateCycles.length; i++) {
         let unsyncedEvent = unsyncedDateCycles[i];
 
+        // Ensure `created_at` is defined
+        if (!unsyncedEvent.created_at) {
+            unsyncedEvent.created_at = new Date().toISOString(); // ✅ Ensure it exists
+        }
+
         // Ensure the event does not already exist in serverDateCycles (by comparing created_at)
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
             dc.created_at === unsyncedEvent.created_at &&
@@ -1665,11 +1670,6 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
 
         try {
-            // Generate a created_at timestamp if missing
-            if (!unsyncedEvent.created_at) {
-                unsyncedEvent.created_at = new Date().toISOString(); // Ensure it's recorded
-            }
-
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
@@ -1684,7 +1684,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comment: unsyncedEvent.comment,
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
-                created_at: unsyncedEvent.created_at, // ✅ Include created_at
+                created_at: unsyncedEvent.created_at, // ✅ Ensure created_at is included
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
                 pinned: unsyncedEvent.pinned,
