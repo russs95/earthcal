@@ -426,6 +426,8 @@ async function highlightDateCycles(targetDate) {
 
 
 
+
+
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
