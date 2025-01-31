@@ -145,7 +145,7 @@ function showLoggedInView(userData) {
     loggedInView.innerHTML = `
         <h1 style="font-size: 5em;margin-bottom: 20px;"> ${continentEmoji}</h1>
         <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome, ${user.first_name}!
+            Welcome ${user.first_name}!
         </h2>
         <p>You are syncing the following personal and public calendars:</p>
         <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">

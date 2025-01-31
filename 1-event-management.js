@@ -359,17 +359,15 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
-    // ✅ Ensure targetDate is a Date object and normalize it to match stored format
+    // ✅ Ensure targetDate is a Date object and normalize it
     const targetDateObj = new Date(targetDate);
     const formattedTargetDate = `-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
 
-    console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
+    console.log(`🔍 Normalized target date for filtering: ${formattedTargetDate}`);
 
     // 1. Remove the "date_event" class from all previously highlighted elements
-    const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-    elementsWithDateEvent.forEach(element => {
+    document.querySelectorAll("div.date_event, path.date_event").forEach(element => {
         element.classList.remove("date_event");
     });
 
@@ -383,29 +381,21 @@ async function highlightDateCycles(targetDate) {
     // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
 
-    // 4. Variables to store matching dateCycles
-    let matchingDateCycles = [];
-
-    // 5. Iterate over each dateCycle and highlight matching paths
+    // 4. Highlight all dateCycles in the calendar (no filtering yet)
     dateCycleEvents.forEach(dateCycle => {
         const normalizedDate = dateCycle.date?.trim() || '';
 
-        // Check if the dateCycle matches the formatted targetDate
-        if (normalizedDate === formattedTargetDate) {
-            matchingDateCycles.push(dateCycle);
-        }
-
-        // Process for matching paths by checking if normalizedDate exists in path.id
+        // Find all paths matching this dateCycle
         const matchingPaths = allPaths.filter(path => path.id.includes(normalizedDate));
 
-        // Highlight the matching paths
+        // Highlight the paths
         matchingPaths.forEach(path => {
             const isDayMarker = path.id.endsWith('-day-marker');
             const currentTitle = path.getAttribute('title');
 
             // Update the title for paths that are not day markers
             if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-                const newTitle = `${dateCycle.event_name} | ${currentTitle}`;
+                const newTitle = `${dateCycle.title} | ${currentTitle}`;
                 path.setAttribute('title', newTitle);
             }
 
@@ -416,13 +406,16 @@ async function highlightDateCycles(targetDate) {
         });
     });
 
+    // 5. Filter dateCycles that match `targetDate` for UI display
+    const matchingDateCycles = dateCycleEvents.filter(dc => dc.date?.trim() === formattedTargetDate);
+
     // 6. Write matching dateCycles to the `current_datecycles` div
     const matchingDiv = document.getElementById('current-datecycles');
     if (matchingDiv) {
         matchingDiv.innerHTML = "";
         matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
 
-        // Write each matching dateCycle to the div
+        // Write only the filtered dateCycles to the UI
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
 }
@@ -1428,7 +1421,6 @@ async function syncDatecycles() {
     }
 }
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1473,7 +1465,8 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
-                calendarName: unsyncedEvent.cal_name,
+                cal_name: unsyncedEvent.cal_name,  // ✅ Corrected name
+                cal_color: unsyncedEvent.cal_color,  // ✅ Added cal_color
                 title: unsyncedEvent.title,
                 date: unsyncedEvent.date,
                 time: unsyncedEvent.time,
@@ -1526,6 +1519,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage after syncing
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(localCalendar));
 }
+
 
 
 
