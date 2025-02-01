@@ -349,68 +349,41 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
-    // ✅ Ensure targetDate is a Date object and normalize it to match stored format
     const targetDateObj = new Date(targetDate);
-    const formattedTargetDate = `-${targetDateObj.getUTCDate() + 1}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
+    const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
 
     console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
 
-    // 1. Remove "date_event" class from previously highlighted elements
-    const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
-    elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
+    document.querySelectorAll("div.date_event, path.date_event").forEach(el => el.classList.remove("date_event"));
 
-    // 2. Fetch all dateCycles from localStorage
     const dateCycleEvents = fetchDateCycleCalendars();
-    if (!dateCycleEvents || dateCycleEvents.length === 0) {
-        console.warn("⚠️ Highlighter: No dateCycles found in storage.");
+    if (!dateCycleEvents.length) {
+        console.warn("⚠️ No dateCycles found in storage.");
         return;
     }
 
     console.log(`✅ Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
 
-    // Log all dateCycles with their dates for debugging
-    console.table(dateCycleEvents.map(dc => ({ title: dc.title, date: dc.date, delete_it: dc.delete_it })));
-
-    // 3. Get all paths with IDs in the calendar visualization
     const allPaths = Array.from(document.querySelectorAll("path[id]"));
-
-    // 4. Variables to store matching dateCycles
     let matchingDateCycles = [];
 
-    // 5. Iterate over each dateCycle and highlight matching paths
     dateCycleEvents.forEach(dateCycle => {
-        const normalizedDate = dateCycle.date?.trim() || '';
+        const cycleDateObj = new Date(`${dateCycle.year}-${dateCycle.month}-${dateCycle.day}`);
+        const cycleFormattedDate = `-${cycleDateObj.getDate()}-${cycleDateObj.getMonth() + 1}-${cycleDateObj.getFullYear()}`;
 
-        // ✅ Ensure correct date format comparison
-        const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
+        console.log(`📅 Comparing: Target (${formattedTargetDate}) vs. Cycle (${cycleFormattedDate})`);
 
-        if (normalizedDate !== storedDateFormatted) {
-            console.warn(`⚠️ Date format mismatch! Stored: "${normalizedDate}", Expected: "${storedDateFormatted}"`);
-        }
-
-        // Store matching dateCycles
-        if (storedDateFormatted === formattedTargetDate) {
+        if (cycleFormattedDate === formattedTargetDate) {
             matchingDateCycles.push(dateCycle);
         }
 
-        // Process for matching paths by checking if normalizedDate exists in path.id
-        const matchingPaths = allPaths.filter(path => path.id.includes(storedDateFormatted));
+        const matchingPaths = allPaths.filter(path => path.id.includes(cycleFormattedDate));
 
-        // Highlight the matching paths
         matchingPaths.forEach(path => {
-            const isDayMarker = path.id.endsWith('-day-marker');
-            const currentTitle = path.getAttribute('title');
-
-            // Update the title for paths that are not day markers
-            if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-                const newTitle = `${dateCycle.title} | ${currentTitle}`;
-                path.setAttribute('title', newTitle);
-            }
-
-            // Add "date_event" class only to paths ending with "-day-marker"
-            if (isDayMarker) {
+            if (!path.id.endsWith('-day-marker')) {
+                path.setAttribute('title', `${dateCycle.title} | ${path.getAttribute('title') || ''}`);
+            } else {
                 path.classList.add("date_event");
             }
         });
@@ -418,60 +391,14 @@ async function highlightDateCycles(targetDate) {
 
     console.log(`✅ Highlighted ${matchingDateCycles.length} dateCycles on the calendar.`);
 
-    // 6. Write matching dateCycles to the `current_datecycles` div
     const matchingDiv = document.getElementById('current-datecycles');
     if (matchingDiv) {
         matchingDiv.innerHTML = "";
         matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
-
-        // Write each matching dateCycle to the div
         matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
     }
 }
 
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in localStorage.");
-        return [];
-    }
-
-    try {
-        let allDateCycles = [];
-
-        calendarKeys.forEach(key => {
-            try {
-                const calendarData = JSON.parse(localStorage.getItem(key));
-
-                if (Array.isArray(calendarData)) {
-                    // ✅ Fix: Ensure "delete_it" field is properly checked (allowing 0 for active records)
-                    const validDateCycles = calendarData.filter(dc =>
-                        dc.delete_it !== "yes" && dc.delete_it !== "1"
-                    );
-
-                    if (validDateCycles.length === 0) {
-                        console.warn(`⚠️ All dateCycles for ${key} are marked as deleted.`);
-                    }
-
-                    allDateCycles.push(...validDateCycles);
-                } else {
-                    console.warn(`⚠️ Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
-                }
-            } catch (error) {
-                console.error(`❌ Error parsing localStorage data for key ${key}:`, error);
-            }
-        });
-
-        console.log(`✅ Fetched ${allDateCycles.length} dateCycles from local storage.`);
-        console.table(allDateCycles); // Logs a readable table of dateCycles
-
-        return allDateCycles;
-    } catch (error) {
-        console.error('❌ Error fetching dateCycles from localStorage:', error.message);
-        return [];
-    }
-}
 
 
 
@@ -1518,6 +1445,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         // ✅ Strictly check if the record already exists on the server
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
             dc.created_at === unsyncedEvent.created_at && dc.cal_id == unsyncedEvent.cal_id
+        console.log(`No duplicate detected: ${unsyncedEvent.title}`);
         );
 
         if (alreadyExistsOnServer) {
