@@ -1483,9 +1483,7 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
-    alert("about to udpate server datecycles!!");
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
         console.error("❌ Missing buwana_id. Cannot sync dateCycles.");
@@ -1555,6 +1553,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 conflict: unsyncedEvent.conflict
             };
 
+            // 🛑 **ALERT before sending the data**
+            alert(`📤 About to sync:\n${JSON.stringify(payload, null, 2)}`);
+
             console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
             const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
@@ -1573,7 +1574,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             // ✅ Update the local entry with the correct ID and mark as synced
             if (localDateCycleMap[unsyncedEvent.created_at]) {
-                localDateCycleMap[unsyncedEvent.created_at].ID = syncData.id;
+                localDateCycleMap[unsyncedEvent.created_at].id = syncData.id; // Correct field is `.id`, not `.ID`
                 localDateCycleMap[unsyncedEvent.created_at].synced = "Yes";
             }
 
