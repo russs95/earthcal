@@ -133,7 +133,6 @@ flex-direction: row;
 
 .reset-button {
   z-index: 15;
-  padding: 20px;
   margin-left:15px;
   position: absolute;
   border-radius: 10px;
