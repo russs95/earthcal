@@ -439,50 +439,50 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in localStorage.");
-        return [];
-    }
-
-    try {
-        let allDateCycles = [];
-
-        calendarKeys.forEach(key => {
-            try {
-                const calendarData = JSON.parse(localStorage.getItem(key));
-
-                if (Array.isArray(calendarData)) {
-                    // ✅ Fix: Ensure "delete_it" field is properly checked (allowing 0 for active records)
-                    const validDateCycles = calendarData.filter(dc =>
-                        dc.delete_it !== "1" && dc.delete_it !== "1"
-                    );
-
-                    if (validDateCycles.length === 0) {
-                        console.warn(`⚠️ All dateCycles for ${key} are marked as deleted.`);
-                    }
-
-                    allDateCycles.push(...validDateCycles);
-                } else {
-                    console.warn(`⚠️ Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
-                }
-            } catch (error) {
-                console.error(`❌ Error parsing localStorage data for key ${key}:`, error);
-            }
-        });
-
-        console.log(`✅ Fetched ${allDateCycles.length} dateCycles from local storage.`);
-        console.table(allDateCycles); // Logs a readable table of dateCycles
-
-        return allDateCycles;
-    } catch (error) {
-        console.error('❌ Error fetching dateCycles from localStorage:', error.message);
-        return [];
-    }
-}
+//
+// function fetchDateCycleCalendars() {
+//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+//
+//     if (calendarKeys.length === 0) {
+//         console.log("No calendar data found in localStorage.");
+//         return [];
+//     }
+//
+//     try {
+//         let allDateCycles = [];
+//
+//         calendarKeys.forEach(key => {
+//             try {
+//                 const calendarData = JSON.parse(localStorage.getItem(key));
+//
+//                 if (Array.isArray(calendarData)) {
+//                     // ✅ Fix: Ensure "delete_it" field is properly checked (allowing 0 for active records)
+//                     const validDateCycles = calendarData.filter(dc =>
+//                         dc.delete_it !== "1" && dc.delete_it !== "1"
+//                     );
+//
+//                     if (validDateCycles.length === 0) {
+//                         console.warn(`⚠️ All dateCycles for ${key} are marked as deleted.`);
+//                     }
+//
+//                     allDateCycles.push(...validDateCycles);
+//                 } else {
+//                     console.warn(`⚠️ Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
+//                 }
+//             } catch (error) {
+//                 console.error(`❌ Error parsing localStorage data for key ${key}:`, error);
+//             }
+//         });
+//
+//         console.log(`✅ Fetched ${allDateCycles.length} dateCycles from local storage.`);
+//         console.table(allDateCycles); // Logs a readable table of dateCycles
+//
+//         return allDateCycles;
+//     } catch (error) {
+//         console.error('❌ Error fetching dateCycles from localStorage:', error.message);
+//         return [];
+//     }
+// }
 
 
 
@@ -1035,7 +1035,7 @@ async function deleteDateCycle(id) {
     }
 
     // Step 5: Refresh the UI
-    highlightDateCycles(targetDate);
+    await highlightDateCycles(targetDate);
     //displayMatchingDateCycle();
 
     console.log(`Final state of localStorage after deletion:`);
@@ -1335,7 +1335,7 @@ async function addDatecycle() {
 
 
 function animateConfirmDateCycleButton() {
-    const confirmButton = document.getElementById('confirmDateCycleButton');
+    const confirmButton = document.getElementById('confirm-dateCycle-button');
     const countDiv = document.getElementById('cal-datecycle-count');
 
     if (!confirmButton) return; // Exit if button doesn't exist
@@ -1347,7 +1347,7 @@ function animateConfirmDateCycleButton() {
     // Simulate Sync Process (Replace with Actual Sync Logic if Needed)
     syncDatecycles().then((syncSummary) => {
         confirmButton.classList.remove('loading');
-        confirmButton.innerText = "✅ Event Added!";
+        confirmButton.innerText = "✅ DateCycle Added!";
 
         if (syncSummary) {
             countDiv.innerText = syncSummary;
