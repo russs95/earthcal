@@ -1363,7 +1363,6 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
- alert("hold on before syncing!");
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1470,7 +1469,7 @@ async function syncDatecycles() {
 
                 // 🔹 **Update the Server with Unsynced Local dateCycles**
                 await updateServerDatecycles(calendar.cal_id, serverDateCycles);
-
+                alert("About to sync local datecycles")
                 // 🔹 **Update Local Storage with Server dateCycles**
                 await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
 
@@ -1561,7 +1560,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             };
 
             // 🛑 **ALERT before sending the data**
-            alert(`📤 About to sync:\n${JSON.stringify(payload, null, 2)}`);
+            //alert(`📤 About to sync:\n${JSON.stringify(payload, null, 2)}`);
 
             console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
@@ -1601,45 +1600,45 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
+    // Get the local calendar array (or initialize an empty one)
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // 🔹 Convert local storage into a dictionary for faster lookup using `created_at`
+    // Build a dictionary keyed by created_at from local storage.
+    // This ensures each datecycle is unique by its created_at timestamp.
     let localDateCycleMap = {};
-    localCalendar.forEach((dc, index) => {
+    localCalendar.forEach(dc => {
         if (dc.created_at) {
-            localDateCycleMap[dc.created_at] = { data: dc, index: index };
+            localDateCycleMap[dc.created_at] = dc;
         }
     });
 
-    let updatedLocalCalendar = [...localCalendar];
-
-    for (const serverDateCycle of serverDateCycles) {
-        // ✅ Ensure `created_at` is defined
-        if (!serverDateCycle.created_at) {
-            console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDateCycle.title}`);
-            serverDateCycle.created_at = new Date().toISOString();
+    // Iterate through each datecycle from the server.
+    serverDateCycles.forEach(serverDC => {
+        // Ensure created_at exists on the server record.
+        if (!serverDC.created_at) {
+            console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDC.title}`);
+            serverDC.created_at = new Date().toISOString();
         }
 
-        const localEntry = localDateCycleMap[serverDateCycle.created_at];
-
-        if (!localEntry) {
-            // ✅ If no match is found, log a warning before adding it
-            console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDateCycle.title}`);
-            updatedLocalCalendar.push(serverDateCycle);
+        // If the local dictionary does not have this record, add it.
+        if (!localDateCycleMap[serverDC.created_at]) {
+            console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDC.title}`);
+            localDateCycleMap[serverDC.created_at] = serverDC;
         } else {
-            const { data: localCopy, index: localIndex } = localEntry;
-
-            if (new Date(serverDateCycle.last_edited) > new Date(localCopy.last_edited)) {
-                // ✅ Overwrite with server data if it's newer
-                updatedLocalCalendar[localIndex] = { ...serverDateCycle };
-                console.log(`🔄 Updated local dateCycle: ${serverDateCycle.title}`);
+            // If a record exists locally, update it if the server version is newer.
+            let localDC = localDateCycleMap[serverDC.created_at];
+            if (new Date(serverDC.last_edited) > new Date(localDC.last_edited)) {
+                console.log(`🔄 Updated local dateCycle: ${serverDC.title}`);
+                localDateCycleMap[serverDC.created_at] = serverDC;
             }
         }
-    }
+    });
 
-    // 🔹 Save updated local storage
+    // Convert the dictionary back to an array.
+    let updatedLocalCalendar = Object.values(localDateCycleMap);
+
+    // Save the updated calendar back to local storage.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
 
