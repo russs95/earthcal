@@ -356,7 +356,7 @@ function closeAddCycle() {
 async function highlightDateCycles(targetDate) {
     // ✅ Ensure targetDate is a Date object and normalize it to match stored format
     const targetDateObj = new Date(targetDate);
-    const formattedTargetDate = `-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
+    const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
 
     console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
 
@@ -394,7 +394,10 @@ async function highlightDateCycles(targetDate) {
         }
 
         // Store matching dateCycles
-        if (storedDateFormatted === formattedTargetDate) {
+        const cycleDateObj = new Date(`${dateCycle.year}-${dateCycle.month}-${dateCycle.day}`);
+        const cycleFormattedDate = `-${cycleDateObj.getDate()}-${cycleDateObj.getMonth() + 1}-${cycleDateObj.getFullYear()}`;
+
+        if (cycleFormattedDate === formattedTargetDate) {
             matchingDateCycles.push(dateCycle);
         }
 
