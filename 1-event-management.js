@@ -1368,7 +1368,7 @@ async function syncDatecycles() {
         const buwanaId = localStorage.getItem('buwana_id');
 
         if (!buwanaId) {
-            alert('Buwana ID is missing. Please log in again.');
+            alert('Please log in first Buwana account.');
             return;
         }
 
@@ -1469,9 +1469,9 @@ async function syncDatecycles() {
 
                 // 🔹 **Update the Server with Unsynced Local dateCycles**
                 await updateServerDatecycles(calendar.cal_id, serverDateCycles);
-                alert("About to sync local datecycles")
+                alert("Skipping update of  local datecycles")
                 // 🔹 **Update Local Storage with Server dateCycles**
-                await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
+                //await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
 
             } catch (error) {
                 console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);
