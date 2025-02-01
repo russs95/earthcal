@@ -350,6 +350,9 @@ function closeAddCycle() {
 
 
 
+
+
+
 async function highlightDateCycles(targetDate) {
     // ✅ Ensure targetDate is a Date object and normalize it to match stored format
     const targetDateObj = new Date(targetDate);
