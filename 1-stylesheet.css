@@ -957,7 +957,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 .march {
   color: #fb0000;
   fill: #fb0000;
-  opacity:1;
+  opacity:1 !important;
   fill-opacity:1 !important;
 }
 
