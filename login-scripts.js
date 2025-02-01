@@ -154,7 +154,7 @@ function showLoggedInView(userData) {
         </form>
         <div id="logged-in-buttons" style="width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
     <button id="sync-button" type="button" class="confirmation-blur-button enabled"
-        onclick="animateSyncButton(); syncDatecycles();">
+        onclick="animateSyncButton();">
     🔄 Sync Now
 </button>
 

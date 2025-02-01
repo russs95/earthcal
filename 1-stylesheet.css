@@ -41,9 +41,10 @@ p {
   }
   .earth-icon {
     font-size: 1.5em;
-    padding:5px 0px 5px 5px;
+    padding:5px 0 5px 5px;
     display: none;
   }
+
   .planet-info {
     font-size: 0.88em;
     font-family: 'Mulish', sans-serif;
@@ -66,7 +67,7 @@ p {
     
     }
     .earth-icon {
-      padding:15px 0px 15px 15px;
+      padding:15px 0 15px 15px;
       /*font-size: 3.4em;*/
     }
     .planet-info {
@@ -99,7 +100,7 @@ html {
     width: 100%;
     height:100%;
     background-color: var(--general-background);
-    margin: 0px;
+    margin: 0;
   }
   
 
@@ -150,10 +151,10 @@ flex-direction: row;
       margin-left:116px;
       position: absolute;*/
       background-color: #a52a2a00;
-      border-radius: 0px 12px 12px 0px;
+      border-radius: 0 12px 12px 0;
       padding: 5px 7px;
       border: none;
-      margin-top: 0px;
+      margin-top: 0;
       cursor: pointer;
       color: grey;
       display: none;
@@ -167,10 +168,10 @@ flex-direction: row;
       position: absolute;*/
       /* background-color:  var(--general-background);  */
       background-color: #a52a2a00;
-      border-radius: 12px 0px 0px 12px;
+      border-radius: 12px 0 0 12px;
       padding: 5px 4px;
       border: none;
-      margin-top: 0px;
+      margin-top: 0;
       cursor: pointer;
       color: grey;
       display: none;
@@ -203,7 +204,7 @@ flex-direction: row;
 
 .top-search-button  {
   border: none; 
-    margin:0px 10px 10px 10px;
+    margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -213,7 +214,7 @@ flex-direction: row;
 
 .top-clock-button  {
   border: none;
-    margin:0px 10px 10px 10px;
+    margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -222,7 +223,7 @@ flex-direction: row;
 
 .top-menu-button  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -231,7 +232,7 @@ flex-direction: row;
 
 .top-help-button  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -248,21 +249,21 @@ flex-direction: row;
 
 .top-add-icon  {
   border: none; 
-  margin:0px auto 10px auto;
+  margin:0 auto 10px auto;
   height:80px;
   width:80px;
 }
 
 .top-search-icon  {
   border: none;
-  margin:0px auto 10px auto;
+  margin:0 auto 10px auto;
   height:80px;
   width:80px;
 }
 
 .top-settings-icon  {
   border: none;
-  margin:0px auto 25px auto;
+  margin:0 auto 25px auto;
   height:80px;
   width:80px;
 }
@@ -311,7 +312,7 @@ flex-direction: row;
   height:fit-content; 
   font-family:'Mulish', sans-serif; 
   color: var(--text-color); 
-  padding: 0px 5px 15px 15px;
+  padding: 0 5px 15px 15px;
 
 }
 
@@ -350,7 +351,7 @@ flex-direction: row;
 /* Table of Contents Menu (background) */
 .overlay-settings {
   height: 100%;
-  width: 0%;
+  width: 0;
   position: fixed; /* Stay in place */
   z-index: 21; /* Sit on top */
   left: 0;
@@ -399,7 +400,7 @@ flex-direction: row;
 .settings-label {
   font-family: 'Mulish';
   font-size: 1.2em;
-  margin: 18px 0px 8px 0px;
+  margin: 18px 0 8px 0;
 }
 
 .language-box {
@@ -461,26 +462,26 @@ border-color: #00a112 !important;
 
 #right-close-button {
   position: absolute;
-  right: 0px;
+  right: 0;
   transition: 0.3s;
   height: 75px;
   width:75px;
   padding-right: 30px;
   padding-top: 30px;
-  right: 0px;
-  top: 0px;
+  right: 0;
+  top: 0;
 }
 
 #left-close-button {
   position: absolute;
-  right: 0px;
+  right: 0;
   transition: 0.3s;
   height: 75px;
   width:75px;
   padding-right: 30px;
   padding-top: 30px;
-  left: 0px;
-  top: 0px;
+  left: 0;
+  top: 0;
 }
 
 
@@ -579,7 +580,7 @@ color: var(--subdued-text);
 }
 
 legend {
-  margin: 0px auto 10px auto !important; 
+  margin: 0 auto 10px auto !important;
 }
 
 
@@ -1022,7 +1023,6 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 .october {
   color: rgb(0, 230, 169);
   fill: rgb(0, 230, 169);
-  opacity:1;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1031,7 +1031,6 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 .november {
   color: #0cabf5;
   fill: #0cabf5;
-  opacity:1;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1843,7 +1842,7 @@ margin: auto;
 
 #solarsystem-button  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1853,7 +1852,7 @@ margin: auto;
 
 #moon-button  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1863,7 +1862,7 @@ margin: auto;
 
 #whale-earthbutton  {
   border: none; 
-  margin:0px 10px 10px 10px;
+  margin:0 10px 10px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1941,14 +1940,14 @@ ADD DATE CURTAIN
 
 .right-close-button {
   position: absolute;
-  right: 0px;
+  right: 0;
   transition: 0.3s;
   height: 75px;
   width:75px;
   padding-right: 30px;
   padding-top: 30px;
-  right: 0px;
-  top: 0px;
+  right: 0;
+  top: 0;
 }
 
 /* Position the content inside the overlay */
@@ -2080,7 +2079,7 @@ background-color: var(--button-2-1);
   width:50px;
   display:flex;
   flex-flow:row;
-  margin:-5px 0px 5px 5px;
+  margin:-5px 0 5px 5px;
 }
 
 }
@@ -2093,7 +2092,7 @@ background-color: var(--button-2-1);
     width:60px;
     display:flex;
     flex-flow:row;
-    margin:-5px 0px 5px 5px;
+    margin:-5px 0 5px 5px;
   }
   
   }
@@ -2102,7 +2101,7 @@ background-color: var(--button-2-1);
  
 #current-datecycles .date-info {
   margin-top:20px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   background: var(--grey-trans);
   border-radius: 10px;
   padding: 15px;
@@ -2113,7 +2112,7 @@ background-color: var(--button-2-1);
 
 #pinned-datecycles .date-info {
   margin-top:20px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   background: var(--grey-trans);
   border-radius: 10px;
   padding: 15px;
@@ -2125,9 +2124,9 @@ background-color: var(--button-2-1);
 
 .current-date-info-title {
   font-size: larger;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   margin-right: 25px;
-  padding-top: 0px;
+  padding-top: 0;
   max-width: 250px;
 }
 
@@ -2142,11 +2141,11 @@ background-color: var(--button-2-1);
 .current-date-frequency,
 div.current-datecycle-data > div {
   font-size: smaller;
-  padding: 10px 10px 10px 0px;
+  padding: 10px 10px 10px 0;
 }
 
 .current-date-calendar-color {
-  padding: 10px 0px 10px 0px;
+  padding: 10px 0 10px 0;
 }
 
 .current-date-frequency {
@@ -2221,7 +2220,7 @@ border-top: 1px grey solid;
 #progress-bar {
   height: 10px;
   background-color: grey;
-  width: 0%; 
+  width: 0;
   z-index: 10;
 }
 
@@ -2237,7 +2236,7 @@ border-top: 1px grey solid;
   margin-left: 10px;
   font-size: 18px;
   padding: 10px;
-  border-radius: 10px 0px 0px 10px;
+  border-radius: 10px 0 0 10px;
   width:100%;
 }
 
@@ -2246,8 +2245,8 @@ border-top: 1px grey solid;
   margin-left: 10px;
   font-size: 18px;
   padding: 10px;
-  border-radius: 10px 0px 0px 10px;
-  width: 0%;
+  border-radius: 10px 0 0 10px;
+  width: 0;
   transition: width 0.5s; 
 }
 
@@ -2258,7 +2257,7 @@ border-top: 1px grey solid;
   margin-left: 10px;
   font-size: 18px;
   padding: 10px;
-  border-radius: 10px 0px 0px 10px;
+  border-radius: 10px 0 0 10px;
   width: 70%;
   transition: width 0.5s;
   background: var(--background-color);
@@ -2268,7 +2267,7 @@ border-top: 1px grey solid;
   cursor: pointer;
   font-size: 18px;
   padding: 10px;
-  border-radius:  0px 10px 10px 0px;
+  border-radius:  0 10px 10px 0;
   width: fit-content;
   background-color: green;
   min-width: 100px;
@@ -2310,13 +2309,13 @@ border-top: 1px grey solid;
 @media screen and (max-width: 699px) {
     
   #reg-up-button {
-      margin: 0px auto -4px auto;
+      margin: 0 auto -4px auto;
       
   }
 
   #reg-down-button {
       width:15%;
-      margin: 10px auto 0px auto;
+      margin: 10px auto 0 auto;
       height: 19px;
   }
 
@@ -2329,7 +2328,7 @@ border-top: 1px grey solid;
 @media screen and (min-width: 700px) {
     
   #reg-up-button {
-      margin: 0px auto -3px auto;
+      margin: 0 auto -3px auto;
       width: 25%;
   }
 
@@ -2473,8 +2472,8 @@ INFO MODAL
 
 #form-modal-message {
   position: fixed; 
-  top: 0px; 
-  left: 0px; 
+  top: 0;
+  left: 0;
   width: 100%; 
   height: 100%; 
   background-color: var(--show-hide); 
@@ -2726,7 +2725,7 @@ svg path #june:hover {
     font-size: larger;
     background-color: var(--button-2-1);
     color: var(--top-header);
-    margin: 20px auto 0px auto;
+    margin: 20px auto 0 auto;
     cursor: pointer;
 }
 
@@ -2753,7 +2752,6 @@ svg path #june:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 
 
   #sync-button:hover {
