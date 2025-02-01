@@ -2257,7 +2257,7 @@ border-top: 1px grey solid;
   border-radius: 10px 0 0 10px;
   width: 70%;
   transition: width 0.5s;
-  background: var(--background-color);
+  background: var(--general-background);
 }
 
 .register-button {
@@ -2473,7 +2473,7 @@ INFO MODAL
   left: 0;
   width: 100%; 
   height: 100%; 
-  background-color: var(--show-hide); 
+  background-color: red;
   justify-content: center; 
   align-items: center; 
   z-index: 15;
@@ -2482,7 +2482,7 @@ INFO MODAL
 .modal-content-box {
     position: relative;
     padding: 20px;
-    background-color: var(--emblem-pink);
+    background-color: var(--general-background);/*Problem?!*/
     border-radius: 10px;
     max-width: 90%;
     max-height: 90vh; /* Restrict the modal height to 90% of the viewport */
