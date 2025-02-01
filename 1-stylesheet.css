@@ -778,7 +778,7 @@ svg path[id*="-2-20"]:not([id*="-marker"]) {
 
 /*March*/
 svg path[id*="-3-20"]:not([id*="-marker"]) {
-  fill: #d40000ff;  
+  fill: #fb0000;
   cursor: pointer;
   fill-opacity: 0.3;
 }
