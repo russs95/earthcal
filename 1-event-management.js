@@ -1334,6 +1334,36 @@ async function addDatecycle() {
 
 
 
+function animateConfirmDateCycleButton() {
+    const confirmButton = document.getElementById('confirmDateCycleButton');
+    const countDiv = document.getElementById('cal-datecycle-count');
+
+    if (!confirmButton) return; // Exit if button doesn't exist
+
+    // 🔄 Start Loading Animation
+    confirmButton.classList.add('loading');
+    confirmButton.innerText = "Adding...";
+
+    // Simulate Sync Process (Replace with Actual Sync Logic if Needed)
+    syncDatecycles().then((syncSummary) => {
+        confirmButton.classList.remove('loading');
+        confirmButton.innerText = "✅ Event Added!";
+
+        if (syncSummary) {
+            countDiv.innerText = syncSummary;
+        }
+
+        // ✅ Call `addDatecycle()` after sync is successful
+        addDatecycle();
+
+    }).catch((error) => {
+        confirmButton.classList.remove('loading');
+        confirmButton.innerText = "⚠️ Add Failed!";
+        console.error("Adding event failed:", error);
+    });
+}
+
+
 
 function animateSyncButton() {
     const syncButton = document.getElementById('sync-button');
