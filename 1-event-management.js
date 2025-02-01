@@ -1490,7 +1490,6 @@ async function syncDatecycles() {
 }
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1508,8 +1507,8 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
     });
 
-    // 🔹 Filter only unsynced dateCycles
-    let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "1");
+    // 🔹 Filter only unsynced dateCycles using numeric comparison
+    let unsyncedDateCycles = localCalendar.filter(dc => Number(dc.synced) !== 1);
 
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
@@ -1557,7 +1556,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
-                synced: "1",
+                synced: 1, // now using a numeric flag
                 conflict: unsyncedEvent.conflict
             };
 
@@ -1580,10 +1579,10 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
 
-            // ✅ Update the local entry with the correct ID and mark as synced
+            // ✅ Update the local entry with the correct ID and mark as synced (numeric 1)
             if (localDateCycleMap[unsyncedEvent.created_at]) {
-                localDateCycleMap[unsyncedEvent.created_at].id = syncData.id; // Correct field is `.id`, not `.ID`
-                localDateCycleMap[unsyncedEvent.created_at].synced = "1";
+                localDateCycleMap[unsyncedEvent.created_at].id = syncData.id;
+                localDateCycleMap[unsyncedEvent.created_at].synced = 1;
             }
 
         } catch (error) {
@@ -1594,6 +1593,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
 }
+
 
 
 
