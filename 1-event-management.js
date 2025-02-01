@@ -1210,6 +1210,8 @@ function push2today(id) {
 // ADD DATECYCLE
 //**************
 
+
+
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1498,7 +1500,7 @@ async function syncDatecycles() {
                 await updateServerDatecycles(calendar.cal_id, serverDateCycles);
 
                 // 🔹 **Update Local Storage with Server dateCycles**
-                //await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
+                await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
 
             } catch (error) {
                 console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);

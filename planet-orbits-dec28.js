@@ -22,7 +22,7 @@ class Planet {
     // Set a reference date of January 1, 2023 - WHAT?  why isn't this 2024 now that the vector positions are updated?
 
     let yearStart = new Date(2023, 0, 1);
-     console.log("Initiating:"+ yearStart + startDate);
+     //console.log("Initiating:"+ yearStart + startDate);
 
     let planetAnimation2;
 

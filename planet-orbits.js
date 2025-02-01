@@ -11,7 +11,7 @@ class Planet {
 
     // Reference date
     const yearStart = new Date(2023, 0, 1);
-    console.log("Initiating:" + yearStart + startDate);
+    //console.log("Initiating:" + yearStart + startDate);
 
     // Calculate days and ratios
     const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
