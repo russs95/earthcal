@@ -1352,7 +1352,7 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
-    alert("Syncing started!");
+
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
