@@ -1352,7 +1352,7 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
-
+ alert("hold on before syncing!");
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1482,6 +1482,7 @@ async function syncDatecycles() {
 
 
 async function updateServerDatecycles(cal_id, serverDateCycles) {
+    alert("about to udpate server datecycles!!");
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
         console.error("❌ Missing buwana_id. Cannot sync dateCycles.");
