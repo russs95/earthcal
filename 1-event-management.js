@@ -1334,9 +1334,9 @@ async function addDatecycle() {
 
 
 
+
 function animateConfirmDateCycleButton() {
     const confirmButton = document.getElementById('confirm-dateCycle-button');
-    const countDiv = document.getElementById('cal-datecycle-count');
 
     if (!confirmButton) return; // Exit if button doesn't exist
 
@@ -1345,13 +1345,9 @@ function animateConfirmDateCycleButton() {
     confirmButton.innerText = "Adding...";
 
     // Simulate Sync Process (Replace with Actual Sync Logic if Needed)
-    syncDatecycles().then((syncSummary) => {
+    syncDatecycles().then(() => {
         confirmButton.classList.remove('loading');
         confirmButton.innerText = "✅ DateCycle Added!";
-
-        if (syncSummary) {
-            countDiv.innerText = syncSummary;
-        }
 
         // ✅ Call `addDatecycle()` after sync is successful
         addDatecycle();
@@ -1362,6 +1358,7 @@ function animateConfirmDateCycleButton() {
         console.error("Adding event failed:", error);
     });
 }
+
 
 
 
