@@ -2710,7 +2710,8 @@ svg path #june:hover {
 
 /* SYNCING  */
 
-#sync-button {
+/* General Sync Button Styling */
+.sync-style {
     position: relative;
     padding: 10px 20px;
     border-radius: 10px;
@@ -2722,12 +2723,13 @@ svg path #june:hover {
     cursor: pointer;
 }
 
-#sync-button.loading {
+/* Loading State for Sync Buttons */
+.sync-style.loading {
     pointer-events: none; /* Disable button clicks during sync */
     background-color: grey;
 }
 
-#sync-button.loading::before {
+.sync-style.loading::before {
     content: "";
     position: absolute;
     left: 10px;
@@ -2746,8 +2748,8 @@ svg path #june:hover {
     100% { transform: rotate(360deg); }
 }
 
-
-  #sync-button:hover {
- background-color: var(--button-2-1-over);
+/* Hover Effect */
+.sync-style:hover {
+    background-color: var(--button-2-1-over);
     color: var(--text-color);
-  }
+}
