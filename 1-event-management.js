@@ -1445,7 +1445,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         // ✅ Strictly check if the record already exists on the server
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
             dc.created_at === unsyncedEvent.created_at && dc.cal_id == unsyncedEvent.cal_id
-        console.log(`No duplicate detected: ${unsyncedEvent.title}`);
+        console.log(`No duplicate ded: ${unsyncedEvent.title}`);
         );
 
         if (alreadyExistsOnServer) {
