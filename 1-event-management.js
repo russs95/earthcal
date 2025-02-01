@@ -353,7 +353,7 @@ function closeAddCycle() {
 async function highlightDateCycles(targetDate) {
     // ✅ Ensure targetDate is a Date object and normalize it to match stored format
     const targetDateObj = new Date(targetDate);
-    const formattedTargetDate = `-${targetDateObj.getUTCDate()}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
+    const formattedTargetDate = `-${targetDateObj.getUTCDate() + 1}-${targetDateObj.getUTCMonth() + 1}-${targetDateObj.getUTCFullYear()}`;
 
     console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
 
