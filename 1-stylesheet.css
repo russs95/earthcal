@@ -948,7 +948,6 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 .february {
   color: #ff00d9;
   fill: #ff00d9;
-  opacity:1;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -956,12 +955,10 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 }
 
 .march {
-  color: #d40000ff;
-  fill: #d40000ff;
+  color: #fb0000;
+  fill: #fb0000;
   opacity:1;
-  opacity:1 !important;
   fill-opacity:1 !important;
-
 }
 
 .april {
