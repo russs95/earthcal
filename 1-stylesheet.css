@@ -2732,7 +2732,7 @@ svg path #june:hover {
 
 #sync-button.loading {
     pointer-events: none; /* Disable button clicks during sync */
-    background-color: #0056b3;
+    background-color: grey;
 }
 
 #sync-button.loading::before {
