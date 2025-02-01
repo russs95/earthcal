@@ -1517,7 +1517,6 @@ async function syncDatecycles() {
     }
 }
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1546,9 +1545,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
-        // ✅ Ensure `created_at` exists
+        // ❌ Do not update created_at! Instead, throw an error if it's missing.
         if (!unsyncedEvent.created_at) {
-            unsyncedEvent.created_at = new Date().toISOString();
+            throw new Error(`Missing created_at in unsynced event: ${unsyncedEvent.title}`);
         }
 
         // ✅ Strictly check if the record already exists on the server
@@ -1577,19 +1576,16 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comment: unsyncedEvent.comment,
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
-                created_at: unsyncedEvent.created_at,
+                created_at: unsyncedEvent.created_at, // NEVER modify created_at!
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
                 pinned: unsyncedEvent.pinned,
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
-                synced: 1, // now using a numeric flag
+                synced: 1, // using a numeric flag
                 conflict: unsyncedEvent.conflict
             };
-
-            // 🛑 **ALERT before sending the data**
-            //alert(`📤 About to sync:\n${JSON.stringify(payload, null, 2)}`);
 
             console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
@@ -1627,17 +1623,17 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // Get the local calendar array (or initialize an empty one)
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // Build a dictionary keyed by created_at from local storage.
-    // This ensures each datecycle is unique by its created_at timestamp.
+    // Build a dictionary keyed by normalized created_at
     let localDateCycleMap = {};
     localCalendar.forEach(dc => {
         if (dc.created_at) {
-            localDateCycleMap[dc.created_at] = dc;
+            // Normalize the local created_at to ISO string format
+            const normCreatedAt = new Date(dc.created_at).toISOString();
+            localDateCycleMap[normCreatedAt] = dc;
         }
     });
 
@@ -1648,17 +1644,19 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
             console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDC.title}`);
             serverDC.created_at = new Date().toISOString();
         }
+        // Normalize the server created_at value
+        const serverCreatedAt = new Date(serverDC.created_at).toISOString();
 
         // If the local dictionary does not have this record, add it.
-        if (!localDateCycleMap[serverDC.created_at]) {
+        if (!localDateCycleMap[serverCreatedAt]) {
             console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDC.title}`);
-            localDateCycleMap[serverDC.created_at] = serverDC;
+            localDateCycleMap[serverCreatedAt] = serverDC;
         } else {
             // If a record exists locally, update it if the server version is newer.
-            let localDC = localDateCycleMap[serverDC.created_at];
+            let localDC = localDateCycleMap[serverCreatedAt];
             if (new Date(serverDC.last_edited) > new Date(localDC.last_edited)) {
                 console.log(`🔄 Updated local dateCycle: ${serverDC.title}`);
-                localDateCycleMap[serverDC.created_at] = serverDC;
+                localDateCycleMap[serverCreatedAt] = serverDC;
             }
         }
     });
