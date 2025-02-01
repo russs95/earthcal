@@ -1482,7 +1482,6 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1490,7 +1489,6 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
-    // Retrieve local calendar events
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
     // 🔹 Convert local storage into a dictionary for faster lookup using `created_at`
@@ -1512,18 +1510,12 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
-        // ✅ Skip any event that is already synced
-        if (unsyncedEvent.synced === "Yes") {
-            console.log(`🚫 Skipping already synced event: ${unsyncedEvent.title}`);
-            continue;
-        }
-
         // ✅ Ensure `created_at` exists
         if (!unsyncedEvent.created_at) {
             unsyncedEvent.created_at = new Date().toISOString();
         }
 
-        // ✅ Check if the record already exists on the server
+        // ✅ Strictly check if the record already exists on the server
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
             dc.created_at === unsyncedEvent.created_at && dc.cal_id == unsyncedEvent.cal_id
         );
@@ -1597,8 +1589,6 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
@@ -1616,7 +1606,7 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
         // ✅ Ensure `created_at` is defined
         if (!serverDateCycle.created_at) {
             console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDateCycle.title}`);
-            serverDateCycle.created_at = new Date().toISOString(); // Assign a fallback timestamp
+            serverDateCycle.created_at = new Date().toISOString();
         }
 
         const localEntry = localDateCycleMap[serverDateCycle.created_at];
@@ -1639,7 +1629,6 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
-
 
 
 
