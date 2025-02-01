@@ -1469,7 +1469,7 @@ async function syncDatecycles() {
 
                 // 🔹 **Update the Server with Unsynced Local dateCycles**
                 await updateServerDatecycles(calendar.cal_id, serverDateCycles);
-                alert("Skipping update of  local datecycles")
+
                 // 🔹 **Update Local Storage with Server dateCycles**
                 //await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
 
@@ -1599,7 +1599,6 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
 
 
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // Get the local calendar array (or initialize an empty one)
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
@@ -1638,9 +1637,13 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // Convert the dictionary back to an array.
     let updatedLocalCalendar = Object.values(localDateCycleMap);
 
+    // Show alert with JSON data before saving
+    alert("Saving the following DateCycles to Local Storage:\n\n" + JSON.stringify(updatedLocalCalendar, null, 2));
+
     // Save the updated calendar back to local storage.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
+
 
 
 
