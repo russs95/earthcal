@@ -1352,6 +1352,7 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
+    alert("Syncing started!");
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1642,55 +1643,6 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
 
 
 
-
-
-function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in localStorage.");
-        return []; // Return an empty array if no calendars are found
-    }
-
-    try {
-        let allDateCycles = [];
-
-        calendarKeys.forEach(key => {
-            try {
-                const calendarData = JSON.parse(localStorage.getItem(key));
-
-                if (Array.isArray(calendarData)) {
-                    // Filter out deleted dateCycles (ensuring case-insensitive match)
-                    const validDateCycles = calendarData.filter(dc =>
-                        (dc.delete_it || '').trim().toLowerCase() !== "yes"
-                    );
-
-                    if (validDateCycles.length === 0) {
-                        console.warn(`All dateCycles for ${key} are marked as deleted.`);
-                    }
-
-                    allDateCycles.push(...validDateCycles);
-                } else {
-                    console.warn(`Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
-                }
-            } catch (error) {
-                console.error(`Error parsing localStorage data for key ${key}:`, error);
-            }
-        });
-
-        console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
-        console.table(allDateCycles); // Logs a readable table of dateCycles
-
-        return allDateCycles;
-    } catch (error) {
-        console.error('Error fetching dateCycles from localStorage:', error.message);
-        return [];
-    }
-}
-
-
-
-
 function fetchLocalCalendarByCalId(calId) {
     // Log the passed calId
     console.log('passed to fetchLocalCalendarByCalId:', calId);
@@ -1758,6 +1710,58 @@ function fetchLocalCalendarByCalId(calId) {
         return [];
     }
 }
+
+
+
+
+
+
+function fetchDateCycleCalendars() {
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+
+    if (calendarKeys.length === 0) {
+        console.log("No calendar data found in localStorage.");
+        return []; // Return an empty array if no calendars are found
+    }
+
+    try {
+        let allDateCycles = [];
+
+        calendarKeys.forEach(key => {
+            try {
+                const calendarData = JSON.parse(localStorage.getItem(key));
+
+                if (Array.isArray(calendarData)) {
+                    // Filter out deleted dateCycles (ensuring case-insensitive match)
+                    const validDateCycles = calendarData.filter(dc =>
+                        (dc.delete_it || '').trim().toLowerCase() !== "yes"
+                    );
+
+                    if (validDateCycles.length === 0) {
+                        console.warn(`All dateCycles for ${key} are marked as deleted.`);
+                    }
+
+                    allDateCycles.push(...validDateCycles);
+                } else {
+                    console.warn(`Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
+                }
+            } catch (error) {
+                console.error(`Error parsing localStorage data for key ${key}:`, error);
+            }
+        });
+
+        console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
+        console.table(allDateCycles); // Logs a readable table of dateCycles
+
+        return allDateCycles;
+    } catch (error) {
+        console.error('Error fetching dateCycles from localStorage:', error.message);
+        return [];
+    }
+}
+
+
+
 
 
 
