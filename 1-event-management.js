@@ -59,7 +59,7 @@ async function populateCalendarDropdown(buwanaId) {
 
     try {
         let calendars = [];
-        let myCalendarFound = false;
+        let myCalendarFound = 0;
 
         if (buwanaId) {
             console.log('Fetching calendars from API...');
@@ -95,7 +95,7 @@ async function populateCalendarDropdown(buwanaId) {
             const myCalendar = calendars.find(calendar => calendar.name === "My Calendar");
 
             if (myCalendar) {
-                myCalendarFound = true;
+                myCalendarFound = 1;
                 hiddenCalendarId.value = myCalendar.cal_id;
                 hiddenCalendarColor.value = myCalendar.color;
 
@@ -141,7 +141,7 @@ async function populateCalendarDropdown(buwanaId) {
             option.textContent = calendar.name;
 
             if (calendar.name === "My Calendar") {
-                option.selected = true;
+                option.selected = 1;
             }
 
             calendarDropdown.appendChild(option);
@@ -458,7 +458,7 @@ function fetchDateCycleCalendars() {
                 if (Array.isArray(calendarData)) {
                     // ✅ Fix: Ensure "delete_it" field is properly checked (allowing 0 for active records)
                     const validDateCycles = calendarData.filter(dc =>
-                        dc.delete_it !== "true" && dc.delete_it !== "1"
+                        dc.delete_it !== "1" && dc.delete_it !== "1"
                     );
 
                     if (validDateCycles.length === 0) {
@@ -498,10 +498,10 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const bulletColor = dateCycle.datecycle_color || "#000"; // Bullet & Title use 'datecycle_color'
     const calendarColor = dateCycle.cal_color || "#000"; // Calendar name uses 'cal_color'
 
-    const eventNameStyle = dateCycle.completed === "true" ? "text-decoration: line-through;" : "";
+    const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
 
     let actionButton;
-    if (dateCycle.completed === "true") {
+    if (dateCycle.completed === "1") {
         actionButton = `
             <div class="delete-button-datecycle"
                 title="❌ Delete this dateCycle"
@@ -522,7 +522,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </button>`;
     }
 
-    const publicLabel = dateCycle.public === "true"
+    const publicLabel = dateCycle.public === "1"
         ? `<div class="public-label" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
                 Public
            </div>`
@@ -658,7 +658,7 @@ function pinThisDatecycle(element) {
 
     // Step 2: Get the ID from the class list of dateInfoDiv
     const dateCycleID = dateInfoDiv.classList[1];
-    let found = false;
+    let found = 0;
 
     // Step 3: Iterate through calendar arrays to find and update the dateCycle
     for (const key of calendarKeys) {
@@ -678,7 +678,7 @@ function pinThisDatecycle(element) {
             // Step 6: Refresh the displayed dateCycles
             displayMatchingDateCycle();
 
-            found = true;
+            found = 1;
             break; // Exit the loop once the dateCycle is found and updated
         }
     }
@@ -968,7 +968,7 @@ async function deleteDateCycle(id) {
     const userResponse = confirm('Are you sure you want to delete this event?');
     if (!userResponse) return; // If user clicks "Cancel", exit the function
 
-    let found = false;
+    let found = 0;
     let dateCycle = null;
     let calendarKey = null;
 
@@ -979,7 +979,7 @@ async function deleteDateCycle(id) {
 
         if (dateCycleIndex !== -1) {
             dateCycle = calendarData[dateCycleIndex];
-            dateCycle.delete_it = navigator.onLine ? "true" : "pending"; // "true" if online, "pending" if offline
+            dateCycle.delete_it = navigator.onLine ? "1" : "pending"; // "1" if online, "pending" if offline
             calendarKey = key;
 
             // If online, remove the dateCycle from localStorage, otherwise mark it for deletion
@@ -991,7 +991,7 @@ async function deleteDateCycle(id) {
 
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle with ID: ${id} in calendar: ${key}`);
-            found = true;
+            found = 1;
             break;
         }
     }
@@ -1169,7 +1169,7 @@ function push2today(id) {
 
   // If Pinned hasn't been set, update it to "flase"
   if (!dateCycle.Pinned) {
-    dateCycle.Pinned = 'false';
+    dateCycle.Pinned = '0';
   }
 
 
@@ -1244,7 +1244,7 @@ async function addDatecycle() {
     const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
 
     // Note and color picker fields
-    const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "true" : "false";
+    const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "1" : "0";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
@@ -1292,12 +1292,12 @@ async function addDatecycle() {
         created_at: createdAt, // ✅ Ensure it's correctly formatted
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
-        pinned: dateCycleType === "One-time + pinned" ? "true" : "false",
-        completed: "false",
-        public: "false",
-        delete_it: "false",
-        synced: "false",
-        conflict: "false",
+        pinned: dateCycleType === "One-time + pinned" ? "1" : "0",
+        completed: "0",
+        public: "0",
+        delete_it: "0",
+        synced: "0",
+        conflict: "0",
     };
 
     // Add the new dateCycle to localStorage
@@ -1320,7 +1320,7 @@ async function addDatecycle() {
     document.getElementById('select-calendar').value = 'Select calendar...';
     document.getElementById('dateCycle-type').value = 'One-time';
     document.getElementById('add-date-title').value = '';
-    document.getElementById('add-note-checkbox').checked = false;
+    document.getElementById('add-note-checkbox').checked = 0;
     document.getElementById('add-date-note').value = '';
 
     console.log("✅ DateCycle added successfully:", dateCycle);
@@ -1374,7 +1374,7 @@ async function syncDatecycles() {
         }
 
         let serverCalendars = [];
-        let hasInternetConnection = true;
+        let hasInternetConnection = 1;
         let totalDateCyclesUpdated = 0;
 
         try {
@@ -1402,7 +1402,7 @@ async function syncDatecycles() {
             console.log('✅ Fetched and transformed server calendars:', serverCalendars);
         } catch (error) {
             console.warn('⚠️ Unable to fetch server data:', error);
-            hasInternetConnection = false;
+            hasInternetConnection = 0;
         }
 
         if (!hasInternetConnection) return;
@@ -1509,7 +1509,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     });
 
     // 🔹 Filter only unsynced dateCycles
-    let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "true");
+    let unsyncedDateCycles = localCalendar.filter(dc => dc.synced !== "1");
 
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
@@ -1557,7 +1557,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
-                synced: "true",
+                synced: "1",
                 conflict: unsyncedEvent.conflict
             };
 
@@ -1583,7 +1583,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             // ✅ Update the local entry with the correct ID and mark as synced
             if (localDateCycleMap[unsyncedEvent.created_at]) {
                 localDateCycleMap[unsyncedEvent.created_at].id = syncData.id; // Correct field is `.id`, not `.ID`
-                localDateCycleMap[unsyncedEvent.created_at].synced = "true";
+                localDateCycleMap[unsyncedEvent.created_at].synced = "1";
             }
 
         } catch (error) {
@@ -1693,17 +1693,17 @@ function fetchLocalCalendarByCalId(calId) {
             month: dateCycle.month || "missing",
             year: dateCycle.year || "missing",
             frequency: dateCycle.frequency || "missing",
-            completed: dateCycle.completed || "false",
-            pinned: dateCycle.pinned || "false",
-            public: dateCycle.public || "false",
-            comment: dateCycle.comment || "false",
+            completed: dateCycle.completed || "0",
+            pinned: dateCycle.pinned || "0",
+            public: dateCycle.public || "0",
+            comment: dateCycle.comment || "0",
             comments: dateCycle.comments || "",
             datecycle_color: dateCycle.datecycle_color || "missing",
             cal_name: dateCycle.cal_name || "missing",
             cal_color: dateCycle.cal_color || "missing",
-            synced: dateCycle.synced || "true",
-            conflict: dateCycle.conflict || "false",
-            delete_it: dateCycle.delete || "false",
+            synced: dateCycle.synced || "1",
+            conflict: dateCycle.conflict || "0",
+            delete_it: dateCycle.delete || "0",
             last_edited: dateCycle.last_edited || new Date().toISOString(),
             //raw_json: JSON.stringify(dateCycle),
         }));
@@ -1738,7 +1738,7 @@ function fetchDateCycleCalendars() {
                 if (Array.isArray(calendarData)) {
                     // Filter out deleted dateCycles (ensuring case-insensitive match)
                     const validDateCycles = calendarData.filter(dc =>
-                        (dc.delete_it || '').trim().toLowerCase() !== "true"
+                        (dc.delete_it || '').trim().toLowerCase() !== "1"
                     );
 
                     if (validDateCycles.length === 0) {
@@ -1880,10 +1880,10 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
         }
 
         if (newCalId) {
-            // Ensure all dateCycles have `Delete: "false"` if not already set to "true"
+            // Ensure all dateCycles have `Delete: "0"` if not already set to "1"
             localCalendar.forEach(cycle => {
-                if (cycle.delete !== "true") {
-                    cycle.delete = "false"; // Set to "false" explicitly
+                if (cycle.delete !== "1") {
+                    cycle.delete = "0"; // Set to "0" explicitly
                 }
             });
 
@@ -1998,7 +1998,7 @@ function strikeDateCycle(dateCycleID) {
 
     // Step 1: Retrieve all calendar keys from localStorage
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
+    let found = 0;
     let updatedDateCycle = null;
 
     // Step 2: Iterate through calendar arrays to find and update the dateCycle
@@ -2025,7 +2025,7 @@ function strikeDateCycle(dateCycleID) {
 
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
             updatedDateCycle = dateCycle;
-            found = true;
+            found = 1;
             break; // Exit loop once updated
         }
     }
@@ -2223,7 +2223,7 @@ function strikeDateCycle(dateCycleID) {
 //
 //     // Step 1: Retrieve all calendar keys from localStorage
 //     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-//     let found = false;
+//     let found = 0;
 //     let updatedDateCycle = null;
 //
 //     // Step 2: Iterate through calendar arrays to find and update the dateCycle
@@ -2250,7 +2250,7 @@ function strikeDateCycle(dateCycleID) {
 //
 //             console.log(`✅ Updated dateCycle in calendar: ${key}`, dateCycle);
 //             updatedDateCycle = dateCycle;
-//             found = true;
+//             found = 1;
 //             break; // Exit loop once updated
 //         }
 //     }
