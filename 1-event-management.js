@@ -1352,7 +1352,7 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
-    alert("Syncing started!");
+    alert("Syncing has now started!");
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
@@ -1477,7 +1477,6 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
-
 
 
 
@@ -1629,6 +1628,7 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // 🔹 Save updated local storage
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
+
 
 
 
