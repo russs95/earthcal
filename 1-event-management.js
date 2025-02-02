@@ -528,7 +528,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             role="button"
             aria-label="Push to today"
             title="Push to today"
-            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+            onclick="oday('${dateCycle.unique_key}'); event.stopPropagation();"
             style="font-size: larger; cursor: pointer; background: none; border: none;">
             ➜
         </button>`;
@@ -1193,7 +1193,7 @@ function push2today(uniqueKey) {
             console.log(`Updated dateCycle with unique_key: ${uniqueKey} to today`);
             found = true;
             // Refresh the UI.
-            highlightDatecycles();
+            highlightDateCycles();
             break;
         }
     }
