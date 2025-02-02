@@ -739,11 +739,9 @@ function checkOffDatecycle(uniqueKey) {
     // Step 7: Handle case where the dateCycle with the unique_key was not found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
-    } else {
         // Step 8: Refresh the UI.
-       alert("Check Good!");
        highlightDateCycles(targetDate);
-    }
+       alert("all is good!");
 }
 
 
