@@ -1373,6 +1373,9 @@ function animateConfirmDateCycleButton() {
 
 
 
+
+
+
 function animateSyncButton() {
     const syncButton = document.getElementById('sync-button');
     const countDiv = document.getElementById('cal-datecycle-count');
