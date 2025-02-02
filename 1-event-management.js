@@ -742,6 +742,7 @@ function checkOffDatecycle(uniqueKey) {
     } else {
         // Step 8: Refresh the UI.
        alert("Check Good!");
+       highlightDateCycles(targetDate);
     }
 }
 
