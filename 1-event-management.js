@@ -680,6 +680,7 @@ async function updateServerDateCycle(dateCycle) {
 }
 
 
+
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
@@ -741,8 +742,9 @@ function checkOffDatecycle(uniqueKey) {
 
     // Step 8: Refresh the UI.
     // (Make sure that highlightDatecycles() is defined and doesn't depend on an undefined targetDate.)
-     highlightDateCycles(targetDate);
+    highlightDateCycles(targetDate);
 }
+
 
 
 
@@ -1272,7 +1274,7 @@ function clearAllDateCycles() {
     // Step 4: Perform any UI updates or cleanup actions
     closeAddCycle();
     closeDateCycleExports();
-    await highlightDateCycles(targetDate);
+    highlightDateCycles(targetDate);
 }
 
 
