@@ -2765,7 +2765,7 @@ svg path #june:hover {
         background-color: #c3e6cb; /* A slightly darker green */
     }
     100% {
-        background-color: transparent;
+        background-color: var(--grey-trans);
     }
 }
 
