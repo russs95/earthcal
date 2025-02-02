@@ -679,11 +679,10 @@ async function updateServerDateCycle(dateCycle) {
     return data;
 }
 
-
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
-    // Step 1: Retrieve all calendar keys from localStorage
+    // Step 1: Retrieve all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     let found = false;
 
@@ -709,46 +708,53 @@ function checkOffDatecycle(uniqueKey) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
+                        // Mark it as synced after successful server update.
                         dateCycle.synced = '1';
+                        // Update the record in the local calendar.
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
+                        // Leave synced as "0" so it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
             }
 
             // Step 6: Update localStorage with the modified calendar data.
+            // Even though we modified dateCycle above, we re-save the calendar data here to ensure that
+            // the localStorage reflects the most current state (including any changes to the synced flag
+            // that may be updated asynchronously). This step guarantees that the local data is immediately
+            // updated, so that when the server update eventually succeeds (or fails), the local record is already changed.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 7: Trigger the celebration animation on the dateCycle div.
-            // Assuming your dateCycle divs include a data attribute data-key with the uniqueKey.
+            // Step 7: Trigger a celebration animation on the corresponding div.
             const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
             if (dateCycleDiv) {
-                // Add the animation class.
                 dateCycleDiv.classList.add("celebrate-animation");
-                // Remove the class after the animation duration (0.5s).
                 setTimeout(() => {
                     dateCycleDiv.classList.remove("celebrate-animation");
                 }, 500);
             }
 
             found = true;
-            break; // Exit loop once updated
+            break; // Exit loop once updated.
         }
     }
 
+    // Step 8: If no dateCycle was found, log a message.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 
-    // Step 8: Refresh the UI.
+    // Step 9: Refresh the UI.
+    // (Note: Make sure highlightDatecycles() is defined and handles any needed parameters.)
     highlightDatecycles(targetDate);
 }
+
 
 
 
