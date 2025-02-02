@@ -1685,6 +1685,8 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
 
 
 
+
+
 function fetchLocalCalendarByCalId(calId) {
     // Log the passed calId
     console.log('passed to fetchLocalCalendarByCalId:', calId);
