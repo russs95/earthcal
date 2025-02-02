@@ -657,6 +657,80 @@ function initializeToggleListener() {
 // }
 
 
+////////////////////////////////////
+
+
+/* DateCcyle ACTIONS
+
+
+////////////////////////////////////
+ */
+
+function checkOffDatecycle(uniqueKey) {
+    console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
+
+    // Step 1: Retrieve all calendar keys from localStorage
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    let found = false;
+    let updatedDateCycle = null;
+
+    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
+    for (const key of calendarKeys) {
+        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+
+        const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+        if (dateCycleIndex !== -1) {
+            // Step 3: Toggle the 'completed' status.
+            let dateCycle = calendarData[dateCycleIndex];
+            dateCycle.completed = dateCycle.completed === '0' ? '1' : '0';
+            console.log(`New completion status for ${dateCycle.title}: ${dateCycle.completed}`);
+
+            // Step 4: Mark the record as unsynced if it was previously synced.
+            if (dateCycle.synced === '1') {
+                dateCycle.synced = '0';
+            }
+
+            // Step 5: Attempt to update the server immediately if online.
+            // (Assuming updateServerDateCycle is a function that handles server updates.)
+            if (navigator.onLine && localStorage.getItem('buwana_id')) {
+                updateServerDateCycle(dateCycle)
+                    .then(() => {
+                        console.log(`Server successfully updated for ${dateCycle.title}`);
+                        // Optionally, mark it as synced locally.
+                        dateCycle.synced = '1';
+                        // Update localStorage again after server update.
+                        calendarData[dateCycleIndex] = dateCycle;
+                        localStorage.setItem(key, JSON.stringify(calendarData));
+                    })
+                    .catch(error => {
+                        console.error(`Error updating server for ${dateCycle.title}:`, error);
+                        // Leave synced as "0" so that it will be retried later.
+                    });
+            } else {
+                console.log("Offline or not logged in – update queued for next sync.");
+            }
+
+            // Step 6: Update localStorage with the modified calendar data.
+            calendarData[dateCycleIndex] = dateCycle;
+            localStorage.setItem(key, JSON.stringify(calendarData));
+
+            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
+            updatedDateCycle = dateCycle;
+            found = true;
+            break; // Exit loop once updated
+        }
+    }
+
+    // Step 7: Handle case where the dateCycle with the unique_key was not found.
+    if (!found) {
+        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    } else {
+        // Step 8: Refresh the UI.
+       alert("Check Good!");
+    }
+}
+
+
 
 
 function pinThisDatecycle(element) {
@@ -706,182 +780,6 @@ function pinThisDatecycle(element) {
 
 
 
-
-
-
-
-
-
-// Function to show the add-note-check-boxed div and confirm-dateCycle button
-function showAddNoteCheckbox() {
-    const addDateTitleTextarea = document.getElementById('add-date-title');
-    const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
-    const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
-
-    if (addDateTitleTextarea.value.trim() !== '') {
-        addNoteCheckboxDiv.style.display = 'block';
-        confirmDateCycleButton.style.display = 'block';
-    } else {
-        addNoteCheckboxDiv.style.display = 'none';
-        confirmDateCycleButton.style.display = 'none';
-    }
-}
-
-// Function to show/hide the add-note-form based on add-note-checkbox
-function toggleAddNoteForm() {
-    const addNoteCheckbox = document.getElementById('add-note-checkbox');
-    const addNoteForm = document.getElementById('add-note-form');
-
-    if (addNoteCheckbox.checked) {
-        addNoteForm.style.display = 'block';
-    } else {
-        addNoteForm.style.display = 'none';
-    }
-}
-
-// Attach event listeners to call the functions when needed
-document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
-document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
-
-
-
-//
-// function showDateCycleSetter() {
-//   document.getElementById("datecycle-setter").style.display = "block";
-//   document.getElementById('dateCycle-type').value = 'Select frequency...';
-//
-// }
-
-function showYearMonthDaySetter() {
-    let dateCycleType = document.getElementById("dateCycle-type").value;
-    let setDateDiv = document.getElementById("set-date");
-    let dateCycleYearOptionDiv = document.getElementById("dateCycle-year-option");
-    let dateCycleName = document.getElementById("name-event");
-
-    document.getElementById('add-date-title').style.display = 'unset';
-
-
-    // Show/hide divs based on selected date cycle type
-    if (dateCycleType === "Annual") {
-        setDateDiv.style.display = "block";
-        dateCycleYearOptionDiv.style.display = "none";
-        dateCycleName.style.display = "block";
-
-    } else if (dateCycleType === "One-time") {
-        setDateDiv.style.display = "block";
-        dateCycleYearOptionDiv.style.display = "block";
-        dateCycleName.style.display = "block";
-
-    }
-
-    // Set the year, month, and day fields using the global variable targetDate
-    document.getElementById("year-field2").value = targetDate.getFullYear();
-    document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
-    document.getElementById("day-field2").value = targetDate.getDate();
-}
-
-
-
-//DATECYCLE CALENDAR EXPORTS
-
-// Function to open the export-import div and hide the export-down-arrow
-function openDateCycleExports() {
-    const exportDownArrow = document.getElementById('export-down-arrow');
-    const exportImportDiv = document.getElementById('export-import');
-    const exportUpArrow = document.getElementById('export-up-arrow');
-
-    // Hide the down arrow and show the export-import div
-    exportDownArrow.style.display = 'none';
-    exportImportDiv.style.display = 'block';
-
-    // Animate the increase in size of the export-import div
-    exportImportDiv.style.animation = 'expand 1s';
-
-    // Show the up arrow
-    exportUpArrow.style.display = 'block';
-}
-
-// Function to close and reset the export-import div
-function closeDateCycleExports() {
-    const exportDownArrow = document.getElementById('export-down-arrow');
-    const exportImportDiv = document.getElementById('export-import');
-    const exportUpArrow = document.getElementById('export-up-arrow');
-
-    // Hide the up arrow and reset the export-import div
-    exportUpArrow.style.display = 'none';
-    exportImportDiv.style.animation = 'none';
-
-    // Show the down arrow and hide the export-import div
-    exportDownArrow.style.display = 'block';
-    exportImportDiv.style.display = 'none';
-}
-
-
-
-
-
-
-
-function uploadDateCycles() {
-    const fileInput = document.getElementById('jsonUpload');
-
-    if (fileInput.files.length === 0) {
-        alert('Please select a JSON file to upload.');
-        return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        const jsonString = event.target.result;
-        try {
-            const dateCycles = JSON.parse(jsonString);
-            if (Array.isArray(dateCycles)) {
-                // Store dateCycles in browser's cache or any desired storage
-                localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-                alert('DateCycles uploaded and stored.');
-            } else {
-                alert('Uploaded JSON does not contain valid dateCycles.');
-            }
-        } catch (error) {
-            alert('Error parsing JSON file: ' + error.message);
-        }
-    };
-
-    reader.readAsText(file);
-    fetchDateCycles()
-}
-
-
-//Download Datecycles
-
-function downloadDateCycles() {
-    // Fetch dateCycles from localStorage
-    const dateCyclesString = localStorage.getItem('dateCycles');
-
-    if (!dateCyclesString) {
-        alert('No dateCycles found in cache to download.');
-        return;
-    }
-
-    // Convert the dateCycles string to a Blob
-    const blob = new Blob([dateCyclesString], { type: 'application/json' });
-
-    // Create a URL for the Blob
-    const url = URL.createObjectURL(blob);
-
-    // Create a temporary <a> element and trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'dateCycles.json'; // Filename to download
-    document.body.appendChild(a); // Append to the document
-    a.click(); // Trigger download
-
-    // Clean up by revoking the Blob URL and removing the <a> element
-    URL.revokeObjectURL(url);
-    a.remove();
-}
 
 function editDateCycle(dateCycleID) {
     // Step 1: Fetch all calendar keys from localStorage
@@ -965,6 +863,53 @@ function editDateCycle(dateCycleID) {
     document.getElementById("page-content").classList.add("blur");
 }
 
+
+
+
+
+
+
+function push2today(uniqueKey) {
+    // Retrieve all calendar keys from localStorage
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    let found = false;
+
+    for (const key of calendarKeys) {
+        let calendarData = JSON.parse(localStorage.getItem(key));
+        const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+        if (index !== -1) {
+            // Found the matching dateCycle – update its date fields.
+            let dateCycle = calendarData[index];
+            const currentDate = new Date();
+            // Format date as YYYY-MM-DD (ISO standard without time).
+            const formattedDate = currentDate.toISOString().split('T')[0];
+
+            dateCycle.day = currentDate.getDate();
+            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed.
+            dateCycle.year = currentDate.getFullYear();
+            dateCycle.date = formattedDate;
+            dateCycle.last_edited = currentDate.toISOString();
+
+            // Ensure pinned is set to "0" if not already defined.
+            if (!dateCycle.pinned) {
+                dateCycle.pinned = '0';
+            }
+
+            // Update localStorage for this calendar.
+            calendarData[index] = dateCycle;
+            localStorage.setItem(key, JSON.stringify(calendarData));
+            console.log(`Updated dateCycle with unique_key: ${uniqueKey} to today`);
+            found = true;
+            // Refresh the UI.
+            highlightDateCycles();
+            break;
+        }
+    }
+
+    if (!found) {
+        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    }
+}
 
 
 
@@ -1064,6 +1009,226 @@ async function deleteDateCycle(id) {
 
 
 
+///////////////////////////////////
+
+
+/* FORM FUNCTIONS
+
+
+/////////////////////////////////////////
+ */
+// Function to show the add-note-check-boxed div and confirm-dateCycle button
+function showAddNoteCheckbox() {
+    const addDateTitleTextarea = document.getElementById('add-date-title');
+    const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
+    const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
+
+    if (addDateTitleTextarea.value.trim() !== '') {
+        addNoteCheckboxDiv.style.display = 'block';
+        confirmDateCycleButton.style.display = 'block';
+    } else {
+        addNoteCheckboxDiv.style.display = 'none';
+        confirmDateCycleButton.style.display = 'none';
+    }
+}
+
+// Function to show/hide the add-note-form based on add-note-checkbox
+function toggleAddNoteForm() {
+    const addNoteCheckbox = document.getElementById('add-note-checkbox');
+    const addNoteForm = document.getElementById('add-note-form');
+
+    if (addNoteCheckbox.checked) {
+        addNoteForm.style.display = 'block';
+    } else {
+        addNoteForm.style.display = 'none';
+    }
+}
+
+// Attach event listeners to call the functions when needed
+document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
+document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
+
+
+
+function showYearMonthDaySetter() {
+    let dateCycleType = document.getElementById("dateCycle-type").value;
+    let setDateDiv = document.getElementById("set-date");
+    let dateCycleYearOptionDiv = document.getElementById("dateCycle-year-option");
+    let dateCycleName = document.getElementById("name-event");
+
+    document.getElementById('add-date-title').style.display = 'unset';
+
+
+    // Show/hide divs based on selected date cycle type
+    if (dateCycleType === "Annual") {
+        setDateDiv.style.display = "block";
+        dateCycleYearOptionDiv.style.display = "none";
+        dateCycleName.style.display = "block";
+
+    } else if (dateCycleType === "One-time") {
+        setDateDiv.style.display = "block";
+        dateCycleYearOptionDiv.style.display = "block";
+        dateCycleName.style.display = "block";
+
+    }
+
+    // Set the year, month, and day fields using the global variable targetDate
+    document.getElementById("year-field2").value = targetDate.getFullYear();
+    document.getElementById("month-field2").value = targetDate.getMonth() + 1; // Months are 0-indexed in JavaScript
+    document.getElementById("day-field2").value = targetDate.getDate();
+}
+
+
+// Loading the userCalendars from local storage or setting a default value.
+function loadUserCalendars() {
+    const calendarsString = localStorage.getItem('userCalendars');
+    if (!calendarsString) return [];
+    return JSON.parse(calendarsString);
+}
+
+let userCalendars = loadUserCalendars();
+
+// Function to show the calendar addition form.
+function showAdderForm() {
+    const calendarForm = document.getElementById('addNewCalendar');
+    calendarForm.style.display = "block";
+}
+
+
+
+// Function to delete the selected userCalendar and associated dateCycles
+function deleteSelectedCalendar() {
+    const selectedCalendarId = document.getElementById('calendarToDelete').value;
+
+    // Load userCalendars and dateCycles from localStorage
+    const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
+    const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
+
+    // Filter out the selected calendar
+    const updatedCalendars = userCalendars.filter(calendar => calendar.id !== selectedCalendarId);
+    localStorage.setItem('userCalendars', JSON.stringify(updatedCalendars));
+
+    // Filter out dateCycles associated with the selected calendar
+    const updatedDateCycles = dateCycles.filter(dateCycle => dateCycle.calendar !== selectedCalendarId);
+    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
+
+    alert("Calendar and associated date cycles deleted successfully!");
+
+    // Refresh the dropdown
+    populateCalendarDropdown();
+    //populateDropdown();
+}
+
+
+//DATECYCLE CALENDAR EXPORTS
+
+
+
+// Function to open the export-import div and hide the export-down-arrow
+function openDateCycleExports() {
+    const exportDownArrow = document.getElementById('export-down-arrow');
+    const exportImportDiv = document.getElementById('export-import');
+    const exportUpArrow = document.getElementById('export-up-arrow');
+
+    // Hide the down arrow and show the export-import div
+    exportDownArrow.style.display = 'none';
+    exportImportDiv.style.display = 'block';
+
+    // Animate the increase in size of the export-import div
+    exportImportDiv.style.animation = 'expand 1s';
+
+    // Show the up arrow
+    exportUpArrow.style.display = 'block';
+}
+
+// Function to close and reset the export-import div
+function closeDateCycleExports() {
+    const exportDownArrow = document.getElementById('export-down-arrow');
+    const exportImportDiv = document.getElementById('export-import');
+    const exportUpArrow = document.getElementById('export-up-arrow');
+
+    // Hide the up arrow and reset the export-import div
+    exportUpArrow.style.display = 'none';
+    exportImportDiv.style.animation = 'none';
+
+    // Show the down arrow and hide the export-import div
+    exportDownArrow.style.display = 'block';
+    exportImportDiv.style.display = 'none';
+}
+
+
+
+
+
+
+///////////////////////
+
+/* EXPORT FUNCTIONS
+
+
+/////////////////////////////////
+ */
+function uploadDateCycles() {
+    const fileInput = document.getElementById('jsonUpload');
+
+    if (fileInput.files.length === 0) {
+        alert('Please select a JSON file to upload.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        const jsonString = event.target.result;
+        try {
+            const dateCycles = JSON.parse(jsonString);
+            if (Array.isArray(dateCycles)) {
+                // Store dateCycles in browser's cache or any desired storage
+                localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
+                alert('DateCycles uploaded and stored.');
+            } else {
+                alert('Uploaded JSON does not contain valid dateCycles.');
+            }
+        } catch (error) {
+            alert('Error parsing JSON file: ' + error.message);
+        }
+    };
+
+    reader.readAsText(file);
+    fetchDateCycles()
+}
+
+
+//Download Datecycles
+
+function downloadDateCycles() {
+    // Fetch dateCycles from localStorage
+    const dateCyclesString = localStorage.getItem('dateCycles');
+
+    if (!dateCyclesString) {
+        alert('No dateCycles found in cache to download.');
+        return;
+    }
+
+    // Convert the dateCycles string to a Blob
+    const blob = new Blob([dateCyclesString], { type: 'application/json' });
+
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary <a> element and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dateCycles.json'; // Filename to download
+    document.body.appendChild(a); // Append to the document
+    a.click(); // Trigger download
+
+    // Clean up by revoking the Blob URL and removing the <a> element
+    URL.revokeObjectURL(url);
+    a.remove();
+}
+
 
 
 function clearAllDateCycles() {
@@ -1099,109 +1264,9 @@ function clearAllDateCycles() {
 
 
 
-// Loading the userCalendars from local storage or setting a default value.
-function loadUserCalendars() {
-    const calendarsString = localStorage.getItem('userCalendars');
-    if (!calendarsString) return [];
-    return JSON.parse(calendarsString);
-}
-
-let userCalendars = loadUserCalendars();
-
-// Function to show the calendar addition form.
-function showAdderForm() {
-    const calendarForm = document.getElementById('addNewCalendar');
-    calendarForm.style.display = "block";
-}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Function to delete the selected userCalendar and associated dateCycles
-function deleteSelectedCalendar() {
-    const selectedCalendarId = document.getElementById('calendarToDelete').value;
-
-    // Load userCalendars and dateCycles from localStorage
-    const userCalendars = JSON.parse(localStorage.getItem('userCalendars')) || [];
-    const dateCycles = JSON.parse(localStorage.getItem('dateCycles')) || [];
-
-    // Filter out the selected calendar
-    const updatedCalendars = userCalendars.filter(calendar => calendar.id !== selectedCalendarId);
-    localStorage.setItem('userCalendars', JSON.stringify(updatedCalendars));
-
-    // Filter out dateCycles associated with the selected calendar
-    const updatedDateCycles = dateCycles.filter(dateCycle => dateCycle.calendar !== selectedCalendarId);
-    localStorage.setItem('dateCycles', JSON.stringify(updatedDateCycles));
-
-    alert("Calendar and associated date cycles deleted successfully!");
-
-    // Refresh the dropdown
-    populateCalendarDropdown();
-    //populateDropdown();
-}
-
-
-
-
-
-
-
-
-function push2today(uniqueKey) {
-    // Retrieve all calendar keys from localStorage
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
-
-    for (const key of calendarKeys) {
-        let calendarData = JSON.parse(localStorage.getItem(key));
-        const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-        if (index !== -1) {
-            // Found the matching dateCycle – update its date fields.
-            let dateCycle = calendarData[index];
-            const currentDate = new Date();
-            // Format date as YYYY-MM-DD (ISO standard without time).
-            const formattedDate = currentDate.toISOString().split('T')[0];
-
-            dateCycle.day = currentDate.getDate();
-            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed.
-            dateCycle.year = currentDate.getFullYear();
-            dateCycle.date = formattedDate;
-            dateCycle.last_edited = currentDate.toISOString();
-
-            // Ensure pinned is set to "0" if not already defined.
-            if (!dateCycle.pinned) {
-                dateCycle.pinned = '0';
-            }
-
-            // Update localStorage for this calendar.
-            calendarData[index] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle with unique_key: ${uniqueKey} to today`);
-            found = true;
-            // Refresh the UI.
-            highlightDateCycles();
-            break;
-        }
-    }
-
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
-    }
-}
 
 
 //
