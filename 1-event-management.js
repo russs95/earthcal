@@ -665,6 +665,21 @@ function initializeToggleListener() {
 
 ////////////////////////////////////
  */
+async function updateServerDateCycle(dateCycle) {
+    // Send the updated dateCycle object to the server endpoint
+    const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dateCycle)
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update dateCycle on server.');
+    }
+    return data;
+}
+
+
 
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
@@ -727,6 +742,7 @@ function checkOffDatecycle(uniqueKey) {
     } else {
         // Step 8: Refresh the UI.
        alert("Check Good!");
+       highlightDateCycles();
     }
 }
 
