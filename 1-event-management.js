@@ -528,7 +528,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             role="button"
             aria-label="Push to today"
             title="Push to today"
-            onclick="oday('${dateCycle.unique_key}'); event.stopPropagation();"
+            onclick="('${dateCycle.unique_key}'); event.stopPropagation();"
             style="font-size: larger; cursor: pointer; background: none; border: none;">
             ➜
         </button>`;
