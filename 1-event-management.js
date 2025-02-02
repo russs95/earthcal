@@ -1684,77 +1684,75 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
 
 
 
-//
-// function fetchLocalCalendarByCalId(calId) {
-//     // Log the passed calId
-//     console.log('passed to fetchLocalCalendarByCalId:', calId);
-//
-//     // Validate calId
-//     if (calId === undefined || calId === null || isNaN(calId)) {
-//         console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
-//         return [];
-//     }
-//
-//     // Generate the key for localStorage
-//     const calendarKey = `calendar_${calId}`;
-//     console.log('Generated localStorage key:', calendarKey);
-//
-//     // Log all localStorage keys and their contents
-//     console.log('Current localStorage state:');
-//     Object.keys(localStorage).forEach(key => {
-//         if (key.startsWith('calendar_')) {
-//             console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
-//         }
-//     });
-//
-//     // Fetch the data from localStorage
-//     const calendarData = localStorage.getItem(calendarKey);
-//
-//     if (!calendarData) {
-//         console.warn(`No data found in localStorage for cal_id: ${calId}`);
-//         return [];
-//     }
-//
-//     try {
-//         // Parse the data
-//         const parsedData = JSON.parse(calendarData);
-//         console.log(`Parsed data for cal_id ${calId}:`, parsedData);
-//
-//         // Map over the parsed data to ensure each dateCycle has required fields, including unique_key.
-//         return parsedData.map(dateCycle => ({
-//             ID: dateCycle.ID || "missing",
-//             buwana_id: dateCycle.buwana_id || "missing",
-//             cal_id: dateCycle.cal_id || "missing",
-//             title: dateCycle.title || "missing",
-//             date: dateCycle.date || "missing",
-//             time: dateCycle.time || "missing",
-//             time_zone: dateCycle.time_zone || "missing",
-//             day: dateCycle.day || "missing",
-//             month: dateCycle.month || "missing",
-//             year: dateCycle.year || "missing",
-//             frequency: dateCycle.frequency || "missing",
-//             completed: dateCycle.completed || "0",
-//             pinned: dateCycle.pinned || "0",
-//             public: dateCycle.public || "0",
-//             comment: dateCycle.comment || "0",
-//             comments: dateCycle.comments || "",
-//             datecycle_color: dateCycle.datecycle_color || "missing",
-//             cal_name: dateCycle.cal_name || "missing",
-//             cal_color: dateCycle.cal_color || "missing",
-//             synced: dateCycle.synced || "1",
-//             conflict: dateCycle.conflict || "0",
-//             delete_it: dateCycle.delete_it || "0",
-//             last_edited: dateCycle.last_edited || new Date().toISOString(),
-//             unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
-//             // raw_json: JSON.stringify(dateCycle),
-//         }));
-//     } catch (error) {
-//         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
-//         return [];
-//     }
-// }
 
+function fetchLocalCalendarByCalId(calId) {
+    // Log the passed calId
+    console.log('passed to fetchLocalCalendarByCalId:', calId);
 
+    // Validate calId
+    if (calId === undefined || calId === null || isNaN(calId)) {
+        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
+        return [];
+    }
+
+    // Generate the key for localStorage
+    const calendarKey = `calendar_${calId}`;
+    console.log('Generated localStorage key:', calendarKey);
+
+    // Log all localStorage keys and their contents
+    console.log('Current localStorage state:');
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('calendar_')) {
+            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
+        }
+    });
+
+    // Fetch the data from localStorage
+    const calendarData = localStorage.getItem(calendarKey);
+
+    if (!calendarData) {
+        console.warn(`No data found in localStorage for cal_id: ${calId}`);
+        return [];
+    }
+
+    try {
+        // Parse the data
+        const parsedData = JSON.parse(calendarData);
+        console.log(`Parsed data for cal_id ${calId}:`, parsedData);
+
+        // Map over the parsed data to ensure each dateCycle has required fields, including unique_key.
+        return parsedData.map(dateCycle => ({
+            ID: dateCycle.ID || "missing",
+            buwana_id: dateCycle.buwana_id || "missing",
+            cal_id: dateCycle.cal_id || "missing",
+            title: dateCycle.title || "missing",
+            date: dateCycle.date || "missing",
+            time: dateCycle.time || "missing",
+            time_zone: dateCycle.time_zone || "missing",
+            day: dateCycle.day || "missing",
+            month: dateCycle.month || "missing",
+            year: dateCycle.year || "missing",
+            frequency: dateCycle.frequency || "missing",
+            completed: dateCycle.completed || "0",
+            pinned: dateCycle.pinned || "0",
+            public: dateCycle.public || "0",
+            comment: dateCycle.comment || "0",
+            comments: dateCycle.comments || "",
+            datecycle_color: dateCycle.datecycle_color || "missing",
+            cal_name: dateCycle.cal_name || "missing",
+            cal_color: dateCycle.cal_color || "missing",
+            synced: dateCycle.synced || "1",
+            conflict: dateCycle.conflict || "0",
+            delete_it: dateCycle.delete_it || "0",
+            last_edited: dateCycle.last_edited || new Date().toISOString(),
+            unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
+            // raw_json: JSON.stringify(dateCycle),
+        }));
+    } catch (error) {
+        console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
+        return [];
+    }
+}
 
 
 
