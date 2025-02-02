@@ -1211,7 +1211,6 @@ function push2today(id) {
 //**************
 
 
-
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1250,12 +1249,15 @@ async function addDatecycle() {
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate `created_at` timestamp
-    // Generate `created_at` timestamp as a numeric epoch in milliseconds
-    const createdAt = new Date().getTime(); // e.g., 1735689296789
-    // ✅ Use ISO 8601 format
+    // Generate created_at timestamp in human-readable ISO format (without milliseconds if desired)
+    // Here we use the full ISO string; if you want to remove milliseconds, you can split at the dot.
+    const nowISO = new Date().toISOString().split('.')[0] + "Z"; // e.g., "2025-02-01T16:00:44Z"
 
-    // Generate a dateCycle ID
+    // Use the same format for created_at and last_edited
+    const createdAt = nowISO;
+    const lastEdited = nowISO;
+
+    // Generate a dateCycle ID from localStorage
     const calendarStorageKey = `calendar_${selCalendarId}`;
     let existingCalendar = [];
     try {
@@ -1277,6 +1279,10 @@ async function addDatecycle() {
     const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
     const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
 
+    // Generate a unique key for the record.
+    // Here, we combine the calendar ID, createdAt, and the newID.
+    const unique_key = `${selCalendarId}_${createdAt}_${newID}`;
+
     const dateCycle = {
         ID: newID,
         buwana_id: buwanaId,
@@ -1284,7 +1290,7 @@ async function addDatecycle() {
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
         title: addDateTitle,
-        date: `${yearField}-${monthField}-${dayField}`, // ✅ Correct format
+        date: `${yearField}-${monthField}-${dayField}`, // Correct format
         time: "under dev",
         time_zone: "under dev",
         day: dayField,
@@ -1292,8 +1298,9 @@ async function addDatecycle() {
         year: yearField,
         comment: addNoteCheckbox,
         comments: addDateNote,
-        last_edited: new Date().toISOString(),
-        created_at: createdAt, // ✅ Ensure it's correctly formatted
+        last_edited: lastEdited,
+        created_at: createdAt,
+        unique_key: unique_key, // New unique key field
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
         pinned: dateCycleType === "One-time + pinned" ? "1" : "0",
@@ -1316,7 +1323,6 @@ async function addDatecycle() {
 
     console.log(`📥 Stored new dateCycle in localStorage:`, JSON.stringify(dateCycle, null, 2));
 
-
     // Attempt to sync with the server
     await syncDatecycles();
 
@@ -1331,10 +1337,11 @@ async function addDatecycle() {
     closeAddCycle();
     closeDateCycleExports();
 
-    // ✅ Ensure `highlightDateCycles` gets the correct date
+    // Ensure `highlightDateCycles` gets the correct date
     console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
     await highlightDateCycles(targetDate);
 }
+
 
 
 
@@ -1391,136 +1398,6 @@ function animateSyncButton() {
     });
 }
 
-
-
-async function syncDatecycles() {
-    try {
-        console.log("Starting dateCycle sync...");
-        const buwanaId = localStorage.getItem('buwana_id');
-
-        if (!buwanaId) {
-            alert('Please log in first Buwana account.');
-            return;
-        }
-
-        let serverCalendars = [];
-        let hasInternetConnection = 1;
-        let totalDateCyclesUpdated = 0;
-
-        try {
-            // 🔹 Fetch server calendars
-            const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId }),
-            });
-
-            if (!response.ok) throw new Error(`Failed to fetch server calendars. HTTP Status: ${response.status}`);
-            const serverData = await response.json();
-            if (!serverData.success) throw new Error(serverData.message || 'Failed to retrieve calendar data.');
-
-            // 🔹 **Standardize `calendar_id` to `cal_id` and include `created_at`**
-            serverCalendars = serverData.calendars.map(calendar => ({
-                cal_id: calendar.calendar_id,
-                cal_name: calendar.calendar_name,
-                cal_color: calendar.calendar_color,
-                calendar_public: calendar.calendar_public,
-                last_updated: calendar.last_updated,
-                created_at: calendar.created_at // ✅ Include created_at for sync comparison
-            }));
-
-            console.log('✅ Fetched and transformed server calendars:', serverCalendars);
-        } catch (error) {
-            console.warn('⚠️ Unable to fetch server data:', error);
-            hasInternetConnection = 0;
-        }
-
-        if (!hasInternetConnection) return;
-
-        // 🔹 **If no calendars exist on the server, check local storage**
-        const localCalendars = Object.keys(localStorage)
-            .filter(key => key.startsWith('calendar_'))
-            .map(key => {
-                let storedData = JSON.parse(localStorage.getItem(key) || '[]');
-                return {
-                    cal_id: key.replace('calendar_', ''),
-                    created_at: storedData.created_at || 0, // Default to 0 if not available
-                    data: storedData
-                };
-            });
-
-        if (serverCalendars.length === 0 && localCalendars.length === 0) {
-            console.warn("⚠️ No calendars found on server or locally. Sync completed.");
-            return "No updates available. Your data is already up to date.";
-        }
-
-        const calendarsToSync = [...new Map([...serverCalendars, ...localCalendars].map(item => [item.cal_id, item])).values()];
-        console.log("📂 Syncing calendars:", calendarsToSync);
-
-        for (const calendar of calendarsToSync) {
-            try {
-                console.log('📂 Syncing calendar:', calendar);
-
-                if (!buwanaId || !calendar.cal_id) {
-                    console.error("❌ Missing buwana_id or cal_id. Cannot fetch calendar data.");
-                    continue;
-                }
-
-                console.log(`📡 Fetching dateCycles for cal_id: ${calendar.cal_id}, buwana_id: ${buwanaId}`);
-
-                // 🔹 Fetch dateCycles from the server
-                let serverDateCycles = [];
-                if (serverCalendars.some(c => c.cal_id === calendar.cal_id)) {
-                    const payload = {
-                        buwana_id: buwanaId,
-                        cal_id: calendar.cal_id
-                    };
-
-                    try {
-                        const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
-
-                        const responseData = await calendarResponse.json();
-
-                        if (!responseData.success) {
-                            console.error(`⚠️ API Error: ${responseData.message}`);
-                        } else {
-                            console.log("✅ Server dateCycles fetched successfully:", responseData.dateCycles);
-                            serverDateCycles = responseData.dateCycles || [];
-                        }
-                    } catch (error) {
-                        console.error("⚠️ Fetch error when retrieving dateCycles:", error);
-                    }
-                }
-
-                totalDateCyclesUpdated += serverDateCycles.length;
-
-                // 🔹 **Update the Server with Unsynced Local dateCycles**
-                await updateServerDatecycles(calendar.cal_id, serverDateCycles);
-
-                // 🔹 **Update Local Storage with Server dateCycles**
-                await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
-
-            } catch (error) {
-                console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);
-            }
-        }
-
-        console.log("✅ Sync complete. Local calendars updated.");
-        console.log("📥 All locally stored dateCycles:", JSON.stringify(localStorage, null, 2));
-
-        return `Your ${calendarsToSync.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
-    } catch (error) {
-        console.error("Sync failed:", error);
-        return "⚠️ Sync failed!";
-    }
-}
-
-
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1528,18 +1405,18 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
+    // Retrieve local calendar data for this cal_id.
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // Build a dictionary keyed by numeric created_at value
+    // Build a dictionary keyed by unique_key.
     let localDateCycleMap = {};
     localCalendar.forEach(dc => {
-        if (dc.created_at) {
-            const key = dc.created_at; // numeric value
-            localDateCycleMap[key] = dc;
+        if (dc.unique_key) {
+            localDateCycleMap[dc.unique_key] = dc;
         }
     });
 
-    // Filter only unsynced dateCycles using numeric comparison
+    // Filter only unsynced dateCycles.
     let unsyncedDateCycles = localCalendar.filter(dc => Number(dc.synced) !== 1);
 
     if (unsyncedDateCycles.length === 0) {
@@ -1550,16 +1427,14 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
-        // Do not update created_at! Instead, throw an error if it's missing.
-        if (!unsyncedEvent.created_at) {
-            throw new Error(`Missing created_at in unsynced event: ${unsyncedEvent.title}`);
+        // Ensure unique_key is present.
+        if (!unsyncedEvent.unique_key) {
+            throw new Error(`Missing unique_key in unsynced event: ${unsyncedEvent.title}`);
         }
 
-        const key = unsyncedEvent.created_at; // numeric key
-
-        // Strictly check if the record already exists on the server
+        // Check if the event already exists on the server (by unique_key).
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
-            dc.created_at === key && dc.cal_id == unsyncedEvent.cal_id
+            dc.unique_key === unsyncedEvent.unique_key && dc.cal_id == unsyncedEvent.cal_id
         );
 
         if (alreadyExistsOnServer) {
@@ -1583,14 +1458,15 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comment: unsyncedEvent.comment,
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
-                created_at: unsyncedEvent.created_at, // NEVER modify created_at!
+                created_at: unsyncedEvent.created_at,
+                unique_key: unsyncedEvent.unique_key, // Send the unique key
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
                 pinned: unsyncedEvent.pinned,
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
-                synced: 1, // using a numeric flag
+                synced: 1, // Mark as synced when successfully sent
                 conflict: unsyncedEvent.conflict
             };
 
@@ -1610,10 +1486,10 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
 
-            // Update the local entry with the correct ID and mark as synced (numeric 1)
-            if (localDateCycleMap[key]) {
-                localDateCycleMap[key].id = syncData.id;
-                localDateCycleMap[key].synced = 1;
+            // Update the local entry with the new ID and mark it as synced.
+            if (localDateCycleMap[unsyncedEvent.unique_key]) {
+                localDateCycleMap[unsyncedEvent.unique_key].id = syncData.id;
+                localDateCycleMap[unsyncedEvent.unique_key].synced = 1;
             }
 
         } catch (error) {
@@ -1621,37 +1497,33 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
     }
 
-    // Save updated local storage
+    // Save the updated local calendar.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
 }
 
 
 
-
-
-
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
-    // Get the local calendar array (or initialize an empty one)
+    // Get local calendar data.
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
-    // Build a dictionary keyed by the numeric created_at value
+    // Build a dictionary keyed by unique_key.
     let localDateCycleMap = {};
     localCalendar.forEach(dc => {
-        if (dc.created_at) {
-            const key = dc.created_at; // already a number
-            localDateCycleMap[key] = dc;
+        if (dc.unique_key) {
+            localDateCycleMap[dc.unique_key] = dc;
         }
     });
 
     // Iterate through each dateCycle from the server.
     serverDateCycles.forEach(serverDC => {
-        if (!serverDC.created_at) {
-            console.warn(`⚠️ Missing created_at for server dateCycle: ${serverDC.title}`);
-            // Optionally, throw an error if created_at is absolutely required:
-            // throw new Error(`Missing created_at for server dateCycle: ${serverDC.title}`);
-            serverDC.created_at = Date.now(); // Or assign a default numeric value if needed
+        if (!serverDC.unique_key) {
+            console.warn(`⚠️ Missing unique_key for server dateCycle: ${serverDC.title}`);
+            return;
         }
-        const key = serverDC.created_at; // numeric key
+        const key = serverDC.unique_key;
+
+        // If the local dictionary does not have this record, add it.
         if (!localDateCycleMap[key]) {
             console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDC.title}`);
             localDateCycleMap[key] = serverDC;
@@ -1660,7 +1532,10 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
             let localDC = localDateCycleMap[key];
             if (new Date(serverDC.last_edited) > new Date(localDC.last_edited)) {
                 console.log(`🔄 Updated local dateCycle: ${serverDC.title}`);
+                // Optionally merge properties or simply replace the local record.
                 localDateCycleMap[key] = serverDC;
+                // Optionally, ensure the synced flag is set:
+                localDateCycleMap[key].synced = 1;
             }
         }
     });
@@ -1668,8 +1543,8 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // Convert the dictionary back to an array.
     let updatedLocalCalendar = Object.values(localDateCycleMap);
 
-    // Optionally, show an alert with JSON data before saving.
-    alert("Saving the following DateCycles to Local Storage:\n\n" + JSON.stringify(updatedLocalCalendar, null, 2));
+    // Optional: Remove the alert if not needed.
+     alert("Saving the following DateCycles to Local Storage:\n\n" + JSON.stringify(updatedLocalCalendar, null, 2));
 
     // Save the updated calendar back to local storage.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
@@ -1679,73 +1554,79 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
 
 
 
-function fetchLocalCalendarByCalId(calId) {
-    // Log the passed calId
-    console.log('passed to fetchLocalCalendarByCalId:', calId);
 
-    // Validate calId
-    if (calId === undefined || calId === null || isNaN(calId)) {
-        console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
-        return [];
-    }
 
-    // Generate the key for localStorage
-    const calendarKey = `calendar_${calId}`; // No need to convert to a string explicitly
-    console.log('Generated localStorage key:', calendarKey);
 
-    // Log all localStorage keys and their contents
-    console.log('Current localStorage state:');
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('calendar_')) {
-            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
-        }
-    });
+//
+// function fetchLocalCalendarByCalId(calId) {
+//     // Log the passed calId
+//     console.log('passed to fetchLocalCalendarByCalId:', calId);
+//
+//     // Validate calId
+//     if (calId === undefined || calId === null || isNaN(calId)) {
+//         console.error('Invalid cal_id provided to fetchLocalCalendarByCalId:', calId);
+//         return [];
+//     }
+//
+//     // Generate the key for localStorage
+//     const calendarKey = `calendar_${calId}`;
+//     console.log('Generated localStorage key:', calendarKey);
+//
+//     // Log all localStorage keys and their contents
+//     console.log('Current localStorage state:');
+//     Object.keys(localStorage).forEach(key => {
+//         if (key.startsWith('calendar_')) {
+//             console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
+//         }
+//     });
+//
+//     // Fetch the data from localStorage
+//     const calendarData = localStorage.getItem(calendarKey);
+//
+//     if (!calendarData) {
+//         console.warn(`No data found in localStorage for cal_id: ${calId}`);
+//         return [];
+//     }
+//
+//     try {
+//         // Parse the data
+//         const parsedData = JSON.parse(calendarData);
+//         console.log(`Parsed data for cal_id ${calId}:`, parsedData);
+//
+//         // Map over the parsed data to ensure each dateCycle has required fields, including unique_key.
+//         return parsedData.map(dateCycle => ({
+//             ID: dateCycle.ID || "missing",
+//             buwana_id: dateCycle.buwana_id || "missing",
+//             cal_id: dateCycle.cal_id || "missing",
+//             title: dateCycle.title || "missing",
+//             date: dateCycle.date || "missing",
+//             time: dateCycle.time || "missing",
+//             time_zone: dateCycle.time_zone || "missing",
+//             day: dateCycle.day || "missing",
+//             month: dateCycle.month || "missing",
+//             year: dateCycle.year || "missing",
+//             frequency: dateCycle.frequency || "missing",
+//             completed: dateCycle.completed || "0",
+//             pinned: dateCycle.pinned || "0",
+//             public: dateCycle.public || "0",
+//             comment: dateCycle.comment || "0",
+//             comments: dateCycle.comments || "",
+//             datecycle_color: dateCycle.datecycle_color || "missing",
+//             cal_name: dateCycle.cal_name || "missing",
+//             cal_color: dateCycle.cal_color || "missing",
+//             synced: dateCycle.synced || "1",
+//             conflict: dateCycle.conflict || "0",
+//             delete_it: dateCycle.delete_it || "0",
+//             last_edited: dateCycle.last_edited || new Date().toISOString(),
+//             unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
+//             // raw_json: JSON.stringify(dateCycle),
+//         }));
+//     } catch (error) {
+//         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
+//         return [];
+//     }
+// }
 
-    // Fetch the data from localStorage
-    const calendarData = localStorage.getItem(calendarKey);
-
-    if (!calendarData) {
-        console.warn(`No data found in localStorage for cal_id: ${calId}`);
-        return [];
-    }
-
-    try {
-        // Parse the data
-        const parsedData = JSON.parse(calendarData);
-        console.log(`Parsed data for cal_id ${calId}:`, parsedData);
-
-        // Map over the parsed data to ensure each dateCycle has required fields
-        return parsedData.map(dateCycle => ({
-            ID: dateCycle.ID || "missing",
-            buwana_id: dateCycle.buwana_id || "missing",
-            cal_id: dateCycle.cal_id || "missing",
-            title: dateCycle.title || "missing",
-            date: dateCycle.date || "missing",
-            time: dateCycle.time || "missing",
-            time_zone: dateCycle.time_zone || "missing",
-            day: dateCycle.day || "missing",
-            month: dateCycle.month || "missing",
-            year: dateCycle.year || "missing",
-            frequency: dateCycle.frequency || "missing",
-            completed: dateCycle.completed || "0",
-            pinned: dateCycle.pinned || "0",
-            public: dateCycle.public || "0",
-            comment: dateCycle.comment || "0",
-            comments: dateCycle.comments || "",
-            datecycle_color: dateCycle.datecycle_color || "missing",
-            cal_name: dateCycle.cal_name || "missing",
-            cal_color: dateCycle.cal_color || "missing",
-            synced: dateCycle.synced || "1",
-            conflict: dateCycle.conflict || "0",
-            delete_it: dateCycle.delete || "0",
-            last_edited: dateCycle.last_edited || new Date().toISOString(),
-            //raw_json: JSON.stringify(dateCycle),
-        }));
-    } catch (error) {
-        console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
-        return [];
-    }
-}
 
 
 
