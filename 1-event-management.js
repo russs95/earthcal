@@ -752,7 +752,7 @@ function checkOffDatecycle(uniqueKey) {
 
     // Step 9: Refresh the UI.
     // (Note: Make sure highlightDatecycles() is defined and handles any needed parameters.)
-    highlightDatecycles(targetDate);
+    highlightDateCycles(targetDate);
 }
 
 
