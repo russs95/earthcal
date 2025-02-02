@@ -680,16 +680,14 @@ async function updateServerDateCycle(dateCycle) {
 }
 
 
-
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
-    // Step 1: Retrieve all calendar keys from localStorage
+    // Step 1: Retrieve all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     let found = false;
-    let updatedDateCycle = null;
 
-    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
+    // Step 2: Iterate through each calendar array to find the dateCycle with the matching unique_key.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
 
@@ -705,15 +703,14 @@ function checkOffDatecycle(uniqueKey) {
                 dateCycle.synced = '0';
             }
 
-            // Step 5: Attempt to update the server immediately if online.
-            // (Assuming updateServerDateCycle is a function that handles server updates.)
+            // Step 5: If online and logged in, attempt to update the server immediately.
             if (navigator.onLine && localStorage.getItem('buwana_id')) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
-                        // Optionally, mark it as synced locally.
+                        // Mark the record as synced.
                         dateCycle.synced = '1';
-                        // Update localStorage again after server update.
+                        // Update localStorage for this calendar with the updated record.
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
@@ -726,23 +723,27 @@ function checkOffDatecycle(uniqueKey) {
             }
 
             // Step 6: Update localStorage with the modified calendar data.
+            // This ensures that the local data reflects the new state immediately,
+            // including if the server update hasn't completed yet.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
 
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
-            updatedDateCycle = dateCycle;
             found = true;
-            break; // Exit loop once updated
+            break; // Exit the loop once the matching record is found and processed.
         }
     }
 
-    // Step 7: Handle case where the dateCycle with the unique_key was not found.
+    // Step 7: If no matching dateCycle was found, log an appropriate message.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
-        // Step 8: Refresh the UI.
-       highlightDateCycles(targetDate);
-       alert("all is good!");
+    }
+
+    // Step 8: Refresh the UI.
+    // (Make sure that highlightDatecycles() is defined and doesn't depend on an undefined targetDate.)
+     highlightDateCycles(targetDate);
 }
+
 
 
 
@@ -1271,7 +1272,7 @@ function clearAllDateCycles() {
     // Step 4: Perform any UI updates or cleanup actions
     closeAddCycle();
     closeDateCycleExports();
-    highlightDateCycles(targetDate);
+    await highlightDateCycles(targetDate);
 }
 
 
