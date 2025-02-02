@@ -487,12 +487,10 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
-    // Ensure correct field names and defaults.
+    // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
@@ -500,7 +498,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     // Use a consistent check: "1" means completed.
     const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
 
-    // Build the action button for deletion or pinning.
+    // Build the action buttons (delete, pin, forward, check off) with proper accessibility.
     let actionButton;
     if (dateCycle.completed === "1") {
         actionButton = `
@@ -525,55 +523,71 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </button>`;
     }
 
+    const forwardButton = `
+        <button class="forward-button-datecycle"
+            role="button"
+            aria-label="Push to today"
+            title="Push to today"
+            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+            style="font-size: larger; cursor: pointer; background: none; border: none;">
+            ➜
+        </button>`;
+
+    const checkOffButton = `
+        <button class="close-button-datecycle"
+            role="button"
+            aria-label="Mark as completed"
+            title="Done! Check."
+            onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+            ✔
+        </button>`;
+
     const publicLabel = dateCycle.public === "1"
         ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
                 Public
            </div>`
         : "";
 
-    // Build the dateCycle div with improved accessibility:
+    // Build the HTML structure:
+    // - The outer container has no onclick.
+    // - The action buttons remain in their own container.
+    // - A separate content container has the onclick for editing.
     divElement.innerHTML += `
-        <div class="date-info" data-key="${dateCycle.unique_key}" tabindex="0" 
-            onclick="editDateCycle('${dateCycle.unique_key}')" 
-            style="position: relative; padding: 16px; border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px;">
+        <div class="date-info" data-key="${dateCycle.unique_key}" style="
+            position: relative;
+            padding: 16px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 8px;">
             
-            <div style="position: absolute; top: 10px; right: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+            <div style="
+                position: absolute;
+                top: 10px;
+                right: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;">
                 ${actionButton}
-                
-                <button class="forward-button-datecycle"
-                    role="button"
-                    aria-label="Push to today"
-                    title="Push to today"
-                    onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
-                    style="font-size: larger; cursor: pointer; background: none; border: none;">
-                    ➜
-                </button>
-                
-                <button class="close-button-datecycle"
-                    role="button"
-                    aria-label="Mark as completed"
-                    title="Done! Check."
-                    onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                    style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-                    ✔
-                </button>
+                ${forwardButton}
+                ${checkOffButton}
             </div>
             
-            <div class="current-date-info-title" style="${eventNameStyle}; color:${bulletColor};">
-                ${eventName}
-            </div>
-            
-            <div class="current-datecycle-data">
-                <div class="current-date-calendar" style="color: ${calendarColor};">
-                    ${dateCycle.cal_name}
+            <div class="datecycle-content" onclick="editDateCycle('${dateCycle.unique_key}')" style="cursor: pointer;">
+                <div class="current-date-info-title" style="${eventNameStyle}; color:${bulletColor};">
+                    ${eventName}
                 </div>
+                <div class="current-datecycle-data">
+                    <div class="current-date-calendar" style="color: ${calendarColor};">
+                        ${dateCycle.cal_name}
+                    </div>
+                </div>
+                <div class="current-date-notes" style="height: fit-content;">
+                    ${dateCycle.comments}
+                </div>
+                ${publicLabel}
             </div>
-            
-            <div class="current-date-notes" style="height: fit-content;">
-                ${dateCycle.comments}
-            </div>
-            
-            ${publicLabel}
         </div>
     `;
 }
@@ -1147,43 +1161,46 @@ function deleteSelectedCalendar() {
 
 
 
+function push2today(uniqueKey) {
+    // Retrieve all calendar keys from localStorage
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    let found = false;
 
-function push2today(id) {
-    // Fetch the dateCycles from localStorage
-    const dateCycles = fetchDateCycles();
+    for (const key of calendarKeys) {
+        let calendarData = JSON.parse(localStorage.getItem(key));
+        const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+        if (index !== -1) {
+            // Found the matching dateCycle – update its date fields.
+            let dateCycle = calendarData[index];
+            const currentDate = new Date();
+            // Format date as YYYY-MM-DD (ISO standard without time).
+            const formattedDate = currentDate.toISOString().split('T')[0];
 
-    // Find the dateCycle by ID
-    const dateCycle = dateCycles.find(dc => dc.ID === id);
+            dateCycle.day = currentDate.getDate();
+            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed.
+            dateCycle.year = currentDate.getFullYear();
+            dateCycle.date = formattedDate;
+            dateCycle.last_edited = currentDate.toISOString();
 
-    // Create a Date object for today's date
-    const currentDate = new Date();
-    const formattedDate = `-${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`; // Today's date string
+            // Ensure pinned is set to "0" if not already defined.
+            if (!dateCycle.pinned) {
+                dateCycle.pinned = '0';
+            }
 
-    // Update the dateCycle object
-    dateCycle.Day = currentDate.getDate();
-    dateCycle.Month = currentDate.getMonth() + 1; // Months are zero-indexed in JavaScript Dates
-    dateCycle.Year = currentDate.getFullYear();
-    dateCycle.Date = formattedDate;
-
-    // Update "last_edited" to the current datetime
-    dateCycle.last_edited = currentDate.toISOString();
-
-    // If Pinned hasn't been set, update it to "flase"
-    if (!dateCycle.Pinned) {
-        dateCycle.Pinned = '0';
+            // Update localStorage for this calendar.
+            calendarData[index] = dateCycle;
+            localStorage.setItem(key, JSON.stringify(calendarData));
+            console.log(`Updated dateCycle with unique_key: ${uniqueKey} to today`);
+            found = true;
+            // Refresh the UI.
+            highlightDatecycles();
+            break;
+        }
     }
 
-
-    // Save the updated array back to localStorage
-    localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-
-    // Refresh the display or show a message to the user
-    console.log(`Updated dateCycle with ID: ${id} to today`);
-
-
-    highlightDateCycles(targetDate);
-    //displayMatchingDateCycle();
-
+    if (!found) {
+        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    }
 }
 
 
