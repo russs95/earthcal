@@ -489,29 +489,32 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
-    // Ensure correct field names
-    const eventName = dateCycle.title || "Untitled Event";  // Using 'title' instead of 'event_name'
-    const bulletColor = dateCycle.datecycle_color || "#000"; // Bullet & Title use 'datecycle_color'
-    const calendarColor = dateCycle.cal_color || "#000"; // Calendar name uses 'cal_color'
+    // Ensure correct field names and defaults.
+    const eventName = dateCycle.title || "Untitled Event";
+    const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
+    const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
 
+    // Use a consistent check: "1" means completed.
     const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
 
+    // Build the action button for deletion or pinning.
     let actionButton;
     if (dateCycle.completed === "1") {
         actionButton = `
-            <div class="delete-button-datecycle"
-                title="❌ Delete this dateCycle"
-                onclick="deleteDateCycle('${dateCycle.ID}'); event.stopPropagation();"
-                style="font-size: medium; color: ${bulletColor}; cursor: pointer;">
+            <button class="delete-button-datecycle"
+                role="button"
+                aria-label="Delete this dateCycle"
+                onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
                 ❌
-            </div>`;
+            </button>`;
     } else {
         actionButton = `
             <button class="bullet-pin-button"
+                role="button"
                 aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
                 title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
@@ -523,60 +526,58 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     }
 
     const publicLabel = dateCycle.public === "1"
-        ? `<div class="public-label" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
+        ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
                 Public
            </div>`
         : "";
 
+    // Build the dateCycle div with improved accessibility:
     divElement.innerHTML += `
-        <div class="date-info ${dateCycle.ID}" onclick="editDateCycle('${dateCycle.ID}')" style="
-            position: relative;
-            padding: 16px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            border-radius: 8px;">
-
-            <div style="
-                position: absolute;
-                top: 10px;
-                right: 8px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 2px;">
-
+        <div class="date-info" data-key="${dateCycle.unique_key}" tabindex="0" 
+            onclick="editDateCycle('${dateCycle.unique_key}')" 
+            style="position: relative; padding: 16px; border: 1px solid #ccc; margin-bottom: 10px; border-radius: 8px;">
+            
+            <div style="position: absolute; top: 10px; right: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
                 ${actionButton}
-
-                <div class="forward-button-datecycle" title="➡️ Push to today"
-                    onclick="push2today('${dateCycle.ID}'); event.stopPropagation();"
-                    style="font-size: larger; cursor: pointer;">
+                
+                <button class="forward-button-datecycle"
+                    role="button"
+                    aria-label="Push to today"
+                    title="Push to today"
+                    onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none;">
                     ➜
-                </div>
-
-                <div class="close-button-datecycle"
-                    title="✅ Done! Check."
-                    onclick="strikeDateCycle('${dateCycle.ID}'); event.stopPropagation();"
-                    style="font-size: larger; cursor: pointer; ${dateCycle.completed === 'yes' ? 'color: black;' : ''}">
+                </button>
+                
+                <button class="close-button-datecycle"
+                    role="button"
+                    aria-label="Mark as completed"
+                    title="Done! Check."
+                    onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
                     ✔
-                </div>
+                </button>
             </div>
-
+            
             <div class="current-date-info-title" style="${eventNameStyle}; color:${bulletColor};">
                 ${eventName}
             </div>
-
+            
             <div class="current-datecycle-data">
-                <div class="current-date-calendar" style="color: ${calendarColor};">${dateCycle.cal_name}</div>
+                <div class="current-date-calendar" style="color: ${calendarColor};">
+                    ${dateCycle.cal_name}
+                </div>
             </div>
-
+            
             <div class="current-date-notes" style="height: fit-content;">
                 ${dateCycle.comments}
             </div>
-
+            
             ${publicLabel}
         </div>
     `;
 }
+
 
 
 
