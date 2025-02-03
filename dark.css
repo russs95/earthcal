@@ -21,6 +21,7 @@
     --modal-background: rgba(0, 0, 0, 0.352);
     --night-day: #191919;
     --grey-trans: rgba(0, 0, 0, 0.718);
+    --grey-trans-over: rgba(0, 0, 0, 0.9);
 
 
     --hover-over: #02E1E2;
@@ -115,12 +116,12 @@
   }
 
 .top-close-button {
-  background: url(svgs/down-arrow-night.svg) no-repeat;
+  background: url(svgs/down-arrow.svg) no-repeat;
   background-size: contain;
 }
 
 .top-close-button:hover {
-  background: url(svgs/up-arrow-night.svg) no-repeat;
+  background: url(svgs/up-reg-arrow-dark.svg) no-repeat;
   background-size: contain;
 }
 
