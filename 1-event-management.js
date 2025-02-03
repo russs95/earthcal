@@ -1079,7 +1079,10 @@ async function deleteDateCycle(uniqueKey) {
     }
 
     // Step 5: Refresh the UI.
-    await highlightDateCycles(targetDate);
+    setTimeout(() => {
+        // After animation completes (0.4s), refresh the UI.
+        highlightDateCycles(targetDate);
+    }, 500);
 
     // (Optional) Log the final state of localStorage for debugging.
     console.log(`Final state of localStorage after deletion:`);
