@@ -431,10 +431,16 @@ attachBreakoutTouchListeners();
 
    updateTargetMonth();
 
-      syncDatecycles();
-   //highlightDateCycles(targetDate);
+      if (localStorage.getItem('buwana_id')) {
+          syncDatecycles().then(() => {
+              highlightDateCycles(targetDate);
+          }).catch(err => {
+              console.error("Sync error:", err);
+          });
+      } else {
+          highlightDateCycles(targetDate);
+      }
 
-  // displayMatchingDateCycle();
    
    calculateHijriMonthNames(currentYear);
 
