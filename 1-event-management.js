@@ -1563,7 +1563,7 @@ async function syncDatecycles() {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
         if (!buwanaId) {
-            alert('Please log in first Buwana account.');
+            //alert('Please log in first Buwana account.');
             return;
         }
 
