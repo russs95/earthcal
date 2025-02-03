@@ -486,8 +486,7 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-function writeMatchingDateCycles(divElement, dateCycle) {
+function writeMatchingDateCycles(dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
@@ -513,13 +512,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         actionButton = `
             <button class="bullet-pin-button"
                 role="button"
-                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle baby'}"
-                title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
+                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
                 style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
+                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
             </button>`;
     }
 
@@ -549,11 +548,21 @@ function writeMatchingDateCycles(divElement, dateCycle) {
            </div>`
         : "";
 
-    // Build the HTML structure:
-    // - The outer container has no onclick.
-    // - The action buttons remain in their own container.
-    // - A separate content container has the onclick for editing.
-    divElement.innerHTML += `
+    // Determine the container: if pinned, use the pinned-datecycles div; otherwise, use current-datecycles.
+    const containerId = dateCycle.pinned === "1" ? "pinned-datecycles" : "current-datecycles";
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID "${containerId}" not found.`);
+        return;
+    }
+
+    // Check if the dateCycle was edited within the last minute.
+    const lastEditedTime = new Date(dateCycle.last_edited).getTime();
+    const oneMinuteAgo = Date.now() - 60000; // 60,000 ms = 1 minute
+    const animateIn = lastEditedTime >= oneMinuteAgo; // true if edited within the last minute
+
+    // Set up a container div for this dateCycle.
+    let dateCycleHTML = `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
             padding: 16px;
@@ -590,7 +599,25 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </div>
         </div>
     `;
+
+    // Create a temporary container element.
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = dateCycleHTML;
+    const dateCycleDiv = tempDiv.firstElementChild;
+
+    // If the record was edited within the last minute, add the slide-in-from-left animation.
+    if (animateIn) {
+        dateCycleDiv.classList.add("slide-in-left");
+        // Remove the animation class after 0.5s to allow future animations.
+        setTimeout(() => {
+            dateCycleDiv.classList.remove("slide-in-left");
+        }, 500);
+    }
+
+    // Append the new dateCycle div to the appropriate container.
+    container.appendChild(dateCycleDiv);
 }
+
 
 
 
