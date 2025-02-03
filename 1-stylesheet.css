@@ -2765,28 +2765,11 @@ svg path #june:hover {
         background-color: #c3e6cb; /* A slightly darker green */
     }
     100% {
-        background-color: var(--grey-trans); /* Final color */
+        background-color: transparent;
     }
 }
 
 /* Class to trigger the animation */
 .celebrate-animation {
     animation: celebrate 0.5s ease-out;
-    animation-fill-mode: forwards; /* Keep the final state if desired */
-}
-
-
-@keyframes slideOutRight {
-    0% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-.slide-out-right {
-    animation: slideOutRight 0.4s forwards;
 }
