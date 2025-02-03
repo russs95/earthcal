@@ -680,7 +680,6 @@ async function updateServerDateCycle(dateCycle) {
 }
 
 
-
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
@@ -712,34 +711,45 @@ function checkOffDatecycle(uniqueKey) {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
                         // Mark it as synced after successful server update.
                         dateCycle.synced = '1';
-                        // Update the record in the local calendar.
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so it will be retried later.
+                        // Leave synced as "0" so that it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
             }
 
             // Step 6: Update localStorage with the modified calendar data.
-            // Even though we modified dateCycle above, we re-save the calendar data here to ensure that
-            // the localStorage reflects the most current state (including any changes to the synced flag
-            // that may be updated asynchronously). This step guarantees that the local data is immediately
-            // updated, so that when the server update eventually succeeds (or fails), the local record is already changed.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 7: Trigger a celebration animation on the corresponding div.
+            // Step 7: Update the UI for this dateCycle.
             const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
             if (dateCycleDiv) {
+                // Trigger celebration animation.
                 dateCycleDiv.classList.add("celebrate-animation");
                 setTimeout(() => {
                     dateCycleDiv.classList.remove("celebrate-animation");
-                }, 500);
+                }, 400);
+
+                // Update the title and calendar name colors.
+                // If completed === "1", set them to grey; otherwise, use the stored colors.
+                const titleElem = dateCycleDiv.querySelector(".current-date-info-title");
+                const calendarElem = dateCycleDiv.querySelector(".current-date-calendar");
+                if (dateCycle.completed === "1") {
+                    if (titleElem) titleElem.style.color = "grey";
+                    if (calendarElem) calendarElem.style.color = "grey";
+                } else {
+                    // Revert to the original colors.
+                    const bulletColor = dateCycle.datecycle_color || "#000";
+                    const calColor = dateCycle.cal_color || "#000";
+                    if (titleElem) titleElem.style.color = bulletColor;
+                    if (calendarElem) calendarElem.style.color = calColor;
+                }
             }
 
             found = true;
@@ -747,10 +757,16 @@ function checkOffDatecycle(uniqueKey) {
         }
     }
 
-    // Step 8: If no dateCycle was found, log a message.
+    // Step 8: Handle case where no dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
+
+    // Step 9: Refresh the UI.
+    // (Assuming highlightDateCycles is defined and accepts a targetDate variable.)
+    highlightDateCycles(targetDate);
+}
+
 
     // Step 9: Refresh the UI.
     setTimeout(() => {
