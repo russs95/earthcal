@@ -760,7 +760,6 @@ function checkOffDatecycle(uniqueKey) {
 
 
 
-
 function pinThisDatecycle(element) {
     console.log("Toggling pin status for dateCycle");
 
@@ -771,7 +770,7 @@ function pinThisDatecycle(element) {
         return;
     }
 
-    // Step 2: Retrieve the unique_key from the data attribute on the date-info div.
+    // Step 2: Retrieve the unique_key from the date-info div.
     const uniqueKey = dateInfoDiv.getAttribute('data-key');
     if (!uniqueKey) {
         console.log("No unique_key found on date-info element.");
@@ -782,19 +781,20 @@ function pinThisDatecycle(element) {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     let found = false;
 
-    // Step 4: Iterate through the calendar arrays to find and update the dateCycle by unique_key.
+    // Step 4: Iterate through the calendar arrays to find the matching dateCycle.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
         const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
         if (dateCycleIndex !== -1) {
-            // Found the dateCycle – toggle the pinned status.
             let dateCycle = calendarData[dateCycleIndex];
-            dateCycle.pinned = (dateCycle.pinned === 'yes') ? 'no' : 'yes';
+
+            // Toggle pinned status: set to "1" if not pinned, otherwise "0".
+            dateCycle.pinned = (dateCycle.pinned === "1") ? "0" : "1";
             console.log(`New pin status for ${dateCycle.title}: ${dateCycle.pinned}`);
 
             // Step 5: Mark the record as unsynced if it was previously synced.
-            if (dateCycle.synced === '1') {
-                dateCycle.synced = '0';
+            if (dateCycle.synced === "1") {
+                dateCycle.synced = "0";
             }
 
             // Step 6: If online and logged in, attempt to update the server immediately.
@@ -803,14 +803,13 @@ function pinThisDatecycle(element) {
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
                         // Mark it as synced locally.
-                        dateCycle.synced = '1';
-                        // Update localStorage after server update.
+                        dateCycle.synced = "1";
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so it will be retried later.
+                        // Leave synced as "0" so that it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
@@ -821,19 +820,29 @@ function pinThisDatecycle(element) {
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
+            // Step 8: If the record is now pinned (i.e. pinned === "1"), trigger the slide-out animation.
+            if (dateCycle.pinned === "1") {
+                dateInfoDiv.classList.add("slide-out-right");
+                setTimeout(() => {
+                    // After animation completes (0.4s), refresh the UI.
+                    highlightDateCycles(targetDate);
+                }, 400);
+            } else {
+                // Otherwise, refresh the UI immediately.
+                highlightDateCycles(targetDate);
+            }
+
             found = true;
             break; // Exit loop once the record is updated.
         }
     }
 
-    // Step 8: Handle case where no matching dateCycle was found.
+    // Step 9: Handle the case where no matching dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
-
-    // Step 9: Refresh the UI.
-    highlightDateCycles(targetDate);
 }
+
 
 
 
