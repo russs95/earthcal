@@ -759,7 +759,6 @@ function checkOffDatecycle(uniqueKey) {
 
 
 
-
 function pinThisDatecycle(element) {
     console.log("Toggling pin status for dateCycle");
 
@@ -770,7 +769,7 @@ function pinThisDatecycle(element) {
         return;
     }
 
-    // Step 2: Retrieve the unique_key from a data attribute on the date-info div.
+    // Step 2: Retrieve the unique_key from the data attribute on the date-info div.
     const uniqueKey = dateInfoDiv.getAttribute('data-key');
     if (!uniqueKey) {
         console.log("No unique_key found on date-info element.");
@@ -786,17 +785,17 @@ function pinThisDatecycle(element) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
         const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
         if (dateCycleIndex !== -1) {
-            // Found the dateCycle—toggle the pinned status.
+            // Found the dateCycle – toggle the pinned status.
             let dateCycle = calendarData[dateCycleIndex];
             dateCycle.pinned = (dateCycle.pinned === 'yes') ? 'no' : 'yes';
             console.log(`New pin status for ${dateCycle.title}: ${dateCycle.pinned}`);
 
-            // Mark the record as unsynced if it was previously synced.
+            // Step 5: Mark the record as unsynced if it was previously synced.
             if (dateCycle.synced === '1') {
                 dateCycle.synced = '0';
             }
 
-            // Step 5: If online and logged in, attempt to update the server immediately.
+            // Step 6: If online and logged in, attempt to update the server immediately.
             if (navigator.onLine && localStorage.getItem('buwana_id')) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
@@ -809,13 +808,13 @@ function pinThisDatecycle(element) {
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so that it will be retried later.
+                        // Leave synced as "0" so it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
             }
 
-            // Step 6: Update localStorage with the modified calendar data.
+            // Step 7: Update localStorage with the modified calendar data.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
@@ -825,14 +824,15 @@ function pinThisDatecycle(element) {
         }
     }
 
-    // Step 7: Handle case where no matching dateCycle was found.
+    // Step 8: Handle case where no matching dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 
-    // Step 8: Refresh the UI.
-    highlightDatecycles();
+    // Step 9: Refresh the UI.
+    highlightDateCycles(targetDate);
 }
+
 
 
 
