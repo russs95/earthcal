@@ -486,9 +486,21 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-function writeMatchingDateCycles(divElement, dateCycle) {
+function writeMatchingDateCycles(dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+
+    // Determine which container to use based on pin status.
+    // If pinned equals "1", use the pinned-datecycles container; otherwise, use current-datecycles.
+    let container;
+    if (dateCycle.pinned === "1") {
+        container = document.getElementById("pinned-datecycles");
+    } else {
+        container = document.getElementById("current-datecycles");
+    }
+    if (!container) {
+        console.error("No container found for dateCycles.");
+        return;
+    }
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
@@ -496,9 +508,9 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
 
     // Use a consistent check: "1" means completed.
-    const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
+    const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through; color: grey;" : "";
 
-    // Build the action buttons (delete, pin, forward, check off) with proper accessibility.
+    // Build the action buttons with proper accessibility.
     let actionButton;
     if (dateCycle.completed === "1") {
         actionButton = `
@@ -513,13 +525,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         actionButton = `
             <button class="bullet-pin-button"
                 role="button"
-                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                aria-label="${dateCycle.pinned === "1" ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                title="${dateCycle.pinned === "1" ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
+                onmouseover="this.textContent = '${dateCycle.pinned === "1" ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === "1" ? '📌' : '⬤'}';"
                 style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
+                ${dateCycle.pinned === "1" ? '📌' : '⬤'}
             </button>`;
     }
 
@@ -539,7 +551,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             aria-label="Mark as completed"
             title="Done! Check."
             onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === "1" ? "color: green;" : "color: grey;"}">
             ✔
         </button>`;
 
@@ -549,12 +561,19 @@ function writeMatchingDateCycles(divElement, dateCycle) {
            </div>`
         : "";
 
-    // Build the HTML structure:
-    // - The outer container has no onclick.
-    // - The action buttons remain in their own container.
-    // - A separate content container has the onclick for editing.
-    divElement.innerHTML += `
-        <div class="date-info" data-key="${dateCycle.unique_key}" style="
+    // Determine if the record was edited within the last minute.
+    const lastEditedDate = new Date(dateCycle.last_edited);
+    const now = new Date();
+    const secondsDiff = (now - lastEditedDate) / 1000;
+    let animationClass = "";
+    if (secondsDiff < 60) {
+        animationClass = "slide-in-left"; // CSS class for slide-in animation
+    }
+
+    // Build the HTML structure for the dateCycle.
+    // The outer container gets a data-key attribute and (conditionally) an animation class.
+    container.innerHTML += `
+        <div class="date-info ${animationClass}" data-key="${dateCycle.unique_key}" style="
             position: relative;
             padding: 16px;
             border: 1px solid #ccc;
@@ -591,6 +610,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 }
+
 
 
 
