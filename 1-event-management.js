@@ -352,88 +352,97 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
-    // ✅ Ensure targetDate is a Date object and normalize it to match stored format
+    // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
+    console.log(`Normalized target date for highlighting: ${formattedTargetDate}`);
 
-    console.log(`🔍 Normalized target date for highlighting: ${formattedTargetDate}`);
-
-    // 1. Remove "date_event" class from previously highlighted elements
+    // Remove "date_event" class from previously highlighted elements.
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
 
-    // 2. Fetch all dateCycles from localStorage
+    // 2. Fetch all dateCycles from localStorage (assume fetchDateCycleCalendars() returns an array of dateCycles).
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         return;
     }
+    console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
 
-    console.log(`✅ Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
+    // 3. Separate matching dateCycles based on the target date and pin status.
+    let matchingPinned = [];
+    let matchingCurrent = [];
+    const now = new Date();
 
-    // Log all dateCycles with their dates for debugging
-    console.table(dateCycleEvents.map(dc => ({ title: dc.title, date: dc.date, delete_it: dc.delete_it })));
+    // Helper function: Was edited within the last minute?
+    function wasEditedRecently(dateCycle) {
+        const lastEdited = new Date(dateCycle.last_edited);
+        return (now - lastEdited) < 60000;
+    }
 
-    // 3. Get all paths with IDs in the calendar visualization
-    const allPaths = Array.from(document.querySelectorAll("path[id]"));
-
-    // 4. Variables to store matching dateCycles
-    let matchingDateCycles = [];
-
-    // 5. Iterate over each dateCycle and highlight matching paths
     dateCycleEvents.forEach(dateCycle => {
-        const normalizedDate = dateCycle.date?.trim() || '';
-
-        // ✅ Ensure correct date format comparison
+        // Assume stored date is formatted as "YYYY-MM-DD" in dateCycle.date.
+        // Also compute a formatted string from day, month, and year.
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
-
-        if (normalizedDate !== storedDateFormatted) {
-            console.warn(`⚠️ Date format mismatch! Stored: "${normalizedDate}", Expected: "${storedDateFormatted}"`);
-        }
-
-        // Store matching dateCycles
-        const cycleDateObj = new Date(`${dateCycle.year}-${dateCycle.month}-${dateCycle.day}`);
-        const cycleFormattedDate = `-${cycleDateObj.getDate()}-${cycleDateObj.getMonth() + 1}-${cycleDateObj.getFullYear()}`;
-
-        if (cycleFormattedDate === formattedTargetDate) {
-            matchingDateCycles.push(dateCycle);
-        }
-
-        // Process for matching paths by checking if normalizedDate exists in path.id
-        const matchingPaths = allPaths.filter(path => path.id.includes(storedDateFormatted));
-
-        // Highlight the matching paths
-        matchingPaths.forEach(path => {
-            const isDayMarker = path.id.endsWith('-day-marker');
-            const currentTitle = path.getAttribute('title');
-
-            // Update the title for paths that are not day markers
-            if (!isDayMarker && currentTitle && !currentTitle.includes('|')) {
-                const newTitle = `${dateCycle.title} | ${currentTitle}`;
-                path.setAttribute('title', newTitle);
+        if (storedDateFormatted === formattedTargetDate) {
+            if (dateCycle.pinned === "1") {
+                matchingPinned.push(dateCycle);
+            } else {
+                matchingCurrent.push(dateCycle);
             }
-
-            // Add "date_event" class only to paths ending with "-day-marker"
-            if (isDayMarker) {
-                path.classList.add("date_event");
-            }
-        });
+        }
     });
 
-    console.log(`✅ Highlighted ${matchingDateCycles.length} dateCycles on the calendar.`);
+    console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
 
-    // 6. Write matching dateCycles to the `current_datecycles` div
-    const matchingDiv = document.getElementById('current-datecycles');
-    if (matchingDiv) {
-        matchingDiv.innerHTML = "";
-        matchingDiv.style.display = matchingDateCycles.length ? 'block' : 'none';
+    // 4. Get the container elements.
+    const pinnedDiv = document.getElementById('pinned-datecycles');
+    const currentDiv = document.getElementById('current-datecycles');
 
-        // Write each matching dateCycle to the div
-        matchingDateCycles.forEach(dc => writeMatchingDateCycles(matchingDiv, dc));
+    // Clear out previous contents.
+    if (pinnedDiv) {
+        pinnedDiv.innerHTML = "";
+        pinnedDiv.style.display = matchingPinned.length ? 'block' : 'none';
     }
+    if (currentDiv) {
+        currentDiv.innerHTML = "";
+        currentDiv.style.display = matchingCurrent.length ? 'block' : 'none';
+    }
+
+    // 5. Write pinned dateCycles.
+    matchingPinned.forEach(dc => {
+        if (pinnedDiv) {
+            writeMatchingDateCycles(pinnedDiv, dc);
+            if (wasEditedRecently(dc)) {
+                const elem = pinnedDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
+                if (elem) {
+                    elem.classList.add("slide-in-left");
+                    setTimeout(() => {
+                        elem.classList.remove("slide-in-left");
+                    }, 500);
+                }
+            }
+        }
+    });
+
+    // 6. Write current dateCycles.
+    matchingCurrent.forEach(dc => {
+        if (currentDiv) {
+            writeMatchingDateCycles(currentDiv, dc);
+            if (wasEditedRecently(dc)) {
+                const elem = currentDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
+                if (elem) {
+                    elem.classList.add("slide-in-left");
+                    setTimeout(() => {
+                        elem.classList.remove("slide-in-left");
+                    }, 500);
+                }
+            }
+        }
+    });
 }
+
 
 
 
@@ -486,7 +495,6 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
@@ -498,7 +506,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     // Use a consistent check: "1" means completed.
     const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
 
-    // Build the action buttons (delete, pin, forward, check off) with proper accessibility.
+    // Build the action buttons with proper accessibility.
     let actionButton;
     if (dateCycle.completed === "1") {
         actionButton = `
@@ -513,13 +521,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         actionButton = `
             <button class="bullet-pin-button"
                 role="button"
-                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle baby'}"
-                title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
+                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
+                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
                 style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
+                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
             </button>`;
     }
 
@@ -549,10 +557,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
            </div>`
         : "";
 
-    // Build the HTML structure:
-    // - The outer container has no onclick.
-    // - The action buttons remain in their own container.
-    // - A separate content container has the onclick for editing.
+    // Build the HTML structure.
+    // The outer container has a data-key attribute (used later for animations).
     divElement.innerHTML += `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
