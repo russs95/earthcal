@@ -753,8 +753,10 @@ function checkOffDatecycle(uniqueKey) {
     }
 
     // Step 9: Refresh the UI.
-    // (Note: Make sure highlightDatecycles() is defined and handles any needed parameters.)
-    //highlightDateCycles(targetDate);
+    setTimeout(() => {
+        // After animation completes (0.4s), refresh the UI.
+        highlightDateCycles(targetDate);
+    }, 600);
 }
 
 
