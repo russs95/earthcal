@@ -490,7 +490,6 @@ function writeMatchingDateCycles(dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Determine target container based on the pinned status.
-    // If pinned ("1"), use the pinned container; otherwise, the current container.
     const targetDiv = (dateCycle.pinned === "1")
         ? document.getElementById("pinned-datecycles")
         : document.getElementById("current-datecycles");
@@ -500,10 +499,14 @@ function writeMatchingDateCycles(dateCycle) {
         return;
     }
 
+    // Debug: Log available keys in dateCycle.
+    console.log("Available keys in dateCycle:", Object.keys(dateCycle));
+
     // Ensure correct field names and default values.
-    const eventName = dateCycle.title || "Untitled Event";
-    const bulletColor = dateCycle.datecycle_color || "#000"; // Used for bullet & title
-    const calendarColor = dateCycle.cal_color || "#000";       // Used for calendar name
+    // Check both lower and upper case, if necessary.
+    const eventName = dateCycle.title || dateCycle.Title || "Untitled Event";
+    const bulletColor = dateCycle.datecycle_color || dateCycle.DateCycle_color || "#000";
+    const calendarColor = dateCycle.cal_color || dateCycle.Cal_color || "#000";
 
     // Use a consistent check: "1" means completed.
     const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through; color: grey;" : "";
@@ -564,7 +567,7 @@ function writeMatchingDateCycles(dateCycle) {
     const lastEdited = new Date(dateCycle.last_edited);
     let animationClass = "";
     if ((now - lastEdited) < 60000) { // less than 60,000 milliseconds (1 minute)
-        animationClass = " slide-in-left"; // space before the class name
+        animationClass = " slide-in-left"; // with a preceding space
     }
 
     // Build the HTML structure.
@@ -595,7 +598,7 @@ function writeMatchingDateCycles(dateCycle) {
                 </div>
                 <div class="current-datecycle-data">
                     <div class="current-date-calendar" style="color: ${calendarColor};">
-                        ${dateCycle.cal_name}
+                        ${dateCycle.cal_name || dateCycle.Cal_name || ""}
                     </div>
                 </div>
                 <div class="current-date-notes" style="height: fit-content;">
