@@ -863,90 +863,94 @@ function pinThisDatecycle(element) {
 
 
 
-
-
-function editDateCycle(dateCycleID) {
-    // Step 1: Fetch all calendar keys from localStorage
+function editDateCycle(uniqueKey) {
+    // Step 1: Fetch all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
     let dateCycle = null;
     let calendarKey = null;
 
-    // Step 2: Search through each calendar for the matching dateCycle ID
+    // Step 2: Search through each calendar for the matching dateCycle by unique_key.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-        dateCycle = calendarData.find(dc => dc.ID === dateCycleID);
-
+        dateCycle = calendarData.find(dc => dc.unique_key === uniqueKey);
         if (dateCycle) {
-            calendarKey = key; // Save the calendar key where the dateCycle was found
-            break; // Exit the loop once the matching dateCycle is found
+            calendarKey = key; // Save the calendar key where the dateCycle was found.
+            break; // Exit loop once the matching dateCycle is found.
         }
     }
 
-    // Step 3: Handle case where the dateCycle is not found
+    // Step 3: Handle case where the dateCycle is not found.
     if (!dateCycle) {
-        console.log(`No dateCycle found with ID: ${dateCycleID}`);
+        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
         return;
     }
 
-    // Step 4: Populate the modal with the dateCycle details
+    // Step 4: Populate the modal with the dateCycle details using the new schema.
     const modalContent = document.getElementById('modal-content');
     modalContent.innerHTML = `
-        <div id="edit-datecycle-setter" style="width:100%;text-align:center;color:var(--text-color)"><h1>Edit DateCycle</h1></div>
+        <div id="edit-datecycle-setter" style="width:100%; text-align:center; color:var(--text-color)">
+            <h1>Edit DateCycle</h1>
+        </div>
 
-        <select id="edit-dateCycle-type" class="blur-form-field" style="font-size: 1em; text-align: center; height: 45px; margin: auto; margin-bottom: 10px;width: 100%;" onchange="showYearMonthDaySetter()">
-          <option value="" disabled>Select frequency...</option>
-          <option value="One-time" ${dateCycle.Frequency === 'One-time' ? 'selected' : ''}>One-time</option>
-          <option value="Annual" ${dateCycle.Frequency === 'Annual' ? 'selected' : ''}>Annual</option>
-          <option value="Weekly" disabled>Weekly</option>
-          <option value="Monthly" disabled>Monthly</option>
+        <select id="edit-dateCycle-type" class="blur-form-field" style="font-size:1em; text-align:center; height:45px; margin:auto; margin-bottom:10px; width:100%;" onchange="showYearMonthDaySetter()">
+            <option value="" disabled>Select frequency...</option>
+            <option value="One-time" ${dateCycle.frequency === 'One-time' ? 'selected' : ''}>One-time</option>
+            <option value="Annual" ${dateCycle.frequency === 'Annual' ? 'selected' : ''}>Annual</option>
+            <option value="Weekly" disabled>Weekly</option>
+            <option value="Monthly" disabled>Monthly</option>
         </select>
 
-        <div id="edit-dateCycle-year-option" >
-          <select name="year" id="edit-year-field2" style="width: 100%; font-size: 1em; text-align: center; height: 45px; margin-top: 10px;" class="blur-form-field">
-            <option value="" disabled>Select year...</option>
-            ${[2025, 2026, 2027, 2028].map(year => `<option value="${year}" ${dateCycle.Year === String(year) ? 'selected' : ''}>${year}</option>`).join('')}
-          </select>
+        <div id="edit-dateCycle-year-option">
+            <select name="year" id="edit-year-field2" style="width:100%; font-size:1em; text-align:center; height:45px; margin-top:10px;" class="blur-form-field">
+                <option value="" disabled>Select year...</option>
+                ${[2025, 2026, 2027, 2028].map(year => `<option value="${year}" ${Number(dateCycle.year) === year ? 'selected' : ''}>${year}</option>`).join('')}
+            </select>
         </div>
 
         <div id="edit-set-date">
-          <div class="date-search fields" style="display: flex; flex-flow: row; margin: auto; justify-content: center;" >
-            <select name="day" id="edit-day-field2" style="width: 22%; margin-right: 10px; font-size: 1em; text-align: center; height: 45px;margin-left: 0;" class="blur-form-field">
-              <option value="" disabled>Select day...</option>
-              ${Array.from({length: 31}, (_, i) => `<option value="${i + 1}" ${dateCycle.Day === String(i + 1) ? 'selected' : ''}>${i + 1}</option>`).join('')}
-            </select>
-            <select name="month" id="edit-month-field2" style="font-size: 1em; text-align: center; height: 45px;margin-right: 0;" class="blur-form-field">
-              <option value="" disabled>Select month...</option>
-              ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        .map((month, i) => `<option value="${i + 1}" ${dateCycle.Month === String(i + 1) ? 'selected' : ''}>${month}</option>`).join('')}
-            </select>
-          </div>
+            <div class="date-search fields" style="display:flex; flex-flow:row; margin:auto; justify-content:center;">
+                <select name="day" id="edit-day-field2" style="width:22%; margin-right:10px; font-size:1em; text-align:center; height:45px;" class="blur-form-field">
+                    <option value="" disabled>Select day...</option>
+                    ${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${Number(dateCycle.day) === i + 1 ? 'selected' : ''}>${i + 1}</option>`).join('')}
+                </select>
+                <select name="month" id="edit-month-field2" style="font-size:1em; text-align:center; height:45px;" class="blur-form-field">
+                    <option value="" disabled>Select month...</option>
+                    ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        .map((month, i) => `<option value="${i + 1}" ${Number(dateCycle.month) === i + 1 ? 'selected' : ''}>${month}</option>`).join('')}
+                </select>
+            </div>
 
-          <div id="edit-name-event" style="margin-top: 0; display: flex; justify-content: center;margin-left:0;margin-right: auto; border-radius: 10px;width: 100%;">
-            <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left: 0;margin-right: auto; border-radius: 10px 0 0 10px;width: calc(100% - 80px);">${dateCycle.Event_name || ''}</textarea>
-            <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding: 10px; border-radius: 0 10px 10px 0; font-size: 1.5em;width:60px; margin-left: -40px;margin-right: 0;">
-              <option value="green" ${dateCycle.calendar_color === 'green' ? 'selected' : ''}>🟢</option>
-              <option value="yellow" ${dateCycle.calendar_color === 'yellow' ? 'selected' : ''}>🟡</option>
-              <option value="orange" ${dateCycle.calendar_color === 'orange' ? 'selected' : ''}>🟠</option>
-              <option value="red" ${dateCycle.calendar_color === 'red' ? 'selected' : ''}>🔴</option>
-              <option value="blue" ${dateCycle.calendar_color === 'blue' ? 'selected' : ''}>🔵</option>
-            </select>
-          </div>
+            <div id="edit-name-event" style="margin-top:0; display:flex; justify-content:center; border-radius:10px; width:100%;">
+                <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left:0; margin-right:auto; border-radius:10px 0 0 10px; width:calc(100% - 80px);">
+                    ${dateCycle.title || ''}
+                </textarea>
+                <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding:10px; border-radius:0 10px 10px 0; font-size:1.5em; width:60px; margin-left:-40px; margin-right:0;">
+                    <option value="green" ${dateCycle.cal_color === 'green' ? 'selected' : ''}>🟢</option>
+                    <option value="yellow" ${dateCycle.cal_color === 'yellow' ? 'selected' : ''}>🟡</option>
+                    <option value="orange" ${dateCycle.cal_color === 'orange' ? 'selected' : ''}>🟠</option>
+                    <option value="red" ${dateCycle.cal_color === 'red' ? 'selected' : ''}>🔴</option>
+                    <option value="blue" ${dateCycle.cal_color === 'blue' ? 'selected' : ''}>🔵</option>
+                </select>
+            </div>
 
-          <div id="edit-add-note-form" style="margin-top: 0; margin-bottom: 0;">
-            <textarea id="edit-add-date-note" class="blur-form-field" style="width: calc(100% - 10px);padding-right:0;" placeholder="Add a note to this event...">${dateCycle.Comments || ''}</textarea>
-          </div>
-          <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width: 100%;" onclick="saveDateCycleEditedChanges('${dateCycleID}', '${calendarKey}')">🐿️ Save Changes</button>
+            <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
+                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">
+                    ${dateCycle.comments || ''}
+                </textarea>
+            </div>
+            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
+                🐿️ Save Changes
+            </button>
         </div>
     `;
 
-    // Step 5: Show the modal
+    // Step 5: Show the modal.
     const modal = document.getElementById('form-modal-message');
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
     document.getElementById("page-content").classList.add("blur");
 }
-
 
 
 
