@@ -485,11 +485,10 @@ async function highlightDateCycles(targetDate) {
 // }
 
 
-function writeMatchingDateCycles(dateCycle) {
-    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
-    // Use the new unique_key if available; otherwise, fall back to the legacy ID.
-    const uniqueKey = dateCycle.unique_key || dateCycle.ID;
+
+function writeMatchingDateCycles(divElement, dateCycle) {
+    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
@@ -506,7 +505,7 @@ function writeMatchingDateCycles(dateCycle) {
             <button class="delete-button-datecycle"
                 role="button"
                 aria-label="Delete this dateCycle"
-                onclick="deleteDateCycle('${uniqueKey}'); event.stopPropagation();"
+                onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
                 style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
                 ❌
             </button>`;
@@ -514,13 +513,13 @@ function writeMatchingDateCycles(dateCycle) {
         actionButton = `
             <button class="bullet-pin-button"
                 role="button"
-                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                aria-label="${dateCycle.pinned === 'yes' ? 'Unpin this dateCycle' : 'Pin this DateCycle baby'}"
+                title="${dateCycle.pinned === 'yes' ? 'Unpin this!' : 'Pin this!'}"
                 onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                onmouseover="this.textContent = '${dateCycle.pinned === 'yes' ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === 'yes' ? '📌' : '⬤'}';"
                 style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                ${dateCycle.pinned === 'yes' ? '📌' : '⬤'}
             </button>`;
     }
 
@@ -529,7 +528,7 @@ function writeMatchingDateCycles(dateCycle) {
             role="button"
             aria-label="Push to today"
             title="Push to today"
-            onclick="push2today('${uniqueKey}'); event.stopPropagation();"
+            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
             style="font-size: larger; cursor: pointer; background: none; border: none;">
             ➜
         </button>`;
@@ -539,7 +538,7 @@ function writeMatchingDateCycles(dateCycle) {
             role="button"
             aria-label="Mark as completed"
             title="Done! Check."
-            onclick="checkOffDatecycle('${uniqueKey}'); event.stopPropagation();"
+            onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
             style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
             ✔
         </button>`;
@@ -550,22 +549,12 @@ function writeMatchingDateCycles(dateCycle) {
            </div>`
         : "";
 
-    // Determine which container to write into based on the pinned status.
-    const containerId = dateCycle.pinned === "1" ? "pinned-datecycles" : "current-datecycles";
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Container with ID "${containerId}" not found.`);
-        return;
-    }
-
-    // Check if the dateCycle was edited within the last minute.
-    const lastEditedTime = new Date(dateCycle.last_edited).getTime();
-    const oneMinuteAgo = Date.now() - 60000; // 60,000 ms = 1 minute
-    const animateIn = lastEditedTime >= oneMinuteAgo;
-
-    // Build the HTML structure.
-    let dateCycleHTML = `
-        <div class="date-info" data-key="${uniqueKey}" style="
+    // Build the HTML structure:
+    // - The outer container has no onclick.
+    // - The action buttons remain in their own container.
+    // - A separate content container has the onclick for editing.
+    divElement.innerHTML += `
+        <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
             padding: 16px;
             border: 1px solid #ccc;
@@ -585,7 +574,7 @@ function writeMatchingDateCycles(dateCycle) {
                 ${checkOffButton}
             </div>
             
-            <div class="datecycle-content" onclick="editDateCycle('${uniqueKey}')" style="cursor: pointer;">
+            <div class="datecycle-content" onclick="editDateCycle('${dateCycle.unique_key}')" style="cursor: pointer;">
                 <div class="current-date-info-title" style="${eventNameStyle}; color:${bulletColor};">
                     ${eventName}
                 </div>
@@ -601,23 +590,6 @@ function writeMatchingDateCycles(dateCycle) {
             </div>
         </div>
     `;
-
-    // Create a temporary container element to convert HTML string into an element.
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = dateCycleHTML;
-    const dateCycleDiv = tempDiv.firstElementChild;
-
-    // If the record was edited within the last minute, add the slide-in animation.
-    if (animateIn) {
-        dateCycleDiv.classList.add("slide-in-left");
-        // Remove the animation class after 0.5s.
-        setTimeout(() => {
-            dateCycleDiv.classList.remove("slide-in-left");
-        }, 500);
-    }
-
-    // Append the new dateCycle div to the appropriate container.
-    container.appendChild(dateCycleDiv);
 }
 
 
