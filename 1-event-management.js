@@ -450,6 +450,7 @@ async function highlightDateCycles(targetDate) {
     });
 }
 
+
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
@@ -562,50 +563,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
-//
-// function fetchDateCycleCalendars() {
-//     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-//
-//     if (calendarKeys.length === 0) {
-//         console.log("No calendar data found in localStorage.");
-//         return [];
-//     }
-//
-//     try {
-//         let allDateCycles = [];
-//
-//         calendarKeys.forEach(key => {
-//             try {
-//                 const calendarData = JSON.parse(localStorage.getItem(key));
-//
-//                 if (Array.isArray(calendarData)) {
-//                     // ✅ Fix: Ensure "delete_it" field is properly checked (allowing 0 for active records)
-//                     const validDateCycles = calendarData.filter(dc =>
-//                         dc.delete_it !== "1" && dc.delete_it !== "1"
-//                     );
-//
-//                     if (validDateCycles.length === 0) {
-//                         console.warn(`⚠️ All dateCycles for ${key} are marked as deleted.`);
-//                     }
-//
-//                     allDateCycles.push(...validDateCycles);
-//                 } else {
-//                     console.warn(`⚠️ Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
-//                 }
-//             } catch (error) {
-//                 console.error(`❌ Error parsing localStorage data for key ${key}:`, error);
-//             }
-//         });
-//
-//         console.log(`✅ Fetched ${allDateCycles.length} dateCycles from local storage.`);
-//         console.table(allDateCycles); // Logs a readable table of dateCycles
-//
-//         return allDateCycles;
-//     } catch (error) {
-//         console.error('❌ Error fetching dateCycles from localStorage:', error.message);
-//         return [];
-//     }
-// }
 
 
 function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
@@ -615,7 +572,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     const dayField = document.getElementById('edit-day-field2').value;
     const monthField = document.getElementById('edit-month-field2').value;
     const title = document.getElementById('edit-add-date-title').value.trim();
-    const calColor = document.getElementById('edit-DateColorPicker').value;
+    const eventColor = document.getElementById('edit-DateColorPicker').value;
     const comments = document.getElementById('edit-add-date-note').value.trim();
 
     // Update the last_edited field to now.
@@ -643,7 +600,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     dateCycle.month = monthField;
     dateCycle.date = formattedDate;
     dateCycle.title = title;
-    dateCycle.cal_color = calColor; // Update the calendar color.
+    dateCycle.datecycle_color = eventColor; // Update the calendar color.
     dateCycle.comments = comments;
     dateCycle.last_edited = lastEdited;
 
