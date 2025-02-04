@@ -965,6 +965,7 @@ function editDateCycle(uniqueKey) {
 
 
 function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
+    alert('save called!');
     // Step 1: Retrieve updated values from the edit form.
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = document.getElementById('edit-year-field2').value;
