@@ -149,21 +149,19 @@ function showLoggedInView(userData) {
             Welcome ${user.first_name}!
         </h2>
         <p>You are syncing the following personal and public calendars:</p>
-        <div class="form-field">
-        <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
-            
-            ${personalCalendarHTML}
-            ${publicCalendarHTML}
-        </form>
+        <div class="form-item">
+            <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
+                
+                ${personalCalendarHTML}
+                ${publicCalendarHTML}
+            </form>
         </div>
-        <div id="logged-in-buttons" style="width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-    <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
-    🔄 Sync Now
-</button>
-
-
-    <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
-</div>
+        <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
+            🔄 Sync Now
+            </button>
+            <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
+        </div>
 
 <div id="cal-datecycle-count"></div>
 
