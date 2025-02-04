@@ -504,14 +504,15 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </button>`;
 
     const checkOffButton = `
-        <button class="close-button-datecycle"
-            role="button"
-            aria-label="Mark as completed"
-            title="Done! Check."
-            onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-            ✔
-        </button>`;
+    <button class="close-button-datecycle"
+        role="button"
+        aria-label="Mark as completed"
+        title="Done! Check."
+        onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation(); triggerCelebration('${dateCycle.unique_key}');"
+        style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+        ✔
+    </button>`;
+
 
     const publicLabel = dateCycle.public === "1"
         ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
@@ -560,6 +561,23 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 }
 
 
+function triggerCelebration(uniqueKey) {
+    const dateInfoElement = document.querySelector(`[data-key="${uniqueKey}"]`);
+
+    if (!dateInfoElement) return;
+
+    // Create a new div for the animation
+    const celebrationDiv = document.createElement("div");
+    celebrationDiv.classList.add("celebration-effect");
+
+    // Append the effect div inside the `date-info` container
+    dateInfoElement.appendChild(celebrationDiv);
+
+    // Remove animation element after animation completes
+    setTimeout(() => {
+        celebrationDiv.remove();
+    }, 600); // Slightly longer than animation duration
+}
 
 
 

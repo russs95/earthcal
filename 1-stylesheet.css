@@ -2546,8 +2546,36 @@ INFO MODAL
   }
 
 
+.celebration-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle,
+    red, orange, yellow, green, blue, indigo, violet);
+    border-radius: 50%;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0);
+    animation: expandCelebration 0.5s ease-out forwards;
+    z-index: -1;
+}
 
-  @media screen and (max-width: 700px) {
+@keyframes expandCelebration {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(5);
+        opacity: 0;
+    }
+}
+
+
+
+
+@media screen and (max-width: 700px) {
 
   .blur-form-field {
   width:100%;
