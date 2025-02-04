@@ -2,7 +2,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
 
-
 async function openAddCycle() {
     console.log('openAddCycle called'); // Log function call
 
@@ -15,7 +14,6 @@ async function openAddCycle() {
 
     // Format the current date for display
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    //const targetDate = new Date();
     let formattedDate = targetDate.toLocaleDateString('en-US', options);
     formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
@@ -29,6 +27,14 @@ async function openAddCycle() {
     // Add listener for Enter key to submit the form
     document.addEventListener("keydown", handleEnterKeySubmit);
 
+    // Set button text to "+ Add DateCycle"
+    const confirmButton = document.getElementById("confirm-dateCycle-button");
+    if (confirmButton) {
+        confirmButton.innerText = " + Add DateCycle";
+    } else {
+        console.warn('confirm-dateCycle-button not found in the DOM');
+    }
+
     // Check if the user is logged in
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -41,6 +47,7 @@ async function openAddCycle() {
     console.log('User is logged in. Buwana ID:', buwanaId);
     populateCalendarDropdown(buwanaId);
 }
+
 
 
 
