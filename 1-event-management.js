@@ -450,6 +450,113 @@ async function highlightDateCycles(targetDate) {
     });
 }
 
+function writeMatchingDateCycles(divElement, dateCycle) {
+    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+
+    // Ensure correct field names and default values.
+    const eventName = dateCycle.title || "Untitled Event";
+    const bulletColor = dateCycle.datecycle_color || "#000"; // Color for bullet & title
+    const calendarColor = dateCycle.cal_color || "#000";     // Color for calendar name
+
+    // If completed, no color for title & calendar name.
+    const eventNameStyle = dateCycle.completed === "1"
+        ? "text-decoration: line-through; color: inherit;"  // No color, inherit default
+        : `color: ${bulletColor};`;
+
+    const calendarNameStyle = dateCycle.completed === "1"
+        ? "color: inherit;"  // No color, inherit default
+        : `color: ${calendarColor};`;
+
+    // Build the action buttons with proper accessibility.
+    let actionButton;
+    if (dateCycle.completed === "1") {
+        actionButton = `
+            <button class="delete-button-datecycle"
+                role="button"
+                aria-label="Delete this dateCycle"
+                onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
+                ❌
+            </button>`;
+    } else {
+        actionButton = `
+            <button class="bullet-pin-button"
+                role="button"
+                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                onclick="pinThisDatecycle(this); event.stopPropagation();"
+                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+            </button>`;
+    }
+
+    const forwardButton = `
+        <button class="forward-button-datecycle"
+            role="button"
+            aria-label="Push to today"
+            title="Push to today"
+            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+            style="font-size: larger; cursor: pointer; background: none; border: none;">
+            ➜
+        </button>`;
+
+    const checkOffButton = `
+        <button class="close-button-datecycle"
+            role="button"
+            aria-label="Mark as completed"
+            title="Done! Check."
+            onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+            ✔
+        </button>`;
+
+    const publicLabel = dateCycle.public === "1"
+        ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
+                Public
+           </div>`
+        : "";
+
+    // Build the HTML structure.
+    divElement.innerHTML += `
+        <div class="date-info" data-key="${dateCycle.unique_key}" style="
+            position: relative;
+            padding: 16px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 8px;">
+            
+            <div style="
+                position: absolute;
+                top: 10px;
+                right: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;">
+                ${actionButton}
+                ${forwardButton}
+                ${checkOffButton}
+            </div>
+            
+            <div class="datecycle-content" onclick="editDateCycle('${dateCycle.unique_key}')" style="cursor: pointer;">
+                <div class="current-date-info-title" style="${eventNameStyle}">
+                    ${eventName}
+                </div>
+                <div class="current-datecycle-data">
+                    <div class="current-date-calendar" style="${calendarNameStyle}">
+                        ${dateCycle.cal_name}
+                    </div>
+                </div>
+                <div class="current-date-notes" style="height: fit-content;">
+                    ${dateCycle.comments}
+                </div>
+                ${publicLabel}
+            </div>
+        </div>
+    `;
+}
 
 
 
