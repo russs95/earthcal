@@ -501,109 +501,80 @@ async function highlightDateCycles(targetDate) {
 // }
 
 
+function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
+    // Step 1: Retrieve updated values from the edit form.
+    const frequency = document.getElementById('edit-dateCycle-type').value;
+    const yearField = document.getElementById('edit-year-field2').value;
+    const dayField = document.getElementById('edit-day-field2').value;
+    const monthField = document.getElementById('edit-month-field2').value;
+    const title = document.getElementById('edit-add-date-title').value.trim();
+    const calColor = document.getElementById('edit-DateColorPicker').value;
+    const comments = document.getElementById('edit-add-date-note').value.trim();
 
-function writeMatchingDateCycles(divElement, dateCycle) {
-    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+    // Update the last_edited field to now.
+    const now = new Date();
+    const lastEdited = now.toISOString();
 
-    // Ensure correct field names and default values.
-    const eventName = dateCycle.title || "Untitled Event";
-    const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
-    const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
+    // Construct the date string in "YYYY-MM-DD" format.
+    const formattedDate = `${yearField}-${monthField}-${dayField}`;
 
-    // Use a consistent check: "1" means completed.
-    const eventNameStyle = dateCycle.completed === "1" ? "text-decoration: line-through;" : "";
+    // Step 2: Retrieve the calendar's data from localStorage using calendarKey.
+    let calendarData = JSON.parse(localStorage.getItem(calendarKey) || '[]');
 
-    // Build the action buttons with proper accessibility.
-    let actionButton;
-    if (dateCycle.completed === "1") {
-        actionButton = `
-            <button class="delete-button-datecycle"
-                role="button"
-                aria-label="Delete this dateCycle"
-                onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
-                ❌
-            </button>`;
-    } else {
-        actionButton = `
-            <button class="bullet-pin-button"
-                role="button"
-                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
-                onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
-            </button>`;
+    // Step 3: Find the dateCycle in the calendar data by unique_key.
+    const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+    if (index === -1) {
+        alert("Could not find the dateCycle to update.");
+        return;
     }
 
-    const forwardButton = `
-        <button class="forward-button-datecycle"
-            role="button"
-            aria-label="Push to today"
-            title="Push to today"
-            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none;">
-            ➜
-        </button>`;
+    // Step 4: Update the dateCycle object with the new values.
+    let dateCycle = calendarData[index];
+    dateCycle.frequency = frequency;
+    dateCycle.year = yearField;
+    dateCycle.day = dayField;
+    dateCycle.month = monthField;
+    dateCycle.date = formattedDate;
+    dateCycle.title = title;
+    dateCycle.cal_color = calColor; // Update the calendar color.
+    dateCycle.comments = comments;
+    dateCycle.last_edited = lastEdited;
 
-    const checkOffButton = `
-        <button class="close-button-datecycle"
-            role="button"
-            aria-label="Mark as completed"
-            title="Done! Check."
-            onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-            ✔
-        </button>`;
+    // Mark the record as unsynced so it will be sent to the server.
+    dateCycle.synced = "0";
 
-    const publicLabel = dateCycle.public === "1"
-        ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
-                Public
-           </div>`
-        : "";
+    // Step 5: Save the updated calendar data back to localStorage.
+    calendarData[index] = dateCycle;
+    localStorage.setItem(calendarKey, JSON.stringify(calendarData));
 
-    // Build the HTML structure.
-    // The outer container has a data-key attribute (used later for animations).
-    divElement.innerHTML += `
-        <div class="date-info" data-key="${dateCycle.unique_key}" style="
-            position: relative;
-            padding: 16px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-            border-radius: 8px;">
-            
-            <div style="
-                position: absolute;
-                top: 10px;
-                right: 8px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 2px;">
-                ${actionButton}
-                ${forwardButton}
-                ${checkOffButton}
-            </div>
-            
-            <div class="datecycle-content" onclick="editDateCycle('${dateCycle.unique_key}')" style="cursor: pointer;">
-                <div class="current-date-info-title" style="${eventNameStyle}; color:${bulletColor};">
-                    ${eventName}
-                </div>
-                <div class="current-datecycle-data">
-                    <div class="current-date-calendar" style="color: ${calendarColor};">
-                        ${dateCycle.cal_name}
-                    </div>
-                </div>
-                <div class="current-date-notes" style="height: fit-content;">
-                    ${dateCycle.comments}
-                </div>
-                ${publicLabel}
-            </div>
-        </div>
-    `;
+    // Step 6: Attempt to update the server immediately if online.
+    if (navigator.onLine && localStorage.getItem('buwana_id')) {
+        updateServerDateCycle(dateCycle)
+            .then(() => {
+                console.log(`Server updated for edited dateCycle: ${dateCycle.title}`);
+                dateCycle.synced = "1";
+                // Save updated sync status.
+                calendarData[index] = dateCycle;
+                localStorage.setItem(calendarKey, JSON.stringify(calendarData));
+            })
+            .catch(error => {
+                console.error(`Error updating server for edited dateCycle: ${dateCycle.title}`, error);
+            });
+    } else {
+        console.log("Offline or not logged in – update queued for next sync.");
+    }
+
+    // Step 7: Hide the edit modal and remove the page blur.
+    const modal = document.getElementById('form-modal-message');
+    modal.classList.remove('modal-visible');
+    modal.classList.add('modal-hidden');
+    document.getElementById("page-content").classList.remove("blur");
+
+    // Step 8: Refresh the UI.
+    // Assumes that targetDate is defined globally or accessible here.
+    highlightDateCycles(targetDate);
 }
+
 
 
 
@@ -2285,112 +2256,6 @@ function showLastSynkTimePassed(lastSyncTs) {
     }
 }
 
-
-
-function saveDateCycleEditedChanges(dateCycleID, calendarKey) {
-    // Step 1: Retrieve the calendar array from localStorage
-    const calendarData = JSON.parse(localStorage.getItem(calendarKey) || '[]');
-
-    // Step 2: Find the index of the dateCycle within the calendar array
-    const dateCycleIndex = calendarData.findIndex(dc => dc.ID === dateCycleID);
-
-    // If no matching dateCycle is found, show an error message on the button
-    if (dateCycleIndex === -1) {
-        const confirmButton = document.getElementById('edit-confirm-dateCycle');
-        confirmButton.textContent = "Error Updating DateCycle";
-        return;
-    }
-
-    // Step 3: Get updated values from the form
-    const updatedTitle = document.getElementById('edit-add-date-title').value;
-    const updatedDay = document.getElementById('edit-day-field2').value;
-    const updatedMonth = document.getElementById('edit-month-field2').value;
-    const updatedYear = document.getElementById('edit-year-field2').value || ""; // Empty if not selected
-    const updatedFrequency = document.getElementById('edit-dateCycle-type').value;
-    const updatedCalendarColor = document.getElementById('edit-DateColorPicker').value;
-    const updatedComments = document.getElementById('edit-add-date-note').value;
-
-    // Step 4: Get the current date and time for 'last_edited'
-    const currentDateTime = new Date().toISOString();
-
-    // Step 5: Update the dateCycle object
-    const updatedDateCycle = {
-        ...calendarData[dateCycleIndex], // Preserve existing data
-        Event_name: updatedTitle,
-        Day: updatedDay,
-        Month: updatedMonth,
-        Year: updatedYear,
-        Date: `-${updatedDay}-${updatedMonth}${updatedYear ? '-' + updatedYear : ''}`,
-        Frequency: updatedFrequency,
-        calendar_color: updatedCalendarColor,
-        Comments: updatedComments,
-        last_edited: currentDateTime // Update 'last_edited'
-    };
-
-    // Replace the original dateCycle with the updated version
-    calendarData[dateCycleIndex] = updatedDateCycle;
-
-    // Step 6: Save the updated calendar array back to localStorage
-    localStorage.setItem(calendarKey, JSON.stringify(calendarData));
-
-    // Step 7: Hide the edit modal after successful update
-    const addNewCalendarDiv = document.getElementById('edit-addNewCalendar');
-    if (addNewCalendarDiv) {
-        addNewCalendarDiv.style.display = "none";
-    }
-
-    // Step 8: Refresh UI
-    displayMatchingDateCycle();
-    closeTheModal();
-
-    console.log(`DateCycle with ID ${dateCycleID} updated in calendar ${calendarKey}:`, updatedDateCycle);
-}
-
-function strikeDateCycle(dateCycleID) {
-    console.log(`Toggling completion for dateCycle ID: ${dateCycleID}`);
-
-    // Step 1: Retrieve all calendar keys from localStorage
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = 0;
-    let updatedDateCycle = null;
-
-    // Step 2: Iterate through calendar arrays to find and update the dateCycle
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-
-        const dateCycleIndex = calendarData.findIndex(dc => dc.ID === dateCycleID);
-        if (dateCycleIndex !== -1) {
-            // Step 3: Toggle the 'Completed' status
-            let dateCycle = calendarData[dateCycleIndex];
-            dateCycle.completed = dateCycle.completed === 'no' ? 'yes' : 'no';
-
-            // Step 4: If Synced is 'Yes', change it to 'No' (to indicate local edit)
-            if (dateCycle.synced === 'Yes') {
-                dateCycle.synced = 'No';
-
-                // Step 5: Update the server record asynchronously
-                updateServerDateCycle(dateCycle);
-            }
-
-            // Step 6: Update localStorage with the modified calendar data
-            calendarData[dateCycleIndex] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-
-            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
-            updatedDateCycle = dateCycle;
-            found = 1;
-            break; // Exit loop once updated
-        }
-    }
-
-    // Step 7: Handle case where the dateCycle ID was not found
-    if (!found) {
-        console.log(`No dateCycle found with ID: ${dateCycleID}`);
-    } else {
-        // Step 8: Refresh the UI
-        displayMatchingDateCycle();
-    }
-}
 
 
 
