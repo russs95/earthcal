@@ -1331,7 +1331,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
                 // Fetch both user calendars and public calendars
                 const [userCalendarsResponse, publicCalendarsResponse] = await Promise.all([
-                    fetch('https://gobrik.com/api/fetch_user_calendars.php', {
+                    fetch('https://gobrik.com//fetch_user_calendars.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ buwana_id: data.buwana_id })

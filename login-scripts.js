@@ -55,7 +55,7 @@ function sendUpRegistration() {
     }
 
     // Fetch all necessary data in a single API call
-    fetch(`https://gobrik.com/earthcal/fetch_user_calendars.php`, {
+    fetch(`https://gobrik.com/earthcal/fetch_all_calendars.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ buwana_id: buwanaId })
@@ -137,7 +137,7 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
                 <div class="calendar-item">
                     <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
                     ${isChecked ? 'checked' : ''} 
-                    onchange="toggleSubscription('${user.buwana_id}', '${cal.calendar_id}', this.checked)" />
+                    onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
                     <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
                 </div>
             `;
