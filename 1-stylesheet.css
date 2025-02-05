@@ -2804,8 +2804,8 @@ svg path #june:hover {
 .date-info.celebrate-animation::after {
     content: "";
     position: absolute;
-    top: 80%;
-    left: 80%;
+    top: 70%;
+    left: 90%;
     width: 15px;
     height: 15px;
     background: radial-gradient(circle, red, orange, yellow, green, blue, violet);
@@ -2823,7 +2823,7 @@ svg path #june:hover {
         opacity: 1;
     }
     100% {
-        transform: scale(15);  /* Adjusted for better visibility */
+        transform: scale(25);  /* Adjusted for better visibility */
         opacity: 0;
     }
 }
