@@ -55,7 +55,7 @@ function sendUpRegistration() {
     }
 
     // Fetch all necessary data in a single API call
-    fetch(`https://gobrik.com/api/fetch_user_calendars.php`, {
+    fetch(`https://gobrik.com/earthcal/fetch_user_calendars.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ buwana_id: buwanaId })
