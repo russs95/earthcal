@@ -180,9 +180,11 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
     }
 
 
+    async function toggleSubscription(calendarId, subscribe) {
+        // Always fetch buwana_id from localStorage.
+        const buwanaId = localStorage.getItem('buwana_id');
 
-    async function toggleSubscription(buwanaId, calendarId, subscribe) {
-        console.log(`Updating subscription for calendar ${calendarId}, subscribe: ${subscribe}`);
+        console.log(`Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subscribe}`);
 
         try {
             const response = await fetch("https://gobrik.com/earthcal/update_pub_cal_subscriptions.php", {
