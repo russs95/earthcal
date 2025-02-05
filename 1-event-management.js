@@ -464,7 +464,7 @@ async function highlightDateCycles(targetDate) {
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
-    console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+    //console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
@@ -579,32 +579,35 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
-
 function toggleCompletionWithCelebration(uniqueKey, currentCompleted) {
+    const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+
     if (currentCompleted === "0") {
-        // If the dateCycle is incomplete, trigger the celebration animation.
-        const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
         if (dateCycleDiv) {
-            // Create the celebration effect element.
+            // Step 1: Visually mark as completed immediately.
+            dateCycleDiv.querySelector('.current-date-info-title').style.textDecoration = "line-through";
+            dateCycleDiv.querySelector('.current-date-info-title').style.color = "inherit";
+
+            // Step 2: Create and show the celebration effect.
             const celebration = document.createElement("div");
             celebration.classList.add("celebration-effect");
-            // Append it to the dateCycle div.
             dateCycleDiv.appendChild(celebration);
-            // Wait 0.5 seconds (500ms) for the animation to complete,
-            // then remove the celebration element and toggle completion.
+
+            // Step 3: Immediately toggle the status in localStorage/UI.
+            checkOffDatecycle(uniqueKey);
+
+            // Step 4: Remove the animation after it runs.
             setTimeout(() => {
                 celebration.remove();
-                checkOffDatecycle(uniqueKey);
             }, 500);
         } else {
-            // Fallback: if no element is found, immediately toggle.
             checkOffDatecycle(uniqueKey);
         }
     } else {
-        // If already complete, immediately toggle completion.
         checkOffDatecycle(uniqueKey);
     }
 }
+
 
 
 
