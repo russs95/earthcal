@@ -560,23 +560,28 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 }
 
 
-function triggerCelebration(uniqueKey) {
-    const dateInfoElement = document.querySelector(`[data-key="${uniqueKey}"]`);
 
-    if (!dateInfoElement) return;
-
-    // Create a new div for the animation
-    const celebrationDiv = document.createElement("div");
-    celebrationDiv.classList.add("celebration-effect");
-
-    // Append the effect div inside the `date-info` container
-    dateInfoElement.appendChild(celebrationDiv);
-
-    // Remove animation element after animation completes
-    setTimeout(() => {
-        celebrationDiv.remove();
-    }, 600); // Slightly longer than animation duration
+function toggleCompletionWithCelebration(uniqueKey, currentCompleted) {
+    if (currentCompleted === "0") {
+        // If incomplete, trigger celebration animation first.
+        const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+        if (dateCycleDiv) {
+            dateCycleDiv.classList.add("celebrate-animation");
+            // Remove the animation class after 0.5s, then call checkOffDatecycle.
+            setTimeout(() => {
+                dateCycleDiv.classList.remove("celebrate-animation");
+                checkOffDatecycle(uniqueKey);
+            }, 500);
+        } else {
+            // If the element isn't found, fall back to directly calling checkOffDatecycle.
+            checkOffDatecycle(uniqueKey);
+        }
+    } else {
+        // If already complete, directly toggle (mark as incomplete).
+        checkOffDatecycle(uniqueKey);
+    }
 }
+
 
 
 
