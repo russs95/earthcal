@@ -525,7 +525,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 role="button"
                 aria-label="Toggle completion status"
                 title="Toggle completion"
-                onclick="toggleCompletionWithCelebration('${dateCycle.unique_key}', '${dateCycle.completed}'); event.stopPropagation();"
+                onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
                 style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
                 ✔
             </button>`;
@@ -579,36 +579,32 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
+
 function toggleCompletionWithCelebration(uniqueKey, currentCompleted) {
-    const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-
     if (currentCompleted === "0") {
+        // If the dateCycle is incomplete, trigger the celebration animation.
+        const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
         if (dateCycleDiv) {
-            // Step 1: Visually mark as completed immediately.
-            dateCycleDiv.querySelector('.current-date-info-title').style.textDecoration = "line-through";
-            dateCycleDiv.querySelector('.current-date-info-title').style.color = "inherit";
-
-            // Step 2: Create and show the celebration effect.
+            // Create the celebration effect element.
             const celebration = document.createElement("div");
             celebration.classList.add("celebration-effect");
+            // Append it to the dateCycle div.
             dateCycleDiv.appendChild(celebration);
-
-            // Step 3: Immediately toggle the status in localStorage/UI.
-            checkOffDatecycle(uniqueKey);
-
-            // Step 4: Remove the animation after it runs.
+            // Wait 0.5 seconds (500ms) for the animation to complete,
+            // then remove the celebration element and toggle completion.
             setTimeout(() => {
                 celebration.remove();
+                checkOffDatecycle(uniqueKey);
             }, 500);
         } else {
+            // Fallback: if no element is found, immediately toggle.
             checkOffDatecycle(uniqueKey);
         }
     } else {
+        // If already complete, immediately toggle completion.
         checkOffDatecycle(uniqueKey);
     }
 }
-
-
 
 
 
@@ -622,16 +618,17 @@ function checkOffDatecycle(uniqueKey) {
     // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-
         const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+
         if (dateCycleIndex !== -1) {
             let dateCycle = calendarData[dateCycleIndex];
 
             // Step 3: Toggle the 'completed' status.
-            dateCycle.completed = dateCycle.completed === '0' ? '1' : '0';
+            const wasCompleted = dateCycle.completed === '1'; // Track the previous state
+            dateCycle.completed = wasCompleted ? '0' : '1'; // Toggle
             console.log(`New completion status for ${dateCycle.title}: ${dateCycle.completed}`);
 
-            // Step 4: Mark the record as unsynced if it was previously synced.
+            // Step 4: Mark as unsynced if previously synced.
             if (dateCycle.synced === '1') {
                 dateCycle.synced = '0';
             }
@@ -641,46 +638,48 @@ function checkOffDatecycle(uniqueKey) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
-                        // Mark it as synced after a successful server update.
                         dateCycle.synced = '1';
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so that it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
             }
 
-            // Step 6: Update localStorage with the modified calendar data.
+            // Step 6: Update localStorage with modified calendar data.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 7: Trigger celebration animation.
+            // Step 7: Handle animation and UI refresh.
             const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-            if (dateCycleDiv) {
+
+            if (!wasCompleted && dateCycleDiv) {
+                // If marking as completed, trigger celebration and delay UI refresh
                 dateCycleDiv.classList.add("celebrate-animation");
+
                 setTimeout(() => {
                     dateCycleDiv.classList.remove("celebrate-animation");
-                }, 400);
+                    highlightDateCycles(targetDate); // Refresh UI after animation
+                }, 500);
+            } else {
+                // If marking as incomplete, refresh UI immediately
+                highlightDateCycles(targetDate);
             }
 
             found = true;
-            break; // Exit loop once updated.
+            break;
         }
     }
 
-    // Step 8: Handle the case where no dateCycle was found.
+    // Step 8: Handle case where no dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
-
-    // Step 9: Refresh the UI.
-    highlightDateCycles(targetDate);
 }
+
 
 
 
