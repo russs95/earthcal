@@ -92,58 +92,59 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 
-function showLoggedInView(userData) {
-    const loggedInView = document.getElementById("logged-in-view");
-    const activateView = document.getElementById("activate-earthcal-account");
-    activateView.style.display = "none";
 
-    const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
+    function showLoggedInView(userData) {
+        const loggedInView = document.getElementById("logged-in-view");
+        const activateView = document.getElementById("activate-earthcal-account");
+        activateView.style.display = "none";
 
-    // Continent code to Earth emoji mapping
-    const continentEmojis = {
-        AS: '🌏', // Asia
-        EU: '🌍', // Europe
-        NA: '🌎', // North America
-        SA: '🌎', // South America
-        AF: '🌍', // Africa
-        OC: '🌏', // Oceania
-        AN: '🌐'  // Antarctica
-    };
+        const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
 
-    // Get the appropriate emoji for the continent code, default to a globe if not found
-    const continentEmoji = continentEmojis[user.continent_code] || '🌍';
+        // Continent code to Earth emoji mapping
+        const continentEmojis = {
+            AS: '🌏', // Asia
+            EU: '🌍', // Europe
+            NA: '🌎', // North America
+            SA: '🌎', // South America
+            AF: '🌍', // Africa
+            OC: '🌏', // Oceania
+            AN: '🌐'  // Antarctica
+        };
 
-    const syncMessage = user.last_sync_ts
-        ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_sync_ts}.</p>`
-        : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
+        const continentEmoji = continentEmojis[user.continent_code] || '🌍';
 
-    // Generate personal calendar HTML
-    const personalCalendarHTML = personal_calendars.length > 0
-        ? personal_calendars.map(cal => `
+        const syncMessage = user.last_sync_ts
+            ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_sync_ts}.</p>`
+            : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
+
+        // Generate personal calendar HTML
+        const personalCalendarHTML = personal_calendars.length > 0
+            ? personal_calendars.map(cal => `
             <div class="calendar-item">
                 <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
                 <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
             </div>
         `).join('')
-        : '<p>No personal calendars available.</p>';
+            : '<p>No personal calendars available.</p>';
 
-    // Generate public calendar HTML
-    const publicCalendarHTML = public_calendars.length > 0
-        ? public_calendars.map(cal => {
-            const isChecked = subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id);
-            return `
+        // Generate public calendar HTML with checkbox event
+        const publicCalendarHTML = public_calendars.length > 0
+            ? public_calendars.map(cal => {
+                const isChecked = subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id);
+                return `
                 <div class="calendar-item">
                     <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
-                    ${isChecked ? 'checked' : ''} />
+                    ${isChecked ? 'checked' : ''} 
+                    onchange="toggleSubscription('${user.buwana_id}', '${cal.calendar_id}', this.checked)" />
                     <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
                 </div>
             `;
-        }).join('')
-        : '<p>No public calendars available.</p>';
+            }).join('')
+            : '<p>No public calendars available.</p>';
 
-    // Render the HTML
-    loggedInView.innerHTML = `
-        <div class="add-date-form">
+        // Render the HTML
+        loggedInView.innerHTML = `
+        <div class="add-date-form" style="padding:10px;">
         <h1 style="font-size: 5em;margin-bottom: 20px;"> ${continentEmoji}</h1>
         <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
             Welcome ${user.first_name}!
@@ -163,7 +164,7 @@ function showLoggedInView(userData) {
             <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
         </div>
 
-<div id="cal-datecycle-count"></div>
+        <div id="cal-datecycle-count"></div>
 
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
@@ -172,9 +173,10 @@ function showLoggedInView(userData) {
         </div>
     `;
 
-    // Display the logged-in view
-    loggedInView.style.display = "block";
-}
+        // Display the logged-in view
+        loggedInView.style.display = "block";
+    }
+
 
 
 

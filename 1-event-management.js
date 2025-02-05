@@ -509,7 +509,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         aria-label="Mark as completed"
         title="Done! Check."
         onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation(); triggerCelebration('${dateCycle.unique_key}');"
-        style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+        style="font-size: larger; cursor: pointer; margin-bottom:10px; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
         ✔
     </button>`;
 
