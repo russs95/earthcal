@@ -752,7 +752,6 @@ async function updateServerDateCycle(dateCycle) {
 
 
 
-
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
@@ -782,7 +781,7 @@ function checkOffDatecycle(uniqueKey) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
-                        // Mark it as synced after successful server update.
+                        // Mark it as synced after a successful server update.
                         dateCycle.synced = '1';
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
@@ -800,29 +799,13 @@ function checkOffDatecycle(uniqueKey) {
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 7: Update the UI for this dateCycle.
+            // Step 7: Trigger celebration animation.
             const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
             if (dateCycleDiv) {
-                // Trigger celebration animation.
                 dateCycleDiv.classList.add("celebrate-animation");
                 setTimeout(() => {
                     dateCycleDiv.classList.remove("celebrate-animation");
                 }, 400);
-
-                // Update the title and calendar name colors.
-                // If completed === "1", set them to grey; otherwise, use the stored colors.
-                const titleElem = dateCycleDiv.querySelector(".current-date-info-title");
-                const calendarElem = dateCycleDiv.querySelector(".current-date-calendar");
-                if (dateCycle.completed === "1") {
-                    if (titleElem) titleElem.style.color = "grey";
-                    if (calendarElem) calendarElem.style.color = "grey";
-                } else {
-                    // Revert to the original colors.
-                    const bulletColor = dateCycle.datecycle_color || "#000";
-                    const calColor = dateCycle.cal_color || "#000";
-                    if (titleElem) titleElem.style.color = bulletColor;
-                    if (calendarElem) calendarElem.style.color = calColor;
-                }
             }
 
             found = true;
@@ -830,15 +813,15 @@ function checkOffDatecycle(uniqueKey) {
         }
     }
 
-    // Step 8: Handle case where no dateCycle was found.
+    // Step 8: Handle the case where no dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 
     // Step 9: Refresh the UI.
-    // (Assuming highlightDateCycles is defined and accepts a targetDate variable.)
     highlightDateCycles(targetDate);
 }
+
 
 
 
