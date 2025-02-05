@@ -2821,7 +2821,7 @@ svg path #june:hover {
         opacity: 1;
     }
     100% {
-        transform: scale(20);  /* Expanded size */
+        transform: scale(25);  /* Expanded size */
         opacity: 0;
     }
 }
