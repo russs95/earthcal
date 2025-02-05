@@ -2807,7 +2807,7 @@ svg path #june:hover {
     width: 15px;
     height: 15px;
     background: radial-gradient(circle,
-    red, orange, yellow, green, blue, indigo, violet);
+    red, orange, yellow, green, blue, violet);
     border-radius: 50%;
     opacity: 1;
     transform: scale(0);
@@ -2821,7 +2821,7 @@ svg path #june:hover {
         opacity: 1;
     }
     100% {
-        transform: scale(12);  /* Expanded size */
+        transform: scale(20);  /* Expanded size */
         opacity: 0;
     }
 }

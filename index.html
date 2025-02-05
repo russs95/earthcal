@@ -432,14 +432,25 @@ attachBreakoutTouchListeners();
    updateTargetMonth();
 
       if (localStorage.getItem('buwana_id')) {
-          syncDatecycles().then(() => {
-              highlightDateCycles(targetDate);
-          }).catch(err => {
-              console.error("Sync error:", err);
+          // Clear out all local cached datecycles (keys starting with "calendar_")
+          Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('calendar_')) {
+                  localStorage.removeItem(key);
+              }
           });
+
+          // Proceed with syncing and then highlighting.
+          syncDatecycles()
+              .then(() => {
+                  highlightDateCycles(targetDate);
+              })
+              .catch(err => {
+                  console.error("Sync error:", err);
+              });
       } else {
           highlightDateCycles(targetDate);
       }
+
 
    
    calculateHijriMonthNames(currentYear);

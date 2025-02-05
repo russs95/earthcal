@@ -24,6 +24,8 @@ function checkUserSession() {
 }
 
 
+
+
 function sendUpRegistration() {
 
     const guidedTour = document.getElementById("guided-tour");
@@ -179,13 +181,43 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 
+    async function toggleSubscription(buwanaId, calendarId, subscribe) {
+        console.log(`Updating subscription for calendar ${calendarId}, subscribe: ${subscribe}`);
+
+        try {
+            const response = await fetch("https://gobrik.com/earthcal/update_pub_cal_subscriptions.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    buwana_id: buwanaId,
+                    calendar_id: calendarId,
+                    subscribe: subscribe ? "1" : "0"
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log(`Successfully updated subscription for calendar ${calendarId}`);
+            } else {
+                console.error(`Failed to update subscription: ${result.error}`);
+                alert(`Error: ${result.error}`);
+            }
+        } catch (error) {
+            console.error("Error updating subscription:", error);
+            alert("An error occurred while updating your subscription. Please try again.");
+        }
+    }
 
 
 
 
 
 
-async function activateEarthcalAccount() {
+
+    async function activateEarthcalAccount() {
     try {
         const buwanaId = localStorage.getItem('buwana_id');
 
