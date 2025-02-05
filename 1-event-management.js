@@ -524,7 +524,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     divElement.innerHTML += `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
-            padding: 16px;
+            padding: 16px;update
             border: 1px solid #ccc;
             margin-bottom: 10px;
             border-radius: 8px;">
@@ -559,8 +559,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 }
-
-
 
 function triggerCelebration(uniqueKey) {
     const dateInfoElement = document.querySelector(`[data-key="${uniqueKey}"]`);
@@ -748,7 +746,7 @@ async function updateServerDateCycle(dateCycle) {
 }
 
 
-,
+
 
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
