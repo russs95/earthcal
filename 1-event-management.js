@@ -746,7 +746,7 @@ async function updateServerDateCycle(dateCycle) {
 }
 
 
-,
+
 
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
