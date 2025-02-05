@@ -451,24 +451,23 @@ async function highlightDateCycles(targetDate) {
 }
 
 
+
+
+
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
-    const bulletColor = dateCycle.datecycle_color || "#000"; // Color for bullet & title
-    const calendarColor = dateCycle.cal_color || "#000";     // Color for calendar name
+    const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
+    const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
 
-    // If completed, no color for title & calendar name.
+    // Set title style: if completed, strike-through and use inherited color; if not, use bulletColor.
     const eventNameStyle = dateCycle.completed === "1"
-        ? "text-decoration: line-through; color: inherit;"  // No color, inherit default
+        ? "text-decoration: line-through; color: inherit;"
         : `color: ${bulletColor};`;
 
-    const calendarNameStyle = dateCycle.completed === "1"
-        ? "color: inherit;"  // No color, inherit default
-        : `color: ${calendarColor};`;
-
-    // Build the action buttons with proper accessibility.
+    // Build action buttons.
     let actionButton;
     if (dateCycle.completed === "1") {
         actionButton = `
@@ -503,16 +502,16 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             ➜
         </button>`;
 
+    // Instead of directly calling checkOffDatecycle, call our new function.
     const checkOffButton = `
-    <button class="close-button-datecycle"
-        role="button"
-        aria-label="Mark as completed"
-        title="Done! Check."
-        onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation(); triggerCelebration('${dateCycle.unique_key}');"
-        style="font-size: larger; cursor: pointer; margin-bottom:10px; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-        ✔
-    </button>`;
-
+        <button class="close-button-datecycle"
+            role="button"
+            aria-label="Toggle completion status"
+            title="Toggle completion"
+            onclick="toggleCompletionWithCelebration('${dateCycle.unique_key}', '${dateCycle.completed}'); event.stopPropagation();"
+            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+            ✔
+        </button>`;
 
     const publicLabel = dateCycle.public === "1"
         ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
@@ -520,11 +519,11 @@ function writeMatchingDateCycles(divElement, dateCycle) {
            </div>`
         : "";
 
-    // Build the HTML structure.
+    // Write out the HTML structure.
     divElement.innerHTML += `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
-            padding: 16px;update
+            padding: 16px;
             border: 1px solid #ccc;
             margin-bottom: 10px;
             border-radius: 8px;">
@@ -547,7 +546,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     ${eventName}
                 </div>
                 <div class="current-datecycle-data">
-                    <div class="current-date-calendar" style="${calendarNameStyle}">
+                    <div class="current-date-calendar" style="color: ${calendarColor};">
                         ${dateCycle.cal_name}
                     </div>
                 </div>
@@ -559,6 +558,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 }
+
 
 function triggerCelebration(uniqueKey) {
     const dateInfoElement = document.querySelector(`[data-key="${uniqueKey}"]`);
