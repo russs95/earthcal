@@ -453,7 +453,6 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
     console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
@@ -462,62 +461,72 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000";       // For calendar name
 
-    // Set title style: if completed, strike-through and use inherited color; if not, use bulletColor.
+    // If completed, use strike-through and inherit color; otherwise use bulletColor.
     const eventNameStyle = dateCycle.completed === "1"
         ? "text-decoration: line-through; color: inherit;"
         : `color: ${bulletColor};`;
 
-    // Build action buttons.
-    let actionButton;
-    if (dateCycle.completed === "1") {
-        actionButton = `
-            <button class="delete-button-datecycle"
-                role="button"
-                aria-label="Delete this dateCycle"
-                onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
-                ❌
-            </button>`;
+    // If the dateCycle is public, we will not display the forward (push) or checkOff buttons,
+    // and we won't attach an onclick handler to the container. Also, we show the bullet as plain text.
+    let actionsHTML = "";
+    if (dateCycle.public === "1") {
+        // Public calendar: show only a static bullet icon.
+        actionsHTML = `<div style="font-size: medium; color: ${bulletColor};">
+                           ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                       </div>`;
     } else {
-        actionButton = `
-            <button class="bullet-pin-button"
+        // Private calendar: build the full set of action buttons.
+        let actionButton;
+        if (dateCycle.completed === "1") {
+            actionButton = `
+                <button class="delete-button-datecycle"
+                    role="button"
+                    aria-label="Delete this dateCycle"
+                    onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
+                    ❌
+                </button>`;
+        } else {
+            actionButton = `
+                <button class="bullet-pin-button"
+                    role="button"
+                    aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                    title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                    onclick="pinThisDatecycle(this); event.stopPropagation();"
+                    onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                    onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                    style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                    ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                </button>`;
+        }
+
+        const forwardButton = `
+            <button class="forward-button-datecycle"
                 role="button"
-                aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
-                onclick="pinThisDatecycle(this); event.stopPropagation();"
-                onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                aria-label="Push to today"
+                title="Push to today"
+                onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+                style="font-size: larger; cursor: pointer; background: none; border: none;">
+                ➜
             </button>`;
+
+        const checkOffButton = `
+            <button class="close-button-datecycle"
+                role="button"
+                aria-label="Toggle completion status"
+                title="Toggle completion"
+                onclick="toggleCompletionWithCelebration('${dateCycle.unique_key}', '${dateCycle.completed}'); event.stopPropagation();"
+                style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+                ✔
+            </button>`;
+
+        // Combine the private calendar action buttons.
+        actionsHTML = actionButton + forwardButton + checkOffButton;
     }
 
-    const forwardButton = `
-        <button class="forward-button-datecycle"
-            role="button"
-            aria-label="Push to today"
-            title="Push to today"
-            onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none;">
-            ➜
-        </button>`;
-
-    // Instead of directly calling checkOffDatecycle, call our new function.
-    const checkOffButton = `
-        <button class="close-button-datecycle"
-            role="button"
-            aria-label="Toggle completion status"
-            title="Toggle completion"
-            onclick="toggleCompletionWithCelebration('${dateCycle.unique_key}', '${dateCycle.completed}'); event.stopPropagation();"
-            style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-            ✔
-        </button>`;
-
-    const publicLabel = dateCycle.public === "1"
-        ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">
-                Public
-           </div>`
-        : "";
+    // Determine the onclick for the content container.
+    // For public calendars, remove the editing ability.
+    const contentOnclick = dateCycle.public === "1" ? "" : `onclick="editDateCycle('${dateCycle.unique_key}')"`;
 
     // Write out the HTML structure.
     divElement.innerHTML += `
@@ -536,12 +545,10 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 flex-direction: column;
                 align-items: center;
                 gap: 2px;">
-                ${actionButton}
-                ${forwardButton}
-                ${checkOffButton}
+                ${actionsHTML}
             </div>
             
-            <div class="datecycle-content" onclick="editDateCycle('${dateCycle.unique_key}')" style="cursor: pointer;">
+            <div class="datecycle-content" ${contentOnclick} style="cursor: pointer;">
                 <div class="current-date-info-title" style="${eventNameStyle}">
                     ${eventName}
                 </div>
@@ -553,11 +560,12 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 <div class="current-date-notes" style="height: fit-content;">
                     ${dateCycle.comments}
                 </div>
-                ${publicLabel}
+                ${ dateCycle.public === "1" ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">Public</div>` : "" }
             </div>
         </div>
     `;
 }
+
 
 
 
