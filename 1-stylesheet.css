@@ -2546,31 +2546,7 @@ INFO MODAL
   }
 
 
-.celebration-effect {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle,
-    red, orange, yellow, green, blue, indigo, violet);
-    border-radius: 50%;
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(0);
-    animation: expandCelebration 0.5s ease-out forwards;
-    z-index: -1;
-}
 
-@keyframes expandCelebration {
-    0% {
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(5);
-        opacity: 0;
-    }
-}
 
 
 
@@ -2784,25 +2760,6 @@ svg path #june:hover {
 
 
 
-/* Keyframes for a celebration flash */
-@keyframes celebrate {
-    0% {
-        background-color: #d4edda; /* Light green */
-    }
-    50% {
-        background-color: #c3e6cb; /* A slightly darker green */
-    }
-    100% {
-        background-color: var(--grey-trans); /* Final color */
-    }
-}
-
-/* Class to trigger the animation */
-.celebrate-animation {
-    animation: celebrate 0.5s ease-out;
-    animation-fill-mode: forwards; /* Keep the final state if desired */
-}
-
 
 @keyframes slideOutRight {
     0% {
@@ -2833,4 +2790,38 @@ svg path #june:hover {
 
 .slide-in-left {
     animation: slideInLeft 0.5s ease-out forwards;
+}
+
+
+.date-info {
+    position: relative; /* Ensure child elements are positioned relative to this */
+    overflow: hidden;  /* Keeps the explosion effect within the boundaries */
+}
+
+
+
+.celebration-effect {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle,
+    red, orange, yellow, green, blue, indigo, violet);
+    border-radius: 50%;
+    opacity: 1;
+    transform: scale(0);
+    animation: expandCelebration 0.5s ease-out forwards;
+    z-index: 0;
+}
+
+@keyframes expandCelebration {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(6);  /* Expanded size */
+        opacity: 0;
+    }
 }

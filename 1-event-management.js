@@ -560,7 +560,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     `;
 }
 
-
 function triggerCelebration(uniqueKey) {
     const dateInfoElement = document.querySelector(`[data-key="${uniqueKey}"]`);
 
@@ -578,6 +577,7 @@ function triggerCelebration(uniqueKey) {
         celebrationDiv.remove();
     }, 600); // Slightly longer than animation duration
 }
+
 
 
 
