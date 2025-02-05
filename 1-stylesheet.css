@@ -2803,17 +2803,18 @@ svg path #june:hover {
 
 .date-info.celebrate-animation::after {
     content: "";
-    bottom: 15px;
-    right: 15px;
+    position: absolute;
+    top: 80%;
+    left: 80%;
     width: 15px;
     height: 15px;
-    background: radial-gradient(circle,
-    red, orange, yellow, green, blue, violet);
+    background: radial-gradient(circle, red, orange, yellow, green, blue, violet);
     border-radius: 50%;
     opacity: 1;
     transform: scale(0);
+    transform-origin: center;
     animation: expandCelebration 0.5s ease-out forwards;
-    z-index: 0;
+    z-index: 5;
 }
 
 @keyframes expandCelebration {
