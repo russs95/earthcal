@@ -358,7 +358,6 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
@@ -369,7 +368,7 @@ async function highlightDateCycles(targetDate) {
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
 
-    // 2. Fetch all dateCycles from localStorage (assume fetchDateCycleCalendars() returns an array of dateCycles).
+    // 2. Fetch all dateCycles from localStorage.
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
@@ -382,15 +381,14 @@ async function highlightDateCycles(targetDate) {
     let matchingCurrent = [];
     const now = new Date();
 
-    // Helper function: Was edited within the last minute?
+    // Helper: was this dateCycle edited within the last minute?
     function wasEditedRecently(dateCycle) {
         const lastEdited = new Date(dateCycle.last_edited);
         return (now - lastEdited) < 60000;
     }
 
     dateCycleEvents.forEach(dateCycle => {
-        // Assume stored date is formatted as "YYYY-MM-DD" in dateCycle.date.
-        // Also compute a formatted string from day, month, and year.
+        // Construct a formatted string from the dateCycle's day, month, and year.
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
         if (storedDateFormatted === formattedTargetDate) {
             if (dateCycle.pinned === "1") {
@@ -417,7 +415,7 @@ async function highlightDateCycles(targetDate) {
         currentDiv.style.display = matchingCurrent.length ? 'block' : 'none';
     }
 
-    // 5. Write pinned dateCycles.
+    // 5. Write matching pinned dateCycles.
     matchingPinned.forEach(dc => {
         if (pinnedDiv) {
             writeMatchingDateCycles(pinnedDiv, dc);
@@ -433,7 +431,7 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    // 6. Write current dateCycles.
+    // 6. Write matching current dateCycles.
     matchingCurrent.forEach(dc => {
         if (currentDiv) {
             writeMatchingDateCycles(currentDiv, dc);
@@ -448,7 +446,19 @@ async function highlightDateCycles(targetDate) {
             }
         }
     });
+
+    // 7. Highlight corresponding date paths for ALL dateCycles in localStorage,
+    // irrespective of target date.
+    dateCycleEvents.forEach(dc => {
+        // Construct a formatted string (e.g., "-1-1-2025")
+        const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
+        const matchingPaths = document.querySelectorAll(`path[id*="${formatted}"]`);
+        matchingPaths.forEach(path => {
+            path.classList.add("date_event");
+        });
+    });
 }
+
 
 
 
