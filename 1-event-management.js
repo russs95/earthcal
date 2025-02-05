@@ -658,10 +658,10 @@ function checkOffDatecycle(uniqueKey) {
 
             if (!wasCompleted && dateCycleDiv) {
                 // If marking as completed, trigger celebration and delay UI refresh
-                dateCycleDiv.classList.add("celebration-effect");
+                dateCycleDiv.classList.add("celebrate-animation");
 
                 setTimeout(() => {
-                    dateCycleDiv.classList.remove("celebration-effect");
+                    dateCycleDiv.classList.remove("celebrate-animation");
                     highlightDateCycles(targetDate); // Refresh UI after animation
                 }, 500);
             } else {

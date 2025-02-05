@@ -2798,21 +2798,21 @@ svg path #june:hover {
     overflow: hidden;  /* Keeps the explosion effect within the boundaries */
 }
 
-
-
-.celebration-effect {
+/* Celebration Effect Applied to the .date-info Box */
+.date-info.celebrate-animation::after {
+    content: "";
     position: absolute;
-    bottom: 15px;
-    right: 15px;
+    top: 50%;
+    left: 50%;
     width: 15px;
     height: 15px;
-    background: radial-gradient(circle,
-    red, orange, yellow, green, blue, violet);
+    background: radial-gradient(circle, red, orange, yellow, green, blue, violet);
     border-radius: 50%;
     opacity: 1;
     transform: scale(0);
+    transform-origin: center;
     animation: expandCelebration 0.5s ease-out forwards;
-    z-index: 0;
+    z-index: 5;
 }
 
 @keyframes expandCelebration {
@@ -2821,7 +2821,8 @@ svg path #june:hover {
         opacity: 1;
     }
     100% {
-        transform: scale(25);  /* Expanded size */
+        transform: scale(8);  /* Adjusted for better visibility */
         opacity: 0;
     }
 }
+
