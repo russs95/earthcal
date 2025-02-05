@@ -561,29 +561,105 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
+
 function toggleCompletionWithCelebration(uniqueKey, currentCompleted) {
     if (currentCompleted === "0") {
-        // If incomplete, trigger celebration animation first.
+        // If the dateCycle is incomplete, trigger the celebration animation.
         const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
         if (dateCycleDiv) {
-            dateCycleDiv.classList.add("celebrate-animation");
-            // Remove the animation class after 0.5s, then call checkOffDatecycle.
+            // Create the celebration effect element.
+            const celebration = document.createElement("div");
+            celebration.classList.add("celebration-effect");
+            // Append it to the dateCycle div.
+            dateCycleDiv.appendChild(celebration);
+            // Wait 0.5 seconds (500ms) for the animation to complete,
+            // then remove the celebration element and toggle completion.
             setTimeout(() => {
-                dateCycleDiv.classList.remove("celebrate-animation");
+                celebration.remove();
                 checkOffDatecycle(uniqueKey);
             }, 500);
         } else {
-            // If the element isn't found, fall back to directly calling checkOffDatecycle.
+            // Fallback: if no element is found, immediately toggle.
             checkOffDatecycle(uniqueKey);
         }
     } else {
-        // If already complete, directly toggle (mark as incomplete).
+        // If already complete, immediately toggle completion.
         checkOffDatecycle(uniqueKey);
     }
 }
 
 
 
+
+function checkOffDatecycle(uniqueKey) {
+    console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
+
+    // Step 1: Retrieve all calendar keys from localStorage.
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    let found = false;
+
+    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
+    for (const key of calendarKeys) {
+        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+
+        const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+        if (dateCycleIndex !== -1) {
+            let dateCycle = calendarData[dateCycleIndex];
+
+            // Step 3: Toggle the 'completed' status.
+            dateCycle.completed = dateCycle.completed === '0' ? '1' : '0';
+            console.log(`New completion status for ${dateCycle.title}: ${dateCycle.completed}`);
+
+            // Step 4: Mark the record as unsynced if it was previously synced.
+            if (dateCycle.synced === '1') {
+                dateCycle.synced = '0';
+            }
+
+            // Step 5: Attempt to update the server immediately if online.
+            if (navigator.onLine && localStorage.getItem('buwana_id')) {
+                updateServerDateCycle(dateCycle)
+                    .then(() => {
+                        console.log(`Server successfully updated for ${dateCycle.title}`);
+                        // Mark it as synced after a successful server update.
+                        dateCycle.synced = '1';
+                        calendarData[dateCycleIndex] = dateCycle;
+                        localStorage.setItem(key, JSON.stringify(calendarData));
+                    })
+                    .catch(error => {
+                        console.error(`Error updating server for ${dateCycle.title}:`, error);
+                        // Leave synced as "0" so that it will be retried later.
+                    });
+            } else {
+                console.log("Offline or not logged in – update queued for next sync.");
+            }
+
+            // Step 6: Update localStorage with the modified calendar data.
+            calendarData[dateCycleIndex] = dateCycle;
+            localStorage.setItem(key, JSON.stringify(calendarData));
+            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
+
+            // Step 7: Trigger celebration animation.
+            const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+            if (dateCycleDiv) {
+                dateCycleDiv.classList.add("celebrate-animation");
+                setTimeout(() => {
+                    dateCycleDiv.classList.remove("celebrate-animation");
+                }, 400);
+            }
+
+            found = true;
+            break; // Exit loop once updated.
+        }
+    }
+
+    // Step 8: Handle the case where no dateCycle was found.
+    if (!found) {
+        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    }
+
+    // Step 9: Refresh the UI.
+    highlightDateCycles(targetDate);
+}
 
 
 
@@ -752,75 +828,6 @@ async function updateServerDateCycle(dateCycle) {
 
 
 
-function checkOffDatecycle(uniqueKey) {
-    console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
-
-    // Step 1: Retrieve all calendar keys from localStorage.
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
-
-    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-
-        const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-        if (dateCycleIndex !== -1) {
-            let dateCycle = calendarData[dateCycleIndex];
-
-            // Step 3: Toggle the 'completed' status.
-            dateCycle.completed = dateCycle.completed === '0' ? '1' : '0';
-            console.log(`New completion status for ${dateCycle.title}: ${dateCycle.completed}`);
-
-            // Step 4: Mark the record as unsynced if it was previously synced.
-            if (dateCycle.synced === '1') {
-                dateCycle.synced = '0';
-            }
-
-            // Step 5: Attempt to update the server immediately if online.
-            if (navigator.onLine && localStorage.getItem('buwana_id')) {
-                updateServerDateCycle(dateCycle)
-                    .then(() => {
-                        console.log(`Server successfully updated for ${dateCycle.title}`);
-                        // Mark it as synced after a successful server update.
-                        dateCycle.synced = '1';
-                        calendarData[dateCycleIndex] = dateCycle;
-                        localStorage.setItem(key, JSON.stringify(calendarData));
-                    })
-                    .catch(error => {
-                        console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so that it will be retried later.
-                    });
-            } else {
-                console.log("Offline or not logged in – update queued for next sync.");
-            }
-
-            // Step 6: Update localStorage with the modified calendar data.
-            calendarData[dateCycleIndex] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
-
-            // Step 7: Trigger celebration animation.
-            const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-            if (dateCycleDiv) {
-                dateCycleDiv.classList.add("celebrate-animation");
-                setTimeout(() => {
-                    dateCycleDiv.classList.remove("celebrate-animation");
-                }, 400);
-            }
-
-            found = true;
-            break; // Exit loop once updated.
-        }
-    }
-
-    // Step 8: Handle the case where no dateCycle was found.
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
-    }
-
-    // Step 9: Refresh the UI.
-    highlightDateCycles(targetDate);
-}
 
 
 
