@@ -464,7 +464,7 @@ async function highlightDateCycles(targetDate) {
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
-    //console.log("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
+    alert("Writing dateCycle:", JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
