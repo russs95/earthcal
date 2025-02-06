@@ -473,8 +473,12 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
     // If completed, use strike-through and inherit color; otherwise use bulletColor.
     const eventNameStyle = dateCycle.completed === "1"
-        ? "text-decoration: line-through; color: inherit;"
-        : `color: ${bulletColor};`;
+        ? "text-decoration: line-through; color: grey;"
+        : `color: ${bulletColor}`;
+
+
+
+
 
     // If the dateCycle is public, we will not display the forward (push) or checkOff buttons,
     // and we won't attach an onclick handler to the container. Also, we show the bullet as plain text.
@@ -543,7 +547,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             position: relative;
             padding: 16px;
-            border: 1px solid #ccc;
+            border: 1px solid grey;
             margin-bottom: 10px;
             border-radius: 8px;">
             
