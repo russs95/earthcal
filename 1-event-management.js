@@ -464,7 +464,7 @@ async function highlightDateCycles(targetDate) {
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
-    alert("Writing dateCycle:\n" + JSON.stringify(dateCycle, null, 2));
+    //alert("Writing dateCycle:\n" + JSON.stringify(dateCycle, null, 2));
 
     // Ensure correct field names and default values.
     const eventName = dateCycle.title || "Untitled Event";
@@ -1001,21 +1001,19 @@ function editDateCycle(uniqueKey) {
             </div>
 
             <div id="edit-name-event" style="margin-top:0; display:flex; justify-content:center; border-radius:10px; width:100%;">
-                <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left:0; margin-right:auto; border-radius:10px 0 0 10px; width:calc(100% - 80px);">
-                    ${dateCycle.title || ''}
+                <textarea id="edit-add-date-title" class="blur-form-field" placeholder="Event name..." style="margin-left:0; margin-right:auto; border-radius:10px 0 0 10px; width:calc(100% - 80px);">${dateCycle.title || ''}
                 </textarea>
                 <select id="edit-DateColorPicker" class="blur-form-field" name="color" style="padding:10px; border-radius:0 10px 10px 0; font-size:1.5em; width:60px; margin-left:-40px; margin-right:0;">
-                    <option value="green" ${dateCycle.cal_color === 'green' ? 'selected' : ''}>🟢</option>
-                    <option value="yellow" ${dateCycle.cal_color === 'yellow' ? 'selected' : ''}>🟡</option>
-                    <option value="orange" ${dateCycle.cal_color === 'orange' ? 'selected' : ''}>🟠</option>
-                    <option value="red" ${dateCycle.cal_color === 'red' ? 'selected' : ''}>🔴</option>
-                    <option value="blue" ${dateCycle.cal_color === 'blue' ? 'selected' : ''}>🔵</option>
+                    <option value="green" ${dateCycle.datecycle_color === 'green' ? 'selected' : ''}>🟢</option>
+                    <option value="yellow" ${dateCycle.datecycle_color === 'yellow' ? 'selected' : ''}>🟡</option>
+                    <option value="orange" ${dateCycle.datecycle_color === 'orange' ? 'selected' : ''}>🟠</option>
+                    <option value="red" ${dateCycle.datecycle_color === 'red' ? 'selected' : ''}>🔴</option>
+                    <option value="blue" ${dateCycle.datecycle_color === 'blue' ? 'selected' : ''}>🔵</option>
                 </select>
             </div>
 
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
-                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">
-                    ${dateCycle.comments || ''}
+                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}
                 </textarea>
             </div>
             <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
