@@ -1042,7 +1042,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     const dayField = document.getElementById('edit-day-field2').value;
     const monthField = document.getElementById('edit-month-field2').value;
     const title = document.getElementById('edit-add-date-title').value.trim();
-    const calColor = document.getElementById('edit-DateColorPicker').value;
+    const eventColor = document.getElementById('edit-DateColorPicker').value;
     const comments = document.getElementById('edit-add-date-note').value.trim();
 
     // Update the last_edited field to now.
@@ -1070,7 +1070,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     dateCycle.month = monthField;
     dateCycle.date = formattedDate;
     dateCycle.title = title;
-    dateCycle.cal_color = calColor; // Update the calendar color.
+    dateCycle.datecycle_color = eventColor; // Update the calendar color.
     dateCycle.comments = comments;
     dateCycle.last_edited = lastEdited;
 
