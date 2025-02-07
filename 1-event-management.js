@@ -357,18 +357,19 @@ function closeAddCycle() {
 
 
 
-
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
+    const formattedTargetDateAnnual = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-`; // No year for annual events
+
     console.log(`Normalized target date for highlighting: ${formattedTargetDate}`);
 
     // Remove "date_event" class from previously highlighted elements.
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
 
-    // 2. Fetch all dateCycles from localStorage.
+    // Fetch all dateCycles from localStorage.
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
@@ -376,7 +377,7 @@ async function highlightDateCycles(targetDate) {
     }
     console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
 
-    // 3. Separate matching dateCycles based on the target date and pin status.
+    // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
     let matchingCurrent = [];
     const now = new Date();
@@ -390,7 +391,15 @@ async function highlightDateCycles(targetDate) {
     dateCycleEvents.forEach(dateCycle => {
         // Construct a formatted string from the dateCycle's day, month, and year.
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
-        if (storedDateFormatted === formattedTargetDate) {
+        const storedDateFormattedAnnual = `-${dateCycle.day}-${dateCycle.month}-`; // Annual events
+
+        // Check if the dateCycle matches the target date:
+        // - If it's an annual event (no specific year), match without year
+        // - Otherwise, match including the year
+        if (
+            storedDateFormatted === formattedTargetDate || // Matches specific year
+            (dateCycle.frequency && dateCycle.frequency.toLowerCase() === "annual" && storedDateFormattedAnnual === formattedTargetDateAnnual) // Matches annual events
+        ) {
             if (dateCycle.pinned === "1") {
                 matchingPinned.push(dateCycle);
             } else {
@@ -401,7 +410,7 @@ async function highlightDateCycles(targetDate) {
 
     console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
 
-    // 4. Get the container elements.
+    // Get the container elements.
     const pinnedDiv = document.getElementById('pinned-datecycles');
     const currentDiv = document.getElementById('current-datecycles');
 
@@ -415,7 +424,7 @@ async function highlightDateCycles(targetDate) {
         currentDiv.style.display = matchingCurrent.length ? 'block' : 'none';
     }
 
-    // 5. Write matching pinned dateCycles.
+    // Write matching pinned dateCycles.
     matchingPinned.forEach(dc => {
         if (pinnedDiv) {
             writeMatchingDateCycles(pinnedDiv, dc);
@@ -431,7 +440,7 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    // 6. Write matching current dateCycles.
+    // Write matching current dateCycles.
     matchingCurrent.forEach(dc => {
         if (currentDiv) {
             writeMatchingDateCycles(currentDiv, dc);
@@ -447,17 +456,19 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    // 7. Highlight corresponding date paths for ALL dateCycles in localStorage,
-    // irrespective of target date.
+    // Highlight corresponding date paths for ALL dateCycles in localStorage.
     dateCycleEvents.forEach(dc => {
         // Construct a formatted string (e.g., "-1-1-2025")
         const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
-        const matchingPaths = document.querySelectorAll(`path[id*="${formatted}"]`);
+        const formattedAnnual = `-${dc.day}-${dc.month}-`; // For annual events
+
+        const matchingPaths = document.querySelectorAll(`path[id*="${formatted}"], path[id*="${formattedAnnual}"]`);
         matchingPaths.forEach(path => {
             path.classList.add("date_event");
         });
     });
 }
+
 
 
 function writeMatchingDateCycles(divElement, dateCycle) {
