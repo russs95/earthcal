@@ -462,6 +462,7 @@ async function highlightDateCycles(targetDate) {
 
 function writeMatchingDateCycles(divElement, dateCycle) {
     // Ensure correct field names and default values.
+    alert("Writing dateCycle:\n" + JSON.stringify(dateCycle, null, 2));
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
