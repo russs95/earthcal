@@ -460,72 +460,26 @@ async function highlightDateCycles(targetDate) {
 }
 
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
     // Ensure correct field names and default values.
+    alert("Writing dateCycle:\n" + JSON.stringify(dateCycle, null, 2));
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
 
     // Apply strike-through styling if completed
-    const eventNameStyle = dateCycle.completed === "1"
+    const eventNameStyle = dateCycle.completed == "1"
         ? "text-decoration: line-through; color: grey;"
         : `color: ${bulletColor}`;
 
-    // Hide the action buttons if the dateCycle is public
-    const hideButtonsStyle = dateCycle.public === "1" ? "display: none;" : "";
+    // Convert `public` field to string to ensure proper comparison
+    const isPublic = String(dateCycle.public) === "1";
 
-    // Generate the bullet icon differently based on pinning status
-    let bulletIcon = dateCycle.pinned === "1" ? "📌" : "⬤";
+    // Hide the action buttons div if the dateCycle is public
+    const hideButtonsStyle = isPublic ? "display: none;" : "display: flex;";
 
-    // If the dateCycle is public, show only the bullet as static text
-    let actionsHTML = "";
-    if (dateCycle.public === "1") {
-        actionsHTML = `<div style="font-size: medium; color: ${bulletColor};">${bulletIcon}</div>`;
-    } else {
-        // Private dateCycles: Show full set of action buttons
-        let actionButton = dateCycle.completed === "1"
-            ? `<button class="delete-button-datecycle"
-                        role="button"
-                        aria-label="Delete this dateCycle"
-                        onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                        style="font-size: medium; color: ${bulletColor}; cursor: pointer; background: none; border: none;">
-                        ❌
-               </button>`
-            : `<button class="bullet-pin-button"
-                        role="button"
-                        aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                        title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
-                        onclick="pinThisDatecycle(this); event.stopPropagation();"
-                        onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                        onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                        style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                        ${bulletIcon}
-               </button>`;
-
-        const forwardButton = `<button class="forward-button-datecycle"
-                                        role="button"
-                                        aria-label="Push to today"
-                                        title="Push to today"
-                                        onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
-                                        style="font-size: larger; cursor: pointer; background: none; border: none;">
-                                        ➜
-                                 </button>`;
-
-        const checkOffButton = `<button class="close-button-datecycle"
-                                         role="button"
-                                         aria-label="Toggle completion status"
-                                         title="Toggle completion"
-                                         onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                                         style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
-                                         ✔
-                                   </button>`;
-
-        actionsHTML = actionButton + forwardButton + checkOffButton;
-    }
-
-    // Set onClick behavior based on public status
-    const contentOnclick = dateCycle.public === "1" ? "" : `onclick="editDateCycle('${dateCycle.unique_key}')"`;
+    // Set onClick behavior: Only allow editing if public = 0
+    const contentOnclick = isPublic ? "" : `onclick="editDateCycle('${dateCycle.unique_key}')"`;
 
     // Write out the HTML structure
     divElement.innerHTML += `
@@ -536,16 +490,40 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             margin-bottom: 10px;
             border-radius: 8px;">
             
-            <!-- Hide this div when public -->
+            <!-- Action buttons (hidden for public dateCycles) -->
             <div id="non-public-actions" style="${hideButtonsStyle}
                 position: absolute;
                 top: 10px;
                 right: 8px;
-                display: flex;
                 flex-direction: column;
                 align-items: center;
                 gap: 2px;">
-                ${actionsHTML}
+                <button class="bullet-pin-button"
+                    role="button"
+                    aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                    title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                    onclick="pinThisDatecycle(this); event.stopPropagation();"
+                    onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                    onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                    style="font-size: medium; margin: 0; margin-bottom: 2px; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                    ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                </button>
+                <button class="forward-button-datecycle"
+                    role="button"
+                    aria-label="Push to today"
+                    title="Push to today"
+                    onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none;">
+                    ➜
+                </button>
+                <button class="close-button-datecycle"
+                    role="button"
+                    aria-label="Toggle completion status"
+                    title="Toggle completion"
+                    onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+                    ✔
+                </button>
             </div>
             
             <div class="datecycle-content" ${contentOnclick} style="cursor: pointer;">
@@ -560,11 +538,12 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 <div class="current-date-notes" style="height: fit-content;">
                     ${dateCycle.comments}
                 </div>
-                ${dateCycle.public === "1" ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">Public</div>` : ""}
+                ${isPublic ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">Public</div>` : ""}
             </div>
         </div>
     `;
 }
+
 
 
 
