@@ -1330,6 +1330,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
                 document.getElementById('login-form-section').style.display = 'none';
 
                 // Fetch both user calendars and public calendars
+                //THIS IS NOW CONSOLIDATE IN THE GET_USER_DATA endpoint.  NEEDS TO BE UPDATED to be considstent with showlOggedInview
                 const [userCalendarsResponse, publicCalendarsResponse] = await Promise.all([
                     fetch('https://gobrik.com/earthcal/fetch_user_data.php', {
                         method: 'POST',
