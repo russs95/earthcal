@@ -1304,7 +1304,7 @@ document.getElementById('login').addEventListener('submit', async function (e) {
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetch('https://gobrik.com/api/buwana_login_process.php', {
+        const response = await fetch('https://gobrik.com/earthcal/buwana_login_process.php', {
             method: 'POST',
             body: formData
         });
@@ -1331,12 +1331,12 @@ document.getElementById('login').addEventListener('submit', async function (e) {
 
                 // Fetch both user calendars and public calendars
                 const [userCalendarsResponse, publicCalendarsResponse] = await Promise.all([
-                    fetch('https://gobrik.com//fetch_user_calendars.php', {
+                    fetch('https://gobrik.com/earthcal/fetch_user_data.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ buwana_id: data.buwana_id })
                     }),
-                    fetch('https://gobrik.com/api/fetch_public_calendars.php', {
+                    fetch('https://gobrik.com/earthcal/fetch_public_calendars.php', {
                         method: 'POST', // Updated to POST
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({}) // Send an empty JSON object

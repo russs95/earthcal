@@ -5,6 +5,7 @@
 
    :root {
 
+       --slider: red;
 /*    --side-overlays: rgb(225, 225, 225);*/
     --side-overlays: white;
     --slide-highlight: rgb(212, 212, 213);
