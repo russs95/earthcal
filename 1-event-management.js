@@ -355,8 +355,6 @@ function closeAddCycle() {
 }
 
 
-
-
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
@@ -458,16 +456,26 @@ async function highlightDateCycles(targetDate) {
 
     // Highlight corresponding date paths for ALL dateCycles in localStorage.
     dateCycleEvents.forEach(dc => {
-        // Construct a formatted string (e.g., "-1-1-2025")
+        // Construct formatted strings
         const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
         const formattedAnnual = `-${dc.day}-${dc.month}-`; // For annual events
 
-        const matchingPaths = document.querySelectorAll(`path[id*="${formatted}"], path[id*="${formattedAnnual}"]`);
+        let matchingPaths;
+
+        if (dc.frequency && dc.frequency.toLowerCase() === "annual") {
+            // Highlight annual events across all years
+            matchingPaths = document.querySelectorAll(`path[id*="${formattedAnnual}"]`);
+        } else {
+            // Highlight only specific year events
+            matchingPaths = document.querySelectorAll(`path[id*="${formatted}"]`);
+        }
+
         matchingPaths.forEach(path => {
             path.classList.add("date_event");
         });
     });
 }
+
 
 
 
@@ -549,7 +557,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 <div class="current-date-notes" style="height: fit-content;">
                     ${dateCycle.comments}
                 </div>
-                ${isPublic ? `<div class="public-label" role="note" style="font-size: small; color: green; font-weight: bold; margin-top: 5px;">Public</div>` : ""}
+                
             </div>
         </div>
     `;
