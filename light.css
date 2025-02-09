@@ -31,7 +31,8 @@
     --form-conf-background-over: rgba(255, 255, 255);
      --form-conf-text: rgb(32, 33, 38);
 
-    
+       --emblem-green: #008000;
+       --emblem-green-over: #0ca70c;
 
 
     --deeper-accent: rgb(148, 148, 148);

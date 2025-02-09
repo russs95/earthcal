@@ -1,5 +1,5 @@
 //  OPENING THE ADD DATECYCLE FORM
-// noinspection ExceptionCaughtLocallyJS
+// noinspection ExceptionCaughtLocallyJS,JSUnusedGlobalSymbols
 
 
 async function openAddCycle() {
@@ -381,6 +381,7 @@ async function highlightDateCycles(targetDate) {
     const now = new Date();
 
     // Helper: was this dateCycle edited within the last minute?
+    // Fo syncing?!  Why?
     function wasEditedRecently(dateCycle) {
         const lastEdited = new Date(dateCycle.last_edited);
         return (now - lastEdited) < 60000;
@@ -454,7 +455,8 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    // Highlight corresponding date paths for ALL dateCycles in localStorage.
+    // Highlight corresponding date paths ending with "-day-marker" for ALL dateCycles in localStorage.
+
     dateCycleEvents.forEach(dc => {
         // Construct formatted strings
         const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
@@ -471,9 +473,14 @@ async function highlightDateCycles(targetDate) {
         }
 
         matchingPaths.forEach(path => {
-            path.classList.add("date_event");
+            // Ensure that the ID ends with "-day-marker" before adding the class
+            if (path.id.endsWith("-day-marker")) {
+                path.classList.add("date_event");
+            }
         });
     });
+
+
 }
 
 
