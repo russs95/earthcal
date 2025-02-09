@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function submitCodeForm(event) {
         event.preventDefault();
         setButtonState("Sending...", true);
-        fetch('https://gobrik.com/api/buwana_code_process.php', {
+        fetch('https://gobrik.com/earthcal/buwana_code_process.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({ 'credential_key': credentialKeyInput.value })
@@ -771,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (codeToggle.checked) {
             // If the code option is selected
             passwordField.removeAttribute('required');
-            form.action = 'https://gobrik.com/api/buwana_code_process.php';
+            form.action = 'https://gobrik.com/earthcal/buwana_code_process.php';
             console.log("Code is checked.");
         } else if (passwordToggle.checked) {
             // If the password option is selected
@@ -1047,7 +1047,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (codeToggle.checked) {
             // If the code option is selected
             passwordField.removeAttribute('required');
-            form.action = 'https://gobrik.com/api/buwana_code_process.php';
+            form.action = 'https://gobrik.com/earthcal/buwana_code_process.php';
             console.log("Code is checked.");
         } else if (passwordToggle.checked) {
             // If the password option is selected
