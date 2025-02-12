@@ -507,7 +507,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             margin-bottom: 10px;
             border-radius: 8px;
             position: relative;
-            min-width:75px;">
+            min-height:75px;">
             
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px;margin-bottom:auto;margin-left: -8px;">
