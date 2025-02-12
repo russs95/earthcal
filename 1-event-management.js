@@ -517,7 +517,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     onclick="pinThisDatecycle(this); event.stopPropagation();"
                     onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
                     onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                    style="font-size: 0.7em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                    style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
                     ${dateCycle.pinned === '1' ? '📌' : '⬤'}
                 </button>
             </div>
@@ -552,8 +552,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     aria-label="Delete this event"
                     title="Delete this event"
                     onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                    style="font-size: larger; cursor: pointer; background: none; border: none;">
-                    ❌
+                    style="font-size: 1.5em; cursor: pointer; background: none; border: none;">
+                    ×
                 </button>
 
                 <button class="forward-button-datecycle"
