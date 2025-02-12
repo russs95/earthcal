@@ -509,7 +509,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             position: relative;">
             
             <!-- Bullet Column -->
-            <div class="bullet-column" style="max-width: 12px; margin-right: 12px;margin-bottom:auto;">
+            <div class="bullet-column" style="max-width: 12px; margin-right: 12px;margin-bottom:auto;margin-left: -8px;">
                 <button class="bullet-pin-button"
                     role="button"
                     aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
@@ -517,7 +517,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     onclick="pinThisDatecycle(this); event.stopPropagation();"
                     onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
                     onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                    style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                    style="font-size: 0.7em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
                     ${dateCycle.pinned === '1' ? '📌' : '⬤'}
                 </button>
             </div>
@@ -553,7 +553,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     title="Delete this event"
                     onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
                     style="font-size: larger; cursor: pointer; background: none; border: none;">
-                    ×
+                    ❌
                 </button>
 
                 <button class="forward-button-datecycle"
