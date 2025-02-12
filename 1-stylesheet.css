@@ -2728,13 +2728,15 @@ svg path #june:hover {
 
 
 @media screen and (min-width: 800px) {
-.top-gradient-overlay {
-    display:none;
-}
+    .top-gradient-overlay {
+        display: none;
+    }
 
 
-.top-gradient-overlay {
-    display:none;
+    .bottom-gradient-overlay {
+        display: none;
+    }
+
 }
 /* SYNCING  */
 
