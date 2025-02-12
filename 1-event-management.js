@@ -1598,8 +1598,8 @@ async function addDatecycle() {
     //const unique_key = `${selCalendarId}_${createdAt}_${newID}`;
     //TEMP REMOVED!
 
-    const randomString = Math.random().toString(36).substring(2, 16); // Generates a 14-char random string
-    const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${randomString}`;
+    const newID = Math.random().toString(36).substring(2, 16); // Generates a 14-char random string
+    const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${newID}`;
 
 
 
