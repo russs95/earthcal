@@ -506,7 +506,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             border: 1px solid grey;
             margin-bottom: 10px;
             border-radius: 8px;
-            position: relative;">
+            position: relative;
+            min-width:75px;">
             
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px;margin-bottom:auto;margin-left: -8px;">
@@ -523,7 +524,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </div>
 
             <!-- Date Cycle Content -->
-            <div class="datecycle-content" ${contentOnclick} style="flex-grow: 1; cursor: pointer;">
+            <div class="datecycle-content" ${contentOnclick} style="flex-grow: 1; cursor: pointer;margin-bottom:auto;">
                 <div class="current-date-info-title" style="${eventNameStyle}">
                     ${eventName}
                 </div>
@@ -544,7 +545,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 right: 8px;
                 flex-direction: column;
                 align-items: center;
-                gap: 4px;">
+                gap: 2px;">
                 
                 <!-- Delete Button (New) -->
                 <button class="delete-button-datecycle"
@@ -552,7 +553,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     aria-label="Delete this event"
                     title="Delete this event"
                     onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                    style="font-size: 1.5em; cursor: pointer; background: none; border: none;">
+                    style="font-size: 1.8em; cursor: pointer; background: none; border: none; font-weight: bold;">
                     ×
                 </button>
 
