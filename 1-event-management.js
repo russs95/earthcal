@@ -589,7 +589,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 function updateDateCycleCount() {
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
     if (currentDatecycleCount) {
-        currentDatecycleCount.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
+        currentDatecycleCount.innerHTML = `${window.dateCycleCount} events today <span id="show-hide-datecycles-icon">🔺</span>`;
     }
 }
 
