@@ -606,7 +606,7 @@ function toggleDateCycleView() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const currentDayInfoDiv = document.getElementById("current-day-info");
+    const currentDayInfoDiv = document.getElementById("current-datecycle-count");
     if (currentDayInfoDiv) {
         currentDayInfoDiv.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
         currentDayInfoDiv.addEventListener("click", toggleDateCycleView);
