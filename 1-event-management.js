@@ -585,10 +585,33 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     // Update the current-day-info div with the count of events
     const currentDayInfoDiv = document.getElementById("current-day-info");
     if (currentDayInfoDiv) {
-        currentDayInfoDiv.textContent = `Events Today: ${window.dateCycleCount}`;
+        currentDayInfoDiv.textContent = `<span id="show-hide-datecycles-icon">🔺</span>${window.dateCycleCount} events today.`;
     }
 }
 
+function toggleDateCycleView() {
+    const allDateCyclesDiv = document.getElementById("all-datecycles");
+    const showHideIcon = document.getElementById("show-hide-datecycles-icon");
+
+    if (allDateCyclesDiv && showHideIcon) {
+        // Toggle visibility
+        if (allDateCyclesDiv.style.display === "none" || allDateCyclesDiv.style.display === "") {
+            allDateCyclesDiv.style.display = "block"; // Show div
+            showHideIcon.textContent = "🔻"; // Change icon
+        } else {
+            allDateCyclesDiv.style.display = "none"; // Hide div
+            showHideIcon.textContent = "🔺"; // Change icon
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const currentDayInfoDiv = document.getElementById("current-day-info");
+    if (currentDayInfoDiv) {
+        currentDayInfoDiv.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
+        currentDayInfoDiv.addEventListener("click", toggleDateCycleView);
+    }
+});
 
 
 
