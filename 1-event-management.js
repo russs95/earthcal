@@ -1590,13 +1590,19 @@ async function addDatecycle() {
     }, 0);
 
     console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
-
-    const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
     const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
+    //const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
     // Generate a unique key for the record.
     // Here, we combine the calendar ID, createdAt, and the newID.
-    const unique_key = `${selCalendarId}_${createdAt}_${newID}`;
+    //const unique_key = `${selCalendarId}_${createdAt}_${newID}`;
+    //TEMP REMOVED!
+
+    const randomString = Math.random().toString(36).substring(2, 16); // Generates a 14-char random string
+    const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${randomString}`;
+
+
+
 
     const dateCycle = {
         ID: newID,
