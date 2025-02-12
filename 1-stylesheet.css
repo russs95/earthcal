@@ -2725,6 +2725,17 @@ svg path #june:hover {
         z-index: 22;
         }
 
+
+
+@media screen and (min-width: 800px) {
+.top-gradient-overlay {
+    display:none;
+}
+
+
+.top-gradient-overlay {
+    display:none;
+}
 /* SYNCING  */
 
 /* General Sync Button Styling */

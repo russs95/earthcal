@@ -593,22 +593,29 @@ function updateDateCycleCount() {
     }
 }
 
-// Function to toggle visibility of all-datecycles and icon
+
+// Function to toggle visibility of all-current-datecycles, all-pinned-datecycles, and icon
 function toggleDateCycleView() {
-    //const allPinnedDateCyclesDiv = document.getElementById("all-current-datecycles");
+    const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
     const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
-    if (allCurrentDateCyclesDiv && showHideIcon) {
-        if (allCurrentDateCyclesDiv.style.display === "none" || allCurrentDateCyclesDiv.style.display === "") {
-            allCurrentDateCyclesDiv.style.display = "block"; // Show div
+    if (allCurrentDateCyclesDiv && allPinnedDateCyclesDiv && showHideIcon) {
+        // Check if both sections are currently hidden or not
+        const isHidden = allCurrentDateCyclesDiv.style.display === "none" || allCurrentDateCyclesDiv.style.display === "";
+
+        if (isHidden) {
+            allCurrentDateCyclesDiv.style.display = "block"; // Show current date cycles
+            allPinnedDateCyclesDiv.style.display = "block";  // Show pinned date cycles
             showHideIcon.textContent = "🔻"; // Change icon
         } else {
-            allCurrentDateCyclesDiv.style.display = "none"; // Hide div
+            allCurrentDateCyclesDiv.style.display = "none"; // Hide current date cycles
+            allPinnedDateCyclesDiv.style.display = "none";  // Hide pinned date cycles
             showHideIcon.textContent = "🔺"; // Change icon
         }
     }
 }
+
 
 // Ensure toggle function is attached only after writeMatchingDateCycles has run
 document.addEventListener("DOMContentLoaded", () => {
