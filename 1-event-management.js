@@ -595,15 +595,16 @@ function updateDateCycleCount() {
 
 // Function to toggle visibility of all-datecycles and icon
 function toggleDateCycleView() {
-    const allDateCyclesDiv = document.getElementById("all-datecycles");
+    //const allPinnedDateCyclesDiv = document.getElementById("all-current-datecycles");
+    const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
-    if (allDateCyclesDiv && showHideIcon) {
-        if (allDateCyclesDiv.style.display === "none" || allDateCyclesDiv.style.display === "") {
-            allDateCyclesDiv.style.display = "block"; // Show div
+    if (allCurrentDateCyclesDiv && showHideIcon) {
+        if (allCurrentDateCyclesDiv.style.display === "none" || allCurrentDateCyclesDiv.style.display === "") {
+            allCurrentDateCyclesDiv.style.display = "block"; // Show div
             showHideIcon.textContent = "🔻"; // Change icon
         } else {
-            allDateCyclesDiv.style.display = "none"; // Hide div
+            allCurrentDateCyclesDiv.style.display = "none"; // Hide div
             showHideIcon.textContent = "🔺"; // Change icon
         }
     }
