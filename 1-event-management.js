@@ -484,8 +484,13 @@ async function highlightDateCycles(targetDate) {
 }
 
 
-
 function writeMatchingDateCycles(divElement, dateCycle) {
+    // Track the number of dateCycles written
+    if (!window.dateCycleCount) {
+        window.dateCycleCount = 0; // Initialize count if not set
+    }
+    window.dateCycleCount++; // Increment count
+
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
@@ -507,10 +512,10 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             margin-bottom: 10px;
             border-radius: 8px;
             position: relative;
-            min-height:75px;">
+            min-height: 75px;">
             
             <!-- Bullet Column -->
-            <div class="bullet-column" style="max-width: 12px; margin-right: 12px;margin-bottom:auto;margin-left: -8px;">
+            <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
                 <button class="bullet-pin-button"
                     role="button"
                     aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
@@ -524,7 +529,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </div>
 
             <!-- Date Cycle Content -->
-            <div class="datecycle-content" ${contentOnclick} style="flex-grow: 1; cursor: pointer;margin-bottom:auto;">
+            <div class="datecycle-content" ${contentOnclick} style="flex-grow: 1; cursor: pointer; margin-bottom: auto;">
                 <div class="current-date-info-title" style="${eventNameStyle}">
                     ${eventName}
                 </div>
@@ -547,7 +552,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 align-items: center;
                 gap: 2px;">
                 
-                <!-- Delete Button (New) -->
+                <!-- Delete Button -->
                 <button class="delete-button-datecycle"
                     role="button"
                     aria-label="Delete this event"
@@ -576,7 +581,14 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </div>
         </div>
     `;
+
+    // Update the current-day-info div with the count of events
+    const currentDayInfoDiv = document.getElementById("current-day-info");
+    if (currentDayInfoDiv) {
+        currentDayInfoDiv.textContent = `Events Today: ${window.dateCycleCount}`;
+    }
 }
+
 
 
 
