@@ -483,9 +483,8 @@ async function highlightDateCycles(targetDate) {
 
 }
 
-
+// Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
-    // Track the number of dateCycles written
     if (!window.dateCycleCount) {
         window.dateCycleCount = 0; // Initialize count if not set
     }
@@ -543,7 +542,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 </div>
             </div>
 
-            <!-- Action Buttons (hidden for public dateCycles) -->
+            <!-- Action Buttons -->
             <div id="non-public-actions" style="${hideButtonsStyle}
                 position: absolute;
                 top: 10px;
@@ -582,19 +581,24 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 
-    // Update the current-day-info div with the count of events
-    const currentDayInfoDiv = document.getElementById("current-datecycle-count");
-    if (currentDayInfoDiv) {
-        currentDayInfoDiv.textContent = `<span id="show-hide-datecycles-icon">🔺</span>${window.dateCycleCount} events today.`;
+    // Update the current-datecycle-count div only when writeMatchingDateCycles runs
+    updateDateCycleCount();
+}
+
+// Function to update current-datecycle-count after writing date cycles
+function updateDateCycleCount() {
+    const currentDatecycleCount = document.getElementById("current-datecycle-count");
+    if (currentDatecycleCount) {
+        currentDatecycleCount.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
     }
 }
 
+// Function to toggle visibility of all-datecycles and icon
 function toggleDateCycleView() {
     const allDateCyclesDiv = document.getElementById("all-datecycles");
     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
     if (allDateCyclesDiv && showHideIcon) {
-        // Toggle visibility
         if (allDateCyclesDiv.style.display === "none" || allDateCyclesDiv.style.display === "") {
             allDateCyclesDiv.style.display = "block"; // Show div
             showHideIcon.textContent = "🔻"; // Change icon
@@ -605,13 +609,21 @@ function toggleDateCycleView() {
     }
 }
 
+// Ensure toggle function is attached only after writeMatchingDateCycles has run
 document.addEventListener("DOMContentLoaded", () => {
-    const currentDayInfoDiv = document.getElementById("current-datecycle-count");
-    if (currentDayInfoDiv) {
-        currentDayInfoDiv.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
-        currentDayInfoDiv.addEventListener("click", toggleDateCycleView);
+    const currentDatecycleCount = document.getElementById("current-datecycle-count");
+    if (currentDatecycleCount) {
+        // Wait until the first event is written before initializing the count
+        if (window.dateCycleCount > 0) {
+            updateDateCycleCount();
+        } else {
+            currentDatecycleCount.innerHTML = ""; // Keep it empty until events are loaded
+        }
+
+        currentDatecycleCount.addEventListener("click", toggleDateCycleView);
     }
 });
+
 
 
 
