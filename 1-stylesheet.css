@@ -2737,9 +2737,14 @@ svg path #june:hover {
         display: none;
     }
 
+
+}
+
+@media screen and (max-width: 769px) {
     #user-timezone-lang {
         margin-right: -55px;
     }
+
     #current-datecycle-count {
         margin-top: 15px;
     }
