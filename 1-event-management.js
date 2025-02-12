@@ -592,22 +592,22 @@ function updateDateCycleCount() {
         currentDatecycleCount.innerHTML = `<span id="show-hide-datecycles-icon">🔺</span> ${window.dateCycleCount} events today.`;
     }
 }
-
-// Function to toggle visibility of all-datecycles and icon
-function toggleDateCycleView() {
-    const allDateCyclesDiv = document.getElementById("all-datecycles");
-    const showHideIcon = document.getElementById("show-hide-datecycles-icon");
-
-    if (allDateCyclesDiv && showHideIcon) {
-        if (allDateCyclesDiv.style.display === "none" || allDateCyclesDiv.style.display === "") {
-            allDateCyclesDiv.style.display = "block"; // Show div
-            showHideIcon.textContent = "🔻"; // Change icon
-        } else {
-            allDateCyclesDiv.style.display = "none"; // Hide div
-            showHideIcon.textContent = "🔺"; // Change icon
-        }
-    }
-}
+//
+// // Function to toggle visibility of all-datecycles and icon
+// function toggleDateCycleView() {
+//     const allDateCyclesDiv = document.getElementById("all-datecycles");
+//     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
+//
+//     if (allDateCyclesDiv && showHideIcon) {
+//         if (allDateCyclesDiv.style.display === "none" || allDateCyclesDiv.style.display === "") {
+//             allDateCyclesDiv.style.display = "block"; // Show div
+//             showHideIcon.textContent = "🔻"; // Change icon
+//         } else {
+//             allDateCyclesDiv.style.display = "none"; // Hide div
+//             showHideIcon.textContent = "🔺"; // Change icon
+//         }
+//     }
+// }
 
 // Ensure toggle function is attached only after writeMatchingDateCycles has run
 document.addEventListener("DOMContentLoaded", () => {
