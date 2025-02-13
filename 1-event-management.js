@@ -485,9 +485,9 @@ async function highlightDateCycles(targetDate) {
 
 // Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
-    if (!window.dateCycleCount) {
+
         window.dateCycleCount = 0; // Initialize count if not set
-    }
+
     window.dateCycleCount++; // Increment count
 
     const eventName = dateCycle.title || "Untitled Event";
@@ -537,7 +537,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                         ${dateCycle.cal_name}
                     </div>
                 </div>
-                <div class="current-date-notes" style="height: fit-content;">
+                <div class="current-date-notes" style="height: fit-content;max-width:300px;">
                     ${dateCycle.comments}
                 </div>
             </div>
