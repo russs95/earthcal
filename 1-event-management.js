@@ -1139,24 +1139,25 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
 
 
 
-
 function push2today(uniqueKey) {
+    console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today`);
+
     // Retrieve all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     let found = false;
 
     for (const key of calendarKeys) {
-        let calendarData = JSON.parse(localStorage.getItem(key));
+        let calendarData = JSON.parse(localStorage.getItem(key) || '[]');
         const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+
         if (index !== -1) {
-            // Found the matching dateCycle – update its date fields.
             let dateCycle = calendarData[index];
             const currentDate = new Date();
-            // Format date as YYYY-MM-DD (ISO standard without time).
-            const formattedDate = currentDate.toISOString().split('T')[0];
+            const formattedDate = currentDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
+            // Update the date fields
             dateCycle.day = currentDate.getDate();
-            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed.
+            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
             dateCycle.year = currentDate.getFullYear();
             dateCycle.date = formattedDate;
             dateCycle.last_edited = currentDate.toISOString();
@@ -1166,22 +1167,42 @@ function push2today(uniqueKey) {
                 dateCycle.pinned = '0';
             }
 
-            // Update localStorage for this calendar.
+            // Mark as unsynced if previously synced
+            if (dateCycle.synced === "1") {
+                dateCycle.synced = "0";
+            }
+
+            // Attempt to update the server immediately if online.
+            if (navigator.onLine && localStorage.getItem('buwana_id')) {
+                updateServerDateCycle(dateCycle)
+                    .then(() => {
+                        console.log(`Server successfully updated for ${dateCycle.title}`);
+                        dateCycle.synced = "1"; // Mark as synced
+                        calendarData[index] = dateCycle;
+                        localStorage.setItem(key, JSON.stringify(calendarData));
+                    })
+                    .catch(error => {
+                        console.error(`Error updating server for ${dateCycle.title}:`, error);
+                    });
+            } else {
+                console.log("Offline or not logged in – update queued for next sync.");
+            }
+
+            // Update localStorage with modified calendar data.
             calendarData[index] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle with unique_key: ${uniqueKey} to today`);
 
-            // Now, trigger the slide-out animation on the corresponding date-info div.
+            // Handle animation and UI refresh.
             const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
             if (dateCycleDiv) {
                 dateCycleDiv.classList.add("slide-out-right");
-                // After the animation duration, refresh the UI.
+
                 setTimeout(() => {
-                    highlightDateCycles(targetDate);
+                    dateCycleDiv.classList.remove("slide-out-right");
+                    highlightDateCycles(targetDate); // Refresh UI
                 }, 400);
             } else {
-                // If no div found, still refresh UI.
-                highlightDateCycles(targetDate);
+                highlightDateCycles(targetDate); // Ensure UI updates even if no div found
             }
 
             found = true;
@@ -1193,6 +1214,7 @@ function push2today(uniqueKey) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 }
+
 
 
 
