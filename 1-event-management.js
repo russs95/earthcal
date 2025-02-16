@@ -355,6 +355,7 @@ function closeAddCycle() {
 }
 
 
+
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
@@ -371,6 +372,7 @@ async function highlightDateCycles(targetDate) {
     const dateCycleEvents = fetchDateCycleCalendars();
     if (!dateCycleEvents || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
+        updateDateCycleCount(0, 0); // No events, reset count display
         return;
     }
     console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
@@ -380,24 +382,18 @@ async function highlightDateCycles(targetDate) {
     let matchingCurrent = [];
     const now = new Date();
 
-    // Helper: was this dateCycle edited within the last minute?
-    // Fo syncing?!  Why?
     function wasEditedRecently(dateCycle) {
         const lastEdited = new Date(dateCycle.last_edited);
-        return (now - lastEdited) < 60000;
+        return (now - lastEdited) < 60000; // Edited within the last 60 seconds
     }
 
     dateCycleEvents.forEach(dateCycle => {
-        // Construct a formatted string from the dateCycle's day, month, and year.
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
         const storedDateFormattedAnnual = `-${dateCycle.day}-${dateCycle.month}-`; // Annual events
 
-        // Check if the dateCycle matches the target date:
-        // - If it's an annual event (no specific year), match without year
-        // - Otherwise, match including the year
         if (
-            storedDateFormatted === formattedTargetDate || // Matches specific year
-            (dateCycle.frequency && dateCycle.frequency.toLowerCase() === "annual" && storedDateFormattedAnnual === formattedTargetDateAnnual) // Matches annual events
+            storedDateFormatted === formattedTargetDate ||
+            (dateCycle.frequency && dateCycle.frequency.toLowerCase() === "annual" && storedDateFormattedAnnual === formattedTargetDateAnnual)
         ) {
             if (dateCycle.pinned === "1") {
                 matchingPinned.push(dateCycle);
@@ -455,33 +451,43 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    // Highlight corresponding date paths ending with "-day-marker" for ALL dateCycles in localStorage.
+    // Update the event count display
+    updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
 
+    // Highlight corresponding date paths ending with "-day-marker"
     dateCycleEvents.forEach(dc => {
-        // Construct formatted strings
         const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
         const formattedAnnual = `-${dc.day}-${dc.month}-`; // For annual events
 
         let matchingPaths;
 
         if (dc.frequency && dc.frequency.toLowerCase() === "annual") {
-            // Highlight annual events across all years
             matchingPaths = document.querySelectorAll(`path[id*="${formattedAnnual}"]`);
         } else {
-            // Highlight only specific year events
             matchingPaths = document.querySelectorAll(`path[id*="${formatted}"]`);
         }
 
         matchingPaths.forEach(path => {
-            // Ensure that the ID ends with "-day-marker" before adding the class
             if (path.id.endsWith("-day-marker")) {
                 path.classList.add("date_event");
             }
         });
     });
-
-
 }
+
+
+function updateDateCycleCount(pinnedCount, currentCount) {
+    const currentDatecycleCount = document.getElementById("current-datecycle-count");
+    if (currentDatecycleCount) {
+        currentDatecycleCount.innerHTML = `
+            <span id="show-hide-datecycles-icon">🔺</span>
+            Today you have ${pinnedCount} pinned and ${currentCount} current events.
+        `;
+    }
+}
+
+
+
 
 // Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
@@ -581,17 +587,9 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 
-    // Update the current-datecycle-count div only when writeMatchingDateCycles runs
-    updateDateCycleCount();
 }
 
-// Function to update current-datecycle-count after writing date cycles
-function updateDateCycleCount() {
-    const currentDatecycleCount = document.getElementById("current-datecycle-count");
-    if (currentDatecycleCount) {
-        currentDatecycleCount.innerHTML = `${window.dateCycleCount} events today <span id="show-hide-datecycles-icon">🔺</span>`;
-    }
-}
+
 
 
 // Function to toggle visibility of all-current-datecycles, all-pinned-datecycles, and icon
@@ -1042,8 +1040,7 @@ function editDateCycle(uniqueKey) {
             </div>
 
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
-                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}
-                </textarea>
+                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
             </div>
             <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
                 🐿️ Save Changes
