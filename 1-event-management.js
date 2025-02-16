@@ -548,21 +548,13 @@ function updateDateCycleCount(pinnedCount, currentCount) {
 
 
 
-
 // Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
-
-        window.dateCycleCount = 0; // Initialize count if not set
-
-    window.dateCycleCount++; // Increment count
+    window.dateCycleCount = (window.dateCycleCount || 0) + 1; // Initialize and increment count
 
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
-
-    // const eventNameStyle = dateCycle.completed == "1"
-    //     ? "text-decoration: line-through; color: grey;"
-    //     : `color: ${bulletColor}`;
 
     const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
@@ -589,7 +581,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     role="button"
                     aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
                     title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
-                    onclick="pinThisDatecycle(this); event.stopPropagation();"
+                    onclick="pinThisDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
                     onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
                     onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
                     style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
@@ -607,7 +599,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                         ${dateCycle.cal_name}
                     </div>
                 </div>
-                <div class="current-date-notes" style="height: fit-content;max-width:300px;">
+                <div class="current-date-notes" style="height: fit-content; max-width:300px;">
                     ${dateCycle.comments}
                 </div>
             </div>
@@ -650,8 +642,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             </div>
         </div>
     `;
-
 }
+
 
 
 
@@ -904,89 +896,73 @@ async function updateServerDateCycle(dateCycle) {
 
 
 
+function pinThisDatecycle(uniqueKey) {
+    console.log(`Toggling pin status for dateCycle with unique_key: ${uniqueKey}`);
 
-function pinThisDatecycle(element) {
-    console.log("Toggling pin status for dateCycle");
-
-    // Step 1: Retrieve the closest .date-info div from the clicked element.
-    const dateInfoDiv = element.closest('.date-info');
-    if (!dateInfoDiv) {
-        console.log("No date-info element found.");
-        return;
-    }
-
-    // Step 2: Retrieve the unique_key from the date-info div.
-    const uniqueKey = dateInfoDiv.getAttribute('data-key');
-    if (!uniqueKey) {
-        console.log("No unique_key found on date-info element.");
-        return;
-    }
-
-    // Step 3: Retrieve all calendar keys from localStorage.
+    // Step 1: Retrieve all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     let found = false;
 
-    // Step 4: Iterate through the calendar arrays to find the matching dateCycle.
+    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
         const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
+
         if (dateCycleIndex !== -1) {
             let dateCycle = calendarData[dateCycleIndex];
 
-            // Toggle pinned status: set to "1" if not pinned, otherwise "0".
-            dateCycle.pinned = (dateCycle.pinned === "1") ? "0" : "1";
+            // Step 3: Toggle the 'pinned' status.
+            dateCycle.pinned = dateCycle.pinned === '1' ? '0' : '1';
             console.log(`New pin status for ${dateCycle.title}: ${dateCycle.pinned}`);
 
-            // Step 5: Mark the record as unsynced if it was previously synced.
-            if (dateCycle.synced === "1") {
-                dateCycle.synced = "0";
+            // Step 4: Mark as unsynced if previously synced.
+            if (dateCycle.synced === '1') {
+                dateCycle.synced = '0';
             }
 
-            // Step 6: If online and logged in, attempt to update the server immediately.
+            // Step 5: Attempt to update the server immediately if online.
             if (navigator.onLine && localStorage.getItem('buwana_id')) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
-                        // Mark it as synced locally.
-                        dateCycle.synced = "1";
+                        dateCycle.synced = '1';
                         calendarData[dateCycleIndex] = dateCycle;
                         localStorage.setItem(key, JSON.stringify(calendarData));
                     })
                     .catch(error => {
                         console.error(`Error updating server for ${dateCycle.title}:`, error);
-                        // Leave synced as "0" so that it will be retried later.
                     });
             } else {
                 console.log("Offline or not logged in – update queued for next sync.");
             }
 
-            // Step 7: Update localStorage with the modified calendar data.
+            // Step 6: Update localStorage with modified calendar data.
             calendarData[dateCycleIndex] = dateCycle;
             localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle in calendar: ${key}`, dateCycle);
 
-            // Step 8: If the record is now pinned (i.e. pinned === "1"), trigger the slide-out animation.
-            if (dateCycle.pinned === "1") {
-                dateInfoDiv.classList.add("slide-out-right");
+            // Step 7: Handle animation and UI refresh.
+            const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+
+            if (dateCycle.pinned === "1" && dateCycleDiv) {
+                dateCycleDiv.classList.add("slide-out-right");
                 setTimeout(() => {
-                    // After animation completes (0.4s), refresh the UI.
                     highlightDateCycles(targetDate);
                 }, 400);
             } else {
-                // Otherwise, refresh the UI immediately.
                 highlightDateCycles(targetDate);
             }
 
             found = true;
-            break; // Exit loop once the record is updated.
+            break;
         }
     }
 
-    // Step 9: Handle the case where no matching dateCycle was found.
+    // Step 8: Handle case where no dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 }
+
 
 
 
