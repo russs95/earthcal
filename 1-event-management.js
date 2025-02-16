@@ -500,9 +500,14 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
     const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
 
-    const eventNameStyle = dateCycle.completed == "1"
+    // const eventNameStyle = dateCycle.completed == "1"
+    //     ? "text-decoration: line-through; color: grey;"
+    //     : `color: ${bulletColor}`;
+
+    const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
         : `color: ${bulletColor}`;
+
 
     const isPublic = String(dateCycle.public) === "1";
     const hideButtonsStyle = isPublic ? "display: none;" : "display: flex;";
@@ -627,10 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 });
-
-
-
-
 
 
 
