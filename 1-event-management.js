@@ -477,10 +477,6 @@ async function highlightDateCycles(targetDate) {
 
 
 
-
-
-
-
 // Function to toggle visibility of all-current-datecycles, all-pinned-datecycles, and icon
 function toggleDateCycleView() {
     const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
@@ -488,50 +484,64 @@ function toggleDateCycleView() {
     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
     if (allCurrentDateCyclesDiv && allPinnedDateCyclesDiv && showHideIcon) {
-        // Toggle visibility
-        const isHidden = allCurrentDateCyclesDiv.style.display === "none" || allCurrentDateCyclesDiv.style.display === "";
+        // First click should always HIDE the date cycles
+        const isVisible = allCurrentDateCyclesDiv.style.display !== "none";
 
-        if (isHidden) {
-            allCurrentDateCyclesDiv.style.display = "block"; // Show current date cycles
-            allPinnedDateCyclesDiv.style.display = "block";  // Show pinned date cycles
-            showHideIcon.textContent = "🔻"; // Change icon
-        } else {
+        if (isVisible) {
             allCurrentDateCyclesDiv.style.display = "none"; // Hide current date cycles
             allPinnedDateCyclesDiv.style.display = "none";  // Hide pinned date cycles
             showHideIcon.textContent = "🔺"; // Change icon
+        } else {
+            allCurrentDateCyclesDiv.style.display = "block"; // Show current date cycles
+            allPinnedDateCyclesDiv.style.display = "block";  // Show pinned date cycles
+            showHideIcon.textContent = "🔻"; // Change icon
         }
     }
 }
 
-// Ensure the toggle function is always attached, regardless of event count
+// Ensure the toggle function is always attached on page load
 document.addEventListener("DOMContentLoaded", () => {
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
 
     if (currentDatecycleCount) {
-        // Ensure the toggle function is added unconditionally
         currentDatecycleCount.addEventListener("click", toggleDateCycleView);
 
-        // Set a temporary loading message with an icon to ensure first click works
-        currentDatecycleCount.innerHTML = `
-            <span id="show-hide-datecycles-icon">🔺</span> Loading events...
-        `;
+        // Ensure all date cycles start as visible
+        const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
+        const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
+        const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
-        // Ensure the UI refreshes after event data is loaded
-        setTimeout(() => {
-            if (window.dateCycleCount !== undefined) {
-                updateDateCycleCount(0, 0); // Set initial values (will be updated later)
-            }
-        }, 100); // Small delay to allow for initial loading
+        if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "block";
+        if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "block";
+        if (showHideIcon) showHideIcon.textContent = "🔻"; // Default to expanded icon
+
+        // Set an initial message before events are loaded
+        currentDatecycleCount.innerHTML = `
+            <span id="show-hide-datecycles-icon">🔻</span> Loading events...
+        `;
     }
 });
 
-// Ensure the update function replaces "Loading events..." properly
+
 function updateDateCycleCount(pinnedCount, currentCount) {
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
     if (currentDatecycleCount) {
+        let message = "This day you have ";
+
+        // Dynamically construct the message based on available events
+        if (pinnedCount > 0 && currentCount > 0) {
+            message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
+        } else if (pinnedCount > 0) {
+            message += `${pinnedCount} pinned dateCycles.`;
+        } else if (currentCount > 0) {
+            message += `${currentCount} current dateCycles.`;
+        } else {
+            message = "This day you have no dateCycles."; // No events case
+        }
+
+        // Update the UI
         currentDatecycleCount.innerHTML = `
-            <span id="show-hide-datecycles-icon">🔺</span>
-            Today you have ${pinnedCount} pinned and ${currentCount} current events.
+            <span id="show-hide-datecycles-icon">🔺</span> ${message}
         `;
     }
 }
