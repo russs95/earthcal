@@ -591,7 +591,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
-
 // Function to toggle visibility of all-current-datecycles, all-pinned-datecycles, and icon
 function toggleDateCycleView() {
     const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
@@ -599,7 +598,7 @@ function toggleDateCycleView() {
     const showHideIcon = document.getElementById("show-hide-datecycles-icon");
 
     if (allCurrentDateCyclesDiv && allPinnedDateCyclesDiv && showHideIcon) {
-        // Check if both sections are currently hidden or not
+        // Toggle visibility
         const isHidden = allCurrentDateCyclesDiv.style.display === "none" || allCurrentDateCyclesDiv.style.display === "";
 
         if (isHidden) {
@@ -614,21 +613,21 @@ function toggleDateCycleView() {
     }
 }
 
-
-// Ensure toggle function is attached only after writeMatchingDateCycles has run
+// Ensure the toggle function is always attached, regardless of event count
 document.addEventListener("DOMContentLoaded", () => {
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
-    if (currentDatecycleCount) {
-        // Wait until the first event is written before initializing the count
-        if (window.dateCycleCount > 0) {
-            updateDateCycleCount();
-        } else {
-            currentDatecycleCount.innerHTML = ""; // Keep it empty until events are loaded
-        }
 
+    if (currentDatecycleCount) {
+        // Ensure the toggle function is added unconditionally
         currentDatecycleCount.addEventListener("click", toggleDateCycleView);
+
+        // Initially set a placeholder until events are loaded
+        currentDatecycleCount.innerHTML = `
+            <span id="show-hide-datecycles-icon">🔺</span> Loading events...
+        `;
     }
 });
+
 
 
 
