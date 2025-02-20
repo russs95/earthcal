@@ -581,16 +581,19 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
-                <button class="bullet-pin-button"
-                    role="button"
-                    aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
-                    title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
-                    onclick="pinThisDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
-                    onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                    onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
-                    style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                    ${dateCycle.pinned === '1' ? '📌' : '⬤'}
-                </button>
+                ${isPublic ?
+                    `<span title="This dateCycle is public and cannot be pinned" style="font-size: 1.2em;">🇮🇩</span>` :
+                    `<button class="bullet-pin-button"
+                        role="button"
+                        aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                        title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                        onclick="pinThisDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                        onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                        onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                        style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                        ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                    </button>`
+                }
             </div>
 
             <!-- Date Cycle Content -->
