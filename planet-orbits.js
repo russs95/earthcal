@@ -7,7 +7,7 @@ class Planet {
 
   animate() {
     const planetElement = document.getElementById(this.element_id);
-    const planetOrbitElement = document.getElementById(this.orbit_id);
+    //const planetOrbitElement = document.getElementById(this.orbit_id);
 
     // Reference date
     const yearStart = new Date(2023, 0, 1);
@@ -22,7 +22,7 @@ class Planet {
     const orbitRatio2 = totalDays / this.orbit_days;
 
     // Pre-calculate trigonometric values
-    const orbitRadius = planetOrbitElement.r.baseVal.value;
+    //const orbitRadius = planetOrbitElement.r.baseVal.value;
     const finalCoords1 = {
       x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio1),
       y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio1),
