@@ -389,19 +389,21 @@ async function highlightDateCycles(targetDate) {
 
     dateCycleEvents.forEach(dateCycle => {
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
-        const storedDateFormattedAnnual = `-${dateCycle.day}-${dateCycle.month}-`; // Annual events
+        const storedDateFormattedAnnual = `-${dateCycle.day}-${dateCycle.month}-`;
 
         if (
             storedDateFormatted === formattedTargetDate ||
             (dateCycle.frequency && dateCycle.frequency.toLowerCase() === "annual" && storedDateFormattedAnnual === formattedTargetDateAnnual)
         ) {
-            if (dateCycle.pinned === "1") {
+            // 🔹 Convert pinned to a string before checking
+            if (String(dateCycle.pinned) === "1") {
                 matchingPinned.push(dateCycle);
             } else {
                 matchingCurrent.push(dateCycle);
             }
         }
     });
+
 
     console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
 
