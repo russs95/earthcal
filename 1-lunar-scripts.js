@@ -126,7 +126,7 @@ function calculateHijriMonthNames(currentYear) {
 
     // Get the first new moon date of the year
     const firstNewMoon = getFirstNewMoon(currentYear);
-    let moonDay = getTheDayOfYearforLunar(firstNewMoon) + 2; // Set the value of moonDay and add 1
+    let moonDay = getTheDayOfYearforLunar(firstNewMoon) + 1; // Set the value of moonDay and add 1
 
     // Log the final value of moonDay to the console with up to two decimals
     // alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
@@ -142,10 +142,10 @@ function calculateHijriMonthNames(currentYear) {
     let lunarMonthNumber = 1;
     if (dayOfYear >= moonDay) {
         const daysSinceFirstNewMoon = dayOfYear - moonDay;
-        lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 1;
+        lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 2;
     } else {
         const daysUntilFirstNewMoon = moonDay - dayOfYear;
-        lunarMonthNumber = Math.floor(daysUntilFirstNewMoon / synodicMonth) + 1;
+        lunarMonthNumber = Math.floor(daysUntilFirstNewMoon / synodicMonth) + 2;
     }
 
     return lunarMonthNumber;
