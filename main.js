@@ -173,37 +173,6 @@ function showLicenseDialog() {
 
 
 
-function uploadDateCycles() {
-  const fileInput = document.getElementById('jsonUpload');
-
-  if (fileInput.files.length === 0) {
-      alert('Please select a JSON file to upload.');
-      return;
-  }
-
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(event) {
-      const jsonString = event.target.result;
-      try {
-          const dateCycles = JSON.parse(jsonString);
-          if (Array.isArray(dateCycles)) {
-              // Store dateCycles in browser's cache or any desired storage
-              localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-              alert('DateCycles uploaded and stored.');
-          } else {
-              alert('Uploaded JSON does not contain valid dateCycles.');
-          }
-      } catch (error) {
-          alert('Error parsing JSON file: ' + error.message);
-      }
-  };
-
-  reader.readAsText(file);
-  fetchDateCycles()
-}
-
 
 
 app.whenReady().then(createWindow);
@@ -226,7 +195,7 @@ app.on('window-all-closed', () => {
 // sudo snap install --dangerous ./earthcal_0.4.0_amd64.snap
 // snapcraft login
 // snapcraft push earthcal_0.4.15_amd64.snap
-//sudo snap refresh earthcal
+//sudo snap refresh earthcal --edge
 ////// npx electron-builder --linux snap
 //sudo snap install --dangerous dist/earthcal_0.9.0_amd64.snap
 //snapcraft login

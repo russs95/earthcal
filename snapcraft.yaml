@@ -14,13 +14,15 @@ apps:
     plugs:
       - browser-support
       - desktop
+      - desktop-legacy
       - home
       - network
       - network-bind
       - x11
-
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
+      ELECTRON_DISABLE_SANDBOX: 1  # <---- ADD THIS LINE
+
 
 parts:
   earthcal:

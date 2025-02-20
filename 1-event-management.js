@@ -435,6 +435,7 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
+
     // Write matching current dateCycles.
     matchingCurrent.forEach(dc => {
         if (currentDiv) {
@@ -573,7 +574,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             margin-bottom: 10px;
             border-radius: 8px;
             position: relative;
-            min-height: 75px;">
+            min-height: 75px;
+            direction: ltr;">
             
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
