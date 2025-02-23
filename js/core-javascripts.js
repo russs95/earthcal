@@ -279,7 +279,7 @@ function openMainMenu() {
 
 
         <a href="https://snapcraft.io/earthcal" style="margin-top:20px">
-            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+            <img alt="Get it from the Snap Store" src="../svgs/snap-store-black.svg" />
         </a>
 
         <p style="font-size:small;">${translations.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>

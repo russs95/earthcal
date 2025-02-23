@@ -74,148 +74,148 @@
 
 
    .top-search-button {
-    background: url(svgs/search-day.svg) no-repeat;
+    background: url(../svgs/search-day.svg) no-repeat;
     background-size: contain;
 }
 
 .top-search-button:hover {
-      background: url(svgs/search-day-over.svg) no-repeat;
+      background: url(../svgs/search-day-over.svg) no-repeat;
       background-size: contain;
   }
 
 .top-settings-button {
-    background: url(svgs/settings-icon.svg) no-repeat;
+    background: url(../svgs/settings-icon.svg) no-repeat;
     background-size: contain;
 }
 
 .top-settings-icon {
-    background: url(svgs/settings-icon.svg) no-repeat;
+    background: url(../svgs/settings-icon.svg) no-repeat;
     background-size: contain;
 }
 
 .top-help-button {
-  background: url(svgs/about-i-day.svg) no-repeat;
+  background: url(../svgs/about-i-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-help-button:hover {
-    background: url(svgs/about-i-day.svg) no-repeat;
+    background: url(../svgs/about-i-day.svg) no-repeat;
     background-size: contain;
 }
 
 .top-cycles-button {
-  background: url(svgs/cycles-day.svg) no-repeat;
+  background: url(../svgs/cycles-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-cycles-button:hover {
-  background: url(svgs/cycles-day-over.svg) no-repeat;
+  background: url(../svgs/cycles-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 #solarsystem-button {
-  background: url(svgs/cycles-day.svg) no-repeat;
+  background: url(../svgs/cycles-day.svg) no-repeat;
   background-size: contain;
 }
 
 #solarsystem-button:hover {
-  background: url(svgs/cycles-day-over.svg) no-repeat;
+  background: url(../svgs/cycles-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 #solarsystem-button.active {
-  background: url(svgs/cycles-day-over.svg) no-repeat;
+  background: url(../svgs/cycles-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 #moon-button {
-  background: url(svgs/moon-day.svg) no-repeat;
+  background: url(../svgs/moon-day.svg) no-repeat;
   background-size: contain;
 }
 
 #moon-button:hover {
-    background: url(svgs/moon-day-over.svg) no-repeat;
+    background: url(../svgs/moon-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 #moon-button.active {
-  background: url(svgs/moon-day-over.svg) no-repeat;
+  background: url(../svgs/moon-day-over.svg) no-repeat;
   background-size: contain;
 }
 
 #whale-earthbutton {
-  background: url(svgs/earth-day.svg) no-repeat;
+  background: url(../svgs/earth-day.svg) no-repeat;
   background-size: contain;
 }
 
 #whale-earthbutton:hover {
-    background: url(svgs/earth-day-over.svg) no-repeat;
+    background: url(../svgs/earth-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 #whale-earthbutton.active {
-  background: url(svgs/earth-day-over.svg) no-repeat;
+  background: url(../svgs/earth-day-over.svg) no-repeat;
   background-size: contain;
 }
 
 .top-menu-button {
-  background: url(svgs/menu-day.svg) no-repeat;
+  background: url(../svgs/menu-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-menu-button:hover {
-  background: url(svgs/menu-day-over.svg) no-repeat;
+  background: url(../svgs/menu-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 .main-menu-button {
-  background: url(svgs/login-icon.svg) no-repeat;
+  background: url(../svgs/login-icon.svg) no-repeat;
   background-size: contain;
 }
 
 .main-menu-button:hover  {
-  background: url(svgs/login-icon-over.svg) no-repeat;
+  background: url(../svgs/login-icon-over.svg) no-repeat;
   background-size: contain;
 }
 
 .earthcycles-logo {
   
-  background: url(svgs/earthcycles-logo-motto-o-day.svg) no-repeat;
+  background: url(../svgs/earthcycles-logo-motto-o-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-add-button {
-  background: url(svgs/add-day.svg) no-repeat;
+  background: url(../svgs/add-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-add-button:hover {
-    background: url(svgs/add-day-over.svg) no-repeat;
+    background: url(../svgs/add-day-over.svg) no-repeat;
     background-size: contain;
 }
 
 .top-add-icon {
-  background: url(svgs/add-day.svg) no-repeat;
+  background: url(../svgs/add-day.svg) no-repeat;
   background-size: contain;
 }
 
 .top-search-icon {
-  background: url(svgs/search-day.svg) no-repeat;
+  background: url(../svgs/search-day.svg) no-repeat;
   background-size: contain;
 }
 
 #reg-up-button {
-  background: url(svgs/up-reg-arrow-light.svg) center no-repeat;
+  background: url(../svgs/up-reg-arrow-light.svg) center no-repeat;
   background-size: contain;
 }
 
 #export-down-arrow {
-  background: url(svgs/down-arrow.svg) no-repeat;
+  background: url(../svgs/down-arrow.svg) no-repeat;
   background-size: contain;
 }
 
 #export-down-arrow:hover {
-    background: url(svgs/down-arrow-over.svg) no-repeat;
+    background: url(../svgs/down-arrow-over.svg) no-repeat;
     background-size: contain;
 }
 
@@ -226,73 +226,101 @@
 
 
 #prev-year {
-  background: url(svgs/to-prev-year-day.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year:hover {
-  background: url(svgs/to-prev-year-day-over.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year-search {
-  background: url(svgs/to-prev-year-day.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year-search:hover {
-  background: url(svgs/to-prev-year-day-over.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-day {
-  background: url(svgs/to-yesterday-day.svg) center no-repeat;
+  background: url(../svgs/to-yesterday-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-day:hover {
-  background: url(svgs/to-yesterday-day-over.svg) center no-repeat;
+  background: url(../svgs/to-yesterday-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #reset-to-today {
-  background: url(svgs/to-today-day.svg) center no-repeat;
+  background: url(../svgs/to-today-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #reset-to-today:hover {
-  background: url(svgs/to-today-day-over.svg) center no-repeat;
+  background: url(../svgs/to-today-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-day {
-  background: url(svgs/to-tomorrow-day.svg) center no-repeat;
+  background: url(../svgs/to-tomorrow-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-day:hover {
-  background: url(svgs/to-tomorrow-day-over.svg) center no-repeat;
+  background: url(../svgs/to-tomorrow-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year {
-  background: url(svgs/to-next-year-day.svg) center no-repeat;
+  background: url(../svgs/to-next-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year:hover {
-  background: url(svgs/to-next-year-day-over.svg) center no-repeat;
+  background: url(../svgs/to-next-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year-search {
-  background: url(svgs/to-next-year-day.svg) center no-repeat;
+  background: url(../svgs/to-next-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year-search:hover {
-  background: url(svgs/to-next-year-day-over.svg) center no-repeat;
+  background: url(../svgs/to-next-year-day-over.svg) center no-repeat;
   background-size: contain;
+}
+
+.eye-open {
+    background: url(../icons/event-show.svg) center no-repeat;
+    background-size: contain;
+    width: 38px;
+    height:25px;
+    cursor:pointer;
+    margin-right:24px;
+    margin-left:6px;
+}
+.eye-open:hover {
+    background: url(../icons/event-hide.svg) center no-repeat;
+    background-size: contain;
+}
+
+.eye-closed {
+    background: url(../icons/event-hide.svg) center no-repeat;
+    background-size: contain;
+    width: 38px;
+    height:25px;
+    cursor:pointer;
+    margin-right:24px;
+    margin-left:6px;
+}
+.eye-closed:hover {
+    background: url(../icons/event-show.svg) center no-repeat;
+    background-size: contain;
 }
 
 .night-only {display:none;}
@@ -301,12 +329,12 @@
 
 
 .top-clock-button {
-    background: url(svgs/clock-day.svg) no-repeat;
+    background: url(../svgs/clock-day.svg) no-repeat;
     background-size: contain;
 }
 
 .top-clock-button:hover {
-      background: url(svgs/clock-day-over.svg) no-repeat;
+      background: url(../svgs/clock-day-over.svg) no-repeat;
       background-size: contain;
   }
 
@@ -314,11 +342,11 @@
 .blur {
   background: #ededed;}*/
 .x-button {
-  background: url(svgs/x-day.svg) center no-repeat;
+  background: url(../svgs/x-day.svg) center no-repeat;
   background-size: contain;
   }
 
   .x-button:hover {
-  background: url(svgs/x-day-over.svg) center no-repeat;
+  background: url(../svgs/x-day-over.svg) center no-repeat;
   background-size: contain;
   }

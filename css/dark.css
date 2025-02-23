@@ -76,7 +76,7 @@
    opacity:0}
 
  #reg-up-button {
-  background: url(svgs/up-reg-arrow-dark.svg) center no-repeat;
+  background: url(../svgs/up-reg-arrow-dark.svg) center no-repeat;
   background-size: contain;
 }
   
@@ -86,100 +86,100 @@
  }
 
 .top-search-button {
-    background: url(svgs/search-night.svg) no-repeat;
+    background: url(../svgs/search-night.svg) no-repeat;
     background-size: contain;
 }
 
 .top-search-button:hover {
-      background: url(svgs/search-night-over.svg) no-repeat;
+      background: url(../svgs/search-night-over.svg) no-repeat;
       background-size: contain;
   }
 
 
 .top-clock-button {
-    background: url(svgs/clock-night.svg) no-repeat;
+    background: url(../svgs/clock-night.svg) no-repeat;
     background-size: contain;
 }
 
 .top-clock-button:hover {
-      background: url(svgs/clock-night-over.svg) no-repeat;
+      background: url(../svgs/clock-night-over.svg) no-repeat;
       background-size: contain;
   }
 
 
   .top-help-button {
-    background: url(svgs/about-i-night.svg) no-repeat;
+    background: url(../svgs/about-i-night.svg) no-repeat;
     background-size: contain;
 }
 
 .top-help-button:hover {
-      background: url(svgs/about-i-night-over.svg) no-repeat;
+      background: url(../svgs/about-i-night-over.svg) no-repeat;
       background-size: contain;
   }
 
 .top-close-button {
-  background: url(svgs/down-arrow.svg) no-repeat;
+  background: url(../svgs/down-arrow.svg) no-repeat;
   background-size: contain;
 }
 
 .top-close-button:hover {
-  background: url(svgs/up-reg-arrow-dark.svg) no-repeat;
+  background: url(../svgs/up-reg-arrow-dark.svg) no-repeat;
   background-size: contain;
 }
 
 .top-menu-button {
-  background: url(svgs/menu-night.svg) no-repeat;
+  background: url(../svgs/menu-night.svg) no-repeat;
   background-size: contain;
 }
 
 .top-menu-button:hover {
-    background: url(svgs/menu-night-over.svg) no-repeat;
+    background: url(../svgs/menu-night-over.svg) no-repeat;
     background-size: contain;
 }
 
 
 #solarsystem-button {
-  background: url(svgs/cycles-night.svg) no-repeat;
+  background: url(../svgs/cycles-night.svg) no-repeat;
   background-size: contain;
 }
 
 #solarsystem-button:hover {
-    background: url(svgs/cycles-night-over.svg) no-repeat;
+    background: url(../svgs/cycles-night-over.svg) no-repeat;
     background-size: contain;
 }
 
 #solarsystem-button.active {
-  background: url(svgs/cycles-night-over.svg) no-repeat;
+  background: url(../svgs/cycles-night-over.svg) no-repeat;
   background-size: contain;
 }
 
 #moon-button {
-  background: url(svgs/moon-night.svg) no-repeat;
+  background: url(../svgs/moon-night.svg) no-repeat;
   background-size: contain;
 }
 
 #moon-button:hover {
-    background: url(svgs/moon-night-over.svg) no-repeat;
+    background: url(../svgs/moon-night-over.svg) no-repeat;
     background-size: contain;
 }
 
 #moon-button.active {
-  background: url(svgs/moon-night-over.svg) no-repeat;
+  background: url(../svgs/moon-night-over.svg) no-repeat;
   background-size: contain;
 }
 
 #whale-earthbutton {
-  background: url(svgs/earth-night.svg) no-repeat;
+  background: url(../svgs/earth-night.svg) no-repeat;
   background-size: contain;
 }
 
 #whale-earthbutton:hover {
-    background: url(svgs/earth-night-over.svg) no-repeat;
+    background: url(../svgs/earth-night-over.svg) no-repeat;
     background-size: contain;
 }
 
 #whale-earthbutton.active {
-  background: url(svgs/earth-night-over.svg) no-repeat;
+  background: url(../svgs/earth-night-over.svg) no-repeat;
   background-size: contain;
 }
 
@@ -194,74 +194,74 @@
 
 
 .main-menu-button {
-    background: url(svgs/login-icon-night.svg?v=3) no-repeat;
+    background: url(../svgs/login-icon-night.svg?v=3) no-repeat;
     background-size: contain;
 }
 
 .main-menu-button:hover  {
-    background: url(svgs/login-icon-night-over.svg) no-repeat;
+    background: url(../svgs/login-icon-night-over.svg) no-repeat;
     background-size: contain;
 }
 
 .earthcycles-logo {
   
-  background: url(svgs/earthcycles-logo-motto-o.svg) no-repeat;
+  background: url(../svgs/earthcycles-logo-motto-o.svg) no-repeat;
   background-size: contain;
 }
 
 
 .top-add-button {
-  background: url(svgs/add-night.svg) no-repeat center;
+  background: url(../svgs/add-night.svg) no-repeat center;
   background-size: contain;
 }
 
 .top-add-button:hover {
-    background: url(svgs/add-night-over.svg) no-repeat;
+    background: url(../svgs/add-night-over.svg) no-repeat;
     background-size: contain;
 
 }
 
 
 .top-add-icon {
-  background: url(svgs/add-night.svg) no-repeat;
+  background: url(../svgs/add-night.svg) no-repeat;
   background-size: contain;
 }
 
 .top-search-icon {
-  background: url(svgs/search-night.svg) no-repeat;
+  background: url(../svgs/search-night.svg) no-repeat;
   background-size: contain;
 }
 
 #export-down-arrow {
-  background: url(svgs/down-arrow.svg) no-repeat;
+  background: url(../svgs/down-arrow.svg) no-repeat;
   background-size: contain;
 }
 
 #export-down-arrow:hover {
-    background: url(svgs/down-arrow-over.svg) no-repeat;
+    background: url(../svgs/down-arrow-over.svg) no-repeat;
     background-size: contain;
 }
 
 #export-up-arrow {
-  background: url(svgs/up-arrow.svg) no-repeat;
+  background: url(../svgs/up-arrow.svg) no-repeat;
   background-size: contain;
   display: none;
 }
 
 #export-up-arrow:hover {
-    background: url(svgs/up-arrow-over.svg) no-repeat;
+    background: url(../svgs/up-arrow-over.svg) no-repeat;
     background-size: contain;
 }
 
 
 
 #export-up-arrow:hover {
-    background: url(svgs/up-arrow-over.svg) no-repeat;
+    background: url(../svgs/up-arrow-over.svg) no-repeat;
     background-size: contain;
 }
 
 #reg-up-button {
-  background: url(svgs/up-reg-arrow-dark.svg) center no-repeat;
+  background: url(../svgs/up-reg-arrow-dark.svg) center no-repeat;
   background-size: contain;
 }
 
@@ -272,78 +272,78 @@
 
 
 #prev-year {
-  background: url(svgs/to-prev-year-night.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year:hover {
-  background: url(svgs/to-prev-year-night-over.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-day {
-  background: url(svgs/to-yesterday-night.svg) center no-repeat;
+  background: url(../svgs/to-yesterday-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-day:hover {
-  background: url(svgs/to-yesterday-night-over.svg) center no-repeat;
+  background: url(../svgs/to-yesterday-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #reset-to-today {
-  background: url(svgs/to-today-night.svg) center no-repeat;
+  background: url(../svgs/to-today-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #reset-to-today:hover {
-  background: url(svgs/to-today-night-over.svg) center no-repeat;
+  background: url(../svgs/to-today-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-day {
-  background: url(svgs/to-tomorrow-night.svg) center no-repeat;
+  background: url(../svgs/to-tomorrow-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-day:hover {
-  background: url(svgs/to-tomorrow-night-over.svg) center no-repeat;
+  background: url(../svgs/to-tomorrow-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year {
-  background: url(svgs/to-next-year-night.svg) center no-repeat;
+  background: url(../svgs/to-next-year-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year:hover {
-  background: url(svgs/to-next-year-night-over.svg) center no-repeat;
+  background: url(../svgs/to-next-year-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year-search {
-  background: url(svgs/to-prev-year-night.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #prev-year-search:hover {
-  background: url(svgs/to-prev-year-night-over.svg) center no-repeat;
+  background: url(../svgs/to-prev-year-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 
 #next-year-search {
-  background: url(svgs/to-next-year-night.svg) center no-repeat;
+  background: url(../svgs/to-next-year-night.svg) center no-repeat;
   background-size: contain;
 }
 
 #next-year-search:hover {
-  background: url(svgs/to-next-year-night-over.svg) center no-repeat;
+  background: url(../svgs/to-next-year-night-over.svg) center no-repeat;
   background-size: contain;
 }
 
 .top-settings-icon {
-    background: url(svgs/settings-icon-dark.svg) no-repeat;
+    background: url(../svgs/settings-icon-dark.svg) no-repeat;
     background-size: contain;
 }
 
@@ -352,12 +352,12 @@
 .day-only {display:none;}
 
 .x-button {
-  background: url(svgs/x-night.svg) center no-repeat;
+  background: url(../svgs/x-night.svg) center no-repeat;
   background-size: contain;
   }
 
   .x-button:hover {
-  background: url(svgs/x-night-over.svg) center no-repeat;
+  background: url(../svgs/x-night-over.svg) center no-repeat;
   background-size: contain;
   }
 

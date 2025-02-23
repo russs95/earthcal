@@ -91,18 +91,18 @@ bottom-info: 9  needed?
   <script src="js/hijri-js.common.min.js"></script>
 <!--This loads the main calendar javascript -->
 
-<script src="1-javascripts.js"></script> <!--functional scripts-->
+<script src="js/core-javascripts.js"></script> <!--functional scripts-->
 <script src="1-set-target-date.js"></script> <!--functional scripts-->
 <script src="1-lunar-scripts.js"></script><!-- concerning the moon-->
 <script src="planet-orbits.js"></script><!--planets-->
     <script src="login-scripts.js"></script><!--planets-->
 
 <!--Default Light Styles to load first-->
-<link rel="preload" href="light.css?v5.2" as="style" onload="this.rel='stylesheet'">
+<link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
 
 <!--Stylesheets for light and dark mode.  They need to be called here-->
-<link rel="stylesheet" href="light.css?v5.8" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
-<link rel="stylesheet" href="dark.css?v5.8" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="css/light.css?v5.8" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
+<link rel="stylesheet" href="css/dark.css?v5.8" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="slider.css?v=1.2">
 
 
@@ -980,9 +980,9 @@ margin-bottom: 25px;">
     
     <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
       <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
-        <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; margin-top: 16px;">
+        <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
           <div id="current-date-info"></div>
-          <div id="user-timezone-lang"></div>
+            <div id="user-timezone-lang"></div>
 
         </div>
 
@@ -990,10 +990,11 @@ margin-bottom: 25px;">
           <button type="button" class="top-add-button" onclick="openAddCycle()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
         </div>
       </div>
-        <div id="current-datecycle-count" style="font-size: 0.92em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;padding: 0px 0px 5px 0px;
-  margin-bottom: 15px;
-  border-bottom: 1px #80808061 dashed;
-  margin-right: 24px;text-align:right;max-width:200px;margin-left:auto;"></div>
+
+        <div id="date-cycle-count-box" style="display: flex; flex-flow:row;">
+            <div id="current-datecycle-count" style="font-size: 0.88em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;padding: 0px 0px 5px 0px;margin-bottom: 15px;margin-right: 0px;text-align:right;max-width:210px;margin-left:auto;"></div>
+            <div id="eye-icon"></div>
+        </div>
     </div>
 
     <div id="date-controls" style="margin-left: auto;z-index: 29;margin-right: 10px;border-radius: 5px;padding: 8px;position: fixed;bottom:0px;left: 10px;background-color: var(--general-background);

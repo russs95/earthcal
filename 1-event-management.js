@@ -1,5 +1,5 @@
 //  OPENING THE ADD DATECYCLE FORM
-// noinspection ExceptionCaughtLocallyJS,JSUnusedGlobalSymbols
+
 
 
 async function openAddCycle() {
@@ -190,8 +190,7 @@ async function populateCalendarDropdown(buwanaId) {
 
 
 
-
-
+//Populate the date fields of the add Datecycle form with the current targetDate
 
 function populateDateFields(targetDate) {
     // Ensure targetDate is a valid Date object
@@ -362,7 +361,7 @@ async function highlightDateCycles(targetDate) {
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
     const formattedTargetDateAnnual = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-`; // No year for annual events
 
-    console.log(`Normalized target date for highlighting: ${formattedTargetDate}`);
+    //console.log(`Normalized target date for highlighting: ${formattedTargetDate}`);
 
     // Remove "date_event" class from previously highlighted elements.
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
@@ -375,7 +374,7 @@ async function highlightDateCycles(targetDate) {
         updateDateCycleCount(0, 0); // No events, reset count display
         return;
     }
-    console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
+    //console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
 
     // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
@@ -405,7 +404,7 @@ async function highlightDateCycles(targetDate) {
     });
 
 
-    console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
+    //console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
 
     // Get the container elements.
     const pinnedDiv = document.getElementById('pinned-datecycles');
@@ -480,74 +479,68 @@ async function highlightDateCycles(targetDate) {
 
 
 
-// Function to toggle visibility of all-current-datecycles, all-pinned-datecycles, and icon
+// Function to toggle visibility of the date cycle details
 function toggleDateCycleView() {
     const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
     const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
-    const showHideIcon = document.getElementById("show-hide-datecycles-icon");
+    const eyeIcon = document.getElementById("eye-icon");
 
-    if (allCurrentDateCyclesDiv && allPinnedDateCyclesDiv && showHideIcon) {
-        // First click should always HIDE the date cycles
-        const isVisible = allCurrentDateCyclesDiv.style.display !== "none";
+    if (!allPinnedDateCyclesDiv || !allCurrentDateCyclesDiv || !eyeIcon) return;
 
-        if (isVisible) {
-            allCurrentDateCyclesDiv.style.display = "none"; // Hide current date cycles
-            allPinnedDateCyclesDiv.style.display = "none";  // Hide pinned date cycles
-            showHideIcon.textContent = "🔺"; // Change icon
-        } else {
-            allCurrentDateCyclesDiv.style.display = "block"; // Show current date cycles
-            allPinnedDateCyclesDiv.style.display = "block";  // Show pinned date cycles
-            showHideIcon.textContent = "🔻"; // Change icon
-        }
+    const isVisible = allCurrentDateCyclesDiv.style.display !== "none";
+
+    if (isVisible) {
+        allCurrentDateCyclesDiv.style.display = "none";
+        allPinnedDateCyclesDiv.style.display = "none";
+        eyeIcon.classList.remove("eye-open");
+        eyeIcon.classList.add("eye-closed");
+    } else {
+        allCurrentDateCyclesDiv.style.display = "block";
+        allPinnedDateCyclesDiv.style.display = "block";
+        eyeIcon.classList.remove("eye-closed");
+        eyeIcon.classList.add("eye-open");
     }
 }
 
-// Ensure the toggle function is always attached on page load
+// Ensure event listener is attached after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-    const currentDatecycleCount = document.getElementById("current-datecycle-count");
-
-    if (currentDatecycleCount) {
-        currentDatecycleCount.addEventListener("click", toggleDateCycleView);
-
-        // Ensure all date cycles start as visible
-        const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
-        const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
-        const showHideIcon = document.getElementById("show-hide-datecycles-icon");
-
-        if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "block";
-        if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "block";
-        if (showHideIcon) showHideIcon.textContent = "🔻"; // Default to expanded icon
-
-        // Set an initial message before events are loaded
-        currentDatecycleCount.innerHTML = `
-            <span id="show-hide-datecycles-icon">🔻</span> Loading events...
-        `;
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (dateCycleCountBox) {
+        dateCycleCountBox.addEventListener("click", toggleDateCycleView);
     }
 });
 
 
 function updateDateCycleCount(pinnedCount, currentCount) {
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
-    if (currentDatecycleCount) {
-        let message = "This day you have ";
+    const eyeIcon = document.getElementById("eye-icon");
 
-        // Dynamically construct the message based on available events
+    if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
+
+    if (pinnedCount === 0 && currentCount === 0) {
+        // No date cycles - hide the entire box
+        dateCycleCountBox.style.display = "none";
+    } else {
+        // Show the box and update content
+        dateCycleCountBox.style.display = "flex";
+        eyeIcon.classList.add("eye-open");
+        eyeIcon.classList.remove("eye-closed");
+
+        let message = "This day you have ";
         if (pinnedCount > 0 && currentCount > 0) {
             message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
         } else if (pinnedCount > 0) {
             message += `${pinnedCount} pinned dateCycles.`;
-        } else if (currentCount > 0) {
-            message += `${currentCount} current dateCycles.`;
         } else {
-            message = "This day you have no dateCycles."; // No events case
+            message += `${currentCount} current dateCycles.`;
         }
 
-        // Update the UI
-        currentDatecycleCount.innerHTML = `
-            <span id="show-hide-datecycles-icon">🔺</span> ${message}
-        `;
+        // Update text without the red triangles
+        currentDatecycleCount.innerHTML = `${message}`;
     }
 }
+
 
 
 
@@ -655,6 +648,60 @@ function writeMatchingDateCycles(divElement, dateCycle) {
 
 
 
+//This is for clicks on the event count text to show or hide the datecycle view
+
+function initializeToggleListener() {
+    const currentDayInfoDiv = document.getElementById('current-day-info');
+    const pinnedDiv = document.getElementById('pinned-datecycles');
+    const matchingDiv = document.getElementById('current-datecycles');
+
+    if (currentDayInfoDiv && pinnedDiv && matchingDiv) {
+        currentDayInfoDiv.addEventListener('click', () => {
+            const isPinnedVisible = pinnedDiv.style.display === 'block';
+            const isMatchingVisible = matchingDiv.style.display === 'block';
+
+            // Toggle visibility
+            pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
+            matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
+
+            // Update the label to show or hide
+            const totalEvents = matchingDiv.children.length + (pinnedDiv.style.display === 'block' ? pinnedDiv.children.length : 0);
+            const actionLabel = (pinnedDiv.style.display === 'block' && matchingDiv.style.display === 'block') ? '' : '👁';
+
+            currentDayInfoDiv.innerText = `${actionLabel} ${totalEvents} events today`;
+        });
+    }
+}
+
+
+
+
+
+
+////////////////////////////////////
+
+
+/* SATECYCLE ACTIONS
+
+
+////////////////////////////////////
+ */
+
+
+
+async function updateServerDateCycle(dateCycle) {
+    // Send the updated dateCycle object to the server endpoint
+    const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dateCycle)
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update dateCycle on server.');
+    }
+    return data;
+}
 
 
 
@@ -730,175 +777,6 @@ function checkOffDatecycle(uniqueKey) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 }
-
-
-
-
-//
-// function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
-//     // Step 1: Retrieve updated values from the edit form.
-//     const frequency = document.getElementById('edit-dateCycle-type').value;
-//     const yearField = document.getElementById('edit-year-field2').value;
-//     const dayField = document.getElementById('edit-day-field2').value;
-//     const monthField = document.getElementById('edit-month-field2').value;
-//     const title = document.getElementById('edit-add-date-title').value.trim();
-//     const eventColor = document.getElementById('edit-DateColorPicker').value;
-//     const comments = document.getElementById('edit-add-date-note').value.trim();
-//
-//     // Update the last_edited field to now.
-//     const now = new Date();
-//     const lastEdited = now.toISOString();
-//
-//     // Construct the date string in "YYYY-MM-DD" format.
-//     const formattedDate = `${yearField}-${monthField}-${dayField}`;
-//
-//     // Step 2: Retrieve the calendar's data from localStorage using calendarKey.
-//     let calendarData = JSON.parse(localStorage.getItem(calendarKey) || '[]');
-//
-//     // Step 3: Find the dateCycle in the calendar data by unique_key.
-//     const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-//     if (index === -1) {
-//         alert("Could not find the dateCycle to update.");
-//         return;
-//     }
-//
-//     // Step 4: Update the dateCycle object with the new values.
-//     let dateCycle = calendarData[index];
-//     dateCycle.frequency = frequency;
-//     dateCycle.year = yearField;
-//     dateCycle.day = dayField;
-//     dateCycle.month = monthField;
-//     dateCycle.date = formattedDate;
-//     dateCycle.title = title;
-//     dateCycle.datecycle_color = eventColor; // Update the calendar color.
-//     dateCycle.comments = comments;
-//     dateCycle.last_edited = lastEdited;
-//
-//     // Mark the record as unsynced so it will be sent to the server.
-//     dateCycle.synced = "0";
-//
-//     // Step 5: Save the updated calendar data back to localStorage.
-//     calendarData[index] = dateCycle;
-//     localStorage.setItem(calendarKey, JSON.stringify(calendarData));
-//
-//     // Step 6: Attempt to update the server immediately if online.
-//     if (navigator.onLine && localStorage.getItem('buwana_id')) {
-//         updateServerDateCycle(dateCycle)
-//             .then(() => {
-//                 console.log(`Server updated for edited dateCycle: ${dateCycle.title}`);
-//                 dateCycle.synced = "1";
-//                 // Save updated sync status.
-//                 calendarData[index] = dateCycle;
-//                 localStorage.setItem(calendarKey, JSON.stringify(calendarData));
-//             })
-//             .catch(error => {
-//                 console.error(`Error updating server for edited dateCycle: ${dateCycle.title}`, error);
-//             });
-//     } else {
-//         console.log("Offline or not logged in – update queued for next sync.");
-//     }
-//
-//     // Step 7: Hide the edit modal and remove the page blur.
-//     const modal = document.getElementById('form-modal-message');
-//     modal.classList.remove('modal-visible');
-//     modal.classList.add('modal-hidden');
-//     document.getElementById("page-content").classList.remove("blur");
-//
-//     // Step 8: Refresh the UI.
-//     // Assumes that targetDate is defined globally or accessible here.
-//     highlightDateCycles(targetDate);
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-function initializeToggleListener() {
-    const currentDayInfoDiv = document.getElementById('current-day-info');
-    const pinnedDiv = document.getElementById('pinned-datecycles');
-    const matchingDiv = document.getElementById('current-datecycles');
-
-    if (currentDayInfoDiv && pinnedDiv && matchingDiv) {
-        currentDayInfoDiv.addEventListener('click', () => {
-            const isPinnedVisible = pinnedDiv.style.display === 'block';
-            const isMatchingVisible = matchingDiv.style.display === 'block';
-
-            // Toggle visibility
-            pinnedDiv.style.display = isPinnedVisible ? 'none' : 'block';
-            matchingDiv.style.display = isMatchingVisible ? 'none' : 'block';
-
-            // Update the label to show or hide
-            const totalEvents = matchingDiv.children.length + (pinnedDiv.style.display === 'block' ? pinnedDiv.children.length : 0);
-            const actionLabel = (pinnedDiv.style.display === 'block' && matchingDiv.style.display === 'block') ? '' : '👁';
-
-            currentDayInfoDiv.innerText = `${actionLabel} ${totalEvents} events today`;
-        });
-    }
-}
-
-
-
-
-
-
-
-//
-//
-// function updateServerDateCycle(dateCycle) {
-//     console.log(`Updating server for dateCycle ID: ${dateCycle.ID}`);
-//
-//     fetch('/update-datecycle', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             ID: dateCycle.ID,
-//             completed: dateCycle.completed,
-//             synced: 'No'  // Explicitly setting it to 'No'
-//         })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log("Server update response:", data);
-//     })
-//     .catch(error => {
-//         console.error("Error updating server:", error);
-//     });
-// }
-
-
-////////////////////////////////////
-
-
-/* DateCcyle ACTIONS
-
-
-////////////////////////////////////
- */
-async function updateServerDateCycle(dateCycle) {
-    // Send the updated dateCycle object to the server endpoint
-    const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dateCycle)
-    });
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update dateCycle on server.');
-    }
-    return data;
-}
-
-
-
 
 
 
@@ -1337,6 +1215,9 @@ async function deleteDateCycle(uniqueKey) {
 
 /////////////////////////////////////////
  */
+
+
+
 // Function to show the add-note-check-boxed div and confirm-dateCycle button
 function showAddNoteCheckbox() {
     const addDateTitleTextarea = document.getElementById('add-date-title');
@@ -1351,6 +1232,8 @@ function showAddNoteCheckbox() {
         confirmDateCycleButton.style.display = 'none';
     }
 }
+
+
 
 // Function to show/hide the add-note-form based on add-note-checkbox
 function toggleAddNoteForm() {
@@ -1440,9 +1323,14 @@ function deleteSelectedCalendar() {
 }
 
 
-//DATECYCLE CALENDAR EXPORTS
+
+///////////////////////
+
+/* EXPORT FUNCTIONS
 
 
+/////////////////////////////////
+ */
 
 // Function to open the export-import div and hide the export-down-arrow
 function openDateCycleExports() {
@@ -1481,13 +1369,6 @@ function closeDateCycleExports() {
 
 
 
-///////////////////////
-
-/* EXPORT FUNCTIONS
-
-
-/////////////////////////////////
- */
 function uploadDateCycles() {
     const fileInput = document.getElementById('jsonUpload');
 
@@ -1587,24 +1468,6 @@ function clearAllDateCycles() {
 
 
 
-
-
-//
-// function closeDatecycleInfo(element) {
-//   const dateInfoDiv = element.closest('.date-info');
-//   if (dateInfoDiv) {
-//     dateInfoDiv.style.display = 'none';
-//   }
-// }
-//
-//
-//
-// function handleKeyPress(event) {
-//   if (event.keyCode === 13) { // 13 is the key code for the enter key
-//      event.preventDefault(); // Prevent the default action to stop form submission
-//      addNewCalendar(); // Call your search function without arguments
-//   }
-// }
 
 
 
@@ -2293,29 +2156,29 @@ function mergeDateCycles(serverCalendar, localCalendar) {
 
 
 
-
-function cleanupLingeringDateCycles() {
-    try {
-        const allKeys = Object.keys(localStorage).filter(key => key.startsWith("calendar_"));
-        const cleanedCalendars = {};
-
-        // Iterate through each calendar key and clean up its data
-        allKeys.forEach(key => {
-            const calendarData = JSON.parse(localStorage.getItem(key)) || [];
-
-            // Filter out `000_` IDs
-            cleanedCalendars[key] = calendarData.filter(dc => !dc.ID.startsWith('000_'));
-        });
-
-        // Update localStorage with cleaned data
-        Object.entries(cleanedCalendars).forEach(([key, cleanedData]) => {
-            localStorage.setItem(key, JSON.stringify(cleanedData));
-            console.log(`Cleaned up lingering dateCycles with '000_' in ID for key: ${key}`);
-        });
-    } catch (error) {
-        console.error('Error cleaning up lingering dateCycles:', error);
-    }
-}
+//
+// function cleanupLingeringDateCycles() {
+//     try {
+//         const allKeys = Object.keys(localStorage).filter(key => key.startsWith("calendar_"));
+//         const cleanedCalendars = {};
+//
+//         // Iterate through each calendar key and clean up its data
+//         allKeys.forEach(key => {
+//             const calendarData = JSON.parse(localStorage.getItem(key)) || [];
+//
+//             // Filter out `000_` IDs
+//             cleanedCalendars[key] = calendarData.filter(dc => !dc.ID.startsWith('000_'));
+//         });
+//
+//         // Update localStorage with cleaned data
+//         Object.entries(cleanedCalendars).forEach(([key, cleanedData]) => {
+//             localStorage.setItem(key, JSON.stringify(cleanedData));
+//             console.log(`Cleaned up lingering dateCycles with '000_' in ID for key: ${key}`);
+//         });
+//     } catch (error) {
+//         console.error('Error cleaning up lingering dateCycles:', error);
+//     }
+// }
 
 
 
@@ -2325,6 +2188,9 @@ function cleanupLingeringDateCycles() {
 //*********************************
 // SYNC HELPER FUNCTIONS
 //*********************************
+
+//OBSOLET RIGHT?!  99%
+
 async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
     try {
         let newCalId;
@@ -2376,9 +2242,9 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
             updateLocal(updatedCalendar, calendarName, newCalId);
             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
 
-            // Global cleanup of lingering dateCycles with `000_` in their `ID`
-            cleanupLingeringDateCycles();
-            console.log(`Cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
+            // OBSOLET RIGHT?  Global cleanup of lingering dateCycles with `000_` in their `ID`
+            //cleanupLingeringDateCycles();
+            //console.log(`Cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
         } else {
             throw new Error('Received undefined calendar_id.');
         }
@@ -2396,6 +2262,7 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 
 
 
+//BEING USED??!
 
 // Helper function to update the UI with the last sync timestamp
 function showLastSynkTimePassed(lastSyncTs) {
