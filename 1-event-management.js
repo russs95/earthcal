@@ -354,27 +354,27 @@ function closeAddCycle() {
 }
 
 
-
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
     const formattedTargetDateAnnual = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-`; // No year for annual events
 
-    //console.log(`Normalized target date for highlighting: ${formattedTargetDate}`);
-
     // Remove "date_event" class from previously highlighted elements.
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
 
-    // Fetch all dateCycles from localStorage.
-    const dateCycleEvents = fetchDateCycleCalendars();
-    if (!dateCycleEvents || dateCycleEvents.length === 0) {
+    // 🔹 Fetch all dateCycles from storage or API
+    const dateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
+
+    // 🔹 Ensure we have an array before proceeding
+    if (!Array.isArray(dateCycleEvents) || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         updateDateCycleCount(0, 0); // No events, reset count display
         return;
     }
-    //console.log(`Retrieved ${dateCycleEvents.length} dateCycles from localStorage.`);
+
+    console.log(`✅ Retrieved ${dateCycleEvents.length} dateCycles from storage.`);
 
     // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
@@ -403,8 +403,7 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-
-    //console.log(`Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
+    console.log(`📌 Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
 
     // Get the container elements.
     const pinnedDiv = document.getElementById('pinned-datecycles');
@@ -435,7 +434,6 @@ async function highlightDateCycles(targetDate) {
             }
         }
     });
-
 
     // Write matching current dateCycles.
     matchingCurrent.forEach(dc => {
