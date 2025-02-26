@@ -305,7 +305,7 @@
     margin-left:6px;
 }
 .eye-open:hover {
-    background: url(../icons/event-hide.svg) center no-repeat;
+    background: url(../icons/event-show-over.svg) center no-repeat;
     background-size: contain;
 }
 
@@ -319,7 +319,7 @@
     margin-left:6px;
 }
 .eye-closed:hover {
-    background: url(../icons/event-show.svg) center no-repeat;
+    background: url(../icons/event-hide-over.svg) center no-repeat;
     background-size: contain;
 }
 
