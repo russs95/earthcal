@@ -2066,31 +2066,12 @@ function fetchLocalCalendarByCalId(calId) {
 
 
 
-async function fetchDateCycleCalendars() {
-    const isOnline = navigator.onLine;
 
-    if (isOnline) {
-        try {
-            const response = await fetch('/api/datecycles'); // Replace with your actual API endpoint
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const dateCycles = await response.json();
-
-            // Cache the online data into localStorage
-            localStorage.setItem('dateCycles', JSON.stringify(dateCycles));
-
-            console.log(`Fetched ${dateCycles.length} dateCycles from API.`);
-            return dateCycles;
-        } catch (error) {
-            console.warn('Failed to fetch from API, falling back to localStorage.', error);
-        }
-    }
-
-    // If offline or API fetch fails, use local storage
+function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
 
     if (calendarKeys.length === 0) {
-        console.warn("No calendar data found in localStorage.");
+        console.log("No calendar data found in localStorage.");
         return []; // Return an empty array if no calendars are found
     }
 
@@ -2102,10 +2083,14 @@ async function fetchDateCycleCalendars() {
                 const calendarData = JSON.parse(localStorage.getItem(key));
 
                 if (Array.isArray(calendarData)) {
-                    // Filter out deleted dateCycles
+                    // Filter out deleted dateCycles (ensuring case-insensitive match)
                     const validDateCycles = calendarData.filter(dc =>
                         (dc.delete_it || '').trim().toLowerCase() !== "1"
                     );
+
+                    if (validDateCycles.length === 0) {
+                        console.warn(`All dateCycles for ${key} are marked as deleted.`);
+                    }
 
                     allDateCycles.push(...validDateCycles);
                 } else {
@@ -2117,6 +2102,8 @@ async function fetchDateCycleCalendars() {
         });
 
         console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
+        //console.table(allDateCycles); // Logs a readable table of dateCycles
+
         return allDateCycles;
     } catch (error) {
         console.error('Error fetching dateCycles from localStorage:', error.message);
