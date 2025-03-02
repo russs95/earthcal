@@ -543,6 +543,7 @@ function updateDateCycleCount(pinnedCount, currentCount) {
 
 
 // Function to write date cycles and update the count
+// Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
     window.dateCycleCount = (window.dateCycleCount || 0) + 1; // Initialize and increment count
 
@@ -557,6 +558,11 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const isPublic = String(dateCycle.public) === "1";
     const hideButtonsStyle = isPublic ? "display: none;" : "display: flex;";
     const contentOnclick = isPublic ? "" : `onclick="editDateCycle('${dateCycle.unique_key}')"`;
+
+    // Use date_emoji or default to ⬤
+    const dateEmoji = dateCycle.date_emoji || '⬤';
+    // Use cal_emoji or default to 🗓️
+    const calendarEmoji = dateCycle.cal_emoji || '🗓️';
 
     divElement.innerHTML += `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
@@ -573,8 +579,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
                 ${isPublic ?
-                    `<span title="This dateCycle is public and cannot be pinned" style="font-size: 1.2em;">🇮🇩</span>` :
-                    `<button class="bullet-pin-button"
+        `<span title="This dateCycle is public and cannot be pinned" style="font-size: 1.2em;">${dateEmoji}</span>` :
+        `<button class="bullet-pin-button"
                         role="button"
                         aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
                         title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
@@ -584,7 +590,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                         style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
                         ${dateCycle.pinned === '1' ? '📌' : '⬤'}
                     </button>`
-                }
+    }
             </div>
 
             <!-- Date Cycle Content -->
@@ -594,7 +600,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 </div>
                 <div class="current-datecycle-data">
                     <div class="current-date-calendar" style="color: ${calendarColor};">
-                        ${dateCycle.cal_name}
+                        ${calendarEmoji} ${dateCycle.cal_name}
                     </div>
                 </div>
                 <div class="current-date-notes" style="height: fit-content; max-width:300px;">
@@ -641,6 +647,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         </div>
     `;
 }
+
 
 
 
