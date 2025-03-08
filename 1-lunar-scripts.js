@@ -40,37 +40,28 @@ function getLunarMonthNumber(targetDate, currentYear) {
     // Calculate the day of the year for the target date
     const dayOfYear = getDayOfYear(targetDate);
 
-    // Get the year from the target date
-    // const year = targetDate.getFullYear();
-  alert(currentYear);
     // Get the first new moon date of the year
     const firstNewMoon = getFirstNewMoon(currentYear);
-    let moonDay = getTheDayOfYearforLunar(firstNewMoon) + 1; // Set the value of moonDay and add 1
+    let moonDay = getDayOfYear(firstNewMoon) + 1; // Set the value of moonDay and add 1
 
     // Log the final value of moonDay to the console with up to two decimals
-    alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
+    //alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
 
 
-    // Ensure this function sets dayOfYear and moonDay
-    if (typeof dayOfYear !== 'number' || typeof moonDay !== 'number') {
-        console.error("dayOfYear or moonDay is not properly set.");
-        return NaN;
-    }
-
-
-    rotateLunarMonths(moonDay);
 
     // Calculate the lunar month number based on the day of the year and moon day
     const synodicMonth = 29.530588; // Average number of days between new moons
-    let lunarMonthNumber = 1;
+    // let lunarMonthNumber = 1;
     if (dayOfYear >= moonDay) {
         const daysSinceFirstNewMoon = dayOfYear - moonDay;
         lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 2;
     } else {
         const daysUntilFirstNewMoon = moonDay - dayOfYear;
-        lunarMonthNumber = Math.floor(daysUntilFirstNewMoon / synodicMonth) + 2;
+        lunarMonthNumber = 2;
     }
 
+
+    rotateLunarMonths(moonDay);
     return lunarMonthNumber;
 }
 
@@ -99,6 +90,43 @@ function getFirstNewMoon(currentYear) {
     return firstNewMoonDate;
 }
 
+
+function rotateLunarMonths(moonDay) {
+    var lunarMonths = document.getElementById("lunar_months-12");
+    var svg = document.getElementById("EarthCycles");
+
+    // Get the SVG's viewBox center
+    var viewBox = svg.getAttribute("viewBox").split(" ");
+    var centerX = parseFloat(viewBox[0]) + parseFloat(viewBox[2]) / 2;
+    var centerY = parseFloat(viewBox[1]) + parseFloat(viewBox[3]) / 2;
+
+    // Calculate the lunar day difference
+    var lunarDayDifference = moonDay;
+
+    // Calculate the equivalent in degrees
+    var degrees = -(360 / 365 * lunarDayDifference)+17;
+
+    // Preserve any existing transformations by appending rotation instead of replacing the whole transform attribute
+    let currentTransform = lunarMonths.getAttribute("transform") || "";
+
+    // Remove any previous rotate() transforms to avoid accumulation issues
+    currentTransform = currentTransform.replace(/rotate\([^)]+\)/, "").trim();
+
+    // Apply rotation without affecting scale
+    lunarMonths.setAttribute("transform", `${currentTransform} rotate(${degrees}, ${centerX}, ${centerY})`);
+}
+
+
+
+
+function calculateCenterPoint() {
+    var lunarMonths = document.getElementById("lunar_months-12");
+    var boundingBox = lunarMonths.getBBox();
+    var centerX = boundingBox.x + boundingBox.width / 2;
+    var centerY = boundingBox.y + boundingBox.height / 2;
+
+    return { x: centerX, y: centerY };
+}
 
 
 
@@ -161,49 +189,24 @@ function calculateHijriMonthNames(currentYear) {
 
 
 
-
-
-// Assuming getTheDayOfYear sets the global variables dayOfYear and moonDay correctly
-function getTheDayOfYearforLunar(date) {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date - start;
-  const oneDay = 1000 * 60 * 60 * 24;
-  return Math.floor(diff / oneDay);
-}
-
-
-
-
+//
+//
+// // Assuming getTheDayOfYear sets the global variables dayOfYear and moonDay correctly
+// function getTheDayOfYearforLunar(date) {
+//   const start = new Date(date.getFullYear(), 0, 0);
+//   const diff = date - start;
+//   const oneDay = 1000 * 60 * 60 * 24;
+//   return Math.floor(diff / oneDay);
+// }
+//
 
 
 
-//OFF 
+
+
+
     
-    function calculateCenterPoint() {
-        var lunarMonths = document.getElementById("lunar_months");
-        var boundingBox = lunarMonths.getBBox();
-        var centerX = boundingBox.x + boundingBox.width / 2;
-        var centerY = boundingBox.y + boundingBox.height / 2;
-    
-        return { x: centerX, y: centerY };
-    }
-    
-    function rotateLunarMonths(moonDay) {
-    var lunarMonths = document.getElementById("lunar_months");
-    var centerPoint = calculateCenterPoint();
 
-    // Calculate the lunar day difference
-    var lunarDayDifference = 28 - moonDay;
-    
-    // Calculate the equivalent in degrees
-    var degrees = -(360/365 * lunarDayDifference);
-    
-    lunarMonths.style.transition = "transform 3s";
-
-    lunarMonths.style.transformOrigin = centerPoint.x + "px " + centerPoint.y + "px";
-    lunarMonths.style.transform = "rotate(" + degrees + "deg)";
-
-    }
     
 
 //
