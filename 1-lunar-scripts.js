@@ -136,11 +136,15 @@ function calculateHijriMonthNames(currentYear) {
     // Log the final value of moonDay to the console with up to two decimals
     alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
 
+
     // Ensure this function sets dayOfYear and moonDay
     if (typeof dayOfYear !== 'number' || typeof moonDay !== 'number') {
         console.error("dayOfYear or moonDay is not properly set.");
         return NaN;
     }
+
+
+      rotateLunarMonths(moonDay);
 
     // Calculate the lunar month number based on the day of the year and moon day
     const synodicMonth = 29.530588; // Average number of days between new moons
@@ -173,34 +177,34 @@ function getTheDayOfYearforLunar(date) {
 
 //OFF 
     
-    // function calculateCenterPoint() {
-    //     var lunarMonths = document.getElementById("lunar_months");
-    //     var boundingBox = lunarMonths.getBBox();
-    //     var centerX = boundingBox.x + boundingBox.width / 2;
-    //     var centerY = boundingBox.y + boundingBox.height / 2;
+    function calculateCenterPoint() {
+        var lunarMonths = document.getElementById("lunar_months");
+        var boundingBox = lunarMonths.getBBox();
+        var centerX = boundingBox.x + boundingBox.width / 2;
+        var centerY = boundingBox.y + boundingBox.height / 2;
     
-    //     return { x: centerX, y: centerY };
-    // }
+        return { x: centerX, y: centerY };
+    }
     
-    // function rotateLunarMonths(moonDay) {
-    // var lunarMonths = document.getElementById("lunar_months");
-    // var centerPoint = calculateCenterPoint();
+    function rotateLunarMonths(moonDay) {
+    var lunarMonths = document.getElementById("lunar_months");
+    var centerPoint = calculateCenterPoint();
 
-    // // Calculate the lunar day difference
-    // var lunarDayDifference = 28 - moonDay;
+    // Calculate the lunar day difference
+    var lunarDayDifference = 28 - moonDay;
     
-    // // Calculate the equivalent in degrees
-    // var degrees = -(360/365 * lunarDayDifference);
+    // Calculate the equivalent in degrees
+    var degrees = -(360/365 * lunarDayDifference);
     
-    // lunarMonths.style.transition = "transform 3s";
+    lunarMonths.style.transition = "transform 3s";
 
-    // lunarMonths.style.transformOrigin = centerPoint.x + "px " + centerPoint.y + "px";
-    // lunarMonths.style.transform = "rotate(" + degrees + "deg)";
+    lunarMonths.style.transformOrigin = centerPoint.x + "px " + centerPoint.y + "px";
+    lunarMonths.style.transform = "rotate(" + degrees + "deg)";
 
-    // }
+    }
     
 
-
+//
 // // Assuming getTheDayOfYear sets the global variables correctly
 // function getTheDayOfYear(date) {
 //   // Logic to set dayOfYear and moonDay based on the provided date
@@ -208,15 +212,15 @@ function getTheDayOfYearforLunar(date) {
 //   const diff = date - start;
 //   const oneDay = 1000 * 60 * 60 * 24;
 //   dayOfYear = Math.floor(diff / oneDay);
-
+//
 //   // Example logic to set moonDay, this needs to be replaced with actual logic
-//   moonDay = calculateMoonDay(date); 
+//   moonDay = calculateMoonDay(date);
 // }
-
+//
 // function calculateMoonDay(date) {
 //   // Dummy logic for moonDay calculation, replace with actual logic
 //   // For example, assuming the first new moon of the year is on the 10th day
-//   return 12; 
+//   return 12;
 // }
 
 
