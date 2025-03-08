@@ -328,6 +328,7 @@ text-decoration: underline;
 
 gsap.registerPlugin(MotionPathPlugin);
 
+let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 
 /*ROLL CALL*/
@@ -400,7 +401,7 @@ attachBreakoutTouchListeners();
 
 
   updateMoonPhase(targetDate);
-  calculateHijriMonthNames(currentYear);
+ // calculateHijriMonthNames(currentYear);
 
   // UpdateVenusData(targetDate);
   // UpdateMarsData(targetDate);
@@ -420,11 +421,7 @@ attachBreakoutTouchListeners();
 
     startDate = targetDate;
 
-   
 
-  //    //Rotate lunar months into alignment with first new moon
-  //  setLunarMonthForTarget(targetDate);  //Sets the lunar month for the target date
-  
   // updateTargetWeekColor();
   setYearsMonthsOn();
 

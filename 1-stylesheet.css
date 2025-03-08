@@ -2728,7 +2728,7 @@ svg path #june:hover {
 
 
 
-@media screen and (min-width: 800px) {
+@media screen and (min-width: 660px) {
     .top-gradient-overlay {
         display: none;
     }

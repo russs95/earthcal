@@ -380,28 +380,48 @@ function displayDayInfo(date) {
 
 
 function showUserCalSettings() {
-    const modal = document.getElementById('form-modal-message');
+  const modal = document.getElementById('form-modal-message');
 
-    // Populate modal content
-    const timezones = [
-        { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
-        { value: 'UTC-11', label: 'UTC-11 | Niue' },
-        { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian' },
-        { value: 'UTC-9', label: 'UTC-9 | Alaska' },
-        { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
-        // Add the rest of the timezones here...
-    ];
-    let timezoneOptions = timezones.map(tz =>
-        `<option value="${tz.value}" ${tz.value === timezone ? 'selected' : ''}>${tz.label}</option>`
-    ).join('');
+  // Complete list of time zones
+  const timezones = [
+    { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
+    { value: 'UTC-11', label: 'UTC-11 | Niue, Samoa' },
+    { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian Standard Time' },
+    { value: 'UTC-9', label: 'UTC-9 | Alaska Standard Time' },
+    { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
+    { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
+    { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
+    { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
+    { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
+    { value: 'UTC-3', label: 'UTC-3 | Buenos Aires, Brazil' },
+    { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
+    { value: 'UTC-1', label: 'UTC-1 | Azores' },
+    { value: 'UTC', label: 'UTC | Coordinated Universal Time' },
+    { value: 'UTC+1', label: 'UTC+1 | Central European Time' },
+    { value: 'UTC+2', label: 'UTC+2 | Eastern European Time' },
+    { value: 'UTC+3', label: 'UTC+3 | Moscow Standard Time' },
+    { value: 'UTC+4', label: 'UTC+4 | Dubai, United Arab Emirates' },
+    { value: 'UTC+5', label: 'UTC+5 | Pakistan Standard Time' },
+    { value: 'UTC+6', label: 'UTC+6 | Bangladesh Standard Time' },
+    { value: 'UTC+7', label: 'UTC+7 | Indochina Time' },
+    { value: 'UTC+8', label: 'UTC+8 | China Standard Time' },
+    { value: 'UTC+9', label: 'UTC+9 | Japan Standard Time' },
+    { value: 'UTC+10', label: 'UTC+10 | Australian Eastern Standard Time' },
+    { value: 'UTC+11', label: 'UTC+11 | Solomon Islands Time' },
+    { value: 'UTC+12', label: 'UTC+12 | New Zealand Standard Time' }
+  ];
 
-    const settingsContent = settingsTranslations[language] || settingsTranslations['EN'];
-    const languageOptions = Object.entries(settingsContent.languages).map(([key, value]) =>
-        `<option value="${key}" ${language === key ? 'selected' : ''}>${value}</option>`
-    ).join('');
+  let timezoneOptions = timezones.map(tz =>
+      `<option value="${tz.value}" ${tz.value === user_timezone ? 'selected' : ''}>${tz.label}</option>`
+  ).join('');
 
-    const modalContent = document.getElementById('modal-content');
-    modalContent.innerHTML = `
+  const settingsContent = settingsTranslations[language] || settingsTranslations['EN'];
+  const languageOptions = Object.entries(settingsContent.languages).map(([key, value]) =>
+      `<option value="${key}" ${language === key ? 'selected' : ''}>${value}</option>`
+  ).join('');
+
+  const modalContent = document.getElementById('modal-content');
+  modalContent.innerHTML = `
         <div class="top-settings-icon"></div>
         <form id="user-settings-form">
             <div style="cursor:pointer;">
@@ -431,19 +451,26 @@ function showUserCalSettings() {
         </form>
     `;
 
-    // Show the modal
-    modal.classList.remove('modal-hidden');
-    modal.classList.add('modal-visible');
-    document.getElementById("page-content").classList.add("blur");
+  // Show the modal
+  modal.classList.remove('modal-hidden');
+  modal.classList.add('modal-visible');
+  document.getElementById("page-content").classList.add("blur");
 
-    // Set focus and enable focus trapping
-    modal.setAttribute('tabindex', '0');
-    modal.focus();
-    modalOpen = true;
+  // Set focus and enable focus trapping
+  modal.setAttribute('tabindex', '0');
+  modal.focus();
+  modalOpen = true;
 
-    // Add focus restriction
-    document.addEventListener('focus', focusRestrict, true);
+  // Event listener to save timezone selection
+  document.getElementById('timezone').addEventListener('change', function() {
+    user_timezone = this.value;
+    localStorage.setItem("user_timezone", user_timezone);
+  });
+
+  // Add focus restriction
+  document.addEventListener('focus', focusRestrict, true);
 }
+
 
 
 
