@@ -3,26 +3,30 @@
 
 
 
-
-let firstNewMoonDate  // Declare firstNewMoonDate as a global variable
+let firstNewMoonDate;  // Declare firstNewMoonDate as a global variable
+const synodicMonth = 29.530588;  // Average length of a lunar month in days
+const referenceFullMoon = new Date(Date.UTC(2025, 0, 29, 12, 35, 0)); // Jan 29, 2025, 12:35 UTC
 
 function getFirstNewMoon(currentYear) {
+    // Use user_timezone if set, otherwise default to UTC
+    let timezoneOffset = 0;  // Default to UTC
+    if (typeof user_timezone !== "undefined" && user_timezone) {
+        timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+    }
 
-  // Calculate the moon phase index at midnight on January 1st of the current year
-  const moonPhaseIndex = Math.floor(
-      SunCalc.getMoonIllumination(new Date(Date.UTC(currentYear, 0, 1, 0, 0, 0))).phase * 100
-  );
+    // Estimate the number of synodic months between 2025 and the desired year
+    const yearDifference = currentYear - 2025;
+    const newMoonDaysShift = yearDifference * 12 * synodicMonth; // Approximate number of months
+    const estimatedNewMoonDate = new Date(referenceFullMoon.getTime() + newMoonDaysShift * 24 * 60 * 60 * 1000);
 
-  // Calculate the day of the year of the first new moon
-  const synodicMonth = 29.530588; // Average number of days between new moons
-  const daysPerPhase = synodicMonth / 100;
-  const daysSinceNewMoon = (100 - moonPhaseIndex) * daysPerPhase;
-  const firstNewMoonDate = new Date(Date.UTC(currentYear, 0, 1, 0, 0, 0)).getTime() + daysSinceNewMoon * 24 * 60 * 60 * 1000;
+    // Adjust for the user's timezone
+    firstNewMoonDate = new Date(estimatedNewMoonDate.getTime() - timezoneOffset);
 
-  return new Date(firstNewMoonDate);
-
-
+    return firstNewMoonDate;
 }
+
+
+
 
 // Calculate the Hijri month names for a given year and update the title tag of the paths
 function calculateHijriMonthNames(currentYear) {
