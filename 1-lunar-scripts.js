@@ -119,7 +119,8 @@ function calculateHijriMonthNames(currentYear) {
           console.error("Path not found:", pathID);
       }
   }
-  
+
+
   function getLunarMonthNumber(targetDate, currentYear) {
 
     // Calculate the day of the year for the target date
@@ -133,7 +134,7 @@ function calculateHijriMonthNames(currentYear) {
     let moonDay = getTheDayOfYearforLunar(firstNewMoon) + 1; // Set the value of moonDay and add 1
 
     // Log the final value of moonDay to the console with up to two decimals
-    // alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
+    alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
 
     // Ensure this function sets dayOfYear and moonDay
     if (typeof dayOfYear !== 'number' || typeof moonDay !== 'number') {
