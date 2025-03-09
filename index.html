@@ -761,55 +761,62 @@ setTimeout(showIntroModal, 5000);
 
 
       <div class="add-date-form" style="margin:auto;">
-        <div id="add-datecycle-info">
+          <div id="add-datecycle-info">
           <!--<div class="top-add-icon"></div>-->
-          <h3 style="width:85%;margin:20px auto;" id="add-event-title">Add an event for this date</h3>
-        </div>
-          <div id="select-cal" style="margin-bottom: 30px;" >
-            <select id="select-calendar" label="select-calendar" style="width: 70%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 45px;" onchange="handleAddNewCal()" class="blur-form-field" >
-            </select>
+            <h3 style="width:85%;margin:20px auto;" id="add-event-title">Add an event for this date.</h3></div>
+          <div id="name-event" style="margin: 0px auto 10px auto;width:70%;">
+              <textarea id="add-date-title" placeholder="Event name..." class="blur-form-field" style="margin:0px auto 10px auto;border-radius:10px 0px 0px 10px;width:100%;cursor:text;"></textarea>
+          </div>
+          <div id="datecycle-options" style="display: flex;justify-content: center;flex-flow:row;width:70%;margin:auto;">
+              <select id="dateEmojiPicker" name="color" style="resize: none;width: 60px;border-radius: 0px 5px 5px 0px;font-size: 1.5em;margin-top:0px;" class="blur-form-field">
+                  <option value="🤩">🤩</option>
+                  <option value="🌏">🌏</option>
+                  <option value="👍">👍</option>
+                  <option value="🙏">🙏</option>
+              </select>
+
+              <select id="DateColorPicker" name="color" style="resize: none;width: 60px;border-radius: 0px 5px 5px 0px;font-size: 1.5em;margin-top:0px;" class="blur-form-field">
+                  <option value="green">🟢</option>
+                  <option value="yellow">🟡</option>
+                  <option value="orange">🟠</option>
+                  <option value="red">🔴</option>
+                  <option value="blue" selected>🔵</option>
+              </select>
+
+              <select id="dateCycle-type" style=" font-size: 1em; text-align: center; height: 45px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()" class="blur-form-field">
+              </select>
           </div>
 
-<div id="addNewCalendar" style="display: none; background-color: var(--button-1-1-over);
-border-radius: 10px;
-padding: 20px;
-width: fit-content;
-margin: auto;
-margin-bottom: 25px;">
-    <form id="calendar-adding-form">
-        <label for="calendarName">Name:</label>
-        <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
+          <div id="select-cal" style="margin-bottom: 30px;" >
+              <select id="select-calendar" label="select-calendar" style="width: 70%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 45px;" onchange="handleAddNewCal()" class="blur-form-field" >
+              </select>
+          </div>
 
-        <label for="colorPicker">Choose a color:</label>
-        <select id="colorPicker" name="color">
-            <option value="red">🔴 Red</option>
-            <option value="blue">🔵 Blue</option>
-            <option value="green">🟢 Green</option>
-            <option value="orange">🟠 Orange</option>
-        </select><br>
+          <div id="addNewCalendar" style="display: none; background-color: var(--button-1-1-over);
+            border-radius: 10px;
+            padding: 20px;
+            width: fit-content;
+            margin: auto;
+            margin-bottom: 25px;">
+                <form id="calendar-adding-form">
+                    <label for="calendarName">Name:</label>
+                    <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
 
-        <input type="checkbox" id="publicCalendar" name="publicCalendar">
-        <label for="publicCalendar">Public Calendar</label><br><br>
+                    <label for="colorPicker">Choose a color:</label>
+                    <select id="colorPicker" name="color">
+                        <option value="red">🔴 Red</option>
+                        <option value="blue">🔵 Blue</option>
+                        <option value="green">🟢 Green</option>
+                        <option value="orange">🟠 Orange</option>
+                    </select><br>
 
-        <button type="button" id="add-new-cal" onclick="addNewCalendar()" class="confirmation-blur-button">+ Add Calendar</button>
-    </form>
-</div>
+                    <input type="checkbox" id="publicCalendar" name="publicCalendar">
+                    <label for="publicCalendar">Public Calendar</label><br><br>
 
-
-
-      <div id="datecycle-setter"></div>
-
-        <select id="dateCycle-type" style="width: 70%; font-size: 1em; text-align: center; height: 45px; margin:auto;margin-bottom:10px;" onchange="showYearMonthDaySetter()" class="blur-form-field">
-          <option value="" disabled >Select frequency...</option>
-          <option value="One-time" selected >One-time</option>
-          <!--<option value="Monthly" >Monthly</option> Problem with matching -month- as well as matching -day--->
-          <option One-time="Annual">Annual</option>
-
-          <!--<option disabled>Monthly</option>
-          <option disabled>Weekly</option>-->
-        </select>
-
-
+                    <button type="button" id="add-new-cal" onclick="addNewCalendar()" class="confirmation-blur-button">+ Add Calendar</button>
+                </form>
+          </div>
+        <div id="datecycle-setter"></div>
         <div id="dateCycle-year-option"  >
           <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:45px;margin-top:10px" class="blur-form-field" >
             <option value="" disabled >Select year...</option>
@@ -877,38 +884,13 @@ margin-bottom: 25px;">
 
         </div>
 
-        <div id="name-event" style="margin: 0px auto 10px auto;width:70%">
-          <div style="display: flex;
-          justify-content: center;
-  ">
-            <textarea id="add-date-title" placeholder="Event name..." class="blur-form-field" style="margin:0px auto 10px auto;border-radius:10px 0px 0px 10px;width:100%;cursor:text;"></textarea>
-            <!-- <input type="text" id="add-date-title" placeholder="Event name...">  -->
 
-            <select id="DateColorPicker" name="color" style="
-          resize: none;
-              width: 60px;
-          border-radius: 0px 5px 5px 0px;
-
-        font-size: 1.5em;margin-top:0px;
-
-        " class="blur-form-field">
-            <option value="green">🟢</option>
-            <option value="yellow">🟡</option>
-            <option value="orange">🟠</option>
-            <option value="red">🔴</option>
-            <option value="blue" selected>🔵</option>
-          </select><!-- style="display:none;" -->
-        </div>
         <div id="add-note-check-boxed">
             <input type="checkbox" id="add-note-checkbox">
             <label for="add-note-checkbox">Add a note to this event</label>
           </div>
 
         </div>
-
-
-
-
 
         <div id="add-note-form" style="margin-top:20px; margin-bottom: 30px;display:none; height:50px;width:70%;" >
           <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
@@ -925,7 +907,7 @@ margin-bottom: 25px;">
 
     </form>
 
-
+<!--
     <div id="export-hover-box" class="export-my-dates" style="width: 80%; padding: 20px; background: #00000030; border-radius: 10px; margin: auto; margin-top: 40px; margin-bottom: 0px;">
 
       <div>
@@ -942,7 +924,7 @@ margin-bottom: 25px;">
 
         <h6 style="margin: 25px 0px 0px 5px;">Upload a DateCycles file to your calendar...</h6>
 
-        <div class="dateCycles-export" style="width: 380px; padding: 10px; margin: 10px auto 15px auto; background-color: var(--slider); border-radius: 10px; width: fit-content;">
+        <div class="dateCycles-export" style="width: 380px; padding: 10px; margin: 10px auto 15px auto; background-color: var(&#45;&#45;slider); border-radius: 10px; width: fit-content;">
 
           <input type="file" id="jsonUpload" accept=".json" aria-label="Choose a JSON file">
           <button id="booknotes-upload-go" onclick="uploadDateCycles()" aria-label="Upload Booknotes file">▲ Upload</button>
@@ -965,7 +947,7 @@ margin-bottom: 25px;">
       </div>
    <div id="export-up-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="closeDateCycleExports()"></div>
 
-    </div>
+    </div>-->
 
   </div>
   </div>

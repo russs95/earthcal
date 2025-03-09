@@ -209,7 +209,6 @@ function populateDateFields(targetDate) {
     // Clear and populate frequency options
     frequencyDropdown.innerHTML = `
         <option value="One-time">One-time</option>
-        <option value="One-time + pinned">One-time + pinned</option>
         <option value="Annual">Annual</option>
     `;
 
@@ -1580,7 +1579,7 @@ async function addDatecycle() {
         unique_key: unique_key, // New unique key field
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
-        pinned: dateCycleType === "One-time + pinned" ? "1" : "0",
+        pinned: dateCycleType === "0",
         completed: "0",
         public: "0",
         delete_it: "0",
