@@ -1680,14 +1680,12 @@ function animateSyncButton() {
 
 
 
-
 async function syncDatecycles() {
     try {
         console.log("Starting dateCycle sync...");
         const buwanaId = localStorage.getItem('buwana_id');
         if (!buwanaId) {
-            //alert('Please log in first Buwana account.');
-            return;
+            return; // No user logged in, no sync needed.
         }
 
         let serverCalendars = [];
@@ -1701,13 +1699,11 @@ async function syncDatecycles() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: buwanaId }),
             });
-            if (!response.ok)
-                throw new Error(`Failed to fetch server calendars. HTTP Status: ${response.status}`);
+            if (!response.ok) throw new Error(`Failed to fetch server calendars. HTTP Status: ${response.status}`);
             const serverData = await response.json();
-            if (!serverData.success)
-                throw new Error(serverData.message || 'Failed to retrieve calendar data.');
+            if (!serverData.success) throw new Error(serverData.message || 'Failed to retrieve calendar data.');
 
-            // 🔹 Standardize calendar_id to cal_id and include created_at.
+            // 🔹 Standardize calendar fields
             serverCalendars = serverData.calendars.map(calendar => ({
                 cal_id: calendar.calendar_id,
                 cal_name: calendar.calendar_name,
@@ -1725,14 +1721,14 @@ async function syncDatecycles() {
 
         if (!hasInternetConnection) return;
 
-        // 🔹 If no calendars exist on the server, check local storage.
+        // 🔹 Fetch local calendars
         const localCalendars = Object.keys(localStorage)
             .filter(key => key.startsWith('calendar_'))
             .map(key => {
                 let storedData = JSON.parse(localStorage.getItem(key) || '[]');
                 return {
                     cal_id: key.replace('calendar_', ''),
-                    created_at: storedData.created_at || 0, // Default to 0 if not available
+                    created_at: storedData.created_at || 0,
                     data: storedData
                 };
             });
@@ -1742,7 +1738,7 @@ async function syncDatecycles() {
             return "No updates available. Your data is already up to date.";
         }
 
-        // 🔹 Merge server and local calendars (by cal_id).
+        // 🔹 Merge calendars from both sources
         const calendarsToSync = [...new Map([...serverCalendars, ...localCalendars].map(item => [item.cal_id, item])).values()];
         console.log("📂 Syncing calendars:", calendarsToSync);
 
@@ -1755,13 +1751,10 @@ async function syncDatecycles() {
                 }
                 console.log(`📡 Fetching dateCycles for cal_id: ${calendar.cal_id}, buwana_id: ${buwanaId}`);
 
-                // 🔹 Fetch dateCycles from the server for the current calendar.
+                // 🔹 Fetch dateCycles from the server
                 let serverDateCycles = [];
                 if (serverCalendars.some(c => c.cal_id === calendar.cal_id)) {
-                    const payload = {
-                        buwana_id: buwanaId,
-                        cal_id: calendar.cal_id
-                    };
+                    const payload = { buwana_id: buwanaId, cal_id: calendar.cal_id };
 
                     try {
                         const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
@@ -1773,16 +1766,21 @@ async function syncDatecycles() {
                         if (!responseData.success) {
                             console.error(`⚠️ API Error: ${responseData.message}`);
                         } else {
-                            //console.log("✅ Server dateCycles fetched successfully:", responseData.dateCycles);
                             serverDateCycles = responseData.dateCycles || [];
                             console.log("✅ Server dateCycles fetched successfully.");
-                            serverDateCycles = responseData.dateCycles || [];
                         }
                     } catch (error) {
                         console.error("⚠️ Fetch error when retrieving dateCycles:", error);
                     }
                 }
                 totalDateCyclesUpdated += serverDateCycles.length;
+
+                // 🔹 Ensure new fields are included in sync
+                serverDateCycles = serverDateCycles.map(dc => ({
+                    ...dc,
+                    date_emoji: dc.date_emoji || "😀", // Default if missing
+                    pinned: dc.pinned !== undefined ? dc.pinned : false, // Ensure pinned is a boolean
+                }));
 
                 // 🔹 Update the Server with unsynced local dateCycles.
                 await updateServerDatecycles(calendar.cal_id, serverDateCycles);
@@ -1803,6 +1801,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 
