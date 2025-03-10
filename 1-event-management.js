@@ -2298,40 +2298,37 @@ function showLastSynkTimePassed(lastSyncTs) {
 
 
 
-//EMOJI PICKER
-const eventEmojis = ["GG", "🎂", "🎈", "🎊"]; // Keep it simple for testing
-
 function showEmojiPicker(event) {
-    event.stopPropagation(); // Prevents modal from thinking it's a click outside
+    event.stopPropagation(); // Prevent modal from closing immediately
 
     const emojiGrid = document.getElementById("emojiPickerGrid");
     emojiGrid.innerHTML = ""; // Clear previous emojis
 
     eventEmojis.forEach(emoji => {
-        let emojiButton = document.createElement("button");
-        emojiButton.textContent = emoji;
-        emojiButton.dataset.emoji = emoji;
-        emojiButton.style.border = "none";
-        emojiButton.style.background = "none";
-        emojiButton.style.fontSize = "1.5em";
-        emojiButton.style.cursor = "pointer";
-        emojiButton.onclick = (e) => selectEmoji(e.target.dataset.emoji);
-        emojiGrid.appendChild(emojiButton);
+        let emojiDiv = document.createElement("div");
+        emojiDiv.textContent = emoji;
+        emojiDiv.dataset.emoji = emoji;
+        emojiDiv.style.fontSize = "1.5em";
+        emojiDiv.style.cursor = "pointer";
+        emojiDiv.style.padding = "8px";
+        emojiDiv.style.display = "inline-block";
+        emojiDiv.style.textAlign = "center";
+        emojiDiv.style.userSelect = "none";
+        emojiDiv.onclick = (e) => selectEmoji(e.target.dataset.emoji);
+        emojiGrid.appendChild(emojiDiv);
     });
 
     const modal = document.getElementById("emojiPickerModal");
     modal.style.display = "block";
     modal.setAttribute("aria-hidden", "false");
 
-    console.log("Emoji Picker Opened");
-
-    // 🚨 Remove previous listeners to avoid duplicates (ensures stability)
+    // Prevents multiple event listeners
     document.removeEventListener("click", closeEmojiPicker);
 
-    // ✅ Add a temporary event listener that will close only if clicking outside
+    // Add an event listener to close when clicking outside
     setTimeout(() => {
         document.addEventListener("click", handleOutsideClick);
-    }, 200); // Small delay to avoid immediate execution
+    }, 200);
 }
 
 function handleOutsideClick(event) {
@@ -2340,7 +2337,7 @@ function handleOutsideClick(event) {
 
     if (
         !emojiPickerModal.contains(event.target) &&
-        event.target !== emojiPickerButton
+        !emojiPickerButton.contains(event.target)
     ) {
         closeEmojiPicker();
     }
@@ -2364,8 +2361,8 @@ function closeEmojiPicker() {
     const modal = document.getElementById("emojiPickerModal");
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
-    console.log("Emoji Picker Closed");
 
-    // ✅ Remove the "outside click" listener after closing
+    // Remove the outside click listener
     document.removeEventListener("click", handleOutsideClick);
 }
+
