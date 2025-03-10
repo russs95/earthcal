@@ -1804,7 +1804,6 @@ async function syncDatecycles() {
 
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1834,12 +1833,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
 
     for (let unsyncedEvent of unsyncedDateCycles) {
-        // Ensure unique_key is present.
         if (!unsyncedEvent.unique_key) {
             throw new Error(`Missing unique_key in unsynced event: ${unsyncedEvent.title}`);
         }
 
-        // If the event is marked for deletion, attempt deletion instead of updating.
+        // Handle deletions first
         if (unsyncedEvent.delete_it === "1" || unsyncedEvent.delete_it === "pending") {
             try {
                 const deletePayload = {
@@ -1853,22 +1851,22 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(deletePayload)
                 });
+
                 const delData = await delResponse.json();
                 if (!delResponse.ok || !delData.success) {
                     throw new Error(delData.message || `Failed to delete event ${unsyncedEvent.title}.`);
                 }
+
                 console.log(`✅ Successfully deleted dateCycle: ${unsyncedEvent.title}`);
-                // Remove the record from the local dictionary.
                 delete localDateCycleMap[unsyncedEvent.unique_key];
-                continue; // Skip to next unsynced event.
+                continue;
             } catch (error) {
                 console.error("⚠️ Error deleting dateCycle:", error);
-                // Leave the record in local storage so it can be retried later.
                 continue;
             }
         }
 
-        // Check if the event already exists on the server (by unique_key).
+        // Check if the event already exists on the server
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
             dc.unique_key === unsyncedEvent.unique_key && dc.cal_id == unsyncedEvent.cal_id
         );
@@ -1879,6 +1877,10 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
 
         try {
+            // ✅ Ensure `date_emoji` and `pinned` have default values if missing
+            const dateEmoji = unsyncedEvent.date_emoji ? unsyncedEvent.date_emoji.trim() : "📆";
+            const pinned = unsyncedEvent.pinned !== undefined ? unsyncedEvent.pinned : 0;
+
             const payload = {
                 buwana_id: buwanaId,
                 cal_id: cal_id,
@@ -1895,10 +1897,11 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 comments: unsyncedEvent.comments,
                 last_edited: unsyncedEvent.last_edited,
                 created_at: unsyncedEvent.created_at,
-                unique_key: unsyncedEvent.unique_key, // Send the unique key
+                unique_key: unsyncedEvent.unique_key,
                 datecycle_color: unsyncedEvent.datecycle_color,
                 frequency: unsyncedEvent.frequency,
-                pinned: unsyncedEvent.pinned,
+                pinned: pinned, // ✅ Ensure pinned is included (default 0)
+                date_emoji: dateEmoji, // ✅ Ensure date_emoji is included (default 📆)
                 completed: unsyncedEvent.completed,
                 public: unsyncedEvent.public,
                 delete_it: unsyncedEvent.delete_it,
