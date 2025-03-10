@@ -1,9 +1,11 @@
 //  OPENING THE ADD DATECYCLE FORM
 
 
-
 async function openAddCycle() {
     console.log('openAddCycle called'); // Log function call
+
+    // Prevent conflicts with existing modals
+    document.removeEventListener("click", closeEmojiPicker);
 
     // Prepare the modal for display
     document.body.style.overflowY = "hidden";
@@ -46,7 +48,13 @@ async function openAddCycle() {
 
     console.log('User is logged in. Buwana ID:', buwanaId);
     populateCalendarDropdown(buwanaId);
+
+    // Restore click event for modal closure after opening the picker
+    setTimeout(() => {
+        document.addEventListener("click", closeEmojiPicker);
+    }, 500);
 }
+
 
 
 
@@ -2293,24 +2301,19 @@ function showLastSynkTimePassed(lastSyncTs) {
 
 //EMOJI PICKER
 
-const eventEmojis = [
-    "🎉", "🎂", "🎈", "🎊", "🥳", "🏆", "🏅", "🎖️", "🎭", "🎬", "🎶", "🎵", "🎤", "🎸", "🎷", "🎺", "🥁",
-    "💃", "🕺", "🏕️", "🎡", "🎢", "🎠", "⛷️", "🏂", "🏄‍♂️", "🚴‍♂️", "🚣‍♂️", "🎮", "♟️", "🎰", "🃏", "🀄",
-    "🎲", "🔮", "🧩", "🎯", "📅", "🗓️", "📆", "🛍️", "🎀", "💌", "💎", "📖", "📚", "📜", "🖊️", "📝", "✍️",
-    "💡", "🖌️", "🖍️", "🎨", "🖼️", "🎭", "🎤", "🎧", "🎼", "📢", "📣", "🔔", "🎹", "🥁", "🎺", "🎷", "🎻",
-    "🎸", "🎮", "🕹️", "🎰", "🎲", "♟️", "🧩", "🔮", "🎯", "🛒", "🛍️", "💳", "🏋️‍♂️", "🚴", "🏃‍♂️", "🏌️", "🧘",
-    "🥊", "⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎳", "🏅", "🎖️", "🥇", "🥈", "🥉"
-];
+
+const eventEmojis = ["🎉", "🎂", "🎈", "🎊"]; // Reduced for testing
 
 function showEmojiPicker(event) {
-    event.stopPropagation(); // Prevent unintended modal closures
+    event.stopPropagation(); // Prevents modal from thinking it's a click outside
+
     const emojiGrid = document.getElementById("emojiPickerGrid");
     emojiGrid.innerHTML = ""; // Clear previous emojis
 
     eventEmojis.forEach(emoji => {
         let emojiButton = document.createElement("button");
         emojiButton.textContent = emoji;
-        emojiButton.setAttribute("data-emoji", emoji); // Use a safe attribute
+        emojiButton.dataset.emoji = emoji;
         emojiButton.style.border = "none";
         emojiButton.style.background = "none";
         emojiButton.style.fontSize = "1.5em";
@@ -2326,6 +2329,19 @@ function showEmojiPicker(event) {
     console.log("Emoji Picker Opened");
 }
 
+// Fix unintended closure of modals
+document.getElementById("emojiPickerModal").addEventListener("click", (event) => {
+    event.stopPropagation(); // Prevent modal from closing when clicking inside
+});
+
+document.addEventListener("click", (event) => {
+    if (!document.getElementById("emojiPickerModal").contains(event.target) &&
+        !document.getElementById("emojiPickerBtn").contains(event.target)) {
+        closeEmojiPicker();
+    }
+});
+
+// Ensures the picker stays open until explicitly closed
 function selectEmoji(emoji) {
     try {
         if (emoji && typeof emoji === "string") {
@@ -2346,9 +2362,3 @@ function closeEmojiPicker() {
     modal.setAttribute("aria-hidden", "true");
     console.log("Emoji Picker Closed");
 }
-
-// Prevent modal from closing when clicking inside it
-document.getElementById("emojiPickerModal").addEventListener("click", (event) => event.stopPropagation());
-
-// Ensure clicking outside the modal closes it
-document.addEventListener("click", closeEmojiPicker);
