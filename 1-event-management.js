@@ -1,6 +1,5 @@
 //  OPENING THE ADD DATECYCLE FORM
 
-
 async function openAddCycle() {
     console.log('openAddCycle called'); // Log function call
 
@@ -2300,9 +2299,7 @@ function showLastSynkTimePassed(lastSyncTs) {
 
 
 //EMOJI PICKER
-
-
-const eventEmojis = ["🎉", "🎂", "🎈", "🎊"]; // Reduced for testing
+const eventEmojis = ["GG", "🎂", "🎈", "🎊"]; // Keep it simple for testing
 
 function showEmojiPicker(event) {
     event.stopPropagation(); // Prevents modal from thinking it's a click outside
@@ -2327,21 +2324,28 @@ function showEmojiPicker(event) {
     modal.setAttribute("aria-hidden", "false");
 
     console.log("Emoji Picker Opened");
+
+    // 🚨 Remove previous listeners to avoid duplicates (ensures stability)
+    document.removeEventListener("click", closeEmojiPicker);
+
+    // ✅ Add a temporary event listener that will close only if clicking outside
+    setTimeout(() => {
+        document.addEventListener("click", handleOutsideClick);
+    }, 200); // Small delay to avoid immediate execution
 }
 
-// Fix unintended closure of modals
-document.getElementById("emojiPickerModal").addEventListener("click", (event) => {
-    event.stopPropagation(); // Prevent modal from closing when clicking inside
-});
+function handleOutsideClick(event) {
+    const emojiPickerModal = document.getElementById("emojiPickerModal");
+    const emojiPickerButton = document.getElementById("emojiPickerBtn");
 
-document.addEventListener("click", (event) => {
-    if (!document.getElementById("emojiPickerModal").contains(event.target) &&
-        !document.getElementById("emojiPickerBtn").contains(event.target)) {
+    if (
+        !emojiPickerModal.contains(event.target) &&
+        event.target !== emojiPickerButton
+    ) {
         closeEmojiPicker();
     }
-});
+}
 
-// Ensures the picker stays open until explicitly closed
 function selectEmoji(emoji) {
     try {
         if (emoji && typeof emoji === "string") {
@@ -2361,4 +2365,7 @@ function closeEmojiPicker() {
     modal.style.display = "none";
     modal.setAttribute("aria-hidden", "true");
     console.log("Emoji Picker Closed");
+
+    // ✅ Remove the "outside click" listener after closing
+    document.removeEventListener("click", handleOutsideClick);
 }
