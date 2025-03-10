@@ -1487,7 +1487,6 @@ function clearAllDateCycles() {
 // ADD DATECYCLE
 //**************
 
-
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1504,12 +1503,12 @@ async function addDatecycle() {
     // Get selected calendar details
     const selCalendarElement = document.getElementById('select-calendar');
     const selCalendarId = document.getElementById('set-calendar-id').value;
-    const selCalendarColor = document.getElementById('set-calendar-color').value; // Get calendar color
+    const selCalendarColor = document.getElementById('set-calendar-color').value;
     const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
 
     if (!selCalendarName || selCalendarName === "Select calendar...") {
         alert("Please select a valid calendar.");
-        return; // Exit if no valid calendar is selected
+        return;
     }
 
     // Determine date cycle type and year
@@ -1521,20 +1520,21 @@ async function addDatecycle() {
     // Construct the JavaScript `Date` object properly
     const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
 
+    // Retrieve new fields
+    const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim(); // Get selected emoji
+    const pinned = document.getElementById('pinOrNot').value === "1"; // Convert to boolean
+
     // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "1" : "0";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate created_at timestamp in human-readable ISO format (without milliseconds if desired)
-    // Here we use the full ISO string; if you want to remove milliseconds, you can split at the dot.
-    const nowISO = new Date().toISOString().split('.')[0] + "Z"; // e.g., "2025-02-01T16:00:44Z"
-
-    // Use the same format for created_at and last_edited
+    // Generate created_at timestamp in ISO format
+    const nowISO = new Date().toISOString().split('.')[0] + "Z";
     const createdAt = nowISO;
     const lastEdited = nowISO;
 
-    // Generate a dateCycle ID from localStorage
+    // Retrieve existing dateCycles from localStorage
     const calendarStorageKey = `calendar_${selCalendarId}`;
     let existingCalendar = [];
     try {
@@ -1546,26 +1546,18 @@ async function addDatecycle() {
     }
 
     const maxID = existingCalendar.reduce((max, dc) => {
-        const idString = String(dc.ID || "temp_0_000"); // Ensure it's a string
-        const id = parseInt(idString.split("_").pop()) || 0; // Extract and parse last part
+        const idString = String(dc.ID || "temp_0_000");
+        const id = parseInt(idString.split("_").pop()) || 0;
         return id > max ? id : max;
     }, 0);
 
     console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
     const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
-    //const newID = `temp_${selCalendarId}_${(maxID + 1).toString().padStart(3, '0')}`;
 
-    // Generate a unique key for the record.
-    // Here, we combine the calendar ID, createdAt, and the newID.
-    //const unique_key = `${selCalendarId}_${createdAt}_${newID}`;
-    //TEMP REMOVED!
-
-    const newID = Math.random().toString(36).substring(2, 16); // Generates a 14-char random string
+    const newID = Math.random().toString(36).substring(2, 16);
     const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${newID}`;
 
-
-
-
+    // ✅ Construct the new dateCycle JSON with the new fields
     const dateCycle = {
         ID: newID,
         buwana_id: buwanaId,
@@ -1573,7 +1565,7 @@ async function addDatecycle() {
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
         title: addDateTitle,
-        date: `${yearField}-${monthField}-${dayField}`, // Correct format
+        date: `${yearField}-${monthField}-${dayField}`,
         time: "under dev",
         time_zone: "under dev",
         day: dayField,
@@ -1583,10 +1575,11 @@ async function addDatecycle() {
         comments: addDateNote,
         last_edited: lastEdited,
         created_at: createdAt,
-        unique_key: unique_key, // New unique key field
+        unique_key: unique_key,
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
-        pinned: dateCycleType === "0",
+        pinned: pinned, // ✅ Added pinned field (true/false)
+        date_emoji: dateEmoji, // ✅ Added date_emoji field (selected emoji)
         completed: "0",
         public: "0",
         delete_it: "0",
@@ -1594,7 +1587,7 @@ async function addDatecycle() {
         conflict: "0",
     };
 
-    // Add the new dateCycle to localStorage
+    // Store the new dateCycle in localStorage
     try {
         existingCalendar.push(dateCycle);
         localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
@@ -1613,17 +1606,18 @@ async function addDatecycle() {
     document.getElementById('select-calendar').value = 'Select calendar...';
     document.getElementById('dateCycle-type').value = 'One-time';
     document.getElementById('add-date-title').value = '';
-    document.getElementById('add-note-checkbox').checked = 0;
+    document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
+    document.getElementById('emojiPickerBtn').textContent = '😀'; // Reset emoji picker
 
     console.log("✅ DateCycle added successfully:", dateCycle);
     closeAddCycle();
     closeDateCycleExports();
 
-    // Ensure `highlightDateCycles` gets the correct date
     console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
     await highlightDateCycles(targetDate);
 }
+
 
 
 
