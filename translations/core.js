@@ -398,3 +398,4 @@ const loggedInTranslations = {
         logout: "Se déconnecter",
     }
 };
+

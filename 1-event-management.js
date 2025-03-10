@@ -2291,3 +2291,64 @@ function showLastSynkTimePassed(lastSyncTs) {
 
 
 
+//EMOJI PICKER
+
+const eventEmojis = [
+    "🎉", "🎂", "🎈", "🎊", "🥳", "🏆", "🏅", "🎖️", "🎭", "🎬", "🎶", "🎵", "🎤", "🎸", "🎷", "🎺", "🥁",
+    "💃", "🕺", "🏕️", "🎡", "🎢", "🎠", "⛷️", "🏂", "🏄‍♂️", "🚴‍♂️", "🚣‍♂️", "🎮", "♟️", "🎰", "🃏", "🀄",
+    "🎲", "🔮", "🧩", "🎯", "📅", "🗓️", "📆", "🛍️", "🎀", "💌", "💎", "📖", "📚", "📜", "🖊️", "📝", "✍️",
+    "💡", "🖌️", "🖍️", "🎨", "🖼️", "🎭", "🎤", "🎧", "🎼", "📢", "📣", "🔔", "🎹", "🥁", "🎺", "🎷", "🎻",
+    "🎸", "🎮", "🕹️", "🎰", "🎲", "♟️", "🧩", "🔮", "🎯", "🛒", "🛍️", "💳", "🏋️‍♂️", "🚴", "🏃‍♂️", "🏌️", "🧘",
+    "🥊", "⚽", "🏀", "🏈", "⚾", "🎾", "🏐", "🏉", "🎳", "🏅", "🎖️", "🥇", "🥈", "🥉"
+];
+
+function showEmojiPicker(event) {
+    event.stopPropagation(); // Prevent unintended modal closures
+    const emojiGrid = document.getElementById("emojiPickerGrid");
+    emojiGrid.innerHTML = ""; // Clear previous emojis
+
+    eventEmojis.forEach(emoji => {
+        let emojiButton = document.createElement("button");
+        emojiButton.textContent = emoji;
+        emojiButton.setAttribute("data-emoji", emoji); // Use a safe attribute
+        emojiButton.style.border = "none";
+        emojiButton.style.background = "none";
+        emojiButton.style.fontSize = "1.5em";
+        emojiButton.style.cursor = "pointer";
+        emojiButton.onclick = (e) => selectEmoji(e.target.dataset.emoji);
+        emojiGrid.appendChild(emojiButton);
+    });
+
+    const modal = document.getElementById("emojiPickerModal");
+    modal.style.display = "block";
+    modal.setAttribute("aria-hidden", "false");
+
+    console.log("Emoji Picker Opened");
+}
+
+function selectEmoji(emoji) {
+    try {
+        if (emoji && typeof emoji === "string") {
+            document.getElementById("emojiPickerBtn").textContent = emoji;
+            console.log(`Emoji selected: ${emoji}`);
+        } else {
+            console.warn("Invalid emoji selection:", emoji);
+        }
+    } catch (error) {
+        console.error("Error setting emoji:", error);
+    }
+    closeEmojiPicker();
+}
+
+function closeEmojiPicker() {
+    const modal = document.getElementById("emojiPickerModal");
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    console.log("Emoji Picker Closed");
+}
+
+// Prevent modal from closing when clicking inside it
+document.getElementById("emojiPickerModal").addEventListener("click", (event) => event.stopPropagation());
+
+// Ensure clicking outside the modal closes it
+document.addEventListener("click", closeEmojiPicker);

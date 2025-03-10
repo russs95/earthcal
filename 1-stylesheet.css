@@ -1979,7 +1979,7 @@ ADD DATE CURTAIN
     width: 100%;
     font-size: 0.9em;
     /*margin-top: 6%;*/
-    height:130%
+
 }
 }
 
@@ -1998,32 +1998,6 @@ ADD DATE CURTAIN
     }
 }
 
-/*
-textarea#add-date-title {
-  width: 50%;
-  height: 25px;
-  padding: 10px;
-  resize: none;
-  border: 1px solid var(--thin-border-color);
-  border-radius: 5px 0px 0px 5px;
-  margin-bottom: 10px;
-font-size: 1.5em;
-background: var(--header-accent);
-color: var(--login);
-}
-
-textarea#add-date-note {
-  width: 50%;
-  height: 45px;
-  padding: 10px;
-  resize: none;
-  border: 1px solid var(--thin-border-color);
-  border-radius: 5px;
-  margin-bottom: 10px;
-font-size: 1.5em;
-background: var(--header-accent);
-color: var(--login);
-}*/
 
 #export-hover-box {
   opacity: 0.5;
