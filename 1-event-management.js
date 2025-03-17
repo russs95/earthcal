@@ -1486,7 +1486,6 @@ function clearAllDateCycles() {
 //**************************
 // ADD DATECYCLE
 //**************
-
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1521,15 +1520,15 @@ async function addDatecycle() {
     const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
 
     // Retrieve new fields
-    const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim(); // Get selected emoji
-    const pinned = document.getElementById('pinOrNot').value === "1"; // Convert to boolean
+    const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
+    const pinned = document.getElementById('pinOrNot').value === "1";
 
     // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "1" : "0";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate created_at timestamp in ISO format
+    // Generate timestamps
     const nowISO = new Date().toISOString().split('.')[0] + "Z";
     const createdAt = nowISO;
     const lastEdited = nowISO;
@@ -1545,22 +1544,14 @@ async function addDatecycle() {
         return;
     }
 
-    const maxID = existingCalendar.reduce((max, dc) => {
-        const idString = String(dc.ID || "temp_0_000");
-        const id = parseInt(idString.split("_").pop()) || 0;
-        return id > max ? id : max;
-    }, 0);
-
-    console.log("Existing dateCycle IDs:", existingCalendar.map(dc => dc.ID));
-    const buwanaId = document.getElementById('buwana-id').value; // Get buwana_id
-
+    // Generate a unique key
     const newID = Math.random().toString(36).substring(2, 16);
     const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${newID}`;
 
-    // ✅ Construct the new dateCycle JSON with the new fields
+    // ✅ Construct the new dateCycle JSON with all fields
     const dateCycle = {
         ID: newID,
-        buwana_id: buwanaId,
+        buwana_id: document.getElementById('buwana-id').value,
         cal_id: selCalendarId,
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
@@ -1578,12 +1569,12 @@ async function addDatecycle() {
         unique_key: unique_key,
         datecycle_color: dateColorPicker,
         frequency: dateCycleType,
-        pinned: pinned, // ✅ Added pinned field (true/false)
-        date_emoji: dateEmoji, // ✅ Added date_emoji field (selected emoji)
+        pinned: pinned,
+        date_emoji: dateEmoji,
         completed: "0",
         public: "0",
         delete_it: "0",
-        synced: "0",
+        synced: "0", // Mark as not yet synced
         conflict: "0",
     };
 
@@ -1599,8 +1590,10 @@ async function addDatecycle() {
 
     console.log(`📥 Stored new dateCycle in localStorage:`, JSON.stringify(dateCycle, null, 2));
 
-    // Attempt to sync with the server
+    // 🛑 **Ensure sync completes before proceeding**
+    console.log("🔄 Syncing dateCycles before highlighting...");
     await syncDatecycles();
+    console.log("✅ Sync complete!");
 
     // Clear form fields
     document.getElementById('select-calendar').value = 'Select calendar...';
@@ -1608,15 +1601,17 @@ async function addDatecycle() {
     document.getElementById('add-date-title').value = '';
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
-    document.getElementById('emojiPickerBtn').textContent = '😀'; // Reset emoji picker
+    document.getElementById('emojiPickerBtn').textContent = '😀';
 
     console.log("✅ DateCycle added successfully:", dateCycle);
     closeAddCycle();
     closeDateCycleExports();
 
+    // ✅ **Highlight only after all sync operations are done**
     console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
     await highlightDateCycles(targetDate);
 }
+
 
 
 
