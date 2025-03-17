@@ -1823,7 +1823,10 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
     });
 
     // Filter only unsynced dateCycles.
-    let unsyncedDateCycles = localCalendar.filter(dc => Number(dc.synced) !== 1);
+
+    let unsyncedDateCycles = localCalendar.filter(dc => String(dc.synced).trim() !== "1");
+
+
 
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
