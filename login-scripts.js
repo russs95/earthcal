@@ -166,7 +166,7 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
             <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
         </div>
 
-        <div id="cal-datecycle-count"></div>
+        <p id="cal-datecycle-count"></p>
 
         ${syncMessage}
         <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
