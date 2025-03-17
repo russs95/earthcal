@@ -1803,7 +1803,6 @@ async function syncDatecycles() {
 }
 
 
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const buwanaId = localStorage.getItem('buwana_id');
     if (!buwanaId) {
@@ -1822,11 +1821,14 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
     });
 
-    // Filter only unsynced dateCycles.
+    // 🔍 Debug log: Print the local storage state before filtering
+    console.log("📥 Current local storage before filtering:", JSON.stringify(localCalendar, null, 2));
 
+    // Filter only unsynced dateCycles
     let unsyncedDateCycles = localCalendar.filter(dc => String(dc.synced).trim() !== "1");
 
-
+    // 🔍 Debug log: Print the filtered unsynced events
+    console.log("🚀 Filtered unsynced events:", JSON.stringify(unsyncedDateCycles, null, 2));
 
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
@@ -1871,7 +1873,8 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
         // Check if the event already exists on the server
         const alreadyExistsOnServer = serverDateCycles.some(dc =>
-            dc.unique_key === unsyncedEvent.unique_key && dc.cal_id == unsyncedEvent.cal_id
+            String(dc.unique_key).trim() === String(unsyncedEvent.unique_key).trim() &&
+            String(dc.cal_id).trim() === String(unsyncedEvent.cal_id).trim()
         );
 
         if (alreadyExistsOnServer) {
@@ -1939,9 +1942,16 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         }
     }
 
+    // 🔍 Debug log: Print before updating local storage
+    console.log("📥 Updated local dateCycles after sync:", JSON.stringify(Object.values(localDateCycleMap), null, 2));
+
     // Save the updated local calendar.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
+
+    // 🔍 Debug log: Confirm local storage was saved
+    console.log("📥 Final local storage after sync:", localStorage.getItem(`calendar_${cal_id}`));
 }
+
 
 
 
