@@ -1367,12 +1367,12 @@ function closeDateCycleExports() {
     const exportUpArrow = document.getElementById('export-up-arrow');
 
     // Hide the up arrow and reset the export-import div
-    exportUpArrow.style.display = 'none';
-    exportImportDiv.style.animation = 'none';
+    //exportUpArrow.style.display = 'none';
+    //exportImportDiv.style.animation = 'none';
 
     // Show the down arrow and hide the export-import div
-    exportDownArrow.style.display = 'block';
-    exportImportDiv.style.display = 'none';
+    //exportDownArrow.style.display = 'block';
+    //exportImportDiv.style.display = 'none';
 }
 
 
