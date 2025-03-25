@@ -1,5 +1,5 @@
 name: earthcal
-version: '0.9.3'
+version: '0.9.4'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
@@ -21,19 +21,19 @@ apps:
       - x11
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
-      ELECTRON_DISABLE_SANDBOX: 1  # <---- ADD THIS LINE
-
+      ELECTRON_DISABLE_SANDBOX: 1
 
 parts:
   earthcal:
     plugin: dump
     source: earthcal-linux-x64/
     build-snaps:
-    - node/14/stable
+      - node/14/stable
     build-packages:
-    - unzip
+      - unzip
     stage-packages:
-    - libnss3
-    - libnspr4
-
-
+      - libnss3
+      - libnspr4
+    organize:
+      snap/gui/earthcal.desktop: usr/share/applications/earthcal.desktop
+      snap/gui/earthcal.png: usr/share/icons/hicolor/512x512/apps/earthcal.png

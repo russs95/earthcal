@@ -1,13 +1,11 @@
-const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
+const { app, BrowserWindow, Menu, shell, dialog, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const jsyaml = require('js-yaml');
 
 let mainWindow;
 
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
 app.commandLine.appendSwitch('disable-features', 'RendererCodeIntegrity');
-
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -26,39 +24,26 @@ function createWindow() {
     {
       label: 'File',
       submenu: [
-        {
-          label: 'Exit',
-          role: 'quit',
-        },
+        { label: 'Exit', role: 'quit' },
       ],
     },
     {
       label: 'View',
       submenu: [
-        {
-          label: 'Reload',
-          role: 'reload',
-        },
-        {
-          label: 'Toggle Developer Tools',
-          role: 'toggleDevTools',
-        },
+        { label: 'Reload', role: 'reload' },
+        { label: 'Toggle Developer Tools', role: 'toggleDevTools' },
       ],
     },
     {
       label: 'Window',
       submenu: [
+        { label: 'Minimize', role: 'minimize' },
+        { label: 'Maximize', role: 'maximize' },
+        { label: 'Close', role: 'close' },
+        { type: 'separator' }, // Separator for clarity
         {
-          label: 'Minimize',
-          role: 'minimize',
-        },
-        {
-          label: 'Maximize',
-          role: 'maximize',
-        },
-        {
-          label: 'Close',
-          role: 'close',
+          label: 'Minimal',
+          click: () => minimalFloater()
         },
       ],
     },
@@ -66,12 +51,17 @@ function createWindow() {
       label: 'Events',
       submenu: [
         {
-          label: 'Import Events & Cycles',
-          click: () => uploadDateCycles(),
+          label: 'Import Datecycle',
+          click: () => importMenuDatecycles(),
         },
         {
-          label: 'Export Events & Cycles',
-          click: () => downloadDateCycles(),
+          label: 'Export Datecycles',
+          click: () => exportMenuDatecycles(),
+        },
+        { type: 'separator' }, // Separator for clarity
+        {
+          label: 'Clear All Datecycles',
+          click: () => deleteAllDatecycles(),
         },
       ],
     },
@@ -88,13 +78,13 @@ function createWindow() {
         },
         {
           label: 'Guided Tour',
-          click: () => guidedTour(),        },
+          click: () => guidedTour(),
+        },
       ],
     },
     {
       label: 'About',
       submenu: [
-
         {
           label: 'Created by Earthen.io',
           click: () => shell.openExternal('https://earthen.io'),
@@ -103,9 +93,7 @@ function createWindow() {
           label: 'License',
           click: () => showLicenseDialog(),
         },
-        {
-          type: 'separator', // This adds a separator
-        },
+        { type: 'separator' },
         {
           label: 'About Earthcal',
           click: () => showAboutDialog(),
@@ -118,6 +106,50 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
+// 🔹 Function to Clear All Data (Browser Cache)
+function deleteAllDatecycles() {
+  dialog.showMessageBox({
+    type: 'warning',
+    title: 'Reset Earthcal',
+    message: 'This will reset Earthcal. Are you sure you want to clear ALL your cycles, events, and personal preferences?',
+    buttons: ['Cancel', 'OK'],
+    defaultId: 1,
+    cancelId: 0,
+  }).then((response) => {
+    if (response.response === 1) {  // User clicked OK
+      session.defaultSession.clearStorageData({
+        storages: ['appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers']
+      }).then(() => {
+        dialog.showMessageBox({
+          type: 'info',
+          title: 'Earthcal Reset',
+          message: 'All Earthcal data has been cleared.',
+          buttons: ['OK'],
+        });
+      });
+    }
+  });
+}
+
+// 🔹 Function to Minimize the Window to 200x200 and Move it to Bottom Right
+function minimalFloater() {
+  if (!mainWindow) return;
+
+  // Get screen dimensions
+  const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize;
+
+  // Set window to 200x200 and move to bottom-right corner
+  mainWindow.setBounds({
+    width: 200,
+    height: 200,
+    x: width - 210, // Adjusted slightly for padding
+    y: height - 210
+  });
+
+  mainWindow.setAlwaysOnTop(true, 'floating'); // Keep it on top
+}
+
+// 🔹 Show About Dialog
 function showAboutDialog() {
   const packagePath = path.join(__dirname, 'package.json');
 
@@ -142,38 +174,34 @@ function showAboutDialog() {
   }
 }
 
-
-
-
+// 🔹 Show License Dialog
 function showLicenseDialog() {
-  const snapcraftPath = path.join(__dirname, 'snap', `snapcraft.yaml`);
-
-  if (fs.existsSync(snapcraftPath)) {
-    const snapcraftContent = fs.readFileSync(snapcraftPath, 'utf8');
-    const snapcraftData = jsyaml.load(snapcraftContent);
-
-    dialog.showMessageBox({
-      type: 'info',
-      title: `${snapcraftData.name} ${snapcraftData.version}`,
-      detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code.
-      `,
-
-      buttons: ['OK'],
-    });
-  } else {
-    dialog.showMessageBox({
-      type: 'error',
-      title: 'Error',
-      message: 'Snapcraft.yaml file not found.',
-      buttons: ['OK'],
-    });
-  }
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Earthcal License',
+    detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code.`,
+    buttons: ['OK'],
+  });
 }
 
+// 🔹 Placeholder Functions for Import/Export
+function importMenuDatecycles() {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Import Datecycle',
+    message: 'Sorry! This function to import your Earthcal events is still under development.',
+    buttons: ['OK'],
+  });
+}
 
-
-
-
+function exportMenuDatecycles() {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Export Datecycles',
+    message: 'Sorry! This function to export your Earthcal events is still under development.',
+    buttons: ['OK'],
+  });
+}
 
 app.whenReady().then(createWindow);
 
@@ -184,25 +212,3 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
-
-
-
-
-
-
-// npx electron-packager . earthcal --platform=linux --arch=x64 --overwrite
-// snapcraft
-// sudo snap install --dangerous ./earthcal_0.4.0_amd64.snap
-// snapcraft login
-// snapcraft push earthcal_0.4.15_amd64.snap
-//sudo snap refresh earthcal --edge
-////// npx electron-builder --linux snap
-//sudo snap install --dangerous dist/earthcal_0.9.0_amd64.snap
-//snapcraft login
-//snapcraft upload dist/earthcal_0.9.0_amd64.snap
-//snapcraft release earthcal 68 edge
-//ulimit -n 4096
-
-
-
-
