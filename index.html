@@ -1058,7 +1058,7 @@ setTimeout(showIntroModal, 5000);
 
 
 
-  <div class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;background: var(--general-background);
+  <div id="top-left-buttons" class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;background: var(--general-background);
   border-radius: 15px;">
 
     <div><button type="button" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
@@ -1067,9 +1067,6 @@ setTimeout(showIntroModal, 5000);
 
     <div><button type="button" class="top-clock-button" onclick="openClock(timezone)" aria-label="Clock view"></button></div>
 
-      
-    
-      
   </div>
 
 
@@ -1198,8 +1195,9 @@ setTimeout(showIntroModal, 5000);
   </div>
 
 
-  <div class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute;">
 
+
+  <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute;">
 
     <button type="button" id="moon-button" class="totems-icon"  aria-label="Access lunar cycles" title="Activate lunar tracking" style="border:none"></button>
     
