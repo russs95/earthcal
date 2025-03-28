@@ -13,3 +13,10 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 })
 
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  restoreEarthcal: () => ipcRenderer.send('restore-earthcal')
+});
+
+

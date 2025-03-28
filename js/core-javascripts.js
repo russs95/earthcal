@@ -1,3 +1,32 @@
+let clockVisible = false; // ✅ Track clock state
+
+// ✅ Show clock only when screen is below 350px and keep it visible
+function checkScreenSize() {
+  if (window.innerWidth <= 350) {
+    if (!clockVisible) { // ✅ Only show clock if it's not already visible
+      clockVisible = true;
+      if (typeof timezone !== "undefined" && timezone !== null) {
+        openClock(timezone);
+      } else {
+        console.warn("Timezone is not defined. Using UTC+0.");
+        openClock("UTC+0");
+      }
+    }
+  } else {
+    if (clockVisible) { // ✅ Only hide clock if it's currently visible
+      clockVisible = false;
+      document.getElementById('main-clock').style.display = 'none'; // ✅ Hide clock when window is resized larger
+    }
+  }
+}
+
+// ✅ Run on Window Resize
+window.addEventListener("resize", checkScreenSize);
+
+// ✅ Run on Page Load (so clock shows immediately if needed)
+window.addEventListener("load", checkScreenSize);
+
+
 
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 

@@ -111,7 +111,7 @@ bottom-info: 9  needed?
 
 
 <!-- Main Calendar Stylesheet-->
-<link rel="stylesheet" href="1-stylesheet.css?v=3.7">
+<link rel="stylesheet" href="css/1-stylesheet.css?v=3.7">
 <link rel="stylesheet" href="subscription-stylesheet.css?v=2.2">
     <link rel="stylesheet" href="login-styles.css?v=1">
 
@@ -120,6 +120,129 @@ bottom-info: 9  needed?
 
 <!-- Inline styles current being experimented with-->
 <style>
+
+/* 🔹 Default Full-Sized Mode */
+#page-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 🔹 Floating Mode (When Minimized) */
+@media screen and (max-width: 350px) {
+  #page-content {
+    width: 200px;
+    height: 200px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    -webkit-app-region: drag; /* Enable dragging */
+  }
+
+  /* ✅ Apply Drag Cursor to the Entire Body */
+  body {
+    cursor: grab !important;
+  }
+
+  /* Hide UI elements when minimized */
+  #header,
+  #top-menu,
+  #top-left-buttons,
+  #time-controller,
+  #bottom-left-buttons,
+  #registration-footer {
+    display: none !important;
+  }
+
+  /* ✅ Fully Disable All Interactivity in Mini Mode */
+  #page-content *,
+  #page-content {
+    pointer-events: none !important;
+    user-select: none !important;
+    touch-action: none !important;
+  }
+
+  /* ✅ Disable Hover Effects */
+  #page-content:hover,
+  #page-content *:hover {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Floating Panel Hint */
+  #floating-hint {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+  }
+}
+
+/* ✅ Restore UI When Back to Full Screen */
+@media screen and (min-width: 351px) {
+  #page-content {
+    -webkit-app-region: none; /* Disable drag */
+  }
+
+  /* ✅ Restore Default Cursor */
+  body {
+    cursor: default !important;
+  }
+
+  #header {
+  display:flex;
+  }
+
+  /* Restore all UI elements */
+
+  #top-menu,
+  #top-search,
+  #time-controller,
+  #bottom-left-buttons,
+  #registration-footer {
+    display: block;
+  }
+
+  /* ✅ Restore Full Interactivity */
+  #page-content *,
+  #page-content {
+    pointer-events: auto;
+    user-select: auto;
+    touch-action: auto;
+  }
+
+  #floating-hint {
+    opacity: 0;
+    pointer-events: none;
+  }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 html, body {
@@ -516,7 +639,7 @@ setTimeout(showIntroModal, 5000);
   </button>
 
   <div class="search-modal-content">
-    <div class="top-search-icon"></div>
+    <div class="top-search-icon" ></div>
     <h2 id="date-search-title" style="text-align: center;"></h2>
 
     <input
@@ -984,9 +1107,9 @@ setTimeout(showIntroModal, 5000);
   </div>
 
 
-<div id="page-content" style="transition:0.3s;">
+<div id="page-content">
 
-  <div id="header" class="top-menu">
+  <div id="header" class="top-menu">  <!-- Why 140px?-->
     
     <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
       <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
@@ -1061,9 +1184,9 @@ setTimeout(showIntroModal, 5000);
   <div id="top-left-buttons" class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;background: var(--general-background);
   border-radius: 15px;">
 
-    <div><button type="button" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
+    <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
     
-    <div><button type="button" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
+    <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
 
     <div><button type="button" class="top-clock-button" onclick="openClock(timezone)" aria-label="Clock view"></button></div>
 

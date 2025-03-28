@@ -12,7 +12,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1028,
     height: 769,
-    icon: path.join(__dirname, 'icons', 'earthcal-app.png'),
+    icon: path.join(__dirname, 'icons', 'earthcal.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false,
@@ -75,62 +75,132 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-// 🔹 Function to Toggle Minimal Mode
+const { screen } = require('electron');
+
 function toggleMinimalFloater() {
-  if (!mainWindow) return;
+  if (!mainWindow || mainWindow.isDestroyed()) return;
 
   if (!isMinimal) {
-    // ✅ Switch to Minimal Mode
     isMinimal = true;
+
     mainWindow.setBounds({
       width: 200,
       height: 200,
-      x: require('electron').screen.getPrimaryDisplay().workAreaSize.width - 210, // Right corner
-      y: require('electron').screen.getPrimaryDisplay().workAreaSize.height - 210, // Bottom
+      x: screen.getPrimaryDisplay().workAreaSize.width - 210,
+      y: screen.getPrimaryDisplay().workAreaSize.height - 210,
     });
 
     mainWindow.setAlwaysOnTop(true, 'floating');
-    mainWindow.setMenuBarVisibility(false); // Hide menu bar
-    mainWindow.setTitle(''); // Remove title bar
+    mainWindow.setResizable(false);
+    mainWindow.setSkipTaskbar(true);
+    mainWindow.setFocusable(false);
+    mainWindow.setMovable(true); // ✅ Ensure window remains draggable
+    mainWindow.setTitle(''); // ✅ Hide title bar
 
-    // ✅ Send JavaScript to Modify UI in the Renderer
+    // ✅ Remove menu bar completely
+    mainWindow.setMenuBarVisibility(false);
+    mainWindow.setAutoHideMenuBar(true);
+
+    // ✅ Enable full window dragging
+    mainWindow.setBackgroundColor('#00000000'); // ✅ Transparent background (for a floating effect)
+    mainWindow.setHasShadow(false); // ✅ Remove shadow for clean floating look
+
+    // ✅ Apply dragging to the entire window
     mainWindow.webContents.executeJavaScript(`
-      document.getElementById('header').style.display = 'none';
-      document.getElementById('top-left-buttons').style.display = 'none';
-      document.getElementById('time-controller').style.display = 'none';
-      document.getElementById('bottom-left-buttons').style.display = 'none';
-      document.getElementById('registration-footer').style.display = 'none';
-      document.getElementById('main-clock').style.display = 'block';
-
-      // Make the whole window clickable to restore
-      document.body.style.cursor = 'pointer';
-      document.body.onclick = () => {
-        window.electronAPI.restoreEarthcal();
-      };
+      document.body.style.webkitAppRegion = 'drag'; // ✅ Allow dragging anywhere
+      document.body.style.cursor = 'grab'; // ✅ Show grab cursor
     `);
-
   } else {
-    // ✅ Restore Full Size Mode
     isMinimal = false;
     mainWindow.setBounds({ width: 1028, height: 769 });
     mainWindow.setAlwaysOnTop(false);
-    mainWindow.setMenuBarVisibility(true); // Restore menu bar
-    mainWindow.setTitle('EarthCal'); // Restore title
+    mainWindow.setResizable(true);
+    mainWindow.setSkipTaskbar(false);
+    mainWindow.setFocusable(true);
+    mainWindow.setMovable(true);
 
+    mainWindow.setMenuBarVisibility(true);
+    mainWindow.setAutoHideMenuBar(false);
+    mainWindow.setTitle('EarthCal'); // ✅ Restore title bar
+
+    mainWindow.setBackgroundColor('#FFFFFF'); // ✅ Restore normal background
+    mainWindow.setHasShadow(true); // ✅ Restore shadow
+
+    // ✅ Disable dragging when maximized
     mainWindow.webContents.executeJavaScript(`
-      document.getElementById('header').style.display = 'block';
-      document.getElementById('top-left-buttons').style.display = 'block';
-      document.getElementById('time-controller').style.display = 'block';
-      document.getElementById('buttom-left-buttons').style.display = 'block';
-      document.getElementById('registration-footer').style.display = 'block';
-      document.getElementById('main-clock').style.display = 'none';
-
-      // Restore normal click behavior
-      document.body.style.cursor = 'default';
-      document.body.onclick = null;
+      document.body.style.webkitAppRegion = 'no-drag'; // ✅ Disable dragging in full mode
+      document.body.style.cursor = 'default'; // ✅ Restore default cursor
     `);
   }
 }
+
+// 🔹 Ensure IPC Event Listener Works
+ipcMain.on('restore-earthcal', () => {
+  toggleMinimalFloater();
+});
+
+
+
+// 🔹 Show About Dialog (Fixed Syntax)
+function showAboutDialog() {
+  const packagePath = path.join(__dirname, 'package.json');
+
+  // Use SNAP environment variable for icon path
+  const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
+
+  if (fs.existsSync(packagePath)) {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageData = JSON.parse(packageContent);
+
+    dialog.showMessageBox({
+      type: 'info',
+      title: `About`, // ✅ Fixed syntax
+      message: `EarthCal ${packageData.version}`, // ✅ Fixed syntax
+
+      detail: `Sync your moments with Earth's cycles.`,
+      buttons: ['OK'],
+    });
+  } else {
+    dialog.showMessageBox({
+      type: 'error',
+      title: 'Error',
+      message: 'Package.json file not found.',
+      buttons: ['OK'],
+    });
+  }
+}
+
+
+
+
+// 🔹 Show License Dialog
+function showLicenseDialog() {
+// Use SNAP environment variable for icon path
+  const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Earthcal License',
+
+    detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License.`,
+    buttons: ['OK'],
+  });
+}
+
+app.whenReady().then(createWindow);
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+
+
+
+
+
 
 function exportMenuDatecycles() {
   const { dialog } = require('electron');
@@ -204,6 +274,8 @@ function exportMenuDatecycles() {
     }
   });
 }
+
+
 
 
 ipcMain.on('save-datecycles', (event, data) => {
@@ -290,64 +362,3 @@ function deleteAllDatecycles() {
     }
   });
 }
-
-
-// 🔹 Show About Dialog
-function showAboutDialog() {
-  const packagePath = path.join(__dirname, 'package.json');
-
-  if (fs.existsSync(packagePath)) {
-    const packageContent = fs.readFileSync(packagePath, 'utf8');
-    const packageData = JSON.parse(packageContent);
-
-    dialog.showMessageBox({
-      type: 'info',
-      title: packageData.description,
-      detail: `Sync your moments with Earth's cycles.`,
-      message: `${packageData.name} ${packageData.version}`,
-      buttons: ['OK'],
-    });
-  } else {
-    dialog.showMessageBox({
-      type: 'error',
-      title: 'Error',
-      message: 'Package.json file not found.',
-      buttons: ['OK'],
-    });
-  }
-}
-
-// 🔹 Show License Dialog
-function showLicenseDialog() {
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Earthcal License',
-    detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License found at https://creativecommons.org/licenses/by-nc-sa/4.0/ which allows for innovation but not commercialization, by allowing for derivatives of this concept that you may share with others and require you to attribute and/or link to cycles.earthen.io as the source of this concept and code.`,
-    buttons: ['OK'],
-  });
-}
-
-
-
-
-
-app.whenReady().then(createWindow);
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-
-
-
-
-
-
-
-
-
-
-
