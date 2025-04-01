@@ -77,6 +77,7 @@ function createWindow() {
 
 const { screen } = require('electron');
 
+
 function toggleMinimalFloater() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
 
@@ -84,32 +85,45 @@ function toggleMinimalFloater() {
     isMinimal = true;
 
     mainWindow.setBounds({
-      width: 200,
-      height: 200,
+      width: 220,
+      height: 240,
       x: screen.getPrimaryDisplay().workAreaSize.width - 210,
       y: screen.getPrimaryDisplay().workAreaSize.height - 210,
     });
 
     mainWindow.setAlwaysOnTop(true, 'floating');
-    mainWindow.setResizable(false);
+    mainWindow.setResizable(true);
     mainWindow.setSkipTaskbar(true);
     mainWindow.setFocusable(false);
-    mainWindow.setMovable(true); // ✅ Ensure window remains draggable
-    mainWindow.setTitle(''); // ✅ Hide title bar
+    mainWindow.setMovable(true);
+    mainWindow.setTitle('');
 
-    // ✅ Remove menu bar completely
+    // ✅ Remove menu bar completely, but keep functionality
     mainWindow.setMenuBarVisibility(false);
     mainWindow.setAutoHideMenuBar(true);
 
-    // ✅ Enable full window dragging
-    mainWindow.setBackgroundColor('#00000000'); // ✅ Transparent background (for a floating effect)
-    mainWindow.setHasShadow(false); // ✅ Remove shadow for clean floating look
+    // ✅ Transparent floating effect
+    mainWindow.setBackgroundColor('#00000000');
+    mainWindow.setHasShadow(false);
 
-    // ✅ Apply dragging to the entire window
+    // ✅ Enable full window dragging
     mainWindow.webContents.executeJavaScript(`
-      document.body.style.webkitAppRegion = 'drag'; // ✅ Allow dragging anywhere
-      document.body.style.cursor = 'grab'; // ✅ Show grab cursor
+      document.body.style.webkitAppRegion = 'drag';
+      document.body.style.cursor = 'grab';
     `);
+
+    // ✅ Add a simple right-click context menu with "Maximize"
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: "Maximize",
+        click: () => toggleMinimalFloater()
+      }
+    ]);
+
+    mainWindow.webContents.on("context-menu", (e) => {
+      contextMenu.popup();
+    });
+
   } else {
     isMinimal = false;
     mainWindow.setBounds({ width: 1028, height: 769 });
@@ -121,15 +135,15 @@ function toggleMinimalFloater() {
 
     mainWindow.setMenuBarVisibility(true);
     mainWindow.setAutoHideMenuBar(false);
-    mainWindow.setTitle('EarthCal'); // ✅ Restore title bar
+    mainWindow.setTitle('EarthCal');
 
-    mainWindow.setBackgroundColor('#FFFFFF'); // ✅ Restore normal background
-    mainWindow.setHasShadow(true); // ✅ Restore shadow
+    mainWindow.setBackgroundColor('#FFFFFF');
+    mainWindow.setHasShadow(true);
 
     // ✅ Disable dragging when maximized
     mainWindow.webContents.executeJavaScript(`
-      document.body.style.webkitAppRegion = 'no-drag'; // ✅ Disable dragging in full mode
-      document.body.style.cursor = 'default'; // ✅ Restore default cursor
+      document.body.style.webkitAppRegion = 'no-drag';
+      document.body.style.cursor = 'default';
     `);
   }
 }
