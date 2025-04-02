@@ -24,7 +24,7 @@ function checkScreenSize() {
 window.addEventListener("resize", checkScreenSize);
 
 // ✅ Run on Page Load (so clock shows immediately if needed)
-window.addEventListener("load", checkScreenSize);
+//window.addEventListener("load", checkScreenSize);
 
 
 
