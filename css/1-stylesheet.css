@@ -1851,7 +1851,7 @@ margin: auto;
 
 #solarsystem-button  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1861,7 +1861,7 @@ margin: auto;
 
 #moon-button  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1871,7 +1871,7 @@ margin: auto;
 
 #whale-earthbutton  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1895,26 +1895,52 @@ margin: auto;
     transition: opacity 0.3s ease;
   }
 
-  
-
-
   .totems-icon:hover {
     opacity: 1;
     border-bottom: 2px solid;
     padding-bottom: 4px;
   }
 
-  .totems-active {
+  .totems-icon:active {
     opacity: 1;
     border-bottom: 2px solid;
     padding-bottom: 4px;
   }
 
-  @media screen and (max-width: 700px) {
+
+
+  .planet-icon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 50;
+    padding: 8px;
+  }
+
+  .planet-icon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .planet-icon:hover {
+    opacity: 1;
+    border-left: 2px solid;
+
+  }
+
+  .planet-icon:active {
+    opacity: 1;
+    border-left: 2px solid;
+
+  }
+
+/*  @media screen and (max-width: 700px) {
   #clock {
     display: none;
   }
-}
+}*/
 
 
 /*---------------------------------

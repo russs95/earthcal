@@ -94,17 +94,17 @@ function toggleMinimalFloater() {
     mainWindow.setAlwaysOnTop(true, 'floating');
     mainWindow.setResizable(true);
     mainWindow.setSkipTaskbar(true);
-    mainWindow.setFocusable(false);
+    mainWindow.setFocusable(true);
     mainWindow.setMovable(true);
     mainWindow.setTitle('');
 
     // ✅ Remove menu bar completely, but keep functionality
-    mainWindow.setMenuBarVisibility(false);
+    mainWindow.setMenuBarVisibility(true);
     mainWindow.setAutoHideMenuBar(true);
 
     // ✅ Transparent floating effect
     mainWindow.setBackgroundColor('#00000000');
-    mainWindow.setHasShadow(false);
+    mainWindow.setHasShadow(true);
 
     // ✅ Enable full window dragging
     mainWindow.webContents.executeJavaScript(`
