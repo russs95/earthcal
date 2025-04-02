@@ -46,13 +46,13 @@ p {
   }
 
   .planet-info {
-    font-size: 0.88em;
+    font-size: 0.8em;
     font-family: 'Mulish', sans-serif;
     color: grey;
     height: fit-content;
     padding-top: 10px;
     width:100%;
-    line-height: 1.5;
+    line-height: 1.2;
     }
   }
 
@@ -71,7 +71,8 @@ p {
       /*font-size: 3.4em;*/
     }
     .planet-info {
-    font-size: 1.2em;
+    font-size: 1em;
+    line-height:1.2em;
     font-family: 'Mulish', sans-serif;
     color: grey;
     height: fit-content;
@@ -1926,13 +1927,13 @@ margin: auto;
 
   .planet-icon:hover {
     opacity: 1;
-    border-left: 2px solid;
+    border-right: 2px solid;
 
   }
 
   .planet-icon:active {
     opacity: 1;
-    border-left: 2px solid;
+    border-right: 2px solid;
 
   }
 
