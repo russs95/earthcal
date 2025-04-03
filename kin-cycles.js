@@ -1,18 +1,23 @@
 /* PLANET AND KINCYCLES BUTTON TOGGLING */
-
 function cyclesToggleSimplified() {
   const buttons = document.querySelectorAll('.cycle-toggle');
+  const paletteRootButtons = document.querySelectorAll('.cycle-toggle[data-role="palette-root"]');
   let activePalette = null;
 
   buttons.forEach(button => {
     button.addEventListener('click', (e) => {
       e.stopPropagation();
 
+      const isPaletteRoot = button.dataset.role === "palette-root";
       const targetPaletteId = button.dataset.show?.split(' ')[0];
       const targetPaletteEl = targetPaletteId ? document.getElementById(targetPaletteId) : null;
       const isAlreadyActive = targetPaletteEl && targetPaletteEl.style.display === "block";
 
-      resetAllCycles();
+      if (isPaletteRoot) {
+        resetAllCycles(); // full reset only when palette root buttons clicked
+      } else {
+        resetPalettesOnly(); // hide palettes, not cycles
+      }
 
       if (!isAlreadyActive) {
         // Show designated elements
@@ -22,7 +27,7 @@ function cyclesToggleSimplified() {
           if (el) el.style.display = "block";
         });
 
-        // Run functions
+        // Run any attached functions
         const functions = button.dataset.function?.split(' ') || [];
         functions.forEach(fn => {
           if (typeof window[fn] === 'function') {
@@ -38,7 +43,7 @@ function cyclesToggleSimplified() {
     });
   });
 
-  // Close when clicking outside
+  // Hide palettes when clicking elsewhere
   document.addEventListener('click', function (e) {
     if (activePalette) {
       const palette = document.getElementById(activePalette);
@@ -46,24 +51,31 @@ function cyclesToggleSimplified() {
       const isClickOnButton = [...buttons].some(btn => btn.contains(e.target));
 
       if (!isClickInsidePalette && !isClickOnButton) {
-        resetAllCycles();
+        resetPalettesOnly();
         activePalette = null;
       }
     }
   });
 
-  function resetAllCycles() {
-    const allCycles = document.querySelectorAll('.planet-info-box, .animal-info-box, #themoonphases, #moon-phase, #americas-map, #euro-map');
-    allCycles.forEach(el => el.style.display = "none");
-
-    const allButtons = document.querySelectorAll('.cycle-toggle');
-    allButtons.forEach(btn => btn.classList.remove("totems-active"));
-
+  function resetPalettesOnly() {
     document.getElementById("planet-buttons").style.display = "none";
     document.getElementById("kin-buttons").style.display = "none";
-    document.getElementById("main-clock").style.opacity = "0.2";
+    const allButtons = document.querySelectorAll('.cycle-toggle');
+    allButtons.forEach(btn => btn.classList.remove("totems-active"));
+  }
+
+  function resetAllCycles() {
+    resetPalettesOnly(); // first, hide the palettes
+
+    const allCycles = document.querySelectorAll(
+      '.planet-info-box, .animal-info-box, #themoonphases, #moon-phase, #americas-map, #euro-map'
+    );
+    allCycles.forEach(el => el.style.display = "none");
+
+    //document.getElementById("main-clock").style.opacity = "0.2";
   }
 }
+
 
 
 

@@ -1275,18 +1275,17 @@ setTimeout(showIntroModal, 5000);
   <!--ANIMALS-->
 
   <div id="whale-cycle" class="animal-info-box">
-<!--    <div id="whale-phase" class="phase-image">-->
-<!--      <img src="icons/whale.svg" width="60" height="40">-->
-<!--    </div>-->
+ <div id="whale-phase" class="phase-image">
+<img src="icons/whale.svg" width="60" height="40"></div>
     <div id="whale-info" class="planet-info" style="text-align: left;">
     </div>
   </div>
 
 
   <div id="stork-cycle" class="animal-info-box">
-<!--    <div id="stork-phase" class="phase-image">-->
-<!--      <img src="icons/stork.svg" width="60" height="40">-->
-<!--    </div>-->
+<div id="stork-phase" class="phase-image">
+<img src="icons/stork.svg" width="60" height="40">
+</div>
     <div id="stork-info" class="planet-info" style="text-align: left;">
 
     </div>
@@ -1325,11 +1324,11 @@ setTimeout(showIntroModal, 5000);
 <!-- PALETTE MAIN BUTTONS -->
   <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute;">
 
-    <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles"></button>
+    <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
 
-  <button id="whale-earthbutton" class="cycle-toggle" data-show="kin-buttons" data-hide="planet-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate ecological cycles"></button>
+  <button id="whale-earthbutton" class="cycle-toggle" data-show="kin-buttons" data-hide="planet-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate ecological cycles" data-role="palette-root"></button>
 
-  <button id="moon-button" class="cycle-toggle" data-show="moon-cycle moon-phase themoonphases" data-hide="planet-buttons kin-buttons americas-map euro-map" data-function="calculateHijriMonthNames setLunarMonthForTarget" title="Activate lunar tracking"></button>
+  <button id="moon-button" class="cycle-toggle" data-show="moon-cycle moon-phase themoonphases" data-hide="planet-buttons kin-buttons americas-map euro-map" data-function="calculateHijriMonthNames" title="Activate lunar tracking" data-role="palette-root"></button>
 
   </div>
 
