@@ -251,7 +251,7 @@ function animateStorkCycle() {
   let storkMarkerElement = document.getElementById("stork-marker");
   let storkPathElement = document.getElementById("stork-year-cycle");
   // Define the start of the year for reference
-  let yearStart = new Date(2024, 0, 1);
+  let yearStart = new Date(2025, 0, 1);
 
   // Calculate the offset from the start date to the year start
   let startOffpoint = startDate - yearStart;
@@ -308,7 +308,7 @@ function animateStorkCycle() {
 function animateWhaleCycle() {
   let whaleMarkerElement = document.getElementById("whale-marker");
   let whalePathElement = document.getElementById("whale-year-cycle");
-  let yearStart = new Date(2024, 0, 1);
+  let yearStart = new Date(2025, 0, 1);
   let startOffpoint = startDate - yearStart;
   let daysToTargetDate = targetDate - startDate;
   let totalDays = startOffpoint + daysToTargetDate;

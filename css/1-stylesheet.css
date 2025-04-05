@@ -1,3 +1,11 @@
+svg, svg * {
+  user-select: none;
+  -webkit-user-select: none; /* For Safari */
+  -ms-user-select: none; /* For IE/Edge */
+}
+
+
+
 p {
  font-family: 'Mulish', sans-serif;
   font-size: 1.1em;
@@ -86,7 +94,7 @@ p {
 .icon-button-row {
 justify-content: flex-end;
   position: fixed;
-  z-index: 20;
+  z-index: 29;
   bottom: 70px;
   right: 20px;
   background: rgba(128, 128, 128, 0.17);
