@@ -531,7 +531,7 @@ function updateDateCycleCount(pinnedCount, currentCount) {
         eyeIcon.classList.add("eye-open");
         eyeIcon.classList.remove("eye-closed");
 
-        let message = "This day you have ";
+        let message = "Today: ";
         if (pinnedCount > 0 && currentCount > 0) {
             message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
         } else if (pinnedCount > 0) {
