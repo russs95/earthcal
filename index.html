@@ -369,10 +369,10 @@ window.onload = function() {
   updateHighlightColor(); //Updates colors for night and day themese
   //updateLunarMonths(); //Updates lunar months colors for night and day themese
   //updateWeeksCircle();  //Updates week's colors for night and day themese
-  getUserDetails();
+
 setCurrentDate();   //Sets the Current Date as the Target Date.-->
   const currentYear = parseInt(currentYearText.textContent); //imports the current year from the currentYearText element
-  //displayCurrentDayInfo();
+    getUserDetails(); //This calls displayCurrentDayInfo();
 
   displayMoonPhaseInDiv(targetDate);
 
