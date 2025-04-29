@@ -399,7 +399,7 @@ function UpdateMarsData(date) {
 
   document.getElementById("mars-phase").innerHTML = phase;
   document.getElementById("mars-phase-info").innerHTML =
-    "<span style=\"font-size:1.3em\">Mars ♂</span><br>" +
+    "<span style=\"font-size:1.5em\">Mars ♂</span><br>" +
     phaseDescription + "" +
 
     "Magnitude: " +

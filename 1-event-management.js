@@ -531,7 +531,7 @@ function updateDateCycleCount(pinnedCount, currentCount) {
         eyeIcon.classList.add("eye-open");
         eyeIcon.classList.remove("eye-closed");
 
-        let message = "This day you have ";
+        let message = "Today: ";
         if (pinnedCount > 0 && currentCount > 0) {
             message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
         } else if (pinnedCount > 0) {
@@ -1996,12 +1996,6 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
     // Save the updated calendar back to local storage.
     localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
 }
-
-
-
-
-
-
 
 
 

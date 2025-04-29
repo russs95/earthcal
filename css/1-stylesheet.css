@@ -1,3 +1,11 @@
+svg, svg * {
+  user-select: none;
+  -webkit-user-select: none; /* For Safari */
+  -ms-user-select: none; /* For IE/Edge */
+}
+
+
+
 p {
  font-family: 'Mulish', sans-serif;
   font-size: 1.1em;
@@ -46,13 +54,13 @@ p {
   }
 
   .planet-info {
-    font-size: 0.88em;
+    font-size: 0.8em;
     font-family: 'Mulish', sans-serif;
     color: grey;
     height: fit-content;
     padding-top: 10px;
     width:100%;
-    line-height: 1.5;
+    line-height: 1.2;
     }
   }
 
@@ -71,7 +79,8 @@ p {
       /*font-size: 3.4em;*/
     }
     .planet-info {
-    font-size: 1.2em;
+    font-size: 1em;
+    line-height:1.2em;
     font-family: 'Mulish', sans-serif;
     color: grey;
     height: fit-content;
@@ -81,6 +90,40 @@ p {
 
     }
   }
+
+.icon-button-row {
+justify-content: flex-end;
+  position: fixed;
+  z-index: 29;
+  bottom: 70px;
+  right: 20px;
+  background: rgba(128, 128, 128, 0.17);
+  border-radius: 8px;
+  display: flex;
+  padding-right: 60px;
+  height: 48px;
+  padding-left: 10px;
+display:none;
+}
+
+.icon-button-column {
+
+justify-content: flex-end;
+  justify-content: flex-end;
+  position: absolute;
+  bottom: 115px;
+  right: 22px;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.17);
+  width: 50px;
+  height: fit-content;
+  flex-flow: column;
+  padding-bottom: 50px;
+z-index:20;
+display: none;
+}
+
+
 /* --------------------------------------------------------------------------
 
 
@@ -1851,7 +1894,7 @@ margin: auto;
 
 #solarsystem-button  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1861,7 +1904,7 @@ margin: auto;
 
 #moon-button  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1871,7 +1914,7 @@ margin: auto;
 
 #whale-earthbutton  {
   border: none; 
-  margin:0 10px 10px 10px;
+  margin:0 10px 15px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -1895,26 +1938,52 @@ margin: auto;
     transition: opacity 0.3s ease;
   }
 
-  
-
-
   .totems-icon:hover {
     opacity: 1;
     border-bottom: 2px solid;
     padding-bottom: 4px;
   }
 
-  .totems-active {
+  .totems-icon:active {
     opacity: 1;
     border-bottom: 2px solid;
     padding-bottom: 4px;
   }
 
-  @media screen and (max-width: 700px) {
+
+
+  .planet-icon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 50;
+    padding: 8px;
+  }
+
+  .planet-icon {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .planet-icon:hover {
+    opacity: 1;
+    border-right: 2px solid;
+
+  }
+
+  .planet-icon:active {
+    opacity: 1;
+    border-right: 2px solid;
+
+  }
+
+/*  @media screen and (max-width: 700px) {
   #clock {
     display: none;
   }
-}
+}*/
 
 
 /*---------------------------------
@@ -2849,3 +2918,5 @@ svg path #june:hover {
     margin-right:24px;
     margin-left:6px;
 }
+
+

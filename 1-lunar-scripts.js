@@ -135,8 +135,8 @@ function calculateHijriMonthNames(currentYear) {
   // Get the date of the first new moon of the current year
   const firstNewMoon = getFirstNewMoon(currentYear);
 
-  // Define the base date (January 13th, 2024, is 1st Rajab)
-  const baseDate = new Date(Date.UTC(2024, 0, 13)); // January 13th, 2024
+  // Define the base date (why this?)
+  const baseDate = new Date(Date.UTC(2025, 0, 13)); // is this the first month day of the year?
   const baseHijriMonthIndex = 6; // Rajab is the 7th month (index 6)
 
   // Calculate the difference in days between the base date and the first new moon date
