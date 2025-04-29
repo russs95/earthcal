@@ -34,7 +34,7 @@ function openCurrentMonthBreakout() {
 
 
 function triggerBreakoutDay() {
-    alert('hello!');
+    //alert('hello!');
     // Parent container for all day-breakout elements
     const breakoutContainer = document.querySelector('svg'); // Adjust this selector to target the appropriate container for day elements
 
