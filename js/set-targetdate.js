@@ -1,8 +1,4 @@
 
-
-
-
-
 /*
 
 HIGHLIGHT CURRENT DATE 
