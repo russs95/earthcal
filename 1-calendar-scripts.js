@@ -735,7 +735,7 @@ function applySettings() {
 }
 
 function displayUserData() {
-  fetch('https://buwana.ecobricks.org/api/get_buwana_session.php') // adjust path if needed
+  fetch('https://gobrik.com/earthcal/get_buwana_session.php') // adjust path if needed
       .then(response => response.json())
       .then(data => {
         const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
