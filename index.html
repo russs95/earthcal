@@ -614,6 +614,18 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
 
 
+    document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('login')) {
+    // Trigger the embedded login
+    if (typeof sendUpRegistration === 'function') {
+    sendUpRegistration();
+} else {
+    console.warn('sendUpRegistration() is not defined yet.');
+}
+}
+});
+
 
 </script>
 
