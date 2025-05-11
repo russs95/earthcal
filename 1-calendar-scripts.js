@@ -734,44 +734,88 @@ function applySettings() {
   closeTheModal();
 }
 
+
+//
+// function displayUserData() {
+//   fetch('https://gobrik.com/earthcal/get_buwana_session.php') // adjust path if needed
+//       .then(response => response.json())
+//       .then(data => {
+//         const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+//
+//         if (!data.logged_in) {
+//           userTimezoneLangDiv.innerHTML = '';
+//           return;
+//         }
+//
+//         // Extract user info
+//         const { first_name, earthling_emoji, continent_code, language_id, time_zone } = data;
+//
+//         // Set timezone for display & update clock
+//         const timezone = time_zone || 'UTC';
+//
+//         function updateTime() {
+//           const tz = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
+//           const now = new Date().toLocaleTimeString('en-US', { timeZone: tz });
+//           document.getElementById('current-user-time').textContent = now;
+//         }
+//
+//         const userDetails = `${earthling_emoji} ${first_name} | ${timezone} | ${language_id.toUpperCase()}`;
+//
+//         userTimezoneLangDiv.innerHTML = `
+//                 <span id="current-user-time" style="margin-right: 10px;"></span>
+//                 <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" title="Click to manage your settings">${userDetails} ⚙️</span>
+//                 <span id="logged-in-green" title="Logged in" style="margin-left:10px;">🟢</span>
+//             `;
+//
+//         updateTime();
+//         setInterval(updateTime, 1000);
+//       })
+//       .catch(err => {
+//         console.error("Unable to load session data:", err);
+//       });
+// }
+
+
 function displayUserData() {
-  fetch('https://gobrik.com/earthcal/get_buwana_session.php') // adjust path if needed
-      .then(response => response.json())
-      .then(data => {
-        const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+  // Function to update the current time
+  function updateTime() {
+    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
+    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
 
-        if (!data.logged_in) {
-          userTimezoneLangDiv.innerHTML = '';
-          return;
-        }
+    // Get the current date and time in the user's timezone
+    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
+    const [datePart, timePart] = currentTime.split(', ');
+    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
 
-        // Extract user info
-        const { first_name, earthling_emoji, continent_code, language_id, time_zone } = data;
+    // Update the inner HTML of the span with id 'current-user-time' to display the current time
+    const currentUserTime = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('current-user-time').textContent = currentUserTime;
+  }
 
-        // Set timezone for display & update clock
-        const timezone = time_zone || 'UTC';
+  // Construct a string representing the user's details
+  const userDetailsString = `| ${timezone} | ${language}`;
 
-        function updateTime() {
-          const tz = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
-          const now = new Date().toLocaleTimeString('en-US', { timeZone: tz });
-          document.getElementById('current-user-time').textContent = now;
-        }
+  // Check user session status
+  const isUserLoggedIn = checkUserSession();
 
-        const userDetails = `${earthling_emoji} ${first_name} | ${timezone} | ${language_id.toUpperCase()}`;
+  // Set the initial content of the div with id 'user-timezone-lang'
+  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
+  userTimezoneLangDiv.innerHTML = `
 
-        userTimezoneLangDiv.innerHTML = `
-                <span id="current-user-time" style="margin-right: 10px;"></span>
-                <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" title="Click to manage your settings">${userDetails} ⚙️</span>
-                <span id="logged-in-green" title="Logged in" style="margin-left:10px;">🟢</span>
-            `;
+            <span id="current-user-time"></span>
+            <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
 
-        updateTime();
-        setInterval(updateTime, 1000);
-      })
-      .catch(err => {
-        console.error("Unable to load session data:", err);
-      });
+
+            ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in" style="cursor:pointer;font-size:0.7em;>🟢</span>' : ''}
+        `;
+
+  // Update the time immediately
+  updateTime();
+
+  // Set an interval to update the time every second
+  setInterval(updateTime, 1000);
 }
+
 
 
 
