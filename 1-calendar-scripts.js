@@ -383,7 +383,7 @@ function showUserCalSettings() {
   const modal = document.getElementById('form-modal-message');
 
   const timezones = [
-    { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
+    { value: 'Etc/GMT+12', label: 'Bakers Island (UTC-12)' },
     { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
     { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
     { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
