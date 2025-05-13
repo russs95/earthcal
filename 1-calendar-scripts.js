@@ -708,31 +708,28 @@ function handleDayPathTouchStart(pathId) {
 
 
 //CLOCK, USER TIME
+function applySettings(passedTimezone, passedLanguage) {
+  // Use the passed values if available, otherwise fallback to form inputs
+  const timezone = passedTimezone || document.getElementById('timezone')?.value;
+  const language = passedLanguage || document.getElementById('language')?.value;
 
-function applySettings() {
-  // Get the values from the form
-  timezone = document.getElementById('timezone').value;
-  language = document.getElementById('language').value;
+  // Make timezone and language global if needed
+  window.timezone = timezone;
+  window.language = language;
 
-  // Call displayUserData with the new values
+  // Update UI or internal states
   displayUserData();
-
-  // Call displayDayInfo with the new values
   displayDayInfo(targetDate);
 
-  // Check if the main-clock div is showing
   const mainClock = document.getElementById('main-clock');
-  if (mainClock.style.display === 'block') {
-    // Hide the main-clock div
+  if (mainClock && mainClock.style.display === 'block') {
     mainClock.style.display = 'none';
   }
 
-  // Run openClock to update the clock with the new timezone
   openClock(timezone);
-
-  // Close the modal
   closeTheModal();
 }
+
 
 
 //
