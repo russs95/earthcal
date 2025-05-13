@@ -1,29 +1,8 @@
 
 
-
-
-    /* auto run the language switcher
-
-    is this needed?!*/
-
-//        var siteName = 'gobrik.com';
-    var currentLanguage = 'language'; // Default language code
-//    switchLanguage(currentLanguage);
-//
-
-
 /*-------------
-MAIN FUNCTIONS
+LOGIN FUNCTIONS
 ----------------*/
-function checkUserSession() {
-    // Check if the 'buwana_id' exists in localStorage
-    const buwanaId = localStorage.getItem('buwana_id');
-
-    // Return true if 'buwana_id' is found and not empty
-    return buwanaId !== null && buwanaId !== '';
-}
-
-
 
 
 function sendUpRegistration() {
@@ -45,17 +24,19 @@ function sendUpRegistration() {
 
     const buwanaId = localStorage.getItem('buwana_id'); // Fetch `buwana_id` from localStorage
 
-    // Check if user session is valid
+    // Check if user is logged on:  if so show login view, if not ask to login
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
-        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
-        console.log("Login form displayed successfully.");
+        emailRegistration.style.display = "block";
+        loggedInView.style.display = "none";
+        activateEarthCalAccount.style.display = "none";
         updateFooterAndArrowUI(footer, upArrow, downArrow);
+        console.log("Login form displayed successfully.");
         return;
     }
 
     // Fetch all necessary data in a single API call
-    fetch(`https://gobrik.com/earthcal/fetch_all_calendars.php`, {
+    fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ buwana_id: buwanaId })
@@ -85,6 +66,16 @@ function sendUpRegistration() {
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
 
+
+// Helper function to check if logged in or not
+function checkUserSession() {
+    // Check if the 'buwana_id' exists in localStorage
+    const buwanaId = localStorage.getItem('buwana_id');
+    // Return true if 'buwana_id' is found and not empty
+    return buwanaId !== null && buwanaId !== '';
+}
+
+
 // Helper function to update footer and arrows
 function updateFooterAndArrowUI(footer, upArrow, downArrow) {
     footer.style.height = "102vh";
@@ -93,7 +84,28 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 }
 
 
+// If not logged in then...
 
+
+function showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount) {
+    emailRegistration.style.display = "none";
+    loggedInView.style.display = "none";
+    activateEarthCalAccount.style.display = "block";
+}
+
+function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount) {
+    emailRegistration.style.display = "block";
+    loggedInView.style.display = "none";
+    activateEarthCalAccount.style.display = "none";
+}
+
+function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount) {
+    console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
+    showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
+}
+
+
+// If logged in then....
 
     function showLoggedInView(userData) {
         const loggedInView = document.getElementById("logged-in-view");
@@ -287,23 +299,6 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 
-
-function showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount) {
-    emailRegistration.style.display = "none";
-    loggedInView.style.display = "none";
-    activateEarthCalAccount.style.display = "block";
-}
-
-function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount) {
-    emailRegistration.style.display = "block";
-    loggedInView.style.display = "none";
-    activateEarthCalAccount.style.display = "none";
-}
-
-function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount) {
-    console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
-    showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
-}
 
 
 
