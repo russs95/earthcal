@@ -382,34 +382,34 @@ function displayDayInfo(date) {
 function showUserCalSettings() {
   const modal = document.getElementById('form-modal-message');
 
-  // Complete list of time zones
   const timezones = [
-    { value: 'UTC-12', label: 'UTC-12 | Baker Island, USA' },
-    { value: 'UTC-11', label: 'UTC-11 | Niue, Samoa' },
-    { value: 'UTC-10', label: 'UTC-10 | Hawaii-Aleutian Standard Time' },
-    { value: 'UTC-9', label: 'UTC-9 | Alaska Standard Time' },
-    { value: 'UTC-8', label: 'UTC-8 | Pacific Time (US & Canada)' },
-    { value: 'UTC-7', label: 'UTC-7 | Mountain Time (US & Canada)' },
-    { value: 'UTC-6', label: 'UTC-6 | Central Time (US & Canada)' },
-    { value: 'UTC-5', label: 'UTC-5 | Eastern Time (US & Canada)' },
-    { value: 'UTC-4', label: 'UTC-4 | Atlantic Time (Canada)' },
-    { value: 'UTC-3', label: 'UTC-3 | Buenos Aires, Brazil' },
-    { value: 'UTC-2', label: 'UTC-2 | South Georgia' },
-    { value: 'UTC-1', label: 'UTC-1 | Azores' },
-    { value: 'UTC', label: 'UTC | Coordinated Universal Time' },
-    { value: 'UTC+1', label: 'UTC+1 | Central European Time' },
-    { value: 'UTC+2', label: 'UTC+2 | Eastern European Time' },
-    { value: 'UTC+3', label: 'UTC+3 | Moscow Standard Time' },
-    { value: 'UTC+4', label: 'UTC+4 | Dubai, United Arab Emirates' },
-    { value: 'UTC+5', label: 'UTC+5 | Pakistan Standard Time' },
-    { value: 'UTC+6', label: 'UTC+6 | Bangladesh Standard Time' },
-    { value: 'UTC+7', label: 'UTC+7 | Indochina Time' },
-    { value: 'UTC+8', label: 'UTC+8 | China Standard Time' },
-    { value: 'UTC+9', label: 'UTC+9 | Japan Standard Time' },
-    { value: 'UTC+10', label: 'UTC+10 | Australian Eastern Standard Time' },
-    { value: 'UTC+11', label: 'UTC+11 | Solomon Islands Time' },
-    { value: 'UTC+12', label: 'UTC+12 | New Zealand Standard Time' }
+    { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
+    { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
+    { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
+    { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
+    { value: 'America/Los_Angeles', label: 'Pacific Time - US & Canada (UTC-8)' },
+    { value: 'America/Denver', label: 'Mountain Time - US & Canada (UTC-7)' },
+    { value: 'America/Chicago', label: 'Central Time - US & Canada (UTC-6)' },
+    { value: 'America/New_York', label: 'Eastern Time - US & Canada (UTC-5)' },
+    { value: 'America/Halifax', label: 'Atlantic Time - Canada (UTC-4)' },
+    { value: 'America/Sao_Paulo', label: 'Brazil - São Paulo (UTC-3)' },
+    { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
+    { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
+    { value: 'Etc/UTC', label: 'Coordinated Universal Time (UTC)' },
+    { value: 'Europe/Berlin', label: 'Central European Time (UTC+1)' },
+    { value: 'Europe/Helsinki', label: 'Eastern European Time (UTC+2)' },
+    { value: 'Europe/Moscow', label: 'Moscow Standard Time (UTC+3)' },
+    { value: 'Asia/Dubai', label: 'Dubai - UAE (UTC+4)' },
+    { value: 'Asia/Karachi', label: 'Pakistan Standard Time (UTC+5)' },
+    { value: 'Asia/Dhaka', label: 'Bangladesh Standard Time (UTC+6)' },
+    { value: 'Asia/Bangkok', label: 'Indochina Time (UTC+7)' },
+    { value: 'Asia/Shanghai', label: 'China Standard Time (UTC+8)' },
+    { value: 'Asia/Tokyo', label: 'Japan Standard Time (UTC+9)' },
+    { value: 'Australia/Sydney', label: 'Australian Eastern Time (UTC+10)' },
+    { value: 'Pacific/Guadalcanal', label: 'Solomon Islands Time (UTC+11)' },
+    { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (UTC+12)' }
   ];
+
 
   let timezoneOptions = timezones.map(tz =>
       `<option value="${tz.value}" ${tz.value === user_timezone ? 'selected' : ''}>${tz.label}</option>`
@@ -815,7 +815,6 @@ function displayUserData() {
 
 
 
-
 let clockInterval;
 
 function openClock(timezone) {
@@ -825,10 +824,10 @@ function openClock(timezone) {
   const hourHand = document.getElementById('main-hour-hand');
   const solarSystemCenter = document.getElementById('solar-system-center');
 
-  // Convert the timezone format from "UTC+X" to "Etc/GMT-X"
-  const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
+  // ⛔️ REMOVE this conversion logic — it's no longer needed
+  // ✅ Use the passed IANA timezone directly
+  const ianaTimezone = timezone;
 
-  // Clear existing interval to prevent multiple intervals
   clearInterval(clockInterval);
 
   if (mainClock.style.display === 'none' || mainClock.style.display === '') {
@@ -839,7 +838,7 @@ function openClock(timezone) {
     }
 
     function setClockHands() {
-      const now = new Date(new Date().toLocaleString('en-US', { timeZone: timezoneConverted }));
+      const now = new Date(new Date().toLocaleString('en-US', { timeZone: ianaTimezone }));
       const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
       const minutes = now.getMinutes() + seconds / 60;
       const hours = now.getHours() + minutes / 60;
@@ -855,7 +854,7 @@ function openClock(timezone) {
 
     function animateClockHands() {
       setClockHands();
-      clockInterval = setInterval(setClockHands, 100); // 10 frames per second (every 1/10th of a second)
+      clockInterval = setInterval(setClockHands, 100);
     }
 
     animateClockHands();
