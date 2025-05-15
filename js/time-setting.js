@@ -29,9 +29,17 @@ async function getUserData() {
 
             displayUserData(userTimeZone, userLanguage);
             await setCurrentDate(userTimeZone, userLanguage);
+
+            sendUpRegistration(
+                userData.first_name,
+                userData.earthling_emoji,
+                userData.email,
+                statusParam || "returning"
+            );
         }
         return;
     }
+
 
     // Scenario 3: Cache exists and is valid
     if (parsedCache && parsedCache.time_zone && parsedCache.language) {
@@ -211,76 +219,6 @@ function setCurrentDate(time_zone = Intl.DateTimeFormat().resolvedOptions().time
 
 
 
-
-
-
-
-
-
-//
-// function getUserDetails() {
-//     // Get the user's timezone offset and format it
-//     const timezoneOffset = -new Date().getTimezoneOffset() / 60;
-//     timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-//
-//     // Get the user's language from various sources
-//     const browserLanguage = navigator.language || navigator.userLanguage; // Primary
-//     const acceptLanguage = navigator.languages && navigator.languages[0]; // Fallback
-//
-//     // Use the first detected language or default to 'EN'
-//     const detectedLanguage = (browserLanguage || acceptLanguage || 'en').slice(0, 2).toUpperCase();
-//     language = detectedLanguage;
-//
-//     // Debugging logs
-//     console.log(`Browser language: ${browserLanguage}`);
-//     console.log(`Accept-Language: ${acceptLanguage}`);
-//     console.log(`Detected language: ${language}`);
-//
-//     // Set the global variable targetDate based on the user's timezone
-//     let currentDate = new Date();
-//     startDate = new Date(currentDate.getFullYear(), 0, 1);
-//     targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-//
-//     // Call displayUserData with the timezone and language
-//     displayUserData(timezone, language);
-//
-//     // Call displayDayInfo with the date, language, and timezone
-//     displayDayInfo(targetDate);
-//
-//
-// }
-
-
-
-
-//
-// document.addEventListener('DOMContentLoaded', function () {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const status = urlParams.get('status');
-//     const userId = urlParams.get('id');
-//     const lang = urlParams.get('lang');
-//     const timezone = urlParams.get('timezone');
-//
-//     // If user is first-time, open registration with user ID
-//     if (status === 'firsttime' && userId) {
-//         if (typeof sendUpRegistration === 'function') {
-//             sendUpRegistration(userId);
-//         } else {
-//             console.warn('sendUpRegistration() is not defined yet.');
-//         }
-//     }
-//
-//     // Apply lang/timezone settings if provided
-//     if (lang || timezone) {
-//         if (typeof applySettings === 'function') {
-//             applySettings(timezone, lang);
-//         } else {
-//             console.warn('applySettings() is not defined yet.');
-//         }
-//     }
-// });
-
-
 async function displayDayInfo(date, language = 'en', time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
     const translations = await loadTranslations(language.toLowerCase());
 
@@ -450,95 +388,6 @@ async function applySettings() {
 
 
 
-//
-//
-// function displayUserData() {
-//     // Function to update the current time
-//     function updateTime() {
-//         // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
-//         const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
-//
-//         // Get the current date and time in the user's timezone
-//         const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
-//         const [datePart, timePart] = currentTime.split(', ');
-//         const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
-//
-//         // Update the inner HTML of the span with id 'current-user-time' to display the current time
-//         const currentUserTime = `${hours}:${minutes}:${seconds}`;
-//         document.getElementById('current-user-time').textContent = currentUserTime;
-//     }
-//
-//     // Construct a string representing the user's details
-//     const userDetailsString = `| ${timezone} | ${language}`;
-//
-//     // Check user session status
-//     const isUserLoggedIn = checkUserSession();
-//
-//     // Set the initial content of the div with id 'user-timezone-lang'
-//     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-//     userTimezoneLangDiv.innerHTML = `
-//
-//             <span id="current-user-time"></span>
-//             <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
-//
-//
-//             ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in" style="cursor:pointer;font-size:0.7em;>🟢</span>' : ''}
-//         `;
-//
-//     // Update the time immediately
-//     updateTime();
-//
-//     // Set an interval to update the time every second
-//     setInterval(updateTime, 1000);
-// }
-
-
-
-
-
-
-
-
-//
-// function displayUserData() {
-//   fetch('https://gobrik.com/earthcal/get_buwana_session.php') // adjust path if needed
-//       .then(response => response.json())
-//       .then(data => {
-//         const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-//
-//         if (!data.logged_in) {
-//           userTimezoneLangDiv.innerHTML = '';
-//           return;
-//         }
-//
-//         // Extract user info
-//         const { first_name, earthling_emoji, continent_code, language_id, time_zone } = data;
-//
-//         // Set timezone for display & update clock
-//         const timezone = time_zone || 'UTC';
-//
-//         function updateTime() {
-//           const tz = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
-//           const now = new Date().toLocaleTimeString('en-US', { timeZone: tz });
-//           document.getElementById('current-user-time').textContent = now;
-//         }
-//
-//         const userDetails = `${earthling_emoji} ${first_name} | ${timezone} | ${language_id.toUpperCase()}`;
-//
-//         userTimezoneLangDiv.innerHTML = `
-//                 <span id="current-user-time" style="margin-right: 10px;"></span>
-//                 <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" title="Click to manage your settings">${userDetails} ⚙️</span>
-//                 <span id="logged-in-green" title="Logged in" style="margin-left:10px;">🟢</span>
-//             `;
-//
-//         updateTime();
-//         setInterval(updateTime, 1000);
-//       })
-//       .catch(err => {
-//         console.error("Unable to load session data:", err);
-//       });
-// }
-
 
 
 
@@ -592,21 +441,6 @@ function openClock(time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone)
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

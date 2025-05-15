@@ -5,7 +5,7 @@ LOGIN FUNCTIONS
 ----------------*/
 
 
-function sendUpRegistration(first_name, emoji, email, status) {
+function sendUpRegistration(first_name, earthling_emoji, email, status) {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = guidedTour?.querySelector('.modal');
 
@@ -22,7 +22,12 @@ function sendUpRegistration(first_name, emoji, email, status) {
 
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
-        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, { first_name, emoji, email, status });
+        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, {
+            first_name,
+            earthling_emoji,
+            email,
+            status
+        });
         console.log("Login form displayed successfully.");
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
