@@ -5,15 +5,11 @@ LOGIN FUNCTIONS
 ----------------*/
 
 
-function sendUpRegistration() {
-
+function sendUpRegistration(first_name, emoji, email, status) {
     const guidedTour = document.getElementById("guided-tour");
-    const guidedTourModal = document.querySelector('#guided-tour .modal');
+    const guidedTourModal = guidedTour?.querySelector('.modal');
 
-    // Prevent action if the guided tour modal is open
-    if (guidedTourModal && guidedTourModal.style.display !== "none") {
-        return;
-    }
+    if (guidedTourModal && guidedTourModal.style.display !== "none") return;
 
     const footer = document.getElementById("registration-footer");
     const emailRegistration = document.getElementById("login-form-section");
@@ -22,20 +18,16 @@ function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    const buwanaId = localStorage.getItem('buwana_id'); // Fetch `buwana_id` from localStorage
+    const buwanaId = localStorage.getItem('buwana_id');
 
-    // Check if user is logged on:  if so show login view, if not ask to login
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
-        emailRegistration.style.display = "block";
-        loggedInView.style.display = "none";
-        activateEarthCalAccount.style.display = "none";
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, { first_name, emoji, email, status });
         console.log("Login form displayed successfully.");
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // Fetch all necessary data in a single API call
     fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,7 +36,6 @@ function sendUpRegistration() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Combine all data and pass to `showLoggedInView`
                 const combinedData = {
                     user: data.user,
                     personal_calendars: data.personal_calendars || [],
@@ -62,9 +53,9 @@ function sendUpRegistration() {
             showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
         });
 
-    // Always update footer and arrow UI, regardless of user state
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 // Helper function to check if logged in or not
@@ -93,11 +84,46 @@ function showActivateEarthCalView(emailRegistration, loggedInView, activateEarth
     activateEarthCalAccount.style.display = "block";
 }
 
-function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount) {
+async function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, userData = {}) {
     emailRegistration.style.display = "block";
     loggedInView.style.display = "none";
     activateEarthCalAccount.style.display = "none";
+
+    const { email, status, earthling_emoji, first_name } = userData;
+
+    const translations = await loadTranslations(userLanguage.toLowerCase());
+    const loginStrings = translations.login;
+
+    // Set dynamic message
+    const subStatusDiv = document.getElementById('sub-status-message');
+    if (status === "firsttime") {
+        subStatusDiv.innerHTML = loginStrings.statusFirstTime(earthling_emoji);
+    } else {
+        subStatusDiv.innerHTML = loginStrings.statusReturning(earthling_emoji, first_name);
+    }
+
+    // Set credential placeholder
+    const credentialInput = document.getElementById('credential_key');
+    if (credentialInput) {
+        credentialInput.placeholder = loginStrings.emailPlaceholder;
+        if (email) credentialInput.value = email;
+    }
+
+    // Password field
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.placeholder = loginStrings.passwordPlaceholder;
+    }
+
+    // Status text and buttons
+    document.querySelector('form#login p').textContent = loginStrings.credentialLabel;
+    document.getElementById('submit-password-button').value = loginStrings.login;
+    document.getElementById('send-code-button').value = loginStrings.sendCode;
+    document.querySelector('.form-caption span').textContent = loginStrings.forgotPassword;
+    document.querySelector('.underline-link').textContent = loginStrings.resetLink;
 }
+
+
 
 function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount) {
     console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');

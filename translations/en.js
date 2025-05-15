@@ -71,5 +71,18 @@ export const translations = {
         welcome: "Welcome back,",
         syncButton: "Sync your events",
         logout: "Logout"
+    },
+
+    login: {
+        emailPlaceholder: "Your e-mail...",
+        passwordPlaceholder: "Your password...",
+        statusFirstTime: (emoji) => `🎉 Your Buwana Account has been created! ${emoji}`,
+        statusReturning: (emoji, name) => `${emoji} Welcome back, ${name}`,
+        credentialLabel: "Login with your Buwana account credentials.",
+        forgotPassword: "Forgot your password?",
+        resetLink: "Reset it.",
+        sendCode: "📨 Send Code",
+        login: "Login"
     }
+
 };

@@ -71,5 +71,18 @@ export const translations = {
         welcome: "Bon retour parmi nous,",
         syncButton: "Synchronisez vos événements",
         logout: "Se déconnecter"
+    },
+
+    login: {
+        emailPlaceholder: "Votre e-mail...",
+        passwordPlaceholder: "Votre mot de passe...",
+        statusFirstTime: (emoji) => `🎉 Votre compte Buwana a été créé ! ${emoji}`,
+        statusReturning: (emoji, name) => `${emoji} Bon retour, ${name}`,
+        credentialLabel: "Connectez-vous avec vos identifiants Buwana.",
+        forgotPassword: "Mot de passe oublié ?",
+        resetLink: "Réinitialisez-le.",
+        sendCode: "📨 Envoyer le code",
+        login: "Connexion"
     }
+
 };
