@@ -241,9 +241,10 @@ function formatDate(date) {
     const month = parseInt(dateParts[2]) - 1; // month is 0-indexed in JavaScript
     const year = parseInt(dateParts[3]);
     const date = new Date(year, month, dayOfMonth);
-  
 
-    displayDayInfo(date);
+
+    // displayDayInfo(date);
+    displayDayInfo(date, userLanguage, userTimeZone);
 
 
     displayMoonPhaseInDiv(date);
@@ -286,7 +287,8 @@ function displayMoonPhaseOnTouch(pathID) {
   const date = new Date(year, month, dayOfMonth);
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   // Call the relevant functions to show details for the selected date
-  displayDayInfo(date);
+  // displayDayInfo(date);
+  displayDayInfo(targetDate, userLanguage, userTimeZone);
 
   displayMoonPhaseInDiv(date);
   
@@ -322,7 +324,7 @@ function displayMoonPhaseOnTouch(pathID) {
 function redisplayTargetData() {
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   displayMoonPhaseInDiv(targetDate);
-  displayDayInfo(targetDate);
+  displayDayInfo(targetDate, userLanguage, userTimeZone);
   UpdateVenusData(targetDate);
 
 }
@@ -344,132 +346,6 @@ function handleTouchEnd() {
 
 
 
-function displayDayInfo(date) {
-  // Define the day and month names for each language
-
-
-  // Use the corresponding day and month names based on the user's language
-  const dayOfWeek = daysOfWeek[language] ? daysOfWeek[language][date.getDay()] : daysOfWeek['EN'][date.getDay()];
-  const month = monthsOfYear[language] ? monthsOfYear[language][date.getMonth()] : monthsOfYear['EN'][date.getMonth()];
-  const dayOfMonth = date.getDate();
-  const year = date.getFullYear();
-
-  // Calculate the day of the year
-  const dayOfYear = getDayOfYear(date);
-
-  // Determine the appropriate ordinal suffix for the day of the month
-  const suffixIndex = (dayOfMonth % 10 === 1 && dayOfMonth !== 11) ? 0 : (dayOfMonth % 10 === 2 && dayOfMonth !== 12) ? 1 : (dayOfMonth % 10 === 3 && dayOfMonth !== 13) ? 2 : 3;
-  const suffix = ordinalSuffixes[language] ? ordinalSuffixes[language][suffixIndex] : ordinalSuffixes['EN'][suffixIndex];
-  const dayOfMonthString = `${dayOfMonth}<sup style="font-size: 0.7em;">${suffix}</sup>`;
-
-  // Construct a string representing the full date
- const dateString = `${dayOfWeek}, ${month}\u00A0${dayOfMonthString}`;
-
-  // Construct a string representing the day of the year
-  const dayOfYearString = `${dayTranslations[language]} ${dayOfYear + 1} ${ofTranslations[language]} ${year}`;
-
-  // Update the inner HTML of the div with id 'current-date-info' to display the date information
-  const currentDateInfoDiv = document.getElementById('current-date-info');
-  currentDateInfoDiv.innerHTML = `${dateString}`;
-
-  // Update the inner HTML of the div with id 'current-day-info' to display the day of the year
-  //const currentDayInfoDiv = document.getElementById('current-day-info');
-  //currentDayInfoDiv.innerHTML = `<p style="margin: -12px 0px -10px 0px;">${dayOfYearString}</p>`;
-}
-
-
-
-function showUserCalSettings() {
-  const modal = document.getElementById('form-modal-message');
-
-  const timezones = [
-    { value: 'Etc/GMT+12', label: 'Bakers Island (UTC-12)' },
-    { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
-    { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
-    { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
-    { value: 'America/Los_Angeles', label: 'Pacific Time - US & Canada (UTC-8)' },
-    { value: 'America/Denver', label: 'Mountain Time - US & Canada (UTC-7)' },
-    { value: 'America/Chicago', label: 'Central Time - US & Canada (UTC-6)' },
-    { value: 'America/New_York', label: 'Eastern Time - US & Canada (UTC-5)' },
-    { value: 'America/Halifax', label: 'Atlantic Time - Canada (UTC-4)' },
-    { value: 'America/Sao_Paulo', label: 'Brazil - São Paulo (UTC-3)' },
-    { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
-    { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
-    { value: 'Etc/UTC', label: 'Coordinated Universal Time (UTC)' },
-    { value: 'Europe/Berlin', label: 'Central European Time (UTC+1)' },
-    { value: 'Europe/Helsinki', label: 'Eastern European Time (UTC+2)' },
-    { value: 'Europe/Moscow', label: 'Moscow Standard Time (UTC+3)' },
-    { value: 'Asia/Dubai', label: 'Dubai - UAE (UTC+4)' },
-    { value: 'Asia/Karachi', label: 'Pakistan Standard Time (UTC+5)' },
-    { value: 'Asia/Dhaka', label: 'Bangladesh Standard Time (UTC+6)' },
-    { value: 'Asia/Bangkok', label: 'Indochina Time (UTC+7)' },
-    { value: 'Asia/Shanghai', label: 'China Standard Time (UTC+8)' },
-    { value: 'Asia/Tokyo', label: 'Japan Standard Time (UTC+9)' },
-    { value: 'Australia/Sydney', label: 'Australian Eastern Time (UTC+10)' },
-    { value: 'Pacific/Guadalcanal', label: 'Solomon Islands Time (UTC+11)' },
-    { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (UTC+12)' }
-  ];
-
-
-  let timezoneOptions = timezones.map(tz =>
-      `<option value="${tz.value}" ${tz.value === user_timezone ? 'selected' : ''}>${tz.label}</option>`
-  ).join('');
-
-  const settingsContent = settingsTranslations[language] || settingsTranslations['EN'];
-  const languageOptions = Object.entries(settingsContent.languages).map(([key, value]) =>
-      `<option value="${key}" ${language === key ? 'selected' : ''}>${value}</option>`
-  ).join('');
-
-  const modalContent = document.getElementById('modal-content');
-  modalContent.innerHTML = `
-        <div class="top-settings-icon"></div>
-        <form id="user-settings-form">
-            <div style="cursor:pointer;">
-                <select id="timezone" name="timezone" class="blur-form-field" style="cursor:pointer;">
-                    ${timezoneOptions}
-                </select>
-            </div>
-            <div style="cursor:pointer;">
-                <select id="language" name="language" class="blur-form-field">
-                    ${languageOptions}
-                </select>
-            </div>
-            <div class="compro-toggle" style="margin: 15px auto 10px auto;width: fit-content;text-">
-            <div style="text-align:center;">
-                <dark-mode-toggle
-                id="dark-mode-toggle-5" style="padding:10px;"
-                class="slider"
-                legend="Toggle dark and light mode:"
-                remember="Remember for all pages"
-                appearance="toggle">
-                </dark-mode-toggle>
-            </div>
-        </div>
-            <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button">
-                ${settingsContent.applySettings}
-            </button>
-        </form>
-    `;
-
-  // Show the modal
-  modal.classList.remove('modal-hidden');
-  modal.classList.add('modal-visible');
-  document.getElementById("page-content").classList.add("blur");
-
-  // Set focus and enable focus trapping
-  modal.setAttribute('tabindex', '0');
-  modal.focus();
-  modalOpen = true;
-
-  // Event listener to save timezone selection
-  document.getElementById('timezone').addEventListener('change', function() {
-    user_timezone = this.value;
-    localStorage.setItem("user_timezone", user_timezone);
-  });
-
-  // Add focus restriction
-  document.addEventListener('focus', focusRestrict, true);
-}
 
 
 
@@ -707,166 +583,8 @@ function handleDayPathTouchStart(pathId) {
 
 
 
-//CLOCK, USER TIME
-function applySettings(passedTimezone, passedLanguage) {
-  // Use the passed values if available, otherwise fallback to form inputs
-  const timezone = passedTimezone || document.getElementById('timezone')?.value;
-  const language = passedLanguage || document.getElementById('language')?.value;
-
-  // Make timezone and language global if needed
-  window.timezone = timezone;
-  window.language = language;
-
-  // Update UI or internal states
-  displayUserData();
-  displayDayInfo(targetDate);
-
-  const mainClock = document.getElementById('main-clock');
-  if (mainClock && mainClock.style.display === 'block') {
-    mainClock.style.display = 'none';
-  }
-
-  openClock(timezone);
-  closeTheModal();
-}
 
 
-
-//
-// function displayUserData() {
-//   fetch('https://gobrik.com/earthcal/get_buwana_session.php') // adjust path if needed
-//       .then(response => response.json())
-//       .then(data => {
-//         const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-//
-//         if (!data.logged_in) {
-//           userTimezoneLangDiv.innerHTML = '';
-//           return;
-//         }
-//
-//         // Extract user info
-//         const { first_name, earthling_emoji, continent_code, language_id, time_zone } = data;
-//
-//         // Set timezone for display & update clock
-//         const timezone = time_zone || 'UTC';
-//
-//         function updateTime() {
-//           const tz = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
-//           const now = new Date().toLocaleTimeString('en-US', { timeZone: tz });
-//           document.getElementById('current-user-time').textContent = now;
-//         }
-//
-//         const userDetails = `${earthling_emoji} ${first_name} | ${timezone} | ${language_id.toUpperCase()}`;
-//
-//         userTimezoneLangDiv.innerHTML = `
-//                 <span id="current-user-time" style="margin-right: 10px;"></span>
-//                 <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" title="Click to manage your settings">${userDetails} ⚙️</span>
-//                 <span id="logged-in-green" title="Logged in" style="margin-left:10px;">🟢</span>
-//             `;
-//
-//         updateTime();
-//         setInterval(updateTime, 1000);
-//       })
-//       .catch(err => {
-//         console.error("Unable to load session data:", err);
-//       });
-// }
-
-
-function displayUserData() {
-  // Function to update the current time
-  function updateTime() {
-    // Convert the timezone format from "UTC+8" to "Etc/GMT-8"
-    const timezoneConverted = timezone.replace(/UTC([+-]\d+)/, (match, p1) => `Etc/GMT${p1.startsWith('+') ? '-' : '+'}${Math.abs(parseInt(p1))}`);
-
-    // Get the current date and time in the user's timezone
-    const currentTime = new Date().toLocaleString('en-US', { timeZone: timezoneConverted });
-    const [datePart, timePart] = currentTime.split(', ');
-    const [hours, minutes, seconds] = timePart.split(':').map(part => part.padStart(2, '0'));
-
-    // Update the inner HTML of the span with id 'current-user-time' to display the current time
-    const currentUserTime = `${hours}:${minutes}:${seconds}`;
-    document.getElementById('current-user-time').textContent = currentUserTime;
-  }
-
-  // Construct a string representing the user's details
-  const userDetailsString = `| ${timezone} | ${language}`;
-
-  // Check user session status
-  const isUserLoggedIn = checkUserSession();
-
-  // Set the initial content of the div with id 'user-timezone-lang'
-  const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-  userTimezoneLangDiv.innerHTML = `
-
-            <span id="current-user-time"></span>
-            <span id="user-details" style="cursor:pointer" onclick="showUserCalSettings()" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${userDetailsString} ⚙️</span>
-
-
-            ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in" style="cursor:pointer;font-size:0.7em;>🟢</span>' : ''}
-        `;
-
-  // Update the time immediately
-  updateTime();
-
-  // Set an interval to update the time every second
-  setInterval(updateTime, 1000);
-}
-
-
-
-let clockInterval;
-
-function openClock(timezone) {
-  const mainClock = document.getElementById('main-clock');
-  const secondHand = document.getElementById('main-second-hand');
-  const minuteHand = document.getElementById('main-minute-hand');
-  const hourHand = document.getElementById('main-hour-hand');
-  const solarSystemCenter = document.getElementById('solar-system-center');
-
-  // ⛔️ REMOVE this conversion logic — it's no longer needed
-  // ✅ Use the passed IANA timezone directly
-  const ianaTimezone = timezone;
-
-  clearInterval(clockInterval);
-
-  if (mainClock.style.display === 'none' || mainClock.style.display === '') {
-    mainClock.style.display = 'block';
-    if (solarSystemCenter) {
-      solarSystemCenter.style.opacity = "0.5";
-      solarSystemCenter.style.filter = "brightness(50%)";
-    }
-
-    function setClockHands() {
-      const now = new Date(new Date().toLocaleString('en-US', { timeZone: ianaTimezone }));
-      const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
-      const minutes = now.getMinutes() + seconds / 60;
-      const hours = now.getHours() + minutes / 60;
-
-      const secondDeg = (seconds / 60) * 360;
-      const minuteDeg = (minutes / 60) * 360;
-      const hourDeg = (hours / 12) * 360;
-
-      secondHand.setAttribute('transform', `rotate(${secondDeg} 181.07 165.44)`);
-      minuteHand.setAttribute('transform', `rotate(${minuteDeg} 181.07 165.44)`);
-      hourHand.setAttribute('transform', `rotate(${hourDeg} 181.07 165.44)`);
-    }
-
-    function animateClockHands() {
-      setClockHands();
-      clockInterval = setInterval(setClockHands, 100);
-    }
-
-    animateClockHands();
-  } else {
-    mainClock.style.display = 'none';
-    clearInterval(clockInterval);
-    if (solarSystemCenter) {
-      solarSystemCenter.style.opacity = "";
-      solarSystemCenter.style.filter = "";
-    }
-  }
-}
 
 
 

@@ -1,92 +1,34 @@
-let clockVisible = false; // ✅ Track clock state
 
-// ✅ Show clock only when screen is below 350px and keep it visible
-function checkScreenSize() {
-  if (window.innerWidth <= 350) {
-    if (!clockVisible) { // ✅ Only show clock if it's not already visible
-      clockVisible = true;
-      if (typeof timezone !== "undefined" && timezone !== null) {
-        openClock(timezone);
-      } else {
-        console.warn("Timezone is not defined. Using UTC+0.");
-        openClock("UTC+0");
-      }
-    }
-  } else {
-    if (clockVisible) { // ✅ Only hide clock if it's currently visible
-      clockVisible = false;
-      document.getElementById('main-clock').style.display = 'none'; // ✅ Hide clock when window is resized larger
-    }
-  }
-}
-
-// ✅ Run on Window Resize
-window.addEventListener("resize", checkScreenSize);
-
-// ✅ Run on Page Load (so clock shows immediately if needed)
-//window.addEventListener("load", checkScreenSize);
 
 
 
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 
 let startCoords = { cx: 0, cy: 0 };
-
 let targetDate;
 let startDate;
 let year = 2025;
 let currentDate;
 let dayOfYear;
-
-/* Used in set2Today
- * Sets the current date and initializes targetDate and startDate
- */
-
-//THE NEXT FOCUS PROJECT
-//Multi-lingual, split prints, small "th" "nd", UTC location info, Setting button, auto set the utc first
-
-// Global variables for timezone and language
 let timezone;
 let language;
 
-function getUserDetails() {
-  // Get the user's timezone offset and format it
-  const timezoneOffset = -new Date().getTimezoneOffset() / 60;
-  timezone = `UTC${timezoneOffset >= 0 ? '+' : ''}${timezoneOffset}`;
-
-  // Get the user's language from various sources
-  const browserLanguage = navigator.language || navigator.userLanguage; // Primary
-  const acceptLanguage = navigator.languages && navigator.languages[0]; // Fallback
-
-  // Use the first detected language or default to 'EN'
-  const detectedLanguage = (browserLanguage || acceptLanguage || 'en').slice(0, 2).toUpperCase();
-  language = detectedLanguage;
-
-  // Debugging logs
-  console.log(`Browser language: ${browserLanguage}`);
-  console.log(`Accept-Language: ${acceptLanguage}`);
-  console.log(`Detected language: ${language}`);
-
-  // Set the global variable targetDate based on the user's timezone
-  let currentDate = new Date();
-  startDate = new Date(currentDate.getFullYear(), 0, 1);
-  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-
-  // Call displayUserData with the timezone and language
-  displayUserData(timezone, language);
-
-  // Call displayDayInfo with the date, language, and timezone
-  displayDayInfo(targetDate);
 
 
-}
 
 
-function setCurrentDate() {
-  let currentDate = new Date();
-  startDate = new Date(currentDate.getFullYear(), 0, 1);
-  targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* DAY SEARCH FUNCTIONS */
 
@@ -447,7 +389,7 @@ function getTheDayOfYear(targetDate) {
   function calendarRefresh() {
     // Phase 1: instant animations
     updateTargetMonth();
-     displayDayInfo(targetDate);
+      displayDayInfo(targetDate, userLanguage, userTimeZone);
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     //Sets the lunar month for the target date
     resetPaths();
@@ -492,8 +434,9 @@ function getTheDayOfYear(targetDate) {
 
    setTimeout(function() {
     displayMoonPhaseInDiv(targetDate);
-    displayDayInfo(targetDate);displayMoonPhaseInDiv(targetDate);
-    displayDayInfo(targetDate);
+
+    displayMoonPhaseInDiv(targetDate);
+       displayDayInfo(targetDate, userLanguage, userTimeZone);
 
     UpdateVenusData(targetDate);
     UpdateMarsData(targetDate);

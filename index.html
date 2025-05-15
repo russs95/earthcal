@@ -95,7 +95,8 @@ bottom-info: 9  needed?
 <script src="js/set-targetdate.js"></script> <!--functional scripts-->
 <script src="1-lunar-scripts.js"></script><!-- concerning the moon-->
 <script src="planet-orbits.js"></script><!--planets-->
-    <script src="js/login-scripts.js"></script><!--planets-->
+<script src="js/login-scripts.js"></script><!--planets-->
+<script src="js/time-setting.js"></script><!--setting user time, timezone, clock-->
 
 <!--Default Light Styles to load first-->
 <link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
@@ -112,7 +113,7 @@ bottom-info: 9  needed?
 
 <!-- Main Calendar Stylesheet-->
 <link rel="stylesheet" href="css/1-stylesheet.css?v=3.8">
-<link rel="stylesheet" href="subscription-stylesheet.css?v=2.2">
+<!--<link rel="stylesheet" href="subscription-stylesheet.css?v=2.2">-->
     <link rel="stylesheet" href="login-styles.css?v=1">
 
 
@@ -448,83 +449,60 @@ text-decoration: underline;
 
 </style>
 
-  <script>
+<script>
 
 //Initiate
-
-
 gsap.registerPlugin(MotionPathPlugin);
 
-let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+// let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 
 
 /*ROLL CALL*/
-window.onload = function() {
-
-
-
-
+window.onload = async function () {
+    await getUserData(); // This sets time_zone, targetDate, etc.
 
 
   const solarCenterDiv = document.getElementById('solar-system-center');
   const dayLinesDiv = document.getElementById('days-of-year-lines');
   const allDaymarkers = document.getElementById('all-daymarkers');
-<!--  const rayLine = document.getElementById('rayLines');-->
   const whiteBack = document.getElementById('white-back-for-day');
   const rayLine = document.getElementById('ray_lines');
-
-
-  
+ // ANIMATED DISPLAY of the Calendar Interface
   setTimeout(() => {
         dayLinesDiv.style.opacity = '1';
         whiteBack.style.opacity = '1';
         rayLine.style.opacity = '1';
     }, 2000);
-
-  
-
     setTimeout(() => {
       allDaymarkers.style.opacity = '1'; // Show allDaymarkers
   }, 4000);
 
 
 
-  var siteName = 'earthcal'; 
-  window.subSource = 'earthcal'; // Make subSource globally accessible
+  // var siteName = 'earthcal';
+  // window.subSource = 'earthcal'; // Make subSource globally accessible
 
-  updateBackgroundColor();   //Updates colors for night and day themese
-  updateHighlightColor(); //Updates colors for night and day themese
-  //updateLunarMonths(); //Updates lunar months colors for night and day themese
-  //updateWeeksCircle();  //Updates week's colors for night and day themese
-
-setCurrentDate();   //Sets the Current Date as the Target Date.-->
-  const currentYear = parseInt(currentYearText.textContent); //imports the current year from the currentYearText element
-    getUserDetails(); //This calls displayCurrentDayInfo();
-
-  displayMoonPhaseInDiv(targetDate);
-
-cyclesToggleSimplified();
-
-initializeToggleListener();  //to show or hide datecycles?
-
-
-
-
-
-  //updateWeekTitles(currentYear);  //Updates the week titles for the current year
-  updateDayIds(currentYear);  //Updates the day ids for the current year
-  updateDayTitles(currentYear);  //Updates the day titles for the current year
-  
+    updateBackgroundColor();   //Updates colors for night and day themese
+    updateHighlightColor(); //Updates colors for night and day themese
+    // getUserData();
+    setCurrentDate();   //Sets the Current Date as the Target Date.-->
+    const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
+     //This calls displayCurrentDayInfo();
+    displayMoonPhaseInDiv(targetDate);
+    cyclesToggleSimplified();  // to show/hide animal cycles
+    initializeToggleListener();  //to show or hide datecycles?
+    updateDayIds(currentYear);  //Updates the day ids for the current year
+    updateDayTitles(currentYear);  //Updates the day titles for the current year
     title2tooltip();   //Adds titles tooltips to the non-date paths
-  title2datetip();   //Adds titles to the date paths
-  // printTime();
+    title2datetip();   //Adds titles to the date paths
+    // printTime(); OBSOLETE?
   // checkRegistrationStatus();  OBSOLETE?
-  triggerPlanets();  //Enables the planet animations to be triggered.
-  listenForMonthBreakout();
-listenForCloseBreakout();
-attachBreakoutTouchListeners();
+    triggerPlanets();  //Enables the planet animations to be triggered.
+    listenForMonthBreakout();
+    listenForCloseBreakout();
+    attachBreakoutTouchListeners();
 
-// invite2Register(); //starts timer on whether to display or not the registration footer - being updated for buwana login
 
 
   updateMoonPhase(targetDate);
@@ -612,31 +590,6 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 };
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const userId = urlParams.get('id');
-    const lang = urlParams.get('lang');
-    const timezone = urlParams.get('timezone');
-
-    // If user is first-time, open registration with user ID
-    if (status === 'firsttime' && userId) {
-        if (typeof sendUpRegistration === 'function') {
-            sendUpRegistration(userId);
-        } else {
-            console.warn('sendUpRegistration() is not defined yet.');
-        }
-    }
-
-    // Apply lang/timezone settings if provided
-    if (lang || timezone) {
-        if (typeof applySettings === 'function') {
-            applySettings(timezone, lang);
-        } else {
-            console.warn('applySettings() is not defined yet.');
-        }
-    }
-});
 
 
 
@@ -1746,7 +1699,7 @@ function tourTaken() {
 <!-- <script src="https://api.earthen.io/core-functions.js"></script> -->
 
 
-<script src="1-subscription.js"></script>
+<!--<script src="1-subscription.js"></script>-->
 
 <!-- registration system-->
 
