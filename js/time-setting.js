@@ -1,6 +1,7 @@
 // Declare globally near the top of your app
 let userLanguage = null;
 let userTimeZone = null;
+let userProfile = null;
 
 async function getUserData() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -27,34 +28,37 @@ async function getUserData() {
             userLanguage = langParam;
             userTimeZone = tzParam;
 
+            userProfile = {
+                first_name: userData.first_name,
+                earthling_emoji: userData.earthling_emoji,
+                email: userData.email,
+                status: statusParam || "returning"
+            };
+
             displayUserData(userTimeZone, userLanguage);
             await setCurrentDate(userTimeZone, userLanguage);
 
-            sendUpRegistration(
-                userData.first_name,
-                userData.earthling_emoji,
-                userData.email,
-                statusParam || "returning"
-            );
+            sendUpRegistration();
         }
         return;
     }
-
 
     // Scenario 3: Cache exists and is valid
     if (parsedCache && parsedCache.time_zone && parsedCache.language) {
         userLanguage = parsedCache.language;
         userTimeZone = parsedCache.time_zone;
 
+        userProfile = {
+            first_name: parsedCache.first_name,
+            earthling_emoji: parsedCache.earthling_emoji,
+            email: parsedCache.email,
+            status: "returning"
+        };
+
         displayUserData(userTimeZone, userLanguage);
         await setCurrentDate(userTimeZone, userLanguage);
 
-        sendUpRegistration(
-            parsedCache.first_name,
-            parsedCache.earthling_emoji,
-            parsedCache.email,
-            "returning"
-        );
+        sendUpRegistration();
         return;
     }
 
@@ -65,6 +69,13 @@ async function getUserData() {
 
         userLanguage = sessionData.language_id;
         userTimeZone = sessionData.time_zone;
+
+        userProfile = {
+            first_name: sessionData.first_name,
+            earthling_emoji: sessionData.earthling_emoji,
+            email: sessionData.email,
+            status: "returning"
+        };
 
         displayUserData(userTimeZone, userLanguage);
         await setCurrentDate(userTimeZone, userLanguage);
@@ -79,6 +90,13 @@ async function getUserData() {
             userLanguage = fallbackData.language_id;
             userTimeZone = fallbackData.time_zone;
 
+            userProfile = {
+                first_name: fallbackData.first_name,
+                earthling_emoji: fallbackData.earthling_emoji,
+                email: fallbackData.email,
+                status: "returning"
+            };
+
             displayUserData(userTimeZone, userLanguage);
             await setCurrentDate(userTimeZone, userLanguage);
 
@@ -88,8 +106,15 @@ async function getUserData() {
     }
 
     // Scenario 1: Completely new visitor
-    userLanguage = navigator.language.slice(0, 2); // 'en', 'fr', etc.
+    userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    userProfile = {
+        first_name: "Earthling",
+        earthling_emoji: "🌍",
+        email: null,
+        status: "new"
+    };
 
     displayUserData(userTimeZone, userLanguage);
     await setCurrentDate(userTimeZone, userLanguage);

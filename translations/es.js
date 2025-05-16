@@ -55,17 +55,7 @@ export const translations = {
         invalidLeapYear: "¡Elige un día menor a 29 para febrero en un año no bisiesto!"
     },
 
-    mainMenu: {
-        title: "Sincroniza con los ciclos de la Tierra",
-        featureTour: "Tour de funciones",
-        latestVersion: "Información de la última versión",
-        newsletter: "Boletín de Earthen.io",
-        guide: "Guía del calendario ↗",
-        purchasePrint: "Compra impresa ↗",
-        about: "Sobre el proyecto ↗",
-        darkModeToggle: "Cambiar entre temas Oscuro/Día",
-        developedBy: "EarthCal es desarrollado por"
-    },
+
 
     loggedIn: {
         welcome: "Bienvenido de nuevo,",
@@ -83,6 +73,22 @@ export const translations = {
         resetLink: "Restablécela.",
         sendCode: "📨 Enviar código",
         login: "Iniciar sesión"
-    }
+    },
+
+    mainMenu: {
+        title: "Sincroniza con los ciclos de la Tierra",
+        featureTour: "Recorrido de Funciones",
+        latestVersion: "Última Información de la Versión",
+        newsletter: "Boletín de Earthen.io",
+        guide: "Guía del Calendario ↗",
+        purchasePrint: "Compra Impresa ↗",
+        about: "Sobre el Proyecto ↗",
+        darkModeToggle: "Cambiar entre temas Oscuro/Día",
+        developedBy: "EarthCal es desarrollado por",
+        authBy: "Autenticación por",
+        loggedIn: {
+            welcome: "Bienvenido de nuevo,"
+        }
+    },
 
 };

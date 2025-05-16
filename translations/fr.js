@@ -55,17 +55,6 @@ export const translations = {
         invalidLeapYear: "Veuillez choisir un jour inférieur à 29 pour février dans une année non bissextile !"
     },
 
-    mainMenu: {
-        title: "Synchronisez avec les cycles de la Terre",
-        featureTour: "Visite des Fonctionnalités",
-        latestVersion: "Dernière Version Info",
-        newsletter: "Bulletin d'Earthen.io",
-        guide: "Guide du Calendrier ↗",
-        purchasePrint: "Acheter Imprimé ↗",
-        about: "À propos du Projet ↗",
-        darkModeToggle: "Changer entre les thèmes Sombre/Jour",
-        developedBy: "EarthCal est développé par"
-    },
 
     loggedIn: {
         welcome: "Bon retour parmi nous,",
@@ -83,6 +72,22 @@ export const translations = {
         resetLink: "Réinitialisez-le.",
         sendCode: "📨 Envoyer le code",
         login: "Connexion"
-    }
+    },
+
+    mainMenu: {
+        title: "Synchronisez avec les cycles de la Terre",
+        featureTour: "Visite des Fonctionnalités",
+        latestVersion: "Dernière Version Info",
+        newsletter: "Bulletin d'Earthen.io",
+        guide: "Guide du Calendrier ↗",
+        purchasePrint: "Acheter Imprimé ↗",
+        about: "À propos du Projet ↗",
+        darkModeToggle: "Changer entre les thèmes Sombre/Jour",
+        developedBy: "EarthCal est développé par",
+        authBy: "Authentification par",
+        loggedIn: {
+            welcome: "Bon retour,"
+        }
+    },
 
 };

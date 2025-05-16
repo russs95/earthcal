@@ -1,6 +1,9 @@
 // translations/en.js
 
 export const translations = {
+
+
+
     daysOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 
     monthsOfYear: [
@@ -55,17 +58,7 @@ export const translations = {
         invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!"
     },
 
-    mainMenu: {
-        title: "Sync with Earth's cycles",
-        featureTour: "Feature Tour",
-        latestVersion: "Latest Version Info",
-        newsletter: "Earthen.io Newsletter",
-        guide: "Calendar Guide ↗",
-        purchasePrint: "Purchase Print ↗",
-        about: "About the Project ↗",
-        darkModeToggle: "Switch Dark/Day themes",
-        developedBy: "EarthCal is developed by"
-    },
+
 
     loggedIn: {
         welcome: "Welcome back,",
@@ -83,6 +76,24 @@ export const translations = {
         resetLink: "Reset it.",
         sendCode: "📨 Send Code",
         login: "Login"
-    }
+    },
+
+    mainMenu: {
+        title: "Sync with Earth's cycles",
+        featureTour: "Feature Tour",
+        latestVersion: "Latest Version Info",
+        newsletter: "Earthen.io Newsletter",
+        guide: "Calendar Guide ↗",
+        purchasePrint: "Purchase Print ↗",
+        about: "About the Project ↗",
+        darkModeToggle: "Switch Dark/Day themes",
+        developedBy: "EarthCal is developed by",
+        authBy: "Authentication by",
+        loggedIn: {
+            welcome: "Welcome "
+        }
+    },
+
+
 
 };

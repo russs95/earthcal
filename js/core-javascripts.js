@@ -214,49 +214,70 @@ function updateHighlightColor() {
   }
 }
 
+let modalOpen = false;
 
-let modalOpen = false; // Keep track of modal state
-
-function openMainMenu() {
+async function openMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
     const content = document.getElementById("main-menu-content");
 
-    // Fetch translations based on the selected language
-    const translations = mainMenuTranslations[language] || mainMenuTranslations.EN;
+    const lang = userLanguage?.toLowerCase() || 'en';
+    const { mainMenu } = await loadTranslations(lang);
 
-    // Dynamically set the menu content
+    // 🔒 Proper login verification
+    const isLoggedIn = checkUserSession();
+    let userStatusHTML = '';
+
+    if (isLoggedIn && userProfile?.first_name && userProfile?.earthling_emoji) {
+        userStatusHTML = `
+            <div id="user-status">
+                ${userProfile.earthling_emoji} ${mainMenu.loggedIn?.welcome || 'Welcome back,'} ${userProfile.first_name}
+                | <a href="#" onclick="logoutBuwana(); closeMainMenu();">Logout</a>
+            </div>
+        `;
+    } else {
+        userStatusHTML = `
+            <div id="or-login-signup">
+                <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58">Signup</a> |
+                <a href="#" onclick="closeMainMenu(); sendUpRegistration()">Log in</a>
+            </div>
+        `;
+    }
+
     content.innerHTML = `
+        <div class="earthcal-app-logo" style="margin-bottom: auto;margin-top:auto">
+            <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
+        </div>
 
-        <div class="earthcycles-logo" alt="EarthCal Logo" title="${translations.title}"></div>
+        <div class="menu-page-item">${userStatusHTML}</div>
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
-            ${translations.featureTour}
+            ${mainMenu.featureTour}
         </div>
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
-            ${translations.latestVersion}
+            ${mainMenu.latestVersion}
         </div>
 
-        <div class="menu-page-item" onclick="closeMainMenu(), sendUpRegistration()">
-            ${translations.newsletter}
+        <div class="menu-page-item">
+            <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
         </div>
 
-        <div class="menu-page-item"><a href="https://guide.earthen.io/" target="_blank">${translations.guide}</a></div>
+        <div class="menu-page-item">
+            <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
+        </div>
 
-        <!--<div class="menu-page-item"><a href="https://gobrik.com/regen-store.php#shop/" target="_blank">${translations.purchasePrint}</a></div>-->
-
-        <div class="menu-page-item"><a href="https://guide.earthen.io/about" target="_blank">${translations.about}</a></div>
-
-
-
-        <a href="https://snapcraft.io/earthcal" style="margin-top:20px">
+        <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
             <img alt="Get it from the Snap Store" src="../svgs/snap-store-black.svg" />
         </a>
 
-        <p style="font-size:small;">${translations.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a></p>
+        <p style="font-size:small; margin-bottom: 2px;">
+            ${mainMenu.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a>
+        </p>
+        <p style="font-size:small; margin-top: 2px;margin-bottom: auto;">
+            ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
+        </p>
     `;
 
-    // Show the modal
     modal.style.width = "100%";
     document.body.style.overflowY = "hidden";
     document.body.style.maxHeight = "101vh";
@@ -265,9 +286,14 @@ function openMainMenu() {
     modal.focus();
     modalOpen = true;
 
-    // Add focus restriction
     document.addEventListener("focus", focusMainMenuRestrict, true);
 }
+
+
+
+
+
+
 
 
 function focusMainMenuRestrict(event) {
