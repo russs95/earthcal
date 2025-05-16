@@ -61,10 +61,16 @@ export const translations = {
 
 
     loggedIn: {
-        welcome: "Welcome back,",
-        syncButton: "Sync your events",
-        logout: "Logout"
+        welcome: "Welcome",
+        syncingInfo: "You are syncing the following personal and public calendars:",
+        noPersonal: "No personal calendars available.",
+        noPublic: "No public calendars available.",
+        syncNow: "Sync Now",
+        logout: "Logout",
+        notYetSynced: "Your dateCycles haven’t been synced yet.",
+        lastSynced: "Last synced on"
     },
+
 
     login: {
         emailPlaceholder: "Your e-mail...",

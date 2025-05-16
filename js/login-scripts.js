@@ -27,7 +27,7 @@ function sendUpRegistration() {
             return;
         }
 
-        const { first_name, earthling_emoji, email, status } = userProfile;
+        const {first_name, earthling_emoji, email, status} = userProfile;
 
         showLoginForm(emailRegistration, loggedInView, {
             first_name,
@@ -44,20 +44,21 @@ function sendUpRegistration() {
     // ✅ User is logged in — fetch and show their calendars
     fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ buwana_id: buwanaId })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({buwana_id: buwanaId})
     })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const combinedData = {
-                    user: data.user,
                     personal_calendars: data.personal_calendars || [],
                     subscribed_calendars: data.subscribed_calendars || [],
-                    public_calendars: data.public_calendars || []
+                    public_calendars: data.public_calendars || [],
+                    last_sync_ts: data.last_sync_ts || null
                 };
                 showLoggedInView(combinedData);
-            } else {
+            }
+            else {
                 console.error('Error fetching calendar data:', data.message || 'Unknown error');
                 showErrorState(emailRegistration, loggedInView);
             }
@@ -141,46 +142,36 @@ function showErrorState(emailRegistration, loggedInView) {
 
 
 // If logged in then....
+async function showLoggedInView(calendarData = {}) {
+    const loggedInView = document.getElementById("logged-in-view");
 
-    function showLoggedInView(userData) {
-        const loggedInView = document.getElementById("logged-in-view");
-        const activateView = document.getElementById("activate-earthcal-account");
-        activateView.style.display = "none";
+    const { first_name, earthling_emoji, last_sync_ts } = userProfile || {};
+    const {
+        personal_calendars = [],
+        subscribed_calendars = [],
+        public_calendars = []
+    } = calendarData;
 
-        const { user, personal_calendars = [], subscribed_calendars = [], public_calendars = [] } = userData;
+    const translations = await loadTranslations(userLanguage?.toLowerCase() || 'en');
+    const { welcome, syncingInfo, noPersonal, noPublic, syncNow, logout, notYetSynced, lastSynced } = translations.loggedIn;
 
-        // Continent code to Earth emoji mapping
-        const continentEmojis = {
-            AS: '🌏', // Asia
-            EU: '🌍', // Europe
-            NA: '🌎', // North America
-            SA: '🌎', // South America
-            AF: '🌍', // Africa
-            OC: '🌏', // Oceania
-            AN: '🌐'  // Antarctica
-        };
+    const syncMessage = last_sync_ts
+        ? `<p id="last-synced-time" style="font-size:smaller">✔ ${lastSynced} ${last_sync_ts}.</p>`
+        : `<p id="last-synced-time" style="font-size:smaller">${notYetSynced}</p>`;
 
-        const continentEmoji = continentEmojis[user.continent_code] || '🌍';
-
-        const syncMessage = user.last_sync_ts
-            ? `<p id="last-synced-time" style="font-size:smaller">✔ Last synced on ${user.last_sync_ts}.</p>`
-            : `<p id="last-synced-time" style="font-size:smaller">Your dateCycles haven’t been synced yet.</p>`;
-
-        // Generate personal calendar HTML
-        const personalCalendarHTML = personal_calendars.length > 0
-            ? personal_calendars.map(cal => `
+    const personalCalendarHTML = personal_calendars.length > 0
+        ? personal_calendars.map(cal => `
             <div class="calendar-item">
                 <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
                 <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
             </div>
         `).join('')
-            : '<p>No personal calendars available.</p>';
+        : `<p>${noPersonal}</p>`;
 
-        // Generate public calendar HTML with checkbox event
-        const publicCalendarHTML = public_calendars.length > 0
-            ? public_calendars.map(cal => {
-                const isChecked = subscribed_calendars.some(subCal => subCal.calendar_id === cal.calendar_id);
-                return `
+    const publicCalendarHTML = public_calendars.length > 0
+        ? public_calendars.map(cal => {
+            const isChecked = subscribed_calendars.some(sub => sub.calendar_id === cal.calendar_id);
+            return `
                 <div class="calendar-item">
                     <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
                     ${isChecked ? 'checked' : ''} 
@@ -188,46 +179,41 @@ function showErrorState(emailRegistration, loggedInView) {
                     <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
                 </div>
             `;
-            }).join('')
-            : '<p>No public calendars available.</p>';
+        }).join('')
+        : `<p>${noPublic}</p>`;
 
-        // Render the HTML
-        loggedInView.innerHTML = `
+    loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-        <h1 style="font-size: 5em;margin-bottom: 20px;"> ${continentEmoji}</h1>
-        <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-            Welcome ${user.first_name}!
-        </h2>
-        <p>You are syncing the following personal and public calendars:</p>
-        <div class="form-item">
-            <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
-                
-                ${personalCalendarHTML}
-                ${publicCalendarHTML}
-            </form>
-        </div>
-        <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-            <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
-            🔄 Sync Now
-            </button>
-            <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 Logout</button>
-        </div>
+            <h1 style="font-size: 5em;margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
+            <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+                ${welcome} ${first_name || 'Earthling'}!
+            </h2>
+            <p>${syncingInfo}</p>
+            <div class="form-item">
+                <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
+                    ${personalCalendarHTML}
+                    ${publicCalendarHTML}
+                </form>
+            </div>
+            <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
+                    🔄 ${syncNow}
+                </button>
+                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 ${logout}</button>
+            </div>
 
-        <p id="cal-datecycle-count"></p>
-
-        ${syncMessage}
-        <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
-            ${user.location_full}
-        </p>
+            <p id="cal-datecycle-count"></p>
+            ${syncMessage}
         </div>
     `;
 
-        // Display the logged-in view
-        loggedInView.style.display = "block";
-    }
+    loggedInView.style.display = "block";
+}
 
 
-    async function toggleSubscription(calendarId, subscribe) {
+
+
+async function toggleSubscription(calendarId, subscribe) {
         // Always fetch buwana_id from localStorage.
         const buwanaId = localStorage.getItem('buwana_id');
 
@@ -400,9 +386,9 @@ function logoutBuwana() {
     // Reset views
     document.getElementById("login-form-section").style.display = "block";
     const loggedInView = document.getElementById("logged-in-view");
-    const activateView = document.getElementById("activate-earthcal-account");
+    // const activateView = document.getElementById("activate-earthcal-account");
     loggedInView.style.display = "none";
-    activateView.style.display = "none";
+    // activateView.style.display = "none";
     loggedInView.innerHTML = ""; // Clear content
 
     alert("You have been logged out successfully.");

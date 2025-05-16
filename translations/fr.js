@@ -57,9 +57,14 @@ export const translations = {
 
 
     loggedIn: {
-        welcome: "Bon retour parmi nous,",
-        syncButton: "Synchronisez vos événements",
-        logout: "Se déconnecter"
+        welcome: "Bienvenue",
+        syncingInfo: "Vous synchronisez les calendriers personnels et publics suivants :",
+        noPersonal: "Aucun calendrier personnel disponible.",
+        noPublic: "Aucun calendrier public disponible.",
+        syncNow: "Synchroniser maintenant",
+        logout: "Se déconnecter",
+        notYetSynced: "Vos cycles de dates ne sont pas encore synchronisés.",
+        lastSynced: "Dernière synchronisation le"
     },
 
     login: {
