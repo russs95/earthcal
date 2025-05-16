@@ -13,7 +13,6 @@ function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const emailRegistration = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
-    const activateEarthCalAccount = document.getElementById("activate-earthcal-account");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
@@ -30,7 +29,7 @@ function sendUpRegistration() {
 
         const { first_name, earthling_emoji, email, status } = userProfile;
 
-        showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, {
+        showLoginForm(emailRegistration, loggedInView, {
             first_name,
             earthling_emoji,
             email,
@@ -60,12 +59,12 @@ function sendUpRegistration() {
                 showLoggedInView(combinedData);
             } else {
                 console.error('Error fetching calendar data:', data.message || 'Unknown error');
-                showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+                showErrorState(emailRegistration, loggedInView);
             }
         })
         .catch(error => {
             console.error('Network error:', error);
-            showErrorState(emailRegistration, loggedInView, activateEarthCalAccount);
+            showErrorState(emailRegistration, loggedInView);
         });
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
@@ -93,16 +92,11 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 // If not logged in then...
 
 
-function showActivateEarthCalView(emailRegistration, loggedInView, activateEarthCalAccount) {
-    emailRegistration.style.display = "none";
-    loggedInView.style.display = "none";
-    activateEarthCalAccount.style.display = "block";
-}
 
-async function showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount, userData = {}) {
+async function showLoginForm(emailRegistration, loggedInView, userData = {}) {
     emailRegistration.style.display = "block";
     loggedInView.style.display = "none";
-    activateEarthCalAccount.style.display = "none";
+
 
     const { email, status, earthling_emoji, first_name } = userData;
 
@@ -140,9 +134,9 @@ async function showLoginForm(emailRegistration, loggedInView, activateEarthCalAc
 
 
 
-function showErrorState(emailRegistration, loggedInView, activateEarthCalAccount) {
+function showErrorState(emailRegistration, loggedInView) {
     console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
-    showLoginForm(emailRegistration, loggedInView, activateEarthCalAccount);
+    showLoginForm(emailRegistration, loggedInView);
 }
 
 
