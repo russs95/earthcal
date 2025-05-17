@@ -579,11 +579,12 @@ openPlanetInfoBox();
   //       document.getElementById("yesterday").style.display = "block";
     //Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
 //checkTourToken();
+
 // Check if the version  has already been seen
-const tokenKey = 'newVersionInfoSeen';
-    if (!localStorage.getItem(tokenKey)) {
-setTimeout(showIntroModal, 5000);
-};
+// const tokenKey = 'newVersionInfoSeen';
+//     if (!localStorage.getItem(tokenKey)) {
+// setTimeout(showIntroModal, 5000);
+// };
 //setTimeout(openCurrentMonthBreakout,4000);
 setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
 
@@ -681,7 +682,7 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
                 <div id="sub-status-message"></div>
             </div>
             <!-- Form starts here-->
-            <form id="login" action="https://buwana.ecobricks.org/earthcal/login_process.php" method="POST">
+            <form id="login" action="https://buwana.ecobricks.org/api/login_process.php" method="POST">
 
                 <div class="form-item">
                     <p style="text-align:center;">Login with your Buwana account credentials.</p>
@@ -1381,52 +1382,72 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
 </BODY>
 
-
 <script>
-    // BUWANA LOGIN
-
     document.getElementById('login').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent default form submission
 
         const formData = new FormData(e.target);
+        const clientId = 'ecal_7f3da821d0a54f8a9b58'; // EarthCal client ID
 
         try {
-            const response = await fetch('https://buwana.ecobricks.org/earthcal/login_process.php', {
+            // Step 1: Authenticate user and retrieve buwana_id
+            const loginResponse = await fetch(`https://buwana.ecobricks.org/api/login_process.php?client=${clientId}`, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'include' // Include cookies for session continuity
             });
 
-            const data = await response.json();
+            const loginData = await loginResponse.json();
 
-            console.log('User Data Retrieved:', JSON.stringify(data, null, 2));
-
-            if (data.success) {
-                const connectedApps = data.connected_apps ? data.connected_apps.split(',') : [];
-                const earthcalAppId = '00002'; // Assuming "0002" is the ID for EarthCal
-
-                // Save essential user data locally
-                localStorage.setItem('buwana_id', data.buwana_id);
-                localStorage.setItem('connected_apps', data.connected_apps);
-
-                if (connectedApps.includes(earthcalAppId)) {
-                    // User is registered on EarthCal
-                    document.getElementById('login-form-section').style.display = 'none';
-
-                    // Fetch the latest user data
-                    await fetchUserData(data.buwana_id);
-
-                    // Display the logged-in view
-                    showLoggedInView();
-                } else {
-                    // User is not registered on EarthCal, show activation prompt
-                    document.getElementById('login-form-section').style.display = 'none';
-                    document.getElementById('activate-earthcal-account').style.display = 'block';
-                    document.getElementById('logged-in-view').style.display = 'none';
-                }
-            } else {
-                // Handle errors from server
-                handleErrorResponse(determineErrorType(data.message));
+            if (!loginData.success) {
+                handleErrorResponse(loginData.message);
+                return;
             }
+
+            const buwanaId = loginData.buwana_id;
+            localStorage.setItem('buwana_id', buwanaId);
+
+            // Step 2: Fetch basic user data from session-based API
+            const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
+                credentials: 'include'
+            });
+            const userData = await userResponse.json();
+
+            if (!userData.logged_in) {
+                alert('Failed to verify login session.');
+                return;
+            }
+
+            // Store user profile data
+            window.userProfile = {
+                first_name: userData.first_name,
+                earthling_emoji: userData.earthling_emoji,
+                last_sync_ts: userData.last_sync_ts,
+                language_id: userData.language_id,
+                time_zone: userData.time_zone,
+                last_login: userData.last_login,
+                location_full: userData.location_full
+            };
+
+            // Update global settings
+            window.userLanguage = userData.language_id.toLowerCase();
+            window.userTimeZone = userData.time_zone;
+
+            // Step 3: Fetch user's calendar data
+            const calendarResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId }),
+                credentials: 'include'
+            });
+            const calendarData = await calendarResponse.json();
+
+            if (!calendarData.success) {
+                alert('Failed to retrieve calendar data.');
+                return;
+            }
+
+
         } catch (error) {
             console.error('Network error:', error);
             alert('Unable to connect to the server. Please check your internet connection and try again.');
@@ -1434,18 +1455,33 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
     });
 
 
+    // Consolidated error handling
+    function handleErrorResponse(message) {
+        document.getElementById('password-error').style.display = 'none';
+        document.getElementById('no-buwana-email').style.display = 'none';
 
-
-// Helper function to determine error type from server response message
-function determineErrorType(message) {
-    if (message.includes('Invalid password')) {
-        return 'invalid_password';
-    } else if (message.includes('Invalid credential key') || message.includes('Invalid user')) {
-        return 'invalid_credential';
-    } else {
-        return 'unknown_error';
+        switch (message) {
+            case 'invalid_password':
+                document.getElementById('password-error').style.display = 'block';
+                shakeElement(document.getElementById('password-form'));
+                break;
+            case 'invalid_credential':
+                document.getElementById('no-buwana-email').style.display = 'block';
+                shakeElement(document.getElementById('credential-input-field'));
+                break;
+            case 'user_not_connected_to_app':
+                window.location.href = 'https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58';
+                break;
+            default:
+                console.error('Unhandled error:', message);
+                alert('An unexpected error occurred. Please try again.');
+        }
     }
-}
+</script>
+
+
+
+<script>
 
 
 
@@ -1453,8 +1489,7 @@ function determineErrorType(message) {
 
 
 
-
-  // JavaScript to handle touch events
+    // JavaScript to handle touch events
 // Get all SVG elements containing paths with id*="-day"
 //const currentElements = svg.querySelectorAll("path[id*='-day'], g[id*='-day']");
 

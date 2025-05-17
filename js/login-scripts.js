@@ -346,25 +346,25 @@ async function toggleSubscription(calendarId, subscribe) {
   }
 
 
-
-// Consolidated function to handle error responses and show the appropriate error div
-function handleErrorResponse(errorType) {
-    // Hide both error divs initially
-    document.getElementById('password-error').style.display = 'none';
-    document.getElementById('no-buwana-email').style.display = 'none';
-
-    // Show the appropriate error div based on the errorType
-    if (errorType === 'invalid_password') {
-        document.getElementById('password-error').style.display = 'block'; // Show password error
-        shakeElement(document.getElementById('password-form'));
-    } else if (errorType === 'invalid_user' || errorType === 'invalid_credential') {
-        document.getElementById('no-buwana-email').style.display = 'block'; // Show email error
-        shakeElement(document.getElementById('credential-input-field'));
-    } else {
-        console.error('Unknown error type:', errorType);
-        alert('An unexpected error occurred. Please try again.');
-    }
-}
+//
+// // Consolidated function to handle error responses and show the appropriate error div
+// function handleErrorResponse(errorType) {
+//     // Hide both error divs initially
+//     document.getElementById('password-error').style.display = 'none';
+//     document.getElementById('no-buwana-email').style.display = 'none';
+//
+//     // Show the appropriate error div based on the errorType
+//     if (errorType === 'invalid_password') {
+//         document.getElementById('password-error').style.display = 'block'; // Show password error
+//         shakeElement(document.getElementById('password-form'));
+//     } else if (errorType === 'invalid_user' || errorType === 'invalid_credential') {
+//         document.getElementById('no-buwana-email').style.display = 'block'; // Show email error
+//         shakeElement(document.getElementById('credential-input-field'));
+//     } else {
+//         console.error('Unknown error type:', errorType);
+//         alert('An unexpected error occurred. Please try again.');
+//     }
+// }
 
 // Utility function to shake an element (CSS class for shaking animation needed)
 function shakeElement(element) {
