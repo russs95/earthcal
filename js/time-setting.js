@@ -197,7 +197,7 @@ async function displayUserData(time_zone, language) {
 
 async function loadTranslations(langCode) {
     try {
-        const module = await import(`../translations/${langCode}.js`);
+        const module = await import(`../translations/${langCode}.js?v=2`);
         return module.translations;
     } catch (e) {
         console.warn(`Could not load translations for '${langCode}'. Falling back to English.`);
@@ -299,9 +299,12 @@ async function displayDayInfo(date, language = 'en', time_zone = Intl.DateTimeFo
 }
 
 
-
-function showUserCalSettings() {
+async function showUserCalSettings() {
     const modal = document.getElementById('form-modal-message');
+
+    const lang = userLanguage?.toLowerCase() || 'en';
+    const translations = await loadTranslations(lang);
+    const settingsContent = translations.settings;
 
     const timezones = [
         { value: 'Etc/GMT+12', label: 'Bakers Island (UTC-12)' },
@@ -335,10 +338,8 @@ function showUserCalSettings() {
         `<option value="${tz.value}" ${tz.value === userTimeZone ? 'selected' : ''}>${tz.label}</option>`
     ).join('');
 
-    const settingsContent = settingsTranslations[userLanguage.toUpperCase()] || settingsTranslations['EN'];
-
     const languageOptions = Object.entries(settingsContent.languages).map(([key, label]) =>
-        `<option value="${key}" ${key === userLanguage.toUpperCase() ? 'selected' : ''}>${label}</option>`
+        `<option value="${key}" ${key.toLowerCase() === userLanguage.toLowerCase() ? 'selected' : ''}>${label}</option>`
     ).join('');
 
     const modalContent = document.getElementById('modal-content');
@@ -360,8 +361,8 @@ function showUserCalSettings() {
                     <dark-mode-toggle
                         id="dark-mode-toggle-5" style="padding:10px;"
                         class="slider"
-                        legend="Toggle dark and light mode:"
-                        remember="Remember for all pages"
+                        legend="${settingsContent.darkMode.legend}"
+                        remember="${settingsContent.darkMode.remember}"
                         appearance="toggle">
                     </dark-mode-toggle>
                 </div>
@@ -386,7 +387,6 @@ function showUserCalSettings() {
 
 
 
-
 async function applySettings() {
     const timezoneSelect = document.getElementById('timezone');
     const languageSelect = document.getElementById('language');
@@ -399,7 +399,7 @@ async function applySettings() {
 
     // Refresh display based on updated settings
     displayUserData(userTimeZone, userLanguage);
-    setCurrentDate(userTimeZone);
+    await setCurrentDate(userTimeZone, userLanguage);
     await displayDayInfo(targetDate, userLanguage, userTimeZone);
 
     const mainClock = document.getElementById('main-clock');
@@ -410,6 +410,7 @@ async function applySettings() {
     openClock(userTimeZone);
     closeTheModal();
 }
+
 
 
 

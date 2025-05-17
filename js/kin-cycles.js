@@ -1,4 +1,7 @@
 /* PLANET AND KINCYCLES BUTTON TOGGLING */
+
+
+
 function cyclesToggleSimplified() {
   const buttons = document.querySelectorAll('.cycle-toggle');
   const paletteRootButtons = document.querySelectorAll('.cycle-toggle[data-role="palette-root"]');
@@ -79,20 +82,6 @@ function cyclesToggleSimplified() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* KINCYCLES MENU CONTROL */
 
 
@@ -109,18 +98,6 @@ function cyclesToggleSimplified() {
         caribooButton.addEventListener('click', showAlert);
         monarchButton.addEventListener('click', showAlert);
       });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -377,8 +354,8 @@ function openPlanetInfoBox() {
       const cycleDiv = document.getElementById(`${planet}-cycle`);
 
       if (cycleDiv) {
-        solarSystemCenter.style.opacity = "0.2";
-        solarSystemCenter.style.filter = "blur(4px)";
+        // solarSystemCenter.style.opacity = "0.2";
+        // solarSystemCenter.style.filter = "blur(4px)";
 
         cycleDiv.style.display = 'block';
       }
@@ -416,6 +393,8 @@ function openPlanetInfoBox() {
 
         }
     }
+
+
 
 
 //STORK

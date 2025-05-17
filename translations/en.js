@@ -40,7 +40,11 @@ export const translations = {
             DE: "DE - Deutsch",
             AR: "AR - العربية"
         },
-        applySettings: "Apply Settings"
+        applySettings: "Apply Settings",
+        darkMode: {
+            legend: "Toggle dark and light mode:",
+            remember: "Remember for all pages"
+        }
     },
 
     openDateSearch: {
