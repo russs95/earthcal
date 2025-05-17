@@ -35,10 +35,15 @@ export const translations = {
             FR: "FR - Français",
             ES: "ES - Espagnol",
             DE: "DE - Allemand",
-            AR: "AR - العربية"
+            AR: "AR - Arabe"
         },
-        applySettings: "Appliquer les paramètres"
+        applySettings: "Appliquer les paramètres",
+        darkMode: {
+            legend: "Basculer entre les modes clair et sombre :",
+            remember: "Se souvenir pour toutes les pages"
+        }
     },
+
 
     openDateSearch: {
         title: "Aller à la date...",

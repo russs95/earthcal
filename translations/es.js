@@ -37,8 +37,13 @@ export const translations = {
             DE: "DE - Alemán",
             AR: "AR - Árabe"
         },
-        applySettings: "Aplicar configuración"
+        applySettings: "Aplicar configuración",
+        darkMode: {
+            legend: "Cambiar entre modo claro y oscuro:",
+            remember: "Recordar para todas las páginas"
+        }
     },
+
 
     openDateSearch: {
         title: "Ir a la fecha...",

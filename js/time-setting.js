@@ -197,7 +197,7 @@ async function displayUserData(time_zone, language) {
 
 async function loadTranslations(langCode) {
     try {
-        const module = await import(`../translations/${langCode}.js?v=2`);
+        const module = await import(`../translations/${langCode}.js?v=3`);
         return module.translations;
     } catch (e) {
         console.warn(`Could not load translations for '${langCode}'. Falling back to English.`);
