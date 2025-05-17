@@ -1383,15 +1383,19 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 </BODY>
 
 <script>
+
+
     document.getElementById('login').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent default form submission
 
         const formData = new FormData(e.target);
-        const clientId = 'ecal_7f3da821d0a54f8a9b58'; // EarthCal client ID
+        const clientId = 'ecal_7f3da821d0a54f8a9b58';
+        formData.append('client_id', clientId);
+
 
         try {
             // Step 1: Authenticate user and retrieve buwana_id
-            const loginResponse = await fetch(`https://buwana.ecobricks.org/api/login_process.php?client=${clientId}`, {
+            const loginResponse = await fetch(`https://buwana.ecobricks.org/api/login_process.php`, {
                 method: 'POST',
                 body: formData,
                 credentials: 'include' // Include cookies for session continuity
@@ -1401,6 +1405,12 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
             if (!loginData.success) {
                 handleErrorResponse(loginData.message);
+                return;
+            }
+
+            // Check if a redirect is required
+            if (loginData.redirect) {
+                window.location.href = loginData.redirect;
                 return;
             }
 
@@ -1434,18 +1444,33 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
             window.userTimeZone = userData.time_zone;
 
             // Step 3: Fetch user's calendar data
-            const calendarResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId }),
-                credentials: 'include'
-            });
-            const calendarData = await calendarResponse.json();
+            console.log('Starting login sequence...');
 
-            if (!calendarData.success) {
-                alert('Failed to retrieve calendar data.');
-                return;
+            try {
+
+                const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buwana_id: buwanaId }),
+                    credentials: 'include'
+                });
+
+                const calendarData = await calendarResponse.json();
+                console.log('Fetched calendar data:', calendarData);
+
+                if (!calendarData.success) {
+                    console.warn('Calendar fetch failed:', calendarData.message);
+                    alert('Failed to retrieve calendar data.');
+                    return;
+                }
+
+                document.getElementById('login-form-section').style.display = 'none';
+                showLoggedInView(calendarData);
+
+            } catch (err) {
+                console.error('Error during calendar fetch or display:', err);
             }
+
 
 
         } catch (error) {
@@ -1453,6 +1478,7 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
             alert('Unable to connect to the server. Please check your internet connection and try again.');
         }
     });
+
 
 
     // Consolidated error handling

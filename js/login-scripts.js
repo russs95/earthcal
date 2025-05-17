@@ -141,11 +141,18 @@ function showErrorState(emailRegistration, loggedInView) {
 }
 
 
-// If logged in then....
+//Show Logged in View 1
 async function showLoggedInView(calendarData = {}) {
+    console.trace('showLoggedInView called', calendarData);
     const loggedInView = document.getElementById("logged-in-view");
 
-    const { first_name, earthling_emoji, last_sync_ts } = userProfile || {};
+    const {
+        first_name,
+        earthling_emoji,
+        last_login,
+        location_full
+    } = userProfile || {};
+
     const {
         personal_calendars = [],
         subscribed_calendars = [],
@@ -153,11 +160,18 @@ async function showLoggedInView(calendarData = {}) {
     } = calendarData;
 
     const translations = await loadTranslations(userLanguage?.toLowerCase() || 'en');
-    const { welcome, syncingInfo, noPersonal, noPublic, syncNow, logout, notYetSynced, lastSynced } = translations.loggedIn;
+    const {
+        welcome,
+        syncingInfo,
+        noPersonal,
+        noPublic,
+        syncNow,
+        logout
+    } = translations.loggedIn;
 
-    const syncMessage = last_sync_ts
-        ? `<p id="last-synced-time" style="font-size:smaller">✔ ${lastSynced} ${last_sync_ts}.</p>`
-        : `<p id="last-synced-time" style="font-size:smaller">${notYetSynced}</p>`;
+    const loginMessage = last_login
+        ? `<p id="last-login-time" style="font-size:smaller">✔ Last login: ${last_login}.</p>`
+        : `<p id="last-login-time" style="font-size:smaller">Login date not available.</p>`;
 
     const personalCalendarHTML = personal_calendars.length > 0
         ? personal_calendars.map(cal => `
@@ -203,12 +217,16 @@ async function showLoggedInView(calendarData = {}) {
             </div>
 
             <p id="cal-datecycle-count"></p>
-            ${syncMessage}
+            ${loginMessage}
+            <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+                ${location_full || ''}
+            </p>
         </div>
     `;
 
     loggedInView.style.display = "block";
 }
+
 
 
 
@@ -251,69 +269,6 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
-
-    async function activateEarthcalAccount() {
-    try {
-        const buwanaId = localStorage.getItem('buwana_id');
-
-        if (!buwanaId) {
-            alert("Buwana ID is missing. Please log in again.");
-            return;
-        }
-
-        const response = await fetch('https://gobrik.com/earthcal/earthcal_activate.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ buwana_id: buwanaId })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            alert("Your EarthCal account has been successfully activated!");
-
-            // Update connected_apps in localStorage
-            let connectedApps = (localStorage.getItem('connected_apps') || '').split(',');
-            if (!connectedApps.includes('0002')) {
-                connectedApps.push('0002');
-                localStorage.setItem('connected_apps', connectedApps.join(','));
-            }
-
-            // Update user data in localStorage
-            if (data.user_data) {
-                localStorage.setItem('first_name', data.user_data.first_name || '');
-                localStorage.setItem('continent_code', data.user_data.continent_code || '');
-                localStorage.setItem('location_full', data.user_data.location_full || '');
-            } else {
-                console.error("Missing user_data in response");
-            }
-
-            // Fetch user and calendar data dynamically
-            const fetchResponse = await fetch('https://gobrik.com/earthcal/fetch_user_data.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId })
-            });
-
-            const calendarData = await fetchResponse.json();
-
-            if (calendarData.success) {
-                // Call showLoggedInView with fetched data
-                showLoggedInView(calendarData);
-            } else {
-                console.error("Error fetching user and calendar data:", calendarData.message);
-                alert("Failed to retrieve your calendar data after activation. Please try again.");
-            }
-        } else {
-            alert(`Activation failed: ${data.message}`);
-        }
-    } catch (error) {
-        console.error('Error activating EarthCal account:', error);
-        alert('An error occurred while activating your EarthCal account. Please try again.');
-    }
-}
 
 
 
