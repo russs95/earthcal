@@ -3,8 +3,7 @@
 /*-------------
 LOGIN FUNCTIONS
 ----------------*/
-
-function sendUpRegistration() {
+async function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = guidedTour?.querySelector('.modal');
 
@@ -18,7 +17,7 @@ function sendUpRegistration() {
 
     const buwanaId = localStorage.getItem('buwana_id');
 
-    // ✅ Use global profile if not logged in
+    // Not logged in — show login form
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
 
@@ -27,49 +26,71 @@ function sendUpRegistration() {
             return;
         }
 
-        const {first_name, earthling_emoji, email, status} = userProfile;
+        const { first_name, earthling_emoji, email } = userProfile;
 
         showLoginForm(emailRegistration, loggedInView, {
             first_name,
             earthling_emoji,
-            email,
-            status
+            email
         });
 
-        console.log("Login form displayed successfully.");
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // ✅ User is logged in — fetch and show their calendars
-    fetch(`https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({buwana_id: buwanaId})
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const combinedData = {
-                    personal_calendars: data.personal_calendars || [],
-                    subscribed_calendars: data.subscribed_calendars || [],
-                    public_calendars: data.public_calendars || [],
-                    last_sync_ts: data.last_sync_ts || null
-                };
-                showLoggedInView(combinedData);
-            }
-            else {
-                console.error('Error fetching calendar data:', data.message || 'Unknown error');
-                showErrorState(emailRegistration, loggedInView);
-            }
-        })
-        .catch(error => {
-            console.error('Network error:', error);
-            showErrorState(emailRegistration, loggedInView);
+    try {
+        // Refresh user profile session data
+        const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
+            credentials: 'include'
         });
+        const userData = await userResponse.json();
+
+        if (!userData.logged_in) {
+            alert("Session has expired. Please log in again.");
+            showErrorState(emailRegistration, loggedInView);
+            return;
+        }
+
+        // Update global user profile
+        window.userProfile = {
+            first_name: userData.first_name,
+            earthling_emoji: userData.earthling_emoji,
+            last_sync_ts: userData.last_sync_ts,
+            language_id: userData.language_id,
+            time_zone: userData.time_zone,
+            last_login: userData.last_login,
+            location_full: userData.location_full,
+            connection_id: userData.connection_id
+        };
+
+        window.userLanguage = userData.language_id.toLowerCase();
+        window.userTimeZone = userData.time_zone;
+
+        // Fetch calendar data
+        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId }),
+            credentials: 'include'
+        });
+
+        const calendarData = await calResponse.json();
+
+        if (calendarData.success) {
+            showLoggedInView(calendarData);
+        } else {
+            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+            showErrorState(emailRegistration, loggedInView);
+        }
+
+    } catch (error) {
+        console.error('Error in registration sequence:', error);
+        showErrorState(emailRegistration, loggedInView);
+    }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
