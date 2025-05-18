@@ -140,18 +140,21 @@ function showErrorState(emailRegistration, loggedInView) {
     showLoginForm(emailRegistration, loggedInView);
 }
 
-
-//Show Logged in View 1
 async function showLoggedInView(calendarData = {}) {
-    console.trace('showLoggedInView called', calendarData);
     const loggedInView = document.getElementById("logged-in-view");
+
+    if (!window.userProfile) {
+        console.error("User profile is missing.");
+        return;
+    }
 
     const {
         first_name,
         earthling_emoji,
         last_login,
-        location_full
-    } = userProfile || {};
+        location_full,
+        connection_id
+    } = window.userProfile;
 
     const {
         personal_calendars = [],
@@ -159,7 +162,8 @@ async function showLoggedInView(calendarData = {}) {
         public_calendars = []
     } = calendarData;
 
-    const translations = await loadTranslations(userLanguage?.toLowerCase() || 'en');
+    const lang = window.userLanguage?.toLowerCase() || 'en';
+    const translations = await loadTranslations(lang);
     const {
         welcome,
         syncingInfo,
@@ -188,37 +192,47 @@ async function showLoggedInView(calendarData = {}) {
             return `
                 <div class="calendar-item">
                     <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
-                    ${isChecked ? 'checked' : ''} 
-                    onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
+                        ${isChecked ? 'checked' : ''}
+                        onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
                     <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
                 </div>
             `;
         }).join('')
         : `<p>${noPublic}</p>`;
 
+    const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
+    const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
+
+    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php${connection_id ? `?con=${connection_id}` : ''}`;
+
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 5em;margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
+            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
                 ${welcome} ${first_name || 'Earthling'}!
             </h2>
             <p>${syncingInfo}</p>
-            <div class="form-item">
-                <form id="calendar-selection-form" style="text-align:left;width:360px;margin:auto;">
-                    ${personalCalendarHTML}
-                    ${publicCalendarHTML}
-                </form>
-            </div>
+
+            <form id="calendar-selection-form" style="text-align:left; width:360px; margin:auto;">
+                ${personalSection}
+                ${publicSection}
+            </form>
+
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
                 <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
                     🔄 ${syncNow}
                 </button>
-                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">🐳 ${logout}</button>
+                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.location.href='${editProfileUrl}';">
+                    ✏️ Edit Buwana Profile
+                </button>
+                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+                    🐳 ${logout}
+                </button>
             </div>
 
             <p id="cal-datecycle-count"></p>
             ${loginMessage}
-            <p style="font-family:'Mulish',sans-serif;font-size:smaller;color:var(--subdued-text);">
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
                 ${location_full || ''}
             </p>
         </div>
@@ -226,6 +240,9 @@ async function showLoggedInView(calendarData = {}) {
 
     loggedInView.style.display = "block";
 }
+
+
+
 
 
 

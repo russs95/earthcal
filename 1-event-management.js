@@ -2276,21 +2276,21 @@ async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId
 //BEING USED??!
 
 // Helper function to update the UI with the last sync timestamp
-function showLastSynkTimePassed(lastSyncTs) {
-    // Update local storage with the new last sync time
-    localStorage.setItem('last_sync_ts', lastSyncTs);
-
-    // Retrieve and format calendar names from local storage
-    const calendarNames = localStorage.getItem('calendar_names')
-        ? localStorage.getItem('calendar_names').split(',').join(', ')
-        : 'My Calendar';
-
-    // Update the UI with the last sync time
-    const lastSyncedDiv = document.getElementById('last-synced-time');
-    if (lastSyncedDiv) {
-        lastSyncedDiv.innerHTML = `✅ ${calendarNames} was last synced on ${lastSyncTs}.`;
-    }
-}
+// function showLastSynkTimePassed(lastSyncTs) {
+//     // Update local storage with the new last sync time
+//     localStorage.setItem('last_sync_ts', lastSyncTs);
+//
+//     // Retrieve and format calendar names from local storage
+//     const calendarNames = localStorage.getItem('calendar_names')
+//         ? localStorage.getItem('calendar_names').split(',').join(', ')
+//         : 'My Calendar';
+//
+//     // Update the UI with the last sync time
+//     const lastSyncedDiv = document.getElementById('last-synced-time');
+//     if (lastSyncedDiv) {
+//         lastSyncedDiv.innerHTML = `✅ ${calendarNames} was last synced on ${lastSyncTs}.`;
+//     }
+// }
 
 
 

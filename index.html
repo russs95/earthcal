@@ -1384,7 +1384,6 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
 
 <script>
 
-
     document.getElementById('login').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent default form submission
 
@@ -1392,13 +1391,11 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
         const clientId = 'ecal_7f3da821d0a54f8a9b58';
         formData.append('client_id', clientId);
 
-
         try {
-            // Step 1: Authenticate user and retrieve buwana_id
             const loginResponse = await fetch(`https://buwana.ecobricks.org/api/login_process.php`, {
                 method: 'POST',
                 body: formData,
-                credentials: 'include' // Include cookies for session continuity
+                credentials: 'include'
             });
 
             const loginData = await loginResponse.json();
@@ -1408,7 +1405,6 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
                 return;
             }
 
-            // Check if a redirect is required
             if (loginData.redirect) {
                 window.location.href = loginData.redirect;
                 return;
@@ -1417,7 +1413,6 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
             const buwanaId = loginData.buwana_id;
             localStorage.setItem('buwana_id', buwanaId);
 
-            // Step 2: Fetch basic user data from session-based API
             const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
                 credentials: 'include'
             });
@@ -1428,7 +1423,6 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
                 return;
             }
 
-            // Store user profile data
             window.userProfile = {
                 first_name: userData.first_name,
                 earthling_emoji: userData.earthling_emoji,
@@ -1436,48 +1430,43 @@ setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highl
                 language_id: userData.language_id,
                 time_zone: userData.time_zone,
                 last_login: userData.last_login,
-                location_full: userData.location_full
+                location_full: userData.location_full,
+                connection_id: userData.connection_id // ✅ Add this line
             };
 
-            // Update global settings
+
             window.userLanguage = userData.language_id.toLowerCase();
             window.userTimeZone = userData.time_zone;
 
-            // Step 3: Fetch user's calendar data
-            console.log('Starting login sequence...');
-
-            try {
-
-                const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ buwana_id: buwanaId }),
-                    credentials: 'include'
-                });
-
-                const calendarData = await calendarResponse.json();
-                console.log('Fetched calendar data:', calendarData);
-
-                if (!calendarData.success) {
-                    console.warn('Calendar fetch failed:', calendarData.message);
-                    alert('Failed to retrieve calendar data.');
-                    return;
-                }
-
-                document.getElementById('login-form-section').style.display = 'none';
-                showLoggedInView(calendarData);
-
-            } catch (err) {
-                console.error('Error during calendar fetch or display:', err);
+            // Update login status indicator
+            const sessionStatusEl = document.getElementById('user-session-status');
+            if (sessionStatusEl) {
+                sessionStatusEl.textContent = '🟢';
+                sessionStatusEl.title = `Logged in as ${userData.first_name} ${userData.earthling_emoji}`;
             }
 
+            const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId }),
+                credentials: 'include'
+            });
 
+            const calendarData = await calendarResponse.json();
+
+            if (!calendarData.success) {
+                alert('Failed to retrieve calendar data.');
+                return;
+            }
+
+            document.getElementById('login-form-section').style.display = 'none';
+            showLoggedInView(calendarData);
 
         } catch (error) {
-            console.error('Network error:', error);
             alert('Unable to connect to the server. Please check your internet connection and try again.');
         }
     });
+
 
 
 

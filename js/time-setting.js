@@ -148,11 +148,9 @@ async function fetchUserData(buwanaId = null) {
 }
 
 
-
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
 
-    // Function to update the current time
     function updateTime() {
         const now = new Date();
         const options = {
@@ -170,13 +168,13 @@ async function displayUserData(time_zone, language) {
         }
     }
 
-    // Compose user display string
     const userDetailsString = `| ${time_zone} | ${language.toUpperCase()}`;
-
-    // Check login status
     const isUserLoggedIn = checkUserSession();
 
-    // Populate the user-timezone-lang div
+    const loginIndicator = isUserLoggedIn
+        ? '🟢'
+        : '⚪';
+
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
     userTimezoneLangDiv.innerHTML = `
         <span id="current-user-time"></span>
@@ -186,13 +184,18 @@ async function displayUserData(time_zone, language) {
               onmouseout="this.style.textDecoration='none'">
               ${userDetailsString} ⚙️
         </span>
-        ${isUserLoggedIn ? '<span id="logged-in-green" title="Logged in" style="cursor:pointer;font-size:0.7em;">🟢</span>' : ''}
+        <span id="user-session-status" 
+              title="Login status" 
+              style="cursor:pointer;font-size:0.9em;" 
+              onclick="sendUpRegistration()">
+              ${loginIndicator}
+        </span>
     `;
 
-    // Initialize and update the clock every second
     updateTime();
     setInterval(updateTime, 1000);
 }
+
 
 
 async function loadTranslations(langCode) {
