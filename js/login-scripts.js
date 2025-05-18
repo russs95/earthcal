@@ -370,22 +370,37 @@ function shakeElement(element) {
 function viewTerms()  {
        alert("Sorry, our terms of use are still under development along with Buwana login.");
        }
-
 // Logout function
 function logoutBuwana() {
-    // Clear user-related data
-    localStorage.removeItem("buwana_id");
+    // Clear user-related local and session data
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Clear all registered caches
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            for (let name of names) {
+                caches.delete(name);
+            }
+        }).catch(err => console.error("Cache deletion failed:", err));
+    }
 
     // Reset views
     document.getElementById("login-form-section").style.display = "block";
     const loggedInView = document.getElementById("logged-in-view");
-    // const activateView = document.getElementById("activate-earthcal-account");
     loggedInView.style.display = "none";
-    // activateView.style.display = "none";
     loggedInView.innerHTML = ""; // Clear content
+
+    // Reset session indicator if exists
+    const sessionStatusEl = document.getElementById('user-session-status');
+    if (sessionStatusEl) {
+        sessionStatusEl.textContent = '⚪';
+        sessionStatusEl.title = 'Login status';
+    }
 
     alert("You have been logged out successfully.");
 }
+
 
 // Placeholder function for syncing user events
 function syncUserEvents() {
