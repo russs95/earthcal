@@ -6,7 +6,6 @@ LOGIN FUNCTIONS
 async function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = guidedTour?.querySelector('.modal');
-
     if (guidedTourModal && guidedTourModal.style.display !== "none") return;
 
     const footer = document.getElementById("registration-footer");
@@ -17,29 +16,28 @@ async function sendUpRegistration() {
 
     const buwanaId = localStorage.getItem('buwana_id');
 
-    // Not logged in — show login form
+    // If not logged in
     if (!checkUserSession() || !buwanaId) {
         console.warn("User session invalid or Buwana ID missing. Showing login form.");
 
-        if (!userProfile) {
-            console.error("User profile not initialized. Cannot show login form.");
-            return;
+        // Only show the login form if userProfile is safely defined
+        if (typeof userProfile === "object" && userProfile !== null) {
+            const { first_name, earthling_emoji, email } = userProfile;
+            showLoginForm(emailRegistration, loggedInView, {
+                first_name,
+                earthling_emoji,
+                email
+            });
+        } else {
+            // Show a generic form if no user profile is available
+            showLoginForm(emailRegistration, loggedInView, null);
         }
-
-        const { first_name, earthling_emoji, email } = userProfile;
-
-        showLoginForm(emailRegistration, loggedInView, {
-            first_name,
-            earthling_emoji,
-            email
-        });
 
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
     try {
-        // Refresh user profile session data
         const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
             credentials: 'include'
         });
@@ -51,7 +49,6 @@ async function sendUpRegistration() {
             return;
         }
 
-        // Update global user profile
         window.userProfile = {
             first_name: userData.first_name,
             earthling_emoji: userData.earthling_emoji,
@@ -66,7 +63,6 @@ async function sendUpRegistration() {
         window.userLanguage = userData.language_id.toLowerCase();
         window.userTimeZone = userData.time_zone;
 
-        // Fetch calendar data
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -90,6 +86,7 @@ async function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
@@ -160,6 +157,8 @@ function showErrorState(emailRegistration, loggedInView) {
     console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
     showLoginForm(emailRegistration, loggedInView);
 }
+
+
 
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
