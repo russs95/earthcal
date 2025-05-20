@@ -1752,7 +1752,7 @@ async function syncDatecycles() {
                     const payload = { buwana_id: buwanaId, cal_id: calendar.cal_id };
 
                     try {
-                        const calendarResponse = await fetch('https://gobrik.com/earthcal/get_calendar_data.php', {
+                        const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/get_calendar_data.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload),

@@ -16,39 +16,27 @@ async function sendUpRegistration() {
 
     const buwanaId = localStorage.getItem('buwana_id');
 
-    // If not logged in
-    if (!checkUserSession() || !buwanaId) {
-        console.warn("User session invalid or Buwana ID missing. Showing login form.");
-
-        // Only show the login form if userProfile is safely defined
-        if (typeof userProfile === "object" && userProfile !== null) {
-            const { first_name, earthling_emoji, email } = userProfile;
-            showLoginForm(emailRegistration, loggedInView, {
-                first_name,
-                earthling_emoji,
-                email
-            });
-        } else {
-            // Show a generic form if no user profile is available
-            showLoginForm(emailRegistration, loggedInView, null);
-        }
-
+    if (!buwanaId) {
+        showLoginForm(emailRegistration, loggedInView, null);
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
     try {
+        // Check session validity
         const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
             credentials: 'include'
         });
         const userData = await userResponse.json();
 
         if (!userData.logged_in) {
-            alert("Session has expired. Please log in again.");
-            showErrorState(emailRegistration, loggedInView);
+            console.warn("Session expired or invalid. Showing login form.");
+            showLoginForm(emailRegistration, loggedInView, null);
+            updateFooterAndArrowUI(footer, upArrow, downArrow);
             return;
         }
 
+        // Valid session — proceed with user data
         window.userProfile = {
             first_name: userData.first_name,
             earthling_emoji: userData.earthling_emoji,
@@ -91,7 +79,7 @@ async function sendUpRegistration() {
 
 
 
-// Helper function to check if logged in or not
+// Helper function to check if logged in or not PROBLEM
 function checkUserSession() {
     // Check if the 'buwana_id' exists in localStorage
     const buwanaId = localStorage.getItem('buwana_id');
