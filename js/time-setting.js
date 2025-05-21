@@ -295,6 +295,7 @@ async function displayDayInfo(date, language = 'en', time_zone = Intl.DateTimeFo
     }
 
     // Optional: if you want to show the day-of-year string as well
+    //SEEMS to be happening anyway!
     // const currentDayInfoDiv = document.getElementById('current-day-info');
     // if (currentDayInfoDiv) {
     //     currentDayInfoDiv.innerHTML = `<p style="margin: -12px 0px -10px 0px;">${dayOfYearString}</p>`;

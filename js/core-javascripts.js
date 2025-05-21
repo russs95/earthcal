@@ -415,7 +415,7 @@ function getTheDayOfYear(targetDate) {
   function calendarRefresh() {
     // Phase 1: instant animations
     updateTargetMonth();
-      displayDayInfo(targetDate, userLanguage, userTimeZone);
+    displayDayInfo(targetDate, userLanguage, userTimeZone);
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     //Sets the lunar month for the target date
     resetPaths();
@@ -462,7 +462,6 @@ function getTheDayOfYear(targetDate) {
     displayMoonPhaseInDiv(targetDate);
 
     displayMoonPhaseInDiv(targetDate);
-       displayDayInfo(targetDate, userLanguage, userTimeZone);
 
     UpdateVenusData(targetDate);
     UpdateMarsData(targetDate);

@@ -49,7 +49,7 @@ bottom-info: 9  needed?
 <meta property="og:url"           content="https://cycles.earthen.io/">
 <meta property="og:type"          content="app">
 <meta property="og:title"         content="EarthCal | The Earthen Cycles Calendar">
-<meta property="og:description"   content="Sync your life with Earth's cycles." >
+<meta property="og:description"   content="Sync with Earth's cycles." >
 <meta property="og:image"         content="images/cal-banner.png" >
 <meta property="og:image:width" content="1200" >
 <meta property="og:image:height" content="753" >
@@ -230,19 +230,6 @@ bottom-info: 9  needed?
     pointer-events: none;
   }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -485,10 +472,11 @@ window.onload = async function () {
 
     updateBackgroundColor();   //Updates colors for night and day themese
     updateHighlightColor(); //Updates colors for night and day themese
-    // getUserData();
+
     setCurrentDate();   //Sets the Current Date as the Target Date.-->
+
     const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
-     //This calls displayCurrentDayInfo();
+    //displayCurrentDayInfo();
     displayMoonPhaseInDiv(targetDate);
     cyclesToggleSimplified();  // to show/hide animal cycles
     initializeToggleListener();  //to show or hide datecycles?
@@ -497,7 +485,6 @@ window.onload = async function () {
     title2tooltip();   //Adds titles tooltips to the non-date paths
     title2datetip();   //Adds titles to the date paths
     // printTime(); OBSOLETE?
-  // checkRegistrationStatus();  OBSOLETE?
     triggerPlanets();  //Enables the planet animations to be triggered.
     listenForMonthBreakout();
     listenForCloseBreakout();
@@ -587,6 +574,7 @@ openPlanetInfoBox();
 // };
 //setTimeout(openCurrentMonthBreakout,4000);
 setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
+displayDayInfo(targetDate, userLanguage, userTimeZone);
 
 };
 
