@@ -2243,277 +2243,171 @@ color: #b2b1b1;
 
 
 
-/* REGISTRATION CSS*/
+/*-------------------------------
+
+ REGISTRATION FOOTER CSS
+
+
+ ---------------------------*/
 
 #registration-footer {
   width: 100%;
-  height: 77px; 
+  height: 10px;
   position: fixed;
   bottom: 0;
-  color: var(--subdued-text); 
+  color: var(--subdued-text);
   text-align: center;
   transition: margin-bottom 0.3s, height 0.3s;
-  overflow: hidden; 
+  overflow: hidden;
   z-index: 50;
-  margin-bottom: -54px;
+  margin-bottom: 0px;
   display: flex;
   flex-flow: column;
 }
+
 
 .registration-footer-holder {
-background-color: var(--side-overlays);
-display: flex;
-flex-flow: column;
-width: 100%;
-height: 100%;
-border-top: 1px grey solid;
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100%;
+    border-top: 1px var( --header-accent) solid;
 }
 
-#progress-bar {
-  height: 10px;
-  background-color: grey;
-  width: 0;
-  z-index: 10;
+
+@media (prefers-color-scheme: dark) {
+    .registration-footer-holder {
+        background: url(../webp/earthen-subscription-background-dark.webp) top center, var(--side-overlays);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
 }
+
+
+@media (prefers-color-scheme: light) {
+    .registration-footer-holder {
+        background: url(../webp/earthen-subscription-background-light.webp) top center, var(--top-header);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+}
+
+
 
 #login-form-section {
-  display: none; 
-  color: black; 
-  text-align: left;
-  padding: 10px;
-  margin: auto;
+    display: none;
+    color: black;
+    text-align: left;
+    padding: 10px;
+    margin: auto;
 }
 
-.email-input {
-  margin-left: 10px;
-  font-size: 18px;
-  padding: 10px;
-  border-radius: 10px 0 0 10px;
-  width:100%;
-}
 
-.name-input {
-  display: none;
-  margin-left: 10px;
-  font-size: 18px;
-  padding: 10px;
-  border-radius: 10px 0 0 10px;
-  width: 0;
-  transition: width 0.5s; 
-}
+    /*background-image: url(../svgs/cloud-button-back.svg);*/
 
-.reg-complete-text {
-  display: none;
-  font-family: 'Mulish';
-  color: rgb(128, 122, 0);
-  margin-left: 10px;
-  font-size: 18px;
-  padding: 10px;
-  border-radius: 10px 0 0 10px;
-  width: 70%;
-  transition: width 0.5s;
-  background: var(--general-background);
-}
-
-.register-button {
-  cursor: pointer;
-  font-size: 18px;
-  padding: 10px;
-  border-radius:  0 10px 10px 0;
-  width: fit-content;
-  background-color: green;
-  min-width: 100px;
-}
 
 .reg-top-section {
-  display: flex;
-  flex-flow: column;
-  width:100%;
-  height: fit-content;
+    display: flex;
+    flex-flow: column;
+    width:100%;
+    height: fit-content;
 }
 
 #reg-up-button {
-  border: none;
-  cursor: pointer;
-  z-index: 10;
-  width: 110px;
-  height:25px;
-  }
-
-/* Target the reg-up-button when reg-top-section is hovered */
-/* .reg-top-section:hover #reg-up-button {
-  background: url(svgs/up-reg-arrow-over.svg) center no-repeat;
-  background-size: contain;
-  opacity: 1;
-} */
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    width: 100px;
+    bottom: 10px;
+    position: fixed;
+    right: 0;
+    transition: 0.3s;
+}
 
 #reg-down-button {
-      border: none;
-      background-color: transparent;
-      cursor: pointer;
-      padding: 0;
-      display: none;
-      z-index: 10;
-  }
-
-
-
-@media screen and (max-width: 699px) {
-    
-  #reg-up-button {
-      margin: 0 auto -4px auto;
-      
-  }
-
-  #reg-down-button {
-      width:15%;
-      margin: 10px auto 0 auto;
-      height: 19px;
-  }
-
-  #reg-down-button img {
-      height: 19px;
-  }
-}
-
-
-@media screen and (min-width: 700px) {
-    
-  #reg-up-button {
-      margin: 0 auto -3px auto;
-      width: 25%;
-  }
-
-  #reg-down-button {
-      width:20%;
-      margin: 10px auto 25px auto;
-      height: 20px;
-  }
-
-  #reg-down-button img {
-      height: 20px;
-  }
-}
-
-
-
-
-.registration-box {
-padding: 12px;
-margin:auto;
-margin-bottom: 100px;
-
-color: var(--text-color);
-display:flex;
-flex-flow:row;
-}
-
-
-@media screen and (max-width: 699px) {
-
-  .registration-box {
-    width:82%;
-    /* margin-top: 30px; */
-  }
-  .reg-img {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0;
     display: none;
-  }
-}
-
-
-
-@media screen and (min-width: 700px) {
-
-.registration-box {
-  width:77%;
-}
-
-.reg-img {
-  padding-right: 20px;
-  height:160px;
-  width:160px; 
-  justify-content: center;
-  display: flex;
-}
-}
-
-
-.reg-img img {
-margin: 25px;
-height:160px;
-width:160px; 
-
-}
-
-.reg-texts {
-display:flex; 
-flex-flow:column;
-}
-
-
-
-.reg-header {
-font-family: 'Arvo'; 
-}
-
-.reg-subtitle {
-font-family: 'Mulish'; 
-}
-
-.reg-sub {
-font-family: 'Mulish'; 
+    z-index: 10;
 }
 
 @media screen and (max-width: 699px) {
 
-  .reg-header {
-    font-size: 1.6em;
-    padding:10px;
-    margin-bottom: -15px;
-    margin-top:-10px;
-    }
-    
-    .reg-subtitle {
-    font-size: 1.06em;
-    padding:10px;
-    margin-bottom:4px;
-    
-    
-    }
-    
-    .reg-sub {
-    font-size: 0.8em;
-    padding:9px;
+    #reg-up-button {
+        margin:0px -20px 6px auto;
+        height: 30px;
     }
 
-  }
-
-
-@media screen and (min-width: 700px) {
-
-  .reg-header {
-    font-size: 2em;
-    padding:12px;
-    margin-bottom: -15px;
-    }
-    
-    .reg-subtitle {
-    font-size: 1.3em;
-    padding:12px;
-    margin-bottom:10px;
-    
-    
-    }
-    
-    .reg-sub {
-    font-size: 1em;
-    padding:10px;
+    #reg-up-button:hover {
+        margin:0px 0px 6px auto;
+        opacity: 1 !important;
     }
 
-  }
+    #reg-down-button {
+        width:15%;
+        margin: 10px auto 0px auto;
+        height: 19px;
+    }
+
+    #reg-down-button img {
+        height: 19px;
+    }
+}
+
+@media screen and (min-width: 701px) and (max-width: 1200px) {
+    #reg-up-button {
+        margin: 0px -115px 6px auto;
+        width: 25%;
+        height: 40px;
+    }
+
+    #reg-up-button:hover {
+        margin: 0px -85px 5px auto;
+        opacity: 1 !important;
+    }
+
+    #reg-down-button {
+        width:15%;
+        margin: 10px auto 0px auto;
+        height: 19px;
+    }
+
+    #reg-down-button img {
+        height: 19px;
+    }
+}
+
+@media screen and (min-width: 1201px) {
+
+    #reg-up-button {
+        margin: 0px -230px 6px auto;
+        width: 25%;
+        height: 40px;
+    }
+
+    #reg-up-button:hover {
+        margin: 0px -185px 5px auto;
+        opacity: 1 !important;
+    }
+
+    #reg-down-button {
+        width:20%;
+        margin: 10px 0px 25px auto;
+        height: 20px;
+    }
+
+    #reg-down-button img {
+        height: 20px;
+    }
+}
 
 
-  
+
+
+
+
 /*-----------------------------------------
 
 INFO MODAL
