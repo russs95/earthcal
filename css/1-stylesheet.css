@@ -2487,7 +2487,7 @@ INFO MODAL
     font-size: larger;
     background-color: var(--form-conf-background);
     color: var(--form-conf-text);
-    margin: 20px auto 50px auto;
+    margin: 1px auto 50px auto;
     cursor: pointer;
     }
 
@@ -2698,7 +2698,7 @@ svg path #june:hover {
     font-size: larger;
     background-color: var(--button-2-1);
     color: var(--top-header);
-    margin: 20px auto 0 auto;
+    margin: 1px auto 0 auto;
     cursor: pointer;
 }
 
