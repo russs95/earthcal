@@ -153,21 +153,18 @@ async function displayUserData(time_zone, language) {
 
     function updateTime() {
     const now = new Date();
-
-    const currentTime = new Intl.DateTimeFormat('en-US', {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
         timeZone: time_zone,
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
-    }).format(now);
+        hourCycle: 'h23'
+    });
 
-    const currentUserTimeEl = document.getElementById('current-user-time');
-    if (currentUserTimeEl) {
-        currentUserTimeEl.textContent = currentTime;
-    }
+    const time = formatter.format(now);
+    const el = document.getElementById('current-user-time');
+    if (el) el.textContent = time;
 }
-
 
     const userDetailsString = `| ${time_zone} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
@@ -381,6 +378,16 @@ async function showUserCalSettings() {
     document.addEventListener('focus', focusRestrict, true);
 }
 
+function getUtcOffset(tz) {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        timeZoneName: 'short'
+    }).formatToParts(now);
+
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    return tzPart ? tzPart.value.replace('GMT', 'UTC') : tz;
+}
 
 
 

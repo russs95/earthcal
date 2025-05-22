@@ -182,7 +182,7 @@ async function showLoggedInView(calendarData = {}) {
     } = translations.loggedIn;
 
     const loginMessage = last_login
-        ? `<p id="last-login-time" style="font-size:smaller">✔ Last login: ${last_login}.</p>`
+        ? `<p id="last-login-time" style="font-size:smaller">Last login: ${last_login}.</p>`
         : `<p id="last-login-time" style="font-size:smaller">Login date not available.</p>`;
 
     const personalCalendarHTML = personal_calendars.length > 0
@@ -240,9 +240,9 @@ async function showLoggedInView(calendarData = {}) {
 
             <p id="cal-datecycle-count"></p>
             ${loginMessage}
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+            /*<p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
                 ${location_full || ''}
-            </p>
+            </p>*/
         </div>
     `;
 
