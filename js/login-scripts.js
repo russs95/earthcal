@@ -12,7 +12,7 @@ async function sendUpRegistration() {
     const emailRegistration = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
-    const downArrow = document.getElementById("reg-down-button");
+//    const downArrow = document.getElementById("reg-down-button");
 
     const buwanaId = localStorage.getItem('buwana_id');
 
@@ -93,7 +93,7 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
     footer.style.height = "100vh";
     footer.style.marginBottom = "0px";
     upArrow.style.display = "none";
-    downArrow.style.display = "block";
+    downArrow.style.display = "block !important";
 }
 
 
@@ -320,7 +320,7 @@ async function toggleSubscription(calendarId, subscribe) {
     // Make the email registration section visible
     emailRegistration.style.display = "none";
     upArrow.style.display = "block";
-    downArrow.style.display = "none";
+//    downArrow.style.display = "none";
     calendarRefresh();
 
   }
