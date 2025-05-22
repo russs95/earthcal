@@ -105,7 +105,6 @@ async function showLoginForm(emailRegistration, loggedInView, userData = {}) {
     emailRegistration.style.display = "block";
     loggedInView.style.display = "none";
 
-
     const { email, status, earthling_emoji, first_name } = userData;
 
     const translations = await loadTranslations(userLanguage.toLowerCase());
