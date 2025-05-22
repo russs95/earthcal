@@ -302,6 +302,19 @@ async function displayDayInfo(date, language = 'en', time_zone = Intl.DateTimeFo
     // }
 }
 
+function getTimeZoneOffsetDisplay(timeZone) {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        timeZoneName: 'short'
+    });
+
+    const parts = formatter.formatToParts(now);
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    return tzPart ? tzPart.value.replace('GMT', 'UTC') : '';
+}
+
+
 
 async function showUserCalSettings() {
     const modal = document.getElementById('form-modal-message');
@@ -310,37 +323,16 @@ async function showUserCalSettings() {
     const translations = await loadTranslations(lang);
     const settingsContent = translations.settings;
 
-    const timezones = [
-        { value: 'Etc/GMT+12', label: 'Bakers Island (UTC-12)' },
-        { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
-        { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
-        { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
-        { value: 'America/Los_Angeles', label: 'Pacific Time - US & Canada (UTC-8)' },
-        { value: 'America/Denver', label: 'Mountain Time - US & Canada (UTC-7)' },
-        { value: 'America/Chicago', label: 'Central Time - US & Canada (UTC-6)' },
-        { value: 'America/New_York', label: 'Eastern Time - US & Canada (UTC-5)' },
-        { value: 'America/Halifax', label: 'Atlantic Time - Canada (UTC-4)' },
-        { value: 'America/Sao_Paulo', label: 'Brazil - São Paulo (UTC-3)' },
-        { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
-        { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
-        { value: 'Etc/UTC', label: 'Coordinated Universal Time (UTC)' },
-        { value: 'Europe/Berlin', label: 'Central European Time (UTC+1)' },
-        { value: 'Europe/Helsinki', label: 'Eastern European Time (UTC+2)' },
-        { value: 'Europe/Moscow', label: 'Moscow Standard Time (UTC+3)' },
-        { value: 'Asia/Dubai', label: 'Dubai - UAE (UTC+4)' },
-        { value: 'Asia/Karachi', label: 'Pakistan Standard Time (UTC+5)' },
-        { value: 'Asia/Dhaka', label: 'Bangladesh Standard Time (UTC+6)' },
-        { value: 'Asia/Bangkok', label: 'Indochina Time (UTC+7)' },
-        { value: 'Asia/Shanghai', label: 'China Standard Time (UTC+8)' },
-        { value: 'Asia/Tokyo', label: 'Japan Standard Time (UTC+9)' },
-        { value: 'Australia/Sydney', label: 'Australian Eastern Time (UTC+10)' },
-        { value: 'Pacific/Guadalcanal', label: 'Solomon Islands Time (UTC+11)' },
-        { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (UTC+12)' }
-    ];
+    const timezones = translations.timezones;
 
-    const timezoneOptions = timezones.map(tz =>
-        `<option value="${tz.value}" ${tz.value === userTimeZone ? 'selected' : ''}>${tz.label}</option>`
-    ).join('');
+
+    const timezoneOptions = translations.timezones.map(tz => {
+    const offset = getTimeZoneOffsetDisplay(tz.value);
+    return `<option value="${tz.value}" ${tz.value === userTimeZone ? 'selected' : ''}>
+        ${tz.label} (${offset})
+    </option>`;
+}).join('');
+
 
     const languageOptions = Object.entries(settingsContent.languages).map(([key, label]) =>
         `<option value="${key}" ${key.toLowerCase() === userLanguage.toLowerCase() ? 'selected' : ''}>${label}</option>`

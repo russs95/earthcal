@@ -104,6 +104,39 @@ export const translations = {
         }
     },
 
+    timezones: [
+    { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
+    { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
+    { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
+    { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
+    { value: 'America/Los_Angeles', label: 'Los Angeles (UTC-8)' },
+    { value: 'America/Denver', label: 'Denver (UTC-7)' },
+    { value: 'America/Chicago', label: 'Chicago (UTC-6)' },
+    { value: 'America/New_York', label: 'New York (UTC-5)' },
+    { value: 'America/Halifax', label: 'Halifax (UTC-4)' },
+    { value: 'America/Sao_Paulo', label: 'São Paulo (UTC-3)' },
+    { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
+    { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
+    { value: 'Etc/UTC', label: 'UTC (Coordinated Universal Time)' },
+    { value: 'Europe/London', label: 'London (UTC+0/UTC+1 DST)' },
+    { value: 'Europe/Berlin', label: 'Berlin (UTC+1)' },
+    { value: 'Europe/Helsinki', label: 'Helsinki (UTC+2)' },
+    { value: 'Europe/Moscow', label: 'Moscow (UTC+3)' },
+    { value: 'Asia/Dubai', label: 'Dubai (UTC+4)' },
+    { value: 'Asia/Karachi', label: 'Karachi (UTC+5)' },
+    { value: 'Asia/Dhaka', label: 'Dhaka (UTC+6)' },
+    { value: 'Asia/Jakarta', label: 'Jakarta (UTC+7)' },
+    { value: 'Asia/Yogyakarta', label: 'Yogyakarta (UTC+7)' },
+    { value: 'Asia/Singapore', label: 'Singapore (UTC+8)' },
+    { value: 'Asia/Bali', label: 'Bali (UTC+8)' },
+    { value: 'Asia/Shanghai', label: 'Shanghai (UTC+8)' },
+    { value: 'Asia/Tokyo', label: 'Tokyo (UTC+9)' },
+    { value: 'Australia/Sydney', label: 'Sydney (UTC+10)' },
+    { value: 'Pacific/Guadalcanal', label: 'Guadalcanal (UTC+11)' },
+    { value: 'Pacific/Auckland', label: 'Auckland (UTC+12)' }
+],
+
+
 
 
 };
