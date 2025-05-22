@@ -465,11 +465,6 @@ window.onload = async function () {
       allDaymarkers.style.opacity = '1'; // Show allDaymarkers
   }, 4000);
 
-
-
-  // var siteName = 'earthcal';
-  // window.subSource = 'earthcal'; // Make subSource globally accessible
-
     updateBackgroundColor();   //Updates colors for night and day themese
     updateHighlightColor(); //Updates colors for night and day themese
 
@@ -1140,7 +1135,7 @@ displayDayInfo(targetDate, userLanguage, userTimeZone);
                 <!--<div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>-->
             </div>
     <!--CURRENT-->
-            <div id="all-current-datecycles" style="overflow-y: auto;height:calc(100vh - 285px);width:fit-content;margin-left:auto;margin-right:12px;margin-top:140px;  position: relative;background:none;">
+            <div id="all-current-datecycles" style="overflow-y: auto;height:calc(100vh - 0px);width:fit-content;margin-left:auto;margin-right:12px;margin-top:140px;  position: relative;background:none;">
                 <div id="top-gradient-current" class="top-gradient-overlay"></div>
                     <div id="current-datecycles" class="date-info" style="overflow-y: auto;position: relative;height:auto;
                     z-index: 21;
@@ -1291,7 +1286,11 @@ displayDayInfo(targetDate, userLanguage, userTimeZone);
 
 
 <!-- PALETTE MAIN BUTTONS -->
-  <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute;">
+  <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute; background: var(--general-background);
+  padding:
+15px 0px 10px 0px;
+  border-radius:
+6px;">
 
     <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
 
@@ -1684,20 +1683,12 @@ function tourTaken() {
 
 
 <script src="1-event-management.js?v=2"></script>
-<script src="1-calendar-scripts.js"></script>
+<script src="js/calendar-scripts.js"></script>
 <script src="js/kin-cycles.js"></script>
 
 <!-- <script src="https://api.earthen.io/subscription-system.js?v=2"></script> -->
 <!-- <script src="https://api.earthen.io/core-functions.js"></script> -->
-
-
 <!--<script src="1-subscription.js"></script>-->
-
 <!-- registration system-->
-
-
-
-
-
 
 </html>

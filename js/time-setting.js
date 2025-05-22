@@ -17,12 +17,13 @@ async function getUserData() {
         try {
             parsedCache = JSON.parse(cacheToken);
         } catch (e) {
-            console.warn("Corrupt cache detected, will fetch fresh data.");
+            console.warn("[EarthCal] Corrupt cache detected, will fetch fresh data.");
         }
     }
 
     // Scenario 2: URL parameters present
     if (buwanaIdParam && langParam && tzParam) {
+        console.log("[EarthCal] Using URL parameters for user data.");
         const userData = await fetchUserData(buwanaIdParam);
         if (userData) {
             userLanguage = langParam;
@@ -37,7 +38,6 @@ async function getUserData() {
 
             displayUserData(userTimeZone, userLanguage);
             await setCurrentDate(userTimeZone, userLanguage);
-
             sendUpRegistration();
         }
         return;
@@ -45,6 +45,8 @@ async function getUserData() {
 
     // Scenario 3: Cache exists and is valid
     if (parsedCache && parsedCache.time_zone && parsedCache.language) {
+        console.log("[EarthCal] Loaded user data from cache:", parsedCache);
+
         userLanguage = parsedCache.language;
         userTimeZone = parsedCache.time_zone;
 
@@ -57,14 +59,17 @@ async function getUserData() {
 
         displayUserData(userTimeZone, userLanguage);
         await setCurrentDate(userTimeZone, userLanguage);
-
         sendUpRegistration();
         return;
+    } else if (cacheToken && !parsedCache) {
+        console.warn("[EarthCal] Failed to parse cached user data.");
     }
 
     // Scenario 4: Logged-in user with session
     const sessionData = await fetchUserData(); // No param: session will be used
     if (sessionData && sessionData.logged_in) {
+        console.log("[EarthCal] Loaded user data from active session.");
+
         localStorage.setItem("basic_user_data", JSON.stringify(sessionData));
 
         userLanguage = sessionData.language_id;
@@ -85,6 +90,7 @@ async function getUserData() {
     // Scenario 5/6: Attempt fallback using buwana_id from cache or params
     const fallbackId = parsedCache?.buwana_id || buwanaIdParam;
     if (fallbackId) {
+        console.log(`[EarthCal] Attempting fallback using buwana_id: ${fallbackId}`);
         const fallbackData = await fetchUserData(fallbackId);
         if (fallbackData) {
             userLanguage = fallbackData.language_id;
@@ -106,6 +112,7 @@ async function getUserData() {
     }
 
     // Scenario 1: Completely new visitor
+    console.warn("[EarthCal] No user data found. Falling back to browser defaults.");
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -121,31 +128,6 @@ async function getUserData() {
 }
 
 
-
-
-
-
-async function fetchUserData(buwanaId = null) {
-    try {
-        const response = await fetch('https://buwana.ecobricks.org/earthcal/fetch_basic_user_data.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: buwanaId ? `buwana_id=${encodeURIComponent(buwanaId)}` : null,
-            credentials: 'include' // Send cookies for session-based login
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to fetch user data.");
-        }
-
-        const data = await response.json();
-
-        return data.logged_in ? data : null;
-    } catch (err) {
-        console.error("User data fetch failed:", err);
-        return null;
-    }
-}
 
 
 async function displayUserData(time_zone, language) {
@@ -182,9 +164,9 @@ async function displayUserData(time_zone, language) {
               onmouseout="this.style.textDecoration='none'">
               ${userDetailsString} ⚙️
         </span>
-        <span id="user-session-status" 
-              title="Login status" 
-              style="cursor:pointer;font-size:0.9em;" 
+        <span id="user-session-status"
+              title="Login status"
+              style="cursor:pointer;font-size:0.9em;"
               onclick="sendUpRegistration()">
               ${loginIndicator}
         </span>
@@ -193,6 +175,34 @@ async function displayUserData(time_zone, language) {
     updateTime();
     setInterval(updateTime, 1000);
 }
+
+
+
+
+
+
+async function fetchUserData(buwanaId = null) {
+    try {
+        const response = await fetch('https://buwana.ecobricks.org/earthcal/fetch_basic_user_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: buwanaId ? `buwana_id=${encodeURIComponent(buwanaId)}` : null,
+            credentials: 'include' // Send cookies for session-based login
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch user data.");
+        }
+
+        const data = await response.json();
+
+        return data.logged_in ? data : null;
+    } catch (err) {
+        console.error("User data fetch failed:", err);
+        return null;
+    }
+}
+
 
 
 

@@ -315,7 +315,7 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
     // Adjust the height of the registration footer
-    footer.style.height = "0px";
+    footer.style.height = "10px";
       footer.style.marginBottom = "unset";
     // Make the email registration section visible
     emailRegistration.style.display = "none";

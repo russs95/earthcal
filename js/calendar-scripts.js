@@ -34,9 +34,9 @@ function prevYearClick() {
   updateWeekTitles(currentYear - 1);
   updateDayIds(currentYear - 1);
   updateDayTitles(currentYear - 1);
-   
+
   targetDate = new Date((currentYear - 1), 0, 1);
-  
+
   const allPaths = document.querySelectorAll("svg path");
   allPaths.forEach((path) => {
     path.classList.remove("active");
@@ -55,7 +55,7 @@ function nextYearClick() {
   updateWeekTitles(currentYear + 1);
   updateDayIds(currentYear + 1);
   updateDayTitles(currentYear + 1);
-  
+
   targetDate = new Date((currentYear + 1), 0, 1);
   setYearsMonthsOn()
   const allPaths = document.querySelectorAll("svg path");
@@ -144,12 +144,12 @@ function updateDayTitles(year) {
 function formatDate(date) {
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   }
-  
+
   function getPhaseIndex(phase) {
     const phaseIndex = Math.round(phase * 30);
     return phaseIndex;
   }
-  
+
   function getMoonPhaseEmoji(phase) {
     const phaseIndex = getPhaseIndex(phase);
     if (phaseIndex <= 1) return '🌑'; // New Moon
@@ -162,7 +162,7 @@ function formatDate(date) {
     if (phaseIndex > 24 && phaseIndex <= 29) return '🌘'; // Waning Crescent
     if (phaseIndex > 29 && phaseIndex <= 31) return '🌑'; // New Moon
   }
-  
+
   function getMoonPhaseName(phase) {
     const phaseIndex = getPhaseIndex(phase);
     if (phaseIndex > 0 && phaseIndex <= 1) return 'New Moon';
@@ -179,12 +179,12 @@ function formatDate(date) {
   function displayPlanetInfoOnHover(event) {
     // Get the target path element
     const path = event.target;
-  
+
     // If the path's ID is '366-day', do not process further
     if (path.id === '366-day') {
       return;
     }
-  
+
     // Extract the date information from the element's ID
     const dateParts = path.id.split('-');
     const dayOfYear = parseInt(dateParts[0]);
@@ -199,7 +199,7 @@ function formatDate(date) {
 
 
     displayMoonPhaseInDiv(date);
-   
+
   // Check if the moon-cycle div is set to display block
   // if (document.getElementById('moon-cycle').style.display === 'block') {
   //   displayMoonPhaseInDiv(date);
@@ -225,8 +225,8 @@ function formatDate(date) {
     UpdateSaturnData(date);
   }
 }
-  
-  
+
+
 
 function displayMoonPhaseOnTouch(pathID) {
   // Rest of your code to handle the touch event
@@ -242,8 +242,8 @@ function displayMoonPhaseOnTouch(pathID) {
   displayDayInfo(targetDate, userLanguage, userTimeZone);
 
   displayMoonPhaseInDiv(date);
-  
-  
+
+
   // // Check if the moon-cycle div is set to display block
   // if (document.getElementById('moon-cycle').style.display === 'block') {
   //   displayMoonPhaseInDiv(date);
@@ -332,13 +332,13 @@ function focusRestrict(event) {
     // Set the latitude and longitude to use for the moon phase calculations
     const lat = -8.506853;
     const lon = 115.262477;
-  
+
     // Calculate the moon illumination details and get the phase, emoji, and phase index
     const moonIllumination = SunCalc.getMoonIllumination(date);
     const phase = moonIllumination.phase;
     const moonPhaseEmoji = getMoonPhaseEmoji(phase);
     const phaseIndex = getPhaseIndex(phase);
-  
+
     // Calculate the moon position and get the distance, angle, illuminated fraction, and phase name
     const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
     const moonDistance = moonPosition.distance.toFixed(2);
@@ -353,18 +353,18 @@ function focusRestrict(event) {
     // Update the moon phase div with the calculated details
     const moonPhaseDiv = document.getElementById('moon-phase');
     const moonPhaseInfoDiv = document.getElementById('moon-info');
-  
+
     moonPhaseDiv.innerHTML = `${moonPhaseEmoji}`;
     moonPhaseInfoDiv.innerHTML = `${moonPhaseName} <br>Illuminated Fraction: ${illuminatedFraction} <br>Angle: ${moonAngle}°<br>Distance: ${moonDistance} km<br>Percent of Max Distance: ${per_MoonDist.toFixed(0)} %`;
 
     adjustMoonSize(per_MoonDist)
   }
-  
-  
+
+
 
   function adjustMoonSize(per_MoonDist) {
     let minSize, maxSize;
-  
+
     if (window.innerWidth < 700) {
       minSize = 1.3;
       maxSize = 2;
@@ -374,7 +374,7 @@ function focusRestrict(event) {
      /* minSize = 3.7;
       maxSize = 4.6;*/
     }
-  
+
     const size = ((minSize - maxSize) * per_MoonDist / 100) + maxSize;
     const moonPhase = document.getElementById("moon-phase");
     moonPhase.style.fontSize = `${size.toFixed(2)}em`;
@@ -386,10 +386,10 @@ function focusRestrict(event) {
     dayPaths.forEach((path) => {
       path.addEventListener('mouseover', displayPlanetInfoOnHover);
       path.addEventListener('mouseout', redisplayTargetData);
-  
+
     });
   }
-  
+
   // Initialize the event listeners and display the current Moon phase
   addMoonPhaseInteraction();
   displayCurrentMoonPhase();
@@ -403,30 +403,30 @@ function focusRestrict(event) {
       }
     }
   }
-  
+
   // Updates the Moon SVG display based on the moon phase for the given date
   function updateMoonPhase(date) {
     const moonPhase = SunCalc.getMoonIllumination(date).phase;
     const phaseIndex = getPhaseIndex(moonPhase);
-  
+
     updateMoonPhaseDisplay(phaseIndex);
-  
+
     // Display debugging information
     //displayDebugInfo(moonPhase, phaseIndex, `phase-${phaseIndex}-moon`);
   }
-  
+
   // Resets the Moon phase path to the one that corresponds to the current date
   function resetMoonPhase() {
     // const currentDate = new Date();
     updateMoonPhase(targetDate);
   }
-  
+
   // Handles the event when a user hovers over a Sun path
   function handleDayPathMouseOver(event) {
     const dayPathId = event.target.id;
     const [dayOfYear, day, month, year] = dayPathId.split('-').slice(0, 4);
     const date = new Date(year, month - 1, day);
-  
+
     updateMoonPhase(date);
   }
 
@@ -438,7 +438,7 @@ function handleDayPathTouchStart(pathId) {
 
   updateMoonPhase(date);
 }
-  
+
   // Handles the event when a user hovers off a Day path
   function handleDayPathMouseOut(event) {
     resetMoonPhase();
@@ -448,7 +448,7 @@ function handleDayPathTouchStart(pathId) {
     function handleDayPathTouchEnd(event) {
       resetMoonPhase();
     }
-  
+
 
 
 
@@ -457,20 +457,20 @@ function handleDayPathTouchStart(pathId) {
 
     function addDayPathEventListeners() {
       const earthCyclesSVG = document.getElementById('EarthCycles');
-    
+
       if (!earthCyclesSVG) {
         console.error('EarthCycles SVG element not found');
         return;
       }
-    
+
       const dayPaths = earthCyclesSVG.querySelectorAll('path');
-    
+
       dayPaths.forEach((path) => {
         if (path.id.endsWith('-day')) {
           path.addEventListener('mouseover', handleDayPathMouseOver);
           path.addEventListener('mouseout', handleDayPathMouseOut);
           path.addEventListener('click', handleDayPathMouseOver);
-    
+
           // Add the touch event listeners to the path
          // path.addEventListener('touchstart', handleDayPathTouchStart);
           path.addEventListener('touchend', handleDayPathTouchEnd);
@@ -483,7 +483,7 @@ function handleDayPathTouchStart(pathId) {
     //updateCurrentMoonPhase();  delete
     addMoonPhaseInteraction();
   });
-  
+
   // Initialize event listeners for the Sun SVG paths and reset the Moon phase to the current date
   addDayPathEventListeners();
   resetMoonPhase();
