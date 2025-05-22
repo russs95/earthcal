@@ -166,7 +166,7 @@ async function displayUserData(time_zone, language) {
     if (el) el.textContent = time;
 }
 
-    const userDetailsString = `| ${time_zone} | ${language.toUpperCase()}`;
+    const userDetailsString = `| ${getUtcOffset(time_zone)} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
 
     const loginIndicator = isUserLoggedIn
