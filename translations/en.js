@@ -126,7 +126,6 @@ export const translations = {
     { value: 'Asia/Karachi', label: 'Karachi (UTC+5)' },
     { value: 'Asia/Dhaka', label: 'Dhaka (UTC+6)' },
     { value: 'Asia/Jakarta', label: 'Jakarta (UTC+7)' },
-    { value: 'Asia/Yogyakarta', label: 'Yogyakarta (UTC+7)' },
     { value: 'Asia/Singapore', label: 'Singapore (UTC+8)' },
     { value: 'Asia/Bali', label: 'Bali (UTC+8)' },
     { value: 'Asia/Shanghai', label: 'Shanghai (UTC+8)' },
