@@ -152,21 +152,22 @@ async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
 
     function updateTime() {
-        const now = new Date();
-        const options = {
-            timeZone: time_zone,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        };
+    const now = new Date();
 
-        const currentTime = now.toLocaleTimeString('en-US', options);
-        const currentUserTimeEl = document.getElementById('current-user-time');
-        if (currentUserTimeEl) {
-            currentUserTimeEl.textContent = currentTime;
-        }
+    const currentTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: time_zone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).format(now);
+
+    const currentUserTimeEl = document.getElementById('current-user-time');
+    if (currentUserTimeEl) {
+        currentUserTimeEl.textContent = currentTime;
     }
+}
+
 
     const userDetailsString = `| ${time_zone} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
