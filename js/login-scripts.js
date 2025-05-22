@@ -12,7 +12,7 @@ async function sendUpRegistration() {
     const emailRegistration = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
-//    const downArrow = document.getElementById("reg-down-button");
+    const downArrow = document.getElementById("reg-down-button");
 
     const buwanaId = localStorage.getItem('buwana_id');
 
