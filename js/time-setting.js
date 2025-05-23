@@ -1,4 +1,5 @@
 // Declare globally near the top of your app
+// Declare globally near the top of your app
 let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
@@ -10,121 +11,74 @@ async function getUserData() {
     const tzParam = urlParams.get('timezone');
     const statusParam = urlParams.get('status');
 
+    const isOffline = !navigator.onLine;
     const cacheToken = localStorage.getItem('basic_user_data');
     let parsedCache = null;
 
     if (cacheToken) {
         try {
             parsedCache = JSON.parse(cacheToken);
-        } catch (e) {
-            console.warn("[EarthCal] Corrupt cache detected, will fetch fresh data.");
+        } catch {
+            console.warn("[EarthCal] Corrupt cache detected.");
         }
     }
 
-    // Scenario 2: URL parameters present
-    if (buwanaIdParam && langParam && tzParam) {
-        console.log("[EarthCal] Using URL parameters for user data.");
-        const userData = await fetchUserData(buwanaIdParam);
-        if (userData) {
-            userLanguage = langParam;
-            userTimeZone = tzParam;
-
-            userProfile = {
-                first_name: userData.first_name,
-                earthling_emoji: userData.earthling_emoji,
-                email: userData.email,
-                status: statusParam || "returning"
-            };
-
-            displayUserData(userTimeZone, userLanguage);
-            await setCurrentDate(userTimeZone, userLanguage);
-            sendUpRegistration();
-        }
+    // Always try cache first
+    if (parsedCache?.time_zone && parsedCache?.language) {
+        console.log("[EarthCal] Using cached user data.");
+        setUserContext(parsedCache, parsedCache.language, parsedCache.time_zone, "returning");
         return;
     }
 
-    // Scenario 3: Cache exists and is valid
-    if (parsedCache && parsedCache.time_zone && parsedCache.language) {
-        console.log("[EarthCal] Loaded user data from cache:", parsedCache);
-
-        userLanguage = parsedCache.language;
-        userTimeZone = parsedCache.time_zone;
-
-        userProfile = {
-            first_name: parsedCache.first_name,
-            earthling_emoji: parsedCache.earthling_emoji,
-            email: parsedCache.email,
-            status: "returning"
-        };
-
-        displayUserData(userTimeZone, userLanguage);
-        await setCurrentDate(userTimeZone, userLanguage);
-        sendUpRegistration();
-        return;
-    } else if (cacheToken && !parsedCache) {
-        console.warn("[EarthCal] Failed to parse cached user data.");
-    }
-
-    // Scenario 4: Logged-in user with session
-    const sessionData = await fetchUserData(); // No param: session will be used
-    if (sessionData && sessionData.logged_in) {
-        console.log("[EarthCal] Loaded user data from active session.");
-
-        localStorage.setItem("basic_user_data", JSON.stringify(sessionData));
-
-        userLanguage = sessionData.language_id;
-        userTimeZone = sessionData.time_zone;
-
-        userProfile = {
-            first_name: sessionData.first_name,
-            earthling_emoji: sessionData.earthling_emoji,
-            email: sessionData.email,
-            status: "returning"
-        };
-
-        displayUserData(userTimeZone, userLanguage);
-        await setCurrentDate(userTimeZone, userLanguage);
+    // If offline and no usable cache
+    if (isOffline) {
+        console.warn("[EarthCal] Offline and no valid cache. Falling back to defaults.");
+        useDefaultUser();
         return;
     }
 
-    // Scenario 5/6: Attempt fallback using buwana_id from cache or params
+    // Fallback ID logic (from cache or URL)
     const fallbackId = parsedCache?.buwana_id || buwanaIdParam;
-    if (fallbackId) {
-        console.log(`[EarthCal] Attempting fallback using buwana_id: ${fallbackId}`);
-        const fallbackData = await fetchUserData(fallbackId);
-        if (fallbackData) {
-            userLanguage = fallbackData.language_id;
-            userTimeZone = fallbackData.time_zone;
+    const userData = fallbackId ? await fetchUserData(fallbackId) : await fetchUserData();
 
-            userProfile = {
-                first_name: fallbackData.first_name,
-                earthling_emoji: fallbackData.earthling_emoji,
-                email: fallbackData.email,
-                status: "returning"
-            };
+    if (userData) {
+        const lang = langParam || userData.language_id;
+        const tz = tzParam || userData.time_zone;
 
-            displayUserData(userTimeZone, userLanguage);
-            await setCurrentDate(userTimeZone, userLanguage);
-
-            localStorage.setItem("basic_user_data", JSON.stringify(fallbackData));
-            return;
-        }
+        console.log("[EarthCal] Remote user data loaded.");
+        setUserContext(userData, lang, tz, statusParam || userData.status || "returning");
+        localStorage.setItem("basic_user_data", JSON.stringify(userData));
+    } else {
+        console.warn("[EarthCal] Failed to load remote user data.");
+        useDefaultUser();
     }
+}
 
-    // Scenario 1: Completely new visitor
-    console.warn("[EarthCal] No user data found. Falling back to browser defaults.");
+function setUserContext(data, lang, tz, status) {
+    userLanguage = lang;
+    userTimeZone = tz;
+    userProfile = {
+        first_name: data.first_name || "Earthling",
+        earthling_emoji: data.earthling_emoji || "🐸",
+        email: data.email || null,
+        status
+    };
+    displayUserData(userTimeZone, userLanguage);
+    setCurrentDate(userTimeZone, userLanguage);
+    sendUpRegistration();
+}
+
+function useDefaultUser() {
     userLanguage = navigator.language.slice(0, 2);
-    userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
+    userTimeZone = "America/New_York";
     userProfile = {
         first_name: "Earthling",
-        earthling_emoji: "🌍",
+        earthling_emoji: "🐸",
         email: null,
         status: "new"
     };
-
     displayUserData(userTimeZone, userLanguage);
-    await setCurrentDate(userTimeZone, userLanguage);
+    setCurrentDate(userTimeZone, userLanguage);
 }
 
 
