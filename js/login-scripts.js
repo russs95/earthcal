@@ -29,12 +29,30 @@ async function sendUpRegistration() {
         });
         const userData = await userResponse.json();
 
+        //If user is not logged in
         if (!userData.logged_in) {
-            console.warn("Session expired or invalid. Showing login form.");
+            console.warn("Session expired or invalid. Using default user data.");
+
+            window.userProfile = {
+                first_name: "Earthling",
+                earthling_emoji: "🐸",
+                language_id: "en",
+                time_zone: "America/Toronto", // EST/EDT
+                location_full: "Ottawa, Ontario, Canada",
+                location_lat: 45.4215,
+                location_long: -75.6972,
+                connection_id: null,
+                status: "guest"
+            };
+
+            window.userLanguage = "en";
+            window.userTimeZone = "America/Toronto";
+
             showLoginForm(emailRegistration, loggedInView, null);
             updateFooterAndArrowUI(footer, upArrow, downArrow);
             return;
         }
+
 
         // Valid session — proceed with user data
         window.userProfile = {
@@ -45,8 +63,11 @@ async function sendUpRegistration() {
             time_zone: userData.time_zone,
             last_login: userData.last_login,
             location_full: userData.location_full,
+            location_lat: userData.location_lat,
+            location_long: userData.location_long,
             connection_id: userData.connection_id
         };
+
 
         window.userLanguage = userData.language_id.toLowerCase();
         window.userTimeZone = userData.time_zone;

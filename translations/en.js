@@ -113,6 +113,7 @@ export const translations = {
     { value: 'America/Denver', label: 'Denver (UTC-7)' },
     { value: 'America/Chicago', label: 'Chicago (UTC-6)' },
     { value: 'America/New_York', label: 'New York (UTC-5)' },
+    { value: 'America/Toronto', label: 'Toronto (UTC-5/UTC-4 DST)' },
     { value: 'America/Halifax', label: 'Halifax (UTC-4)' },
     { value: 'America/Sao_Paulo', label: 'São Paulo (UTC-3)' },
     { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },

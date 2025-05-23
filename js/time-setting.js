@@ -83,31 +83,16 @@ function useDefaultUser() {
 
 
 
-
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
 
-    function updateTime() {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: time_zone,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hourCycle: 'h23'
-    });
+    // Update global timezone
+    userTimeZone = time_zone;
 
-    const time = formatter.format(now);
-    const el = document.getElementById('current-user-time');
-    if (el) el.textContent = time;
-}
-
-    const userDetailsString = `| ${getUtcOffset(time_zone)} | ${language.toUpperCase()}`;
+    const userDetailsString = `| ${getUtcOffset(userTimeZone)} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
 
-    const loginIndicator = isUserLoggedIn
-        ? '🟢'
-        : '⚪';
+    const loginIndicator = isUserLoggedIn ? '🟢' : '⚪';
 
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
     userTimezoneLangDiv.innerHTML = `
@@ -127,8 +112,29 @@ async function displayUserData(time_zone, language) {
     `;
 
     updateTime();
-    setInterval(updateTime, 1000);
+
+    // Ensure only one interval is running
+    if (!window.updateTimeInterval) {
+        window.updateTimeInterval = setInterval(updateTime, 1000);
+    }
 }
+
+
+function updateTime() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: userTimeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    });
+
+    const time = formatter.format(now);
+    const el = document.getElementById('current-user-time');
+    if (el) el.textContent = time;
+}
+
 
 
 
