@@ -261,9 +261,16 @@ async function showLoggedInView(calendarData = {}) {
 
             <p id="cal-datecycle-count"></p>
             ${loginMessage}
-            /*<p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                ${location_full || ''}
-            </p>*/
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+    ${location_full || ''}
+            </p>
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+                ${window.userProfile.time_zone || 'Time zone unknown'}
+            </p>
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+                Lat: ${window.userProfile.location_lat ?? '—'}, Long: ${window.userProfile.location_long ?? '—'}
+            </p>
+
         </div>
     `;
 
