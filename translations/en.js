@@ -148,6 +148,11 @@ export const translations = {
 ],
 
 
+    addCycle: {
+        titlePrefix: "Add an event for",
+        addButton: "+ Add DateCycle",
+        placeholderCalendar: "My Calendar"
+    }
 
 
 };
