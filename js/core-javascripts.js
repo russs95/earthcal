@@ -214,6 +214,10 @@ function updateHighlightColor() {
   }
 }
 
+
+//<div class="menu-page-item">${userStatusHTML}</div>
+
+
 let modalOpen = false;
 
 async function openMainMenu() {
@@ -248,7 +252,7 @@ async function openMainMenu() {
             <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
 
-        <div class="menu-page-item">${userStatusHTML}</div>
+        
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
             ${mainMenu.featureTour}
