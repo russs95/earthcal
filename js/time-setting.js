@@ -65,7 +65,7 @@ function setUserContext(data, lang, tz, status) {
     };
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
-
+    // sendUpRegistration();
 }
 
 function useDefaultUser() {
@@ -82,7 +82,6 @@ function useDefaultUser() {
 }
 
 
-
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
 
@@ -91,7 +90,6 @@ async function displayUserData(time_zone, language) {
 
     const userDetailsString = `| ${getUtcOffset(userTimeZone)} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
-
     const loginIndicator = isUserLoggedIn ? '🟢' : '⚪';
 
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
@@ -103,21 +101,32 @@ async function displayUserData(time_zone, language) {
               onmouseout="this.style.textDecoration='none'">
               ${userDetailsString} ⚙️
         </span>
-        <span id="user-session-status"
-              title="Login status"
-              style="cursor:pointer;font-size:0.9em;"
-              onclick="sendUpRegistration()">
-              ${loginIndicator}
+    `;
+
+    // Update the session status indicator
+    const sessionStatus = document.getElementById('user-session-status');
+    if (sessionStatus) {
+        sessionStatus.innerHTML = `
+        <span title="Login status" style="cursor:pointer;" onclick="sendUpRegistration()">
+            ${loginIndicator} ${isUserLoggedIn ? 'Logged in' : 'Not logged in'}
         </span>
     `;
+    }
+
+// Update SVG login indicator color
+    const loginSvg = document.getElementById('user-logged-in');
+    if (loginSvg) {
+        loginSvg.style.stroke = isUserLoggedIn ? '#55d400' : '#999999';
+    }
+
 
     updateTime();
 
-    // Ensure only one interval is running
     if (!window.updateTimeInterval) {
         window.updateTimeInterval = setInterval(updateTime, 1000);
     }
 }
+
 
 
 function updateTime() {

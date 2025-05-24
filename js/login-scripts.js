@@ -109,12 +109,13 @@ function checkUserSession() {
 }
 
 
-// Helper function to update footer and arrows
+// Helper function to update footer and arrows when the registration-footer is displayed
 function updateFooterAndArrowUI(footer, upArrow, downArrow) {
-    footer.style.height = "100vh";
+
+    footer.style.height = "100%";
     footer.style.marginBottom = "0px";
     upArrow.style.display = "none";
-    downArrow.style.display = "block !important";
+    downArrow.style.display = "block";
 }
 
 
@@ -343,8 +344,8 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
     // Adjust the height of the registration footer
-    footer.style.height = "10px";
-      footer.style.marginBottom = "unset";
+    footer.style.height = "25px";
+      // footer.style.marginBottom = "unset";
     // Make the email registration section visible
     emailRegistration.style.display = "none";
     upArrow.style.display = "block";

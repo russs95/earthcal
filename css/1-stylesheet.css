@@ -2250,32 +2250,6 @@ color: #b2b1b1;
 
  ---------------------------*/
 
-#registration-footer {
-  width: 100%;
-  height: 25px;
-  position: fixed;
-  bottom: 0;
-  color: var(--subdued-text);
-  text-align: center;
-  transition: margin-bottom 0.3s, height 0.3s;
-  overflow: scroll;
-  z-index: 50;
-  margin-bottom: -15px;
-  display: flex;
-  flex-flow: column;
-    cursor: pointer;
-}
-
-
-#registration-footer:hover {
-    margin-bottom: 0px;
-    cursor:pointer;
-}
-
-
-#reg-up-button:hover {
-    margin: 0px auto 6px auto;
-}
 
 
 .registration-footer-holder {
@@ -2305,12 +2279,6 @@ color: #b2b1b1;
 }
 
 
-/*#reg-up-button {*/
-/*    !*margin: 0px auto -10px auto;*!*/
-/*    width: 200px;*/
-/*}*/
-
-
 
 
 
@@ -2333,40 +2301,63 @@ color: #b2b1b1;
     height: fit-content;
 }
 
-#reg-up-button {
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-    width: 100px;
-    bottom: 3px;
-    position: fixed;
-    left: 0;
-    transition: 0.3s;
-}
-
 #reg-down-button {
     border: none;
     background-color: transparent;
     cursor: pointer;
     padding: 0;
     z-index: 51;
-    display: block !important;
+    display: none;
 }
 
-@media screen and (max-width: 699px) {
 
+
+#registration-footer {
+    width: 100%;
+    height: 25px;
+    position: fixed;
+    bottom: -14px;
+    color: var(--subdued-text);
+    text-align: center;
+    transition: transform 0.3s ease, height 0.5s ease;
+    overflow: scroll;
+    z-index: 50;
+    display: flex;
+    flex-flow: column;
+    cursor: pointer;
+}
+
+#reg-up-button {
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    width: 100px;
+    bottom: 4px;
+    position: fixed;
+    left: 0;
+    transition: transform 0.3s ease;
+    z-index: 52;
+}
+
+/* Hover effect: move both reg-up-button and registration-footer */
+#reg-up-button:hover {
+    transform: translateY(-12px);
+}
+
+#reg-up-button:hover ~ #registration-footer {
+    transform: translateY(-12px);
+}
+
+/* Responsive styling */
+
+@media screen and (max-width: 699px) {
     #reg-up-button {
-        margin:0px -20px 6px auto;
+        margin: 0px -20px 6px auto;
         height: 30px;
     }
 
-    #reg-up-button:hover {
-        margin:0px 0px 6px auto;
-        opacity: 1 !important;
-    }
-
     #reg-down-button {
-        width:15%;
+        width: 15%;
         margin: 20px auto 0px auto;
         height: 19px;
     }
@@ -2378,20 +2369,13 @@ color: #b2b1b1;
 
 @media screen and (min-width: 701px) and (max-width: 1200px) {
     #reg-up-button {
-
         width: 25%;
         height: 38px;
         margin-bottom: 5px;
-
-    }
-
-    #reg-up-button:hover {
-        margin-bottom: 20px;
-        opacity: 1 !important;
     }
 
     #reg-down-button {
-        width:15%;
+        width: 15%;
         margin: 20px auto 0px auto;
         height: 19px;
     }
@@ -2402,20 +2386,14 @@ color: #b2b1b1;
 }
 
 @media screen and (min-width: 1201px) {
-
     #reg-up-button {
-        margin: 0px -230px 6px auto;
+        margin: 0px auto 6px 30px;
         width: 25%;
         height: 40px;
     }
 
-    #reg-up-button:hover {
-        margin: 0px -185px 5px auto;
-        opacity: 1 !important;
-    }
-
     #reg-down-button {
-        width:20%;
+        width: 20%;
         margin: 10px 0px 25px auto;
         height: 20px;
     }
@@ -2424,8 +2402,6 @@ color: #b2b1b1;
         height: 20px;
     }
 }
-
-
 
 
 

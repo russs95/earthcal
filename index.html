@@ -632,14 +632,15 @@ openPlanetInfoBox();
 </div>
 
 <!-- LOGIN FOOTER CURTAIN -->
+
+<button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
+
 <div id="registration-footer">
-    <div class="reg-top-section">
-        <button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
-    </div>
     <div class="registration-footer-holder">
         <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
             <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
         </button>
+        <div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-42px;"></div>
 
         <div class="form-container" id="login-form-section">
             <div style="text-align:center;width:100%;" >
@@ -706,21 +707,6 @@ openPlanetInfoBox();
             </form>
             <p style="text-align:center; font-size:0.9em;margin-top:30px;">Buwana accounts power regenerative apps like this Earthcal. <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" target="_blank">Get yours</a>.</p>
         </div><!--Login Form -->
-
-        <!-- To be shown upon login without activation
-<div id="activate-earthcal-account" style="display:none; text-align:center; margin:auto;">
-    <p>It looks like you haven't yet connected your Buwana account with Earthcal.</p>
-
-    <button class="confirmation-blur-button enabled" style="margin:10px;" onclick="activateEarthcalAccount()">Connect!</button>
-
-    <button class="confirmation-blur-button" style="margin:10px; background:lightgray;" onclick="logoutBuwana()">Log out</button>
-    <p style="font-size:0.9em; text-align:center;">
-        By activating EarthCal on your Buwana account you agree to our
-        <a href="javascript:void(0);" onclick="viewTerms()">terms of use.</a>
-    </p>
-</div> -->
-
-
 
         <!--To be shown upon login-->
         <div id="logged-in-view" style="display:none; text-align:center;">
@@ -1475,59 +1461,49 @@ openPlanetInfoBox();
 
 
 <script>
-    function showIntroModal() {
+    async function showIntroModal() {
         const tokenKey = 'newVersionInfoSeen';
-        // Use the global language variable
-        alert('hello!!')
-        const translations = await loadTranslations(userLanguage.toLowerCase());
-        const versioningTranslations = translations.versioning;
+        const lang = (userLanguage || 'en').toLowerCase();
 
-        const content = versioningTranslations[language] || versioningTranslations['EN']; // Default to English
+        const translations = await loadTranslations(lang);
+        const content = translations.versioning;
 
-
-        // Prepare the modal content dynamically
         const featureList = content.features.map(feature => `<li>${feature}</li>`).join('');
         const modalContent = `
-            <div style="text-align:center;">
-                <h1>${content.title}</h1>
-                <h4>${content.subtitle}</h4>
-            </div>
-            <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
-                <ul style="font-size:1em;">${featureList}</ul>
-            </div>
-            <div style="display:flex;flex-flow:column;justify-content:center;">
-                <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
-                <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
-            </div>
-        `;
+        <div style="text-align:center;">
+            <h1>${content.title}</h1>
+            <h4>${content.subtitle}</h4>
+        </div>
+        <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
+            <ul style="font-size:1em;">${featureList}</ul>
+        </div>
+        <div style="display:flex;flex-flow:column;justify-content:center;">
+            <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
+            <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
+        </div>
+    `;
 
-        // Populate the modal with the content
         const modalBox = document.getElementById('modal-content');
         modalBox.innerHTML = modalContent;
 
-        // Show the modal
         const modal = document.getElementById('form-modal-message');
         modal.classList.remove('modal-hidden');
         modal.classList.add('modal-visible');
         document.getElementById("page-content").classList.add("blur");
 
-        // Add click event to the "Got it!" button
-        const gotItButton = document.getElementById('got-it-button');
-        gotItButton.addEventListener('click', function () {
+        document.getElementById('got-it-button').addEventListener('click', function () {
             closeTheModal();
-            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
+            localStorage.setItem(tokenKey, 'true');
         });
 
-        // Add click event to the "Take Tour" button
-        const takeTourButton = document.getElementById('take-tour');
-        takeTourButton.addEventListener('click', function () {
+        document.getElementById('take-tour').addEventListener('click', function () {
             closeTheModal();
-            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
+            localStorage.setItem(tokenKey, 'true');
             guidedTour();
             sendDownRegistration();
         });
-
     }
+
 
 
     function checkTourToken() {
@@ -1668,6 +1644,10 @@ function onTouch(event) {
       path.classList.remove("final");
     });
   }
+
+
+
+
 
 
 

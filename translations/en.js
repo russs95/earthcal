@@ -20,7 +20,7 @@ export const translations = {
         title: "Welcome to EarthCal 0.9!",
         subtitle: "EarthCal has been completely overhauled in preparation for our 2025 v1.0 release. Major new features in v0.9 include:",
         features: [
-            "Months now break out!  Click any month's color bar to expand its circle.",
+            "Months now break out! Click any month's color bar to expand its circle.",
             "Add events and cycles: Hit the + to add events, goals, and to-dos to any day.",
             "Edit an event, push it forward a day or check it off!",
             "Initial multi-lingual support for five languages added.",
@@ -28,8 +28,9 @@ export const translations = {
             "The migratory cycle of the black heron is synced with the calendar."
         ],
         gotIt: "👍 Got it!",
-        tour: " 🌏 More: EarthCal Tour"
+        tour: " 🌏 More: EarthCal Tour",
     },
+
 
     settings: {
         languages: {
