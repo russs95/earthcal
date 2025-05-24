@@ -319,9 +319,7 @@ async function showUserCalSettings() {
     const translations = await loadTranslations(lang);
     const settingsContent = translations.settings;
 
-    const timezones = translations.timezones || fallbackToEnglish.timezones;
-
-
+    const timezones = translations.timezones;
 
     const timezoneOptions = timezones.map(tz => {
         const offset = getTimeZoneOffsetDisplay(tz.value);
