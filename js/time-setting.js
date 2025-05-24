@@ -270,6 +270,9 @@ async function displayDayInfo(date, language = 'en', time_zone = Intl.DateTimeFo
     // }
 }
 
+
+
+
 function getTimeZoneOffsetDisplay(timeZone) {
     const now = new Date();
     const formatter = new Intl.DateTimeFormat('en-US', {
