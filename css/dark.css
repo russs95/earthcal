@@ -23,6 +23,7 @@
     --night-day: #191919;
     --grey-trans: rgba(0, 0, 0, 0.718);
     --grey-trans-over: rgba(0, 0, 0, 0.9);
+    --date-controls: #21232f85;
 
 
     --hover-over: #02E1E2;
@@ -260,10 +261,7 @@
     background-size: contain;
 }
 
-#reg-up-button {
-  background: url(../svgs/up-reg-arrow-dark.svg) center no-repeat;
-  background-size: contain;
-}
+
 
 .reset-button {
   background-color: #b5c2d378;

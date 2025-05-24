@@ -24,6 +24,7 @@
     --day-day: #f2f2f2;
     --grey-trans: rgba(255, 255, 255, 0.91);
     --grey-trans-over: rgba(255, 255, 255, 0.98);
+   --date-controls: rgba(245, 245, 245, 0.55);
 
     --form-field-background: #5b5b5b80;
     --form-field-text: black;

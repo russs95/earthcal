@@ -640,7 +640,7 @@ openPlanetInfoBox();
         <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
             <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
         </button>
-        <div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-42px;"></div>
+        <div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-58px;font-family:'Mulish',sans-serif;"></div>
 
         <div class="form-container" id="login-form-section">
             <div style="text-align:center;width:100%;" >
@@ -1065,15 +1065,7 @@ openPlanetInfoBox();
         </div>
     </div>
 
-    <div id="date-controls" style="z-index: 29;position: fixed;
-  bottom: 0px;
-  left: 50%;
-  background-color: rgba(245, 245, 245, 0.55);
-  border-radius:
-15px;
-  padding:
-10px 20px 0px 20px;
-  transform: translateX(-50%);">
+    <div id="date-controls">
 
         <div id="time-controller" style="display: flex;flex-flow: row;width: 200px;height: 50px;">
 
@@ -1404,11 +1396,9 @@ openPlanetInfoBox();
             window.userTimeZone = userData.time_zone;
 
             // Update login status indicator
-            const sessionStatusEl = document.getElementById('user-session-status');
-            if (sessionStatusEl) {
-                sessionStatusEl.textContent = '🟢';
-                sessionStatusEl.title = `Logged in as ${userData.first_name} ${userData.earthling_emoji}`;
-            }
+            // Update interface with new session info
+            displayUserData(userData.time_zone, userData.language_id);
+
 
             const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
                 method: 'POST',

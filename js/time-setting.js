@@ -106,12 +106,28 @@ async function displayUserData(time_zone, language) {
     // Update the session status indicator
     const sessionStatus = document.getElementById('user-session-status');
     if (sessionStatus) {
+        let statusText = '';
+        let statusIcon = '';
+        const isConfirmedLogin = userProfile?.status !== 'guest' && checkUserSession();
+
+        if (isConfirmedLogin) {
+            statusIcon = '🟢';
+            statusText = `Logged in as ${userProfile.first_name || 'User'} ${userProfile.earthling_emoji || ''}`;
+        } else if (userProfile?.status === 'returning') {
+            statusIcon = '🟡';
+            statusText = `Cached user: ${userProfile.first_name || 'Earthling'} ${userProfile.earthling_emoji || ''}`;
+        } else {
+            statusIcon = '⚪';
+            statusText = 'Not logged in';
+        }
+
         sessionStatus.innerHTML = `
         <span title="Login status" style="cursor:pointer;" onclick="sendUpRegistration()">
-            ${loginIndicator} ${isUserLoggedIn ? 'Logged in' : 'Not logged in'}
+            ${statusIcon} ${statusText}
         </span>
     `;
     }
+
 
 // Update SVG login indicator color
     const loginSvg = document.getElementById('user-logged-in');
