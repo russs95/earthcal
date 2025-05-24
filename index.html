@@ -309,32 +309,15 @@ path[id*="week-"] {
  }
 
 
- #reg-sub-checker {
-  font-size: small;
-  padding: 7px;
-  border-radius: 5px;
-  margin-top: 8px;
-  color: var(--text-color);
-  display: none;
-}
+/* #reg-sub-checker {*/
+/*  font-size: small;*/
+/*  padding: 7px;*/
+/*  border-radius: 5px;*/
+/*  margin-top: 8px;*/
+/*  color: var(--text-color);*/
+/*  display: none;*/
+/*}*/
 
-#reg-up-button {
-    margin: 0px auto -2px auto;
-    width: 200px;
-}
-
-#registration-footer {
-    margin-bottom: 0px;
-}
-
-#registration-footer:hover {
-    margin-bottom: 25px;
-}
-
-
-#reg-up-button:hover {
-    margin: 0px auto 6px auto;   
-}
 
 
 
@@ -567,9 +550,9 @@ openPlanetInfoBox();
 //     if (!localStorage.getItem(tokenKey)) {
 // setTimeout(showIntroModal, 5000);
 // };
-//setTimeout(openCurrentMonthBreakout,4000);
-setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
-displayDayInfo(targetDate, userLanguage, userTimeZone);
+// //setTimeout(openCurrentMonthBreakout,4000);
+// setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
+// displayDayInfo(targetDate, userLanguage, userTimeZone);
 
 };
 
@@ -1096,20 +1079,29 @@ displayDayInfo(targetDate, userLanguage, userTimeZone);
         </div>
     </div>
 
-    <div id="date-controls" style="margin-left: auto;z-index: 29;margin-right: 10px;border-radius: 5px;padding: 8px;position: fixed;bottom:0px;left: 10px;background-color: var(--general-background);
-  border-radius: 0px 15px 0px 15px;
-  padding-top: 18px;">
+    <div id="date-controls" style="z-index: 29;position: fixed;
+  bottom: 0px;
+  left: 50%;
+  background-color: rgba(245, 245, 245, 0.55);
+  border-radius:
+15px;
+  padding:
+10px 20px 0px 20px;
+  transform: translateX(-50%);">
 
         <div id="time-controller" style="display: flex;flex-flow: row;width: 200px;height: 50px;">
-          <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
 
-          <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
+            <div id="next-year" class="next-button" aria-lable="Next Year" title="Go to next year"></div>
+
+
+            <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
 
           <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
 
-          <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
+            <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
 
-          <div id="next-year" class="next-button" aria-lable="Next Year" title="Go to next year"></div>
+            <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
+
 
         </div>
 
@@ -1286,7 +1278,7 @@ displayDayInfo(targetDate, userLanguage, userTimeZone);
 
 
 <!-- PALETTE MAIN BUTTONS -->
-  <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:21; bottom:20px;right:20px;position:absolute; background: var(--general-background);
+  <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:20; bottom:20px;right:20px;position:absolute; background: var(--general-background);
   padding:
 15px 0px 10px 0px;
   border-radius:
@@ -1482,6 +1474,80 @@ displayDayInfo(targetDate, userLanguage, userTimeZone);
 </script>
 
 
+<script>
+    function showIntroModal() {
+        const tokenKey = 'newVersionInfoSeen';
+        // Use the global language variable
+        alert('hello!!')
+        const translations = await loadTranslations(userLanguage.toLowerCase());
+        const versioningTranslations = translations.versioning;
+
+        const content = versioningTranslations[language] || versioningTranslations['EN']; // Default to English
+
+
+        // Prepare the modal content dynamically
+        const featureList = content.features.map(feature => `<li>${feature}</li>`).join('');
+        const modalContent = `
+            <div style="text-align:center;">
+                <h1>${content.title}</h1>
+                <h4>${content.subtitle}</h4>
+            </div>
+            <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
+                <ul style="font-size:1em;">${featureList}</ul>
+            </div>
+            <div style="display:flex;flex-flow:column;justify-content:center;">
+                <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
+                <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
+            </div>
+        `;
+
+        // Populate the modal with the content
+        const modalBox = document.getElementById('modal-content');
+        modalBox.innerHTML = modalContent;
+
+        // Show the modal
+        const modal = document.getElementById('form-modal-message');
+        modal.classList.remove('modal-hidden');
+        modal.classList.add('modal-visible');
+        document.getElementById("page-content").classList.add("blur");
+
+        // Add click event to the "Got it!" button
+        const gotItButton = document.getElementById('got-it-button');
+        gotItButton.addEventListener('click', function () {
+            closeTheModal();
+            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
+        });
+
+        // Add click event to the "Take Tour" button
+        const takeTourButton = document.getElementById('take-tour');
+        takeTourButton.addEventListener('click', function () {
+            closeTheModal();
+            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
+            guidedTour();
+            sendDownRegistration();
+        });
+
+    }
+
+
+    function checkTourToken() {
+        // Check if the token exists in localStorage
+        const tourToken = localStorage.getItem('tourToken');
+
+        if (!tourToken) {
+            // Token doesn't exist, trigger the guided tour
+            guidedTour(); sendDownRegistration();
+        }
+    }
+
+    function tourTaken() {
+        // Save the token in localStorage to indicate that the tour has been seen
+        localStorage.setItem('tourToken', 'seen');
+
+    }
+
+</script>
+
 
 <script>
 
@@ -1607,79 +1673,7 @@ function onTouch(event) {
 
 </script>
 
-<script>
-function showIntroModal() {
-const tokenKey = 'newVersionInfoSeen';
-    // Use the global language variable
-    const content = versioningTranslations[language] || versioningTranslations['EN']; // Default to English
 
-
-        // Prepare the modal content dynamically
-        const featureList = content.features.map(feature => `<li>${feature}</li>`).join('');
-        const modalContent = `
-            <div style="text-align:center;">
-                <h1>${content.title}</h1>
-                <h4>${content.subtitle}</h4>
-            </div>
-            <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
-                <ul style="font-size:1em;">${featureList}</ul>
-            </div>
-            <div style="display:flex;flex-flow:column;justify-content:center;">
-                <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
-                <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
-            </div>
-        `;
-
-        // Populate the modal with the content
-        const modalBox = document.getElementById('modal-content');
-        modalBox.innerHTML = modalContent;
-
-        // Show the modal
-        const modal = document.getElementById('form-modal-message');
-        modal.classList.remove('modal-hidden');
-        modal.classList.add('modal-visible');
-        document.getElementById("page-content").classList.add("blur");
-
-        // Add click event to the "Got it!" button
-        const gotItButton = document.getElementById('got-it-button');
-        gotItButton.addEventListener('click', function () {
-            closeTheModal();
-            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
-        });
-
-        // Add click event to the "Take Tour" button
-        const takeTourButton = document.getElementById('take-tour');
-        takeTourButton.addEventListener('click', function () {
-            closeTheModal();
-            localStorage.setItem(tokenKey, 'true'); // Save the token to avoid showing the modal again
-            guidedTour();
-            sendDownRegistration();
-        });
-
-}
-
-
-
-
-/*
-
-  function checkTourToken() {
-  // Check if the token exists in localStorage
-  const tourToken = localStorage.getItem('tourToken');
-
-  if (!tourToken) {
-    // Token doesn't exist, trigger the guided tour
-    guidedTour(); sendDownRegistration();
-  }
-}
-
-function tourTaken() {
-  // Save the token in localStorage to indicate that the tour has been seen
-  localStorage.setItem('tourToken', 'seen');
-
-}
-*/
-</script>
 
 
 <script src="1-event-management.js?v=2"></script>
@@ -1688,7 +1682,7 @@ function tourTaken() {
 
 <!-- <script src="https://api.earthen.io/subscription-system.js?v=2"></script> -->
 <!-- <script src="https://api.earthen.io/core-functions.js"></script> -->
-<!--<script src="1-subscription.js"></script>-->
+<!--<script src="1-subscription-xxx.js"></script>-->
 <!-- registration system-->
 
 </html>

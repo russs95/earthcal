@@ -225,12 +225,12 @@
 }
 
 
-#prev-year {
+#next-year {
   background: url(../svgs/to-prev-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
-#prev-year:hover {
+#next-year:hover {
   background: url(../svgs/to-prev-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
@@ -245,12 +245,12 @@
   background-size: contain;
 }
 
-#prev-day {
+#next-day {
   background: url(../svgs/to-yesterday-day.svg) center no-repeat;
   background-size: contain;
 }
 
-#prev-day:hover {
+#next-day:hover {
   background: url(../svgs/to-yesterday-day-over.svg) center no-repeat;
   background-size: contain;
 }
@@ -265,22 +265,22 @@
   background-size: contain;
 }
 
-#next-day {
+#prev-day {
   background: url(../svgs/to-tomorrow-day.svg) center no-repeat;
   background-size: contain;
 }
 
-#next-day:hover {
+#prev-day:hover {
   background: url(../svgs/to-tomorrow-day-over.svg) center no-repeat;
   background-size: contain;
 }
 
-#next-year {
+#prev-year {
   background: url(../svgs/to-next-year-day.svg) center no-repeat;
   background-size: contain;
 }
 
-#next-year:hover {
+#prev-year:hover {
   background: url(../svgs/to-next-year-day-over.svg) center no-repeat;
   background-size: contain;
 }
