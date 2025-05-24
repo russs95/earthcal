@@ -65,7 +65,7 @@ function setUserContext(data, lang, tz, status) {
     };
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
-    sendUpRegistration();
+
 }
 
 function useDefaultUser() {
