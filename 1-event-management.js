@@ -1,49 +1,54 @@
 //  OPENING THE ADD DATECYCLE FORM
 
 async function openAddCycle() {
-    console.log('openAddCycle called');
+    console.log('openAddCycle called'); // Log function call
 
+    // Prevent conflicts with existing modals
     document.removeEventListener("click", closeEmojiPicker);
 
+    // Prepare the modal for display
     document.body.style.overflowY = "hidden";
     document.body.style.maxHeight = "101vh";
     document.getElementById("add-datecycle").classList.remove('modal-hidden');
     document.getElementById("add-datecycle").classList.add('modal-shown');
     document.getElementById("page-content").classList.add("blur");
 
-    const translations = await loadTranslations(userLanguage.toLowerCase());
-    const addCycleStrings = translations.addCycle;
-
+    // Format the current date for display
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    let formattedDate = targetDate.toLocaleDateString(userLanguage, options);
-    formattedDate = formattedDate.replace(/ /g, '\u00A0');
+    let formattedDate = targetDate.toLocaleDateString('en-US', options);
+    formattedDate = formattedDate.replace(/ /g, '\u00A0'); // Replace spaces with non-breaking spaces
 
+    // Update the modal title
     const titleElement = document.getElementById("add-event-title");
-    titleElement.textContent = `${addCycleStrings.titlePrefix} ${formattedDate}`;
+    titleElement.textContent = `Add an event for ${formattedDate}`;
 
+    // Populate the date fields
     populateDateFields(targetDate);
 
+    // Add listener for Enter key to submit the form
     document.addEventListener("keydown", handleEnterKeySubmit);
 
+    // Set button text to "+ Add DateCycle"
     const confirmButton = document.getElementById("confirm-dateCycle-button");
     if (confirmButton) {
-        confirmButton.innerText = addCycleStrings.addButton;
+        confirmButton.innerText = " + Add DateCycle";
     } else {
         console.warn('confirm-dateCycle-button not found in the DOM');
     }
 
+    // Check if the user is logged in
     const buwanaId = localStorage.getItem('buwana_id');
-    const calendarDropdown = document.getElementById('select-calendar');
-
     if (!buwanaId) {
         console.log('User not logged in. Displaying placeholder in dropdown.');
-        calendarDropdown.innerHTML = `<option selected>${addCycleStrings.placeholderCalendar}</option>`;
+        const calendarDropdown = document.getElementById('select-calendar');
+        calendarDropdown.innerHTML = '<option selected>My Calendar</option>';
         return;
     }
 
     console.log('User is logged in. Buwana ID:', buwanaId);
     populateCalendarDropdown(buwanaId);
 
+    // Restore click event for modal closure after opening the picker
     setTimeout(() => {
         document.addEventListener("click", closeEmojiPicker);
     }, 500);

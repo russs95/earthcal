@@ -319,11 +319,12 @@ async function showUserCalSettings() {
     const translations = await loadTranslations(lang);
     const settingsContent = translations.settings;
 
-    const timezones = translations.timezones;
+    const timezones = translations.timezones || fallbackToEnglish.timezones;
 
 
-    const timezoneOptions = translations.timezones.map(tz => {
-    const offset = getTimeZoneOffsetDisplay(tz.value);
+
+    const timezoneOptions = timezones.map(tz => {
+        const offset = getTimeZoneOffsetDisplay(tz.value);
     return `<option value="${tz.value}" ${tz.value === userTimeZone ? 'selected' : ''}>
         ${tz.label} (${offset})
     </option>`;
