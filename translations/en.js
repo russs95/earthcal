@@ -3,6 +3,17 @@
 export const translations = {
 
 
+//DATE SEARCH
+
+    goToDateTitle: "Go to date...",
+    prevYear: "Previous Year",
+    nextYear: "Next Year",
+    goToDate: "Go to Date",
+    invalidDay: "Please make sure you're choosing a reasonable date under 31!",
+    invalidFebruary: "Please make sure you're choosing a reasonable date for February!",
+    invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!",
+
+
 
     daysOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 

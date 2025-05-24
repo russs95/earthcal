@@ -1,6 +1,18 @@
 // translations/id.js
 
 export const translations = {
+
+
+    goToDateTitle: "Pergi ke tanggal...",
+    prevYear: "Tahun Sebelumnya",
+    nextYear: "Tahun Berikutnya",
+    goToDate: "Pergi ke Tanggal",
+    invalidDay: "Pastikan Anda memilih tanggal yang masuk akal di bawah 31!",
+    invalidFebruary: "Pastikan Anda memilih tanggal yang masuk akal untuk bulan Februari!",
+    invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari di tahun biasa!",
+
+
+
     daysOfWeek: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
     monthsOfYear: [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',

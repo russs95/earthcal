@@ -43,51 +43,49 @@ function closeSearchModal() {
 }
 
 // Open the day search modal
-function openDateSearch() {
+async function openDateSearch() {
+    console.log("Current language:", userLanguage);
 
     const modal = document.getElementById("day-search");
+    const lang = (userLanguage || 'en').toLowerCase();
+    const translations = await loadTranslations(lang);
 
-    // Use the global 'language' variable to fetch translations, defaulting to English (EN) if undefined or unsupported
-    const translations = openDateSearchTranslations[language] || openDateSearchTranslations.EN;
+    // Use updated unified translations
+    const months = translations.monthsOfYear || [];
+    const title = translations.goToDateTitle || "Go to date...";
+    const placeholderDay = translations.dayTranslations || "Day";
+    const prevYear = translations.prevYear || "Previous Year";
+    const nextYear = translations.nextYear || "Next Year";
+    const goToDate = translations.goToDate || "Go to Date";
 
-    // Populate the title
-    document.getElementById("date-search-title").textContent = translations.title;
+    document.getElementById("date-search-title").textContent = title;
 
-    // Set placeholder for the day input
     const dayField = document.getElementById("day-field");
-    dayField.placeholder = translations.placeholderDay;
+    dayField.placeholder = placeholderDay;
 
-    // Populate months in the select dropdown
     const monthField = document.getElementById("month-field");
-    monthField.innerHTML = ""; // Clear existing options
-    translations.months.forEach((month, index) => {
+    monthField.innerHTML = "";
+    months.forEach((month, index) => {
         const option = document.createElement("option");
         option.value = index + 1;
         option.textContent = month;
         monthField.appendChild(option);
     });
 
-    // Set year buttons text
     const prevYearButton = document.getElementById("prev-year-search");
     const nextYearButton = document.getElementById("next-year-search");
-    prevYearButton.setAttribute("aria-label", translations.prevYear);
-    prevYearButton.setAttribute("title", translations.prevYear);
-    nextYearButton.setAttribute("aria-label", translations.nextYear);
-    nextYearButton.setAttribute("title", translations.nextYear);
+    prevYearButton.setAttribute("aria-label", prevYear);
+    prevYearButton.setAttribute("title", prevYear);
+    nextYearButton.setAttribute("aria-label", nextYear);
+    nextYearButton.setAttribute("title", nextYear);
 
-    // Set the Go to Date button text
     const searchButton = document.getElementById("search-button");
-    searchButton.textContent = translations.goToDate;
+    searchButton.textContent = goToDate;
 
-    // Initialize the target button
-    const setTargetBtn = document.getElementById("search-button");
-
-    // Show the modal
     modal.classList.remove("modal-hidden");
     modal.classList.add("modal-shown");
     document.getElementById("page-content").classList.add("blur");
 
-    // Set default values
     const searchedYear = document.querySelector(".searched-year");
     let year = targetDate.getFullYear();
     searchedYear.textContent = year;
@@ -95,8 +93,7 @@ function openDateSearch() {
     dayField.value = targetDate.getDate();
     monthField.value = targetDate.getMonth() + 1;
 
-    // Add event listener for the search button
-    setTargetBtn.addEventListener("click", function () {
+    searchButton.onclick = () => {
         const day = parseInt(dayField.value, 10);
         const month = parseInt(monthField.value, 10);
         const yeard = parseInt(searchedYear.textContent, 10);
@@ -105,26 +102,25 @@ function openDateSearch() {
 
         targetDate = new Date(yeard, month - 1, day);
         searchGoDate(targetDate);
-    });
+    };
 
-    // Handle event listeners for year navigation
-    prevYearButton.addEventListener("click", function () {
+    prevYearButton.onclick = () => {
         year--;
         searchedYear.textContent = year;
         targetDate.setFullYear(year);
         targetDate.setMonth(0);
         targetDate.setDate(1);
         searchGoDate(targetDate);
-    });
+    };
 
-    nextYearButton.addEventListener("click", function () {
+    nextYearButton.onclick = () => {
         year++;
         searchedYear.textContent = year;
         targetDate.setFullYear(year);
         targetDate.setMonth(0);
         targetDate.setDate(1);
         searchGoDate(targetDate);
-    });
+    };
 }
 
 
