@@ -317,6 +317,10 @@ async function showUserCalSettings() {
 
     const lang = userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
+
+    console.log("Loaded lang:", lang);
+    console.log("Loaded timezones:", translations.timezones);
+
     const settingsContent = translations.settings;
 
     const timezones = translations.timezones;

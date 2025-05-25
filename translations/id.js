@@ -135,9 +135,7 @@ export const translations = {
         darkModeToggle: "Beralih Tema Gelap/Terang",
         developedBy: "EarthCal dikembangkan oleh",
         authBy: "Otentikasi oleh",
-        loggedIn: {
-            welcome: "Selamat datang "
-        }
+
     },
 
 

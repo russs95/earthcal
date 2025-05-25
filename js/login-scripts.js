@@ -194,6 +194,9 @@ async function showLoggedInView(calendarData = {}) {
 
     const lang = window.userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
+    console.log("LoggedIn block:", translations.loggedIn);
+    console.log("Lang for translations:", lang);  // Should output "id"
+
     const {
         welcome,
         syncingInfo,

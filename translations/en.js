@@ -111,9 +111,7 @@ export const translations = {
         darkModeToggle: "Switch Dark/Day themes",
         developedBy: "EarthCal is developed by",
         authBy: "Authentication by",
-        loggedIn: {
-            welcome: "Welcome "
-        }
+
     },
 
     timezones: [

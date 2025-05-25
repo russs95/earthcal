@@ -2826,6 +2826,12 @@ svg path #june:hover {
 
 @media screen and (max-width: 700px) {
     #date-controls {
-        bottom: 50px;
+        bottom: 27px;
+    }
+    #bottom-left-buttons {
+        right: 5px;
+    }
+    #top-left-buttons {
+        margin-left: 3px;
     }
 }
