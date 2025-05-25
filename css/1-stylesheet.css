@@ -2829,9 +2829,9 @@ svg path #june:hover {
         bottom: 27px;
     }
     #bottom-left-buttons {
-        right: 5px;
+        right: 5px !important;
     }
     #top-left-buttons {
-        margin-left: 3px;
+        margin-left: 3px !important;
     }
 }
