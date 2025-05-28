@@ -3,6 +3,26 @@
 export const translations = {
 
 
+// THE GUIDED TOUR
+
+tour: {
+    welcomeIntro: "Welcome to EarthCal!",
+    welcomeParagraph: "EarthCal is a calendar that connects with Earth's cycles. Use our app to manage and sync your events with the cycles of the moon, the planets, and the Earth. Click through to explore EarthCal's philosophy, functions, and features.",
+    oneOrbitTitle: "One Year.\nOne Orbit.",
+    oneOrbitDesc: "The EarthCycles calendar lets you see each year as one spin of Earth around the Sun. Click any of the 365 divisions of the EarthCal circle to see where the Earth is in its orbit and that day's data. The progression of colors shows the solar and lunar months.",
+    neighborhoodTitle: "Our Neighbourhood",
+    neighborhoodDesc: "As you watch Earth spin around the Sun, you can see our planetary neighbours spin too! This helps you understand the night sky and connects you to the much longer cycles of each planet's orbit (Neptune takes 165 Earth years!).",
+    getLunarTitle: "Get Lunar",
+    getLunarDesc: "Notice the center of the calendar while you skim over the days of the year? You can see how the phase of the moon changes over the year. Click the moon in the bottom left for even more live data.",
+    animalCyclesDesc: "Great civilizations used the cycles of animals to track time. Click the Earth icon in the bottom left corner to see where the grey whales of North America are during their yearly migration. More animals coming soon!",
+    addEventsTitle: "Add Your Events",
+    addEventsDesc: "Use EarthCal to record your events and to-dos. Add one-time events and yearly cycles (like birthdays) by clicking the + at the top left of a date. Google Calendar sync is coming soon.",
+    next: "Next ➔",
+    back: "↩ Back",
+    done: "✓ Done"
+  }
+
+
 //DATE SEARCH
 
     goToDateTitle: "Go to date...",

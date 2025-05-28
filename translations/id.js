@@ -1,6 +1,28 @@
 export const translations = {
 
 
+// TOUR
+
+export const translations = {
+  tour: {
+    welcomeIntro: "Selamat Datang di EarthCal!",
+    welcomeParagraph: "EarthCal adalah kalender yang terhubung dengan siklus Bumi. Gunakan aplikasi kami untuk mengelola dan menyinkronkan acara Anda dengan siklus bulan, planet, dan Bumi. Klik untuk menjelajahi filosofi, fungsi, dan fitur EarthCal.",
+    oneOrbitTitle: "Satu Tahun.\nSatu Orbit.",
+    oneOrbitDesc: "Kalender EarthCycles memungkinkan Anda melihat setiap tahun sebagai satu putaran Bumi mengelilingi Matahari. Klik salah satu dari 365 bagian lingkaran EarthCal untuk melihat posisi Bumi dan data harian. Perubahan warna menunjukkan bulan matahari dan bulan.",
+    neighborhoodTitle: "Lingkungan Kita",
+    neighborhoodDesc: "Saat Anda mengamati Bumi berputar mengelilingi Matahari, Anda juga bisa melihat tetangga planet kita berputar! Ini membantu memahami langit malam dan menghubungkan Anda dengan siklus waktu planet (Neptunus membutuhkan 165 tahun Bumi!).",
+    getLunarTitle: "Kenali Bulan",
+    getLunarDesc: "Perhatikan bagian tengah kalender saat Anda menjelajahi hari-hari dalam setahun. Anda dapat melihat fase bulan berubah sepanjang tahun. Klik ikon bulan di kiri bawah untuk melihat data lebih lanjut.",
+    animalCyclesDesc: "Peradaban besar menggunakan siklus hewan untuk melacak waktu. Klik ikon Bumi di kiri bawah untuk melihat posisi paus abu-abu Amerika Utara selama migrasinya. Lebih banyak hewan akan segera ditambahkan!",
+    addEventsTitle: "Tambahkan Acara Anda",
+    addEventsDesc: "Gunakan EarthCal untuk mencatat acara dan tugas harian Anda. Tambahkan acara satu kali atau tahunan (seperti ulang tahun) dengan mengklik tanda + di kiri atas tanggal. Sinkronisasi Google Calendar akan segera hadir.",
+    next: "Berikutnya ➔",
+    back: "↩ Kembali",
+    done: "✓ Selesai"
+  }
+};
+
+
 
     timezones: [
         { value: 'Etc/GMT+12', label: 'Pulau Baker (UTC-12)' },

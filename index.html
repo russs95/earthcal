@@ -734,72 +734,60 @@ openPlanetInfoBox();
                 </div>-->
 
 
-
-
-
-
-
-
-
+  
 
 <div id="guided-tour" class="modal">
   <div class="tour-content">
     <span id="close-tour-button" class="close-tour" style="padding:10px" onclick="closeTour();">&times;</span>
-  
+
     <div id="information-one" class="information">
-      <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg"  style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>  
-      <div class="modal-header" data-lang-id="000-welcome-intro">Welcome to EarthCal!</div>
-      <div class="modal-description" data-lang-id="001-welcome-paragraph">EarthCal is a calendar that connects with Earth's cycles.  Use our app to manage and sync your events with the cycles the moon, the planets and the earth.  To get know how EarthCal works, click through for a guided tour of the EarthCal philosophy, functions and features.</div>
-      <button class="next">Next ➔</button>
+      <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg" style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>
+      <div class="modal-header" id="tour-header-1"></div>
+      <div class="modal-description" id="tour-desc-1"></div>
+      <button class="next" id="next-1"></button>
     </div>
-  
+
     <div id="information-two" style="display:none;" class="information">
-      <div class="tour-image"><img src="svgs/cycles-night-over.svg"  style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>  
-      <div class="modal-header">One Year.<br>One Orbit.</div>
-      <div class="modal-description">The EarthCycles calendar lets you see each year as a one spin of Earth around the Sun.  Click any of the 365 divisions of the EarthCal circle to see where the Earth is in its orbit and to see that day's data.  The progression of colors shows the solar and lunar months.</div>
-      <button class="back">↩ Back</button>
-      <button class="next">Next ➔</button>
+      <div class="tour-image"><img src="svgs/cycles-night-over.svg" style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>
+      <div class="modal-header" id="tour-header-2"></div>
+      <div class="modal-description" id="tour-desc-2"></div>
+      <button class="back" id="back-2"></button>
+      <button class="next" id="next-2"></button>
     </div>
-    
+
     <div id="information-three" style="display:none;" class="information">
-      <div class="tour-image"><img src="icons/saturn-cycle.svg"    title="Our Neighbourhood" alt="Our Neighbourhood"></div>  
-    
-      <div class="modal-header">Our Neighbourhood</div>
-      <div class="modal-description">As you watch Earth spin around the Sun, you can see our planetary neighbours spin too!  This not only helps you understand the night sky but also connects you with the much longer cycles of time that each planet's orbit represents (it takes Neptune almost 165 Earth years for its spin!).</div>
-      <button class="back">↩ Back</button>
-      <button class="next">Next ➔</button>
+      <div class="tour-image"><img src="icons/saturn-cycle.svg" title="Our Neighbourhood" alt="Our Neighbourhood"></div>
+      <div class="modal-header" id="tour-header-3"></div>
+      <div class="modal-description" id="tour-desc-3"></div>
+      <button class="back" id="back-3"></button>
+      <button class="next" id="next-3"></button>
     </div>
-  
-    
+
     <div id="information-four" style="display:none;" class="information">
       <div class="tour-image"><img src="svgs/just-moon.svg" title="Sync with the lunar cycles" alt="Sync with the lunar cycles"></div>
-      <div class="modal-header">Get Lunar</div>
-      <div class="modal-description">Notice the center of the calendar while you skim over the days of the year?  You can see in real-time how the phase of the moon changes over the course of the year.  Click the moon in the bottom left for even more live data.</div>
-      <button class="back">↩ Back</button>
-      <button class="next">Next ➔</button>
+      <div class="modal-header" id="tour-header-4"></div>
+      <div class="modal-description" id="tour-desc-4"></div>
+      <button class="back" id="back-4"></button>
+      <button class="next" id="next-4"></button>
     </div>
-    
-    
-    <div id="information-five" style="display:none;" class="information">
-    
-      <div class="tour-image"><img src="icons/whale.svg"  title="Earth and animal cycles" alt="animal cycles"></div>  
-      <div class="modal-description">Great civilizations also used the cycles of the great creatures around them to track time.  Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year.  More animals coming soon!</div>
-      <button class="back">↩ Back</button>
-      <button class="next">Next ➔</button>
-    </div>
-  
-    <div id="information-six" style="display:none;" class="information">
-      <div class="tour-image"><img src="svgs/add-night-over.svg"  title="add events" alt="Add events"></div>  
-  
-      <div class="modal-header">Add Your Events</div>
-      <div class="modal-description">Use EarthCal to record your events and daily to-dos.  Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date.  Google Calendar sync coming soon.</div>
-      <button class="back">↩ Back</button>
-      
-      <button class="next" onclick="closeTour()">✓ Done</button>
 
+    <div id="information-five" style="display:none;" class="information">
+      <div class="tour-image"><img src="icons/whale.svg" title="Earth and animal cycles" alt="animal cycles"></div>
+      <div class="modal-description" id="tour-desc-5"></div>
+      <button class="back" id="back-5"></button>
+      <button class="next" id="next-5"></button>
+    </div>
+
+    <div id="information-six" style="display:none;" class="information">
+      <div class="tour-image"><img src="svgs/add-night-over.svg" title="add events" alt="Add events"></div>
+      <div class="modal-header" id="tour-header-6"></div>
+      <div class="modal-description" id="tour-desc-6"></div>
+      <button class="back" id="back-6"></button>
+      <button class="next" onclick="closeTour()" id="done"></button>
     </div>
   </div>
 </div>
+
 
 
   <!--Add-DateCycle Curtain, hidden-->
