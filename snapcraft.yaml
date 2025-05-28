@@ -1,16 +1,16 @@
 name: earthcal
-version: '0.9.4'
+version: '0.9.5'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
-base: core20
+base: core22
 confinement: strict
 grade: stable
 
 apps:
   earthcal:
     command: earthcal
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     plugs:
       - browser-support
       - desktop
