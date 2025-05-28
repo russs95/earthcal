@@ -92,16 +92,18 @@ async function openDateSearch() {
 
     dayField.value = targetDate.getDate();
     monthField.value = targetDate.getMonth() + 1;
-
+const t = translations.openDateSearch || {};
     searchButton.onclick = () => {
         const day = parseInt(dayField.value, 10);
         const month = parseInt(monthField.value, 10);
         const yeard = parseInt(searchedYear.textContent, 10);
 
-        if (!validateDate(day, month, yeard)) return;
+        if (!validateDate(day, month, yeard, t)) return;
+
 
         targetDate = new Date(yeard, month - 1, day);
         searchGoDate(targetDate);
+        closeSearchModal();
     };
 
     prevYearButton.onclick = () => {
@@ -136,26 +138,25 @@ function updateYear(year, searchedYearElement) {
 }
 
 // Validate the selected date and return true if valid
-function validateDate(day, month, year) {
-    const translations = openDateSearchTranslations[language] || openDateSearchTranslations.EN;
-
+function validateDate(day, month, year, t) {
     if (day > 31) {
-        alert(translations.invalidDay);
+        alert(t.invalidDay || "Please make sure you're choosing a reasonable date under 31!");
         return false;
     }
 
     if (month === 2 && day > 29) {
-        alert(translations.invalidFebruary);
+        alert(t.invalidFebruary || "Please make sure you're choosing a reasonable date for February!");
         return false;
     }
 
     if (month === 2 && day > 28 && !isLeapYear(year)) {
-        alert(translations.invalidLeapYear);
+        alert(t.invalidLeapYear || "Please choose a day under 29 for February in a non-leap year!");
         return false;
     }
 
     return true;
 }
+
 
 
 // Helper function to check if a year is a leap year
@@ -771,43 +772,42 @@ function closeTour() {
 //
 //}
 
-
 function guidedTour() {
   const modal = document.getElementById("guided-tour");
   modal.style.display = "flex";
   document.getElementById("page-content").classList.add("blur");
 
-  import(`./translations/${userLanguage}.js`).then(module => {
+  import(`../translations/${userLanguage}.js?v=4`).then(module => {
     const t = module.translations.tour;
 
-    // Populate tour text
+    // Populate tour text with specific button labels
     document.getElementById("tour-header-1").innerText = t.welcomeIntro;
     document.getElementById("tour-desc-1").innerText = t.welcomeParagraph;
-    document.getElementById("next-1").innerText = t.next;
+    document.getElementById("next-1").innerText = t.buttonNextWelcome;
 
     document.getElementById("tour-header-2").innerText = t.oneOrbitTitle;
     document.getElementById("tour-desc-2").innerText = t.oneOrbitDesc;
-    document.getElementById("back-2").innerText = t.back;
-    document.getElementById("next-2").innerText = t.next;
+    document.getElementById("back-2").innerText = t.buttonBack;
+    document.getElementById("next-2").innerText = t.buttonNextOrbit;
 
     document.getElementById("tour-header-3").innerText = t.neighborhoodTitle;
     document.getElementById("tour-desc-3").innerText = t.neighborhoodDesc;
-    document.getElementById("back-3").innerText = t.back;
-    document.getElementById("next-3").innerText = t.next;
+    document.getElementById("back-3").innerText = t.buttonBack;
+    document.getElementById("next-3").innerText = t.buttonNextPlanets;
 
     document.getElementById("tour-header-4").innerText = t.getLunarTitle;
     document.getElementById("tour-desc-4").innerText = t.getLunarDesc;
-    document.getElementById("back-4").innerText = t.back;
-    document.getElementById("next-4").innerText = t.next;
+    document.getElementById("back-4").innerText = t.buttonBack;
+    document.getElementById("next-4").innerText = t.buttonNextMoon;
 
     document.getElementById("tour-desc-5").innerText = t.animalCyclesDesc;
-    document.getElementById("back-5").innerText = t.back;
-    document.getElementById("next-5").innerText = t.next;
+    document.getElementById("back-5").innerText = t.buttonBack;
+    document.getElementById("next-5").innerText = t.buttonNextCycles;
 
     document.getElementById("tour-header-6").innerText = t.addEventsTitle;
     document.getElementById("tour-desc-6").innerText = t.addEventsDesc;
-    document.getElementById("back-6").innerText = t.back;
-    document.getElementById("done").innerText = t.done;
+    document.getElementById("back-6").innerText = t.buttonBack;
+    document.getElementById("done").innerText = t.buttonDone;
   });
 
   const information = document.querySelectorAll(".information");

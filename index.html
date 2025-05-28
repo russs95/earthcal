@@ -481,16 +481,10 @@ window.onload = async function () {
   // UpdateJupiterData(targetDate);
   // UpdateSaturnData(targetDate);
 
+  setTimeout(animatePlanetsIfReady, 1500);
+
   setTimeout(function() {
-    
-    mercury.animate();
-    venus.animate();
-    earth.animate();
-    mars.animate();
-    jupiter.animate();
-    saturn.animate();
-    uranus.animate();
-    neptune.animate();
+
 
     startDate = targetDate;
 
@@ -734,7 +728,7 @@ openPlanetInfoBox();
                 </div>-->
 
 
-  
+
 
 <div id="guided-tour" class="modal">
   <div class="tour-content">

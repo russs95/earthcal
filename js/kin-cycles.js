@@ -330,7 +330,7 @@ function animateWhaleCycle() {
 
 function openPlanetInfoBox() {
   // Get all the SVG paths that have an ID ending with "-orbit"
-  const orbitPaths = document.querySelectorAll('[id$="-orbit"]');
+  const orbitPaths = document.querySelectorAll('[id$="_system"]');
 
     UpdateVenusData(targetDate);
     UpdateMarsData(targetDate);
@@ -347,7 +347,7 @@ function openPlanetInfoBox() {
       });
 
       // Get the planet name from the clicked path's ID
-      const planet = this.id.replace('-orbit', '');
+      const planet = this.id.replace('_system', '');
 
       // Show the corresponding planet-cycle div
       var solarSystemCenter = document.getElementById('solar-system-center');

@@ -1,27 +1,39 @@
+// EARTHCAL TRANSLATIONS
 // translations/en.js
+
 
 export const translations = {
 
 
 // THE GUIDED TOUR
 
-tour: {
+  tour: {
     welcomeIntro: "Welcome to EarthCal!",
-    welcomeParagraph: "EarthCal is a calendar that connects with Earth's cycles. Use our app to manage and sync your events with the cycles of the moon, the planets, and the Earth. Click through to explore EarthCal's philosophy, functions, and features.",
-    oneOrbitTitle: "One Year.\nOne Orbit.",
-    oneOrbitDesc: "The EarthCycles calendar lets you see each year as one spin of Earth around the Sun. Click any of the 365 divisions of the EarthCal circle to see where the Earth is in its orbit and that day's data. The progression of colors shows the solar and lunar months.",
-    neighborhoodTitle: "Our Neighbourhood",
-    neighborhoodDesc: "As you watch Earth spin around the Sun, you can see our planetary neighbours spin too! This helps you understand the night sky and connects you to the much longer cycles of each planet's orbit (Neptune takes 165 Earth years!).",
-    getLunarTitle: "Get Lunar",
-    getLunarDesc: "Notice the center of the calendar while you skim over the days of the year? You can see how the phase of the moon changes over the year. Click the moon in the bottom left for even more live data.",
-    animalCyclesDesc: "Great civilizations used the cycles of animals to track time. Click the Earth icon in the bottom left corner to see where the grey whales of North America are during their yearly migration. More animals coming soon!",
-    addEventsTitle: "Add Your Events",
-    addEventsDesc: "Use EarthCal to record your events and to-dos. Add one-time events and yearly cycles (like birthdays) by clicking the + at the top left of a date. Google Calendar sync is coming soon.",
-    next: "Next ➔",
-    back: "↩ Back",
-    done: "✓ Done"
-  }
+    welcomeParagraph: "It's time to evolve our calendars! It's time to transition from lines and squares, to circles and cycles. EarthCal is your new window to the days, months, years and other Earthen cycles to which our moments on planet Earth dance. Use EarthCal to manage and sync your events with the cycles of the moon, the planets and magnificent creatures.",
 
+    oneOrbitTitle: "One Year.\nOne Orbit.",
+    oneOrbitDesc: "EarthCal starts with a view of the current year. Earth takes ~365 days to spin around the Sun so that's how we've divided up EarthCal's main circle (we make it 366 on a leap year!). Click any of the divisions and watch as Earth animates to that position in its yearly spin around the Sun for that particular day. To zoom, click a month for a closer view of that portion of Earth's orbital progress.",
+
+    neighborhoodTitle: "Our Neighbourhood",
+    neighborhoodDesc: "When you click on any day, you can also view the progress and position of our planetary neighbours. Click any planet to get detailed orbital data. Watch oppositions, conjunctions and planetary alignments happen in real time. This not only helps us understand the night sky, it helps us align with much larger cycles of time (Neptune takes 165 Earth years to complete its orbit!).",
+
+    getLunarTitle: "Get Lunar",
+    getLunarDesc: "Notice the center of the calendar while you skim over the days of the year? You can see in real-time how the phase of the moon changes over the course of the year. Click the moon in the bottom right for detailed orbital data.",
+
+    animalCyclesTitle: "Great Earthling Cycles",
+    animalCyclesDesc: "Great civilizations didn't just follow celestial cycles, they used the cycles of the great creatures around them to celebrate time. Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year. More animals coming soon!",
+
+    addEventsTitle: "Add Events & Cycles",
+    addEventsDesc: "Use EarthCal to record your events and daily to-dos. Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date. Google Calendar sync coming soon.",
+
+    buttonNextWelcome: "How it works ➔",
+    buttonNextOrbit: "The Planets ➔",
+    buttonNextPlanets: "The Moon ➔",
+    buttonNextMoon: "Great Earthling Cycles ➔",
+    buttonNextCycles: "Next ➔",
+    buttonDone: "✓ Done",
+    buttonBack: "↩ Back"
+  },
 
 //DATE SEARCH
 
@@ -34,7 +46,7 @@ tour: {
     invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!",
 
 
-
+// CORE DATE TERMS
     daysOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 
     monthsOfYear: [
@@ -47,38 +59,44 @@ tour: {
     dayTranslations: 'Day',
     ofTranslations: 'of',
 
+
+//VERSION ANNOUNCEMENT
     versioning: {
         title: "Welcome to EarthCal 0.9!",
-        subtitle: "EarthCal has been completely overhauled in preparation for our 2025 v1.0 release. Major new features in v0.9 include:",
+        subtitle: "EarthCal has been updated for June 2025! We're now at version 0.94.:",
         features: [
-            "Months now break out! Click any month's color bar to expand its circle.",
-            "Add events and cycles: Hit the + to add events, goals, and to-dos to any day.",
-            "Edit an event, push it forward a day or check it off!",
-            "Initial multi-lingual support for five languages added.",
-            "Clock view. Keep EarthCal up as a clock on a second monitor.",
-            "The migratory cycle of the black heron is synced with the calendar."
+            "You can now login with a Buwana account to save and sync your events",
+            "Time zone support is now activated! Use the settings button to switch.",
+            "Language support upgrade!  Now up to 75% of the app is translated.",
+            "Public calendars are now available to add to your view (you must login first)",
+            "The migratory cycle of the black heron is synced with the calendar.",
+            "Minor and major bug fixes.",
+
         ],
-        gotIt: "👍 Got it!",
+        gotIt: "👍 Let's Go!",
         tour: " 🌏 More: EarthCal Tour",
     },
 
-
-    settings: {
-        languages: {
-            EN: "EN - English",
-            ID: "ID - Indonesian",
-            FR: "FR - Français",
-            ES: "ES - Español",
-            DE: "DE - Deutsch",
-            AR: "AR - العربية"
-        },
-        applySettings: "Apply Settings",
-        darkMode: {
-            legend: "Toggle dark and light mode:",
-            remember: "Remember for all pages"
-        }
+// SETTINGS
+settings: {
+    languages: {
+        EN: "EN - English",
+        ID: "ID - Indonesian",
+        FR: "FR - Français",
+        ES: "ES - Español",
+        DE: "DE - Deutsch",
+        AR: "AR - العربية",
+        ZH: "ZH - 中文" // ✅ Chinese added
     },
+    applySettings: "Apply Settings",
+    darkMode: {
+        legend: "Toggle dark and light mode:",
+        remember: "Remember for all pages"
+    }
+},
 
+
+// DATE SEARCH
     openDateSearch: {
         title: "Go to date...",
         placeholderDay: "Day",
@@ -95,7 +113,7 @@ tour: {
     },
 
 
-
+//LOG IN SCREEN
     loggedIn: {
         welcome: "Welcome",
         syncingInfo: "You are syncing the following personal and public calendars:",
@@ -106,7 +124,6 @@ tour: {
         notYetSynced: "Your dateCycles haven’t been synced yet.",
         lastSynced: "Last synced on"
     },
-
 
     login: {
         emailPlaceholder: "Your e-mail...",
@@ -120,6 +137,8 @@ tour: {
         login: "Login"
     },
 
+
+//MAIN MENU
     mainMenu: {
         title: "Sync with Earth's cycles",
         featureTour: "Feature Tour",
@@ -130,9 +149,20 @@ tour: {
         about: "About the Project ↗",
         darkModeToggle: "Switch Dark/Day themes",
         developedBy: "EarthCal is developed by",
-        authBy: "Authentication by",
+        authBy: "Authentication by"
 
     },
+
+
+    // ADD DATECYCLE - still needs work!
+
+addCycle: {
+        titlePrefix: "Add an event for",
+        addButton: "+ Add DateCycle",
+        placeholderCalendar: "My Calendar"
+    },
+
+
 
     timezones: [
     { value: 'Etc/GMT+12', label: 'Baker Island (UTC-12)' },
@@ -164,13 +194,5 @@ tour: {
     { value: 'Pacific/Guadalcanal', label: 'Guadalcanal (UTC+11)' },
     { value: 'Pacific/Auckland', label: 'Auckland (UTC+12)' }
 ],
-
-
-    addCycle: {
-        titlePrefix: "Add an event for",
-        addButton: "+ Add DateCycle",
-        placeholderCalendar: "My Calendar"
-    }
-
 
 };

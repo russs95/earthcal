@@ -204,95 +204,95 @@ const settingsTranslations = {
 };
 
 
-const openDateSearchTranslations = {
-    EN: {
-        title: "Go to date...",
-        placeholderDay: "Day",
-        months: [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ],
-        prevYear: "Previous Year",
-        nextYear: "Next Year",
-        goToDate: "Go to Date",
-        invalidDay: "Please make sure you're choosing a reasonable date under 31!",
-        invalidFebruary: "Please make sure you're choosing a reasonable date for February!",
-        invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!"
-    },
-    FR: {
-        title: "Aller à la date...",
-        placeholderDay: "Jour",
-        months: [
-            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-        ],
-        prevYear: "Année précédente",
-        nextYear: "Année suivante",
-        goToDate: "Aller à la date",
-        invalidDay: "Veuillez choisir un jour raisonnable inférieur à 31 !",
-        invalidFebruary: "Veuillez choisir une date raisonnable pour février !",
-        invalidLeapYear: "Veuillez choisir un jour inférieur à 29 pour février dans une année non bissextile !"
-    },
+    const openDateSearchTranslations = {
+        EN: {
+            title: "Go to date...",
+            placeholderDay: "Day",
+            months: [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ],
+            prevYear: "Previous Year",
+            nextYear: "Next Year",
+            goToDate: "Go to Date",
+            invalidDay: "Please make sure you're choosing a reasonable date under 31!",
+            invalidFebruary: "Please make sure you're choosing a reasonable date for February!",
+            invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!"
+        },
+        FR: {
+            title: "Aller à la date...",
+            placeholderDay: "Jour",
+            months: [
+                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+            ],
+            prevYear: "Année précédente",
+            nextYear: "Année suivante",
+            goToDate: "Aller à la date",
+            invalidDay: "Veuillez choisir un jour raisonnable inférieur à 31 !",
+            invalidFebruary: "Veuillez choisir une date raisonnable pour février !",
+            invalidLeapYear: "Veuillez choisir un jour inférieur à 29 pour février dans une année non bissextile !"
+        },
 
-    ES: {
-        title: "Ir a la fecha...",
-        placeholderDay: "Día",
-        months: [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ],
-        prevYear: "Año anterior",
-        nextYear: "Año siguiente",
-        goToDate: "Ir a la fecha",
-        invalidDay: "¡Asegúrate de elegir una fecha razonable menor a 31!",
-        invalidFebruary: "¡Asegúrate de elegir una fecha razonable para febrero!",
-        invalidLeapYear: "¡Elige un día menor a 29 para febrero en un año no bisiesto!"
-    },
-    ID: {
-        title: "Pergi ke tanggal...",
-        placeholderDay: "Hari",
-        months: [
-            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-        ],
-        prevYear: "Tahun sebelumnya",
-        nextYear: "Tahun berikutnya",
-        goToDate: "Pergi ke tanggal",
-        invalidDay: "Pastikan Anda memilih tanggal yang masuk akal di bawah 31!",
-        invalidFebruary: "Pastikan Anda memilih tanggal yang masuk akal untuk Februari!",
-        invalidLeapYear: "Pilih hari di bawah 29 untuk Februari di tahun non-kabisat!"
-    },
-    DE: {
-        title: "Zum Datum gehen...",
-        placeholderDay: "Tag",
-        months: [
-            "Januar", "Februar", "März", "April", "Mai", "Juni",
-            "Juli", "August", "September", "Oktober", "November", "Dezember"
-        ],
-        prevYear: "Vorheriges Jahr",
-        nextYear: "Nächstes Jahr",
-        goToDate: "Zum Datum gehen",
-        invalidDay: "Bitte stellen Sie sicher, dass Sie ein gültiges Datum unter 31 auswählen!",
-        invalidFebruary: "Bitte stellen Sie sicher, dass Sie ein gültiges Datum für Februar auswählen!",
-        invalidLeapYear: "Bitte wählen Sie einen Tag unter 29 für Februar in einem Nicht-Schaltjahr!"
-    },
-    AR: {
-        title: "اذهب إلى التاريخ...",
-        placeholderDay: "اليوم",
-        months: [
-            "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-            "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-        ],
-        prevYear: "السنة السابقة",
-        nextYear: "السنة التالية",
-        goToDate: "اذهب إلى التاريخ",
-        invalidDay: "يرجى التأكد من اختيارك تاريخًا معقولًا أقل من 31!",
-        invalidFebruary: "يرجى التأكد من اختيارك تاريخًا معقولًا لشهر فبراير!",
-        invalidLeapYear: "يرجى اختيار يوم أقل من 29 لفبراير في سنة غير كبيسة!"
-    }
+        ES: {
+            title: "Ir a la fecha...",
+            placeholderDay: "Día",
+            months: [
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            ],
+            prevYear: "Año anterior",
+            nextYear: "Año siguiente",
+            goToDate: "Ir a la fecha",
+            invalidDay: "¡Asegúrate de elegir una fecha razonable menor a 31!",
+            invalidFebruary: "¡Asegúrate de elegir una fecha razonable para febrero!",
+            invalidLeapYear: "¡Elige un día menor a 29 para febrero en un año no bisiesto!"
+        },
+        ID: {
+            title: "Pergi ke tanggal...",
+            placeholderDay: "Hari",
+            months: [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ],
+            prevYear: "Tahun sebelumnya",
+            nextYear: "Tahun berikutnya",
+            goToDate: "Pergi ke tanggal",
+            invalidDay: "Pastikan Anda memilih tanggal yang masuk akal di bawah 31!",
+            invalidFebruary: "Pastikan Anda memilih tanggal yang masuk akal untuk Februari!",
+            invalidLeapYear: "Pilih hari di bawah 29 untuk Februari di tahun non-kabisat!"
+        },
+        DE: {
+            title: "Zum Datum gehen...",
+            placeholderDay: "Tag",
+            months: [
+                "Januar", "Februar", "März", "April", "Mai", "Juni",
+                "Juli", "August", "September", "Oktober", "November", "Dezember"
+            ],
+            prevYear: "Vorheriges Jahr",
+            nextYear: "Nächstes Jahr",
+            goToDate: "Zum Datum gehen",
+            invalidDay: "Bitte stellen Sie sicher, dass Sie ein gültiges Datum unter 31 auswählen!",
+            invalidFebruary: "Bitte stellen Sie sicher, dass Sie ein gültiges Datum für Februar auswählen!",
+            invalidLeapYear: "Bitte wählen Sie einen Tag unter 29 für Februar in einem Nicht-Schaltjahr!"
+        },
+        AR: {
+            title: "اذهب إلى التاريخ...",
+            placeholderDay: "اليوم",
+            months: [
+                "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+            ],
+            prevYear: "السنة السابقة",
+            nextYear: "السنة التالية",
+            goToDate: "اذهب إلى التاريخ",
+            invalidDay: "يرجى التأكد من اختيارك تاريخًا معقولًا أقل من 31!",
+            invalidFebruary: "يرجى التأكد من اختيارك تاريخًا معقولًا لشهر فبراير!",
+            invalidLeapYear: "يرجى اختيار يوم أقل من 29 لفبراير في سنة غير كبيسة!"
+        }
 
 
-};
+    };
 
 
 const mainMenuTranslations = {

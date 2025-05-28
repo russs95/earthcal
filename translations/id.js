@@ -1,170 +1,189 @@
-export const translations = {
-
-
-// TOUR
+// EARTHCAL TRANSLATIONS
+//translations/id.js
 
 export const translations = {
-  tour: {
-    welcomeIntro: "Selamat Datang di EarthCal!",
-    welcomeParagraph: "EarthCal adalah kalender yang terhubung dengan siklus Bumi. Gunakan aplikasi kami untuk mengelola dan menyinkronkan acara Anda dengan siklus bulan, planet, dan Bumi. Klik untuk menjelajahi filosofi, fungsi, dan fitur EarthCal.",
-    oneOrbitTitle: "Satu Tahun.\nSatu Orbit.",
-    oneOrbitDesc: "Kalender EarthCycles memungkinkan Anda melihat setiap tahun sebagai satu putaran Bumi mengelilingi Matahari. Klik salah satu dari 365 bagian lingkaran EarthCal untuk melihat posisi Bumi dan data harian. Perubahan warna menunjukkan bulan matahari dan bulan.",
-    neighborhoodTitle: "Lingkungan Kita",
-    neighborhoodDesc: "Saat Anda mengamati Bumi berputar mengelilingi Matahari, Anda juga bisa melihat tetangga planet kita berputar! Ini membantu memahami langit malam dan menghubungkan Anda dengan siklus waktu planet (Neptunus membutuhkan 165 tahun Bumi!).",
-    getLunarTitle: "Kenali Bulan",
-    getLunarDesc: "Perhatikan bagian tengah kalender saat Anda menjelajahi hari-hari dalam setahun. Anda dapat melihat fase bulan berubah sepanjang tahun. Klik ikon bulan di kiri bawah untuk melihat data lebih lanjut.",
-    animalCyclesDesc: "Peradaban besar menggunakan siklus hewan untuk melacak waktu. Klik ikon Bumi di kiri bawah untuk melihat posisi paus abu-abu Amerika Utara selama migrasinya. Lebih banyak hewan akan segera ditambahkan!",
-    addEventsTitle: "Tambahkan Acara Anda",
-    addEventsDesc: "Gunakan EarthCal untuk mencatat acara dan tugas harian Anda. Tambahkan acara satu kali atau tahunan (seperti ulang tahun) dengan mengklik tanda + di kiri atas tanggal. Sinkronisasi Google Calendar akan segera hadir.",
-    next: "Berikutnya ➔",
-    back: "↩ Kembali",
-    done: "✓ Selesai"
+
+
+
+// THE GUIDED TOUR
+tour: {
+  welcomeIntro: "Selamat datang di EarthCal!",
+  welcomeParagraph: "Saatnya mengembangkan kalender kita! Saatnya beralih dari garis dan kotak ke lingkaran dan siklus. EarthCal adalah jendela baru Anda untuk hari, bulan, tahun, dan siklus Terestrial lainnya yang menjadi irama waktu kita di planet ini. Gunakan EarthCal untuk mengelola dan menyinkronkan acara Anda dengan siklus bulan, planet, dan makhluk-makhluk luar biasa.",
+
+  oneOrbitTitle: "Satu Tahun.\nSatu Orbit.",
+  oneOrbitDesc: "EarthCal dimulai dengan tampilan tahun saat ini. Bumi membutuhkan ~365 hari untuk berputar mengelilingi Matahari, jadi kami membagi lingkaran utama EarthCal seperti itu (kami menjadikannya 366 pada tahun kabisat!). Klik salah satu bagian dan lihat Bumi berputar ke posisi tersebut dalam orbit tahunannya. Untuk memperbesar, klik bulan untuk melihat lebih dekat bagian dari kemajuan orbit Bumi.",
+
+  neighborhoodTitle: "Lingkungan Kita",
+  neighborhoodDesc: "Saat Anda mengklik hari apa pun, Anda juga dapat melihat perkembangan dan posisi tetangga planet kita. Klik planet mana pun untuk melihat data orbit yang rinci. Saksikan oposisi, konjungsi, dan penjajaran planet secara waktu nyata. Ini tidak hanya membantu kita memahami langit malam, tetapi juga menyelaraskan kita dengan siklus waktu yang jauh lebih besar (Neptunus membutuhkan 165 tahun Bumi untuk menyelesaikan orbitnya!).",
+
+  getLunarTitle: "Lihat Bulan",
+  getLunarDesc: "Perhatikan bagian tengah kalender saat Anda melayang di atas hari-hari dalam setahun? Anda dapat melihat secara waktu nyata bagaimana fase bulan berubah sepanjang tahun. Klik bulan di kanan bawah untuk melihat data orbit yang rinci.",
+
+  animalCyclesTitle: "Siklus Makhluk Terestrial Hebat",
+  animalCyclesDesc: "Peradaban besar tidak hanya mengikuti siklus langit, tetapi juga menggunakan siklus makhluk besar di sekitar mereka untuk merayakan waktu. Klik ikon Bumi di pojok kiri bawah untuk melihat di mana paus abu-abu Amerika Utara berada dalam migrasi mereka pada waktu tertentu dalam setahun. Hewan lainnya akan segera hadir!",
+
+  addEventsTitle: "Tambahkan Acara & Siklus",
+  addEventsDesc: "Gunakan EarthCal untuk mencatat acara dan tugas harian Anda. Tambahkan acara satu kali dan siklus tahunan Anda (seperti ulang tahun!) ke kalender dengan mengklik tombol + di kiri atas untuk tanggal yang dipilih. Sinkronisasi Google Calendar segera hadir.",
+
+  buttonNextWelcome: "Cara kerjanya ➔",
+  buttonNextOrbit: "Planet ➔",
+  buttonNextPlanets: "Bulan ➔",
+  buttonNextMoon: "Siklus Makhluk Terestrial ➔",
+  buttonNextCycles: "Berikutnya ➔",
+  buttonDone: "✓ Selesai",
+  buttonBack: "↩ Kembali"
+},
+
+// DATE SEARCH
+goToDateTitle: "Pergi ke tanggal...",
+prevYear: "Tahun Sebelumnya",
+nextYear: "Tahun Berikutnya",
+goToDate: "Pergi ke Tanggal",
+invalidDay: "Pastikan Anda memilih tanggal yang wajar di bawah 31!",
+invalidFebruary: "Pastikan Anda memilih tanggal yang wajar untuk bulan Februari!",
+invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari pada tahun bukan kabisat!",
+
+// CORE DATE TERMS
+daysOfWeek: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+
+monthsOfYear: [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+],
+
+ordinalSuffixes: ['st', 'nd', 'rd', 'th'], // Typically not translated in Indonesian
+
+dayTranslations: 'Hari',
+ofTranslations: 'dari',
+
+// VERSION ANNOUNCEMENT
+versioning: {
+  title: "Selamat datang di EarthCal 0.9!",
+  subtitle: "EarthCal telah diperbarui untuk Juni 2025! Sekarang kami di versi 0.94.:",
+  features: [
+    "Sekarang Anda dapat masuk dengan akun Buwana untuk menyimpan dan menyinkronkan acara Anda",
+    "Dukungan zona waktu sekarang diaktifkan! Gunakan tombol pengaturan untuk mengganti.",
+    "Peningkatan dukungan bahasa! Kini hingga 75% aplikasi telah diterjemahkan.",
+    "Kalender publik sekarang tersedia untuk ditambahkan ke tampilan Anda (Anda harus masuk terlebih dahulu)",
+    "Siklus migrasi bangau hitam sekarang disinkronkan dengan kalender.",
+    "Perbaikan bug kecil dan besar.",
+  ],
+  gotIt: "👍 Ayo Mulai!",
+  tour: " 🌏 Selengkapnya: Tur EarthCal",
+},
+
+
+
+// SETTINGS
+settings: {
+  languages: {
+    EN: "EN - Inggris",
+    ID: "ID - Indonesia",
+    FR: "FR - Prancis",
+    ES: "ES - Spanyol",
+    DE: "DE - Jerman",
+    AR: "AR - Arab",
+    ZH: "ZH - 中文" // ✅ Added Chinese
+  },
+  applySettings: "Terapkan Pengaturan",
+  darkMode: {
+    legend: "Ganti mode terang dan gelap:",
+    remember: "Ingat untuk semua halaman"
   }
-};
+},
 
 
+  // DATE SEARCH
+openDateSearch: {
+  title: "Pergi ke tanggal...",
+  placeholderDay: "Hari",
+  months: [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ],
+  prevYear: "Tahun Sebelumnya",
+  nextYear: "Tahun Berikutnya",
+  goToDate: "Pergi ke Tanggal",
+  invalidDay: "Pastikan Anda memilih tanggal yang wajar di bawah 31!",
+  invalidFebruary: "Pastikan Anda memilih tanggal yang sesuai untuk bulan Februari!",
+  invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari pada tahun bukan kabisat!"
+},
 
-    timezones: [
-        { value: 'Etc/GMT+12', label: 'Pulau Baker (UTC-12)' },
-        { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
-        { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
-        { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
-        { value: 'America/Los_Angeles', label: 'Los Angeles (UTC-8)' },
-        { value: 'America/Denver', label: 'Denver (UTC-7)' },
-        { value: 'America/Chicago', label: 'Chicago (UTC-6)' },
-        { value: 'America/New_York', label: 'New York (UTC-5)' },
-        { value: 'America/Toronto', label: 'Toronto (UTC-5/UTC-4 DST)' },
-        { value: 'America/Halifax', label: 'Halifax (UTC-4)' },
-        { value: 'America/Sao_Paulo', label: 'São Paulo (UTC-3)' },
-        { value: 'Atlantic/South_Georgia', label: 'South Georgia (UTC-2)' },
-        { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
-        { value: 'Etc/UTC', label: 'UTC (Waktu Universal Terkoordinasi)' },
-        { value: 'Europe/London', label: 'London (UTC+0/UTC+1 DST)' },
-        { value: 'Europe/Berlin', label: 'Berlin (UTC+1)' },
-        { value: 'Europe/Helsinki', label: 'Helsinki (UTC+2)' },
-        { value: 'Europe/Moscow', label: 'Moskow (UTC+3)' },
-        { value: 'Asia/Dubai', label: 'Dubai (UTC+4)' },
-        { value: 'Asia/Karachi', label: 'Karachi (UTC+5)' },
-        { value: 'Asia/Dhaka', label: 'Dhaka (UTC+6)' },
-        { value: 'Asia/Jakarta', label: 'Jakarta (UTC+7)' },
-        { value: 'Asia/Singapore', label: 'Singapura (UTC+8)' },
-        { value: 'Asia/Shanghai', label: 'Shanghai (UTC+8)' },
-        { value: 'Asia/Tokyo', label: 'Tokyo (UTC+9)' },
-        { value: 'Australia/Sydney', label: 'Sydney (UTC+10)' },
-        { value: 'Pacific/Guadalcanal', label: 'Guadalcanal (UTC+11)' },
-        { value: 'Pacific/Auckland', label: 'Auckland (UTC+12)' }
-    ],
+// LOG IN SCREEN
+loggedIn: {
+  welcome: "Selamat datang",
+  syncingInfo: "Anda sedang menyinkronkan kalender pribadi dan publik berikut:",
+  noPersonal: "Tidak ada kalender pribadi yang tersedia.",
+  noPublic: "Tidak ada kalender publik yang tersedia.",
+  syncNow: "Sinkronkan Sekarang",
+  logout: "Keluar",
+  notYetSynced: "Siklus tanggal Anda belum disinkronkan.",
+  lastSynced: "Terakhir disinkronkan pada"
+},
 
+login: {
+  emailPlaceholder: "Email Anda...",
+  passwordPlaceholder: "Kata sandi Anda...",
+  statusFirstTime: (emoji) => `🎉 Akun Buwana Anda telah dibuat! ${emoji}`,
+  statusReturning: (emoji, name) => `${emoji} Selamat datang kembali, ${name}`,
+  credentialLabel: "Masuk dengan kredensial akun Buwana Anda.",
+  forgotPassword: "Lupa kata sandi Anda?",
+  resetLink: "Setel ulang.",
+  sendCode: "📨 Kirim Kode",
+  login: "Masuk"
+},
 
-//DATE SEARCH
-    goToDateTitle: "Pergi ke tanggal...",
-    prevYear: "Tahun Sebelumnya",
-    nextYear: "Tahun Berikutnya",
-    goToDate: "Pergi ke Tanggal",
-    invalidDay: "Pastikan Anda memilih tanggal yang masuk akal di bawah 31!",
-    invalidFebruary: "Pastikan Anda memilih tanggal yang masuk akal untuk bulan Februari!",
-    invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari di tahun biasa!",
+// MAIN MENU
+mainMenu: {
+  title: "Sinkronkan dengan siklus Bumi",
+  featureTour: "Tur Fitur",
+  latestVersion: "Info Versi Terbaru",
+  newsletter: "Buletin Earthen.io",
+  guide: "Panduan Kalender ↗",
+  purchasePrint: "Beli Cetakan ↗",
+  about: "Tentang Proyek ↗",
+  darkModeToggle: "Ubah Tema Gelap/Terang",
+  developedBy: "EarthCal dikembangkan oleh",
+  authBy: "Autentikasi oleh"
+},
 
-    daysOfWeek: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+// ADD DATECYCLE
+addCycle: {
+  titlePrefix: "Tambahkan acara untuk",
+  addButton: "+ Tambah SiklusTanggal",
+  placeholderCalendar: "Kalender Saya"
+},
 
-    monthsOfYear: [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ],
-
-    ordinalSuffixes: ['st', 'nd', 'rd', 'th'], // (optional: Indonesian doesn't typically use these)
-
-    dayTranslations: 'Hari',
-    ofTranslations: 'dari',
-
-    versioning: {
-        title: "Selamat datang di EarthCal 0.9!",
-        subtitle: "EarthCal telah diperbarui sepenuhnya untuk persiapan rilis v1.0 tahun 2025. Fitur utama baru dalam v0.9 meliputi:",
-        features: [
-            "Bulan sekarang bisa diperluas! Klik batang warna bulan mana saja untuk memperluas lingkarannya.",
-            "Tambahkan acara dan siklus: Klik tombol + untuk menambahkan acara, tujuan, dan tugas ke hari apa pun.",
-            "Edit acara, geser ke hari berikutnya atau tandai selesai!",
-            "Dukungan multi-bahasa awal untuk lima bahasa telah ditambahkan.",
-            "Tampilan jam. Tampilkan EarthCal sebagai jam di monitor kedua.",
-            "Siklus migrasi burung kuntul hitam disinkronkan dengan kalender."
-        ],
-        gotIt: "👍 Mengerti!",
-        tour: " 🌏 Lihat: Tur EarthCal"
-    },
-
-    settings: {
-        languages: {
-            EN: "EN - Inggris",
-            ID: "ID - Indonesia",
-            FR: "FR - Prancis",
-            ES: "ES - Spanyol",
-            DE: "DE - Jerman",
-            AR: "AR - Arab"
-        },
-        applySettings: "Terapkan Pengaturan",
-        darkMode: {
-            legend: "Alihkan mode terang dan gelap:",
-            remember: "Ingat untuk semua halaman"
-        }
-    },
-
-    openDateSearch: {
-        title: "Pergi ke tanggal...",
-        placeholderDay: "Hari",
-        months: [
-            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-        ],
-        prevYear: "Tahun Sebelumnya",
-        nextYear: "Tahun Berikutnya",
-        goToDate: "Pergi ke Tanggal",
-        invalidDay: "Pastikan Anda memilih tanggal yang masuk akal di bawah 31!",
-        invalidFebruary: "Pastikan Anda memilih tanggal yang masuk akal untuk bulan Februari!",
-        invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari di tahun biasa!"
-    },
-
-    loggedIn: {
-        welcome: "Selamat datang",
-        syncingInfo: "Anda sedang menyinkronkan kalender pribadi dan publik berikut:",
-        noPersonal: "Tidak ada kalender pribadi yang tersedia.",
-        noPublic: "Tidak ada kalender publik yang tersedia.",
-        syncNow: "Sinkronkan Sekarang",
-        logout: "Keluar",
-        notYetSynced: "DateCycle Anda belum disinkronkan.",
-        lastSynced: "Terakhir disinkronkan pada"
-    },
-
-    login: {
-        emailPlaceholder: "Email Anda...",
-        passwordPlaceholder: "Kata sandi Anda...",
-        statusFirstTime: (emoji) => `🎉 Akun Buwana Anda telah dibuat! ${emoji}`,
-        statusReturning: (emoji, name) => `${emoji} Selamat datang kembali, ${name}`,
-        credentialLabel: "Login dengan kredensial akun Buwana Anda.",
-        forgotPassword: "Lupa kata sandi?",
-        resetLink: "Atur ulang.",
-        sendCode: "📨 Kirim Kode",
-        login: "Masuk"
-    },
-
-    mainMenu: {
-        title: "Sinkron dengan siklus Bumi",
-        featureTour: "Tur Fitur",
-        latestVersion: "Info Versi Terbaru",
-        newsletter: "Buletin Earthen.io",
-        guide: "Panduan Kalender ↗",
-        purchasePrint: "Beli Versi Cetak ↗",
-        about: "Tentang Proyek ↗",
-        darkModeToggle: "Beralih Tema Gelap/Terang",
-        developedBy: "EarthCal dikembangkan oleh",
-        authBy: "Otentikasi oleh",
-
-    },
-
-
-    addCycle: {
-        titlePrefix: "Tambahkan acara untuk",
-        addButton: "+ Tambahkan DateCycle",
-        placeholderCalendar: "Kalender Saya"
-    }
+// TIMEZONES
+timezones: [
+  { value: 'Etc/GMT+12', label: 'Pulau Baker (UTC-12)' },
+  { value: 'Pacific/Pago_Pago', label: 'Samoa (UTC-11)' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii (UTC-10)' },
+  { value: 'America/Anchorage', label: 'Alaska (UTC-9)' },
+  { value: 'America/Los_Angeles', label: 'Los Angeles (UTC-8)' },
+  { value: 'America/Denver', label: 'Denver (UTC-7)' },
+  { value: 'America/Chicago', label: 'Chicago (UTC-6)' },
+  { value: 'America/New_York', label: 'New York (UTC-5)' },
+  { value: 'America/Toronto', label: 'Toronto (UTC-5/UTC-4 DST)' },
+  { value: 'America/Halifax', label: 'Halifax (UTC-4)' },
+  { value: 'America/Sao_Paulo', label: 'São Paulo (UTC-3)' },
+  { value: 'Atlantic/South_Georgia', label: 'Georgia Selatan (UTC-2)' },
+  { value: 'Atlantic/Azores', label: 'Azores (UTC-1)' },
+  { value: 'Etc/UTC', label: 'UTC (Waktu Universal Terkoordinasi)' },
+  { value: 'Europe/London', label: 'London (UTC+0/UTC+1 DST)' },
+  { value: 'Europe/Berlin', label: 'Berlin (UTC+1)' },
+  { value: 'Europe/Helsinki', label: 'Helsinki (UTC+2)' },
+  { value: 'Europe/Moscow', label: 'Moskow (UTC+3)' },
+  { value: 'Asia/Dubai', label: 'Dubai (UTC+4)' },
+  { value: 'Asia/Karachi', label: 'Karachi (UTC+5)' },
+  { value: 'Asia/Dhaka', label: 'Dhaka (UTC+6)' },
+  { value: 'Asia/Jakarta', label: 'Jakarta (UTC+7)' },
+  { value: 'Asia/Singapore', label: 'Singapura (UTC+8)' },
+  { value: 'Asia/Shanghai', label: 'Shanghai (UTC+8)' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (UTC+9)' },
+  { value: 'Australia/Sydney', label: 'Sydney (UTC+10)' },
+  { value: 'Pacific/Guadalcanal', label: 'Guadalcanal (UTC+11)' },
+  { value: 'Pacific/Auckland', label: 'Auckland (UTC+12)' }
+]
 
 };

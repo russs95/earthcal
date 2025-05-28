@@ -9,6 +9,10 @@ class Planet {
     const planetElement = document.getElementById(this.element_id);
     const planetOrbitElement = document.getElementById(this.orbit_id);
 
+  if (!planetElement || !planetOrbitElement) {
+    console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
+    return;
+  }
     // Reference date
     const yearStart = new Date(2023, 0, 1);
     //console.log("Initiating:" + yearStart + startDate);
@@ -462,7 +466,7 @@ function UpdateJupiterData(date) {
       phase = "🌕";
       phaseDescription = "<span style=\"font-size:1.3em\">♄ Jupiter</span>";
     }
-  
+
     if (daysTilOpposition <= 2 || daysTilOpposition >= 778) {
       phase = '🌚';
       phaseDescription = "Saturn is in Opposition";
@@ -471,7 +475,7 @@ function UpdateJupiterData(date) {
       phase = "🌑";
       phaseDescription = "Saturn cannot be seen as it approaches opposition";
     }
-  
+
   */
 
 
@@ -549,7 +553,7 @@ function UpdateSaturnData(date) {
       phase = "🌕";
       phaseDescription = "<span style=\"font-size:1.3em\">♄ Saturn</span>";
     }
-  
+
     if (daysTilOpposition <= 2 || daysTilOpposition >= 778) {
       phase = '🌚';
       phaseDescription = "Saturn is in Opposition";
@@ -558,7 +562,7 @@ function UpdateSaturnData(date) {
       phase = "🌑";
       phaseDescription = "Saturn cannot be seen as it approaches opposition";
     }
-  
+
   */
 
 
@@ -602,3 +606,67 @@ function adjustSaturnSize(per_dist) {
 
 
 
+document.addEventListener("DOMContentLoaded", () => {
+
+
+document.getElementById("mercury").addEventListener("click", () => {
+  console.log("Mercury clicked - No update function defined yet.");
+});
+
+document.getElementById("venus").addEventListener("click", () => {
+  UpdateVenusData(targetDate);
+});
+
+document.getElementById("earth").addEventListener("click", () => {
+  console.log("Earth clicked - No update function defined yet.");
+});
+
+document.getElementById("mars").addEventListener("click", () => {
+  UpdateMarsData(targetDate);
+});
+
+document.getElementById("jupiter").addEventListener("click", () => {
+  UpdateJupiterData(targetDate);
+});
+
+document.getElementById("saturn").addEventListener("click", () => {
+  UpdateSaturnData(targetDate);
+});
+
+document.getElementById("uranus").addEventListener("click", () => {
+  console.log("Uranus clicked - No update function defined yet.");
+});
+
+document.getElementById("neptune").addEventListener("click", () => {
+  console.log("Neptune clicked - No update function defined yet.");
+});
+
+});
+
+
+function arePlanetsReady() {
+  const ids = [
+    "mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune",
+    "mercury-orbit", "venus-orbit", "earth-orbit", "mars-orbit", "jupiter-orbit",
+    "saturn-orbit", "uranus-orbit", "neptune-orbit"
+  ];
+  return ids.every(id => document.getElementById(id) !== null);
+}
+
+function animatePlanetsIfReady(retries = 10) {
+  if (arePlanetsReady()) {
+    mercury.animate();
+    venus.animate();
+    earth.animate();
+    mars.animate();
+    jupiter.animate();
+    saturn.animate();
+    uranus.animate();
+    neptune.animate();
+  } else if (retries > 0) {
+    console.warn("Planet elements not ready. Retrying...");
+    setTimeout(() => animatePlanetsIfReady(retries - 1), 300);
+  } else {
+    console.error("Planet elements still missing after multiple retries.");
+  }
+}
