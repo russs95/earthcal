@@ -255,9 +255,10 @@ async function showLoggedInView(calendarData = {}) {
                 <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
                     🔄 ${syncNow}
                 </button>
-                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.location.href='${editProfileUrl}';">
-                    ✏️ Edit Buwana Profile
-                </button>
+                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
+    ✏️ Edit Buwana Profile
+</button>
+
                 <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
                     🐳 ${logout}
                 </button>

@@ -80,7 +80,7 @@ const { screen } = require('electron');
 
 function toggleMinimalFloater() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-
+  openClock(userTimeZone);
   if (!isMinimal) {
     isMinimal = true;
 

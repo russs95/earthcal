@@ -412,7 +412,6 @@ async function applySettings() {
         mainClock.style.display = 'none';
     }
 
-    openClock(userTimeZone);
     closeTheModal();
 }
 
