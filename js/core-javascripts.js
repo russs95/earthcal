@@ -268,7 +268,7 @@ async function openMainMenu() {
         </div>
 
         <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
-            <img alt="Get it from the Snap Store" src="../svgs/snap-store-black.svg" />
+            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
         </a>
 
         <p style="font-size:small; margin-bottom: 2px;">
