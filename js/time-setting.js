@@ -213,7 +213,11 @@ function setCurrentDate(time_zone = Intl.DateTimeFormat().resolvedOptions().time
             day: 'numeric'
         });
 
-        const parts = formatter.formatToParts(new Date());
+        const dateInTZ = new Date(new Date().toLocaleString("en-US", { timeZone: time_zone }));
+        const parts = formatter.formatToParts(dateInTZ);
+
+
+
         const dateParts = {};
         for (let part of parts) {
             if (part.type !== 'literal') {
@@ -233,7 +237,7 @@ function setCurrentDate(time_zone = Intl.DateTimeFormat().resolvedOptions().time
 
         const currentDate = new Date();
         startDate = new Date(currentDate.getFullYear(), 0, 1);
-        targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        targetDate = new Date(dateInTZ.getFullYear(), dateInTZ.getMonth(), dateInTZ.getDate());
     }
 }
 
