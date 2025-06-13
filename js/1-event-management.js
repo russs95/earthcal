@@ -1517,7 +1517,7 @@ async function prefillAddDateCycle(data) {
     const titleElement = document.getElementById('add-event-title');
     const sharerName = data.from || "An Earthcal user";
     if (titleElement) {
-        titleElement.textContent = `${sharerName} has invited you to add an Event to your EarthCal on ${dateStr}`;
+        titleElement.textContent = `${sharerName} has invited you to add an event to your calendar on ${dateStr}`;
     }
 
     // Pre-fill form values
