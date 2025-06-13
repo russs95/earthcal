@@ -1501,21 +1501,26 @@ function clearAllDateCycles() {
 }
 
 
-
 async function prefillAddDateCycle(data) {
-    await openAddCycle(); // Ensures the form is opened first
+    const prefillDate = new Date(data.year, data.month - 1, data.day);
+    window.targetDate = prefillDate; // ensure consistency
+    await openAddCycle(); // opens modal using global targetDate
 
-    // Add invitation banner to the modal
-    const modal = document.getElementById('modal-content');
-    if (modal && !document.getElementById('invitation-banner')) {
-        const messageBanner = document.createElement('div');
-        messageBanner.id = 'invitation-banner';
-        messageBanner.style.cssText = "margin: 10px 0; padding: 10px; background: var(--subdued-text); color: white; font-weight: bold; border-radius: 5px;";
-        messageBanner.textContent = `${data.from} has invited you to add an Event to your EarthCal`;
-        modal.prepend(messageBanner);
+    // Format target date: "June 11, 2025"
+    const dateStr = prefillDate.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    // Set invitation message
+    const titleElement = document.getElementById('add-event-title');
+    const sharerName = data.from || "An Earthcal user";
+    if (titleElement) {
+        titleElement.textContent = `${sharerName} has invited you to add an Event to your EarthCal on ${dateStr}`;
     }
 
-    // Pre-fill form fields
+    // Pre-fill form values
     document.getElementById('dateCycle-type').value = data.frequency || 'One-time';
     if (data.year) document.getElementById('year-field2').value = data.year;
     if (data.month) document.getElementById('month-field2').value = data.month;
@@ -1526,9 +1531,10 @@ async function prefillAddDateCycle(data) {
         document.getElementById('add-date-note').value = data.comments;
     }
     if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
+
     document.getElementById('emojiPickerBtn').textContent = '🔗';
 
-    // Preselect "My Calendar" in dropdown
+    // Select "My Calendar"
     const calDropdown = document.getElementById('select-calendar');
     for (let i = 0; i < calDropdown.options.length; i++) {
         if (calDropdown.options[i].text.trim() === "My Calendar") {
