@@ -937,7 +937,7 @@ function editDateCycle(uniqueKey) {
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
                 <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
             </div>
-            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
+            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
                 🐿️ Save Changes
             </button>
             <button type="button" class="confirmation-blur-button" style="width:100%;" onclick="shareDateCycle('${uniqueKey}')">
@@ -1034,6 +1034,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
 }
 
 
+
 function shareDateCycle(uniqueKey) {
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const year = document.getElementById('edit-year-field2').value;
@@ -1043,7 +1044,12 @@ function shareDateCycle(uniqueKey) {
     const color = document.getElementById('edit-DateColorPicker').value;
     const note = encodeURIComponent(document.getElementById('edit-add-date-note').value.trim());
 
-    const url = `https://cycles.earthen.io/index.html?action=add-event&f=${frequency}&y=${year}&m=${month}&d=${day}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}`;
+    const date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+    const sharer = (window.userProfile?.first_name || "An Earthcal user").trim();
+    const encodedSharer = encodeURIComponent(sharer);
+
+    const url = `https://cycles.earthen.io/index.html?action=add-event&f=${frequency}&date=${date}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}&from=${encodedSharer}`;
 
     navigator.clipboard.writeText(url).then(() => {
         alert("Shareable event link copied to clipboard!");

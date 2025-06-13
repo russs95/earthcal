@@ -426,53 +426,55 @@ text-decoration: underline;
 gsap.registerPlugin(MotionPathPlugin);
 
 // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+/*ROLL CALL*/
+window.onload = async function () {
+    await getUserData(); // This sets time_zone, among others
 
-window.addEventListener('DOMContentLoaded', () => {
+    // Check for shared event via URL parameters
     const params = new URLSearchParams(window.location.search);
     if (params.get('action') === 'add-event') {
+        const sharedDate = params.get('date');
+        if (sharedDate) {
+            const [year, month, day] = sharedDate.split('-').map(Number);
+            window.targetDate = new Date(year, month - 1, day); // Set shared targetDate
+        }
+
         const cycleData = {
             frequency: params.get('f'),
-            year: params.get('y'),
-            month: params.get('m'),
-            day: params.get('d'),
             title: decodeURIComponent(params.get('t') || ''),
             datecycle_color: params.get('c'),
             comments: decodeURIComponent(params.get('n') || ''),
-            id: params.get('id')
+            id: params.get('id'),
+            from: decodeURIComponent(params.get('from') || 'An Earthcal user'),
+            year,
+            month,
+            day
         };
-        prefillAddDateCycle(cycleData); // Opens + pre-fills form
+
+        prefillAddDateCycle(cycleData); // This will call openAddCycle with targetDate
+    } else {
+        // No share detected – set to current date
+        setCurrentDate(); // This sets window.targetDate to today
     }
-});
 
+    // Animate the interface
+    const solarCenterDiv = document.getElementById('solar-system-center');
+    const dayLinesDiv = document.getElementById('days-of-year-lines');
+    const allDaymarkers = document.getElementById('all-daymarkers');
+    const whiteBack = document.getElementById('white-back-for-day');
+    const rayLine = document.getElementById('ray_lines');
 
-
-
-/*ROLL CALL*/
-window.onload = async function () {
-    await getUserData(); // This sets time_zone, targetDate, etc.
-
-
-  const solarCenterDiv = document.getElementById('solar-system-center');
-  const dayLinesDiv = document.getElementById('days-of-year-lines');
-  const allDaymarkers = document.getElementById('all-daymarkers');
-  const whiteBack = document.getElementById('white-back-for-day');
-  const rayLine = document.getElementById('ray_lines');
- // ANIMATED DISPLAY of the Calendar Interface
-  setTimeout(() => {
+    setTimeout(() => {
         dayLinesDiv.style.opacity = '1';
         whiteBack.style.opacity = '1';
         rayLine.style.opacity = '1';
     }, 2000);
     setTimeout(() => {
-      allDaymarkers.style.opacity = '1'; // Show allDaymarkers
-  }, 4000);
+        allDaymarkers.style.opacity = '1';
+    }, 4000);
 
-    updateBackgroundColor();   //Updates colors for night and day themese
-    updateHighlightColor(); //Updates colors for night and day themese
-
-    setCurrentDate();   //Sets the Current Date as the Target Date.-->
-    displayDayInfo(targetDate, userLanguage, userTimeZone);
-    const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
+    updateBackgroundColor();
+    updateHighlightColor();
 
     displayMoonPhaseInDiv(targetDate);
     cyclesToggleSimplified();  // to show/hide animal cycles
