@@ -440,9 +440,10 @@ window.addEventListener('DOMContentLoaded', () => {
             comments: decodeURIComponent(params.get('n') || ''),
             id: params.get('id')
         };
-        prefillAddDateCycle(cycleData); // 👈 Calls the modal and pre-fills
+        prefillAddDateCycle(cycleData); // Opens + pre-fills form
     }
 });
+
 
 
 

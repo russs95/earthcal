@@ -1496,19 +1496,20 @@ function clearAllDateCycles() {
 
 
 
+async function prefillAddDateCycle(data) {
+    await openAddCycle(); // Ensures the form is opened first
 
-function prefillAddDateCycle(data) {
-    // Open the form modal
-    addDatecycle(); // Ensures modal is visible
-
-    // Add message banner
+    // Add invitation banner to the modal
     const modal = document.getElementById('modal-content');
-    const messageBanner = document.createElement('div');
-    messageBanner.style.cssText = "margin: 10px 0; padding: 10px; background: var(--subdued-text); color: white; font-weight: bold; border-radius: 5px;";
-    messageBanner.textContent = "You've been invited to add an Event to your EarthCal";
-    modal.prepend(messageBanner);
+    if (modal && !document.getElementById('invitation-banner')) {
+        const messageBanner = document.createElement('div');
+        messageBanner.id = 'invitation-banner';
+        messageBanner.style.cssText = "margin: 10px 0; padding: 10px; background: var(--subdued-text); color: white; font-weight: bold; border-radius: 5px;";
+        messageBanner.textContent = "You've been invited to add an Event to your EarthCal";
+        modal.prepend(messageBanner);
+    }
 
-    // Pre-fill inputs
+    // Pre-fill form fields
     document.getElementById('dateCycle-type').value = data.frequency || 'One-time';
     if (data.year) document.getElementById('year-field2').value = data.year;
     if (data.month) document.getElementById('month-field2').value = data.month;
@@ -1521,15 +1522,16 @@ function prefillAddDateCycle(data) {
     if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
     document.getElementById('emojiPickerBtn').textContent = '🔗';
 
-    // Preselect "My Calendar" from dropdown
+    // Preselect "My Calendar" in dropdown
     const calDropdown = document.getElementById('select-calendar');
     for (let i = 0; i < calDropdown.options.length; i++) {
-        if (calDropdown.options[i].text === "My Calendar") {
+        if (calDropdown.options[i].text.trim() === "My Calendar") {
             calDropdown.selectedIndex = i;
             break;
         }
     }
 }
+
 
 
 
