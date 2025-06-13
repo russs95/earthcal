@@ -940,6 +940,10 @@ function editDateCycle(uniqueKey) {
             <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
                 🐿️ Save Changes
             </button>
+            <button type="button" class="confirmation-blur-button" style="width:100%;" onclick="shareDateCycle('${uniqueKey}')">
+    🔗 Share Event
+            </button>
+
         </div>
     `;
 
@@ -1028,6 +1032,24 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     // Assumes that targetDate is defined globally or accessible here.
     highlightDateCycles(targetDate);
 }
+
+
+function shareDateCycle(uniqueKey) {
+    const frequency = document.getElementById('edit-dateCycle-type').value;
+    const year = document.getElementById('edit-year-field2').value;
+    const month = document.getElementById('edit-month-field2').value;
+    const day = document.getElementById('edit-day-field2').value;
+    const title = encodeURIComponent(document.getElementById('edit-add-date-title').value.trim());
+    const color = document.getElementById('edit-DateColorPicker').value;
+    const note = encodeURIComponent(document.getElementById('edit-add-date-note').value.trim());
+
+    const url = `https://cycles.earthen.io/index.html?action=add-event&f=${frequency}&y=${year}&m=${month}&d=${day}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}`;
+
+    navigator.clipboard.writeText(url).then(() => {
+        alert("Shareable event link copied to clipboard!");
+    });
+}
+
 
 
 
@@ -1475,6 +1497,39 @@ function clearAllDateCycles() {
 
 
 
+function prefillAddDateCycle(data) {
+    // Open the form modal
+    addDatecycle(); // Ensures modal is visible
+
+    // Add message banner
+    const modal = document.getElementById('modal-content');
+    const messageBanner = document.createElement('div');
+    messageBanner.style.cssText = "margin: 10px 0; padding: 10px; background: var(--subdued-text); color: white; font-weight: bold; border-radius: 5px;";
+    messageBanner.textContent = "You've been invited to add an Event to your EarthCal";
+    modal.prepend(messageBanner);
+
+    // Pre-fill inputs
+    document.getElementById('dateCycle-type').value = data.frequency || 'One-time';
+    if (data.year) document.getElementById('year-field2').value = data.year;
+    if (data.month) document.getElementById('month-field2').value = data.month;
+    if (data.day) document.getElementById('day-field2').value = data.day;
+    if (data.title) document.getElementById('add-date-title').value = data.title;
+    if (data.comments) {
+        document.getElementById('add-note-checkbox').checked = true;
+        document.getElementById('add-date-note').value = data.comments;
+    }
+    if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
+    document.getElementById('emojiPickerBtn').textContent = '🔗';
+
+    // Preselect "My Calendar" from dropdown
+    const calDropdown = document.getElementById('select-calendar');
+    for (let i = 0; i < calDropdown.options.length; i++) {
+        if (calDropdown.options[i].text === "My Calendar") {
+            calDropdown.selectedIndex = i;
+            break;
+        }
+    }
+}
 
 
 

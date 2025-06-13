@@ -3,6 +3,7 @@ version: '0.9.5'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
+
 base: core22
 confinement: strict
 grade: stable
@@ -19,10 +20,10 @@ apps:
       - network
       - network-bind
       - x11
+      - gsettings
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
       ELECTRON_DISABLE_SANDBOX: 1
-      GTK_MODULES: "unset"
 
 parts:
   earthcal:
@@ -35,6 +36,8 @@ parts:
     stage-packages:
       - libnss3
       - libnspr4
+      - libgtk-3-0
+      - libcanberra-gtk3-module
     organize:
       snap/gui/earthcal.desktop: usr/share/applications/earthcal.desktop
       snap/gui/earthcal.png: usr/share/icons/hicolor/512x512/apps/earthcal.png

@@ -427,6 +427,23 @@ gsap.registerPlugin(MotionPathPlugin);
 
 // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'add-event') {
+        const cycleData = {
+            frequency: params.get('f'),
+            year: params.get('y'),
+            month: params.get('m'),
+            day: params.get('d'),
+            title: decodeURIComponent(params.get('t') || ''),
+            datecycle_color: params.get('c'),
+            comments: decodeURIComponent(params.get('n') || ''),
+            id: params.get('id')
+        };
+        prefillAddDateCycle(cycleData); // 👈 Calls the modal and pre-fills
+    }
+});
+
 
 
 /*ROLL CALL*/
