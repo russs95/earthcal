@@ -426,9 +426,32 @@ text-decoration: underline;
 gsap.registerPlugin(MotionPathPlugin);
 
 // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
+
+
 /*ROLL CALL*/
 window.onload = async function () {
-    await getUserData(); // This sets time_zone, among others
+    await getUserData(); // This sets time_zone, targetDate, etc.
+
+
+  const solarCenterDiv = document.getElementById('solar-system-center');
+  const dayLinesDiv = document.getElementById('days-of-year-lines');
+  const allDaymarkers = document.getElementById('all-daymarkers');
+  const whiteBack = document.getElementById('white-back-for-day');
+  const rayLine = document.getElementById('ray_lines');
+ // ANIMATED DISPLAY of the Calendar Interface
+  setTimeout(() => {
+        dayLinesDiv.style.opacity = '1';
+        whiteBack.style.opacity = '1';
+        rayLine.style.opacity = '1';
+    }, 2000);
+    setTimeout(() => {
+      allDaymarkers.style.opacity = '1'; // Show allDaymarkers
+  }, 4000);
+
+    updateBackgroundColor();   //Updates colors for night and day themese
+    updateHighlightColor(); //Updates colors for night and day themese
 
     // Check for shared event via URL parameters
     const params = new URLSearchParams(window.location.search);
@@ -456,25 +479,8 @@ window.onload = async function () {
         // No share detected – set to current date
         setCurrentDate(); // This sets window.targetDate to today
     }
-
-    // Animate the interface
-    const solarCenterDiv = document.getElementById('solar-system-center');
-    const dayLinesDiv = document.getElementById('days-of-year-lines');
-    const allDaymarkers = document.getElementById('all-daymarkers');
-    const whiteBack = document.getElementById('white-back-for-day');
-    const rayLine = document.getElementById('ray_lines');
-
-    setTimeout(() => {
-        dayLinesDiv.style.opacity = '1';
-        whiteBack.style.opacity = '1';
-        rayLine.style.opacity = '1';
-    }, 2000);
-    setTimeout(() => {
-        allDaymarkers.style.opacity = '1';
-    }, 4000);
-
-    updateBackgroundColor();
-    updateHighlightColor();
+    displayDayInfo(targetDate, userLanguage, userTimeZone);
+    const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
 
     displayMoonPhaseInDiv(targetDate);
     cyclesToggleSimplified();  // to show/hide animal cycles
