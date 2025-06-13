@@ -1511,7 +1511,7 @@ async function prefillAddDateCycle(data) {
         const messageBanner = document.createElement('div');
         messageBanner.id = 'invitation-banner';
         messageBanner.style.cssText = "margin: 10px 0; padding: 10px; background: var(--subdued-text); color: white; font-weight: bold; border-radius: 5px;";
-        messageBanner.textContent = "You've been invited to add an Event to your EarthCal";
+        messageBanner.textContent = `${data.from} has invited you to add an Event to your EarthCal`;
         modal.prepend(messageBanner);
     }
 

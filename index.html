@@ -457,9 +457,11 @@ window.onload = async function () {
     const params = new URLSearchParams(window.location.search);
     if (params.get('action') === 'add-event') {
         const sharedDate = params.get('date');
+        let year, month, day;
+
         if (sharedDate) {
-            const [year, month, day] = sharedDate.split('-').map(Number);
-            window.targetDate = new Date(year, month - 1, day); // Set shared targetDate
+            [year, month, day] = sharedDate.split('-').map(Number);
+            window.targetDate = new Date(year, month - 1, day);
         }
 
         const cycleData = {
@@ -474,11 +476,15 @@ window.onload = async function () {
             day
         };
 
-        prefillAddDateCycle(cycleData); // This will call openAddCycle with targetDate
+        prefillAddDateCycle(cycleData);
     } else {
-        // No share detected – set to current date
-        setCurrentDate(); // This sets window.targetDate to today
+        setCurrentDate(); // Fallback if no shared event
     }
+
+
+
+
+
     displayDayInfo(targetDate, userLanguage, userTimeZone);
     const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
 
