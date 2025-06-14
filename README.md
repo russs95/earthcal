@@ -1,9 +1,10 @@
 # Earthcal
-Sync your moments with Earthen Cycles
+
+### Sync your moments with Earthen Cycles
 
 EarthCal is a circular calendar that connects with Earthen cycles. Use our app to manage and sync your events with the cycles the moon, the planets and the earth.
 
-##Calendar Context
+## Calendar Context
 
 Humans have long made sense of time using the natural cycles around us. For many of our ancestors, the perception of time was deeply connected to ecological and celestial phenomena. From a solar day to a solar year, from a lunar month to the return of a specific bird or the departure of a certain animal, the human experience of time has been anchored to Earth's cycles. Indeed, as our ancestors could anticipate and prepare for these cyclical patterns, societies gained resilience, ecological integration, and prosperity.
 
