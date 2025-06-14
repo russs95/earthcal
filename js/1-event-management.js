@@ -1049,7 +1049,7 @@ function shareDateCycle(uniqueKey) {
     const sharer = (window.userProfile?.first_name || "An Earthcal user").trim();
     const encodedSharer = encodeURIComponent(sharer);
 
-    const url = `https://cycles.earthen.io/index.html?action=add-event&f=${frequency}&date=${date}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}&from=${encodedSharer}`;
+    const url = `https://cycles.earthen.io/share.html?action=add-event&f=${frequency}&date=${date}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}&from=${encodedSharer}`;
 
     navigator.clipboard.writeText(url).then(() => {
         alert("Shareable event link copied to clipboard!");
