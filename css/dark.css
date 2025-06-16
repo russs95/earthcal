@@ -6,7 +6,7 @@
 
     /*--side-overlays: rgb(31, 33, 48);*/
     --slider:red;
-    --side-overlays: #070b1b;
+    --side-overlays: #070b1b;  /*old dark:#070b1b*/
     --slide-highlight: rgb(47, 47, 60);
     --text-color: #c0c5e1ff;
     --modal-background: #000000d5;

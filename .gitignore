@@ -1,9 +1,9 @@
 
+.idea
 dist
 dist-old
 earthcal-linux-x64
 node_modules
-snap
 usr
 electron-builder.yml
 CNAME
@@ -11,5 +11,8 @@ External Libraries
 Scratches and Consoles
 resources
 earthcal_0.9.5_amd64.snap
+earthcal_0.9.6_amd64.snap
+earthcal_0.9.7_amd64.snap
 experiments
 /earthcal_0.9.5_amd64.snap
+/earthcal_0.9.6_amd64.snap

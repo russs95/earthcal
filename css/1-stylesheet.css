@@ -2263,7 +2263,7 @@ color: #b2b1b1;
 
 @media (prefers-color-scheme: dark) {
     .registration-footer-holder {
-        background: url(../webp/earthen-subscription-background-dark.webp) top center, var(--side-overlays);
+        background: url(../webp/earthen-subscription-background-dark.webp) top center, var(--top-header);
         background-repeat: no-repeat;
         background-size: cover;
     }
@@ -2339,13 +2339,21 @@ color: #b2b1b1;
     transition: transform 0.3s ease;
     z-index: 52;
 }
-
-/* Hover effect: move both reg-up-button and registration-footer */
-#reg-up-button:hover {
-    transform: translateY(-20px);
+/* 1) Make the wrapper itself ignore all mouse events */
+#registration-container {
+    pointer-events: none;
 }
 
-#reg-up-button:hover ~ #registration-footer {
+/* 2) Re-enable events on just your two children */
+#registration-container > #reg-up-button,
+#registration-container > #registration-footer {
+    pointer-events: auto;
+    transition: transform 0.2s ease;
+}
+
+/* 3) When the container has the “hover” class, slide both up */
+#registration-container.hover > #reg-up-button,
+#registration-container.hover > #registration-footer {
     transform: translateY(-20px);
 }
 

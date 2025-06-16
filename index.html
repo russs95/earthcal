@@ -660,84 +660,86 @@ openPlanetInfoBox();
 
 <!-- LOGIN FOOTER CURTAIN -->
 
-<button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
+<div id="registration-container">
+    <button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Newsletter Registration" data-lang-id="105-subscription-registration"></button>
 
-<div id="registration-footer">
-    <div class="registration-footer-holder">
-        <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
-            <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
-        </button>
-        <div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-58px;font-family:'Mulish',sans-serif;"></div>
+    <div id="registration-footer">
+        <div class="registration-footer-holder">
+            <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
+                <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
+            </button>
+            <div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-58px;font-family:'Mulish',sans-serif;"></div>
 
-        <div class="form-container" id="login-form-section">
-            <div style="text-align:center;width:100%;" >
-                <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
-                <div id="status-message"></div>
-                <div id="sub-status-message"></div>
+            <div class="form-container" id="login-form-section">
+                <div style="text-align:center;width:100%;" >
+                    <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
+                    <div id="status-message"></div>
+                    <div id="sub-status-message"></div>
+                </div>
+                <!-- Form starts here-->
+                <form id="login" action="https://buwana.ecobricks.org/api/login_process.php" method="POST">
+
+                    <div class="form-item">
+                        <p style="text-align:center;">Login with your Buwana account credentials.</p>
+                        <div id="credential-input-field" class="input-wrapper" style="position: relative;">
+                            <input type="text" id="credential_key" name="credential_key" required placeholder="Your e-mail...">
+                            <span class="toggle-select-key" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🌏</span>
+                            <div id="dropdown-menu" style="display: none; position: absolute; right: 10px; top: 100%; z-index: 1000; background: white; border: 1px solid #ccc; width: 150px; text-align: left;">
+                                <div class="dropdown-item" value="Your email...">E-mail</div>
+                                <div class="dropdown-item disabled" style="opacity: 0.5;">SMS</div>
+                                <div class="dropdown-item disabled" style="opacity: 0.5;">Phone</div>
+                                <div class="dropdown-item disabled" style="opacity: 0.5;">GEA Peer</div>
+                            </div>
+                        </div>
+                        <div id="no-buwana-email" data-lang-id="001-cant-find" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">🤔 We can't find this credential in the database.</div>
+                    </div>
+
+                    <div class="form-item" id="password-form" style="height:92px;margin-top: -5px;">
+                        <div class="password-wrapper" style="position: relative;">
+                            <div data-lang-id="005-password-field-placeholder">
+                                <input type="password" id="password" name="password" placeholder="Your password..." required>
+                            </div>
+                            <span toggle="#password" class="toggle-password" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🙈</span>
+                        </div>
+                        <div id="password-error" data-lang-id="002-password-is-wrong" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">👉 Password is wrong.</div>
+                        <p class="form-caption"><span data-lang-id="003-forgot-your-password">Forgot your password?</span> <a href="#" onclick="showPasswordReset('reset', '<?php echo $lang; ?>', '')" class="underline-link" data-lang-id="000-reset-it">Reset it.</a></p>
+                    </div>
+
+                    <div class="form-item" id="code-form" style="text-align:center;height:80px;">
+
+                        <div class="code-wrapper" style="position: relative;">
+                            <input type="text" maxlength="1" class="code-box" placeholder="-">
+                            <input type="text" maxlength="1" class="code-box" placeholder="-">
+                            <input type="text" maxlength="1" class="code-box" placeholder="-">
+                            <input type="text" maxlength="1" class="code-box" placeholder="-">
+                            <input type="text" maxlength="1" class="code-box" placeholder="-">
+                        </div>
+                    <p id="code-status" class="form-caption" data-lang-id="003-code-status" style="margin-top:5px;">A code to login will be sent to your email.</p>
+
+                    </div>
+
+                    <div style="text-align:center;width:100%;margin:auto;margin-top:15px;max-width:500px;" id="login-buttons">
+                        <div class="toggle-container">
+                            <input type="radio" id="password" name="toggle" value="password" checked>
+                            <input type="radio" id="code" name="toggle" value="code">
+                            <div class="toggle-button password">🔑</div>
+                            <div class="toggle-button code">📱</div>
+                            <div class="login-slider"></div>
+                            <span data-lang-id="004-login-button">
+                                <input type="submit" id="submit-password-button" value="Login" class="login-button-75">
+                            </span>
+                            <input type="button" id="send-code-button" value="📨 Send Code" class="code-button-75" style="display:none;">
+                        </div>
+                        <div id="code-error" data-lang-id="002-password-wrong" class="form-field-error" style="display:none;margin-top: 5px;margin-bottom:-15px;">👉 Entry is incorrect.</div>
+                    </div>
+                </form>
+                <p style="text-align:center; font-size:0.9em;margin-top:30px;">Buwana accounts power regenerative apps like this Earthcal. <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" target="_blank">Get yours</a>.</p>
+            </div><!--Login Form -->
+
+            <!--To be shown upon login-->
+            <div id="logged-in-view" style="display:none; text-align:center;">
+
             </div>
-            <!-- Form starts here-->
-            <form id="login" action="https://buwana.ecobricks.org/api/login_process.php" method="POST">
-
-                <div class="form-item">
-                    <p style="text-align:center;">Login with your Buwana account credentials.</p>
-                    <div id="credential-input-field" class="input-wrapper" style="position: relative;">
-                        <input type="text" id="credential_key" name="credential_key" required placeholder="Your e-mail...">
-                        <span class="toggle-select-key" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🌏</span>
-                        <div id="dropdown-menu" style="display: none; position: absolute; right: 10px; top: 100%; z-index: 1000; background: white; border: 1px solid #ccc; width: 150px; text-align: left;">
-                            <div class="dropdown-item" value="Your email...">E-mail</div>
-                            <div class="dropdown-item disabled" style="opacity: 0.5;">SMS</div>
-                            <div class="dropdown-item disabled" style="opacity: 0.5;">Phone</div>
-                            <div class="dropdown-item disabled" style="opacity: 0.5;">GEA Peer</div>
-                        </div>
-                    </div>
-                    <div id="no-buwana-email" data-lang-id="001-cant-find" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">🤔 We can't find this credential in the database.</div>
-                </div>
-
-                <div class="form-item" id="password-form" style="height:92px;margin-top: -5px;">
-                    <div class="password-wrapper" style="position: relative;">
-                        <div data-lang-id="005-password-field-placeholder">
-                            <input type="password" id="password" name="password" placeholder="Your password..." required>
-                        </div>
-                        <span toggle="#password" class="toggle-password" style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);font-size:18px;">🙈</span>
-                    </div>
-                    <div id="password-error" data-lang-id="002-password-is-wrong" class="form-field-error" style="display:none;margin-top: 0px;margin-bottom:-15px;">👉 Password is wrong.</div>
-                    <p class="form-caption"><span data-lang-id="003-forgot-your-password">Forgot your password?</span> <a href="#" onclick="showPasswordReset('reset', '<?php echo $lang; ?>', '')" class="underline-link" data-lang-id="000-reset-it">Reset it.</a></p>
-                </div>
-
-                <div class="form-item" id="code-form" style="text-align:center;height:80px;">
-
-                    <div class="code-wrapper" style="position: relative;">
-                        <input type="text" maxlength="1" class="code-box" placeholder="-">
-                        <input type="text" maxlength="1" class="code-box" placeholder="-">
-                        <input type="text" maxlength="1" class="code-box" placeholder="-">
-                        <input type="text" maxlength="1" class="code-box" placeholder="-">
-                        <input type="text" maxlength="1" class="code-box" placeholder="-">
-                    </div>
-                <p id="code-status" class="form-caption" data-lang-id="003-code-status" style="margin-top:5px;">A code to login will be sent to your email.</p>
-
-                </div>
-
-                <div style="text-align:center;width:100%;margin:auto;margin-top:15px;max-width:500px;" id="login-buttons">
-                    <div class="toggle-container">
-                        <input type="radio" id="password" name="toggle" value="password" checked>
-                        <input type="radio" id="code" name="toggle" value="code">
-                        <div class="toggle-button password">🔑</div>
-                        <div class="toggle-button code">📱</div>
-                        <div class="login-slider"></div>
-                        <span data-lang-id="004-login-button">
-                            <input type="submit" id="submit-password-button" value="Login" class="login-button-75">
-                        </span>
-                        <input type="button" id="send-code-button" value="📨 Send Code" class="code-button-75" style="display:none;">
-                    </div>
-                    <div id="code-error" data-lang-id="002-password-wrong" class="form-field-error" style="display:none;margin-top: 5px;margin-bottom:-15px;">👉 Entry is incorrect.</div>
-                </div>
-            </form>
-            <p style="text-align:center; font-size:0.9em;margin-top:30px;">Buwana accounts power regenerative apps like this Earthcal. <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" target="_blank">Get yours</a>.</p>
-        </div><!--Login Form -->
-
-        <!--To be shown upon login-->
-        <div id="logged-in-view" style="display:none; text-align:center;">
-
         </div>
     </div>
 </div>
@@ -1657,6 +1659,20 @@ function onTouch(event) {
 
 
 
+</script>
+
+
+<script>
+    const container = document.getElementById('registration-container');
+    const children  = [
+        document.getElementById('reg-up-button'),
+        document.getElementById('registration-footer')
+    ];
+
+    children.forEach(el => {
+        el.addEventListener('mouseenter', () => container.classList.add('hover'));
+        el.addEventListener('mouseleave', () => container.classList.remove('hover'));
+    });
 </script>
 
 
