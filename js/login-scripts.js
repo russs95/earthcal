@@ -737,7 +737,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 codeToggle.checked = true;
                 passwordToggle.checked = false;
             }
-
             // Update form action, visibility, and buttons based on the selected toggle
             updateFormAction();
             updateFormVisibility();
