@@ -408,6 +408,8 @@ function syncUserEvents() {
     alert("Your events are being synced!");
 }
 
+
+
 /* ---------- ------------------------------
 TOGGLE PASSWORD VISIBILITY
 -------------------------------------------*/
@@ -711,18 +713,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to update the visibility of the submit buttons
     function updateButtonVisibility() {
+        submitPasswordButton.style.setProperty('display', 'none', 'important');
+        sendCodeButton.style.setProperty('display', 'none', 'important');
+
         if (passwordToggle.checked) {
-            sendCodeButton.style.display = 'none';
             setTimeout(() => {
-                submitPasswordButton.style.display = 'block';
-            }, 600); // Delay for transition effect
+                submitPasswordButton.style.setProperty('display', 'block', 'important');
+            }, 600);
         } else {
-            submitPasswordButton.style.display = 'none';
             setTimeout(() => {
-                sendCodeButton.style.display = 'block';
-            }, 600); // Delay for transition effect
+                sendCodeButton.style.setProperty('display', 'block', 'important');
+            }, 600);
         }
     }
+
 
     // Event listener for toggle button clicks
     document.querySelectorAll('.toggle-button').forEach(button => {
