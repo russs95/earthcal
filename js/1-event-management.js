@@ -547,15 +547,27 @@ function updateDateCycleCount(pinnedCount, currentCount) {
 
 
 
+function mapColor(colorName) {
+    const colorMap = {
+        blue: "var(--blue)",
+        yellow: "var(--yellow)",
+        green: "var(--green)",
+        red: "var(--red)",
+        orange: "var(--orange)"
+    };
+    return colorMap[colorName?.toLowerCase()] || colorName || "#000";
+}
 
-// Function to write date cycles and update the count
+
+
+
 // Function to write date cycles and update the count
 function writeMatchingDateCycles(divElement, dateCycle) {
     window.dateCycleCount = (window.dateCycleCount || 0) + 1; // Initialize and increment count
 
     const eventName = dateCycle.title || "Untitled Event";
-    const bulletColor = dateCycle.datecycle_color || "#000"; // For bullet & title
-    const calendarColor = dateCycle.cal_color || "#000"; // For calendar name
+    const bulletColor = mapColor(dateCycle.datecycle_color);
+    const calendarColor = mapColor(dateCycle.cal_color);
 
     const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
