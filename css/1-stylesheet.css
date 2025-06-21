@@ -26,6 +26,12 @@ p {
     }
 
 
+.planet-info {
+    background: var(--general-background);
+    padding: 10px;
+    border-radius: 15px;
+}
+
   @media screen and (max-width: 700px) {
 
   #user-timezone-lang {
