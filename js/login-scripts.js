@@ -727,7 +727,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
     // Event listener for toggle button clicks
     document.querySelectorAll('.toggle-button').forEach(button => {
         button.addEventListener('click', () => {
