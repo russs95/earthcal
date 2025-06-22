@@ -127,7 +127,7 @@ async function showLoginForm(emailRegistration, loggedInView, userData = {}) {
     emailRegistration.style.display = "block";
     loggedInView.style.display = "none";
 
-    const { email, status, earthling_emoji, first_name } = userData;
+    const { status, earthling_emoji, first_name } = userData;
 
     const translations = await loadTranslations(userLanguage.toLowerCase());
     const loginStrings = translations.login;
@@ -139,26 +139,6 @@ async function showLoginForm(emailRegistration, loggedInView, userData = {}) {
     } else {
         subStatusDiv.innerHTML = loginStrings.statusReturning(earthling_emoji, first_name);
     }
-
-    // Set credential placeholder
-    const credentialInput = document.getElementById('credential_key');
-    if (credentialInput) {
-        credentialInput.placeholder = loginStrings.emailPlaceholder;
-        if (email) credentialInput.value = email;
-    }
-
-    // Password field
-    const passwordInput = document.getElementById('password');
-    if (passwordInput) {
-        passwordInput.placeholder = loginStrings.passwordPlaceholder;
-    }
-
-    // Status text and buttons
-    document.querySelector('form#login p').textContent = loginStrings.credentialLabel;
-    document.getElementById('submit-password-button').value = loginStrings.login;
-    document.getElementById('send-code-button').value = loginStrings.sendCode;
-    document.querySelector('.form-caption span').textContent = loginStrings.forgotPassword;
-    document.querySelector('.underline-link').textContent = loginStrings.resetLink;
 }
 
 
