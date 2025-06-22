@@ -739,8 +739,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             // Update form action, visibility, and buttons based on the selected toggle
             updateFormAction();
-            updateFormVisibility();
             updateButtonVisibility();
+            updateFormVisibility();
+
         });
     });
 
