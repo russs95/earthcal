@@ -421,11 +421,13 @@ document.addEventListener("DOMContentLoaded", function() {
 /* Code entry and processing for 2FA */
 
 document.addEventListener('DOMContentLoaded', function () {
-    const codeInputs = document.querySelectorAll('.code-box');
     const sendCodeButton = document.getElementById('send-code-button');
+    const credentialKeyInput = document.getElementById('credential_key');
+    if (!sendCodeButton || !credentialKeyInput) return;
+
+    const codeInputs = document.querySelectorAll('.code-box');
     const codeErrorDiv = document.getElementById('code-error');
     const codeStatusDiv = document.getElementById('code-status');
-    const credentialKeyInput = document.getElementById('credential_key');
 
     // Function to move focus to the next input
     function moveToNextInput(currentInput, nextInput) {
@@ -662,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const codeToggle = document.getElementById('code');
     const submitPasswordButton = document.getElementById('submit-password-button');
     const sendCodeButton = document.getElementById('send-code-button');
+    if (!passwordForm || !codeForm || !passwordToggle || !codeToggle || !submitPasswordButton || !sendCodeButton) return;
 
     // Function to update the form visibility and toggle required attribute based on toggle state
     function updateFormVisibility() {
@@ -746,6 +749,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById('login');
+    if (!loginForm) return;
     // Function to extract the query parameters from the URL
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -1058,6 +1063,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleSelectIcon = document.querySelector('.toggle-select-key');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const credentialKeyInput = document.getElementById('credential_key');
+    if (!toggleSelectIcon || !dropdownMenu || !credentialKeyInput) return;
     const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
 
     // Toggle dropdown menu visibility on click
