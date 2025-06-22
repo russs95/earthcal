@@ -2849,3 +2849,14 @@ svg path #june:hover {
         margin-left: 3px !important;
     }
 }
+
+
+.buwana-word-mark {
+    background: url('../svgs/b-logo.svg') center no-repeat;
+    background-size: contain;
+    height: 30px;
+    width: 200px;
+    margin: auto;
+    margin-top: 5px;
+
+}
