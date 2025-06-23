@@ -3,6 +3,50 @@
 /*-------------
 LOGIN FUNCTIONS
 ----------------*/
+
+
+function createJWTloginURL() {
+    // Buwana configuration
+    const buwanaAuthorizeURL = "https://buwana.ecobricks.org/auth/authorize";
+    const client_id = "ecal_7f3da821d0a54f8a9b58";
+    const redirect_uri = encodeURIComponent("https://earthcal.app/auth/callback");
+    const scope = encodeURIComponent("openid email profile");
+    const lang = "en"; // or dynamically detect from your page
+
+    // Generate random state and nonce for security
+    const state = generateRandomString(32);
+    const nonce = generateRandomString(32);
+
+    // You may store state & nonce in localStorage or sessionStorage for later verification (best practice)
+    sessionStorage.setItem("oidc_state", state);
+    sessionStorage.setItem("oidc_nonce", nonce);
+
+    // Construct the full login URL
+    const loginURL = `${buwanaAuthorizeURL}?client_id=${client_id}&response_type=code&scope=${scope}&redirect_uri=${redirect_uri}&state=${state}&nonce=${nonce}&lang=${lang}`;
+
+    // Assign the URL to your login button
+    const loginButton = document.querySelector("#login-buttons-container button.sync-style");
+    if (loginButton) {
+        loginButton.onclick = () => window.location.href = loginURL;
+    }
+}
+
+// Helper function to generate random string
+function generateRandomString(length) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const cryptoObj = window.crypto || window.msCrypto; // For older IE support
+    const randomValues = new Uint32Array(length);
+    cryptoObj.getRandomValues(randomValues);
+    for (let i = 0; i < length; i++) {
+        result += charset[randomValues[i] % charset.length];
+    }
+    return result;
+}
+
+
+
+
 async function sendUpRegistration() {
     const guidedTour = document.getElementById("guided-tour");
     const guidedTourModal = guidedTour?.querySelector('.modal');
@@ -17,6 +61,7 @@ async function sendUpRegistration() {
     const buwanaId = localStorage.getItem('buwana_id');
 
     if (!buwanaId) {
+        createJWTloginURL();
         showLoginForm(emailRegistration, loggedInView, null);
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
