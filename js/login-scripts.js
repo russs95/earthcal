@@ -26,7 +26,6 @@ async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
 
 
 
-
 function createJWTloginURL() {
     // Buwana configuration
     const buwanaAuthorizeURL = "https://buwana.ecobricks.org/auth/authorize";
@@ -46,12 +45,16 @@ function createJWTloginURL() {
     // Construct the full login URL
     const loginURL = `${buwanaAuthorizeURL}?client_id=${client_id}&response_type=code&scope=${scope}&redirect_uri=${redirect_uri}&state=${state}&nonce=${nonce}&lang=${lang}`;
 
+    // Log the login URL for debugging
+    console.log("Generated Buwana Login URL:", loginURL);
+
     // Assign the URL to your login button
     const loginButton = document.querySelector("#login-buttons-container button.sync-style");
     if (loginButton) {
         loginButton.onclick = () => window.location.href = loginURL;
     }
 }
+
 
 // Helper function to generate random string
 function generateRandomString(length) {
@@ -67,6 +70,47 @@ function generateRandomString(length) {
 }
 
 
+
+// Check whether ID token exists and is still valid
+function checkUserSession() {
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) return false;
+
+    try {
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+        const now = Math.floor(Date.now() / 1000);
+        return payload.exp > now;
+    } catch (e) {
+        console.error("Invalid ID token:", e);
+        return false;
+    }
+}
+
+// Parse ID token and build partial JWT profile
+function buildJWTuserProfile() {
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) return null;
+
+    try {
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+
+        const jwtProfile = {
+            sub: payload.sub,
+            email: payload.email,
+            first_name: payload.given_name,
+            earthling_emoji: payload["buwana:earthlingEmoji"],
+            community: payload["buwana:community"],
+            continent: payload["buwana:location.continent"]
+        };
+
+        console.log("JWTuserProfile:", jwtProfile);
+        return jwtProfile;
+    } catch (e) {
+        console.error("Failed to parse ID token:", e);
+        return null;
+    }
+}
+
 async function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -80,39 +124,79 @@ async function sendUpRegistration() {
         return;
     }
 
+    // ✅ Step 1: log the partial JWT data for testing
+    buildJWTuserProfile();
+
     try {
-        // Valid session — fetch latest user profile using access token
-        const access_token = localStorage.getItem('access_token');
-        const response = await fetch('https://buwana.ecobricks.org/auth/userinfo', {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${access_token}` }
+        // ✅ Step 2: still fetch full user profile from Buwana server (existing API call)
+        const id_token = localStorage.getItem('id_token');
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+        const buwanaSub = payload.sub;  // ex: buwana_12345
+
+        // Derive buwana_id from sub claim (if needed for legacy API)
+        let buwanaId = null;
+        if (buwanaSub.startsWith("buwana_")) {
+            buwanaId = buwanaSub.split("_")[1];
+        } else {
+            buwanaId = buwanaSub;
+        }
+
+        // Fetch full user profile (legacy)
+        const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
+            credentials: 'include'
         });
+        const userData = await userResponse.json();
 
-        if (!response.ok) throw new Error("Invalid userinfo response");
+        if (!userData.logged_in) {
+            console.warn("Session expired or invalid on server-side.");
+            showLoginForm(loggedOutView, loggedInView, null);
+            updateFooterAndArrowUI(footer, upArrow, downArrow);
+            return;
+        }
 
-        const userData = await response.json();
-
-        // Populate window.userProfile using returned claims
+        // ✅ Step 3: store full profile as usual
         window.userProfile = {
-            first_name: userData.given_name,
-            earthling_emoji: userData["buwana:earthlingEmoji"],
-            location_full: userData["buwana:community"],  // Example; adjust based on actual claims
-            location_lat: null,
-            location_long: null
+            first_name: userData.first_name,
+            earthling_emoji: userData.earthling_emoji,
+            last_sync_ts: userData.last_sync_ts,
+            language_id: userData.language_id,
+            time_zone: userData.time_zone,
+            last_login: userData.last_login,
+            location_full: userData.location_full,
+            location_lat: userData.location_lat,
+            location_long: userData.location_long,
+            connection_id: userData.connection_id
         };
 
-        window.userLanguage = "en";  // If you store language in user claims, update this too
-        window.userTimeZone = "America/Toronto";
+        window.userLanguage = userData.language_id.toLowerCase();
+        window.userTimeZone = userData.time_zone;
 
-        showLoggedInView(userData);
+        // ✅ Step 4: fetch calendar data as usual
+        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId }),
+            credentials: 'include'
+        });
+
+        const calendarData = await calResponse.json();
+
+        if (calendarData.success) {
+            showLoggedInView(calendarData);
+        } else {
+            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+            showErrorState(loggedOutView, loggedInView);
+        }
+
     } catch (error) {
-        console.error("Error fetching user info:", error);
-        // Fallback to login form if token is invalid
-        showLoginForm(loggedOutView, loggedInView, null);
+        console.error('Error in registration sequence:', error);
+        showErrorState(loggedOutView, loggedInView);
     }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+
 
 
 //
