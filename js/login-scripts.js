@@ -172,6 +172,9 @@ function buildJWTuserProfile() {
     }
 }
 
+
+
+
 async function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
