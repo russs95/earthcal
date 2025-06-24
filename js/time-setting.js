@@ -1,71 +1,55 @@
 // Declare globally near the top of your app
-// Declare globally near the top of your app
 let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
 
 async function getUserData() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const buwanaIdParam = urlParams.get('id');
-    const langParam = urlParams.get('lang');
-    const tzParam = urlParams.get('timezone');
-    const statusParam = urlParams.get('status');
-
     const isOffline = !navigator.onLine;
-    const cacheToken = localStorage.getItem('basic_user_data');
-    let parsedCache = null;
+    const id_token = localStorage.getItem('id_token');
 
-    if (cacheToken) {
-        try {
-            parsedCache = JSON.parse(cacheToken);
-        } catch {
-            console.warn("[EarthCal] Corrupt cache detected.");
-        }
-    }
-
-    // Always try cache first
-    if (parsedCache?.time_zone && parsedCache?.language) {
-        console.log("[EarthCal] Using cached user data.");
-        setUserContext(parsedCache, parsedCache.language, parsedCache.time_zone, "returning");
-        return;
-    }
-
-    // If offline and no usable cache
-    if (isOffline) {
-        console.warn("[EarthCal] Offline and no valid cache. Falling back to defaults.");
+    if (!id_token) {
+        console.warn("[EarthCal] No ID token found.");
         useDefaultUser();
         return;
     }
 
-    // Fallback ID logic (from cache or URL)
-    const fallbackId = parsedCache?.buwana_id || buwanaIdParam;
-    const userData = fallbackId ? await fetchUserData(fallbackId) : await fetchUserData();
-
-    if (userData) {
-        const lang = langParam || userData.language_id;
-        const tz = tzParam || userData.time_zone;
-
-        console.log("[EarthCal] Remote user data loaded.");
-        setUserContext(userData, lang, tz, statusParam || userData.status || "returning");
-        localStorage.setItem("basic_user_data", JSON.stringify(userData));
-    } else {
-        console.warn("[EarthCal] Failed to load remote user data.");
+    let payload = null;
+    try {
+        payload = JSON.parse(atob(id_token.split('.')[1]));
+    } catch (e) {
+        console.error("[EarthCal] Invalid ID token format.", e);
         useDefaultUser();
+        return;
     }
-}
 
-function setUserContext(data, lang, tz, status) {
-    userLanguage = lang;
-    userTimeZone = tz;
+    // Check expiration
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp < now) {
+        console.warn("[EarthCal] ID token expired.");
+        useDefaultUser();
+        return;
+    }
+
+    // ✅ Directly use data from JWT payload
+    const buwanaId = payload.buwana_id || null;  // Our new addition!
+    const email = payload.email || null;
+    const firstName = payload.given_name || "Earthling";
+
+    // Set userProfile directly
+    userLanguage = navigator.language.slice(0, 2);  // You can still refine this with future i18n
+    userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     userProfile = {
-        first_name: data.first_name || "Earthling",
-        earthling_emoji: data.earthling_emoji || "🐸",
-        email: data.email || null,
-        status
+        first_name: firstName,
+        email: email,
+        buwana_id: buwanaId,
+        earthling_emoji: "🐸",
+        status: "returning"
     };
+
+    console.log("[EarthCal] User profile loaded from ID token:", userProfile);
+
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
-    // sendUpRegistration();
 }
 
 function useDefaultUser() {
@@ -75,11 +59,14 @@ function useDefaultUser() {
         first_name: "Earthling",
         earthling_emoji: "🐸",
         email: null,
+        buwana_id: null,
         status: "new"
     };
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 }
+
+
 
 
 async function displayUserData(time_zone, language) {
