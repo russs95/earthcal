@@ -25,49 +25,71 @@ async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
 }
 
 
-
-function createJWTloginURL() {
+async function createJWTloginURL() {
     // Buwana configuration
     const buwanaAuthorizeURL = "https://buwana.ecobricks.org/auth/authorize";
     const client_id = "ecal_7f3da821d0a54f8a9b58";
-    const redirect_uri = encodeURIComponent("https://earthcal.app/auth/callback");
-    const scope = encodeURIComponent("openid email profile");
-    const lang = "en"; // or dynamically detect from your page
+    const redirect_uri = "https://earthcal.app/auth/callback";  // No need to encodeURIComponent here yet
+    const scope = "openid email profile";
+    const lang = "en"; // You can replace this with dynamic language detection if needed
 
-    // Generate random state and nonce for security
+    // Generate random state and nonce
     const state = generateRandomString(32);
     const nonce = generateRandomString(32);
-
-    // You may store state & nonce in localStorage or sessionStorage for later verification (best practice)
     sessionStorage.setItem("oidc_state", state);
     sessionStorage.setItem("oidc_nonce", nonce);
 
-    // Construct the full login URL
-    const loginURL = `${buwanaAuthorizeURL}?client_id=${client_id}&response_type=code&scope=${scope}&redirect_uri=${redirect_uri}&state=${state}&nonce=${nonce}&lang=${lang}`;
+    // 🔑 Generate PKCE code_verifier and code_challenge
+    const code_verifier = generateRandomString(64);
+    const code_challenge = await generateCodeChallenge(code_verifier);
+    sessionStorage.setItem("pkce_code_verifier", code_verifier);
 
-    // Log the login URL for debugging
-    console.log("Generated Buwana Login URL:", loginURL);
+    // Build full authorize URL with PKCE parameters
+    const url = new URL(buwanaAuthorizeURL);
+    url.searchParams.append("client_id", client_id);
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("scope", scope);
+    url.searchParams.append("redirect_uri", redirect_uri);
+    url.searchParams.append("state", state);
+    url.searchParams.append("nonce", nonce);
+    url.searchParams.append("code_challenge", code_challenge);
+    url.searchParams.append("code_challenge_method", "S256");
+    url.searchParams.append("lang", lang);
 
-    // Assign the URL to your login button
+    // Log for debugging
+    console.log("Generated PKCE Login URL:", url.toString());
+
+    // Assign to login button
     const loginButton = document.querySelector("#login-buttons-container button.sync-style");
     if (loginButton) {
-        loginButton.onclick = () => window.location.href = loginURL;
+        loginButton.onclick = () => window.location.href = url.toString();
     }
 }
 
-
-// Helper function to generate random string
+// Helper: generate random string (state, nonce, code_verifier)
 function generateRandomString(length) {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
-    const cryptoObj = window.crypto || window.msCrypto; // For older IE support
-    const randomValues = new Uint32Array(length);
-    cryptoObj.getRandomValues(randomValues);
-    for (let i = 0; i < length; i++) {
-        result += charset[randomValues[i] % charset.length];
-    }
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    array.forEach(val => result += charset[val % charset.length]);
     return result;
 }
+
+// Helper: generate PKCE code_challenge (SHA-256 hash of code_verifier)
+async function generateCodeChallenge(code_verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(code_verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return base64UrlEncode(digest);
+}
+
+// Helper: base64url encoding function (RFC 7636 spec)
+function base64UrlEncode(arrayBuffer) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 
 
 
