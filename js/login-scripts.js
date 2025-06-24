@@ -5,6 +5,28 @@ LOGIN FUNCTIONS
 ----------------*/
 
 
+async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
+    loggedOutView.style.display = "block";
+    loggedInView.style.display = "none";
+
+    createJWTloginURL();  // <-- Call here to update login button each time
+
+    const { status, earthling_emoji, first_name } = userData;
+
+    const translations = await loadTranslations(userLanguage.toLowerCase());
+    const loginStrings = translations.login;
+
+    const subStatusDiv = document.getElementById('sub-status-message');
+    if (status === "firsttime") {
+        subStatusDiv.innerHTML = loginStrings.statusFirstTime(earthling_emoji);
+    } else {
+        subStatusDiv.innerHTML = loginStrings.statusReturning(earthling_emoji, first_name);
+    }
+}
+
+
+
+
 function createJWTloginURL() {
     // Buwana configuration
     const buwanaAuthorizeURL = "https://buwana.ecobricks.org/auth/authorize";
@@ -45,113 +67,167 @@ function generateRandomString(length) {
 }
 
 
-
-
 async function sendUpRegistration() {
-    const guidedTour = document.getElementById("guided-tour");
-    const guidedTourModal = guidedTour?.querySelector('.modal');
-    if (guidedTourModal && guidedTourModal.style.display !== "none") return;
-
     const footer = document.getElementById("registration-footer");
-    const emailRegistration = document.getElementById("login-form-section");
+    const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    const buwanaId = localStorage.getItem('buwana_id');
-
-    if (!buwanaId) {
-        createJWTloginURL();
-        showLoginForm(emailRegistration, loggedInView, null);
+    if (!checkUserSession()) {
+        showLoginForm(loggedOutView, loggedInView, null);
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
     try {
-        // Check session validity
-        const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
-            credentials: 'include'
+        // Valid session — fetch latest user profile using access token
+        const access_token = localStorage.getItem('access_token');
+        const response = await fetch('https://buwana.ecobricks.org/auth/userinfo', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${access_token}` }
         });
-        const userData = await userResponse.json();
 
-        //If user is not logged in
-        if (!userData.logged_in) {
-            console.warn("Session expired or invalid. Using default user data.");
+        if (!response.ok) throw new Error("Invalid userinfo response");
 
-            window.userProfile = {
-                first_name: "Earthling",
-                earthling_emoji: "🐸",
-                language_id: "en",
-                time_zone: "America/Toronto", // EST/EDT
-                location_full: "Ottawa, Ontario, Canada",
-                location_lat: 45.4215,
-                location_long: -75.6972,
-                connection_id: null,
-                status: "guest"
-            };
+        const userData = await response.json();
 
-            window.userLanguage = "en";
-            window.userTimeZone = "America/Toronto";
-
-            showLoginForm(emailRegistration, loggedInView, null);
-            updateFooterAndArrowUI(footer, upArrow, downArrow);
-            return;
-        }
-
-
-        // Valid session — proceed with user data
+        // Populate window.userProfile using returned claims
         window.userProfile = {
-            first_name: userData.first_name,
-            earthling_emoji: userData.earthling_emoji,
-            last_sync_ts: userData.last_sync_ts,
-            language_id: userData.language_id,
-            time_zone: userData.time_zone,
-            last_login: userData.last_login,
-            location_full: userData.location_full,
-            location_lat: userData.location_lat,
-            location_long: userData.location_long,
-            connection_id: userData.connection_id
+            first_name: userData.given_name,
+            earthling_emoji: userData["buwana:earthlingEmoji"],
+            location_full: userData["buwana:community"],  // Example; adjust based on actual claims
+            location_lat: null,
+            location_long: null
         };
 
+        window.userLanguage = "en";  // If you store language in user claims, update this too
+        window.userTimeZone = "America/Toronto";
 
-        window.userLanguage = userData.language_id.toLowerCase();
-        window.userTimeZone = userData.time_zone;
-
-        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId }),
-            credentials: 'include'
-        });
-
-        const calendarData = await calResponse.json();
-
-        if (calendarData.success) {
-            showLoggedInView(calendarData);
-        } else {
-            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
-            showErrorState(emailRegistration, loggedInView);
-        }
-
+        showLoggedInView(userData);
     } catch (error) {
-        console.error('Error in registration sequence:', error);
-        showErrorState(emailRegistration, loggedInView);
+        console.error("Error fetching user info:", error);
+        // Fallback to login form if token is invalid
+        showLoginForm(loggedOutView, loggedInView, null);
     }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
 
 
+//
+//
+// async function sendUpRegistration() {
+//     const guidedTour = document.getElementById("guided-tour");
+//     const guidedTourModal = guidedTour?.querySelector('.modal');
+//     if (guidedTourModal && guidedTourModal.style.display !== "none") return;
+//
+//     const footer = document.getElementById("registration-footer");
+//     const loggedOutView = document.getElementById("login-form-section");
+//     const loggedInView = document.getElementById("logged-in-view");
+//     const upArrow = document.getElementById("reg-up-button");
+//     const downArrow = document.getElementById("reg-down-button");
+//
+//     const buwanaId = localStorage.getItem('buwana_id');
+//
+//     if (!buwanaId) {
+//         createJWTloginURL();
+//         showLoginForm(loggedOutView, loggedInView, null);
+//         updateFooterAndArrowUI(footer, upArrow, downArrow);
+//         return;
+//     }
+//
+//     try {
+//         // Check session validity
+//         const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
+//             credentials: 'include'
+//         });
+//         const userData = await userResponse.json();
+//
+//         //If user is not logged in
+//         if (!userData.logged_in) {
+//             console.warn("Session expired or invalid. Using default user data.");
+//
+//             window.userProfile = {
+//                 first_name: "Earthling",
+//                 earthling_emoji: "🐸",
+//                 language_id: "en",
+//                 time_zone: "America/Toronto", // EST/EDT
+//                 location_full: "Ottawa, Ontario, Canada",
+//                 location_lat: 45.4215,
+//                 location_long: -75.6972,
+//                 connection_id: null,
+//                 status: "guest"
+//             };
+//
+//             window.userLanguage = "en";
+//             window.userTimeZone = "America/Toronto";
+//
+//             showLoginForm(loggedOutView, loggedInView, null);
+//             updateFooterAndArrowUI(footer, upArrow, downArrow);
+//             return;
+//         }
+//
+//
+//         // Valid session — proceed with user data
+//         window.userProfile = {
+//             first_name: userData.first_name,
+//             earthling_emoji: userData.earthling_emoji,
+//             last_sync_ts: userData.last_sync_ts,
+//             language_id: userData.language_id,
+//             time_zone: userData.time_zone,
+//             last_login: userData.last_login,
+//             location_full: userData.location_full,
+//             location_lat: userData.location_lat,
+//             location_long: userData.location_long,
+//             connection_id: userData.connection_id
+//         };
+//
+//
+//         window.userLanguage = userData.language_id.toLowerCase();
+//         window.userTimeZone = userData.time_zone;
+//
+//         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ buwana_id: buwanaId }),
+//             credentials: 'include'
+//         });
+//
+//         const calendarData = await calResponse.json();
+//
+//         if (calendarData.success) {
+//             showLoggedInView(calendarData);
+//         } else {
+//             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+//             showErrorState(loggedOutView, loggedInView);
+//         }
+//
+//     } catch (error) {
+//         console.error('Error in registration sequence:', error);
+//         showErrorState(loggedOutView, loggedInView);
+//     }
+//
+//     updateFooterAndArrowUI(footer, upArrow, downArrow);
+// }
 
 
 
-// Helper function to check if logged in or not PROBLEM
+
 function checkUserSession() {
-    // Check if the 'buwana_id' exists in localStorage
-    const buwanaId = localStorage.getItem('buwana_id');
-    // Return true if 'buwana_id' is found and not empty
-    return buwanaId !== null && buwanaId !== '';
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) return false;
+
+    try {
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+        const now = Math.floor(Date.now() / 1000);
+        return payload.exp > now;
+    } catch (e) {
+        console.error("Invalid ID token:", e);
+        return false;
+    }
 }
+
 
 
 // Helper function to update footer and arrows when the registration-footer is displayed
@@ -168,29 +244,12 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
 
 
-async function showLoginForm(emailRegistration, loggedInView, userData = {}) {
-    emailRegistration.style.display = "block";
-    loggedInView.style.display = "none";
-
-    const { status, earthling_emoji, first_name } = userData;
-
-    const translations = await loadTranslations(userLanguage.toLowerCase());
-    const loginStrings = translations.login;
-
-    // Set dynamic message
-    const subStatusDiv = document.getElementById('sub-status-message');
-    if (status === "firsttime") {
-        subStatusDiv.innerHTML = loginStrings.statusFirstTime(earthling_emoji);
-    } else {
-        subStatusDiv.innerHTML = loginStrings.statusReturning(earthling_emoji, first_name);
-    }
-}
 
 
 
-function showErrorState(emailRegistration, loggedInView) {
+function showErrorState(loggedOutView, loggedInView) {
     console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
-    showLoginForm(emailRegistration, loggedInView);
+    showLoginForm(loggedOutView, loggedInView);
 }
 
 
@@ -367,7 +426,7 @@ async function toggleSubscription(calendarId, subscribe) {
 
   function sendDownRegistration() {
     var footer = document.getElementById("registration-footer");
-    var emailRegistration = document.getElementById("login-form-section");
+    var loggedOutView = document.getElementById("login-form-section");
     var upArrow = document.getElementById("reg-up-button");
     var downArrow = document.getElementById("reg-down-button");
 
@@ -376,7 +435,7 @@ async function toggleSubscription(calendarId, subscribe) {
     footer.style.height = "25px";
       // footer.style.marginBottom = "unset";
     // Make the email registration section visible
-    emailRegistration.style.display = "none";
+    loggedOutView.style.display = "none";
     upArrow.style.display = "block";
 //    downArrow.style.display = "none";
     calendarRefresh();
