@@ -180,6 +180,19 @@ function buildJWTuserProfile() {
 }
 
 
+async function sendUpLogin() {
+    const footer = document.getElementById("registration-footer");
+    const loggedOutView = document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
+
+    console.log("[EarthCal] User not logged in. Showing login form.");
+
+    showLoginForm(loggedOutView, loggedInView, null);
+    updateFooterAndArrowUI(footer, upArrow, downArrow);
+}
+
 
 
 async function sendUpRegistration() {
@@ -189,54 +202,23 @@ async function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
+    // ✅ Check session
     if (!checkUserSession()) {
-        showLoginForm(loggedOutView, loggedInView, null);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
-        return;
-    }
-
-    const jwtProfile = buildJWTuserProfile();
-    if (!jwtProfile) {
-        console.error("Failed to build JWT user profile.");
-        showLoginForm(loggedOutView, loggedInView, null);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        sendUpLogin();
         return;
     }
 
     try {
-        // Use buwana_id from parsed JWT directly
-        const buwanaId = jwtProfile.buwana_id;
+        // ✅ Use buwana_id from already loaded global userProfile
+        const buwanaId = userProfile?.buwana_id;
 
-        const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
-            credentials: 'include'
-        });
-        const userData = await userResponse.json();
-
-        if (!userData.logged_in) {
-            console.warn("Session expired or invalid on server-side.");
-            showLoginForm(loggedOutView, loggedInView, null);
-            updateFooterAndArrowUI(footer, upArrow, downArrow);
+        if (!buwanaId) {
+            console.error("Missing buwana_id in userProfile.");
+            sendUpLogin();
             return;
         }
 
-        window.userProfile = {
-            first_name: userData.first_name,
-            email: userData.email,                 // Optional: pull again to stay consistent
-            buwana_id: buwanaId,                  // ✅ <-- Inject directly from JWT
-            earthling_emoji: userData.earthling_emoji,
-            last_sync_ts: userData.last_sync_ts,
-            language_id: userData.language_id,
-            time_zone: userData.time_zone,
-            last_login: userData.last_login,
-            location_full: userData.location_full,
-            location_lat: userData.location_lat,
-            location_long: userData.location_long,
-            connection_id: userData.connection_id
-        };
-
-        window.userLanguage = userData.language_id.toLowerCase();
-        window.userTimeZone = userData.time_zone;
-
+        // ✅ Fetch calendar data only
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -254,7 +236,7 @@ async function sendUpRegistration() {
         }
 
     } catch (error) {
-        console.error('Error in registration sequence:', error);
+        console.error('Error in sendUpRegistration:', error);
         showErrorState(loggedOutView, loggedInView);
     }
 

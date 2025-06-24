@@ -4,12 +4,12 @@ let userTimeZone = null;
 let userProfile = null;
 
 async function getUserData() {
-    const isOffline = !navigator.onLine;
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
         console.warn("[EarthCal] No ID token found.");
         useDefaultUser();
+        sendUpLogin();
         return;
     }
 
@@ -19,30 +19,29 @@ async function getUserData() {
     } catch (e) {
         console.error("[EarthCal] Invalid ID token format.", e);
         useDefaultUser();
+        sendUpLogin();
         return;
     }
 
-    // Check expiration
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
         useDefaultUser();
+        sendUpLogin();
         return;
     }
 
-    // ✅ Directly use data from JWT payload
-    const buwanaId = payload.buwana_id || null;  // Our new addition!
-    const email = payload.email || null;
-    const firstName = payload.given_name || "Earthling";
-
-    // Set userProfile directly
-    userLanguage = navigator.language.slice(0, 2);  // You can still refine this with future i18n
+    // ✅ Valid session, update global state
+    userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     userProfile = {
-        first_name: firstName,
-        email: email,
-        buwana_id: buwanaId,
-        earthling_emoji: "🐸",
+        first_name: payload.given_name || "Earthling",
+        email: payload.email || null,
+        buwana_id: payload.buwana_id || null,
+        earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
+        community: payload["buwana:community"] || null,
+        continent: payload["buwana:location.continent"] || null,
         status: "returning"
     };
 
@@ -51,6 +50,7 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 }
+
 
 function useDefaultUser() {
     userLanguage = navigator.language.slice(0, 2);
