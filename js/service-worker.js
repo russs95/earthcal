@@ -1,4 +1,4 @@
-const CACHE_NAME = 'earthcal-cache-v1';
+const CACHE_NAME = 'earthcal-cache-v2';
 const MAX_API_CACHE_ITEMS = 5; // Maximum number of cached API responses
 
 // List of assets to pre-cache

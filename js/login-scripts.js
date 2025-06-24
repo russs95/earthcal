@@ -5,6 +5,58 @@ LOGIN FUNCTIONS
 ----------------*/
 
 
+function checkUserSession() {
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) {
+        console.log("No ID token found.");
+        return false;
+    }
+
+    try {
+        // Decode payload
+        const parts = id_token.split('.');
+        if (parts.length !== 3) {
+            console.error("Malformed ID token structure.");
+            return false;
+        }
+
+        const payload = JSON.parse(atob(parts[1]));
+
+        // Check standard claims
+        const now = Math.floor(Date.now() / 1000);
+        const leeway = 60; // allow 1 minute clock skew
+
+        if (!payload.exp || payload.exp < (now - leeway)) {
+            console.warn("ID token expired.");
+            return false;
+        }
+
+        if (!payload.iat || payload.iat > (now + leeway)) {
+            console.warn("ID token issued in the future.");
+            return false;
+        }
+
+        if (!payload.iss || payload.iss !== "https://buwana.ecobricks.org") {
+            console.warn("Unexpected issuer.");
+            return false;
+        }
+
+        if (!payload.aud || payload.aud !== "ecal_7f3da821d0a54f8a9b58") {
+            console.warn("Unexpected audience.");
+            return false;
+        }
+
+        return true;  // ✅ Token looks valid
+    } catch (e) {
+        console.error("Error parsing ID token:", e);
+        return false;
+    }
+}
+
+
+
+
+
 async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
     loggedOutView.style.display = "block";
     loggedInView.style.display = "none";
@@ -93,20 +145,7 @@ function base64UrlEncode(arrayBuffer) {
 
 
 
-// Check whether ID token exists and is still valid
-function checkUserSession() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) return false;
 
-    try {
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-        const now = Math.floor(Date.now() / 1000);
-        return payload.exp > now;
-    } catch (e) {
-        console.error("Invalid ID token:", e);
-        return false;
-    }
-}
 
 // Parse ID token and build partial JWT profile
 function buildJWTuserProfile() {
