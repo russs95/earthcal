@@ -71,14 +71,12 @@ function useDefaultUser() {
 
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
-
-    // Update global timezone
     userTimeZone = time_zone;
 
     const userDetailsString = `| ${getUtcOffset(userTimeZone)} | ${language.toUpperCase()}`;
     const isUserLoggedIn = checkUserSession();
-    const loginIndicator = isUserLoggedIn ? '🟢' : '⚪';
 
+    // Top timezone/language section
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
     userTimezoneLangDiv.innerHTML = `
         <span id="current-user-time"></span>
@@ -90,46 +88,38 @@ async function displayUserData(time_zone, language) {
         </span>
     `;
 
-    // Update the session status indicator
+    // Session indicator
     const sessionStatus = document.getElementById('user-session-status');
     if (sessionStatus) {
-        let statusText = '';
-        let statusIcon = '';
-        const isConfirmedLogin = userProfile?.status !== 'guest' && checkUserSession();
-
-        if (isConfirmedLogin) {
-            statusIcon = '🟢';
-            statusText = `Logged in as ${userProfile.first_name || 'User'} ${userProfile.earthling_emoji || ''}`;
-        } else if (userProfile?.status === 'returning') {
-            statusIcon = '🟡';
-            statusText = `Cached user: ${userProfile.first_name || 'Earthling'} ${userProfile.earthling_emoji || ''}`;
+        if (isUserLoggedIn) {
+            const emoji = userProfile.earthling_emoji || '🌎';
+            const firstName = userProfile.first_name || 'Earthling';
+            sessionStatus.innerHTML = `
+                <span title="Logged in user" style="cursor:pointer;" onclick="sendUpRegistration()">
+                    ${emoji} Logged in as ${firstName}
+                </span>
+            `;
         } else {
-            statusIcon = '⚪';
-            statusText = 'Not logged in';
+            sessionStatus.innerHTML = `
+                <span title="Not logged in" style="cursor:pointer;" onclick="sendUpRegistration()">
+                    ⚪ Not logged in
+                </span>
+            `;
         }
-
-        sessionStatus.innerHTML = `
-        <span title="Login status" style="cursor:pointer;" onclick="sendUpRegistration()">
-            ${statusIcon} ${statusText}
-        </span>
-    `;
     }
 
-
-// Update SVG login indicator color
+    // SVG indicator color
     const loginSvg = document.getElementById('user-logged-in');
     if (loginSvg) {
         loginSvg.style.stroke = isUserLoggedIn ? '#55d400' : '#999999';
     }
 
-
+    // Clock
     updateTime();
-
     if (!window.updateTimeInterval) {
         window.updateTimeInterval = setInterval(updateTime, 1000);
     }
 }
-
 
 
 function updateTime() {
