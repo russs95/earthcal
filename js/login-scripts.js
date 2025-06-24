@@ -214,7 +214,6 @@ async function sendUpLogin() {
 
 
 
-
 async function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -222,23 +221,56 @@ async function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // ✅ Check session
+    // ✅ Check session (JWT exists & valid)
     if (!checkUserSession()) {
         sendUpLogin();
         return;
     }
 
     try {
-        // ✅ Use buwana_id from already loaded global userProfile
-        const buwanaId = userProfile?.buwana_id;
-
-        if (!buwanaId) {
-            console.error("Missing buwana_id in userProfile.");
+        const id_token = localStorage.getItem('id_token');
+        if (!id_token) {
+            console.error("ID token missing, cannot rebuild profile.");
             sendUpLogin();
             return;
         }
 
-        // ✅ Fetch calendar data only
+        // ✅ Call userinfo endpoint to rebuild full userProfile
+        const userInfoResponse = await fetch('https://buwana.ecobricks.org/userinfo', {
+            headers: {
+                'Authorization': `Bearer ${id_token}`
+            }
+        });
+
+        if (!userInfoResponse.ok) {
+            console.error("Failed to fetch userinfo.");
+            sendUpLogin();
+            return;
+        }
+
+        const userData = await userInfoResponse.json();
+
+        // ✅ Build global userProfile from userinfo payload
+        window.userProfile = {
+            first_name: userData.given_name || "Earthling",
+            email: userData.email || null,
+            buwana_id: extractBuwanaId(userData.sub),
+            earthling_emoji: userData["buwana:earthlingEmoji"] || "🐸",
+            community: userData["buwana:community"] || null,
+            continent: userData["buwana:location.continent"] || null,
+            status: "returning"
+        };
+
+        console.log("[EarthCal] User profile rebuilt from /userinfo:", window.userProfile);
+
+        // ✅ Now fetch calendar data
+        const buwanaId = window.userProfile.buwana_id;
+        if (!buwanaId) {
+            console.error("Missing buwana_id after userinfo rebuild.");
+            sendUpLogin();
+            return;
+        }
+
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -262,6 +294,16 @@ async function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+// Simple helper to extract buwana_id from sub claim
+function extractBuwanaId(sub) {
+    if (!sub) return null;
+    if (sub.startsWith("buwana_")) {
+        return sub.split("_")[1];
+    }
+    return sub;
+}
+
 
 
 
