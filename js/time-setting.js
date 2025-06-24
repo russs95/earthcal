@@ -31,7 +31,7 @@ async function getUserData() {
         return;
     }
 
-    // ✅ Valid session, update global state
+    // ✅ Populate global userProfile
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -49,7 +49,11 @@ async function getUserData() {
 
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
+
+    // ✅ Only now that userProfile exists -> call registration
+    sendUpRegistration();
 }
+
 
 
 function useDefaultUser() {

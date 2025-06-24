@@ -194,7 +194,6 @@ async function sendUpLogin() {
 }
 
 
-
 async function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -208,17 +207,16 @@ async function sendUpRegistration() {
         return;
     }
 
+    // ✅ Verify userProfile is loaded
+    if (!userProfile || !userProfile.buwana_id) {
+        console.warn("[EarthCal] userProfile not ready yet. Forcing fresh load...");
+        await getUserData();
+        return;  // after getUserData() completes it will call sendUpRegistration() again
+    }
+
     try {
-        // ✅ Use buwana_id from already loaded global userProfile
-        const buwanaId = userProfile?.buwana_id;
+        const buwanaId = userProfile.buwana_id;
 
-        if (!buwanaId) {
-            console.error("Missing buwana_id in userProfile.");
-            sendUpLogin();
-            return;
-        }
-
-        // ✅ Fetch calendar data only
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
