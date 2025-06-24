@@ -383,7 +383,6 @@ function showErrorState(loggedOutView, loggedInView) {
 }
 
 
-
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
 
@@ -395,9 +394,8 @@ async function showLoggedInView(calendarData = {}) {
     const {
         first_name,
         earthling_emoji,
-        last_login,
-        location_full,
-        connection_id
+        email,
+        buwana_id
     } = window.userProfile;
 
     const {
@@ -409,7 +407,7 @@ async function showLoggedInView(calendarData = {}) {
     const lang = window.userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
     console.log("LoggedIn block:", translations.loggedIn);
-    console.log("Lang for translations:", lang);  // Should output "id"
+    console.log("Lang for translations:", lang);
 
     const {
         welcome,
@@ -419,10 +417,6 @@ async function showLoggedInView(calendarData = {}) {
         syncNow,
         logout
     } = translations.loggedIn;
-
-    const loginMessage = last_login
-        ? `<p id="last-login-time" style="font-size:smaller">Last login: ${last_login}.</p>`
-        : `<p id="last-login-time" style="font-size:smaller">Login date not available.</p>`;
 
     const personalCalendarHTML = personal_calendars.length > 0
         ? personal_calendars.map(cal => `
@@ -450,7 +444,8 @@ async function showLoggedInView(calendarData = {}) {
     const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
     const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
 
-    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php${connection_id ? `?con=${connection_id}` : ''}`;
+    // Build simplified edit profile URL (if you still want it)
+    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php`;
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
@@ -470,26 +465,22 @@ async function showLoggedInView(calendarData = {}) {
                     🔄 ${syncNow}
                 </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
-    ✏️ Edit Buwana Profile
-</button>
-
+                    ✏️ Edit Buwana Profile
+                </button>
                 <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
                     🐳 ${logout}
                 </button>
             </div>
 
             <p id="cal-datecycle-count"></p>
-            ${loginMessage}
+
             <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-    ${location_full || ''}
-            </p>
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                ${window.userProfile.time_zone || 'Time zone unknown'}
-            </p>
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                Lat: ${window.userProfile.location_lat ?? '—'}, Long: ${window.userProfile.location_long ?? '—'}
+                ${email || ''}
             </p>
 
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+                Buwana ID: ${buwana_id || '—'}
+            </p>
         </div>
     `;
 
