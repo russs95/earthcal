@@ -221,6 +221,8 @@ async function sendUpRegistration() {
 
         window.userProfile = {
             first_name: userData.first_name,
+            email: userData.email,                 // Optional: pull again to stay consistent
+            buwana_id: buwanaId,                  // ✅ <-- Inject directly from JWT
             earthling_emoji: userData.earthling_emoji,
             last_sync_ts: userData.last_sync_ts,
             language_id: userData.language_id,

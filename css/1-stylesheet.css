@@ -2860,3 +2860,27 @@ svg path #june:hover {
     margin-top: 5px;
 
 }
+
+
+.signup-button {
+    color:var(--button-2-1);
+    border: 1px solid var(--button-2-1);
+    width:100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: larger;
+    background-color: var(--emblem-green);
+
+    margin: 1px auto 50px auto;
+    cursor: pointer;
+
+}
+
+
+.signup-button:hover {
+
+    background-color: var(--emblem-green);
+    color: white;
+
+
+}
