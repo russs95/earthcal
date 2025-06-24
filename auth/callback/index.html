@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Earthcal Authentication Callback</title>
+</head>
+<body>
+<h3>Authenticating with Buwana...</h3>
+
+<script>
+    (async function() {
+        // Extract query parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get("code");
+        const state = urlParams.get("state");
+
+        if (!code || !state) {
+            console.error("Missing code or state in callback");
+            alert("Login failed: missing parameters.");
+            return;
+        }
+
+        // Validate state from sessionStorage
+        const storedState = sessionStorage.getItem("oidc_state");
+        if (state !== storedState) {
+            console.error("State mismatch. Possible CSRF attack.");
+            alert("Login failed: state mismatch.");
+            return;
+        }
+
+        // Retrieve previously stored PKCE code_verifier
+        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        if (!codeVerifier) {
+            console.error("Missing code_verifier");
+            alert("Login failed: missing code_verifier.");
+            return;
+        }
+
+        // Exchange code for tokens at Buwana token endpoint
+        try {
+            const tokenResponse = await fetch("https://buwana.ecobricks.org/auth/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    grant_type: "authorization_code",
+                    code: code,
+                    redirect_uri: "https://earthcal.app/auth/callback",
+                    client_id: "ecal_7f3da821d0a54f8a9b58",
+                    code_verifier: codeVerifier
+                })
+            });
+
+            if (!tokenResponse.ok) {
+                throw new Error("Token exchange failed");
+            }
+
+            const tokenData = await tokenResponse.json();
+
+            // Store tokens in localStorage for Earthcal
+            localStorage.setItem("id_token", tokenData.id_token);
+            localStorage.setItem("access_token", tokenData.access_token);
+            localStorage.setItem("token_type", tokenData.token_type);
+            localStorage.setItem("expires_in", tokenData.expires_in);
+
+            // Optional: decode id_token for debugging
+            const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
+            console.log("ID Token Payload:", idPayload);
+
+            // ✅ Success - Redirect to main app
+            window.location.href = "/index.html";
+
+        } catch (err) {
+            console.error("Authentication error:", err);
+            alert("Login failed. Please try again.");
+        }
+    })();
+</script>
+</body>
+</html>
