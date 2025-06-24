@@ -146,8 +146,6 @@ function base64UrlEncode(arrayBuffer) {
 
 
 
-
-// Parse ID token and build partial JWT profile
 function buildJWTuserProfile() {
     const id_token = localStorage.getItem('id_token');
     if (!id_token) return null;
@@ -155,8 +153,17 @@ function buildJWTuserProfile() {
     try {
         const payload = JSON.parse(atob(id_token.split('.')[1]));
 
+        // Derive buwana_id from sub
+        let buwanaId = null;
+        if (payload.sub.startsWith("buwana_")) {
+            buwanaId = payload.sub.split("_")[1];
+        } else {
+            buwanaId = payload.sub;
+        }
+
         const jwtProfile = {
             sub: payload.sub,
+            buwana_id: buwanaId,
             email: payload.email,
             first_name: payload.given_name,
             earthling_emoji: payload["buwana:earthlingEmoji"],
@@ -188,24 +195,18 @@ async function sendUpRegistration() {
         return;
     }
 
-    // ✅ Step 1: log the partial JWT data for testing
-    buildJWTuserProfile();
+    const jwtProfile = buildJWTuserProfile();
+    if (!jwtProfile) {
+        console.error("Failed to build JWT user profile.");
+        showLoginForm(loggedOutView, loggedInView, null);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
+    }
 
     try {
-        // ✅ Step 2: still fetch full user profile from Buwana server (existing API call)
-        const id_token = localStorage.getItem('id_token');
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-        const buwanaSub = payload.sub;  // ex: buwana_12345
+        // Use buwana_id from parsed JWT directly
+        const buwanaId = jwtProfile.buwana_id;
 
-        // Derive buwana_id from sub claim (if needed for legacy API)
-        let buwanaId = null;
-        if (buwanaSub.startsWith("buwana_")) {
-            buwanaId = buwanaSub.split("_")[1];
-        } else {
-            buwanaId = buwanaSub;
-        }
-
-        // Fetch full user profile (legacy)
         const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
             credentials: 'include'
         });
@@ -218,7 +219,6 @@ async function sendUpRegistration() {
             return;
         }
 
-        // ✅ Step 3: store full profile as usual
         window.userProfile = {
             first_name: userData.first_name,
             earthling_emoji: userData.earthling_emoji,
@@ -235,7 +235,6 @@ async function sendUpRegistration() {
         window.userLanguage = userData.language_id.toLowerCase();
         window.userTimeZone = userData.time_zone;
 
-        // ✅ Step 4: fetch calendar data as usual
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -259,7 +258,6 @@ async function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
-
 
 
 
