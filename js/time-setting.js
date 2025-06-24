@@ -4,12 +4,19 @@ let userTimeZone = null;
 let userProfile = null;
 
 async function getUserData() {
+    const footer = document.getElementById("registration-footer");
+    const loggedOutView = document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
+
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
         console.warn("[EarthCal] No ID token found.");
         useDefaultUser();
-        sendUpLogin();
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -19,7 +26,8 @@ async function getUserData() {
     } catch (e) {
         console.error("[EarthCal] Invalid ID token format.", e);
         useDefaultUser();
-        sendUpLogin();
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -27,7 +35,8 @@ async function getUserData() {
     if (payload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
         useDefaultUser();
-        sendUpLogin();
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -35,10 +44,17 @@ async function getUserData() {
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+    let buwanaId = null;
+    if (payload.sub?.startsWith("buwana_")) {
+        buwanaId = payload.sub.split("_")[1];
+    } else {
+        buwanaId = payload.buwana_id || payload.sub || null;
+    }
+
     userProfile = {
         first_name: payload.given_name || "Earthling",
         email: payload.email || null,
-        buwana_id: payload.buwana_id || null,
+        buwana_id: buwanaId,
         earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
         community: payload["buwana:community"] || null,
         continent: payload["buwana:location.continent"] || null,
@@ -50,9 +66,39 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // ✅ Only now that userProfile exists -> call registration
-    sendUpRegistration();
+    // ✅ Now fetch calendar data immediately
+    if (!buwanaId) {
+        console.error("Missing buwana_id in userProfile.");
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
+    }
+
+    try {
+        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId }),
+            credentials: 'include'
+        });
+
+        const calendarData = await calResponse.json();
+
+        if (calendarData.success) {
+            showLoggedInView(calendarData);
+        } else {
+            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+            showLoginForm(loggedOutView, loggedInView);
+        }
+
+    } catch (error) {
+        console.error('Error fetching calendar data:', error);
+        showLoginForm(loggedOutView, loggedInView);
+    }
+
+    updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
