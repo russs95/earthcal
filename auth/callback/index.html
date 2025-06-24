@@ -9,7 +9,6 @@
 
 <script>
     (async function() {
-        // Extract query parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
@@ -20,15 +19,13 @@
             return;
         }
 
-        // Validate state from sessionStorage
         const storedState = sessionStorage.getItem("oidc_state");
         if (state !== storedState) {
-            console.error("State mismatch. Possible CSRF attack.");
-            alert("Login failed: state mismatch.");
+            console.error("State mismatch.");
+            alert("Login failed: invalid state.");
             return;
         }
 
-        // Retrieve previously stored PKCE code_verifier
         const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
         if (!codeVerifier) {
             console.error("Missing code_verifier");
@@ -36,7 +33,6 @@
             return;
         }
 
-        // Exchange code for tokens at Buwana token endpoint
         try {
             const tokenResponse = await fetch("https://buwana.ecobricks.org/auth/token", {
                 method: "POST",
@@ -50,23 +46,32 @@
                 })
             });
 
-            if (!tokenResponse.ok) {
-                throw new Error("Token exchange failed");
-            }
+            if (!tokenResponse.ok) throw new Error("Token exchange failed");
 
             const tokenData = await tokenResponse.json();
 
-            // Store tokens in localStorage for Earthcal
+            if (!tokenData.id_token || !tokenData.access_token) {
+                throw new Error("Missing tokens in response");
+            }
+
+            // Store tokens
             localStorage.setItem("id_token", tokenData.id_token);
             localStorage.setItem("access_token", tokenData.access_token);
             localStorage.setItem("token_type", tokenData.token_type);
             localStorage.setItem("expires_in", tokenData.expires_in);
 
-            // Optional: decode id_token for debugging
             const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
             console.log("ID Token Payload:", idPayload);
 
-            // ✅ Success - Redirect to main app
+            // Clean up sensitive PKCE session storage
+            sessionStorage.removeItem("pkce_code_verifier");
+            sessionStorage.removeItem("oidc_state");
+            sessionStorage.removeItem("oidc_nonce");
+
+            // Clean up URL
+            window.history.replaceState({}, document.title, "/auth/callback");
+
+            // Redirect to main app
             window.location.href = "/index.html";
 
         } catch (err) {

@@ -27,7 +27,7 @@ async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
 
 async function createJWTloginURL() {
     // Buwana configuration
-    const buwanaAuthorizeURL = "https://buwana.ecobricks.org/auth/authorize";
+    const buwanaAuthorizeURL = "https://buwana.ecobricks.org/authorize";
     const client_id = "ecal_7f3da821d0a54f8a9b58";
     const redirect_uri = "https://earthcal.app/auth/callback";  // No need to encodeURIComponent here yet
     const scope = "openid email profile";
