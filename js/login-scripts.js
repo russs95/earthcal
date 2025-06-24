@@ -187,11 +187,32 @@ async function sendUpLogin() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    console.log("[EarthCal] User not logged in. Showing login form.");
+    // Always hide logged-in view and show logged-out view
+    loggedInView.style.display = "none";
+    loggedOutView.style.display = "block";
 
-    showLoginForm(loggedOutView, loggedInView, null);
+    createJWTloginURL();  // Always regenerate login link
+
+    // Get translations for current user language
+    const translations = await loadTranslations(userLanguage.toLowerCase());
+    const loginStrings = translations.login;
+
+    const subStatusDiv = document.getElementById('sub-status-message');
+
+    // Use info from userProfile if available
+    if (userProfile?.status === "firsttime") {
+        subStatusDiv.innerHTML = loginStrings.statusFirstTime(userProfile.earthling_emoji || "🐸");
+    } else if (userProfile) {
+        subStatusDiv.innerHTML = loginStrings.statusReturning(userProfile.earthling_emoji || "🐸", userProfile.first_name || "Earthling");
+    } else {
+        subStatusDiv.innerHTML = loginStrings.statusReturning("🐸", "Earthling");
+    }
+
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+
+
 
 
 async function sendUpRegistration() {
@@ -207,16 +228,17 @@ async function sendUpRegistration() {
         return;
     }
 
-    // ✅ Verify userProfile is loaded
-    if (!userProfile || !userProfile.buwana_id) {
-        console.warn("[EarthCal] userProfile not ready yet. Forcing fresh load...");
-        await getUserData();
-        return;  // after getUserData() completes it will call sendUpRegistration() again
-    }
-
     try {
-        const buwanaId = userProfile.buwana_id;
+        // ✅ Use buwana_id from already loaded global userProfile
+        const buwanaId = userProfile?.buwana_id;
 
+        if (!buwanaId) {
+            console.error("Missing buwana_id in userProfile.");
+            sendUpLogin();
+            return;
+        }
+
+        // ✅ Fetch calendar data only
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
