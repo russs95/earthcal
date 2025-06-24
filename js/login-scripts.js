@@ -212,8 +212,6 @@ async function sendUpLogin() {
 }
 
 
-
-
 async function sendUpRegistration() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -221,7 +219,7 @@ async function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // ✅ Check session (JWT exists & valid)
+    // ✅ Check session
     if (!checkUserSession()) {
         sendUpLogin();
         return;
@@ -230,47 +228,47 @@ async function sendUpRegistration() {
     try {
         const id_token = localStorage.getItem('id_token');
         if (!id_token) {
-            console.error("ID token missing, cannot rebuild profile.");
+            console.error("ID token missing in localStorage.");
             sendUpLogin();
             return;
         }
 
-        // ✅ Call userinfo endpoint to rebuild full userProfile
-        const userInfoResponse = await fetch('https://buwana.ecobricks.org/userinfo', {
-            headers: {
-                'Authorization': `Bearer ${id_token}`
-            }
-        });
-
-        if (!userInfoResponse.ok) {
-            console.error("Failed to fetch userinfo.");
+        let payload = null;
+        try {
+            payload = JSON.parse(atob(id_token.split('.')[1]));
+        } catch (e) {
+            console.error("Invalid ID token format:", e);
             sendUpLogin();
             return;
         }
 
-        const userData = await userInfoResponse.json();
+        // ✅ Build userProfile directly from JWT payload
+        let buwanaId = null;
+        if (payload.sub?.startsWith("buwana_")) {
+            buwanaId = payload.sub.split("_")[1];
+        } else {
+            buwanaId = payload.buwana_id || payload.sub || null;
+        }
 
-        // ✅ Build global userProfile from userinfo payload
+        if (!buwanaId) {
+            console.error("Could not determine buwana_id from JWT.");
+            sendUpLogin();
+            return;
+        }
+
         window.userProfile = {
-            first_name: userData.given_name || "Earthling",
-            email: userData.email || null,
-            buwana_id: extractBuwanaId(userData.sub),
-            earthling_emoji: userData["buwana:earthlingEmoji"] || "🐸",
-            community: userData["buwana:community"] || null,
-            continent: userData["buwana:location.continent"] || null,
+            first_name: payload.given_name || "Earthling",
+            email: payload.email || null,
+            buwana_id: buwanaId,
+            earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
+            community: payload["buwana:community"] || null,
+            continent: payload["buwana:location.continent"] || null,
             status: "returning"
         };
 
-        console.log("[EarthCal] User profile rebuilt from /userinfo:", window.userProfile);
+        console.log("[EarthCal] User profile rebuilt from JWT:", window.userProfile);
 
-        // ✅ Now fetch calendar data
-        const buwanaId = window.userProfile.buwana_id;
-        if (!buwanaId) {
-            console.error("Missing buwana_id after userinfo rebuild.");
-            sendUpLogin();
-            return;
-        }
-
+        // ✅ Now fetch calendar data using buwana_id
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -293,15 +291,6 @@ async function sendUpRegistration() {
     }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
-}
-
-// Simple helper to extract buwana_id from sub claim
-function extractBuwanaId(sub) {
-    if (!sub) return null;
-    if (sub.startsWith("buwana_")) {
-        return sub.split("_")[1];
-    }
-    return sub;
 }
 
 
