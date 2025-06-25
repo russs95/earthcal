@@ -4,6 +4,105 @@
 LOGIN FUNCTIONS
 ----------------*/
 
+// Declare globally near the top of your app
+let userLanguage = null;
+let userTimeZone = null;
+let userProfile = null;
+
+async function getUserData() {
+    const sessionStatus = document.getElementById('user-session-status');
+    console.log("🌿 getUserData: Starting...");
+
+    // 1️⃣ Check valid session
+    if (!checkUserSession()) {
+        console.warn("[EarthCal] No valid session.");
+        updateSessionStatus("⚪ Not logged in: invalid or expired token");
+        useDefaultUser();
+        return;
+    }
+
+    // 2️⃣ Build profile from ID token payload
+    const jwtProfile = buildJWTuserProfile();
+    if (!jwtProfile || !jwtProfile.buwana_id) {
+        console.error("[EarthCal] Failed to extract buwana_id.");
+        updateSessionStatus("⚪ Not logged in: buwana_id missing");
+        useDefaultUser();
+        return;
+    }
+
+    // 3️⃣ Populate global state
+    userLanguage = navigator.language.slice(0, 2);
+    userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    userProfile = {
+        first_name: jwtProfile.first_name || "Earthling",
+        email: jwtProfile.email || null,
+        buwana_id: jwtProfile.buwana_id,
+        earthling_emoji: jwtProfile.earthling_emoji || "🌎",
+        community: jwtProfile.community || null,
+        continent: jwtProfile.continent || null,
+        status: "returning"
+    };
+
+    console.log("[EarthCal] User profile rebuilt from JWT:", userProfile);
+
+    // 4️⃣ Update UI with profile
+    displayUserData(userTimeZone, userLanguage);
+    setCurrentDate(userTimeZone, userLanguage);
+
+    // 5️⃣ Load calendar data
+    try {
+        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: userProfile.buwana_id }),
+            credentials: 'include'
+        });
+
+        const calendarData = await calResponse.json();
+
+        if (calendarData.success) {
+            showLoggedInView(calendarData);
+            updateSessionStatus(`🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`);
+        } else {
+            console.error('Calendar fetch failed:', calendarData.message || 'Unknown error');
+            updateSessionStatus("⚪ Not logged in: calendar fetch failed");
+            useDefaultUser();
+        }
+    } catch (error) {
+        console.error('Error fetching calendar data:', error);
+        updateSessionStatus("⚪ Not logged in: calendar fetch error");
+        useDefaultUser();
+    }
+}
+
+
+function updateSessionStatus(message) {
+    const sessionStatus = document.getElementById('user-session-status');
+    if (sessionStatus) {
+        sessionStatus.textContent = message;
+    }
+}
+
+
+
+
+
+
+function useDefaultUser() {
+    userLanguage = navigator.language.slice(0, 2);
+    userTimeZone = "America/New_York";
+    userProfile = {
+        first_name: "Earthling",
+        earthling_emoji: "🐸",
+        email: null,
+        buwana_id: null,
+        status: "new"
+    };
+    displayUserData(userTimeZone, userLanguage);
+    setCurrentDate(userTimeZone, userLanguage);
+}
+
+
 
 function checkUserSession() {
     const id_token = localStorage.getItem('id_token');
@@ -52,6 +151,229 @@ function checkUserSession() {
         return false;
     }
 }
+
+
+
+
+
+function checkUserSession() {
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) return false;
+
+    try {
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+        const now = Math.floor(Date.now() / 1000);
+        return payload.exp > now;
+    } catch (e) {
+        console.error("Invalid ID token:", e);
+        return false;
+    }
+}
+
+
+
+// Helper function to update footer and arrows when the registration-footer is displayed
+function updateFooterAndArrowUI(footer, upArrow, downArrow) {
+
+    footer.style.height = "100%";
+    footer.style.marginBottom = "0px";
+    upArrow.style.display = "none";
+    downArrow.style.display = "block";
+}
+
+
+// If not logged in then...
+
+
+
+
+
+
+function showErrorState(loggedOutView, loggedInView) {
+    console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
+    showLoginForm(loggedOutView, loggedInView);
+}
+
+
+async function showLoggedInView(calendarData = {}) {
+    const loggedInView = document.getElementById("logged-in-view");
+
+    if (!window.userProfile) {
+        console.error("User profile is missing.");
+        return;
+    }
+
+    const {
+        first_name,
+        earthling_emoji,
+        email,
+        buwana_id
+    } = window.userProfile;
+
+    const {
+        personal_calendars = [],
+        subscribed_calendars = [],
+        public_calendars = []
+    } = calendarData;
+
+    const lang = window.userLanguage?.toLowerCase() || 'en';
+    const translations = await loadTranslations(lang);
+    console.log("LoggedIn block:", translations.loggedIn);
+    console.log("Lang for translations:", lang);
+
+    const {
+        welcome,
+        syncingInfo,
+        noPersonal,
+        noPublic,
+        syncNow,
+        logout
+    } = translations.loggedIn;
+
+    const personalCalendarHTML = personal_calendars.length > 0
+        ? personal_calendars.map(cal => `
+            <div class="calendar-item">
+                <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
+                <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
+            </div>
+        `).join('')
+        : `<p>${noPersonal}</p>`;
+
+    const publicCalendarHTML = public_calendars.length > 0
+        ? public_calendars.map(cal => {
+            const isChecked = subscribed_calendars.some(sub => sub.calendar_id === cal.calendar_id);
+            return `
+                <div class="calendar-item">
+                    <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
+                        ${isChecked ? 'checked' : ''}
+                        onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
+                    <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
+                </div>
+            `;
+        }).join('')
+        : `<p>${noPublic}</p>`;
+
+    const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
+    const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
+
+    // Build simplified edit profile URL (if you still want it)
+    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php`;
+
+    loggedInView.innerHTML = `
+        <div class="add-date-form" style="padding:10px;">
+            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
+            <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+                ${welcome} ${first_name || 'Earthling'}!
+            </h2>
+            <p>${syncingInfo}</p>
+
+            <form id="calendar-selection-form" style="text-align:left; width:360px; margin:auto;">
+                ${personalSection}
+                ${publicSection}
+            </form>
+
+            <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
+                    🔄 ${syncNow}
+                </button>
+                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
+                    ✏️ Edit Buwana Profile
+                </button>
+                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
+                    🐳 ${logout}
+                </button>
+            </div>
+
+            <p id="cal-datecycle-count"></p>
+
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+                ${email || ''}
+            </p>
+
+            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
+                Buwana ID: ${buwana_id || '—'}
+            </p>
+        </div>
+    `;
+
+    loggedInView.style.display = "block";
+}
+
+
+
+
+// Helper: generate random string (state, nonce, code_verifier)
+function generateRandomString(length) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    array.forEach(val => result += charset[val % charset.length]);
+    return result;
+}
+
+// Helper: generate PKCE code_challenge (SHA-256 hash of code_verifier)
+async function generateCodeChallenge(code_verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(code_verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return base64UrlEncode(digest);
+}
+
+// Helper: base64url encoding function (RFC 7636 spec)
+function base64UrlEncode(arrayBuffer) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+
+
+
+
+function buildJWTuserProfile() {
+    const id_token = localStorage.getItem('id_token');
+    if (!id_token) return null;
+
+    try {
+        const payload = JSON.parse(atob(id_token.split('.')[1]));
+
+        // Derive buwana_id from sub
+        let buwanaId = null;
+        if (payload.sub.startsWith("buwana_")) {
+            buwanaId = payload.sub.split("_")[1];
+        } else {
+            buwanaId = payload.sub;
+        }
+
+        const jwtProfile = {
+            sub: payload.sub,
+            buwana_id: buwanaId,
+            email: payload.email,
+            first_name: payload.given_name,
+            earthling_emoji: payload["buwana:earthlingEmoji"],
+            community: payload["buwana:community"],
+            continent: payload["buwana:location.continent"]
+        };
+
+        console.log("JWTuserProfile:", jwtProfile);
+        return jwtProfile;
+    } catch (e) {
+        console.error("Failed to parse ID token:", e);
+        return null;
+    }
+}
+
+
+/*-------------------------
+
+LOGIN FORM
+
+------------------------ */
+
+
+
+
+
 
 
 
@@ -118,66 +440,6 @@ async function createJWTloginURL() {
     }
 }
 
-// Helper: generate random string (state, nonce, code_verifier)
-function generateRandomString(length) {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    array.forEach(val => result += charset[val % charset.length]);
-    return result;
-}
-
-// Helper: generate PKCE code_challenge (SHA-256 hash of code_verifier)
-async function generateCodeChallenge(code_verifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(code_verifier);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return base64UrlEncode(digest);
-}
-
-// Helper: base64url encoding function (RFC 7636 spec)
-function base64UrlEncode(arrayBuffer) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-
-
-
-
-function buildJWTuserProfile() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) return null;
-
-    try {
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-
-        // Derive buwana_id from sub
-        let buwanaId = null;
-        if (payload.sub.startsWith("buwana_")) {
-            buwanaId = payload.sub.split("_")[1];
-        } else {
-            buwanaId = payload.sub;
-        }
-
-        const jwtProfile = {
-            sub: payload.sub,
-            buwana_id: buwanaId,
-            email: payload.email,
-            first_name: payload.given_name,
-            earthling_emoji: payload["buwana:earthlingEmoji"],
-            community: payload["buwana:community"],
-            continent: payload["buwana:location.continent"]
-        };
-
-        console.log("JWTuserProfile:", jwtProfile);
-        return jwtProfile;
-    } catch (e) {
-        console.error("Failed to parse ID token:", e);
-        return null;
-    }
-}
 
 
 async function sendUpLogin() {
@@ -441,150 +703,6 @@ async function sendUpRegistration() {
 // }
 
 
-
-
-function checkUserSession() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) return false;
-
-    try {
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-        const now = Math.floor(Date.now() / 1000);
-        return payload.exp > now;
-    } catch (e) {
-        console.error("Invalid ID token:", e);
-        return false;
-    }
-}
-
-
-
-// Helper function to update footer and arrows when the registration-footer is displayed
-function updateFooterAndArrowUI(footer, upArrow, downArrow) {
-
-    footer.style.height = "100%";
-    footer.style.marginBottom = "0px";
-    upArrow.style.display = "none";
-    downArrow.style.display = "block";
-}
-
-
-// If not logged in then...
-
-
-
-
-
-
-function showErrorState(loggedOutView, loggedInView) {
-    console.error('Unexpected error in sendUpRegistration. Showing login form as fallback.');
-    showLoginForm(loggedOutView, loggedInView);
-}
-
-
-async function showLoggedInView(calendarData = {}) {
-    const loggedInView = document.getElementById("logged-in-view");
-
-    if (!window.userProfile) {
-        console.error("User profile is missing.");
-        return;
-    }
-
-    const {
-        first_name,
-        earthling_emoji,
-        email,
-        buwana_id
-    } = window.userProfile;
-
-    const {
-        personal_calendars = [],
-        subscribed_calendars = [],
-        public_calendars = []
-    } = calendarData;
-
-    const lang = window.userLanguage?.toLowerCase() || 'en';
-    const translations = await loadTranslations(lang);
-    console.log("LoggedIn block:", translations.loggedIn);
-    console.log("Lang for translations:", lang);
-
-    const {
-        welcome,
-        syncingInfo,
-        noPersonal,
-        noPublic,
-        syncNow,
-        logout
-    } = translations.loggedIn;
-
-    const personalCalendarHTML = personal_calendars.length > 0
-        ? personal_calendars.map(cal => `
-            <div class="calendar-item">
-                <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
-                <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
-            </div>
-        `).join('')
-        : `<p>${noPersonal}</p>`;
-
-    const publicCalendarHTML = public_calendars.length > 0
-        ? public_calendars.map(cal => {
-            const isChecked = subscribed_calendars.some(sub => sub.calendar_id === cal.calendar_id);
-            return `
-                <div class="calendar-item">
-                    <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
-                        ${isChecked ? 'checked' : ''}
-                        onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
-                    <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
-                </div>
-            `;
-        }).join('')
-        : `<p>${noPublic}</p>`;
-
-    const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
-    const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
-
-    // Build simplified edit profile URL (if you still want it)
-    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php`;
-
-    loggedInView.innerHTML = `
-        <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
-            <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-                ${welcome} ${first_name || 'Earthling'}!
-            </h2>
-            <p>${syncingInfo}</p>
-
-            <form id="calendar-selection-form" style="text-align:left; width:360px; margin:auto;">
-                ${personalSection}
-                ${publicSection}
-            </form>
-
-            <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
-                    🔄 ${syncNow}
-                </button>
-                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
-                    ✏️ Edit Buwana Profile
-                </button>
-                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
-                    🐳 ${logout}
-                </button>
-            </div>
-
-            <p id="cal-datecycle-count"></p>
-
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                ${email || ''}
-            </p>
-
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                Buwana ID: ${buwana_id || '—'}
-            </p>
-        </div>
-    `;
-
-    loggedInView.style.display = "block";
-}
 
 
 
