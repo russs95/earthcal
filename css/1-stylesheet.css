@@ -2862,6 +2862,32 @@ svg path #june:hover {
 }
 
 
+
+
+.login-button {
+    border: 1px solid var(--button-2-1);;
+    width:100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: larger;
+    background-color: var(--button-2-1-over);
+    color: white;
+    margin: 1px auto 50px auto;
+    cursor: pointer;
+
+}
+
+
+.login-button:hover {
+
+    background-color: var(--emblem-green);
+
+
+
+}
+
+
+
 .signup-button {
     border: 1px solid var(--emblem-green);
     width:100%;
