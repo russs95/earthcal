@@ -1755,14 +1755,30 @@ function animateSyncButton() {
 
 
 
-
 async function syncDatecycles() {
     try {
-        console.log("Starting dateCycle sync...");
-        const buwanaId = localStorage.getItem('buwana_id');
-        if (!buwanaId) {
+        // 🌿 Retrieve user profile from storage
+        const profileString = localStorage.getItem("user_profile");
+        if (!profileString) {
+            console.warn("No user profile found. Skipping sync.");
             return; // No user logged in, no sync needed.
         }
+
+        let userProfile = null;
+        try {
+            userProfile = JSON.parse(profileString);
+        } catch (e) {
+            console.error("Failed to parse stored user_profile:", e);
+            return;
+        }
+
+        const buwanaId = userProfile.buwana_id;
+        if (!buwanaId) {
+            console.warn("No buwana_id found in user_profile. Skipping sync.");
+            return;
+        }
+
+        console.log(`🌿 Starting dateCycle sync for buwana_id ${buwanaId}...`);
 
         let serverCalendars = [];
         let hasInternetConnection = 1;
