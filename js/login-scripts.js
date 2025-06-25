@@ -14,7 +14,7 @@ async function getUserData() {
     const sessionStatus = document.getElementById('user-session-status');
     console.log("🌿 getUserData: Starting...");
 
-    // 1️⃣ Retrieve full profile directly from localStorage
+    // 1️⃣ Retrieve full profile from localStorage
     const profileString = localStorage.getItem("user_profile");
     if (!profileString) {
         console.warn("[EarthCal] No user_profile found in localStorage.");
@@ -33,7 +33,7 @@ async function getUserData() {
         return;
     }
 
-    // 2️⃣ Validate expiration (just in case!)
+    // 2️⃣ Validate expiration
     const now = Math.floor(Date.now() / 1000);
     if (idPayload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
@@ -42,7 +42,7 @@ async function getUserData() {
         return;
     }
 
-    // 3️⃣ Validate buwana_id present
+    // 3️⃣ Validate buwana_id
     const buwanaId = idPayload.buwana_id || null;
     if (!buwanaId) {
         console.error("[EarthCal] Missing buwana_id in stored profile.");
@@ -61,7 +61,7 @@ async function getUserData() {
         earthling_emoji: idPayload["buwana:earthlingEmoji"] || "🌎",
         community: idPayload["buwana:community"] || null,
         continent: idPayload["buwana:location.continent"] || null,
-        status: "returning"
+        status: idPayload["status"] || "returning"  // ✅ Pick status from payload if present
     };
 
     console.log("[EarthCal] User profile loaded from localStorage:", userProfile);
@@ -97,6 +97,7 @@ async function getUserData() {
 
 
 
+
 function updateSessionStatus(message) {
     const sessionStatus = document.getElementById('user-session-status');
     if (sessionStatus) {
@@ -124,54 +125,54 @@ function useDefaultUser() {
 }
 
 
-
-function checkUserSession() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) {
-        console.log("No ID token found.");
-        return false;
-    }
-
-    try {
-        // Decode payload
-        const parts = id_token.split('.');
-        if (parts.length !== 3) {
-            console.error("Malformed ID token structure.");
-            return false;
-        }
-
-        const payload = JSON.parse(atob(parts[1]));
-
-        // Check standard claims
-        const now = Math.floor(Date.now() / 1000);
-        const leeway = 60; // allow 1 minute clock skew
-
-        if (!payload.exp || payload.exp < (now - leeway)) {
-            console.warn("ID token expired.");
-            return false;
-        }
-
-        if (!payload.iat || payload.iat > (now + leeway)) {
-            console.warn("ID token issued in the future.");
-            return false;
-        }
-
-        if (!payload.iss || payload.iss !== "https://buwana.ecobricks.org") {
-            console.warn("Unexpected issuer.");
-            return false;
-        }
-
-        if (!payload.aud || payload.aud !== "ecal_7f3da821d0a54f8a9b58") {
-            console.warn("Unexpected audience.");
-            return false;
-        }
-
-        return true;  // ✅ Token looks valid
-    } catch (e) {
-        console.error("Error parsing ID token:", e);
-        return false;
-    }
-}
+//
+// function checkUserSession() {
+//     const id_token = localStorage.getItem('id_token');
+//     if (!id_token) {
+//         console.log("No ID token found.");
+//         return false;
+//     }
+//
+//     try {
+//         // Decode payload
+//         const parts = id_token.split('.');
+//         if (parts.length !== 3) {
+//             console.error("Malformed ID token structure.");
+//             return false;
+//         }
+//
+//         const payload = JSON.parse(atob(parts[1]));
+//
+//         // Check standard claims
+//         const now = Math.floor(Date.now() / 1000);
+//         const leeway = 60; // allow 1 minute clock skew
+//
+//         if (!payload.exp || payload.exp < (now - leeway)) {
+//             console.warn("ID token expired.");
+//             return false;
+//         }
+//
+//         if (!payload.iat || payload.iat > (now + leeway)) {
+//             console.warn("ID token issued in the future.");
+//             return false;
+//         }
+//
+//         if (!payload.iss || payload.iss !== "https://buwana.ecobricks.org") {
+//             console.warn("Unexpected issuer.");
+//             return false;
+//         }
+//
+//         if (!payload.aud || payload.aud !== "ecal_7f3da821d0a54f8a9b58") {
+//             console.warn("Unexpected audience.");
+//             return false;
+//         }
+//
+//         return true;  // ✅ Token looks valid
+//     } catch (e) {
+//         console.error("Error parsing ID token:", e);
+//         return false;
+//     }
+// }
 
 
 
@@ -470,8 +471,6 @@ async function createJWTloginURL() {
     }
 }
 
-
-
 async function sendUpLogin() {
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -502,6 +501,8 @@ async function sendUpLogin() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+
 
 
 
@@ -861,7 +862,8 @@ function logoutBuwana() {
     // 🌿 Update login status message
     const sessionStatusEl = document.getElementById('user-session-status');
     if (sessionStatusEl) {
-        sessionStatusEl.textContent = '⚪ Not logged in: user logged out';
+        updateSessionStatus("⚪ Not logged in: user logged out");
+
     }
 
     // 🌿 (Optional) Re-generate login URL again if needed
