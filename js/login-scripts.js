@@ -17,7 +17,7 @@ async function getUserData() {
     // 1️⃣ Retrieve full profile from localStorage
     const profileString = localStorage.getItem("user_profile");
     if (!profileString) {
-        console.warn("[EarthCal] No user_profile found in localStorage.");
+        console.warn("[EarthCal] Sorry, no user_profile found in localStorage.");
         updateSessionStatus("⚪ Not logged in: no profile stored");
         useDefaultUser();
         return;
@@ -82,7 +82,7 @@ async function getUserData() {
 
         if (calendarData.success) {
             showLoggedInView(calendarData);
-            updateSessionStatus(`🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`);
+            updateSessionStatus(`${userProfile.earthling_emoji} Logged in as ${userProfile.first_name} `);
         } else {
             console.error('Calendar fetch failed:', calendarData.message || 'Unknown error');
             updateSessionStatus("⚪ Not logged in: calendar fetch failed");
@@ -102,8 +102,12 @@ function updateSessionStatus(message) {
     const sessionStatus = document.getElementById('user-session-status');
     if (sessionStatus) {
         sessionStatus.textContent = message;
+    } else {
+        // Try again after short delay if not yet available
+        setTimeout(() => updateSessionStatus(message), 100);
     }
 }
+
 
 
 
