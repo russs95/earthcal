@@ -2,58 +2,37 @@
 let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
+
 async function getUserData() {
+    const sessionStatus = document.getElementById('user-session-status');
 
-    // --- 🎯 Grabbing necessary DOM references ---
-    const footer = document.getElementById("registration-footer");
-    const loggedOutView = document.getElementById("login-form-section");
-    const loggedInView = document.getElementById("logged-in-view");
-    const upArrow = document.getElementById("reg-up-button");
-    const downArrow = document.getElementById("reg-down-button");
-
-    // --- 1tryto read ID token from local storage ---
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
         console.warn("[EarthCal] No ID token found.");
+        updateSessionStatus("⚪ Not logged in: no token");
         useDefaultUser();
-
-        // 🟠 DISPLAY LOGIC: Show Login Form when no token
-        // alert("showing login form no token");
-        // showLoginForm(loggedOutView, loggedInView);
-        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // --- 2️⃣ Decode JWT payload ---
     let payload = null;
     try {
         payload = JSON.parse(atob(id_token.split('.')[1]));
     } catch (e) {
-        console.error("[EarthCal] Invalid ID token format.", e);
+        console.error("[EarthCal] Invalid ID token format:", e);
+        updateSessionStatus("⚪ Not logged in: invalid token format");
         useDefaultUser();
-
-        // 🟠 DISPLAY LOGIC: Show Login Form when decoding fails
-        // alert("showing login form decode failed");
-        // showLoginForm(loggedOutView, loggedInView);
-        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // --- 3️⃣ Validate token expiration ---
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
+        updateSessionStatus("⚪ Not logged in: token expired");
         useDefaultUser();
-
-        // 🟠 DISPLAY LOGIC: Show Login Form when token expired
-        // alert("showing login form token expired");
-        // showLoginForm(loggedOutView, loggedInView);
-        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // --- 4️⃣ Populate global userProfile from valid JWT ---
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -64,6 +43,14 @@ async function getUserData() {
         buwanaId = payload.buwana_id || payload.sub || null;
     }
 
+    if (!buwanaId) {
+        console.error("[EarthCal] buwana_id missing from token.");
+        updateSessionStatus("⚪ Not logged in: buwana_id missing");
+        useDefaultUser();
+        return;
+    }
+
+    // Build user profile
     userProfile = {
         first_name: payload.given_name || "Earthling",
         email: payload.email || null,
@@ -79,17 +66,6 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // --- 5️⃣ Fetch calendar data immediately after profile loaded ---
-    if (!buwanaId) {
-        console.error("Missing buwana_id in userProfile.");
-
-        // 🟠 DISPLAY LOGIC: Show Login Form if buwanaId is somehow missing
-        // alert("Showing logged in");
-        // showLoginForm(loggedOutView, loggedInView);
-        // updateFooterAndArrowUI(footer, upArrow, downArrow);
-        return;
-    }
-
     try {
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
@@ -101,20 +77,28 @@ async function getUserData() {
         const calendarData = await calResponse.json();
 
         if (calendarData.success) {
-            // 🟠 DISPLAY LOGIC: Show the logged in view here
             showLoggedInView(calendarData);
+            updateSessionStatus(`🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`);
         } else {
             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
-            showLoginForm(loggedOutView, loggedInView);
+            updateSessionStatus("⚪ Not logged in: calendar fetch failed");
+            useDefaultUser();
         }
 
     } catch (error) {
         console.error('Error fetching calendar data:', error);
-        showLoginForm(loggedOutView, loggedInView);
+        updateSessionStatus("⚪ Not logged in: calendar fetch error");
+        useDefaultUser();
     }
-
-    updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+function updateSessionStatus(message) {
+    const sessionStatus = document.getElementById('user-session-status');
+    if (sessionStatus) {
+        sessionStatus.textContent = message;
+    }
+}
+
 
 
 
