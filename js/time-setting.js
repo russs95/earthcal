@@ -2,15 +2,21 @@
 let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
-let calendarData = null;
 
 async function getUserData() {
+    const footer = document.getElementById("registration-footer");
+    const loggedOutView = document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
+
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
         console.warn("[EarthCal] No ID token found.");
         useDefaultUser();
-        calendarData = null;
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -20,7 +26,8 @@ async function getUserData() {
     } catch (e) {
         console.error("[EarthCal] Invalid ID token format.", e);
         useDefaultUser();
-        calendarData = null;
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -28,11 +35,12 @@ async function getUserData() {
     if (payload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
         useDefaultUser();
-        calendarData = null;
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // ✅ Populate userProfile globally
+    // ✅ Populate global userProfile
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -54,13 +62,15 @@ async function getUserData() {
     };
 
     console.log("[EarthCal] User profile loaded from ID token:", userProfile);
+
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // ✅ Fetch calendar data if buwanaId exists
+    // ✅ Now fetch calendar data immediately
     if (!buwanaId) {
         console.error("Missing buwana_id in userProfile.");
-        calendarData = null;
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -72,22 +82,22 @@ async function getUserData() {
             credentials: 'include'
         });
 
-        const responseData = await calResponse.json();
+        const calendarData = await calResponse.json();
 
-        if (responseData.success) {
-            calendarData = responseData;
-            console.log("[EarthCal] Calendar data loaded.");
+        if (calendarData.success) {
+            showLoggedInView(calendarData);
         } else {
-            console.error('Error fetching calendar data:', responseData.message || 'Unknown error');
-            calendarData = null;
+            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+            showLoginForm(loggedOutView, loggedInView);
         }
 
     } catch (error) {
         console.error('Error fetching calendar data:', error);
-        calendarData = null;
+        showLoginForm(loggedOutView, loggedInView);
     }
-}
 
+    updateFooterAndArrowUI(footer, upArrow, downArrow);
+}
 
 
 
