@@ -220,79 +220,126 @@ async function sendUpRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // ✅ Check session
-    if (!checkUserSession()) {
-        sendUpLogin();
+    const id_token = localStorage.getItem('id_token');
+
+    if (!id_token) {
+        console.warn("[EarthCal] No ID token found. Showing login form.");
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
+    let payload = null;
     try {
-        const id_token = localStorage.getItem('id_token');
-        if (!id_token) {
-            console.error("ID token missing in localStorage.");
-            sendUpLogin();
-            return;
-        }
-
-        let payload = null;
-        try {
-            payload = JSON.parse(atob(id_token.split('.')[1]));
-        } catch (e) {
-            console.error("Invalid ID token format:", e);
-            sendUpLogin();
-            return;
-        }
-
-        // ✅ Build userProfile directly from JWT payload
-        let buwanaId = null;
-        if (payload.sub?.startsWith("buwana_")) {
-            buwanaId = payload.sub.split("_")[1];
-        } else {
-            buwanaId = payload.buwana_id || payload.sub || null;
-        }
-
-        if (!buwanaId) {
-            console.error("Could not determine buwana_id from JWT.");
-            sendUpLogin();
-            return;
-        }
-
-        window.userProfile = {
-            first_name: payload.given_name || "Earthling",
-            email: payload.email || null,
-            buwana_id: buwanaId,
-            earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
-            community: payload["buwana:community"] || null,
-            continent: payload["buwana:location.continent"] || null,
-            status: "returning"
-        };
-
-        console.log("[EarthCal] User profile rebuilt from JWT:", window.userProfile);
-
-        // ✅ Now fetch calendar data using buwana_id
-        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId }),
-            credentials: 'include'
-        });
-
-        const calendarData = await calResponse.json();
-
-        if (calendarData.success) {
-            showLoggedInView(calendarData);
-        } else {
-            console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
-            showErrorState(loggedOutView, loggedInView);
-        }
-
-    } catch (error) {
-        console.error('Error in sendUpRegistration:', error);
-        showErrorState(loggedOutView, loggedInView);
+        payload = JSON.parse(atob(id_token.split('.')[1]));
+    } catch (e) {
+        console.error("[EarthCal] Invalid ID token format. Showing login form.");
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
     }
+
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp < now) {
+        console.warn("[EarthCal] ID token expired. Showing login form.");
+        showLoginForm(loggedOutView, loggedInView);
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
+    }
+
+    // ✅ Token is valid — show logged-in view which is already populated by getUserData
+    console.log("[EarthCal] Valid token found. Showing logged-in view.");
+
+    loggedOutView.style.display = "none";
+    loggedInView.style.display = "block";
+    footer.style.display = "block";
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+
+
+//
+// async function sendUpRegistration() {
+//     const footer = document.getElementById("registration-footer");
+//     const loggedOutView = document.getElementById("login-form-section");
+//     const loggedInView = document.getElementById("logged-in-view");
+//     const upArrow = document.getElementById("reg-up-button");
+//     const downArrow = document.getElementById("reg-down-button");
+//
+//     // ✅ Check session
+//     if (!checkUserSession()) {
+//         sendUpLogin();
+//         return;
+//     }
+//
+//     try {
+//         const id_token = localStorage.getItem('id_token');
+//         if (!id_token) {
+//             console.error("ID token missing in localStorage.");
+//             sendUpLogin();
+//             return;
+//         }
+//
+//         let payload = null;
+//         try {
+//             payload = JSON.parse(atob(id_token.split('.')[1]));
+//         } catch (e) {
+//             console.error("Invalid ID token format:", e);
+//             sendUpLogin();
+//             return;
+//         }
+//
+//         // ✅ Build userProfile directly from JWT payload
+//         let buwanaId = null;
+//         if (payload.sub?.startsWith("buwana_")) {
+//             buwanaId = payload.sub.split("_")[1];
+//         } else {
+//             buwanaId = payload.buwana_id || payload.sub || null;
+//         }
+//
+//         if (!buwanaId) {
+//             console.error("Could not determine buwana_id from JWT.");
+//             sendUpLogin();
+//             return;
+//         }
+//
+//         window.userProfile = {
+//             first_name: payload.given_name || "Earthling",
+//             email: payload.email || null,
+//             buwana_id: buwanaId,
+//             earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
+//             community: payload["buwana:community"] || null,
+//             continent: payload["buwana:location.continent"] || null,
+//             status: "returning"
+//         };
+//
+//         console.log("[EarthCal] User profile rebuilt from JWT:", window.userProfile);
+//
+//         // ✅ Now fetch calendar data using buwana_id
+//         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ buwana_id: buwanaId }),
+//             credentials: 'include'
+//         });
+//
+//         const calendarData = await calResponse.json();
+//
+//         if (calendarData.success) {
+//             showLoggedInView(calendarData);
+//         } else {
+//             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
+//             showErrorState(loggedOutView, loggedInView);
+//         }
+//
+//     } catch (error) {
+//         console.error('Error in sendUpRegistration:', error);
+//         showErrorState(loggedOutView, loggedInView);
+//     }
+//
+//     updateFooterAndArrowUI(footer, upArrow, downArrow);
+// }
 
 
 
