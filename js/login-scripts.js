@@ -96,33 +96,17 @@ async function getUserData() {
 }
 
 
-function waitForElement(selector, timeout = 3000) {
-    return new Promise((resolve, reject) => {
-        const interval = 100;
-        let elapsed = 0;
-
-        const check = () => {
-            const el = document.querySelector(selector);
-            if (el) {
-                resolve(el);
-            } else if (elapsed >= timeout) {
-                reject(`Element ${selector} not found after ${timeout}ms`);
-            } else {
-                elapsed += interval;
-                setTimeout(check, interval);
-            }
-        };
-        check();
-    });
-}
 
 
 function updateSessionStatus(message) {
-    waitForElement('#user-session-status', 5000)
-        .then(el => { el.textContent = message; })
-        .catch(err => { console.error("updateSessionStatus failed:", err); });
+    const sessionStatus = document.getElementById('user-session-status');
+    if (sessionStatus) {
+        sessionStatus.textContent = message;
+    } else {
+        // Try again after short delay if not yet available
+        setTimeout(() => updateSessionStatus(message), 100);
+    }
 }
-
 
 
 
