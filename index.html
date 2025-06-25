@@ -428,11 +428,12 @@
         // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 
-
+        document.addEventListener("DOMContentLoaded", () => {
+            getUserData();
+        });
 
         /*ROLL CALL*/
         window.onload = async function () {
-            await getUserData(); // This sets time_zone, targetDate, etc.
 
 
             const solarCenterDiv = document.getElementById('solar-system-center');
