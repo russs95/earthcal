@@ -5,7 +5,7 @@ let userProfile = null;
 
 async function getUserData() {
     const sessionStatus = document.getElementById('user-session-status');
-
+    alert("Getting user data");
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
