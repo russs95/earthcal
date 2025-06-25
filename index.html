@@ -546,10 +546,10 @@
 
 
 
-                calculateHijriMonthNames(currentYear);
+                // calculateHijriMonthNames(currentYear);
 
                 setLunarMonthForTarget(targetDate, currentYear);
-
+                await getUserData(); // This sets time_zone, targetDate, etc.
 
             }, 1500);
 
@@ -564,7 +564,7 @@
             //  animateWhaleCycle();
             // handleOrbitClicks();  //enables clicks on the orbits to open up planet info.  THis needs work!!
             openPlanetInfoBox();
-            await getUserData(); // This sets time_zone, targetDate, etc.
+
 
             //  document.getElementById("current-time").style.display = "block";
             //  document.getElementById("tomorrow").style.display = "block";
