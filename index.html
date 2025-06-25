@@ -546,10 +546,9 @@
 
 
 
-                // calculateHijriMonthNames(currentYear);
+                calculateHijriMonthNames(currentYear);
 
                 setLunarMonthForTarget(targetDate, currentYear);
-                await getUserData(); // This sets time_zone, targetDate, etc.
 
             }, 1500);
 
@@ -580,6 +579,7 @@
 // //setTimeout(openCurrentMonthBreakout,4000);
 // setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
 // displayDayInfo(targetDate, userLanguage, userTimeZone);
+            await getUserData(); // This sets time_zone, targetDate, etc.
 
         };
 
