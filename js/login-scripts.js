@@ -825,19 +825,21 @@ function viewTerms()  {
        }
 
 
-// Logout function
+
 function logoutBuwana() {
-    // Clear tokens and session state
+    // 🌿 Clear tokens and session state
     localStorage.removeItem('id_token');
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_profile');  // <-- ✅ remove the cached user profile
+
     sessionStorage.clear();
 
-    // Clear global user profile
+    // 🌿 Clear global JS state
     window.userProfile = null;
     window.userLanguage = null;
     window.userTimeZone = null;
 
-    // Clear any service worker caches
+    // 🌿 Clear any service worker caches (optional)
     if ('caches' in window) {
         caches.keys().then(names => {
             for (let name of names) {
@@ -846,20 +848,24 @@ function logoutBuwana() {
         }).catch(err => console.error("Cache deletion failed:", err));
     }
 
-    // Reset views
-    document.getElementById("login-form-section").style.display = "block";
+    // 🌿 Reset views to show login form again
+    const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
-    loggedInView.style.display = "none";
-    loggedInView.innerHTML = "";
 
-    const sessionStatusEl = document.getElementById('user-session-status');
-    if (sessionStatusEl) {
-        sessionStatusEl.textContent = '⚪';
-        sessionStatusEl.title = 'Login status';
+    if (loggedOutView) loggedOutView.style.display = "block";
+    if (loggedInView) {
+        loggedInView.style.display = "none";
+        loggedInView.innerHTML = "";
     }
 
-    // Optional: redirect after logout
-    window.location.href = '/';
+    // 🌿 Update login status message
+    const sessionStatusEl = document.getElementById('user-session-status');
+    if (sessionStatusEl) {
+        sessionStatusEl.textContent = '⚪ Not logged in: user logged out';
+    }
+
+    // 🌿 (Optional) Re-generate login URL again if needed
+    createJWTloginURL();
 }
 
 
