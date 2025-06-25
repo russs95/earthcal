@@ -2863,12 +2863,12 @@ svg path #june:hover {
 
 
 .signup-button {
-    border: 1px solid var(--button-2-1);
+    border: 1px solid var(--emblem-green);
     width:100%;
     padding: 10px;
     border-radius: 10px;
     font-size: larger;
-    background-color: var(--emblem-green);
+    background-color: var(--emblem-green-over);
     color: white;
     margin: 1px auto 50px auto;
     cursor: pointer;
@@ -2878,7 +2878,7 @@ svg path #june:hover {
 
 .signup-button:hover {
 
-    background-color: var(--emblem-green-over);
+    background-color: var(--emblem-green);
 
 
 

@@ -231,7 +231,7 @@ async function openMainMenu() {
     if (isLoggedIn && userProfile?.first_name && userProfile?.earthling_emoji) {
         userStatusHTML = `
             <div id="user-status">
-                ${userProfile.earthling_emoji} ${mainMenu.loggedIn?.welcome || 'Welcome back,'} ${userProfile.first_name}
+                ${userProfile.earthling_emoji} ${mainMenu.loggedIn?.welcome || 'Welcome Back,'} ${userProfile.first_name}
                 | <a href="#" onclick="logoutBuwana(); closeMainMenu();">Logout</a>
             </div>
         `;

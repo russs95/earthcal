@@ -2,45 +2,58 @@
 let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
-
 async function getUserData() {
+
+    // --- 🎯 Grabbing necessary DOM references ---
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
+    // --- 1tryto read ID token from local storage ---
     const id_token = localStorage.getItem('id_token');
 
     if (!id_token) {
         console.warn("[EarthCal] No ID token found.");
         useDefaultUser();
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+
+        // 🟠 DISPLAY LOGIC: Show Login Form when no token
+        // alert("showing login form no token");
+        // showLoginForm(loggedOutView, loggedInView);
+        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
+    // --- 2️⃣ Decode JWT payload ---
     let payload = null;
     try {
         payload = JSON.parse(atob(id_token.split('.')[1]));
     } catch (e) {
         console.error("[EarthCal] Invalid ID token format.", e);
         useDefaultUser();
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+
+        // 🟠 DISPLAY LOGIC: Show Login Form when decoding fails
+        // alert("showing login form decode failed");
+        // showLoginForm(loggedOutView, loggedInView);
+        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
+    // --- 3️⃣ Validate token expiration ---
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
         useDefaultUser();
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+
+        // 🟠 DISPLAY LOGIC: Show Login Form when token expired
+        // alert("showing login form token expired");
+        // showLoginForm(loggedOutView, loggedInView);
+        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
-    // ✅ Populate global userProfile
+    // --- 4️⃣ Populate global userProfile from valid JWT ---
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -55,7 +68,7 @@ async function getUserData() {
         first_name: payload.given_name || "Earthling",
         email: payload.email || null,
         buwana_id: buwanaId,
-        earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
+        earthling_emoji: payload["buwana:earthlingEmoji"] || "🌎",
         community: payload["buwana:community"] || null,
         continent: payload["buwana:location.continent"] || null,
         status: "returning"
@@ -66,11 +79,14 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // ✅ Now fetch calendar data immediately
+    // --- 5️⃣ Fetch calendar data immediately after profile loaded ---
     if (!buwanaId) {
         console.error("Missing buwana_id in userProfile.");
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+
+        // 🟠 DISPLAY LOGIC: Show Login Form if buwanaId is somehow missing
+        // alert("Showing logged in");
+        // showLoginForm(loggedOutView, loggedInView);
+        // updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
 
@@ -85,6 +101,7 @@ async function getUserData() {
         const calendarData = await calResponse.json();
 
         if (calendarData.success) {
+            // 🟠 DISPLAY LOGIC: Show the logged in view here
             showLoggedInView(calendarData);
         } else {
             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
@@ -98,6 +115,7 @@ async function getUserData() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
