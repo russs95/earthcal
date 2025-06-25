@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Earthcal Authentication Callback</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-color: white;
+            color: black;
+            transition: all 0.3s ease;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111;
+                color: white;
+            }
+        }
+        h3 {
+            font-size: 1.5em;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <h3>Authenticating with Buwana...</h3>
@@ -54,16 +78,18 @@
                 throw new Error("Missing tokens in response");
             }
 
-            // Store tokens
+            // Store raw tokens
             localStorage.setItem("id_token", tokenData.id_token);
             localStorage.setItem("access_token", tokenData.access_token);
             localStorage.setItem("token_type", tokenData.token_type);
             localStorage.setItem("expires_in", tokenData.expires_in);
 
+            // Parse ID token payload immediately and store user profile
             const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
             console.log("ID Token Payload:", idPayload);
+            localStorage.setItem("user_profile", JSON.stringify(idPayload));
 
-            // Clean up sensitive PKCE session storage
+            // Clean up sensitive PKCE storage
             sessionStorage.removeItem("pkce_code_verifier");
             sessionStorage.removeItem("oidc_state");
             sessionStorage.removeItem("oidc_nonce");
