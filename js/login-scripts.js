@@ -215,21 +215,30 @@ function showErrorState(loggedOutView, loggedInView) {
     showLoginForm(loggedOutView, loggedInView);
 }
 
-
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
 
-    if (!window.userProfile) {
-        console.error("User profile is missing.");
+    // 🌀 Pull latest user_profile directly from localStorage
+    const profileString = localStorage.getItem("user_profile");
+    if (!profileString) {
+        console.error("No user profile found in storage.");
+        return;
+    }
+
+    let userProfile = null;
+    try {
+        userProfile = JSON.parse(profileString);
+    } catch (e) {
+        console.error("Failed to parse stored user_profile:", e);
         return;
     }
 
     const {
-        first_name,
-        earthling_emoji,
-        email,
-        buwana_id
-    } = window.userProfile;
+        given_name: first_name = "Earthling",
+        "buwana:earthlingEmoji": earthling_emoji = "🌍",
+        email = '',
+        buwana_id = userProfile.buwana_id || "—"
+    } = userProfile;
 
     const {
         personal_calendars = [],
@@ -277,14 +286,13 @@ async function showLoggedInView(calendarData = {}) {
     const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
     const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
 
-    // Build simplified edit profile URL (if you still want it)
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php`;
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji || '🌍'}</h1>
+            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji}</h1>
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-                ${welcome} ${first_name || 'Earthling'}!
+                ${welcome} ${first_name}!
             </h2>
             <p>${syncingInfo}</p>
 
@@ -308,17 +316,18 @@ async function showLoggedInView(calendarData = {}) {
             <p id="cal-datecycle-count"></p>
 
             <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                ${email || ''}
+                ${email}
             </p>
 
             <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                Buwana ID: ${buwana_id || '—'}
+                Buwana ID: ${buwana_id}
             </p>
         </div>
     `;
 
     loggedInView.style.display = "block";
 }
+
 
 
 
