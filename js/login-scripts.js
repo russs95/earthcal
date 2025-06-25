@@ -9,43 +9,63 @@ let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
 
+
 async function getUserData() {
     const sessionStatus = document.getElementById('user-session-status');
     console.log("🌿 getUserData: Starting...");
 
-    // 1️⃣ Check valid session
-    if (!checkUserSession()) {
-        console.warn("[EarthCal] No valid session.");
-        updateSessionStatus("⚪ Not logged in: invalid or expired token");
+    // 1️⃣ Retrieve full profile directly from localStorage
+    const profileString = localStorage.getItem("user_profile");
+    if (!profileString) {
+        console.warn("[EarthCal] No user_profile found in localStorage.");
+        updateSessionStatus("⚪ Not logged in: no profile stored");
         useDefaultUser();
         return;
     }
 
-    // 2️⃣ Build profile from ID token payload
-    const jwtProfile = buildJWTuserProfile();
-    if (!jwtProfile || !jwtProfile.buwana_id) {
-        console.error("[EarthCal] Failed to extract buwana_id.");
+    let idPayload = null;
+    try {
+        idPayload = JSON.parse(profileString);
+    } catch (e) {
+        console.error("[EarthCal] Failed to parse user_profile:", e);
+        updateSessionStatus("⚪ Not logged in: profile parse error");
+        useDefaultUser();
+        return;
+    }
+
+    // 2️⃣ Validate expiration (just in case!)
+    const now = Math.floor(Date.now() / 1000);
+    if (idPayload.exp < now) {
+        console.warn("[EarthCal] ID token expired.");
+        updateSessionStatus("⚪ Not logged in: token expired");
+        useDefaultUser();
+        return;
+    }
+
+    // 3️⃣ Validate buwana_id present
+    const buwanaId = idPayload.buwana_id || null;
+    if (!buwanaId) {
+        console.error("[EarthCal] Missing buwana_id in stored profile.");
         updateSessionStatus("⚪ Not logged in: buwana_id missing");
         useDefaultUser();
         return;
     }
 
-    // 3️⃣ Populate global state
+    // 4️⃣ Populate global state
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     userProfile = {
-        first_name: jwtProfile.first_name || "Earthling",
-        email: jwtProfile.email || null,
-        buwana_id: jwtProfile.buwana_id,
-        earthling_emoji: jwtProfile.earthling_emoji || "🌎",
-        community: jwtProfile.community || null,
-        continent: jwtProfile.continent || null,
+        first_name: idPayload.given_name || "Earthling",
+        email: idPayload.email || null,
+        buwana_id: buwanaId,
+        earthling_emoji: idPayload["buwana:earthlingEmoji"] || "🌎",
+        community: idPayload["buwana:community"] || null,
+        continent: idPayload["buwana:location.continent"] || null,
         status: "returning"
     };
 
-    console.log("[EarthCal] User profile rebuilt from JWT:", userProfile);
+    console.log("[EarthCal] User profile loaded from localStorage:", userProfile);
 
-    // 4️⃣ Update UI with profile
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
@@ -54,7 +74,7 @@ async function getUserData() {
         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: userProfile.buwana_id }),
+            body: JSON.stringify({ buwana_id: buwanaId }),
             credentials: 'include'
         });
 
@@ -74,6 +94,7 @@ async function getUserData() {
         useDefaultUser();
     }
 }
+
 
 
 function updateSessionStatus(message) {
