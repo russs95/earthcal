@@ -485,7 +485,7 @@
 
 
 
-            displayDayInfo(targetDate, userLanguage, userTimeZone);
+
             const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
 
             displayMoonPhaseInDiv(targetDate);
@@ -580,7 +580,7 @@
 // setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
 // displayDayInfo(targetDate, userLanguage, userTimeZone);
             await getUserData(); // This sets time_zone, targetDate, etc.
-
+            displayDayInfo(targetDate, userLanguage, userTimeZone);
         };
 
 
