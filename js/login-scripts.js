@@ -434,7 +434,7 @@ async function createJWTloginURL() {
     console.log("Generated PKCE Login URL:", url.toString());
 
     // Assign to login button
-    const loginButton = document.querySelector("#login-buttons-container button.sync-style");
+    const loginButton = document.getElementById("auth-login-button");
     if (loginButton) {
         loginButton.onclick = () => window.location.href = url.toString();
     }
