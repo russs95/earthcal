@@ -459,26 +459,44 @@ LOGIN FORM
 
 
 
-
-
-async function showLoginForm(loggedOutView, loggedInView, userData = {}) {
+async function showLoginForm(loggedOutView, loggedInView) {
     loggedOutView.style.display = "block";
     loggedInView.style.display = "none";
 
-    createJWTloginURL();  // <-- Call here to update login button each time
+    createJWTloginURL(); // 🌱 Always refresh the login URL
 
-    const { status, earthling_emoji, first_name } = userData;
+    // 🌿 Pull from persistent profile or global scope
+    let profile = window.userProfile;
+    if (!profile) {
+        const profileStr = localStorage.getItem("user_profile");
+        if (profileStr) {
+            try {
+                profile = JSON.parse(profileStr);
+            } catch (e) {
+                console.warn("[showLoginForm] Failed to parse cached user profile:", e);
+            }
+        }
+    }
 
-    const translations = await loadTranslations(userLanguage.toLowerCase());
+    const {
+        status = "returning",
+        earthling_emoji = "🌱",
+        first_name = "Earthling"
+    } = profile || {};
+
+    const lang = (window.userLanguage || navigator.language.slice(0, 2)).toLowerCase();
+    const translations = await loadTranslations(lang);
     const loginStrings = translations.login;
 
     const subStatusDiv = document.getElementById('sub-status-message');
-    if (status === "firsttime") {
-        subStatusDiv.innerHTML = loginStrings.statusFirstTime(earthling_emoji);
-    } else {
-        subStatusDiv.innerHTML = loginStrings.statusReturning(earthling_emoji, first_name);
+    if (subStatusDiv) {
+        subStatusDiv.innerHTML = (status === "firsttime")
+            ? loginStrings.statusFirstTime(earthling_emoji)
+            : loginStrings.statusReturning(earthling_emoji, first_name);
     }
 }
+
+
 
 
 async function createJWTloginURL() {
