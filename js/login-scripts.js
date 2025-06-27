@@ -338,7 +338,9 @@ async function showLoggedInView(calendarData = {}) {
     const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
     const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
 
-    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php`;
+    // 🍃 Build the edit profile URL with buwana_id and client_id as params
+    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(userProfile.aud || userProfile.client_id || "unknown")}`;
+
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
