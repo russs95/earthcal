@@ -139,7 +139,7 @@ async function checkBuwanaSessionStatus() {
 
     // OPTIONAL: Verify remotely with Buwana
     try {
-        const verifyResp = await fetch("https://buwana.ecobricks.org/jwt_verify.php", {
+        const verifyResp = await fetch("https://buwana.ecobricks.org/.well-known/jwks.php", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id_token })
