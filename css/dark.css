@@ -345,8 +345,12 @@
   background-size: contain;
 }
 
-.top-settings-icon {
+.top-settings-button {
     background: url(../svgs/settings-icon-dark.svg) no-repeat;
+    background-size: contain;
+}
+.top-settings-button:hover {
+    background: url(../svgs/settings-icon-over-dark.svg) no-repeat;
     background-size: contain;
 }
 

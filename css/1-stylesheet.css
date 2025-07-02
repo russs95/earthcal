@@ -259,14 +259,23 @@ flex-direction: row;
 }
 
 
-
-.top-clock-button  {
-  border: none;
+.top-settings-button  {
+    border: none;
     margin:0 10px 10px 10px;
-  cursor:pointer;
-  height:30px;
-  width:30px;
+    cursor:pointer;
+    height:30px;
+    width:30px;
 }
+
+
+
+/*.top-clock-button  {*/
+/*  border: none;*/
+/*    margin:0 10px 10px 10px;*/
+/*  cursor:pointer;*/
+/*  height:30px;*/
+/*  width:30px;*/
+/*}*/
 
 
 .top-menu-button  {

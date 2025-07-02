@@ -77,7 +77,7 @@ async function populateCalendarDropdown(buwanaId) {
 
         if (buwanaId) {
             console.log('Fetching calendars from API...');
-            const response = await fetch('https://gobrik.com/earthcal/grab_user_calendars.php', {
+            const response = await fetch('https://buwana.ecobricks.org/earthcal/grab_user_calendars.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: buwanaId }),
@@ -281,7 +281,7 @@ async function addNewCalendar() {
     };
 
     try {
-        const response = await fetch('https://gobrik.com/earthcal/create_calendar.php', {
+        const response = await fetch('https://buwana.ecobricks.org/earthcal/create_calendar.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newCalendar)
@@ -704,7 +704,7 @@ function initializeToggleListener() {
 ////////////////////////////////////
 
 
-/* SATECYCLE ACTIONS
+/* DATECYCLE ACTIONS
 
 
 ////////////////////////////////////
@@ -714,7 +714,7 @@ function initializeToggleListener() {
 
 async function updateServerDateCycle(dateCycle) {
     // Send the updated dateCycle object to the server endpoint
-    const response = await fetch('https://gobrik.com/earthcal/update_datecycle.php', {
+    const response = await fetch('https://buwana.ecobricks.org/earthcal/update_datecycle.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dateCycle)
@@ -1211,7 +1211,7 @@ async function deleteDateCycle(uniqueKey) {
             console.log('User is not logged in. Cannot delete server data.');
         } else {
             try {
-                const response = await fetch('https://gobrik.com/earthcal/delete_datecycle.php', {
+                const response = await fetch('https://buwana.ecobricks.org/earthcal/delete_datecycle.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1559,14 +1559,10 @@ async function prefillAddDateCycle(data) {
 
 
 
-
-
-
-
-
 //**************************
 // ADD DATECYCLE
-//**************
+//***************************
+
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1722,9 +1718,6 @@ function animateConfirmDateCycleButton() {
         console.error("Adding event failed:", error);
     });
 }
-
-
-
 
 
 
@@ -1943,7 +1936,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 };
                 console.log("📤 Sending deletion payload to server:", JSON.stringify(deletePayload, null, 2));
 
-                const delResponse = await fetch('https://gobrik.com/earthcal/delete_datecycle.php', {
+                const delResponse = await fetch('https://buwana.ecobricks.org/earthcal/delete_datecycle.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(deletePayload)
@@ -2009,7 +2002,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
             console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
-            const syncResponse = await fetch('https://gobrik.com/earthcal/add_datecycle.php', {
+            const syncResponse = await fetch('https://buwana.ecobricks.org/earthcal/add_datecycle.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -2298,69 +2291,69 @@ function mergeDateCycles(serverCalendar, localCalendar) {
 //*********************************
 
 //OBSOLET RIGHT?!  99%
-
-async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
-    try {
-        let newCalId;
-
-        if (calendarName === 'My Calendar') {
-            // Link the calendar to an existing or new ID
-            const response = await fetch('https://gobrik.com/api/link_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to link calendar.');
-            }
-
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        } else {
-            // Create a new calendar for custom names
-            const response = await fetch('https://gobrik.com/api/create_calendar.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                throw new Error(result.message || 'Failed to create calendar.');
-            }
-
-            newCalId = result.calendar_id; // Extract the new calendar ID
-        }
-
-        if (newCalId) {
-            // Ensure all dateCycles have `Delete: "0"` if not already set to "1"
-            localCalendar.forEach(cycle => {
-                if (cycle.delete !== "1") {
-                    cycle.delete = "0"; // Set to "0" explicitly
-                }
-            });
-
-            // Update the localCalendar with the new calendar ID and IDs
-            const updatedCalendar = mergeDateCycles([], localCalendar, newCalId);
-
-            // Update local storage
-            updateLocal(updatedCalendar, calendarName, newCalId);
-            console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
-
-            // OBSOLET RIGHT?  Global cleanup of lingering dateCycles with `000_` in their `ID`
-            //cleanupLingeringDateCycles();
-            //console.log(`Cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
-        } else {
-            throw new Error('Received undefined calendar_id.');
-        }
-    } catch (error) {
-        console.error('Error in handleNewOrUnlinkedCalendar:', error);
-        alert('An error occurred while linking or creating the calendar. Please try again.');
-    }
-}
+//
+// async function handleNewOrUnlinkedCalendar(localCalendar, calendarName, buwanaId) {
+//     try {
+//         let newCalId;
+//
+//         if (calendarName === 'My Calendar') {
+//             // Link the calendar to an existing or new ID
+//             const response = await fetch('https://gobrik.com/api/link_calendar.php', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
+//             });
+//
+//             const result = await response.json();
+//
+//             if (!result.success) {
+//                 throw new Error(result.message || 'Failed to link calendar.');
+//             }
+//
+//             newCalId = result.calendar_id; // Extract the new calendar ID
+//         } else {
+//             // Create a new calendar for custom names
+//             const response = await fetch('https://gobrik.com/api/create_calendar.php', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({ buwana_id: buwanaId, calendar_name: calendarName })
+//             });
+//
+//             const result = await response.json();
+//
+//             if (!result.success) {
+//                 throw new Error(result.message || 'Failed to create calendar.');
+//             }
+//
+//             newCalId = result.calendar_id; // Extract the new calendar ID
+//         }
+//
+//         if (newCalId) {
+//             // Ensure all dateCycles have `Delete: "0"` if not already set to "1"
+//             localCalendar.forEach(cycle => {
+//                 if (cycle.delete !== "1") {
+//                     cycle.delete = "0"; // Set to "0" explicitly
+//                 }
+//             });
+//
+//             // Update the localCalendar with the new calendar ID and IDs
+//             const updatedCalendar = mergeDateCycles([], localCalendar, newCalId);
+//
+//             // Update local storage
+//             updateLocal(updatedCalendar, calendarName, newCalId);
+//             console.log(`Local storage updated for calendar: ${calendarName} (ID: ${newCalId})`);
+//
+//             // OBSOLET RIGHT?  Global cleanup of lingering dateCycles with `000_` in their `ID`
+//             //cleanupLingeringDateCycles();
+//             //console.log(`Cleaned Local storage for calendar: ${calendarName} (ID: ${newCalId})`);
+//         } else {
+//             throw new Error('Received undefined calendar_id.');
+//         }
+//     } catch (error) {
+//         console.error('Error in handleNewOrUnlinkedCalendar:', error);
+//         alert('An error occurred while linking or creating the calendar. Please try again.');
+//     }
+// }
 
 
 

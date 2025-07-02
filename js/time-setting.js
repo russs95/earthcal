@@ -17,7 +17,7 @@ async function displayUserData(time_zone, language) {
               onclick="showUserCalSettings()"
               onmouseover="this.style.textDecoration='underline'"
               onmouseout="this.style.textDecoration='none'">
-              ${userDetailsString} ⚙️
+              ${userDetailsString}
         </span>
     `;
 

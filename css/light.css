@@ -93,14 +93,19 @@
   }
 
 .top-settings-button {
-    background: url(../svgs/settings-icon.svg) no-repeat;
+    background: url(../svgs/settings-icon-day.svg) no-repeat;
+    background-size: contain;
+}
+.top-settings-button:hover {
+    background: url(../svgs/settings-icon-day-over.svg) no-repeat;
     background-size: contain;
 }
 
-.top-settings-icon {
-    background: url(../svgs/settings-icon.svg) no-repeat;
-    background-size: contain;
-}
+
+/*.top-settings-icon {*/
+/*    background: url(../svgs/settings-icon.svg) no-repeat;*/
+/*    background-size: contain;*/
+/*}*/
 
 .top-help-button {
   background: url(../svgs/about-i-day.svg) no-repeat;
