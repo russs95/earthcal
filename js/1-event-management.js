@@ -1889,11 +1889,27 @@ async function syncDatecycles() {
 
 
 async function updateServerDatecycles(cal_id, serverDateCycles) {
-    const buwanaId = localStorage.getItem('buwana_id');
-    if (!buwanaId) {
-        console.error("❌ Missing buwana_id. Cannot sync dateCycles.");
+    const profileString = localStorage.getItem("user_profile");
+
+    if (!profileString) {
+        console.error("❌ No stored user_profile found. Cannot sync dateCycles.");
         return;
     }
+
+    let userProfile;
+    try {
+        userProfile = JSON.parse(profileString);
+    } catch (err) {
+        console.error("❌ Failed to parse user_profile:", err);
+        return;
+    }
+
+    const buwanaId = userProfile.buwana_id;
+    if (!buwanaId) {
+        console.error("❌ buwana_id missing in user_profile. Cannot sync dateCycles.");
+        return;
+    }
+
 
     // Retrieve local calendar data for this cal_id.
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
@@ -2253,8 +2269,6 @@ function mergeDateCycles(serverCalendar, localCalendar) {
     console.log('Merged dateCycles:', mergedCycles);
     return mergedCycles;
 }
-
-
 
 
 //
