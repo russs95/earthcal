@@ -2016,7 +2016,7 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 conflict: unsyncedEvent.conflict
             };
 
-            console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
+            // console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
             const syncResponse = await fetch('https://buwana.ecobricks.org/earthcal/add_datecycle.php', {
                 method: 'POST',
@@ -2039,18 +2039,23 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             }
 
         } catch (error) {
-            console.error('⚠️ Error syncing dateCycle:', error);
+            if (error.message.includes("already exists") || error.message.includes("Duplicate")) {
+                console.log(`ℹ️ Skipped existing dateCycle: ${unsyncedEvent.title}`);
+            } else {
+                console.error(`⚠️ Failed to sync dateCycle: ${unsyncedEvent.title}`, error);
+            }
         }
+
     }
 
     // 🔍 Debug log: Print before updating local storage
-    console.log("📥 Updated local dateCycles after sync:", JSON.stringify(Object.values(localDateCycleMap), null, 2));
+    // console.log("📥 Updated local dateCycles after sync:", JSON.stringify(Object.values(localDateCycleMap), null, 2));
 
     // Save the updated local calendar.
-    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
+    // localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
 
     // 🔍 Debug log: Confirm local storage was saved
-    console.log("📥 Final local storage after sync:", localStorage.getItem(`calendar_${cal_id}`));
+    // console.log("📥 Final local storage after sync:", localStorage.getItem(`calendar_${cal_id}`));
 }
 
 
