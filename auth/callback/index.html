@@ -78,15 +78,34 @@
                 throw new Error("Missing tokens in response");
             }
 
-            // Store raw tokens
+            // Parse ID token payload immediately
+            const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
+            console.log("ID Token Payload:", idPayload);
+
+            // 🔎 Check if user is connected to this app
+            const checkResp = await fetch(
+                `https://buwana.ecobricks.org/api/check_user_app_connection.php?client_id=ecal_7f3da821d0a54f8a9b58`,
+                { credentials: 'include' }
+            );
+            const checkData = await checkResp.json();
+
+            if (!checkResp.ok || checkData.connected !== true) {
+                // ⛔️ Not connected -> redirect to Buwana connect page
+                const connectUrl =
+                    (checkData && checkData.app_login_url)
+                        ? checkData.app_login_url
+                        : `https://buwana.ecobricks.org/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;
+                window.location.href = connectUrl;
+                return;
+            }
+
+            // Store raw tokens now that connection is confirmed
             localStorage.setItem("id_token", tokenData.id_token);
             localStorage.setItem("access_token", tokenData.access_token);
             localStorage.setItem("token_type", tokenData.token_type);
             localStorage.setItem("expires_in", tokenData.expires_in);
 
-            // Parse ID token payload immediately and store user profile
-            const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
-            console.log("ID Token Payload:", idPayload);
+            // Store profile
             localStorage.setItem("user_profile", JSON.stringify(idPayload));
 
             // Clean up sensitive PKCE storage
