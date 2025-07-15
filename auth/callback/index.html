@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Earthcal Authentication Callback</title>
+    <link rel="icon" href="/icons/favicon.ico">
     <style>
         body {
             margin: 0;
@@ -82,19 +83,35 @@
             const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
             console.log("ID Token Payload:", idPayload);
 
+            // Determine browser language for redirect
+            const supportedLangs = ['en','es','id','fr','zh','ar','de'];
+            let lang = (navigator.language || 'en').slice(0,2).toLowerCase();
+            if (!supportedLangs.includes(lang)) lang = 'en';
+
             // 🔎 Check if user is connected to this app
             const checkResp = await fetch(
                 `https://buwana.ecobricks.org/api/check_user_app_connection.php?client_id=ecal_7f3da821d0a54f8a9b58`,
                 { credentials: 'include' }
             );
-            const checkData = await checkResp.json();
 
-            if (!checkResp.ok || checkData.connected !== true) {
+            let checkData = null;
+            try {
+                checkData = await checkResp.clone().json();
+            } catch (parseErr) {
+                console.warn('Connection check response not JSON', parseErr);
+            }
+
+            if (checkResp.redirected) {
+                window.location.href = checkResp.url;
+                return;
+            }
+
+            if (!checkResp.ok || !checkData || checkData.connected !== true) {
                 // ⛔️ Not connected -> redirect to Buwana connect page
                 const connectUrl =
                     (checkData && checkData.app_login_url)
                         ? checkData.app_login_url
-                        : `https://buwana.ecobricks.org/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;
+                        : `https://buwana.ecobricks.org/${lang}/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;
                 window.location.href = connectUrl;
                 return;
             }
