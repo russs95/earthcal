@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-<h3>Authenticating with Buwana...</h3>
+<h3>🍃 Authenticating with Buwana...</h3>
 
 <script>
     (async function() {
@@ -91,7 +91,7 @@
 
             // 🔎 Check if user is connected to this app
             const checkResp = await fetch(
-                `https://buwana.ecobricks.org/api/check_user_app_connection.php?client_id=ecal_7f3da821d0a54f8a9b58`,
+                `https://buwana.ecobricks.org/api/check_user_app_connection.php?buwana_id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`,
                 { credentials: 'include' }
             );
             let checkData = null;
