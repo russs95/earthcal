@@ -1910,7 +1910,6 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
-
     // Retrieve local calendar data for this cal_id.
     let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
 
@@ -2230,10 +2229,6 @@ function fetchDateCycleCalendars() {
         return [];
     }
 }
-
-
-
-
 
 
 
