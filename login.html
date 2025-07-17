@@ -3,6 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting to Buwana...</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+      background-color: white;
+      color: black;
+      transition: all 0.3s ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #111;
+        color: white;
+      }
+    }
+    h3 {
+      font-size: 1.5em;
+      text-align: center;
+    }
+  </style>
   <script>
     async function generateRandomString(length) {
       const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,7 +42,7 @@
       const data = encoder.encode(codeVerifier);
       const digest = await window.crypto.subtle.digest('SHA-256', data);
       return btoa(String.fromCharCode(...new Uint8Array(digest)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+              .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
     async function redirectToBuwana() {
@@ -37,7 +61,6 @@
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
-      // 🍃 Grab any status param from login.html and attach to redirect_uri
       const status = new URLSearchParams(window.location.search).get("status");
       const redirectUriObj = new URL(baseRedirectUri);
       if (status) {
@@ -58,12 +81,18 @@
       window.location.href = url.toString();
     }
 
-
-
-    document.addEventListener("DOMContentLoaded", redirectToBuwana);
+    document.addEventListener("DOMContentLoaded", () => {
+      const dotElem = document.getElementById("dots");
+      let dotPhase = 0;
+      setInterval(() => {
+        dotPhase = (dotPhase + 1) % 4;
+        dotElem.textContent = ".".repeat(dotPhase);
+      }, 400);
+      redirectToBuwana();
+    });
   </script>
 </head>
 <body>
-  <p style="text-align:center; margin-top: 20%;">🌍 Redirecting to Buwana for authentication....</p>
+<h3>🌍 Redirecting to Buwana for authentication<span id="dots">...</span></h3>
 </body>
 </html>
