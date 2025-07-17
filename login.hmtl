@@ -24,7 +24,7 @@
     async function redirectToBuwana() {
       const buwanaAuthorizeURL = "https://buwana.ecobricks.org/authorize";
       const client_id = "ecal_7f3da821d0a54f8a9b58";
-      const redirect_uri = "https://earthcal.app/auth/callback";
+      const baseRedirectUri = "https://earthcal.app/auth/callback";
       const scope = "openid email profile";
       const lang = "en";
 
@@ -36,6 +36,12 @@
       const codeVerifier = await generateRandomString(64);
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+
+      // 🍃 Grab any status param from login.html
+      const status = new URLSearchParams(window.location.search).get("status");
+      const redirect_uri = status
+        ? `${baseRedirectUri}?status=${encodeURIComponent(status)}`
+        : baseRedirectUri;
 
       const url = new URL(buwanaAuthorizeURL);
       url.searchParams.append("client_id", client_id);
@@ -50,6 +56,7 @@
 
       window.location.href = url.toString();
     }
+
 
     document.addEventListener("DOMContentLoaded", redirectToBuwana);
   </script>
