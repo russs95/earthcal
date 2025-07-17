@@ -30,13 +30,22 @@
     </style>
 </head>
 <body>
-<h3>🍃 Authenticating with Buwana...</h3>
+<h3>🍃 Authenticating with Buwana<span id="dots">...</span></h3>
 
 <script>
+    // Animate dots
+    let dotPhase = 0;
+    const dotElem = document.getElementById("dots");
+    setInterval(() => {
+        dotPhase = (dotPhase + 1) % 4;
+        dotElem.textContent = ".".repeat(dotPhase);
+    }, 400);
+
     (async function() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
+        const status = urlParams.get("status");
 
         if (!code || !state) {
             console.error("Missing code or state in callback");
@@ -79,17 +88,13 @@
                 throw new Error("Missing tokens in response");
             }
 
-            // Parse ID token payload immediately
             const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
             console.log("ID Token Payload:", idPayload);
 
-
-            // Determine browser language for redirect
             const supportedLangs = ['en','es','id','fr','zh','ar','de'];
             let lang = (navigator.language || 'en').slice(0,2).toLowerCase();
             if (!supportedLangs.includes(lang)) lang = 'en';
 
-            // 🔎 Check if user is connected to this app
             const checkResp = await fetch(
                 `https://buwana.ecobricks.org/api/check_user_app_connection.php?buwana_id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`,
                 { credentials: 'include' }
@@ -106,33 +111,31 @@
                 return;
             }
             if (!checkResp.ok || !checkData || checkData.connected !== true) {
-                // ⛔️ Not connected -> redirect to Buwana connect page
                 const connectUrl =
                     (checkData && checkData.app_login_url)
                         ? checkData.app_login_url
-                        : `https://buwana.ecobricks.org/${lang}/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;                window.location.href = connectUrl;
+                        : `https://buwana.ecobricks.org/${lang}/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;
+                window.location.href = connectUrl;
                 return;
             }
 
-            // Store raw tokens now that connection is confirmed
             localStorage.setItem("id_token", tokenData.id_token);
             localStorage.setItem("access_token", tokenData.access_token);
             localStorage.setItem("token_type", tokenData.token_type);
             localStorage.setItem("expires_in", tokenData.expires_in);
-
-            // Store profile
             localStorage.setItem("user_profile", JSON.stringify(idPayload));
 
-            // Clean up sensitive PKCE storage
             sessionStorage.removeItem("pkce_code_verifier");
             sessionStorage.removeItem("oidc_state");
             sessionStorage.removeItem("oidc_nonce");
 
-            // Clean up URL
             window.history.replaceState({}, document.title, "/auth/callback");
 
-            // Redirect to main app
-            window.location.href = "/index.html";
+            let redirectUrl = "/index.html";
+            if (status) {
+                redirectUrl += `?status=${encodeURIComponent(status)}`;
+            }
+            window.location.href = redirectUrl;
 
         } catch (err) {
             console.error("Authentication error:", err);
