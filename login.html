@@ -37,17 +37,18 @@
       const codeChallenge = await generateCodeChallenge(codeVerifier);
       sessionStorage.setItem("pkce_code_verifier", codeVerifier);
 
-      // 🍃 Grab any status param from login.html
+      // 🍃 Grab any status param from login.html and attach to redirect_uri
       const status = new URLSearchParams(window.location.search).get("status");
-      const redirect_uri = status
-        ? `${baseRedirectUri}?status=${encodeURIComponent(status)}`
-        : baseRedirectUri;
+      const redirectUriObj = new URL(baseRedirectUri);
+      if (status) {
+        redirectUriObj.searchParams.set("status", status);
+      }
 
       const url = new URL(buwanaAuthorizeURL);
       url.searchParams.append("client_id", client_id);
       url.searchParams.append("response_type", "code");
       url.searchParams.append("scope", scope);
-      url.searchParams.append("redirect_uri", redirect_uri);
+      url.searchParams.append("redirect_uri", redirectUriObj.toString());
       url.searchParams.append("state", state);
       url.searchParams.append("nonce", nonce);
       url.searchParams.append("code_challenge", codeChallenge);
@@ -56,6 +57,7 @@
 
       window.location.href = url.toString();
     }
+
 
 
     document.addEventListener("DOMContentLoaded", redirectToBuwana);
