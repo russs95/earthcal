@@ -223,6 +223,11 @@
   background-size: contain;
 }
 
+#reg-up-button:hover {
+    background: url(../svgs/up-reg-arrow-light-over.svg) center no-repeat;
+    background-size: contain;
+}
+
 #export-down-arrow {
   background: url(../svgs/down-arrow.svg) no-repeat;
   background-size: contain;

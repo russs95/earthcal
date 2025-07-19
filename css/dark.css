@@ -85,6 +85,13 @@
   background: url(../svgs/up-reg-arrow-dark.svg) center no-repeat;
   background-size: contain;
 }
+
+#reg-up-button:hover {
+    background: url(../svgs/up-reg-arrow-dark-over.svg) center no-repeat;
+    background-size: contain;
+}
+
+
   
 
  .tooltip {

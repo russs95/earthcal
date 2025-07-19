@@ -96,17 +96,49 @@ async function getUserData() {
 }
 
 
-
+function isDarkModeActive() {
+    const darkModeStyles = document.querySelectorAll('link[rel="stylesheet"][media*="prefers-color-scheme"][media*="dark"]');
+    for (const link of darkModeStyles) {
+        if (!link.disabled && link.media === 'all') {
+            return true;
+        }
+    }
+    return false;
+}
 
 function updateSessionStatus(message) {
     const sessionStatus = document.getElementById('user-session-status');
+    const regUpButton = document.getElementById('reg-up-button');
+
     if (sessionStatus) {
         sessionStatus.textContent = message;
+
+        if (regUpButton) {
+            const darkMode = isDarkModeActive();
+
+            const bgNormal = darkMode
+                ? '../svgs/up-reg-arrow-dark-active.svg'
+                : '../svgs/up-reg-arrow-light-active.svg';
+
+            const bgHover = darkMode
+                ? '../svgs/up-reg-arrow-dark-active-hover.svg'
+                : '../svgs/up-reg-arrow-light-active-hover.svg';
+
+            regUpButton.style.background = `url(${bgNormal}) center no-repeat`;
+            regUpButton.style.backgroundSize = 'contain';
+
+            regUpButton.onmouseover = () => {
+                regUpButton.style.background = `url(${bgHover}) center no-repeat`;
+            };
+            regUpButton.onmouseout = () => {
+                regUpButton.style.background = `url(${bgNormal}) center no-repeat`;
+            };
+        }
     } else {
-        // Try again after short delay if not yet available
         setTimeout(() => updateSessionStatus(message), 100);
     }
 }
+
 
 
 async function checkBuwanaSessionStatus() {
@@ -620,193 +652,6 @@ async function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
-
-
-
-//
-// async function sendUpRegistration() {
-//     const footer = document.getElementById("registration-footer");
-//     const loggedOutView = document.getElementById("login-form-section");
-//     const loggedInView = document.getElementById("logged-in-view");
-//     const upArrow = document.getElementById("reg-up-button");
-//     const downArrow = document.getElementById("reg-down-button");
-//
-//     // ✅ Check session
-//     if (!checkUserSession()) {
-//         sendUpLogin();
-//         return;
-//     }
-//
-//     try {
-//         const id_token = localStorage.getItem('id_token');
-//         if (!id_token) {
-//             console.error("ID token missing in localStorage.");
-//             sendUpLogin();
-//             return;
-//         }
-//
-//         let payload = null;
-//         try {
-//             payload = JSON.parse(atob(id_token.split('.')[1]));
-//         } catch (e) {
-//             console.error("Invalid ID token format:", e);
-//             sendUpLogin();
-//             return;
-//         }
-//
-//         // ✅ Build userProfile directly from JWT payload
-//         let buwanaId = null;
-//         if (payload.sub?.startsWith("buwana_")) {
-//             buwanaId = payload.sub.split("_")[1];
-//         } else {
-//             buwanaId = payload.buwana_id || payload.sub || null;
-//         }
-//
-//         if (!buwanaId) {
-//             console.error("Could not determine buwana_id from JWT.");
-//             sendUpLogin();
-//             return;
-//         }
-//
-//         window.userProfile = {
-//             first_name: payload.given_name || "Earthling",
-//             email: payload.email || null,
-//             buwana_id: buwanaId,
-//             earthling_emoji: payload["buwana:earthlingEmoji"] || "🐸",
-//             community: payload["buwana:community"] || null,
-//             continent: payload["buwana:location.continent"] || null,
-//             status: "returning"
-//         };
-//
-//         console.log("[EarthCal] User profile rebuilt from JWT:", window.userProfile);
-//
-//         // ✅ Now fetch calendar data using buwana_id
-//         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ buwana_id: buwanaId }),
-//             credentials: 'include'
-//         });
-//
-//         const calendarData = await calResponse.json();
-//
-//         if (calendarData.success) {
-//             showLoggedInView(calendarData);
-//         } else {
-//             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
-//             showErrorState(loggedOutView, loggedInView);
-//         }
-//
-//     } catch (error) {
-//         console.error('Error in sendUpRegistration:', error);
-//         showErrorState(loggedOutView, loggedInView);
-//     }
-//
-//     updateFooterAndArrowUI(footer, upArrow, downArrow);
-// }
-
-
-
-
-//
-//
-// async function sendUpRegistration() {
-//     const guidedTour = document.getElementById("guided-tour");
-//     const guidedTourModal = guidedTour?.querySelector('.modal');
-//     if (guidedTourModal && guidedTourModal.style.display !== "none") return;
-//
-//     const footer = document.getElementById("registration-footer");
-//     const loggedOutView = document.getElementById("login-form-section");
-//     const loggedInView = document.getElementById("logged-in-view");
-//     const upArrow = document.getElementById("reg-up-button");
-//     const downArrow = document.getElementById("reg-down-button");
-//
-//     const buwanaId = localStorage.getItem('buwana_id');
-//
-//     if (!buwanaId) {
-//         createJWTloginURL();
-//         showLoginForm(loggedOutView, loggedInView, null);
-//         updateFooterAndArrowUI(footer, upArrow, downArrow);
-//         return;
-//     }
-//
-//     try {
-//         // Check session validity
-//         const userResponse = await fetch(`https://buwana.ecobricks.org/earthcal/fetch_logged_in_user_data.php?id=${buwanaId}`, {
-//             credentials: 'include'
-//         });
-//         const userData = await userResponse.json();
-//
-//         //If user is not logged in
-//         if (!userData.logged_in) {
-//             console.warn("Session expired or invalid. Using default user data.");
-//
-//             window.userProfile = {
-//                 first_name: "Earthling",
-//                 earthling_emoji: "🐸",
-//                 language_id: "en",
-//                 time_zone: "America/Toronto", // EST/EDT
-//                 location_full: "Ottawa, Ontario, Canada",
-//                 location_lat: 45.4215,
-//                 location_long: -75.6972,
-//                 connection_id: null,
-//                 status: "guest"
-//             };
-//
-//             window.userLanguage = "en";
-//             window.userTimeZone = "America/Toronto";
-//
-//             showLoginForm(loggedOutView, loggedInView, null);
-//             updateFooterAndArrowUI(footer, upArrow, downArrow);
-//             return;
-//         }
-//
-//
-//         // Valid session — proceed with user data
-//         window.userProfile = {
-//             first_name: userData.first_name,
-//             earthling_emoji: userData.earthling_emoji,
-//             last_sync_ts: userData.last_sync_ts,
-//             language_id: userData.language_id,
-//             time_zone: userData.time_zone,
-//             last_login: userData.last_login,
-//             location_full: userData.location_full,
-//             location_lat: userData.location_lat,
-//             location_long: userData.location_long,
-//             connection_id: userData.connection_id
-//         };
-//
-//
-//         window.userLanguage = userData.language_id.toLowerCase();
-//         window.userTimeZone = userData.time_zone;
-//
-//         const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ buwana_id: buwanaId }),
-//             credentials: 'include'
-//         });
-//
-//         const calendarData = await calResponse.json();
-//
-//         if (calendarData.success) {
-//             showLoggedInView(calendarData);
-//         } else {
-//             console.error('Error fetching calendar data:', calendarData.message || 'Unknown error');
-//             showErrorState(loggedOutView, loggedInView);
-//         }
-//
-//     } catch (error) {
-//         console.error('Error in registration sequence:', error);
-//         showErrorState(loggedOutView, loggedInView);
-//     }
-//
-//     updateFooterAndArrowUI(footer, upArrow, downArrow);
-// }
-
-
-
-
 
 
 
