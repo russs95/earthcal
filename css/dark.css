@@ -92,6 +92,17 @@
 }
 
 
+#reg-up-button.active {
+    background: url(../svgs/up-reg-arrow-dark-active.svg) center no-repeat;
+    background-size: contain;
+}
+
+#reg-up-button.active:hover {
+    background: url(../svgs/up-reg-arrow-dark-active-hover.svg) center no-repeat;
+    background-size: contain;
+}
+
+
   
 
  .tooltip {

@@ -228,6 +228,17 @@
     background-size: contain;
 }
 
+#reg-up-button.active {
+    background: url(../svgs/up-reg-arrow-light-active.svg) center no-repeat;
+    background-size: contain;
+}
+
+#reg-up-button.active:hover {
+    background: url(../svgs/up-reg-arrow-light-active-hover.svg) center no-repeat;
+    background-size: contain;
+}
+
+
 #export-down-arrow {
   background: url(../svgs/down-arrow.svg) no-repeat;
   background-size: contain;

@@ -96,16 +96,6 @@ async function getUserData() {
 }
 
 
-function isDarkModeActive() {
-    const darkModeStyles = document.querySelectorAll('link[rel="stylesheet"][media*="prefers-color-scheme"][media*="dark"]');
-    for (const link of darkModeStyles) {
-        if (!link.disabled && link.media === 'all') {
-            return true;
-        }
-    }
-    return false;
-}
-
 function updateSessionStatus(message) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
@@ -114,30 +104,13 @@ function updateSessionStatus(message) {
         sessionStatus.textContent = message;
 
         if (regUpButton) {
-            const darkMode = isDarkModeActive();
-
-            const bgNormal = darkMode
-                ? '../svgs/up-reg-arrow-dark-active.svg'
-                : '../svgs/up-reg-arrow-light-active.svg';
-
-            const bgHover = darkMode
-                ? '../svgs/up-reg-arrow-dark-active-hover.svg'
-                : '../svgs/up-reg-arrow-light-active-hover.svg';
-
-            regUpButton.style.background = `url(${bgNormal}) center no-repeat`;
-            regUpButton.style.backgroundSize = 'contain';
-
-            regUpButton.onmouseover = () => {
-                regUpButton.style.background = `url(${bgHover}) center no-repeat`;
-            };
-            regUpButton.onmouseout = () => {
-                regUpButton.style.background = `url(${bgNormal}) center no-repeat`;
-            };
+            regUpButton.classList.add('active');
         }
     } else {
         setTimeout(() => updateSessionStatus(message), 100);
     }
 }
+
 
 
 
