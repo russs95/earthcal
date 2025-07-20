@@ -2372,6 +2372,7 @@ color: #b2b1b1;
 /* Expanded state */
 #registration-container.expanded {
     transform: translateY(0);
+    height: 110vh;
 }
 
 /* Enable interaction when expanded */
