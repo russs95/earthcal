@@ -60,10 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
-
-
-
 // Declare globally near the top of your app
 let userLanguage = null;
 let userTimeZone = null;
@@ -155,6 +151,7 @@ async function getUserData() {
     }
 }
 
+
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
@@ -177,36 +174,31 @@ function updateSessionStatus(message, isLoggedIn = false) {
 
 
 
-
 async function checkBuwanaSessionStatus() {
     const statusEl = document.getElementById('user-session-status');
     if (!statusEl) return;
 
-    // Check if id_token exists
     const id_token = localStorage.getItem("id_token");
     if (!id_token) {
-        statusEl.textContent = "⚪ Not logged in: no token";
+        updateSessionStatus("⚪ Not logged in: no token", false);
         return;
     }
 
-    // Decode token payload
     let payload;
     try {
         payload = JSON.parse(atob(id_token.split('.')[1]));
     } catch (e) {
         console.error("[SessionStatus] Invalid token format:", e);
-        statusEl.textContent = "⚪ Not logged in: invalid token";
+        updateSessionStatus("⚪ Not logged in: invalid token", false);
         return;
     }
 
-    // Check expiration
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp < now) {
-        statusEl.textContent = "⚪ Not logged in: token expired";
+        updateSessionStatus("⚪ Not logged in: token expired", false);
         return;
     }
 
-    // OPTIONAL: Verify remotely with Buwana
     try {
         const verifyResp = await fetch("https://buwana.ecobricks.org/.well-known/jwks.php", {
             method: 'POST',
@@ -216,16 +208,22 @@ async function checkBuwanaSessionStatus() {
 
         const verifyData = await verifyResp.json();
         if (verifyData.valid) {
-            statusEl.textContent = `🟢 Logged in as ${payload.given_name} ${payload["buwana:earthlingEmoji"] || "🌍"}`;
+            const name = payload.given_name || "User";
+            const emoji = payload["buwana:earthlingEmoji"] || "🌍";
+            updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
         } else {
-            statusEl.textContent = "⚪ Not logged in: server rejected token";
+            updateSessionStatus("⚪ Not logged in: server rejected token", false);
         }
     } catch (err) {
         console.error("[SessionStatus] Verification error:", err);
-        statusEl.textContent = "⚪ Error checking session";
+        updateSessionStatus("⚪ Error checking session", false);
     }
 }
 
+
+document.addEventListener("DOMContentLoaded", () => {
+    checkBuwanaSessionStatus();
+});
 
 
 
@@ -751,6 +749,8 @@ async function toggleSubscription(calendarId, subscribe) {
 //     document.getElementById("reg-up-button").style.display = "block";
 //     calendarRefresh();
 // }
+
+
 function sendDownRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
