@@ -2357,6 +2357,15 @@ color: #b2b1b1;
 /* 1) Make the wrapper itself ignore all mouse events */
 #registration-container {
     pointer-events: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90%;
+    z-index: 999;
+    touch-action: none;
+    transition: transform 0.3s ease;
+    transform: translateY(0);
 }
 
 /* 2) Re-enable events on just your two children */
@@ -2371,6 +2380,19 @@ color: #b2b1b1;
 #registration-container.hover > #registration-footer {
     transform: translateY(-20px);
 }
+
+/* 4) When dragged, cancel smooth animation */
+#registration-container.grabbed {
+    transition: none !important;
+}
+
+/* 5) Fully hide the registration modal */
+#registration-container.hidden {
+    transform: translateY(100%);
+}
+
+
+
 
 /* Responsive styling */
 

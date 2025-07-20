@@ -4,6 +4,59 @@
 LOGIN FUNCTIONS
 ----------------*/
 
+const regContainer = document.getElementById('registration-container');
+const regDownButton = document.getElementById('reg-down-button');
+
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+
+function onStartDrag(e) {
+    isDragging = true;
+    regContainer.classList.add('grabbed');
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+}
+
+function onMoveDrag(e) {
+    if (!isDragging) return;
+    currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const deltaY = currentY - startY;
+    if (deltaY > 0) {
+        regContainer.style.transform = `translateY(${deltaY}px)`;
+    }
+}
+
+function onEndDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    regContainer.classList.remove('grabbed');
+    const deltaY = currentY - startY;
+
+    if (deltaY > 100) {
+        // Trigger your existing function to close
+        sendDownRegistration();
+    } else {
+        // Snap back to top
+        regContainer.style.transform = `translateY(0)`;
+    }
+}
+
+// Touch
+regDownButton.addEventListener('touchstart', onStartDrag);
+regDownButton.addEventListener('touchmove', onMoveDrag);
+regDownButton.addEventListener('touchend', onEndDrag);
+
+// Mouse
+regDownButton.addEventListener('mousedown', onStartDrag);
+document.addEventListener('mousemove', onMoveDrag);
+document.addEventListener('mouseup', onEndDrag);
+
+
+
+
+
+
+
 // Declare globally near the top of your app
 let userLanguage = null;
 let userTimeZone = null;
@@ -585,13 +638,16 @@ async function sendUpLogin() {
 
 
 
-
 async function sendUpRegistration() {
+    const container = document.getElementById("registration-container"); // ← Add this
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
+
+    // ⬆️ Slide container back up into view
+    container.classList.remove("hidden");
 
     const id_token = localStorage.getItem('id_token');
 
@@ -620,7 +676,7 @@ async function sendUpRegistration() {
         return;
     }
 
-    // ✅ Token is valid — show logged-in view which is already populated by getUserData
+    // ✅ Token is valid — show logged-in view
     console.log("[EarthCal] Valid token found. Showing logged-in view.");
 
     loggedOutView.style.display = "none";
@@ -629,6 +685,7 @@ async function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
@@ -685,24 +742,32 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
+function sendDownRegistration() {
+    const footer = document.getElementById("registration-footer");
+    const loggedOutView = document.getElementById("login-form-section");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
+    const container = document.getElementById("registration-container");
 
-  function sendDownRegistration() {
-    var footer = document.getElementById("registration-footer");
-    var loggedOutView = document.getElementById("login-form-section");
-    var upArrow = document.getElementById("reg-up-button");
-    var downArrow = document.getElementById("reg-down-button");
-
+    // Slide the container down visually
+    container.classList.add("hidden");
 
     // Adjust the height of the registration footer
     footer.style.height = "25px";
-      // footer.style.marginBottom = "unset";
-    // Make the email registration section visible
-    loggedOutView.style.display = "none";
-    upArrow.style.display = "block";
-//    downArrow.style.display = "none";
-    calendarRefresh();
 
-  }
+    // Hide the login section
+    loggedOutView.style.display = "none";
+
+    // Show the "slide up" arrow
+    upArrow.style.display = "block";
+
+    // Optionally hide the down arrow (already out of view)
+    // downArrow.style.display = "none";
+
+    // Refresh calendar or other content
+    calendarRefresh();
+}
+
 
 
 
