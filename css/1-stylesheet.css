@@ -2372,6 +2372,7 @@ color: #b2b1b1;
 /* Expanded: fully slid up */
 #registration-container.expanded {
     transform: translateY(0);
+    height: 110vh;
 }
 
 /* Allow pointer events only when expanded */
@@ -2406,6 +2407,13 @@ color: #b2b1b1;
 }
 
 
+#registration-container.collapsing {
+    pointer-events: none;       /* Prevent accidental taps/clicks during animation */
+    overflow: hidden;           /* Prevent scroll bars or layout shifts */
+    opacity: 0.97;              /* Slight visual feedback that it's animating */
+    backdrop-filter: blur(1px); /* Optional: slight blur for motion effect */
+    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+}
 
 
 /* Responsive styling */
