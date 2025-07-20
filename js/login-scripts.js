@@ -751,7 +751,6 @@ async function toggleSubscription(calendarId, subscribe) {
 //     document.getElementById("reg-up-button").style.display = "block";
 //     calendarRefresh();
 // }
-
 function sendDownRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
@@ -759,16 +758,18 @@ function sendDownRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // ✅ Slide it down
+    // ✅ Animate down by removing the .expanded class
     container.classList.remove("expanded");
 
-    // Hide login UI
-    footer.style.height = "25px";
-    loggedOutView.style.display = "none";
-    upArrow.style.display = "block";
-
-    calendarRefresh();
+    // Optionally delay hiding UI until after animation completes (300ms)
+    setTimeout(() => {
+        footer.style.height = "25px";
+        loggedOutView.style.display = "none";
+        upArrow.style.display = "block";
+        calendarRefresh();
+    }, 300); // Match the CSS transition duration
 }
+
 
 
 
