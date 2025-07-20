@@ -1597,7 +1597,7 @@ async function addDatecycle() {
     const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
 
     // Retrieve new fields
-    // const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
+    const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
     const pinned = document.getElementById('pinOrNot').value === "1";
 
     // Note and color picker fields
