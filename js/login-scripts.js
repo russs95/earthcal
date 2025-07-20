@@ -95,8 +95,7 @@ async function getUserData() {
     }
 }
 
-
-function updateSessionStatus(message) {
+function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
 
@@ -104,12 +103,17 @@ function updateSessionStatus(message) {
         sessionStatus.textContent = message;
 
         if (regUpButton) {
-            regUpButton.classList.add('active');
+            if (isLoggedIn) {
+                regUpButton.classList.add('active');
+            } else {
+                regUpButton.classList.remove('active');
+            }
         }
     } else {
-        setTimeout(() => updateSessionStatus(message), 100);
+        setTimeout(() => updateSessionStatus(message, isLoggedIn), 100);
     }
 }
+
 
 
 
