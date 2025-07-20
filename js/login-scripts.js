@@ -42,14 +42,21 @@ function onEndDrag() {
 }
 
 // Touch
-regDownButton.addEventListener('touchstart', onStartDrag);
-regDownButton.addEventListener('touchmove', onMoveDrag);
-regDownButton.addEventListener('touchend', onEndDrag);
+document.addEventListener("DOMContentLoaded", function () {
+    const regDownButton = document.getElementById("reg-down-button");
+    if (!regDownButton) {
+        console.warn("⚠️ reg-down-button not found in DOM.");
+        return;
+    }
 
-// Mouse
-regDownButton.addEventListener('mousedown', onStartDrag);
-document.addEventListener('mousemove', onMoveDrag);
-document.addEventListener('mouseup', onEndDrag);
+    regDownButton.addEventListener("touchstart", onStartDrag);
+    regDownButton.addEventListener("touchmove", onMoveDrag);
+    regDownButton.addEventListener("touchend", onEndDrag);
+
+    regDownButton.addEventListener("mousedown", onStartDrag);
+    document.addEventListener("mousemove", onMoveDrag);
+    document.addEventListener("mouseup", onEndDrag);
+});
 
 
 
