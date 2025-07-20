@@ -2355,6 +2355,7 @@ color: #b2b1b1;
     z-index: 52;
 }
 /* 1) Make the wrapper itself ignore all mouse events */
+/* Base state – collapsed */
 #registration-container {
     pointer-events: none;
     position: fixed;
@@ -2365,8 +2366,20 @@ color: #b2b1b1;
     z-index: 999;
     touch-action: none;
     transition: transform 0.3s ease;
+    transform: translateY(calc(100% - 40px)); /* only show reg-up-button */
+}
+
+/* Expanded state */
+#registration-container.expanded {
     transform: translateY(0);
 }
+
+/* Enable interaction when expanded */
+#registration-container.expanded > #registration-footer,
+#registration-container.expanded > #reg-up-button {
+    pointer-events: auto;
+}
+
 
 /* 2) Re-enable events on just your two children */
 #registration-container > #reg-up-button,

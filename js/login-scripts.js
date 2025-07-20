@@ -637,9 +637,9 @@ async function sendUpLogin() {
 
 
 
-async function sendUpRegistration() {
-    const container = document.getElementById("registration-container"); // 👈
-    container.classList.remove("hidden"); // ✅ Ensure it becomes visible again
+function sendUpRegistration() {
+    const container = document.getElementById("registration-container");
+    container.classList.add("expanded");
 
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -735,6 +735,15 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
+// function sendDownRegistration() {
+//     const container = document.getElementById("registration-container");
+//     container.classList.remove("expanded");
+//
+//     // Optionally collapse login UI
+//     document.getElementById("login-form-section").style.display = "none";
+//     document.getElementById("reg-up-button").style.display = "block";
+//     calendarRefresh();
+// }
 
 function sendDownRegistration() {
     const container = document.getElementById("registration-container");
@@ -744,7 +753,7 @@ function sendDownRegistration() {
     const downArrow = document.getElementById("reg-down-button");
 
     // ✅ Slide it down
-    container.classList.add("hidden");
+    container.classList.remove("expanded");
 
     // Hide login UI
     footer.style.height = "25px";
