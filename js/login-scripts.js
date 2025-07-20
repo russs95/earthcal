@@ -637,17 +637,15 @@ async function sendUpLogin() {
 
 
 
-
 async function sendUpRegistration() {
-    const container = document.getElementById("registration-container"); // ← Add this
+    const container = document.getElementById("registration-container"); // 👈
+    container.classList.remove("hidden"); // ✅ Ensure it becomes visible again
+
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
-
-    // ⬆️ Slide container back up into view
-    container.classList.remove("hidden");
 
     const id_token = localStorage.getItem('id_token');
 
@@ -676,13 +674,10 @@ async function sendUpRegistration() {
         return;
     }
 
-    // ✅ Token is valid — show logged-in view
     console.log("[EarthCal] Valid token found. Showing logged-in view.");
-
     loggedOutView.style.display = "none";
     loggedInView.style.display = "block";
     footer.style.display = "block";
-
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
 
@@ -741,32 +736,24 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
-
 function sendDownRegistration() {
+    const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
-    const container = document.getElementById("registration-container");
 
-    // Slide the container down visually
+    // ✅ Slide it down
     container.classList.add("hidden");
 
-    // Adjust the height of the registration footer
+    // Hide login UI
     footer.style.height = "25px";
-
-    // Hide the login section
     loggedOutView.style.display = "none";
-
-    // Show the "slide up" arrow
     upArrow.style.display = "block";
 
-    // Optionally hide the down arrow (already out of view)
-    // downArrow.style.display = "none";
-
-    // Refresh calendar or other content
     calendarRefresh();
 }
+
 
 
 
