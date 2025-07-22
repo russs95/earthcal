@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><title>Earthcal Entry</title></head>
+<body>
+<script>
+    async function initApp() {
+        // Check internet connectivity
+        if (!navigator.onLine) {
+            window.location.href = "go.php";
+            return;
+        }
+
+        // Try to fetch user info
+        try {
+            const token = localStorage.getItem("buwana_token");
+            if (!token) throw "No token";
+
+            const res = await fetch("https://buwana.ecobricks.org/api/userinfo.php", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const user = await res.json();
+                // Optionally, store user in session
+                sessionStorage.setItem("buwana_user", JSON.stringify(user));
+            }
+        } catch (e) {
+            console.warn("User not logged in or token invalid", e);
+        }
+
+        // Continue regardless of auth outcome
+        window.location.href = "go.php";
+    }
+
+    initApp();
+</script>
+</body>
+</html>
