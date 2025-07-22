@@ -1750,27 +1750,28 @@ function animateSyncButton() {
 
 async function syncDatecycles() {
     try {
-        // 🌿 Retrieve user profile from storage
-        const profileString = localStorage.getItem("user_profile");
-        if (!profileString) {
-            console.warn("No user profile found. Skipping sync.");
-            return; // No user logged in, no sync needed.
+        // 🌿 Retrieve and decode JWT
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            console.warn("No JWT token found. Skipping sync.");
+            return;
         }
 
-        let userProfile = null;
+        let decoded = null;
         try {
-            userProfile = JSON.parse(profileString);
+            decoded = jwt_decode(token);
         } catch (e) {
-            console.error("Failed to parse stored user_profile:", e);
+            console.error("Failed to decode JWT:", e);
             return;
         }
 
-        const buwanaId = userProfile.buwana_id;
+        const buwanaId = decoded?.buwana_id;
         if (!buwanaId) {
-            console.warn("No buwana_id found in user_profile. Skipping sync.");
+            console.warn("No buwana_id found in JWT. Skipping sync.");
             return;
         }
 
+        // Continue with the rest of your original syncDatecycles logic here...
         console.log(`🌿 Starting dateCycle sync for buwana_id ${buwanaId}...`);
 
         let serverCalendars = [];
