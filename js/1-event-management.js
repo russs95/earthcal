@@ -1759,9 +1759,13 @@ async function syncDatecycles() {
 
         let decoded = null;
         try {
-            decoded = jwt_decode(token);
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                throw new Error('Invalid JWT format');
+            }
+            decoded = JSON.parse(atob(parts[1]));
         } catch (e) {
-            console.error("Failed to decode JWT:", e);
+            console.error('Failed to decode JWT:', e);
             return;
         }
 
