@@ -33,7 +33,6 @@
 <h3>🌱 Preparing Earthcal<span id="dots">...</span></h3>
 
 <script>
-    // ---- tiny helpers -------------------------------------------------------
     const parseJwt = (tkn) => {
         try {
             const [, payload] = tkn.split('.');
@@ -45,7 +44,6 @@
     };
 
     function getBuwanaIdFromStorage() {
-        // 1) Prefer the already-parsed profile the callback stored.
         const profileStr = localStorage.getItem("user_profile");
         if (profileStr) {
             try {
@@ -59,7 +57,6 @@
             }
         }
 
-        // 2) Fallback: decode id_token
         const idToken = localStorage.getItem("id_token");
         if (idToken) {
             const decoded = parseJwt(idToken);
@@ -69,7 +66,6 @@
             }
         }
 
-        // 3) Fallback: decode access_token
         const accessToken = localStorage.getItem("access_token");
         if (accessToken) {
             const decoded = parseJwt(accessToken);
@@ -83,7 +79,6 @@
         return { buwanaId: null, profile: null };
     }
 
-    // ---- UI: animate dots ---------------------------------------------------
     let dotPhase = 0;
     const dotElem = document.getElementById("dots");
     setInterval(() => {
@@ -91,13 +86,11 @@
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
-    // ---- main ---------------------------------------------------------------
     (async function initApp() {
-        const redirectTarget = "dashboard.html";
+        const redirectTarget = "dash.html";
 
-        // Offline fallback
         if (!navigator.onLine) {
-            alert(`You are offline. Redirecting to: ${redirectTarget}`);
+            console.warn("⚠️ Offline. Redirecting to:", redirectTarget);
             window.location.href = redirectTarget;
             return;
         }
@@ -109,16 +102,12 @@
             sessionStorage.setItem("buwana_user", JSON.stringify(profile));
         }
 
-        // If we still didn't get a buwanaId, we can optionally try userinfo.php, but most likely
-        // you don't need this anymore. Keep it as a last-resort.
         if (!buwanaId) {
             console.warn("No buwana_id found; skipping calendar fetch and redirecting.");
-            alert(`Redirecting to: ${redirectTarget}`);
             window.location.href = redirectTarget;
             return;
         }
 
-        // Fetch calendars if we don't already have them cached for this session
         if (!sessionStorage.getItem("user_calendars")) {
             try {
                 console.log("📡 Fetching calendars for buwana_id:", buwanaId);
@@ -141,7 +130,6 @@
             console.log("🗃️ Using cached user_calendars from sessionStorage");
         }
 
-        alert(`Redirecting to: ${redirectTarget}`);
         window.location.href = redirectTarget;
     })();
 </script>

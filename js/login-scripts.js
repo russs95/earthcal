@@ -162,7 +162,7 @@ async function getUserData() {
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
-
+    alert('CHecking session status!');
     if (!sessionStatus || !regUpButton) {
         setTimeout(() => updateSessionStatus(message, isLoggedIn), 100);
         return;
@@ -629,7 +629,7 @@ async function toggleSubscription(calendarId, subscribe) {
         console.log(`Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subscribe}`);
 
         try {
-            const response = await fetch("https://gobrik.com/earthcal/update_pub_cal_subscriptions.php", {
+            const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subscriptions.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
