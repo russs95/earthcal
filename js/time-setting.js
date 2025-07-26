@@ -1,58 +1,36 @@
 
 
 
-
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
     userTimeZone = time_zone;
 
     const userDetailsString = `| ${getUtcOffset(userTimeZone)} | ${language.toUpperCase()}`;
-    const isUserLoggedIn = checkUserSession();
 
-    // Top timezone/language section
+    // ✅ Unified session check
+    const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
+
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
-    userTimezoneLangDiv.innerHTML = `
-        <span id="current-user-time"></span>
-        <span id="user-details" style="cursor:pointer"
-              onclick="showUserCalSettings()"
-              onmouseover="this.style.textDecoration='underline'"
-              onmouseout="this.style.textDecoration='none'">
-              ${userDetailsString}
-        </span>
-    `;
-
-    // Session indicator
-    const sessionStatus = document.getElementById('user-session-status');
-    if (sessionStatus) {
-        if (isUserLoggedIn) {
-            const emoji = userProfile.earthling_emoji || '🌎';
-            const firstName = userProfile.first_name || 'Earthling';
-            sessionStatus.innerHTML = `
-                <span title="Logged in user" style="cursor:pointer;" onclick="sendUpRegistration()">
-                    ${emoji} Logged in as ${firstName}
-                </span>
-            `;
-        } else {
-            sessionStatus.innerHTML = `
-                <span title="Not logged in" style="cursor:pointer;" onclick="sendUpRegistration()">
-                    ⚪ Not logged in
-                </span>
-            `;
-        }
+    if (userTimezoneLangDiv) {
+        userTimezoneLangDiv.innerHTML = `
+            <span id="current-user-time"></span>
+            <span id="user-details" style="cursor:pointer"
+                onclick="showUserCalSettings()"
+                onmouseover="this.style.textDecoration='underline'"
+                onmouseout="this.style.textDecoration='none'">
+                ${userDetailsString}
+            </span>
+        `;
     }
 
-    // SVG indicator color
-    const loginSvg = document.getElementById('user-logged-in');
-    if (loginSvg) {
-        loginSvg.style.stroke = isUserLoggedIn ? '#55d400' : '#999999';
-    }
 
-    // Clock
+    // ⏰ Clock
     updateTime();
     if (!window.updateTimeInterval) {
         window.updateTimeInterval = setInterval(updateTime, 1000);
     }
 }
+
 
 
 function updateTime() {

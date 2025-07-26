@@ -157,7 +157,6 @@ async function getUserData() {
     }
 }
 
-
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
@@ -171,15 +170,10 @@ function updateSessionStatus(message, isLoggedIn = false) {
 }
 
 
-
-
-function checkBuwanaSessionStatus() {
-    const statusEl = document.getElementById('user-session-status');
-    if (!statusEl) return;
-
+function checkBuwanaSessionStatus({ updateUI = true } = {}) {
     let payload = null;
 
-    // 1️⃣ Prefer sessionStorage
+    // 1️⃣ Prefer sessionStorage (set by index.html)
     const sessionStr = sessionStorage.getItem("buwana_user");
     if (sessionStr) {
         try {
@@ -190,40 +184,42 @@ function checkBuwanaSessionStatus() {
         }
     }
 
-    // 2️⃣ Fallback: decode id_token
+    // 2️⃣ Fallback to localStorage id_token
     if (!payload) {
         const id_token = localStorage.getItem("id_token");
-        if (!id_token) {
-            updateSessionStatus("⚪ Not logged in: no token", false);
-            return;
-        }
-
-        try {
-            payload = JSON.parse(atob(id_token.split('.')[1]));
-        } catch (e) {
-            console.error("[SessionStatus] Invalid token format:", e);
-            updateSessionStatus("⚪ Not logged in: invalid token", false);
-            return;
+        if (id_token) {
+            try {
+                payload = JSON.parse(atob(id_token.split('.')[1]));
+            } catch (e) {
+                console.error("[SessionStatus] Invalid token format:", e);
+            }
         }
     }
 
-    // 3️⃣ Check expiration
+    // No payload? Not logged in.
+    if (!payload) {
+        if (updateUI) updateSessionStatus("⚪ Not logged in: no token/profile", false);
+        return { isLoggedIn: false, payload: null };
+    }
+
+    // 3️⃣ Expiry check
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < now) {
-        updateSessionStatus("⚪ Not logged in: token expired", false);
-        return;
+        if (updateUI) updateSessionStatus("⚪ Not logged in: token expired", false);
+        return { isLoggedIn: false, payload };
     }
 
-    // 4️⃣ Success
+    // 4️⃣ Logged in
     const name = payload.given_name || "User";
     const emoji = payload["buwana:earthlingEmoji"] || "🌍";
-    updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
+    if (updateUI) updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
+
+    return { isLoggedIn: true, payload };
 }
 
 
-
 document.addEventListener("DOMContentLoaded", () => {
-    checkBuwanaSessionStatus();
+    checkBuwanaSessionStatus({ updateUI: true });
 });
 
 
@@ -245,20 +241,6 @@ function useDefaultUser() {
 
 
 
-//
-// function checkUserSession() {
-//     const id_token = localStorage.getItem('id_token');
-//     if (!id_token) return false;
-//
-//     try {
-//         const payload = JSON.parse(atob(id_token.split('.')[1]));
-//         const now = Math.floor(Date.now() / 1000);
-//         return payload.exp > now;
-//     } catch (e) {
-//         console.error("Invalid ID token:", e);
-//         return false;
-//     }
-// }
 
 
 

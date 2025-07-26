@@ -214,7 +214,6 @@ function updateHighlightColor() {
 
 //<div class="menu-page-item">${userStatusHTML}</div>
 
-
 let modalOpen = false;
 
 async function openMainMenu() {
@@ -224,14 +223,18 @@ async function openMainMenu() {
     const lang = userLanguage?.toLowerCase() || 'en';
     const { mainMenu } = await loadTranslations(lang);
 
-    // 🔒 Proper login verification
-    const isLoggedIn = checkUserSession();
-    let userStatusHTML = '';
+    // 🔒 Use unified session checker (no UI update from here)
+    const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
 
-    if (isLoggedIn && userProfile?.first_name && userProfile?.earthling_emoji) {
+    // If you rely on global userProfile, keep it; else construct minimal user view:
+    const firstName = userProfile?.first_name || payload?.given_name || "Earthling";
+    const earthlingEmoji = userProfile?.earthling_emoji || payload?.["buwana:earthlingEmoji"] || "🌎";
+
+    let userStatusHTML = '';
+    if (isLoggedIn) {
         userStatusHTML = `
             <div id="user-status">
-                ${userProfile.earthling_emoji} ${mainMenu.loggedIn?.welcome || 'Welcome Back,'} ${userProfile.first_name}
+                ${earthlingEmoji} ${mainMenu.loggedIn?.welcome || 'Welcome Back,'} ${firstName}
                 | <a href="#" onclick="logoutBuwana(); closeMainMenu();">Logout</a>
             </div>
         `;
@@ -249,7 +252,7 @@ async function openMainMenu() {
             <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
 
-        
+        ${userStatusHTML}
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
             ${mainMenu.featureTour}
@@ -289,6 +292,7 @@ async function openMainMenu() {
 
     document.addEventListener("focus", focusMainMenuRestrict, true);
 }
+
 
 
 
