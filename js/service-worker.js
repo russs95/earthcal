@@ -3,7 +3,7 @@ const MAX_API_CACHE_ITEMS = 5; // Maximum number of cached API responses
 
 // List of assets to pre-cache
 const STATIC_ASSETS = [
-    './index.html',
+    './index-july26.html',
     './fonts/Mulish-Light.ttf',
     './fonts/Mulish-Medium.ttf',
     './fonts/Arvo-Regular.ttf',
