@@ -65,6 +65,8 @@ let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
 
+
+
 async function getUserData() {
     const sessionStatus = document.getElementById('user-session-status');
     console.log("🌿 getUserData: Starting...");
@@ -161,12 +163,13 @@ function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
 
-    if (sessionStatus) {
-        sessionStatus.textContent = message;
-        regUpButton?.classList.toggle('active', isLoggedIn);
-    } else {
+    if (!sessionStatus || !regUpButton) {
         setTimeout(() => updateSessionStatus(message, isLoggedIn), 100);
+        return;
     }
+
+    sessionStatus.textContent = message;
+    regUpButton.classList.toggle('active', isLoggedIn);
 }
 
 
@@ -216,11 +219,6 @@ function checkBuwanaSessionStatus({ updateUI = true } = {}) {
 
     return { isLoggedIn: true, payload };
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    checkBuwanaSessionStatus({ updateUI: true });
-});
 
 
 
