@@ -65,58 +65,108 @@ let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
 
+const parseJwt = (tkn) => {
+    try {
+        const [, payload] = tkn.split('.');
+        return JSON.parse(atob(payload));
+    } catch {
+        return null;
+    }
+};
+
+function isExpired(payload) {
+    if (!payload?.exp) return true; // be strict: if no exp, treat as expired
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp <= now;
+}
+
+function clearAuthState() {
+    console.warn("🧹 Clearing expired/invalid auth state.");
+    sessionStorage.removeItem("buwana_user");
+    sessionStorage.removeItem("user_calendars");
+    localStorage.removeItem("id_token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user_profile");
+    localStorage.removeItem("expires_in");
+    localStorage.removeItem("token_type");
+}
 
 async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
-    // 1️⃣ Try sessionStorage first
     let idPayload = null;
+
+    // 1️⃣ Prefer session profile
     const sessionProfile = sessionStorage.getItem("buwana_user");
     if (sessionProfile) {
         try {
-            idPayload = JSON.parse(sessionProfile);
+            const p = JSON.parse(sessionProfile);
+            if (!isExpired(p)) {
+                idPayload = p;
+            } else {
+                console.warn("[EarthCal] Session profile expired.");
+                clearAuthState();
+                useDefaultUser();
+                return;
+            }
         } catch (e) {
             console.warn("Failed to parse session buwana_user:", e);
+            clearAuthState();
+            useDefaultUser();
+            return;
         }
     }
 
-    // 2️⃣ Fallback to localStorage
+    // 2️⃣ Fallback to user_profile in localStorage
     if (!idPayload) {
         const localProfile = localStorage.getItem("user_profile");
         if (localProfile) {
             try {
-                idPayload = JSON.parse(localProfile);
+                const p = JSON.parse(localProfile);
+                if (!isExpired(p)) {
+                    idPayload = p;
+                    // cache it for this session
+                    sessionStorage.setItem("buwana_user", JSON.stringify(p));
+                } else {
+                    console.warn("[EarthCal] local user_profile expired.");
+                    clearAuthState();
+                    useDefaultUser();
+                    return;
+                }
             } catch (e) {
                 console.error("[EarthCal] Failed to parse local user_profile:", e);
+                clearAuthState();
                 useDefaultUser();
                 return;
             }
         }
     }
 
+    // 3️⃣ Optional: fallback to id_token / access_token decode (strict)
     if (!idPayload) {
-        console.warn("⚪ No user profile found in storage");
-        useDefaultUser();
-        return;
-    }
-
-    // 3️⃣ Validate token expiration
-    const now = Math.floor(Date.now() / 1000);
-    if (idPayload.exp && idPayload.exp < now) {
-        console.warn("[EarthCal] ID token expired.");
-        useDefaultUser();
-        return;
+        const idTok = localStorage.getItem("id_token");
+        const accTok = localStorage.getItem("access_token");
+        const decoded = parseJwt(idTok) || parseJwt(accTok);
+        if (!decoded || isExpired(decoded)) {
+            console.warn("[EarthCal] No valid (non-expired) token/profile available.");
+            clearAuthState();
+            useDefaultUser();
+            return;
+        }
+        idPayload = decoded;
+        sessionStorage.setItem("buwana_user", JSON.stringify(decoded));
     }
 
     // 4️⃣ Validate buwana_id
     const buwanaId = idPayload.buwana_id;
     if (!buwanaId) {
         console.warn("Missing buwana_id");
+        clearAuthState();
         useDefaultUser();
         return;
     }
 
-    // 5️⃣ Set up global state
+    // 5️⃣ Populate global state
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     userProfile = {
@@ -130,10 +180,11 @@ async function getUserData() {
     };
 
     console.log("✅ Loaded userProfile:", userProfile);
+
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // 6️⃣ Load cached calendars
+    // 6️⃣ Only use cached calendars if logged-in and valid
     const calendarCache = sessionStorage.getItem("user_calendars");
     if (calendarCache) {
         try {
@@ -149,6 +200,8 @@ async function getUserData() {
         useDefaultUser();
     }
 }
+
+
 
 
 function updateSessionStatus(message, isLoggedIn = false) {
