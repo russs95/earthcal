@@ -1,19 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head><title>Earthcal Entry</title></head>
+<head>
+    <title>Earthcal Entry</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding-top: 100px;
+        }
+        #spinner {
+            font-size: 24px;
+        }
+    </style>
+</head>
 <body>
+<div id="spinner">🔄 Loading Earthcal...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 <script>
     async function initApp() {
-        // Check internet connectivity
+        const redirectTarget = "dashboard.html";
+
+        // Offline fallback
         if (!navigator.onLine) {
-            window.location.href = "go.php";
+            alert(`You are offline. Redirecting to: ${redirectTarget}`);
+            window.location.href = redirectTarget;
             return;
         }
 
-        // Try to fetch user info
+        let buwanaId = null;
+
         try {
             const token = localStorage.getItem("buwana_token");
-            if (!token) throw "No token";
+            if (!token) throw new Error("No token found");
+
+            const decoded = jwt_decode(token);
+            buwanaId = decoded?.buwana_id;
+            if (!buwanaId) throw new Error("No buwana_id in token");
 
             const res = await fetch("https://buwana.ecobricks.org/api/userinfo.php", {
                 headers: {
@@ -23,15 +46,36 @@
 
             if (res.ok) {
                 const user = await res.json();
-                // Optionally, store user in session
+                console.log("✅ Retrieved user:", user);
                 sessionStorage.setItem("buwana_user", JSON.stringify(user));
             }
         } catch (e) {
-            console.warn("User not logged in or token invalid", e);
+            console.warn("⚠️ Auth check failed:", e);
         }
 
-        // Continue regardless of auth outcome
-        window.location.href = "index.html";
+        // 🌿 Fetch calendar data
+        if (buwanaId) {
+            try {
+                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ buwana_id: buwanaId })
+                });
+                const calData = await calRes.json();
+                if (calData.success) {
+                    console.log("✅ Retrieved calendar data:", calData);
+                    sessionStorage.setItem("user_calendars", JSON.stringify(calData));
+                } else {
+                    console.warn("⚠️ Calendar fetch failed:", calData.message);
+                }
+            } catch (e) {
+                console.error("⚠️ Error fetching calendars:", e);
+            }
+        }
+
+        // 🎯 Final redirect
+        alert(`Redirecting to: ${redirectTarget}`);
+        window.location.href = redirectTarget;
     }
 
     initApp();
