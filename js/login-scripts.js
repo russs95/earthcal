@@ -65,49 +65,62 @@ let userLanguage = null;
 let userTimeZone = null;
 let userProfile = null;
 
-
 async function getUserData() {
     const sessionStatus = document.getElementById('user-session-status');
     console.log("🌿 getUserData: Starting...");
 
-    // 1️⃣ Retrieve full profile from localStorage
-    const profileString = localStorage.getItem("user_profile");
-    if (!profileString) {
-        console.warn("[EarthCal] Sorry, no user_profile found in localStorage.");
-        updateSessionStatus("⚪ Not logged in: no profile stored");
-        useDefaultUser();
-        return;
-    }
-
+    // 1️⃣ Try sessionStorage first
     let idPayload = null;
-    try {
-        idPayload = JSON.parse(profileString);
-    } catch (e) {
-        console.error("[EarthCal] Failed to parse user_profile:", e);
-        updateSessionStatus("⚪ Not logged in: profile parse error");
+    const sessionProfile = sessionStorage.getItem("buwana_user");
+    if (sessionProfile) {
+        try {
+            idPayload = JSON.parse(sessionProfile);
+        } catch (e) {
+            console.warn("Failed to parse session buwana_user:", e);
+        }
+    }
+
+    // 2️⃣ Fallback to localStorage
+    if (!idPayload) {
+        const localProfile = localStorage.getItem("user_profile");
+        if (localProfile) {
+            try {
+                idPayload = JSON.parse(localProfile);
+            } catch (e) {
+                console.error("[EarthCal] Failed to parse local user_profile:", e);
+                updateSessionStatus("⚪ Not logged in: profile parse error");
+                useDefaultUser();
+                return;
+            }
+        }
+    }
+
+    if (!idPayload) {
+        console.warn("⚪ No user profile found in storage");
+        updateSessionStatus("⚪ Not logged in: no profile");
         useDefaultUser();
         return;
     }
 
-    // 2️⃣ Validate expiration
+    // 3️⃣ Validate token expiration
     const now = Math.floor(Date.now() / 1000);
-    if (idPayload.exp < now) {
+    if (idPayload.exp && idPayload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
         updateSessionStatus("⚪ Not logged in: token expired");
         useDefaultUser();
         return;
     }
 
-    // 3️⃣ Validate buwana_id
-    const buwanaId = idPayload.buwana_id || null;
+    // 4️⃣ Validate buwana_id
+    const buwanaId = idPayload.buwana_id;
     if (!buwanaId) {
-        console.error("[EarthCal] Missing buwana_id in stored profile.");
+        console.warn("Missing buwana_id");
         updateSessionStatus("⚪ Not logged in: buwana_id missing");
         useDefaultUser();
         return;
     }
 
-    // 4️⃣ Populate global state
+    // 5️⃣ Set up global state
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     userProfile = {
@@ -117,39 +130,33 @@ async function getUserData() {
         earthling_emoji: idPayload["buwana:earthlingEmoji"] || "🌎",
         community: idPayload["buwana:community"] || null,
         continent: idPayload["buwana:location.continent"] || null,
-        status: idPayload["status"] || "returning"  // ✅ Pick status from payload if present
+        status: idPayload["status"] || "returning"
     };
 
-    console.log("[EarthCal] User profile loaded from localStorage:", userProfile);
-
+    console.log("✅ Loaded userProfile:", userProfile);
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // 5️⃣ Load calendar data
-    try {
-        const calResponse = await fetch('https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId }),
-            credentials: 'include'
-        });
-
-        const calendarData = await calResponse.json();
-
-        if (calendarData.success) {
+    // 6️⃣ Load cached calendars
+    const calendarCache = sessionStorage.getItem("user_calendars");
+    if (calendarCache) {
+        try {
+            const calendarData = JSON.parse(calendarCache);
+            console.log("📅 Using cached calendar data:", calendarData);
             showLoggedInView(calendarData);
-            updateSessionStatus(`${userProfile.earthling_emoji} Logged in as ${userProfile.first_name} `);
-        } else {
-            console.error('Calendar fetch failed:', calendarData.message || 'Unknown error');
-            updateSessionStatus("⚪ Not logged in: calendar fetch failed");
+            updateSessionStatus(`${userProfile.earthling_emoji} Logged in as ${userProfile.first_name}`);
+        } catch (e) {
+            console.warn("⚠️ Failed to parse cached calendar data:", e);
+            updateSessionStatus("⚪ Not logged in: calendar parse error");
             useDefaultUser();
         }
-    } catch (error) {
-        console.error('Error fetching calendar data:', error);
-        updateSessionStatus("⚪ Not logged in: calendar fetch error");
+    } else {
+        console.warn("⚠️ No calendar data cached");
+        updateSessionStatus("⚪ Not logged in: no calendar data");
         useDefaultUser();
     }
 }
+
 
 
 function updateSessionStatus(message, isLoggedIn = false) {
