@@ -2361,7 +2361,6 @@ color: #b2b1b1;
     bottom: 0;
     left: 0;
     right: 0;
-    max-height: 90%;
     z-index: 999;
     touch-action: none;
     pointer-events: none;
@@ -2372,7 +2371,7 @@ color: #b2b1b1;
 /* Expanded: fully slid up */
 #registration-container.expanded {
     transform: translateY(0);
-    height: 110vh;
+    height: 94vh;
 }
 
 /* Allow pointer events only when expanded */
@@ -2393,7 +2392,7 @@ color: #b2b1b1;
 /* 3) When the container has the “hover” class, slide both up */
 #registration-container.hover > #reg-up-button,
 #registration-container.hover > #registration-footer {
-    transform: translateY(-20px);
+    transform: translateY(-5px);
 }
 
 /* 4) When dragged, cancel smooth animation */

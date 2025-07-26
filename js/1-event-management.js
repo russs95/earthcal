@@ -1746,9 +1746,12 @@ function animateSyncButton() {
     });
 }
 
+
+
+
+
 async function syncDatecycles() {
     try {
-        // 🌿 Retrieve access token
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.warn("No access token found. Skipping sync.");
@@ -1765,13 +1768,11 @@ async function syncDatecycles() {
             return;
         }
 
-        // ⚠️ Warn if token is expired
         const now = Math.floor(Date.now() / 1000);
         if (decoded?.exp && decoded.exp < now) {
             console.warn("⚠️ Access token has expired.");
         }
 
-        // ✅ Prefer buwana_id from session profile
         const profile = JSON.parse(sessionStorage.getItem("buwana_user") || "{}");
         const buwanaId = profile.buwana_id || decoded?.buwana_id;
         if (!buwanaId) {
@@ -1785,6 +1786,18 @@ async function syncDatecycles() {
         let hasInternetConnection = 1;
         let totalDateCyclesUpdated = 0;
 
+        function findDuplicateCalIds(list, idKey = "calendar_id") {
+            const counts = {};
+            for (const c of list) {
+                const id = c?.[idKey];
+                if (!id) continue;
+                counts[id] = (counts[id] || 0) + 1;
+            }
+            return Object.entries(counts)
+                .filter(([, n]) => n > 1)
+                .map(([id]) => id);
+        }
+
         try {
             const calendarCache = sessionStorage.getItem("user_calendars");
             if (!calendarCache) {
@@ -1793,11 +1806,27 @@ async function syncDatecycles() {
             }
 
             const calendarData = JSON.parse(calendarCache);
-            serverCalendars = [
+
+            // 🔎 Duplicate checks
+            const subs = calendarData.subscribed_calendars || [];
+            const dupSubIds = findDuplicateCalIds(subs);
+            if (dupSubIds.length) {
+                console.warn("⚠️ Duplicate subscriptions detected:", dupSubIds);
+                console.table(subs.filter(s => dupSubIds.includes(String(s.calendar_id))));
+            }
+
+            const allCalendarsRaw = [
                 ...(calendarData.personal_calendars || []),
                 ...(calendarData.subscribed_calendars || []),
                 ...(calendarData.public_calendars || [])
-            ].map(calendar => ({
+            ];
+            const dupAllIds = findDuplicateCalIds(allCalendarsRaw);
+            if (dupAllIds.length) {
+                console.warn("⚠️ Duplicate calendar_ids across all sets:", dupAllIds);
+                console.table(allCalendarsRaw.filter(c => dupAllIds.includes(String(c.calendar_id))));
+            }
+
+            serverCalendars = allCalendarsRaw.map(calendar => ({
                 cal_id: calendar.calendar_id,
                 cal_name: calendar.calendar_name,
                 cal_color: calendar.calendar_color || "gray",
@@ -1814,7 +1843,6 @@ async function syncDatecycles() {
 
         if (!hasInternetConnection) return;
 
-        // 🔹 Fetch local calendars
         const localCalendars = Object.keys(localStorage)
             .filter(key => key.startsWith('calendar_'))
             .map(key => {
@@ -1828,21 +1856,18 @@ async function syncDatecycles() {
 
         console.log(`📦 Found ${localCalendars.length} local calendar(s).`);
 
-        if (serverCalendars.length === 0 && localCalendars.length === 0) {
-            console.warn("⚠️ No calendars found on server or locally. Sync completed.");
-            return "No updates available. Your data is already up to date.";
-        }
-
-        const calendarsToSync = [...new Map([...serverCalendars, ...localCalendars].map(item => [item.cal_id, item])).values()];
+        const combined = [...serverCalendars, ...localCalendars].filter(c => c?.cal_id);
+        const calendarsToSync = [...new Map(combined.map(item => [String(item.cal_id), item])).values()];
         console.log("📂 Syncing calendars:", calendarsToSync);
 
         for (const calendar of calendarsToSync) {
             try {
-                console.log('📂 Syncing calendar:', calendar);
                 if (!buwanaId || !calendar.cal_id) {
-                    console.error("❌ Missing buwana_id or cal_id. Cannot fetch calendar data.");
+                    console.error("❌ Missing buwana_id or cal_id. Skipping calendar.");
                     continue;
                 }
+
+                console.log('📂 Syncing calendar:', calendar);
 
                 let serverDateCycles = [];
                 const payload = { buwana_id: buwanaId, cal_id: calendar.cal_id };
@@ -1855,10 +1880,15 @@ async function syncDatecycles() {
                     });
                     const responseData = await calendarResponse.json();
                     if (!responseData.success) {
-                        console.error(`⚠️ API Error: ${responseData.message}`);
+                        console.error(`⚠️ API Error for calendar ${calendar.cal_id}: ${responseData.message}`);
                     } else {
                         serverDateCycles = responseData.dateCycles || [];
-                        console.log("✅ Server dateCycles fetched successfully.");
+                        const dcIds = serverDateCycles.map(dc => dc.datecycle_id).filter(Boolean);
+                        const dupDcIds = dcIds.filter((id, i, arr) => arr.indexOf(id) !== i);
+                        if (dupDcIds.length) {
+                            console.warn(`⚠️ Duplicate dateCycles in calendar ${calendar.cal_id}:`, dupDcIds);
+                        }
+                        console.log(`📊 ${serverDateCycles.length} dateCycles in calendar ${calendar.cal_id}`);
                     }
                 } catch (error) {
                     console.error("⚠️ Fetch error when retrieving dateCycles:", error);
@@ -1866,7 +1896,6 @@ async function syncDatecycles() {
 
                 totalDateCyclesUpdated += serverDateCycles.length;
 
-                // 🔹 Ensure fields are complete
                 serverDateCycles = serverDateCycles.map(dc => ({
                     ...dc,
                     date_emoji: dc.date_emoji || "😀",
@@ -1882,13 +1911,13 @@ async function syncDatecycles() {
         }
 
         console.log("✅ Sync complete. Local calendars updated.");
-        console.log("📥 All locally stored dateCycles:", JSON.stringify(localStorage, null, 2));
         return `Your ${calendarsToSync.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
     } catch (error) {
         console.error("Sync failed:", error);
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 

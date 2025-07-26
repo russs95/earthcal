@@ -270,10 +270,11 @@ function showErrorState(loggedOutView, loggedInView) {
     showLoginForm(loggedOutView, loggedInView);
 }
 
+
+
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
 
-    // 🌀 Pull latest user_profile directly from localStorage
     const profileString = localStorage.getItem("user_profile");
     if (!profileString) {
         console.error("No user profile found in storage.");
@@ -291,7 +292,6 @@ async function showLoggedInView(calendarData = {}) {
     const {
         given_name: first_name = "Earthling",
         "buwana:earthlingEmoji": earthling_emoji = "🌍",
-        email = '',
         buwana_id = userProfile.buwana_id || "—"
     } = userProfile;
 
@@ -303,9 +303,6 @@ async function showLoggedInView(calendarData = {}) {
 
     const lang = window.userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
-    console.log("LoggedIn block:", translations.loggedIn);
-    console.log("Lang for translations:", lang);
-
     const {
         welcome,
         syncingInfo,
@@ -341,9 +338,7 @@ async function showLoggedInView(calendarData = {}) {
     const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
     const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
 
-    // 🍃 Build the edit profile URL with buwana_id and client_id as params
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(userProfile.aud || userProfile.client_id || "unknown")}`;
-
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
@@ -371,19 +366,12 @@ async function showLoggedInView(calendarData = {}) {
             </div>
 
             <p id="cal-datecycle-count"></p>
-
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                ${email}
-            </p>
-
-            <p style="font-family:'Mulish',sans-serif; font-size:smaller; color:var(--subdued-text);">
-                Buwana ID: ${buwana_id}
-            </p>
         </div>
     `;
 
     loggedInView.style.display = "block";
 }
+
 
 
 
@@ -754,17 +742,6 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
-
-
-// function sendDownRegistration() {
-//     const container = document.getElementById("registration-container");
-//     container.classList.remove("expanded");
-//
-//     // Optionally collapse login UI
-//     document.getElementById("login-form-section").style.display = "none";
-//     document.getElementById("reg-up-button").style.display = "block";
-//     calendarRefresh();
-// }
 
 
 function sendDownRegistration() {
