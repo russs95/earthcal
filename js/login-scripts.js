@@ -158,21 +158,13 @@ async function getUserData() {
 }
 
 
-
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
 
     if (sessionStatus) {
         sessionStatus.textContent = message;
-
-        if (regUpButton) {
-            if (isLoggedIn) {
-                regUpButton.classList.add('active');
-            } else {
-                regUpButton.classList.remove('active');
-            }
-        }
+        regUpButton?.classList.toggle('active', isLoggedIn);
     } else {
         setTimeout(() => updateSessionStatus(message, isLoggedIn), 100);
     }
@@ -181,51 +173,53 @@ function updateSessionStatus(message, isLoggedIn = false) {
 
 
 
-async function checkBuwanaSessionStatus() {
+function checkBuwanaSessionStatus() {
     const statusEl = document.getElementById('user-session-status');
     if (!statusEl) return;
 
-    const id_token = localStorage.getItem("id_token");
-    if (!id_token) {
-        updateSessionStatus("⚪ Not logged in: no token", false);
-        return;
+    let payload = null;
+
+    // 1️⃣ Prefer sessionStorage
+    const sessionStr = sessionStorage.getItem("buwana_user");
+    if (sessionStr) {
+        try {
+            payload = JSON.parse(sessionStr);
+            console.log("✅ Session user loaded from sessionStorage:", payload);
+        } catch (e) {
+            console.warn("⚠️ Failed to parse session user:", e);
+        }
     }
 
-    let payload;
-    try {
-        payload = JSON.parse(atob(id_token.split('.')[1]));
-    } catch (e) {
-        console.error("[SessionStatus] Invalid token format:", e);
-        updateSessionStatus("⚪ Not logged in: invalid token", false);
-        return;
+    // 2️⃣ Fallback: decode id_token
+    if (!payload) {
+        const id_token = localStorage.getItem("id_token");
+        if (!id_token) {
+            updateSessionStatus("⚪ Not logged in: no token", false);
+            return;
+        }
+
+        try {
+            payload = JSON.parse(atob(id_token.split('.')[1]));
+        } catch (e) {
+            console.error("[SessionStatus] Invalid token format:", e);
+            updateSessionStatus("⚪ Not logged in: invalid token", false);
+            return;
+        }
     }
 
+    // 3️⃣ Check expiration
     const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
+    if (payload.exp && payload.exp < now) {
         updateSessionStatus("⚪ Not logged in: token expired", false);
         return;
     }
 
-    try {
-        const verifyResp = await fetch("https://buwana.ecobricks.org/.well-known/jwks.php", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_token })
-        });
-
-        const verifyData = await verifyResp.json();
-        if (verifyData.valid) {
-            const name = payload.given_name || "User";
-            const emoji = payload["buwana:earthlingEmoji"] || "🌍";
-            updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
-        } else {
-            updateSessionStatus("⚪ Not logged in: server rejected token", false);
-        }
-    } catch (err) {
-        console.error("[SessionStatus] Verification error:", err);
-        updateSessionStatus("⚪ Error checking session", false);
-    }
+    // 4️⃣ Success
+    const name = payload.given_name || "User";
+    const emoji = payload["buwana:earthlingEmoji"] || "🌍";
+    updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
 }
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -250,72 +244,21 @@ function useDefaultUser() {
 }
 
 
+
 //
 // function checkUserSession() {
 //     const id_token = localStorage.getItem('id_token');
-//     if (!id_token) {
-//         console.log("No ID token found.");
-//         return false;
-//     }
+//     if (!id_token) return false;
 //
 //     try {
-//         // Decode payload
-//         const parts = id_token.split('.');
-//         if (parts.length !== 3) {
-//             console.error("Malformed ID token structure.");
-//             return false;
-//         }
-//
-//         const payload = JSON.parse(atob(parts[1]));
-//
-//         // Check standard claims
+//         const payload = JSON.parse(atob(id_token.split('.')[1]));
 //         const now = Math.floor(Date.now() / 1000);
-//         const leeway = 60; // allow 1 minute clock skew
-//
-//         if (!payload.exp || payload.exp < (now - leeway)) {
-//             console.warn("ID token expired.");
-//             return false;
-//         }
-//
-//         if (!payload.iat || payload.iat > (now + leeway)) {
-//             console.warn("ID token issued in the future.");
-//             return false;
-//         }
-//
-//         if (!payload.iss || payload.iss !== "https://buwana.ecobricks.org") {
-//             console.warn("Unexpected issuer.");
-//             return false;
-//         }
-//
-//         if (!payload.aud || payload.aud !== "ecal_7f3da821d0a54f8a9b58") {
-//             console.warn("Unexpected audience.");
-//             return false;
-//         }
-//
-//         return true;  // ✅ Token looks valid
+//         return payload.exp > now;
 //     } catch (e) {
-//         console.error("Error parsing ID token:", e);
+//         console.error("Invalid ID token:", e);
 //         return false;
 //     }
 // }
-
-
-
-
-
-function checkUserSession() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) return false;
-
-    try {
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-        const now = Math.floor(Date.now() / 1000);
-        return payload.exp > now;
-    } catch (e) {
-        console.error("Invalid ID token:", e);
-        return false;
-    }
-}
 
 
 

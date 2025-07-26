@@ -1746,10 +1746,9 @@ function animateSyncButton() {
     });
 }
 
-
 async function syncDatecycles() {
     try {
-        // 🌿 Retrieve and decode JWT
+        // 🌿 Retrieve access token
         const token = localStorage.getItem("access_token");
         if (!token) {
             console.warn("No access token found. Skipping sync.");
@@ -1766,9 +1765,17 @@ async function syncDatecycles() {
             return;
         }
 
-        const buwanaId = decoded?.buwana_id;
+        // ⚠️ Warn if token is expired
+        const now = Math.floor(Date.now() / 1000);
+        if (decoded?.exp && decoded.exp < now) {
+            console.warn("⚠️ Access token has expired.");
+        }
+
+        // ✅ Prefer buwana_id from session profile
+        const profile = JSON.parse(sessionStorage.getItem("buwana_user") || "{}");
+        const buwanaId = profile.buwana_id || decoded?.buwana_id;
         if (!buwanaId) {
-            console.warn("No buwana_id found in JWT. Skipping sync.");
+            console.warn("No buwana_id found in session or token. Skipping sync.");
             return;
         }
 
@@ -1779,7 +1786,6 @@ async function syncDatecycles() {
         let totalDateCyclesUpdated = 0;
 
         try {
-            // 🔹 Use cached calendars from sessionStorage
             const calendarCache = sessionStorage.getItem("user_calendars");
             if (!calendarCache) {
                 console.warn("⚠️ No cached calendars found. Sync aborted.");
@@ -1820,12 +1826,13 @@ async function syncDatecycles() {
                 };
             });
 
+        console.log(`📦 Found ${localCalendars.length} local calendar(s).`);
+
         if (serverCalendars.length === 0 && localCalendars.length === 0) {
             console.warn("⚠️ No calendars found on server or locally. Sync completed.");
             return "No updates available. Your data is already up to date.";
         }
 
-        // 🔹 Merge calendars from both sources
         const calendarsToSync = [...new Map([...serverCalendars, ...localCalendars].map(item => [item.cal_id, item])).values()];
         console.log("📂 Syncing calendars:", calendarsToSync);
 
@@ -1882,6 +1889,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 
