@@ -638,116 +638,39 @@ function sendUpRegistration() {
 
 
 
-// --- helpers ----------------------------------------------------
-const parseJwt = (tkn) => {
-    try {
-        const [, payload] = tkn.split('.');
-        return JSON.parse(atob(payload));
-    } catch {
-        return null;
-    }
-};
-
-function getBuwanaId() {
-    // 1) sessionStorage (preferred)
-    const sessionStr = sessionStorage.getItem("buwana_user");
-    if (sessionStr) {
-        try {
-            const p = JSON.parse(sessionStr);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
-    }
-
-    // 2) localStorage user_profile
-    const up = localStorage.getItem("user_profile");
-    if (up) {
-        try {
-            const p = JSON.parse(up);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
-    }
-
-    // 3) decode tokens
-    const idTok = localStorage.getItem("id_token");
-    const idPay = idTok && parseJwt(idTok);
-    if (idPay?.buwana_id) return idPay.buwana_id;
-
-    const accTok = localStorage.getItem("access_token");
-    const accPay = accTok && parseJwt(accTok);
-    if (accPay?.buwana_id) return accPay.buwana_id;
-
-    return null;
-}
-// ----------------------------------------------------------------
-
-
-
 
 async function toggleSubscription(calendarId, subscribe) {
-    const buwanaId = getBuwanaId();
+        // Always fetch buwana_id from localStorage.
+        const buwanaId = localStorage.getItem('buwana_id');
 
-    if (!buwanaId) {
-        console.warn("❌ toggleSubscription: No buwana_id found — user likely not logged in.");
-        updateSessionStatus("⚪ Not logged in: cannot (un)subscribe", false);
-        return { success: false, error: "no_buwana_id" };
-    }
+        console.log(`Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subscribe}`);
 
-    if (!calendarId) {
-        console.warn("❌ toggleSubscription: Missing calendarId");
-        return { success: false, error: "no_calendar_id" };
-    }
+        try {
+            const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    buwana_id: buwanaId,
+                    calendar_id: calendarId,
+                    subscribe: subscribe ? "1" : "0"
+                }),
+            });
 
-    const subFlag = subscribe ? "1" : "0";
-    console.log(`🔄 Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subFlag}`);
+            const result = await response.json();
 
-    try {
-        const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                // Optionally also send the bearer token if the endpoint will validate it later:
-                // "Authorization": `Bearer ${localStorage.getItem("access_token") || ""}`
-            },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_id: calendarId,
-                subscribe: subFlag
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            console.log(`✅ Successfully updated subscription for calendar ${calendarId}`);
-
-            // (Optional) refresh cached calendars so UI reflects the change immediately
-            try {
-                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ buwana_id: buwanaId })
-                });
-                const calData = await calRes.json();
-                if (calData.success) {
-                    sessionStorage.setItem("user_calendars", JSON.stringify(calData));
-                    console.log("🔁 user_calendars cache refreshed after subscription change.");
-                }
-            } catch (e) {
-                console.warn("Could not refresh user_calendars after subscription change:", e);
+            if (result.success) {
+                console.log(`Successfully updated subscription for calendar ${calendarId}`);
+            } else {
+                console.error(`Failed to update subscription: ${result.error}`);
+                alert(`Error: ${result.error}`);
             }
-
-            return { success: true };
-        } else {
-            console.error(`❌ Failed to update subscription: ${result.error}`);
-            alert(`Error: ${result.error}`);
-            return { success: false, error: result.error };
+        } catch (error) {
+            console.error("Error updating subscription:", error);
+            alert("An error occurred while updating your subscription. Please try again.");
         }
-    } catch (error) {
-        console.error("❌ Error updating subscription:", error);
-        alert("An error occurred while updating your subscription. Please try again.");
-        return { success: false, error: "network_error" };
     }
-}
 
 
 
