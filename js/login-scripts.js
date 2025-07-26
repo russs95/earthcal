@@ -271,7 +271,6 @@ function showErrorState(loggedOutView, loggedInView) {
 }
 
 
-
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
 
@@ -308,7 +307,6 @@ async function showLoggedInView(calendarData = {}) {
         syncingInfo,
         noPersonal,
         noPublic,
-        syncNow,
         logout
     } = translations.loggedIn;
 
@@ -354,9 +352,6 @@ async function showLoggedInView(calendarData = {}) {
             </form>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="sync-button" class="sync-style confirmation-blur-button enabled" onclick="animateSyncButton();">
-                    🔄 ${syncNow}
-                </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ✏️ Edit Buwana Profile
                 </button>
@@ -371,6 +366,7 @@ async function showLoggedInView(calendarData = {}) {
 
     loggedInView.style.display = "block";
 }
+
 
 
 
@@ -621,49 +617,6 @@ function sendUpRegistration() {
 
 
 
-
-// --- helpers ----------------------------------------------------
-const parseJwt = (tkn) => {
-    try {
-        const [, payload] = tkn.split('.');
-        return JSON.parse(atob(payload));
-    } catch {
-        return null;
-    }
-};
-
-function getBuwanaId() {
-    // 1) sessionStorage (preferred)
-    const sessionStr = sessionStorage.getItem("buwana_user");
-    if (sessionStr) {
-        try {
-            const p = JSON.parse(sessionStr);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
-    }
-
-    // 2) localStorage user_profile
-    const up = localStorage.getItem("user_profile");
-    if (up) {
-        try {
-            const p = JSON.parse(up);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
-    }
-
-    // 3) decode tokens
-    const idTok = localStorage.getItem("id_token");
-    const idPay = idTok && parseJwt(idTok);
-    if (idPay?.buwana_id) return idPay.buwana_id;
-
-    const accTok = localStorage.getItem("access_token");
-    const accPay = accTok && parseJwt(accTok);
-    if (accPay?.buwana_id) return accPay.buwana_id;
-
-    return null;
-}
-// ----------------------------------------------------------------
-
 async function toggleSubscription(calendarId, subscribe) {
     const buwanaId = getBuwanaId();
 
@@ -684,11 +637,7 @@ async function toggleSubscription(calendarId, subscribe) {
     try {
         const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                // Optionally also send the bearer token if the endpoint will validate it later:
-                // "Authorization": `Bearer ${localStorage.getItem("access_token") || ""}`
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 buwana_id: buwanaId,
                 calendar_id: calendarId,
@@ -701,7 +650,14 @@ async function toggleSubscription(calendarId, subscribe) {
         if (result.success) {
             console.log(`✅ Successfully updated subscription for calendar ${calendarId}`);
 
-            // (Optional) refresh cached calendars so UI reflects the change immediately
+            // 🧹 If unsubscribing, remove datecycles from localStorage
+            if (!subscribe) {
+                const localKey = `calendar_${calendarId}`;
+                localStorage.removeItem(localKey);
+                console.log(`🧼 Removed localStorage entry: ${localKey}`);
+            }
+
+            // 🔁 Refresh cached calendars
             try {
                 const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
                     method: "POST",
@@ -743,7 +699,6 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
-
 function sendDownRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
@@ -751,16 +706,15 @@ function sendDownRegistration() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    // ✅ Animate down by removing the .expanded class
     container.classList.remove("expanded");
 
-    // Optionally delay hiding UI until after animation completes (300ms)
     setTimeout(() => {
         footer.style.height = "25px";
         loggedOutView.style.display = "none";
         upArrow.style.display = "block";
-        calendarRefresh();
-    }, 300); // Match the CSS transition duration
+        calendarRefresh();  // refresh calendar UI
+        syncDatecycles();   // 🔄 trigger sync now!
+    }, 300);
 }
 
 
