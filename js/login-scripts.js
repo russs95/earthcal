@@ -162,7 +162,7 @@ async function getUserData() {
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
     const regUpButton = document.getElementById('reg-up-button');
-    alert('CHecking session status!');
+    alert('updating session status!');
     if (!sessionStatus || !regUpButton) {
         setTimeout(() => updateSessionStatus(message, isLoggedIn), 100);
         return;
@@ -171,6 +171,24 @@ function updateSessionStatus(message, isLoggedIn = false) {
     sessionStatus.textContent = message;
     regUpButton.classList.toggle('active', isLoggedIn);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const checkInterval = setInterval(() => {
+        const regUpButton = document.getElementById("reg-up-button");
+        if (regUpButton) {
+            // Use your existing session check logic to get status
+            const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
+            const name = payload?.given_name || "User";
+            const emoji = payload?.["buwana:earthlingEmoji"] || "🌍";
+            updateSessionStatus(
+                isLoggedIn ? `🟢 Logged in as ${name} ${emoji}` : "⚪ Not logged in",
+                isLoggedIn
+            );
+            clearInterval(checkInterval);
+        }
+    }, 100);
+});
+
 
 
 function checkBuwanaSessionStatus({ updateUI = true } = {}) {
