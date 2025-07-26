@@ -32,9 +32,58 @@
 <body>
 <h3>🌱 Preparing Earthcal<span id="dots">...</span></h3>
 
-<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 <script>
-    // Animate dots for spinner effect
+    // ---- tiny helpers -------------------------------------------------------
+    const parseJwt = (tkn) => {
+        try {
+            const [, payload] = tkn.split('.');
+            return JSON.parse(atob(payload));
+        } catch (e) {
+            console.warn("Couldn't decode JWT:", e);
+            return null;
+        }
+    };
+
+    function getBuwanaIdFromStorage() {
+        // 1) Prefer the already-parsed profile the callback stored.
+        const profileStr = localStorage.getItem("user_profile");
+        if (profileStr) {
+            try {
+                const profile = JSON.parse(profileStr);
+                if (profile?.buwana_id) {
+                    console.log("✅ buwana_id from user_profile:", profile.buwana_id);
+                    return { buwanaId: profile.buwana_id, profile };
+                }
+            } catch (e) {
+                console.warn("user_profile parse failed:", e);
+            }
+        }
+
+        // 2) Fallback: decode id_token
+        const idToken = localStorage.getItem("id_token");
+        if (idToken) {
+            const decoded = parseJwt(idToken);
+            if (decoded?.buwana_id) {
+                console.log("✅ buwana_id from id_token:", decoded.buwana_id);
+                return { buwanaId: decoded.buwana_id, profile: decoded };
+            }
+        }
+
+        // 3) Fallback: decode access_token
+        const accessToken = localStorage.getItem("access_token");
+        if (accessToken) {
+            const decoded = parseJwt(accessToken);
+            if (decoded?.buwana_id) {
+                console.log("✅ buwana_id from access_token:", decoded.buwana_id);
+                return { buwanaId: decoded.buwana_id, profile: decoded };
+            }
+        }
+
+        console.warn("❌ No buwana_id found in storage.");
+        return { buwanaId: null, profile: null };
+    }
+
+    // ---- UI: animate dots ---------------------------------------------------
     let dotPhase = 0;
     const dotElem = document.getElementById("dots");
     setInterval(() => {
@@ -42,49 +91,42 @@
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
-    async function initApp() {
+    // ---- main ---------------------------------------------------------------
+    (async function initApp() {
         const redirectTarget = "dashboard.html";
 
+        // Offline fallback
         if (!navigator.onLine) {
             alert(`You are offline. Redirecting to: ${redirectTarget}`);
             window.location.href = redirectTarget;
             return;
         }
 
-        let buwanaId = null;
+        const { buwanaId, profile } = getBuwanaIdFromStorage();
 
-        try {
-            const token = localStorage.getItem("buwana_token");
-            if (!token) throw new Error("No token found");
-
-            const decoded = jwt_decode(token);
-            buwanaId = decoded?.buwana_id;
-            if (!buwanaId) throw new Error("No buwana_id in token");
-
-            const res = await fetch("https://buwana.ecobricks.org/api/userinfo.php", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                const user = await res.json();
-                console.log("✅ Retrieved user:", user);
-                sessionStorage.setItem("buwana_user", JSON.stringify(user));
-            }
-        } catch (e) {
-            console.warn("⚠️ Auth check failed:", e);
+        if (profile) {
+            console.log("👤 Loaded profile:", profile);
+            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
         }
 
-        // Fetch calendars
-        if (buwanaId) {
+        // If we still didn't get a buwanaId, we can optionally try userinfo.php, but most likely
+        // you don't need this anymore. Keep it as a last-resort.
+        if (!buwanaId) {
+            console.warn("No buwana_id found; skipping calendar fetch and redirecting.");
+            alert(`Redirecting to: ${redirectTarget}`);
+            window.location.href = redirectTarget;
+            return;
+        }
+
+        // Fetch calendars if we don't already have them cached for this session
+        if (!sessionStorage.getItem("user_calendars")) {
             try {
+                console.log("📡 Fetching calendars for buwana_id:", buwanaId);
                 const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ buwana_id: buwanaId })
                 });
-
                 const calData = await calRes.json();
                 if (calData.success) {
                     console.log("✅ Retrieved calendar data:", calData);
@@ -95,13 +137,13 @@
             } catch (e) {
                 console.error("⚠️ Error fetching calendars:", e);
             }
+        } else {
+            console.log("🗃️ Using cached user_calendars from sessionStorage");
         }
 
         alert(`Redirecting to: ${redirectTarget}`);
         window.location.href = redirectTarget;
-    }
-
-    initApp();
+    })();
 </script>
 </body>
 </html>
