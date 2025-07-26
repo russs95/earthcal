@@ -340,7 +340,7 @@ async function showLoggedInView(calendarData = {}) {
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 5em; margin-bottom: 20px;">${earthling_emoji}</h1>
+            <h1 style="font-size: 5em; margin-bottom: 20px;margin-top:10px;">${earthling_emoji}</h1>
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
                 ${welcome} ${first_name}!
             </h2>
@@ -686,6 +686,49 @@ async function toggleSubscription(calendarId, subscribe) {
     }
 }
 
+
+
+// --- toggle helpers ----------------------------------------------------
+const parseJwt = (tkn) => {
+    try {
+        const [, payload] = tkn.split('.');
+        return JSON.parse(atob(payload));
+    } catch {
+        return null;
+    }
+};
+
+function getBuwanaId() {
+    // 1) sessionStorage (preferred)
+    const sessionStr = sessionStorage.getItem("buwana_user");
+    if (sessionStr) {
+        try {
+            const p = JSON.parse(sessionStr);
+            if (p?.buwana_id) return p.buwana_id;
+        } catch {}
+    }
+
+    // 2) localStorage user_profile
+    const up = localStorage.getItem("user_profile");
+    if (up) {
+        try {
+            const p = JSON.parse(up);
+            if (p?.buwana_id) return p.buwana_id;
+        } catch {}
+    }
+
+    // 3) decode tokens
+    const idTok = localStorage.getItem("id_token");
+    const idPay = idTok && parseJwt(idTok);
+    if (idPay?.buwana_id) return idPay.buwana_id;
+
+    const accTok = localStorage.getItem("access_token");
+    const accPay = accTok && parseJwt(accTok);
+    if (accPay?.buwana_id) return accPay.buwana_id;
+
+    return null;
+}
+// ----------------------------------------------------------------
 
 
 
