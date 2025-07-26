@@ -66,9 +66,7 @@ let userTimeZone = null;
 let userProfile = null;
 
 
-
 async function getUserData() {
-    const sessionStatus = document.getElementById('user-session-status');
     console.log("🌿 getUserData: Starting...");
 
     // 1️⃣ Try sessionStorage first
@@ -90,7 +88,6 @@ async function getUserData() {
                 idPayload = JSON.parse(localProfile);
             } catch (e) {
                 console.error("[EarthCal] Failed to parse local user_profile:", e);
-                updateSessionStatus("⚪ Not logged in: profile parse error");
                 useDefaultUser();
                 return;
             }
@@ -99,7 +96,6 @@ async function getUserData() {
 
     if (!idPayload) {
         console.warn("⚪ No user profile found in storage");
-        updateSessionStatus("⚪ Not logged in: no profile");
         useDefaultUser();
         return;
     }
@@ -108,7 +104,6 @@ async function getUserData() {
     const now = Math.floor(Date.now() / 1000);
     if (idPayload.exp && idPayload.exp < now) {
         console.warn("[EarthCal] ID token expired.");
-        updateSessionStatus("⚪ Not logged in: token expired");
         useDefaultUser();
         return;
     }
@@ -117,7 +112,6 @@ async function getUserData() {
     const buwanaId = idPayload.buwana_id;
     if (!buwanaId) {
         console.warn("Missing buwana_id");
-        updateSessionStatus("⚪ Not logged in: buwana_id missing");
         useDefaultUser();
         return;
     }
@@ -146,18 +140,16 @@ async function getUserData() {
             const calendarData = JSON.parse(calendarCache);
             console.log("📅 Using cached calendar data:", calendarData);
             showLoggedInView(calendarData);
-            updateSessionStatus(`${userProfile.earthling_emoji} Logged in as ${userProfile.first_name}`);
         } catch (e) {
             console.warn("⚠️ Failed to parse cached calendar data:", e);
-            updateSessionStatus("⚪ Not logged in: calendar parse error");
             useDefaultUser();
         }
     } else {
         console.warn("⚠️ No calendar data cached");
-        updateSessionStatus("⚪ Not logged in: no calendar data");
         useDefaultUser();
     }
 }
+
 
 function updateSessionStatus(message, isLoggedIn = false) {
     const sessionStatus = document.getElementById('user-session-status');
