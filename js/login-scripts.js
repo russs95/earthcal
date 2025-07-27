@@ -661,14 +661,6 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
-
-
-
-
-
-
-
-
 function sendDownRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
@@ -688,21 +680,6 @@ function sendDownRegistration() {
 }
 
 
-
-
-
-
-// Utility function to shake an element (CSS class for shaking animation needed)
-function shakeElement(element) {
-    element.classList.add('shake');
-    setTimeout(() => element.classList.remove('shake'), 500); // Remove shake class after 0.5s
-}
-
-
-
-function viewTerms()  {
-       alert("Sorry, our terms of use are still under development along with Buwana login.");
-       }
 
 
 
@@ -749,12 +726,6 @@ function logoutBuwana() {
     createJWTloginURL();
 }
 
-
-
-// Placeholder function for syncing user events
-function syncUserEvents() {
-    alert("Your events are being synced!");
-}
 
 
 
