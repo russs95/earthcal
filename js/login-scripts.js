@@ -117,23 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
 async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-    if (!ok) {
-        console.warn("⚪ Not logged in (or token expired). Loading default user.");
+
+    if (!ok || !payload?.buwana_id) {
+        console.warn("⚪ Not logged in or token expired. Using default view.");
         useDefaultUser();
         return;
     }
 
-    // Cache to session if missing (useful if we arrived directly on dash.html)
+    // 🔐 Cache auth payload for downstream functions
     if (!sessionStorage.getItem("buwana_user")) {
         sessionStorage.setItem("buwana_user", JSON.stringify(payload));
     }
 
-    // ✅ Populate globals
+    // 🌍 Populate globals
     const buwanaId = payload.buwana_id;
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -152,23 +152,50 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // 📅 Calendars (only if logged in)
+    // 📅 Load calendar data: session first, then fetch from API if missing
     const calendarCache = sessionStorage.getItem("user_calendars");
+
+    let calendarData = null;
     if (calendarCache) {
         try {
-            const calendarData = JSON.parse(calendarCache);
-            console.log("📅 Using cached calendar data:", calendarData);
-            showLoggedInView(calendarData);
+            calendarData = JSON.parse(calendarCache);
+            console.log("📅 Using cached calendar data");
         } catch (e) {
-            console.warn("⚠️ Failed to parse cached calendar data:", e);
-            useDefaultUser();
+            console.warn("⚠️ Cached calendar data was corrupted. Will fetch fresh data.");
         }
-    } else {
-        console.warn("⚠️ No calendar data cached");
-        useDefaultUser();
     }
-}
 
+    if (!calendarData) {
+        try {
+            const calendarRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
+
+            const freshData = await calendarRes.json();
+
+            if (freshData.success) {
+                calendarData = freshData;
+                sessionStorage.setItem("user_calendars", JSON.stringify(freshData));
+                console.log("📡 Fetched and cached fresh calendar data.");
+            } else {
+                console.warn("⚠️ API calendar fetch failed:", freshData.message);
+            }
+        } catch (err) {
+            console.error("❌ Error fetching calendar data from API:", err);
+        }
+    }
+
+    if (!calendarData) {
+        useDefaultUser();
+        return;
+    }
+
+    // 🌟 Show logged-in panel and trigger sync
+    showLoggedInView(calendarData);
+    await syncDatecycles();  // 🔄 Begin sync with latest calendar state
+}
 
 
 
