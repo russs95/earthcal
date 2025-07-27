@@ -2255,51 +2255,32 @@ function fetchLocalCalendarByCalId(calId) {
 
 
 
-
-
 function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith("calendar_"));
+    const allDateCycles = [];
 
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in localStorage.");
-        return []; // Return an empty array if no calendars are found
+    for (const key of calendarKeys) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) continue;
+
+            const parsed = JSON.parse(raw);
+            const list = Array.isArray(parsed)
+                ? parsed
+                : Array.isArray(parsed.datecycles)
+                    ? parsed.datecycles
+                    : [];
+
+            const valid = list.filter(dc => String(dc?.delete_it ?? '0') !== '1');
+            allDateCycles.push(...valid);
+        } catch (err) {
+            console.warn(`❌ Error parsing ${key}:`, err);
+        }
     }
 
-    try {
-        let allDateCycles = [];
-
-        calendarKeys.forEach(key => {
-            try {
-                const calendarData = JSON.parse(localStorage.getItem(key));
-
-                if (Array.isArray(calendarData)) {
-                    // Filter out deleted dateCycles (ensuring case-insensitive match)
-                    const validDateCycles = calendarData.filter(dc =>
-                        (dc.delete_it || '').trim().toLowerCase() !== "1"
-                    );
-
-                    if (validDateCycles.length === 0) {
-                        console.warn(`All dateCycles for ${key} are marked as deleted.`);
-                    }
-
-                    allDateCycles.push(...validDateCycles);
-                } else {
-                    console.warn(`Unexpected format in localStorage for key: ${key}. Data:`, calendarData);
-                }
-            } catch (error) {
-                console.error(`Error parsing localStorage data for key ${key}:`, error);
-            }
-        });
-
-        console.log(`Fetched ${allDateCycles.length} dateCycles from local storage.`);
-        //console.table(allDateCycles); // Logs a readable table of dateCycles
-
-        return allDateCycles;
-    } catch (error) {
-        console.error('Error fetching dateCycles from localStorage:', error.message);
-        return [];
-    }
+    return allDateCycles;
 }
+
 
 
 
