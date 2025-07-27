@@ -670,48 +670,83 @@ async function toggleSubscription(calendarId, subscribe) {
 }
 
 
+async function toggleSubscription(calendarId, subscribe) {
+    // Centralized auth check
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    if (!ok || !payload?.buwana_id) {
+        console.warn("❌ toggleSubscription: Not logged in or no buwana_id.");
+        return { success: false, error: "not_logged_in" };
+    }
 
-// --- toggle helpers ----------------------------------------------------
-const parseJwt = (tkn) => {
+    if (!calendarId) {
+        console.warn("❌ toggleSubscription: Missing calendarId");
+        return { success: false, error: "no_calendar_id" };
+    }
+
+    const buwanaId = payload.buwana_id;
+    const subFlag = subscribe ? "1" : "0";
+    console.log(`🔄 Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subFlag}`);
+
+    const accessToken = localStorage.getItem("access_token") || "";
+
     try {
-        const [, payload] = tkn.split('.');
-        return JSON.parse(atob(payload));
-    } catch {
-        return null;
-    }
-};
+        const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                // Optional, only if/when the endpoint validates bearer tokens:
+                // ...(accessToken && { Authorization: `Bearer ${accessToken}` })
+            },
+            body: JSON.stringify({
+                buwana_id: buwanaId,
+                calendar_id: calendarId,
+                subscribe: subFlag
+            }),
+        });
 
-function getBuwanaId() {
-    // 1) sessionStorage (preferred)
-    const sessionStr = sessionStorage.getItem("buwana_user");
-    if (sessionStr) {
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error(`❌ Failed to update subscription: ${result.error}`);
+            alert(`Error: ${result.error}`);
+            return { success: false, error: result.error };
+        }
+
+        console.log(`✅ Successfully updated subscription for calendar ${calendarId}`);
+
+        // 🧹 If unsubscribing, remove the calendar's locally cached datecycles
+        if (!subscribe) {
+            const localKey = `calendar_${calendarId}`;
+            localStorage.removeItem(localKey);
+            console.log(`🧼 Removed localStorage entry: ${localKey}`);
+        }
+
+        // 🔁 Refresh cached calendars so the UI reflects the change
         try {
-            const p = JSON.parse(sessionStr);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
+            const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
+
+            const calData = await calRes.json();
+            if (calData.success) {
+                sessionStorage.setItem("user_calendars", JSON.stringify(calData));
+                console.log("🔁 user_calendars cache refreshed after subscription change.");
+            } else {
+                console.warn("Could not refresh user_calendars:", calData.message);
+            }
+        } catch (e) {
+            console.warn("Could not refresh user_calendars after subscription change:", e);
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error("❌ Error updating subscription:", error);
+        alert("An error occurred while updating your subscription. Please try again.");
+        return { success: false, error: "network_error" };
     }
-
-    // 2) localStorage user_profile
-    const up = localStorage.getItem("user_profile");
-    if (up) {
-        try {
-            const p = JSON.parse(up);
-            if (p?.buwana_id) return p.buwana_id;
-        } catch {}
-    }
-
-    // 3) decode tokens
-    const idTok = localStorage.getItem("id_token");
-    const idPay = idTok && parseJwt(idTok);
-    if (idPay?.buwana_id) return idPay.buwana_id;
-
-    const accTok = localStorage.getItem("access_token");
-    const accPay = accTok && parseJwt(accTok);
-    if (accPay?.buwana_id) return accPay.buwana_id;
-
-    return null;
 }
-// ----------------------------------------------------------------
 
 
 

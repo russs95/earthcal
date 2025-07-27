@@ -44,38 +44,31 @@
     };
 
     function getBuwanaIdFromStorage() {
-        const profileStr = localStorage.getItem("user_profile");
-        if (profileStr) {
+        const sources = [
+            localStorage.getItem("user_profile"),
+            localStorage.getItem("id_token") && parseJwt(localStorage.getItem("id_token")),
+            localStorage.getItem("access_token") && parseJwt(localStorage.getItem("access_token"))
+        ];
+
+        for (const item of sources) {
+            if (!item) continue;
             try {
-                const profile = JSON.parse(profileStr);
+                const profile = typeof item === 'string' ? JSON.parse(item) : item;
                 if (profile?.buwana_id) {
-                    console.log("✅ buwana_id from user_profile:", profile.buwana_id);
+                    const now = Math.floor(Date.now() / 1000);
+                    if (profile.exp && profile.exp < now) {
+                        console.warn("🚫 Token expired for buwana_id:", profile.buwana_id);
+                        return { buwanaId: null, profile: null };
+                    }
+                    console.log("✅ Valid buwana_id from profile:", profile.buwana_id);
                     return { buwanaId: profile.buwana_id, profile };
                 }
             } catch (e) {
-                console.warn("user_profile parse failed:", e);
+                console.warn("Failed to parse profile/token:", e);
             }
         }
 
-        const idToken = localStorage.getItem("id_token");
-        if (idToken) {
-            const decoded = parseJwt(idToken);
-            if (decoded?.buwana_id) {
-                console.log("✅ buwana_id from id_token:", decoded.buwana_id);
-                return { buwanaId: decoded.buwana_id, profile: decoded };
-            }
-        }
-
-        const accessToken = localStorage.getItem("access_token");
-        if (accessToken) {
-            const decoded = parseJwt(accessToken);
-            if (decoded?.buwana_id) {
-                console.log("✅ buwana_id from access_token:", decoded.buwana_id);
-                return { buwanaId: decoded.buwana_id, profile: decoded };
-            }
-        }
-
-        console.warn("❌ No buwana_id found in storage.");
+        console.warn("❌ No valid buwana_id found in storage.");
         return { buwanaId: null, profile: null };
     }
 
@@ -98,12 +91,11 @@
         const { buwanaId, profile } = getBuwanaIdFromStorage();
 
         if (profile) {
-            console.log("👤 Loaded profile:", profile);
             sessionStorage.setItem("buwana_user", JSON.stringify(profile));
         }
 
         if (!buwanaId) {
-            console.warn("No buwana_id found; skipping calendar fetch and redirecting.");
+            console.warn("No valid buwana_id. Skipping fetch and redirecting.");
             window.location.href = redirectTarget;
             return;
         }
