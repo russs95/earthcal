@@ -1,5 +1,61 @@
 
 
+
+// LOGIN CHECKING
+
+// ---------- helpers ----------
+function parseJwt(tkn) {
+    try {
+        const [, payload] = tkn.split('.');
+        return JSON.parse(atob(payload));
+    } catch {
+        return null;
+    }
+}
+
+function isExpired(payload) {
+    if (!payload?.exp) return true; // strict
+    return payload.exp <= Math.floor(Date.now() / 1000);
+}
+
+function isLoggedIn({ returnPayload = false } = {}) {
+    let payload = null;
+
+    // 1) sessionStorage
+    const s = sessionStorage.getItem("buwana_user");
+    if (s) {
+        try {
+            const p = JSON.parse(s);
+            if (!isExpired(p)) payload = p;
+        } catch {}
+    }
+
+    // 2) localStorage.user_profile
+    if (!payload) {
+        const lp = localStorage.getItem("user_profile");
+        if (lp) {
+            try {
+                const p = JSON.parse(lp);
+                if (!isExpired(p)) payload = p;
+            } catch {}
+        }
+    }
+
+    // 3) decode id/access token
+    if (!payload) {
+        const idTok = localStorage.getItem("id_token");
+        const accTok = localStorage.getItem("access_token");
+        const p = parseJwt(idTok) || parseJwt(accTok);
+        if (p && !isExpired(p)) payload = p;
+    }
+
+    const ok = !!(payload && payload.buwana_id && !isExpired(payload));
+    return returnPayload ? { isLoggedIn: ok, payload: ok ? payload : null } : ok;
+}
+// -----------------------------
+
+
+
 /*-------------
 LOGIN FUNCTIONS
 ----------------*/
@@ -54,59 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
-// LOGIN CHECKING
-
-// ---------- helpers ----------
-function parseJwt(tkn) {
-    try {
-        const [, payload] = tkn.split('.');
-        return JSON.parse(atob(payload));
-    } catch {
-        return null;
-    }
-}
-
-function isExpired(payload) {
-    if (!payload?.exp) return true; // strict
-    return payload.exp <= Math.floor(Date.now() / 1000);
-}
-
-function isLoggedIn({ returnPayload = false } = {}) {
-    let payload = null;
-
-    // 1) sessionStorage
-    const s = sessionStorage.getItem("buwana_user");
-    if (s) {
-        try {
-            const p = JSON.parse(s);
-            if (!isExpired(p)) payload = p;
-        } catch {}
-    }
-
-    // 2) localStorage.user_profile
-    if (!payload) {
-        const lp = localStorage.getItem("user_profile");
-        if (lp) {
-            try {
-                const p = JSON.parse(lp);
-                if (!isExpired(p)) payload = p;
-            } catch {}
-        }
-    }
-
-    // 3) decode id/access token
-    if (!payload) {
-        const idTok = localStorage.getItem("id_token");
-        const accTok = localStorage.getItem("access_token");
-        const p = parseJwt(idTok) || parseJwt(accTok);
-        if (p && !isExpired(p)) payload = p;
-    }
-
-    const ok = !!(payload && payload.buwana_id && !isExpired(payload));
-    return returnPayload ? { isLoggedIn: ok, payload: ok ? payload : null } : ok;
-}
-// -----------------------------
 
 async function getUserData() {
     console.log("🌿 getUserData: Starting...");
