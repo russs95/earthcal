@@ -1880,22 +1880,40 @@ async function syncDatecycles() {
 
         if (!hasInternetConnection) return;
 
-        const localCalendars = Object.keys(localStorage)
-            .filter(key => key.startsWith('calendar_'))
-            .map(key => {
-                let storedData = JSON.parse(localStorage.getItem(key) || '[]');
-                return {
-                    cal_id: key.replace('calendar_', ''),
-                    created_at: storedData.created_at || 0,
-                    data: storedData
-                };
-            });
+        const getSubscribedCalendarIdsFromCache = () => {
+            const cache = sessionStorage.getItem("user_calendars");
+            if (!cache) return [];
 
-        console.log(`📦 Found ${localCalendars.length} local calendar(s).`);
+            try {
+                const data = JSON.parse(cache);
+                const personal = (data.personal_calendars || []).map(c => Number(c.calendar_id));
+                const subscribed = (data.subscribed_calendars || []).map(c => Number(c.calendar_id));
+                return Array.from(new Set([...personal, ...subscribed]));
+            } catch (e) {
+                console.warn("getSubscribedCalendarIdsFromCache: parse failed", e);
+                return [];
+            }
+        };
 
-        const combined = [...serverCalendars, ...localCalendars].filter(c => c?.cal_id);
-        const calendarsToSync = [...new Map(combined.map(item => [String(item.cal_id), item])).values()];
-        console.log("📂 Syncing calendars:", calendarsToSync);
+        const purgeUnsubscribedCalendarsFromLocalStorage = (subscribedIds) => {
+            const keep = new Set(subscribedIds.map(Number));
+            Object.keys(localStorage)
+                .filter(k => /^calendar_\d+$/.test(k))
+                .forEach(k => {
+                    const id = Number(k.split('_')[1]);
+                    if (!keep.has(id)) {
+                        localStorage.removeItem(k);
+                        console.log(`🧼 Purged unsubscribed calendar from localStorage: ${k}`);
+                    }
+                });
+        };
+
+        const subscribedIds = getSubscribedCalendarIdsFromCache();
+        purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds);
+
+        const calendarsToSync = serverCalendars.filter(c => subscribedIds.includes(Number(c.cal_id)));
+        console.log("📂 Syncing only subscribed calendars:", calendarsToSync);
+
 
         for (const calendar of calendarsToSync) {
             try {
