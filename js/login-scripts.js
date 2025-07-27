@@ -330,7 +330,7 @@ async function showLoggedInView(calendarData = {}) {
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
                 ${welcome} ${first_name}!
             </h2>
-            <div id="id="sync-status">
+             <div id="sync-status">
                 <p>${syncingInfo}</p>
             </div>
             
