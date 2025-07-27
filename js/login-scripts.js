@@ -380,39 +380,39 @@ function base64UrlEncode(arrayBuffer) {
 
 
 
-
-function buildJWTuserProfile() {
-    const id_token = localStorage.getItem('id_token');
-    if (!id_token) return null;
-
-    try {
-        const payload = JSON.parse(atob(id_token.split('.')[1]));
-
-        // Derive buwana_id from sub
-        let buwanaId = null;
-        if (payload.sub.startsWith("buwana_")) {
-            buwanaId = payload.sub.split("_")[1];
-        } else {
-            buwanaId = payload.sub;
-        }
-
-        const jwtProfile = {
-            sub: payload.sub,
-            buwana_id: buwanaId,
-            email: payload.email,
-            first_name: payload.given_name,
-            earthling_emoji: payload["buwana:earthlingEmoji"],
-            community: payload["buwana:community"],
-            continent: payload["buwana:location.continent"]
-        };
-
-        console.log("JWTuserProfile:", jwtProfile);
-        return jwtProfile;
-    } catch (e) {
-        console.error("Failed to parse ID token:", e);
-        return null;
-    }
-}
+//
+// function buildJWTuserProfile() {
+//     const id_token = localStorage.getItem('id_token');
+//     if (!id_token) return null;
+//
+//     try {
+//         const payload = JSON.parse(atob(id_token.split('.')[1]));
+//
+//         // Derive buwana_id from sub
+//         let buwanaId = null;
+//         if (payload.sub.startsWith("buwana_")) {
+//             buwanaId = payload.sub.split("_")[1];
+//         } else {
+//             buwanaId = payload.sub;
+//         }
+//
+//         const jwtProfile = {
+//             sub: payload.sub,
+//             buwana_id: buwanaId,
+//             email: payload.email,
+//             first_name: payload.given_name,
+//             earthling_emoji: payload["buwana:earthlingEmoji"],
+//             community: payload["buwana:community"],
+//             continent: payload["buwana:location.continent"]
+//         };
+//
+//         console.log("JWTuserProfile:", jwtProfile);
+//         return jwtProfile;
+//     } catch (e) {
+//         console.error("Failed to parse ID token:", e);
+//         return null;
+//     }
+// }
 
 
 /*-------------------------
@@ -522,7 +522,7 @@ function sendUpRegistration() {
 
     container.classList.add("expanded");
 
-    const { isLoggedIn } = isLoggedIn({ returnPayload: false });
+    const { isLoggedIn: loggedIn } = isLoggedIn({ returnPayload: false });
 
     if (isLoggedIn) {
         console.log("[EarthCal] Valid token found. Showing logged-in view.");
@@ -723,7 +723,7 @@ function logoutBuwana() {
     }
 
     // 🌿 (Optional) Re-generate login URL again if needed
-    createJWTloginURL();
+    sendDownRegistration();
 }
 
 
