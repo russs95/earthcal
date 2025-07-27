@@ -3,50 +3,45 @@
 /*-------------
 LOGIN FUNCTIONS
 ----------------*/
-
-const regContainer = document.getElementById('registration-container');
-const regDownButton = document.getElementById('reg-down-button');
-
-let startY = 0;
-let currentY = 0;
-let isDragging = false;
-
-function onStartDrag(e) {
-    isDragging = true;
-    regContainer.classList.add('grabbed');
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-}
-
-function onMoveDrag(e) {
-    if (!isDragging) return;
-    currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    const deltaY = currentY - startY;
-    if (deltaY > 0) {
-        regContainer.style.transform = `translateY(${deltaY}px)`;
-    }
-}
-
-function onEndDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-    regContainer.classList.remove('grabbed');
-    const deltaY = currentY - startY;
-
-    if (deltaY > 100) {
-        // Trigger your existing function to close
-        sendDownRegistration();
-    } else {
-        // Snap back to top
-        regContainer.style.transform = `translateY(0)`;
-    }
-}
-
-// Touch
 document.addEventListener("DOMContentLoaded", function () {
+    const regContainer = document.getElementById('registration-container');
     const regDownButton = document.getElementById("reg-down-button");
-    if (!regDownButton) {
-        console.warn("⚠️ reg-down-button not found in DOM.");
+
+    if (!regContainer || !regDownButton) {
+        console.warn("⚠️ Required DOM elements not found for drag gesture.");
         return;
+    }
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    function onStartDrag(e) {
+        isDragging = true;
+        regContainer.classList.add('grabbed');
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+    }
+
+    function onMoveDrag(e) {
+        if (!isDragging) return;
+        currentY = e.touches ? e.touches[0].clientY : e.clientY;
+        const deltaY = currentY - startY;
+        if (deltaY > 0) {
+            regContainer.style.transform = `translateY(${deltaY}px)`;
+        }
+    }
+
+    function onEndDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        regContainer.classList.remove('grabbed');
+        const deltaY = currentY - startY;
+
+        if (deltaY > 100) {
+            sendDownRegistration();
+        } else {
+            regContainer.style.transform = `translateY(0)`;
+        }
     }
 
     regDownButton.addEventListener("touchstart", onStartDrag);
@@ -57,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("mousemove", onMoveDrag);
     document.addEventListener("mouseup", onEndDrag);
 });
+
 
 
 // LOGIN CHECKING
@@ -544,50 +540,35 @@ async function sendUpLogin() {
 }
 
 
-
 function sendUpRegistration() {
     const container = document.getElementById("registration-container");
-    container.classList.add("expanded");
-
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
     const loggedInView = document.getElementById("logged-in-view");
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
-    const id_token = localStorage.getItem('id_token');
-
-    if (!id_token) {
-        console.warn("[EarthCal] No ID token found. Showing login form.");
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+    if (!container || !footer || !loggedOutView || !loggedInView) {
+        console.warn("❌ Missing UI components for registration panel.");
         return;
     }
 
-    let payload = null;
-    try {
-        payload = JSON.parse(atob(id_token.split('.')[1]));
-    } catch (e) {
-        console.error("[EarthCal] Invalid ID token format. Showing login form.");
+    container.classList.add("expanded");
+
+    const { isLoggedIn } = isLoggedIn({ returnPayload: false });
+
+    if (isLoggedIn) {
+        console.log("[EarthCal] Valid token found. Showing logged-in view.");
+        loggedOutView.style.display = "none";
+        loggedInView.style.display = "block";
+    } else {
+        console.warn("[EarthCal] Not logged in. Showing login form.");
         showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
-        return;
     }
 
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
-        console.warn("[EarthCal] ID token expired. Showing login form.");
-        showLoginForm(loggedOutView, loggedInView);
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
-        return;
-    }
-
-    console.log("[EarthCal] Valid token found. Showing logged-in view.");
-    loggedOutView.style.display = "none";
-    loggedInView.style.display = "block";
-    footer.style.display = "block";
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
