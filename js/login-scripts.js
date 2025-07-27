@@ -748,26 +748,66 @@ async function toggleSubscription(calendarId, subscribe) {
 
 
 
+function getSubscribedCalendarIdsFromCache() {
+    const cache = sessionStorage.getItem("user_calendars");
+    if (!cache) return [];
+
+    try {
+        const data = JSON.parse(cache);
+        const personal = (data.personal_calendars || []).map(c => Number(c.calendar_id));
+        const subscribed = (data.subscribed_calendars || []).map(c => Number(c.calendar_id));
+        // Personal calendars are always “subscribed” for the owner
+        return Array.from(new Set([...personal, ...subscribed]));
+    } catch (e) {
+        console.warn("getSubscribedCalendarIdsFromCache: failed to parse cache", e);
+        return [];
+    }
+}
+
+function purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds) {
+    const keep = new Set(subscribedIds.map(Number));
+    Object.keys(localStorage)
+        .filter(k => /^calendar_\d+$/.test(k))
+        .forEach(k => {
+            const id = Number(k.split('_')[1]);
+            if (!keep.has(id)) {
+                localStorage.removeItem(k);
+                console.log(`🧼 Purged ${k} (unsubscribed)`);
+            }
+        });
+}
 
 
-
-function sendDownRegistration() {
-    const container = document.getElementById("registration-container");
-    const footer = document.getElementById("registration-footer");
-    const loggedOutView = document.getElementById("login-form-section");
-    const upArrow = document.getElementById("reg-up-button");
-    const downArrow = document.getElementById("reg-down-button");
+async function sendDownRegistration() {
+    const container    = document.getElementById("registration-container");
+    const footer       = document.getElementById("registration-footer");
+    const loggedOutView= document.getElementById("login-form-section");
+    const upArrow      = document.getElementById("reg-up-button");
+    const downArrow    = document.getElementById("reg-down-button");
 
     container.classList.remove("expanded");
 
-    setTimeout(() => {
+    setTimeout(async () => {
         footer.style.height = "25px";
         loggedOutView.style.display = "none";
         upArrow.style.display = "block";
-        calendarRefresh();  // refresh calendar UI
-        syncDatecycles();   // 🔄 trigger sync now!
-    }, 300);
+
+        // 🧹 Purge stale localStorage calendars first
+        const subscribedIds = getSubscribedCalendarIdsFromCache();
+        purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds);
+
+        // 🔁 Repaint UI with the now-clean cache
+        calendarRefresh();
+
+        // 🔄 Optionally re-sync in background to reconcile with server
+        try {
+            await syncDatecycles();
+        } catch (e) {
+            console.warn("syncDatecycles failed after closing modal:", e);
+        }
+    }, 300); // Match your CSS transition
 }
+
 
 
 
