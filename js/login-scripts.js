@@ -535,6 +535,7 @@ function sendUpRegistration() {
         console.log("[EarthCal] Valid token found. Showing logged-in view.");
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
+        showLoggedInView(calendarData);
     } else {
         console.warn("[EarthCal] Not logged in. Showing login form.");
         showLoginForm(loggedOutView, loggedInView);
