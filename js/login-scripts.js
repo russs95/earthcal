@@ -18,30 +18,34 @@ function isExpired(payload) {
     return payload.exp <= Math.floor(Date.now() / 1000);
 }
 
+
+
 function isLoggedIn({ returnPayload = false } = {}) {
+    const tryParse = (json) => {
+        try {
+            return JSON.parse(json);
+        } catch {
+            return null;
+        }
+    };
+
     let payload = null;
 
-    // 1) sessionStorage
+    // 1) Check sessionStorage
     const s = sessionStorage.getItem("buwana_user");
     if (s) {
-        try {
-            const p = JSON.parse(s);
-            if (!isExpired(p)) payload = p;
-        } catch {}
+        const p = tryParse(s);
+        if (p && !isExpired(p)) payload = p;
     }
 
-    // 2) localStorage.user_profile
+    // 2) Check localStorage.user_profile
     if (!payload) {
         const lp = localStorage.getItem("user_profile");
-        if (lp) {
-            try {
-                const p = JSON.parse(lp);
-                if (!isExpired(p)) payload = p;
-            } catch {}
-        }
+        const p = tryParse(lp);
+        if (p && !isExpired(p)) payload = p;
     }
 
-    // 3) decode id/access token
+    // 3) Check id_token or access_token
     if (!payload) {
         const idTok = localStorage.getItem("id_token");
         const accTok = localStorage.getItem("access_token");
@@ -49,9 +53,12 @@ function isLoggedIn({ returnPayload = false } = {}) {
         if (p && !isExpired(p)) payload = p;
     }
 
-    const ok = !!(payload && payload.buwana_id && !isExpired(payload));
-    return returnPayload ? { isLoggedIn: ok, payload: ok ? payload : null } : ok;
+    const isValid = payload?.buwana_id && !isExpired(payload);
+    return returnPayload
+        ? { isLoggedIn: !!isValid, payload: isValid ? payload : null }
+        : !!isValid;
 }
+
 // -----------------------------
 
 
