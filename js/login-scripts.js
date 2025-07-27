@@ -512,8 +512,7 @@ async function createJWTloginURL() {
     }
 }
 
-
-function sendUpRegistration() {
+async function sendUpRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
     const loggedOutView = document.getElementById("login-form-section");
@@ -535,17 +534,43 @@ function sendUpRegistration() {
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
 
-        // ✅ Ensure calendarData exists or fallback
+        let calendarData = null;
         const calendarCache = sessionStorage.getItem("user_calendars");
+
         if (calendarCache) {
             try {
-                const calendarData = JSON.parse(calendarCache);
-                showLoggedInView(calendarData);
+                calendarData = JSON.parse(calendarCache);
+                console.log("📅 Using cached calendar data.");
             } catch (e) {
                 console.warn("⚠️ Failed to parse cached calendar data:", e);
             }
+        }
+
+        if (!calendarData && payload?.buwana_id) {
+            console.log("📡 Fetching fresh calendar data...");
+            try {
+                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ buwana_id: payload.buwana_id })
+                });
+                const calJson = await calRes.json();
+                if (calJson.success) {
+                    calendarData = calJson;
+                    sessionStorage.setItem("user_calendars", JSON.stringify(calJson));
+                    console.log("✅ Fresh calendar data loaded.");
+                } else {
+                    console.warn("⚠️ Calendar fetch failed:", calJson.message);
+                }
+            } catch (e) {
+                console.error("❌ Error fetching calendar data:", e);
+            }
+        }
+
+        if (calendarData) {
+            showLoggedInView(calendarData);
         } else {
-            console.warn("⚠️ No calendar cache found for logged-in view.");
+            console.warn("❌ No calendar data available to render logged-in view.");
         }
     } else {
         console.warn("[EarthCal] Not logged in. Showing login form.");
@@ -554,6 +579,7 @@ function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
