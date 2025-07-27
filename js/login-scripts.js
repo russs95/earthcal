@@ -262,29 +262,19 @@ function showErrorState(loggedOutView, loggedInView) {
     showLoginForm(loggedOutView, loggedInView);
 }
 
-
 async function showLoggedInView(calendarData = {}) {
     const loggedInView = document.getElementById("logged-in-view");
 
-    const profileString = localStorage.getItem("user_profile");
-    if (!profileString) {
-        console.error("No user profile found in storage.");
+    // ✅ Validate login status first
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    if (!ok || !payload?.buwana_id) {
+        console.warn("❌ Cannot show logged-in view — user not authenticated.");
         return;
     }
 
-    let userProfile = null;
-    try {
-        userProfile = JSON.parse(profileString);
-    } catch (e) {
-        console.error("Failed to parse stored user_profile:", e);
-        return;
-    }
-
-    const {
-        given_name: first_name = "Earthling",
-        "buwana:earthlingEmoji": earthling_emoji = "🌍",
-        buwana_id = userProfile.buwana_id || "—"
-    } = userProfile;
+    const first_name = payload.given_name || "Earthling";
+    const earthling_emoji = payload["buwana:earthlingEmoji"] || "🌍";
+    const buwana_id = payload.buwana_id;
 
     const {
         personal_calendars = [],
@@ -328,7 +318,7 @@ async function showLoggedInView(calendarData = {}) {
     const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
     const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
 
-    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(userProfile.aud || userProfile.client_id || "unknown")}`;
+    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
@@ -358,6 +348,7 @@ async function showLoggedInView(calendarData = {}) {
 
     loggedInView.style.display = "block";
 }
+
 
 
 
