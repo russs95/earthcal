@@ -237,8 +237,6 @@ function useDefaultUser() {
 
 
 
-
-
 // Helper function to update footer and arrows when the registration-footer is displayed
 function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 
@@ -426,10 +424,6 @@ LOGIN FORM
 
 
 
-
-
-
-
 async function showLoginForm(loggedOutView, loggedInView) {
     loggedOutView.style.display = "block";
     loggedInView.style.display = "none";
@@ -511,36 +505,6 @@ async function createJWTloginURL() {
     }
 }
 
-async function sendUpLogin() {
-    const footer = document.getElementById("registration-footer");
-    const loggedOutView = document.getElementById("login-form-section");
-    const loggedInView = document.getElementById("logged-in-view");
-    const upArrow = document.getElementById("reg-up-button");
-    const downArrow = document.getElementById("reg-down-button");
-
-    // Always hide logged-in view and show logged-out view
-    loggedInView.style.display = "none";
-    loggedOutView.style.display = "block";
-
-    createJWTloginURL();  // Always regenerate login link
-
-    // Get translations for current user language
-    const translations = await loadTranslations(userLanguage.toLowerCase());
-    const loginStrings = translations.login;
-
-    const subStatusDiv = document.getElementById('sub-status-message');
-
-    // Use info from userProfile if available
-    if (userProfile?.status === "firsttime") {
-        subStatusDiv.innerHTML = loginStrings.statusFirstTime(userProfile.earthling_emoji || "🐸");
-    } else if (userProfile) {
-        subStatusDiv.innerHTML = loginStrings.statusReturning(userProfile.earthling_emoji || "🐸", userProfile.first_name || "Earthling");
-    } else {
-        subStatusDiv.innerHTML = loginStrings.statusReturning("🐸", "Earthling");
-    }
-
-    updateFooterAndArrowUI(footer, upArrow, downArrow);
-}
 
 
 function sendUpRegistration() {
@@ -574,84 +538,45 @@ function sendUpRegistration() {
 
 
 
+async function sendUpLogin() {
+    const footer = document.getElementById("registration-footer");
+    const loggedOutView = document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
+    const upArrow = document.getElementById("reg-up-button");
+    const downArrow = document.getElementById("reg-down-button");
 
+    // Always hide logged-in view and show logged-out view
+    loggedInView.style.display = "none";
+    loggedOutView.style.display = "block";
 
+    createJWTloginURL();  // Always regenerate login link
 
+    // Get translations for current user language
+    const translations = await loadTranslations(userLanguage.toLowerCase());
+    const loginStrings = translations.login;
 
+    const subStatusDiv = document.getElementById('sub-status-message');
 
-
-
-
-
-
-async function toggleSubscription(calendarId, subscribe) {
-    const buwanaId = getBuwanaId();
-
-    if (!buwanaId) {
-        console.warn("❌ toggleSubscription: No buwana_id found — user likely not logged in.");
-        updateSessionStatus("⚪ Not logged in: cannot (un)subscribe", false);
-        return { success: false, error: "no_buwana_id" };
+    // Use info from userProfile if available
+    if (userProfile?.status === "firsttime") {
+        subStatusDiv.innerHTML = loginStrings.statusFirstTime(userProfile.earthling_emoji || "🐸");
+    } else if (userProfile) {
+        subStatusDiv.innerHTML = loginStrings.statusReturning(userProfile.earthling_emoji || "🐸", userProfile.first_name || "Earthling");
+    } else {
+        subStatusDiv.innerHTML = loginStrings.statusReturning("🐸", "Earthling");
     }
 
-    if (!calendarId) {
-        console.warn("❌ toggleSubscription: Missing calendarId");
-        return { success: false, error: "no_calendar_id" };
-    }
-
-    const subFlag = subscribe ? "1" : "0";
-    console.log(`🔄 Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subFlag}`);
-
-    try {
-        const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_id: calendarId,
-                subscribe: subFlag
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            console.log(`✅ Successfully updated subscription for calendar ${calendarId}`);
-
-            // 🧹 If unsubscribing, remove datecycles from localStorage
-            if (!subscribe) {
-                const localKey = `calendar_${calendarId}`;
-                localStorage.removeItem(localKey);
-                console.log(`🧼 Removed localStorage entry: ${localKey}`);
-            }
-
-            // 🔁 Refresh cached calendars
-            try {
-                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ buwana_id: buwanaId })
-                });
-                const calData = await calRes.json();
-                if (calData.success) {
-                    sessionStorage.setItem("user_calendars", JSON.stringify(calData));
-                    console.log("🔁 user_calendars cache refreshed after subscription change.");
-                }
-            } catch (e) {
-                console.warn("Could not refresh user_calendars after subscription change:", e);
-            }
-
-            return { success: true };
-        } else {
-            console.error(`❌ Failed to update subscription: ${result.error}`);
-            alert(`Error: ${result.error}`);
-            return { success: false, error: result.error };
-        }
-    } catch (error) {
-        console.error("❌ Error updating subscription:", error);
-        alert("An error occurred while updating your subscription. Please try again.");
-        return { success: false, error: "network_error" };
-    }
+    updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
+
+
+
+
+
+
+
+
 
 
 async function toggleSubscription(calendarId, subscribe) {
