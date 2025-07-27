@@ -506,50 +506,7 @@ function toggleDateCycleView() {
 }
 
 // Update the count box and optionally hide/show elements based on current content
-function updateDateCycleCount(pinnedCount, currentCount) {
-    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
-    const currentDatecycleCount = document.getElementById("current-datecycle-count");
-    const eyeIcon = document.getElementById("eye-icon");
-    const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
-    const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
 
-    if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
-
-    if (pinnedCount === 0 && currentCount === 0) {
-        dateCycleCountBox.style.display = "none";
-        if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "none";
-        if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "none";
-        return;
-    }
-
-    dateCycleCountBox.style.display = "flex";
-    eyeIcon.classList.add("eye-open");
-    eyeIcon.classList.remove("eye-closed");
-
-    let message = "Today: ";
-    if (pinnedCount > 0 && currentCount > 0) {
-        message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
-    } else if (pinnedCount > 0) {
-        message += `${pinnedCount} pinned dateCycles.`;
-    } else {
-        message += `${currentCount} current dateCycles.`;
-    }
-
-    currentDatecycleCount.innerHTML = message;
-
-    if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "block";
-    if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "block";
-}
-
-// Attach toggle event only if there are items to toggle
-document.addEventListener("DOMContentLoaded", () => {
-    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
-    const allDateCycles = document.querySelectorAll("#all-current-datecycles .datecycle, #all-pinned-datecycles .datecycle");
-
-    if (dateCycleCountBox && allDateCycles.length > 0) {
-        dateCycleCountBox.addEventListener("click", toggleDateCycleView);
-    }
-});
 
 
 function updateDateCycleCount(pinnedCount, currentCount) {
@@ -1912,7 +1869,7 @@ async function syncDatecycles() {
         purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds);
 
         const calendarsToSync = serverCalendars.filter(c => subscribedIds.includes(Number(c.cal_id)));
-        console.log("📂 Syncing only subscribed calendars:", calendarsToSync);
+        console.log("📂 Syncing only the subscribed calendars:", calendarsToSync);
 
 
         for (const calendar of calendarsToSync) {
@@ -1975,8 +1932,6 @@ async function syncDatecycles() {
 
 
 
-
-
 async function updateServerDatecycles(cal_id, serverDateCycles) {
     const profileString = localStorage.getItem("user_profile");
 
@@ -1999,26 +1954,31 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
         return;
     }
 
-    // Retrieve local calendar data for this cal_id.
-    let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
+    // ✅ Ensure localCalendar is always an array
+    let localCalendarRaw = localStorage.getItem(`calendar_${cal_id}`);
+    let localCalendar = [];
 
-    // Build a dictionary keyed by unique_key.
+    try {
+        const parsed = JSON.parse(localCalendarRaw || "[]");
+        if (Array.isArray(parsed)) {
+            localCalendar = parsed;
+        } else {
+            console.warn(`⚠️ calendar_${cal_id} in localStorage is not an array. Skipping sync.`);
+            return;
+        }
+    } catch (e) {
+        console.error(`❌ Error parsing localCalendar for calendar_${cal_id}:`, e);
+        return;
+    }
+
     let localDateCycleMap = {};
     localCalendar.forEach(dc => {
-        if (dc.unique_key) {
+        if (dc?.unique_key) {
             localDateCycleMap[dc.unique_key] = dc;
         }
     });
 
-    // 🔍 Debug log: Print the local storage state before filtering
-    console.log("📥 Current local storage before filtering:", JSON.stringify(localCalendar, null, 2));
-
-    // Filter only unsynced dateCycles
-    let unsyncedDateCycles = localCalendar.filter(dc => String(dc.synced).trim() !== "1");
-
-    // 🔍 Debug log: Print the filtered unsynced events
-    console.log("🚀 Filtered unsynced events:", JSON.stringify(unsyncedDateCycles, null, 2));
-
+    const unsyncedDateCycles = localCalendar.filter(dc => String(dc.synced).trim() !== "1");
     if (unsyncedDateCycles.length === 0) {
         console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
         return;
@@ -2028,17 +1988,17 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
 
     for (let unsyncedEvent of unsyncedDateCycles) {
         if (!unsyncedEvent.unique_key) {
-            throw new Error(`Missing unique_key in unsynced event: ${unsyncedEvent.title}`);
+            console.warn(`⚠️ Skipping event without unique_key:`, unsyncedEvent);
+            continue;
         }
 
-        // Handle deletions first
-        if (unsyncedEvent.delete_it === "1" || unsyncedEvent.delete_it === "pending") {
+        // Handle deletions
+        if (["1", "pending"].includes(String(unsyncedEvent.delete_it))) {
             try {
                 const deletePayload = {
                     buwana_id: buwanaId,
                     unique_key: unsyncedEvent.unique_key
                 };
-                console.log("📤 Sending deletion payload to server:", JSON.stringify(deletePayload, null, 2));
 
                 const delResponse = await fetch('https://buwana.ecobricks.org/earthcal/delete_datecycle.php', {
                     method: 'POST',
@@ -2047,11 +2007,9 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
                 });
 
                 const delData = await delResponse.json();
-                if (!delResponse.ok || !delData.success) {
-                    throw new Error(delData.message || `Failed to delete event ${unsyncedEvent.title}.`);
-                }
+                if (!delData.success) throw new Error(delData.message || "Delete failed");
 
-                console.log(`✅ Successfully deleted dateCycle: ${unsyncedEvent.title}`);
+                console.log(`✅ Deleted dateCycle: ${unsyncedEvent.title}`);
                 delete localDateCycleMap[unsyncedEvent.unique_key];
                 continue;
             } catch (error) {
@@ -2060,51 +2018,26 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             }
         }
 
-        // Check if the event already exists on the server
-        const alreadyExistsOnServer = serverDateCycles.some(dc =>
-            String(dc.unique_key).trim() === String(unsyncedEvent.unique_key).trim() &&
-            String(dc.cal_id).trim() === String(unsyncedEvent.cal_id).trim()
+        // Check duplication
+        const existsOnServer = serverDateCycles.some(dc =>
+            String(dc.unique_key) === String(unsyncedEvent.unique_key) &&
+            String(dc.cal_id) === String(unsyncedEvent.cal_id)
         );
 
-        if (alreadyExistsOnServer) {
-            console.log(`🚫 Skipping already existing event on server: ${unsyncedEvent.title}`);
+        if (existsOnServer) {
+            console.log(`🚫 Skipping existing event: ${unsyncedEvent.title}`);
             continue;
         }
 
         try {
-            // ✅ Ensure `date_emoji` and `pinned` have default values if missing
-            const dateEmoji = unsyncedEvent.date_emoji ? unsyncedEvent.date_emoji.trim() : "📆";
-            const pinned = unsyncedEvent.pinned !== undefined ? unsyncedEvent.pinned : 0;
-
             const payload = {
+                ...unsyncedEvent,
                 buwana_id: buwanaId,
-                cal_id: cal_id,
-                cal_name: unsyncedEvent.cal_name,
-                cal_color: unsyncedEvent.cal_color,
-                title: unsyncedEvent.title,
-                date: unsyncedEvent.date,
-                time: unsyncedEvent.time,
-                time_zone: unsyncedEvent.time_zone,
-                day: unsyncedEvent.day,
-                month: unsyncedEvent.month,
-                year: unsyncedEvent.year,
-                comment: unsyncedEvent.comment,
-                comments: unsyncedEvent.comments,
-                last_edited: unsyncedEvent.last_edited,
-                created_at: unsyncedEvent.created_at,
-                unique_key: unsyncedEvent.unique_key,
-                datecycle_color: unsyncedEvent.datecycle_color,
-                frequency: unsyncedEvent.frequency,
-                pinned: pinned, // ✅ Ensure pinned is included (default 0)
-                date_emoji: dateEmoji, // ✅ Ensure date_emoji is included (default 📆)
-                completed: unsyncedEvent.completed,
-                public: unsyncedEvent.public,
-                delete_it: unsyncedEvent.delete_it,
-                synced: 1, // Mark as synced when successfully sent
-                conflict: unsyncedEvent.conflict
+                cal_id,
+                pinned: unsyncedEvent.pinned ?? 0,
+                date_emoji: unsyncedEvent.date_emoji || "📆",
+                synced: 1
             };
-
-            // console.log("📤 Sending payload to server:", JSON.stringify(payload, null, 2));
 
             const syncResponse = await fetch('https://buwana.ecobricks.org/earthcal/add_datecycle.php', {
                 method: 'POST',
@@ -2113,88 +2046,72 @@ async function updateServerDatecycles(cal_id, serverDateCycles) {
             });
 
             const syncData = await syncResponse.json();
+            if (!syncData.success) throw new Error(syncData.message);
 
-            if (!syncResponse.ok || !syncData.success) {
-                throw new Error(syncData.message || `Failed to sync event ${unsyncedEvent.title}.`);
-            }
+            localDateCycleMap[unsyncedEvent.unique_key] = {
+                ...unsyncedEvent,
+                id: syncData.id,
+                synced: 1
+            };
 
-            console.log(`✅ Successfully synced dateCycle: ${unsyncedEvent.title} with ID ${syncData.id}`);
-
-            // Update the local entry with the new ID and mark it as synced.
-            if (localDateCycleMap[unsyncedEvent.unique_key]) {
-                localDateCycleMap[unsyncedEvent.unique_key].id = syncData.id;
-                localDateCycleMap[unsyncedEvent.unique_key].synced = 1;
-            }
-
-        } catch (error) {
-            if (error.message.includes("already exists") || error.message.includes("Duplicate")) {
-                console.log(`ℹ️ Skipped existing dateCycle: ${unsyncedEvent.title}`);
-            } else {
-                console.error(`⚠️ Failed to sync dateCycle: ${unsyncedEvent.title}`, error);
-            }
+            console.log(`✅ Synced: ${unsyncedEvent.title} (ID: ${syncData.id})`);
+        } catch (err) {
+            console.error(`⚠️ Failed to sync event ${unsyncedEvent.title}:`, err);
         }
-
     }
 
-    // 🔍 Debug log: Print before updating local storage
-    // console.log("📥 Updated local dateCycles after sync:", JSON.stringify(Object.values(localDateCycleMap), null, 2));
-
-    // Save the updated local calendar.
-    // localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(Object.values(localDateCycleMap)));
-
-    // 🔍 Debug log: Confirm local storage was saved
-    // console.log("📥 Final local storage after sync:", localStorage.getItem(`calendar_${cal_id}`));
+    // ✅ Update local storage after sync
+    const finalArray = Object.values(localDateCycleMap);
+    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(finalArray));
 }
 
 
 
 
 async function updateLocalDatecycles(cal_id, serverDateCycles) {
-    // Get local calendar data.
-    let localCalendar = JSON.parse(localStorage.getItem(`calendar_${cal_id}`)) || [];
+    if (!Array.isArray(serverDateCycles)) {
+        console.warn(`⚠️ Server returned invalid dateCycles for calendar ${cal_id}`);
+        return;
+    }
 
-    // Build a dictionary keyed by unique_key.
-    let localDateCycleMap = {};
-    localCalendar.forEach(dc => {
-        if (dc.unique_key) {
-            localDateCycleMap[dc.unique_key] = dc;
-        }
-    });
-
-    // Iterate through each dateCycle from the server.
-    serverDateCycles.forEach(serverDC => {
-        if (!serverDC.unique_key) {
-            console.warn(`⚠️ Missing unique_key for server dateCycle: ${serverDC.title}`);
-            return;
-        }
-        const key = serverDC.unique_key;
-
-        // If the local dictionary does not have this record, add it.
-        if (!localDateCycleMap[key]) {
-            console.warn(`⚠️ Adding new dateCycle from server (was not found locally): ${serverDC.title}`);
-            localDateCycleMap[key] = serverDC;
+    let localCalendar = [];
+    try {
+        const raw = localStorage.getItem(`calendar_${cal_id}`);
+        const parsed = JSON.parse(raw || "[]");
+        if (Array.isArray(parsed)) {
+            localCalendar = parsed;
         } else {
-            // If a record exists locally, update it if the server version is newer.
-            let localDC = localDateCycleMap[key];
-            if (new Date(serverDC.last_edited) > new Date(localDC.last_edited)) {
-                console.log(`🔄 Updated local dateCycle: ${serverDC.title}`);
-                // Optionally merge properties or simply replace the local record.
-                localDateCycleMap[key] = serverDC;
-                // Optionally, ensure the synced flag is set:
-                localDateCycleMap[key].synced = 1;
-            }
+            console.warn(`⚠️ localCalendar data for ${cal_id} was not an array. Resetting.`);
+        }
+    } catch (e) {
+        console.error(`❌ Failed to parse localCalendar for calendar ${cal_id}:`, e);
+    }
+
+    let map = {};
+    localCalendar.forEach(dc => {
+        if (dc?.unique_key) {
+            map[dc.unique_key] = dc;
         }
     });
 
-    // Convert the dictionary back to an array.
-    let updatedLocalCalendar = Object.values(localDateCycleMap);
+    serverDateCycles.forEach(serverDC => {
+        if (!serverDC.unique_key) return;
+        const key = serverDC.unique_key;
+        const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
 
-    // Optional: Remove the alert if not needed.
-    //alert("Saving the following DateCycles to Local Storage:\n\n" + JSON.stringify(updatedLocalCalendar, null, 2));
+        if (isNewer) {
+            map[key] = {
+                ...serverDC,
+                synced: 1
+            };
+        }
+    });
 
-    // Save the updated calendar back to local storage.
-    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updatedLocalCalendar));
+    const updated = Object.values(map);
+    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updated));
+    console.log(`💾 Updated local calendar_${cal_id} with ${updated.length} dateCycles`);
 }
+
 
 
 
