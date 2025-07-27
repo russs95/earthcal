@@ -1,14 +1,13 @@
 
 
-
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
     userTimeZone = time_zone;
 
     const userDetailsString = `| ${getUtcOffset(userTimeZone)} | ${language.toUpperCase()}`;
 
-    // ✅ Unified session check
-    const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
+    // ✅ Modern session check (optional payload use)
+    const { isLoggedIn: ok } = isLoggedIn({ returnPayload: true });
 
     const userTimezoneLangDiv = document.getElementById('user-timezone-lang');
     if (userTimezoneLangDiv) {
@@ -23,8 +22,7 @@ async function displayUserData(time_zone, language) {
         `;
     }
 
-
-    // ⏰ Clock
+    // ⏰ Clock setup
     updateTime();
     if (!window.updateTimeInterval) {
         window.updateTimeInterval = setInterval(updateTime, 1000);

@@ -213,7 +213,6 @@ function updateHighlightColor() {
 
 
 //<div class="menu-page-item">${userStatusHTML}</div>
-
 let modalOpen = false;
 
 async function openMainMenu() {
@@ -224,14 +223,13 @@ async function openMainMenu() {
     const { mainMenu } = await loadTranslations(lang);
 
     // 🔒 Use unified session checker (no UI update from here)
-    const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
 
-    // If you rely on global userProfile, keep it; else construct minimal user view:
     const firstName = userProfile?.first_name || payload?.given_name || "Earthling";
     const earthlingEmoji = userProfile?.earthling_emoji || payload?.["buwana:earthlingEmoji"] || "🌎";
 
     let userStatusHTML = '';
-    if (isLoggedIn) {
+    if (ok) {
         userStatusHTML = `
             <div id="user-status">
                 ${earthlingEmoji} ${mainMenu.loggedIn?.welcome || 'Welcome Back,'} ${firstName}
@@ -248,7 +246,7 @@ async function openMainMenu() {
     }
 
     content.innerHTML = `
-        <div class="earthcal-app-logo" style="margin-bottom: auto;margin-top:auto">
+        <div class="earthcal-app-logo" style="margin-bottom: auto; margin-top: auto;">
             <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
 
@@ -277,7 +275,7 @@ async function openMainMenu() {
         <p style="font-size:small; margin-bottom: 2px;">
             ${mainMenu.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a>
         </p>
-        <p style="font-size:small; margin-top: 2px;margin-bottom: auto;">
+        <p style="font-size:small; margin-top: 2px; margin-bottom: auto;">
             ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
         </p>
     `;
