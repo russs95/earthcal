@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Earthcal Entry</title>
-    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="icon" href="/icons/favicon.ico" />
     <style>
         body {
             margin: 0;
@@ -35,45 +35,22 @@
 <script>
     const parseJwt = (tkn) => {
         try {
-            const [, payload] = tkn.split('.');
+            const [, payload] = tkn.split(".");
             return JSON.parse(atob(payload));
-        } catch (e) {
-            console.warn("Couldn't decode JWT:", e);
+        } catch {
             return null;
         }
     };
 
-    function getBuwanaIdFromStorage() {
-        const sources = [
-            localStorage.getItem("user_profile"),
-            localStorage.getItem("id_token") && parseJwt(localStorage.getItem("id_token")),
-            localStorage.getItem("access_token") && parseJwt(localStorage.getItem("access_token"))
-        ];
+    const isLoggedIn = () => {
+        const token = localStorage.getItem("access_token") || localStorage.getItem("id_token");
+        if (!token) return false;
+        const payload = parseJwt(token);
+        return payload && (!payload.exp || payload.exp > Math.floor(Date.now() / 1000));
+    };
 
-        for (const item of sources) {
-            if (!item) continue;
-            try {
-                const profile = typeof item === 'string' ? JSON.parse(item) : item;
-                if (profile?.buwana_id) {
-                    const now = Math.floor(Date.now() / 1000);
-                    if (profile.exp && profile.exp < now) {
-                        console.warn("🚫 Token expired for buwana_id:", profile.buwana_id);
-                        return { buwanaId: null, profile: null };
-                    }
-                    console.log("✅ Valid buwana_id from profile:", profile.buwana_id);
-                    return { buwanaId: profile.buwana_id, profile };
-                }
-            } catch (e) {
-                console.warn("Failed to parse profile/token:", e);
-            }
-        }
-
-        console.warn("❌ No valid buwana_id found in storage.");
-        return { buwanaId: null, profile: null };
-    }
-
-    let dotPhase = 0;
     const dotElem = document.getElementById("dots");
+    let dotPhase = 0;
     setInterval(() => {
         dotPhase = (dotPhase + 1) % 4;
         dotElem.textContent = ".".repeat(dotPhase);
@@ -88,38 +65,11 @@
             return;
         }
 
-        const { buwanaId, profile } = getBuwanaIdFromStorage();
-
-        if (profile) {
-            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
-        }
-
-        if (!buwanaId) {
-            console.warn("No valid buwana_id. Skipping fetch and redirecting.");
-            window.location.href = redirectTarget;
-            return;
-        }
-
-        if (!sessionStorage.getItem("user_calendars")) {
-            try {
-                console.log("📡 Fetching calendars for buwana_id:", buwanaId);
-                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ buwana_id: buwanaId })
-                });
-                const calData = await calRes.json();
-                if (calData.success) {
-                    console.log("✅ Retrieved calendar data:", calData);
-                    sessionStorage.setItem("user_calendars", JSON.stringify(calData));
-                } else {
-                    console.warn("⚠️ Calendar fetch failed:", calData.message);
-                }
-            } catch (e) {
-                console.error("⚠️ Error fetching calendars:", e);
+        if (isLoggedIn()) {
+            const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
+            if (profile) {
+                sessionStorage.setItem("buwana_user", JSON.stringify(profile));
             }
-        } else {
-            console.log("🗃️ Using cached user_calendars from sessionStorage");
         }
 
         window.location.href = redirectTarget;

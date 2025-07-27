@@ -175,39 +175,48 @@ function updateSessionStatus(message, isLoggedIn = false) {
     if (regUpButton) regUpButton.classList.toggle('active', isLoggedIn);
 }
 
+// Promise helper to wait for an element to appear
+function waitForElement(selector, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const el = document.querySelector(selector);
+        if (el) return resolve(el);
 
-document.addEventListener("DOMContentLoaded", () => {
-    const checkInterval = setInterval(() => {
-        const regUpButton = document.getElementById("reg-up-button");
-        if (regUpButton) {
-            // Use your existing session check logic to get status
-            const { isLoggedIn, payload } = checkBuwanaSessionStatus({ updateUI: false });
-            const name = payload?.given_name || "User";
-            const emoji = payload?.["buwana:earthlingEmoji"] || "🌍";
-            updateSessionStatus(
-                isLoggedIn ? `🟢 Logged in as ${name} ${emoji}` : "⚪ Not logged in",
-                isLoggedIn
-            );
-            clearInterval(checkInterval);
+        const observer = new MutationObserver(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+                observer.disconnect();
+                resolve(el);
+            }
+        });
+
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        if (timeout) {
+            setTimeout(() => {
+                observer.disconnect();
+                reject(new Error(`waitForElement timed out: ${selector}`));
+            }, timeout);
         }
-    }, 100);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        await waitForElement("#reg-up-button");
+
+        const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+        const name  = payload?.given_name || "User";
+        const emoji = payload?.["buwana:earthlingEmoji"] || "🌍";
+
+        updateSessionStatus(
+            ok ? `🟢 Logged in as ${name} ${emoji}` : "⚪ Not logged in",
+            ok
+        );
+    } catch (e) {
+        console.warn(e.message);
+    }
 });
 
-
-function checkBuwanaSessionStatus({ updateUI = true } = {}) {
-    const { isLoggedIn, payload } = isLoggedIn({ returnPayload: true });
-
-    if (updateUI) {
-        const name = payload?.given_name || "User";
-        const emoji = payload?.["buwana:earthlingEmoji"] || "🌍";
-        updateSessionStatus(
-            isLoggedIn ? `🟢 Logged in as ${name} ${emoji}` : "⚪ Not logged in",
-            isLoggedIn
-        );
-    }
-
-    return { isLoggedIn, payload };
-}
 
 
 
