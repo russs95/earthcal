@@ -623,16 +623,23 @@ async function sendUpLogin() {
 
 
 
-
+async function fetchCalendarDatecycles(buwanaId, calendarId) {
+    const res = await fetch("https://buwana.ecobricks.org/earthcal/get_calendar_data.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendarId })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || "Failed to fetch datecycles");
+    return data.dateCycles || [];
+}
 
 async function toggleSubscription(calendarId, subscribe) {
-    // Centralized auth check
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
     if (!ok || !payload?.buwana_id) {
         console.warn("❌ toggleSubscription: Not logged in or no buwana_id.");
         return { success: false, error: "not_logged_in" };
     }
-
     if (!calendarId) {
         console.warn("❌ toggleSubscription: Missing calendarId");
         return { success: false, error: "no_calendar_id" };
@@ -642,48 +649,58 @@ async function toggleSubscription(calendarId, subscribe) {
     const subFlag = subscribe ? "1" : "0";
     console.log(`🔄 Updating subscription for user ${buwanaId} for calendar ${calendarId}, subscribe: ${subFlag}`);
 
-    const accessToken = localStorage.getItem("access_token") || "";
-
     try {
+        // 1) Hit the server to (un)subscribe
         const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                // Optional, only if/when the endpoint validates bearer tokens:
-                // ...(accessToken && { Authorization: `Bearer ${accessToken}` })
-            },
-            body: JSON.stringify({
-                buwana_id: buwanaId,
-                calendar_id: calendarId,
-                subscribe: subFlag
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId, subscribe: subFlag }),
         });
-
         const result = await response.json();
-
         if (!result.success) {
             console.error(`❌ Failed to update subscription: ${result.error}`);
             alert(`Error: ${result.error}`);
             return { success: false, error: result.error };
         }
 
-        console.log(`✅ Successfully updated subscription for calendar ${calendarId}`);
+        // 2) Update local cache immediately
+        if (subscribe) {
+            try {
+                console.log("📡 Fetching datecycles for newly subscribed calendar:", calendarId);
+                const dateCycles = await fetchCalendarDatecycles(buwanaId, calendarId);
 
-        // 🧹 If unsubscribing, remove the calendar's locally cached datecycles
-        if (!subscribe) {
+                // Optional: sanitize / normalize here if needed
+                const normalized = dateCycles.map(dc => ({
+                    ...dc,
+                    date_emoji: dc.date_emoji || "😀",
+                    pinned: dc.pinned !== undefined ? dc.pinned : false,
+                }));
+
+                localStorage.setItem(
+                    `calendar_${calendarId}`,
+                    JSON.stringify({
+                        cal_id: calendarId,
+                        last_synced: Date.now(),
+                        datecycles: normalized
+                    })
+                );
+                console.log(`✅ Cached ${normalized.length} datecycles for calendar_${calendarId}`);
+            } catch (e) {
+                console.error("❌ Could not fetch/store datecycles for subscribed calendar:", e);
+            }
+        } else {
             const localKey = `calendar_${calendarId}`;
             localStorage.removeItem(localKey);
             console.log(`🧼 Removed localStorage entry: ${localKey}`);
         }
 
-        // 🔁 Refresh cached calendars so the UI reflects the change
+        // 3) Refresh user_calendars list so UI reflects new subs list
         try {
             const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ buwana_id: buwanaId })
             });
-
             const calData = await calRes.json();
             if (calData.success) {
                 sessionStorage.setItem("user_calendars", JSON.stringify(calData));
@@ -695,6 +712,13 @@ async function toggleSubscription(calendarId, subscribe) {
             console.warn("Could not refresh user_calendars after subscription change:", e);
         }
 
+        // 4) Optional: live-refresh UI
+        if (typeof calendarRefresh === "function") calendarRefresh();
+        if (typeof updateDateCycleCount === "function") {
+            // If you maintain aggregated counts somewhere, recompute here.
+            // updateDateCycleCount(pinnedCount, currentCount);
+        }
+
         return { success: true };
     } catch (error) {
         console.error("❌ Error updating subscription:", error);
@@ -702,6 +726,7 @@ async function toggleSubscription(calendarId, subscribe) {
         return { success: false, error: "network_error" };
     }
 }
+
 
 
 
