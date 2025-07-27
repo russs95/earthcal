@@ -513,7 +513,6 @@ async function createJWTloginURL() {
 }
 
 
-
 function sendUpRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
@@ -529,13 +528,25 @@ function sendUpRegistration() {
 
     container.classList.add("expanded");
 
-    const { isLoggedIn: loggedIn } = isLoggedIn({ returnPayload: false });
+    const { isLoggedIn: loggedIn, payload } = isLoggedIn({ returnPayload: true });
 
-    if (isLoggedIn) {
+    if (loggedIn) {
         console.log("[EarthCal] Valid token found. Showing logged-in view.");
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
-        showLoggedInView(calendarData);
+
+        // ✅ Ensure calendarData exists or fallback
+        const calendarCache = sessionStorage.getItem("user_calendars");
+        if (calendarCache) {
+            try {
+                const calendarData = JSON.parse(calendarCache);
+                showLoggedInView(calendarData);
+            } catch (e) {
+                console.warn("⚠️ Failed to parse cached calendar data:", e);
+            }
+        } else {
+            console.warn("⚠️ No calendar cache found for logged-in view.");
+        }
     } else {
         console.warn("[EarthCal] Not logged in. Showing login form.");
         showLoginForm(loggedOutView, loggedInView);
@@ -543,6 +554,7 @@ function sendUpRegistration() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
+
 
 
 
