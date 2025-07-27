@@ -482,8 +482,7 @@ async function highlightDateCycles(targetDate) {
 }
 
 
-
-// Function to toggle visibility of the date cycle details
+// Toggle the visibility of the date cycle details
 function toggleDateCycleView() {
     const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
     const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
@@ -491,7 +490,7 @@ function toggleDateCycleView() {
 
     if (!allPinnedDateCyclesDiv || !allCurrentDateCyclesDiv || !eyeIcon) return;
 
-    const isVisible = allCurrentDateCyclesDiv.style.display !== "none";
+    const isVisible = window.getComputedStyle(allCurrentDateCyclesDiv).display !== "none";
 
     if (isVisible) {
         allCurrentDateCyclesDiv.style.display = "none";
@@ -506,10 +505,48 @@ function toggleDateCycleView() {
     }
 }
 
-// Ensure event listener is attached after DOM is loaded
+// Update the count box and optionally hide/show elements based on current content
+function updateDateCycleCount(pinnedCount, currentCount) {
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    const currentDatecycleCount = document.getElementById("current-datecycle-count");
+    const eyeIcon = document.getElementById("eye-icon");
+    const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
+    const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
+
+    if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
+
+    if (pinnedCount === 0 && currentCount === 0) {
+        dateCycleCountBox.style.display = "none";
+        if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "none";
+        if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "none";
+        return;
+    }
+
+    dateCycleCountBox.style.display = "flex";
+    eyeIcon.classList.add("eye-open");
+    eyeIcon.classList.remove("eye-closed");
+
+    let message = "Today: ";
+    if (pinnedCount > 0 && currentCount > 0) {
+        message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
+    } else if (pinnedCount > 0) {
+        message += `${pinnedCount} pinned dateCycles.`;
+    } else {
+        message += `${currentCount} current dateCycles.`;
+    }
+
+    currentDatecycleCount.innerHTML = message;
+
+    if (allCurrentDateCyclesDiv) allCurrentDateCyclesDiv.style.display = "block";
+    if (allPinnedDateCyclesDiv) allPinnedDateCyclesDiv.style.display = "block";
+}
+
+// Attach toggle event only if there are items to toggle
 document.addEventListener("DOMContentLoaded", () => {
     const dateCycleCountBox = document.getElementById("date-cycle-count-box");
-    if (dateCycleCountBox) {
+    const allDateCycles = document.querySelectorAll("#all-current-datecycles .datecycle, #all-pinned-datecycles .datecycle");
+
+    if (dateCycleCountBox && allDateCycles.length > 0) {
         dateCycleCountBox.addEventListener("click", toggleDateCycleView);
     }
 });

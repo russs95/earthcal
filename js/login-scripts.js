@@ -59,124 +59,86 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// LOGIN CHECKING
 
-// Declare globally near the top of your app
-let userLanguage = null;
-let userTimeZone = null;
-let userProfile = null;
-
-const parseJwt = (tkn) => {
+// ---------- helpers ----------
+function parseJwt(tkn) {
     try {
         const [, payload] = tkn.split('.');
         return JSON.parse(atob(payload));
     } catch {
         return null;
     }
-};
+}
 
 function isExpired(payload) {
-    if (!payload?.exp) return true; // be strict: if no exp, treat as expired
-    const now = Math.floor(Date.now() / 1000);
-    return payload.exp <= now;
+    if (!payload?.exp) return true; // strict
+    return payload.exp <= Math.floor(Date.now() / 1000);
 }
 
-function clearAuthState() {
-    console.warn("🧹 Clearing expired/invalid auth state.");
-    sessionStorage.removeItem("buwana_user");
-    sessionStorage.removeItem("user_calendars");
-    localStorage.removeItem("id_token");
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_profile");
-    localStorage.removeItem("expires_in");
-    localStorage.removeItem("token_type");
+function isLoggedIn({ returnPayload = false } = {}) {
+    let payload = null;
+
+    // 1) sessionStorage
+    const s = sessionStorage.getItem("buwana_user");
+    if (s) {
+        try {
+            const p = JSON.parse(s);
+            if (!isExpired(p)) payload = p;
+        } catch {}
+    }
+
+    // 2) localStorage.user_profile
+    if (!payload) {
+        const lp = localStorage.getItem("user_profile");
+        if (lp) {
+            try {
+                const p = JSON.parse(lp);
+                if (!isExpired(p)) payload = p;
+            } catch {}
+        }
+    }
+
+    // 3) decode id/access token
+    if (!payload) {
+        const idTok = localStorage.getItem("id_token");
+        const accTok = localStorage.getItem("access_token");
+        const p = parseJwt(idTok) || parseJwt(accTok);
+        if (p && !isExpired(p)) payload = p;
+    }
+
+    const ok = !!(payload && payload.buwana_id && !isExpired(payload));
+    return returnPayload ? { isLoggedIn: ok, payload: ok ? payload : null } : ok;
 }
+// -----------------------------
 
 async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
-    let idPayload = null;
-
-    // 1️⃣ Prefer session profile
-    const sessionProfile = sessionStorage.getItem("buwana_user");
-    if (sessionProfile) {
-        try {
-            const p = JSON.parse(sessionProfile);
-            if (!isExpired(p)) {
-                idPayload = p;
-            } else {
-                console.warn("[EarthCal] Session profile expired.");
-                clearAuthState();
-                useDefaultUser();
-                return;
-            }
-        } catch (e) {
-            console.warn("Failed to parse session buwana_user:", e);
-            clearAuthState();
-            useDefaultUser();
-            return;
-        }
-    }
-
-    // 2️⃣ Fallback to user_profile in localStorage
-    if (!idPayload) {
-        const localProfile = localStorage.getItem("user_profile");
-        if (localProfile) {
-            try {
-                const p = JSON.parse(localProfile);
-                if (!isExpired(p)) {
-                    idPayload = p;
-                    // cache it for this session
-                    sessionStorage.setItem("buwana_user", JSON.stringify(p));
-                } else {
-                    console.warn("[EarthCal] local user_profile expired.");
-                    clearAuthState();
-                    useDefaultUser();
-                    return;
-                }
-            } catch (e) {
-                console.error("[EarthCal] Failed to parse local user_profile:", e);
-                clearAuthState();
-                useDefaultUser();
-                return;
-            }
-        }
-    }
-
-    // 3️⃣ Optional: fallback to id_token / access_token decode (strict)
-    if (!idPayload) {
-        const idTok = localStorage.getItem("id_token");
-        const accTok = localStorage.getItem("access_token");
-        const decoded = parseJwt(idTok) || parseJwt(accTok);
-        if (!decoded || isExpired(decoded)) {
-            console.warn("[EarthCal] No valid (non-expired) token/profile available.");
-            clearAuthState();
-            useDefaultUser();
-            return;
-        }
-        idPayload = decoded;
-        sessionStorage.setItem("buwana_user", JSON.stringify(decoded));
-    }
-
-    // 4️⃣ Validate buwana_id
-    const buwanaId = idPayload.buwana_id;
-    if (!buwanaId) {
-        console.warn("Missing buwana_id");
-        clearAuthState();
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    if (!ok) {
+        console.warn("⚪ Not logged in (or token expired). Loading default user.");
         useDefaultUser();
         return;
     }
 
-    // 5️⃣ Populate global state
+    // Cache to session if missing (useful if we arrived directly on dash.html)
+    if (!sessionStorage.getItem("buwana_user")) {
+        sessionStorage.setItem("buwana_user", JSON.stringify(payload));
+    }
+
+    // ✅ Populate globals
+    const buwanaId = payload.buwana_id;
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     userProfile = {
-        first_name: idPayload.given_name || "Earthling",
-        email: idPayload.email || null,
+        first_name: payload.given_name || "Earthling",
+        email: payload.email || null,
         buwana_id: buwanaId,
-        earthling_emoji: idPayload["buwana:earthlingEmoji"] || "🌎",
-        community: idPayload["buwana:community"] || null,
-        continent: idPayload["buwana:location.continent"] || null,
-        status: idPayload["status"] || "returning"
+        earthling_emoji: payload["buwana:earthlingEmoji"] || "🌎",
+        community: payload["buwana:community"] || null,
+        continent: payload["buwana:location.continent"] || null,
+        status: payload["status"] || "returning"
     };
 
     console.log("✅ Loaded userProfile:", userProfile);
@@ -184,7 +146,7 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // 6️⃣ Only use cached calendars if logged-in and valid
+    // 📅 Calendars (only if logged in)
     const calendarCache = sessionStorage.getItem("user_calendars");
     if (calendarCache) {
         try {
@@ -200,6 +162,7 @@ async function getUserData() {
         useDefaultUser();
     }
 }
+
 
 
 
@@ -231,52 +194,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
 function checkBuwanaSessionStatus({ updateUI = true } = {}) {
-    let payload = null;
+    const { isLoggedIn, payload } = isLoggedIn({ returnPayload: true });
 
-    // 1️⃣ Prefer sessionStorage (set by index.html)
-    const sessionStr = sessionStorage.getItem("buwana_user");
-    if (sessionStr) {
-        try {
-            payload = JSON.parse(sessionStr);
-            console.log("✅ Session user loaded from sessionStorage:", payload);
-        } catch (e) {
-            console.warn("⚠️ Failed to parse session user:", e);
-        }
+    if (updateUI) {
+        const name = payload?.given_name || "User";
+        const emoji = payload?.["buwana:earthlingEmoji"] || "🌍";
+        updateSessionStatus(
+            isLoggedIn ? `🟢 Logged in as ${name} ${emoji}` : "⚪ Not logged in",
+            isLoggedIn
+        );
     }
 
-    // 2️⃣ Fallback to localStorage id_token
-    if (!payload) {
-        const id_token = localStorage.getItem("id_token");
-        if (id_token) {
-            try {
-                payload = JSON.parse(atob(id_token.split('.')[1]));
-            } catch (e) {
-                console.error("[SessionStatus] Invalid token format:", e);
-            }
-        }
-    }
-
-    // No payload? Not logged in.
-    if (!payload) {
-        if (updateUI) updateSessionStatus("⚪ Not logged in: no token/profile", false);
-        return { isLoggedIn: false, payload: null };
-    }
-
-    // 3️⃣ Expiry check
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-        if (updateUI) updateSessionStatus("⚪ Not logged in: token expired", false);
-        return { isLoggedIn: false, payload };
-    }
-
-    // 4️⃣ Logged in
-    const name = payload.given_name || "User";
-    const emoji = payload["buwana:earthlingEmoji"] || "🌍";
-    if (updateUI) updateSessionStatus(`🟢 Logged in as ${name} ${emoji}`, true);
-
-    return { isLoggedIn: true, payload };
+    return { isLoggedIn, payload };
 }
 
 
