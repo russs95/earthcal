@@ -722,78 +722,111 @@ async function updateServerDateCycle(dateCycle) {
 
 
 
+// Call a server-side UPDATE by unique_key (proposed endpoint).
+async function pushCompletionUpdate(dateCycle, buwanaId) {
+    const payload = {
+        buwana_id: buwanaId,
+        unique_key: String(dateCycle.unique_key),
+        cal_id: Number(dateCycle.cal_id),
+        completed: Number(dateCycle.completed),                   // 0/1
+        last_edited: new Date().toISOString().slice(0,19).replace('T',' ') // 'YYYY-MM-DD HH:MM:SS'
+    };
+
+    const resp = await fetch('https://buwana.ecobricks.org/earthcal/update_datecycle.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.success) {
+        throw new Error(data.message || `Update failed: ${resp.status}`);
+    }
+    return data;
+}
 
 function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
-    // Step 1: Retrieve all calendar keys from localStorage.
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    // All local calendar keys (calendar_<id>)
+    const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith('calendar_'));
     let found = false;
 
-    // Step 2: Iterate through calendar arrays to find and update the dateCycle by unique_key.
     for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-        const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-
-        if (dateCycleIndex !== -1) {
-            let dateCycle = calendarData[dateCycleIndex];
-
-            // Step 3: Toggle the 'completed' status.
-            const wasCompleted = dateCycle.completed === '1'; // Track the previous state
-            dateCycle.completed = wasCompleted ? '0' : '1'; // Toggle
-            console.log(`New completion status for ${dateCycle.title}: ${dateCycle.completed}`);
-
-            // Step 4: Mark as unsynced if previously synced.
-            if (dateCycle.synced === '1') {
-                dateCycle.synced = '0';
+        let calendarData;
+        try {
+            calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!Array.isArray(calendarData)) {
+                console.warn(`Skipping non-array localStorage entry: ${key}`);
+                continue;
             }
-
-            // Step 5: Attempt to update the server immediately if online.
-            if (navigator.onLine && localStorage.getItem('buwana_id')) {
-                updateServerDateCycle(dateCycle)
-                    .then(() => {
-                        console.log(`Server successfully updated for ${dateCycle.title}`);
-                        dateCycle.synced = '1';
-                        calendarData[dateCycleIndex] = dateCycle;
-                        localStorage.setItem(key, JSON.stringify(calendarData));
-                    })
-                    .catch(error => {
-                        console.error(`Error updating server for ${dateCycle.title}:`, error);
-                    });
-            } else {
-                console.log("Offline or not logged in – update queued for next sync.");
-            }
-
-            // Step 6: Update localStorage with modified calendar data.
-            calendarData[dateCycleIndex] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-
-            // Step 7: Handle animation and UI refresh.
-            const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-
-            if (!wasCompleted && dateCycleDiv) {
-                // If marking as completed, trigger celebration and delay UI refresh
-                dateCycleDiv.classList.add("celebrate-animation");
-
-                setTimeout(() => {
-                    dateCycleDiv.classList.remove("celebrate-animation");
-                    highlightDateCycles(targetDate); // Refresh UI after animation
-                }, 500);
-            } else {
-                // If marking as incomplete, refresh UI immediately
-                highlightDateCycles(targetDate);
-            }
-
-            found = true;
-            break;
+        } catch (e) {
+            console.warn(`Skipping unparsable localStorage entry: ${key}`, e);
+            continue;
         }
+
+        const idx = calendarData.findIndex(dc => dc && dc.unique_key === uniqueKey);
+        if (idx === -1) continue;
+
+        // Found the dateCycle
+        const dc = { ...calendarData[idx] };
+        const wasCompleted = Number(dc.completed) === 1;
+
+        // Toggle -> ensure numeric 0/1
+        dc.completed = wasCompleted ? 0 : 1;
+        dc.last_edited = new Date().toISOString().slice(0,19).replace('T',' ');
+        // Mark unsynced locally — we’ll set it to 1 after successful push
+        dc.synced = 0;
+
+        console.log(`New completion status for ${dc.title}: ${dc.completed}`);
+
+        // Save change locally immediately
+        calendarData[idx] = dc;
+        localStorage.setItem(key, JSON.stringify(calendarData));
+
+        // Try an immediate server update if we can
+        const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+        if (ok && navigator.onLine && payload?.buwana_id) {
+            pushCompletionUpdate(dc, payload.buwana_id)
+                .then(() => {
+                    // Mark as synced upon success and persist
+                    const fresh = JSON.parse(localStorage.getItem(key) || '[]');
+                    const j = fresh.findIndex(x => x && x.unique_key === uniqueKey);
+                    if (j !== -1) {
+                        fresh[j].synced = 1;
+                        localStorage.setItem(key, JSON.stringify(fresh));
+                    }
+                    console.log(`✅ Server updated completion for ${dc.title}`);
+                })
+                .catch(err => {
+                    console.error(`⚠️ Server update failed for ${dc.title}`, err);
+                    // leave as synced=0 for next bulk sync
+                });
+        } else {
+            console.log("Offline or not logged in – update queued for next sync.");
+        }
+
+        // UI animation / refresh
+        const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+        if (!wasCompleted && dateCycleDiv) {
+            dateCycleDiv.classList.add("celebrate-animation");
+            setTimeout(() => {
+                dateCycleDiv.classList.remove("celebrate-animation");
+                highlightDateCycles(targetDate); // refresh UI
+            }, 500);
+        } else {
+            highlightDateCycles(targetDate);
+        }
+
+        found = true;
+        break;
     }
 
-    // Step 8: Handle case where no dateCycle was found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
     }
 }
+
 
 
 
