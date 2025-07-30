@@ -1708,9 +1708,6 @@ async function addDatecycle() {
 
 
 
-
-
-
 function animateConfirmDateCycleButton() {
     const confirmButton = document.getElementById('confirm-dateCycle-button');
 
@@ -1761,7 +1758,6 @@ function animateSyncButton() {
         console.error("Sync failed:", error);
     });
 }
-
 
 
 
@@ -1893,7 +1889,6 @@ async function syncDatecycles() {
         const calendarsToSync = serverCalendars.filter(c => subscribedIds.includes(Number(c.cal_id)));
         console.log("📂 Syncing only the subscribed calendars:", calendarsToSync);
 
-
         for (const calendar of calendarsToSync) {
             try {
                 if (!buwanaId || !calendar.cal_id) {
@@ -1903,41 +1898,42 @@ async function syncDatecycles() {
 
                 console.log('📂 Syncing calendar:', calendar);
 
-                let serverDateCycles = [];
-                const payload = { buwana_id: buwanaId, cal_id: calendar.cal_id };
+                const localKey = `calendar_${calendar.cal_id}`;
+                let localDateCycles = [];
 
                 try {
-                    const calendarResponse = await fetch('https://buwana.ecobricks.org/earthcal/get_calendar_data.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                    });
-                    const responseData = await calendarResponse.json();
-                    if (!responseData.success) {
-                        console.error(`⚠️ API Error for calendar ${calendar.cal_id}: ${responseData.message}`);
-                    } else {
-                        serverDateCycles = responseData.dateCycles || [];
-                        const dcIds = serverDateCycles.map(dc => dc.datecycle_id).filter(Boolean);
-                        const dupDcIds = dcIds.filter((id, i, arr) => arr.indexOf(id) !== i);
-                        if (dupDcIds.length) {
-                            console.warn(`⚠️ Duplicate dateCycles in calendar ${calendar.cal_id}:`, dupDcIds);
-                        }
-                        console.log(`📊 ${serverDateCycles.length} dateCycles in calendar ${calendar.cal_id}`);
-                    }
-                } catch (error) {
-                    console.error("⚠️ Fetch error when retrieving dateCycles:", error);
+                    localDateCycles = JSON.parse(localStorage.getItem(localKey)) || [];
+                } catch (e) {
+                    console.warn(`⚠️ Failed to load local dateCycles for ${localKey}`, e);
                 }
 
-                totalDateCyclesUpdated += serverDateCycles.length;
+                const unsyncedDateCycles = localDateCycles.filter(dc => dc.synced !== 1 && dc.synced !== "1");
 
-                serverDateCycles = serverDateCycles.map(dc => ({
-                    ...dc,
-                    date_emoji: dc.date_emoji || "😀",
-                    pinned: dc.pinned !== undefined ? dc.pinned : false,
-                }));
+                console.log(`🧭 Found ${unsyncedDateCycles.length} unsynced dateCycles in localStorage for calendar ${calendar.cal_id}`);
 
-                await updateServerDatecycles(calendar.cal_id, serverDateCycles);
+                await updateServerDatecycles(calendar.cal_id, unsyncedDateCycles);
+
+                // Refresh local copy from server after syncing
+                let serverDateCycles = [];
+                try {
+                    const response = await fetch('https://buwana.ecobricks.org/earthcal/get_calendar_data.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendar.cal_id }),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        serverDateCycles = data.dateCycles || [];
+                        console.log(`📊 Fetched ${serverDateCycles.length} dateCycles from server for cal_id ${calendar.cal_id}`);
+                    } else {
+                        console.warn(`⚠️ Server returned error for calendar ${calendar.cal_id}:`, data.message);
+                    }
+                } catch (err) {
+                    console.warn(`⚠️ Failed to fetch server dateCycles for calendar ${calendar.cal_id}:`, err);
+                }
+
                 await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
+                totalDateCyclesUpdated += serverDateCycles.length;
 
             } catch (error) {
                 console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);
@@ -1951,6 +1947,7 @@ async function syncDatecycles() {
         return "⚠️ Sync failed!";
     }
 }
+
 
 
 
