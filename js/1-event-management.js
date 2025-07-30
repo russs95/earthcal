@@ -1564,7 +1564,6 @@ async function prefillAddDateCycle(data) {
 //**************************
 // ADD DATECYCLE
 //***************************
-
 async function addDatecycle() {
     console.log("addDatecycle called");
 
@@ -1575,17 +1574,26 @@ async function addDatecycle() {
 
     if (!dayField || !monthField || !addDateTitle) {
         alert("Please fill out all the fields to add a new dateCycle to the calendar.");
-        return; // Exit the function if validation fails
+        return;
     }
 
-    // Get selected calendar details
+    // Get calendar details
     const selCalendarElement = document.getElementById('select-calendar');
     const selCalendarId = document.getElementById('set-calendar-id').value;
     const selCalendarColor = document.getElementById('set-calendar-color').value;
     const selCalendarName = selCalendarElement.options[selCalendarElement.selectedIndex]?.text;
 
-    if (!selCalendarName || selCalendarName === "Select calendar...") {
-        alert("Please select a valid calendar.");
+    if (!selCalendarId || selCalendarId === "Select calendar...") {
+        alert("⚠️ Please select a valid calendar.");
+        return;
+    }
+
+    // Get buwana_id from session or fallback input field
+    const profile = JSON.parse(sessionStorage.getItem("buwana_user") || "{}");
+    const buwanaId = profile.buwana_id || document.getElementById('buwana-id')?.value || null;
+
+    if (!buwanaId) {
+        alert("⚠️ You must be logged in to add a dateCycle.");
         return;
     }
 
@@ -1595,42 +1603,28 @@ async function addDatecycle() {
         ? document.getElementById('year-field2').value || ""
         : new Date().getFullYear();
 
-    // Construct the JavaScript `Date` object properly
-    const targetDate = new Date(yearField, monthField - 1, dayField); // Month is 0-based in JS
+    // Construct JS Date object
+    const targetDate = new Date(yearField, monthField - 1, dayField);
 
-    // Retrieve new fields
+    // Extract UI fields
     const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
     const pinned = document.getElementById('pinOrNot').value === "1";
-
-    // Note and color picker fields
     const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "1" : "0";
     const addDateNote = document.getElementById('add-date-note').value;
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    // Generate timestamps
+    // Timestamps
     const nowISO = new Date().toISOString().split('.')[0] + "Z";
     const createdAt = nowISO;
     const lastEdited = nowISO;
 
-    // Retrieve existing dateCycles from localStorage
-    const calendarStorageKey = `calendar_${selCalendarId}`;
-    let existingCalendar = [];
-    try {
-        existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey)) || [];
-    } catch (error) {
-        console.error(`Error parsing calendar data for key: ${calendarStorageKey}`, error);
-        alert("An error occurred while accessing calendar data.");
-        return;
-    }
-
-    // Generate a unique key
+    // Unique key
     const newID = Math.random().toString(36).substring(2, 16);
     const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${newID}`;
 
-    // ✅ Construct the new dateCycle JSON with all fields
     const dateCycle = {
         ID: newID,
-        buwana_id: document.getElementById('buwana-id').value,
+        buwana_id: buwanaId,
         cal_id: selCalendarId,
         cal_name: selCalendarName,
         cal_color: selCalendarColor,
@@ -1653,28 +1647,31 @@ async function addDatecycle() {
         completed: "0",
         public: "0",
         delete_it: "0",
-        synced: "0", // Mark as not yet synced
-        conflict: "0",
+        synced: "0",
+        conflict: "0"
     };
 
-    // Store the new dateCycle in localStorage
+    // Save to localStorage
+    const calendarStorageKey = `calendar_${selCalendarId}`;
+    let existingCalendar = [];
     try {
-        existingCalendar.push(dateCycle);
-        localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+        existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey)) || [];
     } catch (error) {
-        console.error(`Error saving calendar data for key: ${calendarStorageKey}`, error);
-        alert("An error occurred while saving the dateCycle.");
+        console.error(`Error parsing calendar data for key: ${calendarStorageKey}`, error);
+        alert("An error occurred while accessing calendar data.");
         return;
     }
 
-    console.log(`📥 Stored new dateCycle in localStorage:`, JSON.stringify(dateCycle, null, 2));
+    existingCalendar.push(dateCycle);
+    localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
+    console.log(`📥 Stored new dateCycle in localStorage:`, dateCycle);
 
-    // 🛑 **Ensure sync completes before proceeding**
+    // Sync and update UI
     console.log("🔄 Syncing dateCycles before highlighting...");
     await syncDatecycles();
     console.log("✅ Sync complete!");
 
-    // Clear form fields
+    // Clear form
     document.getElementById('select-calendar').value = 'Select calendar...';
     document.getElementById('dateCycle-type').value = 'One-time';
     document.getElementById('add-date-title').value = '';
@@ -1686,12 +1683,8 @@ async function addDatecycle() {
     closeAddCycle();
     closeDateCycleExports();
 
-    // ✅ **Highlight only after all sync operations are done**
-    console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
     await highlightDateCycles(targetDate);
 }
-
-
 
 
 
