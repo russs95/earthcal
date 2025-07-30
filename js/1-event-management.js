@@ -1259,7 +1259,6 @@ async function deleteDateCycle(uniqueKey) {
             }
         }
     }
-
     setTimeout(() => {
         highlightDateCycles(new Date()); // You may want to use the actual targetDate
     }, 500);
