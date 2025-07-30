@@ -1185,64 +1185,52 @@ function push2today(uniqueKey) {
 
 
 
-
 async function deleteDateCycle(uniqueKey) {
     console.log(`deleteDateCycle called for unique_key: ${uniqueKey}`);
 
-    // Step 1: Retrieve all calendar keys from localStorage.
     const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
     if (calendarKeys.length === 0) {
         console.log("No calendar data found in storage.");
         return;
     }
 
-    // Confirm with the user.
     const userResponse = confirm('Are you sure you want to delete this event?');
-    if (!userResponse) return; // Exit if the user cancels.
+    if (!userResponse) return;
 
     let found = false;
     let dateCycle = null;
     let calendarKey = null;
 
-    // Step 2: Find the dateCycle in localStorage using unique_key.
     for (const key of calendarKeys) {
         const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
         const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
 
         if (dateCycleIndex !== -1) {
             dateCycle = calendarData[dateCycleIndex];
-            // Mark for deletion: if online, set delete_it to "1"; if offline, mark it as "pending".
             dateCycle.delete_it = navigator.onLine ? "1" : "pending";
             calendarKey = key;
 
             if (!navigator.onLine) {
                 dateCycle.synced = "0";
-            }
-
-
-            // If online, remove the record immediately; if offline, leave it marked for deletion.
-            if (navigator.onLine) {
-                calendarData.splice(dateCycleIndex, 1);
-            } else {
                 calendarData[dateCycleIndex] = dateCycle;
+            } else {
+                calendarData.splice(dateCycleIndex, 1);
             }
 
             localStorage.setItem(key, JSON.stringify(calendarData));
             console.log(`Updated dateCycle with unique_key: ${uniqueKey} in calendar: ${key}`);
             found = true;
-            break; // Exit loop once found.
+            break;
         }
     }
 
-    // Step 3: Handle case where the dateCycle was not found.
     if (!found) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
         return;
     }
 
-    // Step 4: If online, attempt to delete the record from the server.
     if (navigator.onLine && dateCycle) {
-        const buwanaId = localStorage.getItem('buwana_id');
+        const buwanaId = localStorage.getItem('buwana_id') || dateCycle.buwana_id;
         if (!buwanaId) {
             console.log('User is not logged in. Cannot delete server data.');
         } else {
@@ -1252,7 +1240,7 @@ async function deleteDateCycle(uniqueKey) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         buwana_id: buwanaId,
-                        unique_key: uniqueKey // Use unique_key instead of the old ID.
+                        unique_key: uniqueKey
                     })
                 });
 
@@ -1272,13 +1260,10 @@ async function deleteDateCycle(uniqueKey) {
         }
     }
 
-    // Step 5: Refresh the UI.
     setTimeout(() => {
-        // After animation completes (0.4s), refresh the UI.
-        highlightDateCycles(targetDate);
+        highlightDateCycles(new Date()); // You may want to use the actual targetDate
     }, 500);
 
-    // (Optional) Log the final state of localStorage for debugging.
     console.log(`Final state of localStorage after deletion:`);
     Object.keys(localStorage).forEach(key => {
         if (key.startsWith('calendar_')) {
@@ -1286,6 +1271,7 @@ async function deleteDateCycle(uniqueKey) {
         }
     });
 }
+
 
 
 
