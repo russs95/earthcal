@@ -730,9 +730,30 @@ async function pushCompletionUpdate(dateCycle, buwanaId) {
         buwana_id: buwanaId,
         unique_key: String(dateCycle.unique_key),
         cal_id: Number(dateCycle.cal_id),
-        completed: Number(dateCycle.completed),
-        last_edited: new Date().toISOString(),
-        synced: 1
+        cal_name: dateCycle.cal_name || "Unknown Calendar",
+        cal_color: dateCycle.cal_color || "red",
+        title: dateCycle.title || "Untitled",
+        date: dateCycle.date,
+        time: dateCycle.time || "00:00",
+        time_zone: dateCycle.time_zone || "UTC-0",
+        day: Number(dateCycle.day),
+        month: Number(dateCycle.month),
+        year: dateCycle.year !== undefined ? Number(dateCycle.year) : null,
+        frequency: dateCycle.frequency || "One-time",
+        created_at: dateCycle.created_at || new Date().toISOString().slice(0, 19).replace("T", " "),
+        last_edited: new Date().toISOString().slice(0, 19).replace("T", " "),
+        synced: 1,
+        datecycle_color: dateCycle.datecycle_color || "green",
+        date_emoji: dateCycle.date_emoji || "📆",
+        pinned: Number(dateCycle.pinned || 0),
+        comment: Number(dateCycle.comment || 0),
+        comments: dateCycle.comments || "",
+        completed: Number(dateCycle.completed || 0),
+        public: Number(dateCycle.public || 1),
+        delete_it: Number(dateCycle.delete_it || 0),
+        conflict: Number(dateCycle.conflict || 0),
+        raw_json: dateCycle.raw_json || "",
+        cal_emoji: dateCycle.cal_emoji || "📅"
     };
 
     const resp = await fetch('https://buwana.ecobricks.org/earthcal/upsert_datecycle.php', {
@@ -747,6 +768,7 @@ async function pushCompletionUpdate(dateCycle, buwanaId) {
     }
     return data;
 }
+
 
 
 function checkOffDatecycle(uniqueKey) {
@@ -1918,138 +1940,9 @@ async function syncDatecycles() {
 
 
 
-async function updateServerDatecycles(cal_id, serverDateCycles) {
-    const profileString = localStorage.getItem("user_profile");
 
-    if (!profileString) {
-        console.error("❌ No stored user_profile found. Cannot sync dateCycles.");
-        return;
-    }
 
-    let userProfile;
-    try {
-        userProfile = JSON.parse(profileString);
-    } catch (err) {
-        console.error("❌ Failed to parse user_profile:", err);
-        return;
-    }
 
-    const buwanaId = userProfile.buwana_id;
-    if (!buwanaId) {
-        console.error("❌ buwana_id missing in user_profile. Cannot sync dateCycles.");
-        return;
-    }
-
-    // ✅ Ensure localCalendar is always an array
-    let localCalendarRaw = localStorage.getItem(`calendar_${cal_id}`);
-    let localCalendar = [];
-
-    try {
-        const parsed = JSON.parse(localCalendarRaw || "[]");
-        if (Array.isArray(parsed)) {
-            localCalendar = parsed;
-        } else {
-            console.warn(`⚠️ calendar_${cal_id} in localStorage is not an array. Skipping sync.`);
-            return;
-        }
-    } catch (e) {
-        console.error(`❌ Error parsing localCalendar for calendar_${cal_id}:`, e);
-        return;
-    }
-
-    let localDateCycleMap = {};
-    localCalendar.forEach(dc => {
-        if (dc?.unique_key) {
-            localDateCycleMap[dc.unique_key] = dc;
-        }
-    });
-
-    const unsyncedDateCycles = localCalendar.filter(dc => String(dc.synced).trim() !== "1");
-    if (unsyncedDateCycles.length === 0) {
-        console.log(`✅ No unsynced dateCycles for calendar ${cal_id}`);
-        return;
-    }
-
-    console.log(`📤 Uploading ${unsyncedDateCycles.length} unsynced dateCycles for cal_id: ${cal_id}`);
-
-    for (let unsyncedEvent of unsyncedDateCycles) {
-        if (!unsyncedEvent.unique_key) {
-            console.warn(`⚠️ Skipping event without unique_key:`, unsyncedEvent);
-            continue;
-        }
-
-        // Handle deletions
-        if (["1", "pending"].includes(String(unsyncedEvent.delete_it))) {
-            try {
-                const deletePayload = {
-                    buwana_id: buwanaId,
-                    unique_key: unsyncedEvent.unique_key
-                };
-
-                const delResponse = await fetch('https://buwana.ecobricks.org/earthcal/delete_datecycle.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(deletePayload)
-                });
-
-                const delData = await delResponse.json();
-                if (!delData.success) throw new Error(delData.message || "Delete failed");
-
-                console.log(`✅ Deleted dateCycle: ${unsyncedEvent.title}`);
-                delete localDateCycleMap[unsyncedEvent.unique_key];
-                continue;
-            } catch (error) {
-                console.error("⚠️ Error deleting dateCycle:", error);
-                continue;
-            }
-        }
-
-        // Check duplication
-        const existsOnServer = serverDateCycles.some(dc =>
-            String(dc.unique_key) === String(unsyncedEvent.unique_key) &&
-            String(dc.cal_id) === String(unsyncedEvent.cal_id)
-        );
-
-        if (existsOnServer) {
-            console.log(`🚫 Skipping existing event: ${unsyncedEvent.title}`);
-            continue;
-        }
-
-        try {
-            const payload = {
-                ...unsyncedEvent,
-                buwana_id: buwanaId,
-                cal_id,
-                pinned: unsyncedEvent.pinned ?? 0,
-                date_emoji: unsyncedEvent.date_emoji || "📆",
-                synced: 1
-            };
-
-            const syncResponse = await fetch('https://buwana.ecobricks.org/earthcal/add_datecycle.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            const syncData = await syncResponse.json();
-            if (!syncData.success) throw new Error(syncData.message);
-
-            localDateCycleMap[unsyncedEvent.unique_key] = {
-                ...unsyncedEvent,
-                id: syncData.id,
-                synced: 1
-            };
-
-            console.log(`✅ Synced: ${unsyncedEvent.title} (ID: ${syncData.id})`);
-        } catch (err) {
-            console.error(`⚠️ Failed to sync event ${unsyncedEvent.title}:`, err);
-        }
-    }
-
-    // ✅ Update local storage after sync
-    const finalArray = Object.values(localDateCycleMap);
-    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(finalArray));
-}
 
 
 
