@@ -1940,7 +1940,50 @@ async function syncDatecycles() {
 
 
 
+// 🚀 Push dateCycles to server via upsert
+async function updateServerDatecycles(cal_id, dateCycles) {
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    const buwanaId = ok ? payload.buwana_id : null;
 
+    if (!buwanaId) {
+        console.warn("❌ No buwana_id found. Cannot push dateCycles to server.");
+        return;
+    }
+
+    let updated = 0;
+    for (const dc of dateCycles) {
+        // Only push those not yet synced
+        if (dc.synced === 1 || dc.synced === "1") continue;
+
+        const dateCycleToSend = {
+            ...dc,
+            buwana_id: buwanaId,
+            cal_id: cal_id,
+            last_edited: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        };
+
+        try {
+            const response = await fetch("https://buwana.ecobricks.org/earthcal/upsert_datecycle.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dateCycleToSend)
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || !result.success) {
+                console.warn(`⚠️ Server rejected dateCycle ${dc.title || dc.unique_key}:`, result.message);
+                continue;
+            }
+
+            dc.synced = 1; // Mark as synced
+            updated++;
+        } catch (err) {
+            console.error("⚠️ Failed to push dateCycle to server:", err);
+        }
+    }
+
+    console.log(`☁️ ${updated} dateCycles pushed to server for calendar ${cal_id}`);
+}
 
 
 
