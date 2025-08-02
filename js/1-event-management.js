@@ -1584,8 +1584,7 @@ async function prefillAddDateCycle(data) {
 // ADD DATECYCLE
 //***************************
 
-
-""async function addDatecycle() {
+    async function addDatecycle() {
     console.log("📝 addDatecycle called");
 
     // Step 1: Validate form fields
