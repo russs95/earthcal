@@ -101,10 +101,10 @@
     <!--This loads the main calendar javascript -->
 
     <script src="js/core-javascripts.js?v=2"></script> <!--functional scripts-->
-    <script src="js/breakouts.js"></script> <!--breakout control scripts-->
+    <script src="js/breakouts-2.js"></script> <!--breakout control scripts-->
     <script src="js/set-targetdate.js"></script> <!--functional scripts-->
     <script src="js/1-lunar-scripts.js"></script><!-- concerning the moon-->
-    <script src="js/planet-orbits.js"></script><!--planets-->
+    <script src="js/planet-orbits-2.js"></script><!--planets-->
     <script src="js/login-scripts.js"></script><!--planets-->
     <script src="js/time-setting.js"></script><!--setting user time, timezone, clock-->
 
@@ -440,6 +440,7 @@
             const response = await fetch('cals/earthcal-v1.0.svg');
             const svgText = await response.text();
             document.getElementById('the-cal').innerHTML = svgText;
+            document.dispatchEvent(new Event('svgLoaded'));
         }
 
         // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -1511,7 +1512,7 @@
 
 
 <script src="js/1-event-management.js?v=2"></script>
-<script src="js/calendar-scripts.js"></script>
+<script src="js/calendar-scripts-2.js"></script>
 <script src="js/kin-cycles.js"></script>
 
 
