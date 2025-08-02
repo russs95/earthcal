@@ -436,13 +436,19 @@
         //Initiate
         gsap.registerPlugin(MotionPathPlugin);
 
-        // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        async function loadCalendarSvg() {
+            const response = await fetch('cals/earthcal-v1.0.svg');
+            const svgText = await response.text();
+            document.getElementById('the-cal').innerHTML = svgText;
+        }
 
+        // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 
 
         /*ROLL CALL*/
         window.onload = async function () {
+            await loadCalendarSvg();
 
 
 
