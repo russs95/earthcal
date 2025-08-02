@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<HTML lang="en">
+<HEAD>
+    <title>Earthcal</title>
+
+    <!--
+    EARTHCYCLES CALENDAR PROJECT
+    Code and Calendar by Russell Maier
+    Copyright 2020-2023
+    https://calendar.earthen.io
+    https://github/russs95/earthcycles
+
+    Z-INDEX:
+
+    EarthCycles: 0;
+    main-menu-overlay: 56;
+    #registration-footer: 50
+    target-date-info: 40
+
+    time-controller: 20;
+    planet-info-box: 20;
+    animal-info-box: 10
+    user-timezone-lang: 20;
+    add-event-button: 20;
+    date-controls: 20;
+    top right menu button-list: 20;
+    bottom right icon-button-columns: 10;
+    bottom right horiz kin-buttons: 15;
+    bottom right horiz planet-buttons: 20;
+    bottom-info: 9  needed?
+    #form-modal-message: 15
+
+    -->
+
+    <!--  Set any page specific graphics to preload-->
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-dark.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-over.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-active.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-active-hover.svg">
+
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-light.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-light-over.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-light-active.svg">
+    <link rel="preload" as="image" href="svgs/up-reg-arrow-light-active-hover.svg">
+
+
+    <link rel="canonical" href="https://cycles.earthen.io">
+    <link rel="alternate" href="https://cycles.earthen.io" hreflang="en" >
+    <link rel="alternate" href="http://cycles.earthen.io" hreflang="x-default" >
+
+    <meta name="keywords" content="calendar, circular, solar system, planet, planet positions, earth, mars, venus, mercury, jupiter, uranus, saturn">
+
+    <meta name="description" content="Sync your calendar with the cycles the moon, the planets and the earth.">
+
+    <meta name="author" content="Earthen.io">
+
+    <!-- Facebook Open Graph Tags for social sharing-->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" >
+    <meta property="og:url"           content="https://cycles.earthen.io/">
+    <meta property="og:type"          content="app">
+    <meta property="og:title"         content="EarthCal | The Earthen Cycles Calendar">
+    <meta property="og:description"   content="Sync with Earth's cycles." >
+    <meta property="og:image"         content="images/cal-banner.png" >
+    <meta property="og:image:width" content="1200" >
+    <meta property="og:image:height" content="753" >
+    <meta property="og:image:alt"     content="An interactive series of circles representing the cycles of Earth, the solar system and the moon.">
+    <meta property="og:locale" content="en_GB">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes">
+
+    <meta name="apple-mobile-web-app-title" content="EarthCycles Calendar">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="manifest" href="icons/site.manifest">
+
+    <script>
+        // Register the service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('js/service-worker.js?v=3.0').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope:', registration.scope);
+                }, function(error) {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+            });
+        }
+    </script>
+    <script src="js/gsap.min.js"></script>
+    <script src="js/MotionPathPlugin.min.js"></script>
+    <script src="js/suncalc.min.js"></script>
+    <script src="js/astronomy.browser.js"></script><!-- Functional orbital calculations-->
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.0.25/dist/hijri-js.common.min.js"></script>-->
+
+    <script src="js/hijri-js.common.min.js"></script>
+    <!--This loads the main calendar javascript -->
+
+    <script src="js/core-javascripts.js?v=2"></script> <!--functional scripts-->
+    <script src="js/breakouts.js"></script> <!--breakout control scripts-->
+    <script src="js/set-targetdate.js"></script> <!--functional scripts-->
+    <script src="js/1-lunar-scripts.js"></script><!-- concerning the moon-->
+    <script src="js/planet-orbits.js"></script><!--planets-->
+    <script src="js/login-scripts.js"></script><!--planets-->
+    <script src="js/time-setting.js"></script><!--setting user time, timezone, clock-->
+
+    <!--Default Light Styles to load first-->
+    <link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
+
+    <!--Stylesheets for light and dark mode.  They need to be called here-->
+    <link rel="stylesheet" href="css/light.css?v6" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
+    <link rel="stylesheet" href="css/dark.css?v6" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="css/slider.css?v=1.2">
+
+
+    <!--This enables the Light and Dark mode switching-->
+    <script type="module" src="js/dark-mode-toggle.mjs.js" async></script>
+
+
+    <!-- Main Calendar Stylesheet-->
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=4.0">
+    <link rel="stylesheet" href="css/login-styles.css?v=1">
+
+
+
+
+    <!-- Inline styles current being experimented with-->
+    <style>
+
+        /* 🔹 Default Full-Sized Mode */
+        #page-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 🔹 Floating Mode (When Minimized) */
+        @media screen and (max-width: 250px) {
+            #page-content {
+                width: 200px;
+                height: 200px;
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+
+                border-radius: 10px;
+                transition: all 0.3s ease-in-out;
+                -webkit-app-region: drag; /* Enable dragging */
+            }
+
+            /* ✅ Apply Drag Cursor to the Entire Body */
+            body {
+                cursor: grab !important;
+            }
+
+            /* Hide UI elements when minimized */
+            #header,
+            #top-menu,
+            #top-left-buttons,
+            #time-controller,
+            #bottom-left-buttons,
+            #registration-footer {
+                display: none !important;
+            }
+
+            /* ✅ Fully Disable All Interactivity in Mini Mode */
+            #page-content *,
+            #page-content {
+                pointer-events: none !important;
+                user-select: none !important;
+                touch-action: none !important;
+            }
+
+            /* ✅ Disable Hover Effects */
+            #page-content:hover,
+            #page-content *:hover {
+                transform: none !important;
+                opacity: 1 !important;
+                filter: none !important;
+            }
+
+            /* Floating Panel Hint */
+            #floating-hint {
+                position: absolute;
+                bottom: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 5px;
+                text-align: center;
+                transition: opacity 0.3s ease-in-out;
+            }
+        }
+
+        /* ✅ Restore UI When Back to Full Screen */
+        @media screen and (min-width: 251px) {
+            #page-content {
+                -webkit-app-region: none; /* Disable drag */
+            }
+
+            /* ✅ Restore Default Cursor */
+            body {
+                cursor: default !important;
+            }
+
+            #header {
+                display:flex;
+            }
+
+            /* Restore all UI elements */
+
+            #top-menu,
+            #top-search,
+            #time-controller,
+            #bottom-left-buttons,
+            #registration-footer {
+                display: block;
+            }
+
+            /* ✅ Restore Full Interactivity */
+            #page-content *,
+            #page-content {
+                pointer-events: auto;
+                user-select: auto;
+                touch-action: auto;
+            }
+
+            #floating-hint {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+
+
+
+        html, body {
+            overflow: hidden;
+        }
+
+
+        /* CSS animation for expanding the export-import div */
+        @keyframes expand {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                height: auto;
+                opacity: 1;
+            }
+        }
+
+        /*
+        #lunar-1-month,#lunar-2-month,#lunar-3-month,#lunar-4-month,#lunar-5-month,#lunar-6-month,#lunar-7-month,#lunar-8-month,#lunar-9-month,#lunar-10-month,#lunar-11-month,#lunar-12-month,#lunar-13-month {
+          fill: var(--months-lunar);
+          opacity: 0;
+        }   */
+
+
+        #lunar-1-month,#lunar-2-month-6,#lunar-3-month-5,#lunar-4-month-6,#lunar-5-month-2,#lunar-6-month-9,#lunar-7-month-1,#lunar-8-month-2,#lunar-9-month-7,#lunar-10-month-0,#lunar-11-month-9,#lunar-12-month-3,#lunar-13-month-0:hover {
+            opacity: 1;
+        }
+
+
+        path[id*="week-"] {
+            fill: var(--weeks-circle);
+        }
+
+        #world-background-circle {
+            fill: var(--general-background);
+        }
+
+        #north-america {
+            fill: var(--weeks-circle);
+        }
+
+        #europe-africa-background {
+            fill: var(--general-background);
+        }
+
+        #map-europe-africa {
+            fill: var(--weeks-circle);
+        }
+
+
+        #earth-map {
+            display: none;
+        }
+
+        #earth-orbit {
+            stroke: rgb(33, 33, 226);
+        }
+
+        /* path[id*="day-marker"] {
+          opacity: 0.2;
+        }    */
+
+
+        @font-face {
+            font-family: "Mulish";
+            src: url("fonts/Mulish-Light.ttf");
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Arvo";
+            src: url("fonts/Arvo-Regular.ttf");
+            font-display: swap;
+        }
+
+
+        /* #reg-sub-checker {*/
+        /*  font-size: small;*/
+        /*  padding: 7px;*/
+        /*  border-radius: 5px;*/
+        /*  margin-top: 8px;*/
+        /*  color: var(--text-color);*/
+        /*  display: none;*/
+        /*}*/
+
+
+
+
+
+
+        #solar-system-center {
+            transition: opacity 0.4s ease-out;
+        }
+
+        #all-daymarkers  {
+            transition: opacity 0.2s ease-out;
+        }
+
+        #days-of-year-lines  {
+            transition: opacity 1.3s ease-out;
+        }
+
+
+        #days-of-year-lines {
+            opacity: 0;
+        }
+
+        #all-daymarkers  {
+            opacity: 0;
+        }
+
+        #ray_lines  {
+            opacity: 0;
+        }
+
+
+
+        .previous-button {
+            width:30px;
+            height:30px;
+            text-align:center;
+            cursor:pointer;
+            margin-right: 10px;}
+
+        .next-button {
+            width:30px;
+            height:30px;
+            text-align:center;
+            cursor:pointer;
+            margin-left:10px;}
+
+        #reset-to-today {
+            width:35px;
+            height:30px;
+            text-align:center;
+            cursor:pointer;
+            margin-right: 7px;
+            margin-left: 7px;
+        }
+
+
+        .planet-info-box {
+            display:none;
+            text-align:left;
+            z-index: 37;
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+        }
+
+
+        .close-planet-info-button {
+            display: none;
+        }
+
+        .animal-info-box {
+            display:none;
+            width: 300px;
+            height:fit-content;
+            font-size: 0.8em;
+            text-align:left;
+            z-index: 20;
+            position: fixed;
+            bottom: 85px;
+            left: 25px;
+            pointer-events: none;
+        }
+
+
+        .modal-hidden {
+            display:none;}
+
+        .modal-visible {
+            display: block;
+        }
+
+        #user-details {
+            cursor:pointer !important;
+        }
+
+        #user-details:hover {
+            text-decoration: underline;
+        }
+
+
+
+
+    </style>
+
+    <script>
+
+        //Initiate
+        gsap.registerPlugin(MotionPathPlugin);
+
+        // let user_timezone = localStorage.getItem("user_timezone") || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
+
+
+        /*ROLL CALL*/
+        window.onload = async function () {
+
+
+
+            const solarCenterDiv = document.getElementById('solar-system-center');
+            const dayLinesDiv = document.getElementById('days-of-year-lines');
+            const allDaymarkers = document.getElementById('all-daymarkers');
+            const whiteBack = document.getElementById('white-back-for-day');
+            const rayLine = document.getElementById('ray_lines');
+            // ANIMATED DISPLAY of the Calendar Interface
+            setTimeout(() => {
+                dayLinesDiv.style.opacity = '1';
+                whiteBack.style.opacity = '1';
+                rayLine.style.opacity = '1';
+            }, 2000);
+            setTimeout(() => {
+                allDaymarkers.style.opacity = '1'; // Show allDaymarkers
+            }, 4000);
+
+            updateBackgroundColor();   //Updates colors for night and day themese
+            updateHighlightColor(); //Updates colors for night and day themese
+
+            // Check for shared event via URL parameters
+            const params = new URLSearchParams(window.location.search);
+
+
+// 🌀 Welcome new Earthling!
+            if (params.get('status') === 'firsttime') {
+                alert("Welcome!  Looks like this is your first time logging into Earthcal with your Buwana account.  See the user menu at the bottom left corner for your newfound calendar powers.");
+            }
+
+            if (params.get('action') === 'add-event') {
+                const sharedDate = params.get('date');
+                let year, month, day;
+
+                if (sharedDate) {
+                    [year, month, day] = sharedDate.split('-').map(Number);
+                    window.targetDate = new Date(year, month - 1, day);
+                }
+
+                const cycleData = {
+                    frequency: params.get('f'),
+                    title: decodeURIComponent(params.get('t') || ''),
+                    datecycle_color: params.get('c'),
+                    comments: decodeURIComponent(params.get('n') || ''),
+                    id: params.get('id'),
+                    from: decodeURIComponent(params.get('from') || 'An Earthcal user'),
+                    year,
+                    month,
+                    day
+                };
+
+                prefillAddDateCycle(cycleData);
+            } else {
+                setCurrentDate(); // Fallback if no shared event
+            }
+
+
+
+            const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
+
+            displayMoonPhaseInDiv(targetDate);
+            cyclesToggleSimplified();  // to show/hide animal cycles
+            initializeToggleListener();  //to show or hide datecycles?
+            updateDayIds(currentYear);  //Updates the day ids for the current year
+            updateDayTitles(currentYear);  //Updates the day titles for the current year
+            title2tooltip();   //Adds titles tooltips to the non-date paths
+            title2datetip();   //Adds titles to the date paths
+            // printTime(); OBSOLETE?
+            triggerPlanets();  //Enables the planet animations to be triggered.
+            listenForMonthBreakout();
+            listenForCloseBreakout();
+            attachBreakoutTouchListeners();
+
+
+
+            updateMoonPhase(targetDate);
+            // calculateHijriMonthNames(currentYear);
+
+            // UpdateVenusData(targetDate);
+            // UpdateMarsData(targetDate);
+            // UpdateJupiterData(targetDate);
+            // UpdateSaturnData(targetDate);
+
+            setTimeout(animatePlanetsIfReady, 1500);
+
+            setTimeout(function() {
+
+
+                startDate = targetDate;
+
+
+                // updateTargetWeekColor();
+                setYearsMonthsOn();
+
+                updateTargetMonth();
+
+                if (localStorage.getItem('buwana_id')) {
+                    // Clear out all local cached datecycles (keys starting with "calendar_")
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('calendar_')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+
+                    // Proceed with syncing and then highlighting.
+                    syncDatecycles()
+                        .then(() => {
+                            highlightDateCycles(targetDate);
+                        })
+                        .catch(err => {
+                            console.error("Sync error:", err);
+                        });
+                } else {
+                    highlightDateCycles(targetDate);
+                }
+
+
+
+                calculateHijriMonthNames(currentYear);
+
+                setLunarMonthForTarget(targetDate, currentYear);
+
+            }, 1500);
+
+            setTimeout(updateTargetDay, 2500);
+
+//   if (!('ontouchstart' in window)) {
+//   setTimeout(updateTargetDay, 3900); //Adds color to the target Day (current day on load)
+//   // If it's not a touch device, call the function
+// }
+            // openJanDays()
+            // UpdateWhaleCycle();
+            //  animateWhaleCycle();
+            // handleOrbitClicks();  //enables clicks on the orbits to open up planet info.  THis needs work!!
+            openPlanetInfoBox();
+
+
+            //  document.getElementById("current-time").style.display = "block";
+            //  document.getElementById("tomorrow").style.display = "block";
+            //       document.getElementById("yesterday").style.display = "block";
+            //Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
+//checkTourToken();
+
+// Check if the version  has already been seen
+// const tokenKey = 'newVersionInfoSeen';
+//     if (!localStorage.getItem(tokenKey)) {
+// setTimeout(showIntroModal, 5000);
+// };
+// //setTimeout(openCurrentMonthBreakout,4000);
+// setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
+// displayDayInfo(targetDate, userLanguage, userTimeZone);
+            await getUserData(); // This sets time_zone, targetDate, etc.
+            displayDayInfo(targetDate, userLanguage, userTimeZone);
+        };
+
+
+
+
+    </script>
+
+<BODY style="overflow: hidden !important;">
+
+
+
+<!--INFO MODAL-->
+
+<div id="form-modal-message" class="modal-hidden">
+    <button type="button" onclick="closeTheModal()" aria-label="Click to close modal" class="x-button"></button>
+    <div class="modal-content-box">
+        <div id="modal-content" class="modal-message"></div>
+    </div>
+</div>
+
+
+
+<!-- DATE SEARCH -->
+<div id="day-search" class="modal-hidden">
+    <button
+            type="button"
+            onclick="closeSearchModal()"
+            aria-label="Click to close modal"
+            class="x-button">
+    </button>
+
+    <div class="search-modal-content">
+        <div class="top-search-icon" ></div>
+        <h2 id="date-search-title" style="text-align: center;"></h2>
+
+        <input
+                type="number"
+                id="day-field"
+                placeholder=""
+                class="blur-form-field"
+                style="text-align: center;">
+
+        <select
+                id="month-field"
+                class="blur-form-field"
+                style="text-align: center;">
+        </select>
+
+        <div
+                class="year-buttons blur-form-field"
+                style="display: flex; flex-flow: row; justify-content: center;">
+            <div
+                    id="prev-year-search"
+                    class="next-button"
+                    aria-label=""
+                    title=""
+                    style="margin: auto auto auto 10px;">
+            </div>
+            <div class="searched-year">2025</div>
+            <div
+                    id="next-year-search"
+                    class="next-button"
+                    aria-label=""
+                    title=""
+                    style="margin: auto 10px auto auto;">
+            </div>
+        </div>
+
+        <button
+                id="search-button"
+                class="confirmation-blur-button"
+                onclick="closeSearchModal()">
+        </button>
+    </div>
+</div>
+
+<!-- LOGIN FOOTER CURTAIN -->
+
+<div id="registration-container">
+    <button id="reg-up-button"  onclick="sendUpRegistration()" aria-label="Login status" ></button>
+
+    <div id="registration-footer">
+        <div class="registration-footer-holder">
+            <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
+                <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
+            </button>
+            <!--<div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-45px;font-family:'Mulish',sans-serif;"></div>-->
+
+            <div class="form-container" id="login-form-section">
+                <div style="text-align:center;width:100%;" >
+                    <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
+                    <div id="status-message">Login to EarthCal</div>
+                    <div id="sub-status-message">Use a Buwana account to access the full power of Earthcal.</div>
+                </div>
+                <!-- LOGIN FORM starts here-->
+                <div id="login-buttons-container" style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                    <button id="auth-login-button" class="login-button">Login with Buwana</button>
+                    <button id="auth-signup-button" class="signup-button" onclick="window.location.href='https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58'">Sign Up to Earthcal</button>
+                    <p style="margin:auto;margin-bottom: -15px;font-size: smaller; text-align: center;" data-lang-id="1000-authentication-by" >Authentication by</p>
+                    <div class="buwana-word-mark" alt="Buwana Logo" title="Authentication by Buwana" onclick="navigateTo('index.php')" style="cursor:pointer;"></div>
+                </div>
+            </div>
+            <!--To be shown upon login-->
+
+
+            <!--To be shown upon login-->
+            <div id="logged-in-view" style="display:none; text-align:center;">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--PRIVACY STATEMENT
+<div style="font-size: medium; text-align: center; margin: auto; align-self: center;padding-top:40px;padding-bottom:50px;margin-top: 0px;height:100%;>
+  <p style="font-size:medium;color:var(--subdued-text);font-family:'Mulish',sans-seif" data-lang-id="000-no-account-yet">Don't have an account yet? <a href="https://gobrik.com/en/signup.php">Signup!</a></p>
+</div>
+<div id="reg-privacy-texts">
+  <div class="reg-header" data-lang-id="116-privacy-title">Your Data is Safe</div>
+  <div class="reg-privacy-subtitle" data-lang-id="117-privacy-subtitle">As a not-for-profit Earth enterprise on principle we do partake in any 3rd party advertising, nor connect your data to social platforms that do.  Your data will not be sold or exchanged.  We proudly use Ghost.org for our newsletter-- a not-for-profit open source platform which we host on our own servers.  Our newsletters are sent usually once a month, we commit to not exceeding more than one a week.</div>
+  <div style="display:flex; flex-flow:row;width:fit-content;margin:-10px 10% 0px auto;">
+    <div class="full-privacy-policy-link">
+    <a href="https://earthen.io/privacy/" target="_blank"data-lang-id="118-full-privacy-link">Our Full Privacy Policy</a></div>
+      <button class="btn" onclick="previewPrivacy()" style="height:fit-content; padding:10px 15px 10px 15px;border-radius:10px;" type="button" aria="Go back to registration">OK</button>
+  </div>
+</div>-->
+
+
+
+
+<div id="guided-tour" class="modal">
+    <div class="tour-content">
+        <span id="close-tour-button" class="close-tour" style="padding:10px" onclick="closeTour();">&times;</span>
+
+        <div id="information-one" class="information">
+            <div class="tour-image"><img src="cycles/cariboo-cycle-map.svg" style="margin:auto" title="A Quick Tour of the Calendar" alt="A Quick Tour of the Calendar"></div>
+            <div class="modal-header" id="tour-header-1"></div>
+            <div class="modal-description" id="tour-desc-1"></div>
+            <button class="next" id="next-1"></button>
+        </div>
+
+        <div id="information-two" style="display:none;" class="information">
+            <div class="tour-image"><img src="svgs/cycles-night-over.svg" style="margin:auto" title="One Year. One Orbit." alt="One Year. One Orbit."></div>
+            <div class="modal-header" id="tour-header-2"></div>
+            <div class="modal-description" id="tour-desc-2"></div>
+            <button class="back" id="back-2"></button>
+            <button class="next" id="next-2"></button>
+        </div>
+
+        <div id="information-three" style="display:none;" class="information">
+            <div class="tour-image"><img src="icons/saturn-cycle.svg" title="Our Neighbourhood" alt="Our Neighbourhood"></div>
+            <div class="modal-header" id="tour-header-3"></div>
+            <div class="modal-description" id="tour-desc-3"></div>
+            <button class="back" id="back-3"></button>
+            <button class="next" id="next-3"></button>
+        </div>
+
+        <div id="information-four" style="display:none;" class="information">
+            <div class="tour-image"><img src="svgs/just-moon.svg" title="Sync with the lunar cycles" alt="Sync with the lunar cycles"></div>
+            <div class="modal-header" id="tour-header-4"></div>
+            <div class="modal-description" id="tour-desc-4"></div>
+            <button class="back" id="back-4"></button>
+            <button class="next" id="next-4"></button>
+        </div>
+
+        <div id="information-five" style="display:none;" class="information">
+            <div class="tour-image"><img src="icons/whale.svg" title="Earth and animal cycles" alt="animal cycles"></div>
+            <div class="modal-description" id="tour-desc-5"></div>
+            <button class="back" id="back-5"></button>
+            <button class="next" id="next-5"></button>
+        </div>
+
+        <div id="information-six" style="display:none;" class="information">
+            <div class="tour-image"><img src="svgs/add-night-over.svg" title="add events" alt="Add events"></div>
+            <div class="modal-header" id="tour-header-6"></div>
+            <div class="modal-description" id="tour-desc-6"></div>
+            <button class="back" id="back-6"></button>
+            <button class="next" onclick="closeTour()" id="done"></button>
+        </div>
+    </div>
+</div>
+
+
+
+<!--Add-DateCycle Curtain, hidden-->
+
+<div id="add-datecycle" class="overlay-add-datecycle modal-hidden" style="padding-top:33px;">
+
+
+    <button type="button" style="cursor:pointer" onclick="closeAddCycle(),   closeDateCycleExports(), highlightDateCycles()" aria-label="Close settings page" class="x-button"></button>
+
+
+    <div class="add-datecycle-content">
+
+
+        <form id="dateCycleForm">
+
+            <!-- Hidden fields added -->
+            <input type="hidden" id="set-calendar-id" name="calendarId" value="">
+            <input type="hidden" id="set-calendar-color" name="calendarColor" value="">
+            <input type="hidden" id="buwana-id" name="buwanaId" value="">
+
+
+            <div class="add-date-form" style="margin:auto;">
+                <div id="add-datecycle-info">
+                    <!--<div class="top-add-icon"></div>-->
+                    <h3 style="width:85%;margin:20px auto;" id="add-event-title">Add an event for this date.</h3></div>
+
+                <!-- Updated Single-Line Event Name Field -->
+                <div id="name-event" style="margin: 0px auto 10px auto; width: 70%;">
+                    <input type="text" id="add-date-title" placeholder="Event name..." class="blur-form-field"
+                           style="width: 100%; border-radius: 10px; padding: 8px; cursor: text;height:45px;" title="Datecycle name">
+                </div>
+
+                <!-- Improved Layout for DateCycle Options -->
+                <div id="datecycle-options" style="display: flex; justify-content: center; width: 70%; margin: auto; gap: 5px;">
+                    <!-- Moved dateCycle-type to the first position -->
+                    <select id="dateCycle-type" class="blur-form-field"
+                            style="flex-grow: 1; font-size: 1em; text-align: center; height: 45px;" title="Frequency"
+                            onchange="showYearMonthDaySetter()">
+                    </select>
+
+                    <!-- Emoji Picker Button-->
+                    <div id="emojiPickerBtn" class="blur-form-field"
+                         onclick="showEmojiPicker(event)"
+                         style="width: 60px; background: var(--top-header);font-size: 18px; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; border: 2px solid var(--button-2-1); border-radius: 5px;" title="Event emoji">
+                        🗓️
+                    </div>
+
+
+                    <!-- Emoji Picker Modal -->
+                    <div id="emojiPickerModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+     background: var(--general-background); border-radius: 10px; padding: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); z-index: 1000;">
+                        <div id="emojiPickerGrid" style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 300px; max-height: 200px; overflow-y: auto;">
+                            <!-- Emojis will be populated dynamically -->
+                        </div>
+                        <div onclick="closeEmojiPicker()" style="margin-top: 10px; width: 100%;background:grey;color:var(--text-color);cursor:pointer;padding:5px;border-radius:5px;">Close</div>
+                    </div>
+
+
+
+
+                    <select id="DateColorPicker" name="color" class="blur-form-field"
+                            style="width: 60px; font-size: 1.5em;" title="Event color">
+                        <option value="green">🟢</option>
+                        <option value="yellow">🟡</option>
+                        <option value="orange">🟠</option>
+                        <option value="red">🔴</option>
+                        <option value="blue" selected>🔵</option>
+                    </select>
+
+                    <select id="pinOrNot" name="pinner" class="blur-form-field"
+                            style="width: 60px; font-size: 1.5em;" title="Pin event?">
+                        <option value="0" selected>-</option>
+                        <option value="1">📌</option>
+                    </select>
+                </div>
+
+
+
+
+                <div id="select-cal" style="margin-bottom: 30px;" >
+                    <select id="select-calendar" label="select-calendar" style="width: 70%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 45px;" onchange="handleAddNewCal()" class="blur-form-field" >
+                    </select>
+                </div>
+
+                <div id="addNewCalendar" style="display: none; background-color: var(--button-1-1-over);
+            border-radius: 10px;
+            padding: 20px;
+            width: fit-content;
+            margin: auto;
+            margin-bottom: 25px;">
+                    <form id="calendar-adding-form">
+                        <label for="calendarName">Name:</label>
+                        <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
+
+                        <label for="colorPicker">Choose a color:</label>
+                        <select id="colorPicker" name="color">
+                            <option value="red">🔴 Red</option>
+                            <option value="blue">🔵 Blue</option>
+                            <option value="green">🟢 Green</option>
+                            <option value="orange">🟠 Orange</option>
+                        </select><br>
+
+                        <input type="checkbox" id="publicCalendar" name="publicCalendar">
+                        <label for="publicCalendar">Public Calendar</label><br><br>
+
+                        <button type="button" id="add-new-cal" onclick="addNewCalendar()" class="confirmation-blur-button">+ Add Calendar</button>
+                    </form>
+                </div>
+                <div id="datecycle-setter"></div>
+                <div id="dateCycle-year-option"  >
+                    <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:45px;margin-top:10px" class="blur-form-field" >
+                        <option value="" disabled >Select year...</option>
+                        <option>2025</option>
+                        <option>2026</option>
+                        <option>2027</option>
+                        <option>2028</option>
+                    </select>
+                </div>
+
+                <div id="set-date" > <!-- style="display:none;" -->
+                    <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;margin-left: auto;" >
+                        <select name="day" id="day-field2" style="width: 22%; margin-right: 10px; font-size: 1em;height:45px; text-align: center;" class="blur-form-field" >
+                            <option value="" disabled selected>Select day...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+
+
+                        <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 45px;margin-right: auto;
+  margin-left: 0px;" class="blur-form-field"><!--onchange="showDateCycleTitleSetter()"-->
+                            <option value="" disabled selected>Select month...</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+
+                    </div>
+
+
+                    <div id="add-note-check-boxed">
+                        <input type="checkbox" id="add-note-checkbox">
+                        <label for="add-note-checkbox">Add a note to this event</label>
+                    </div>
+
+                </div>
+
+                <div id="add-note-form" style="margin-top:20px; margin-bottom: 30px;display:none; height:50px;width:70%;" >
+                    <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
+                </div>
+
+
+                <button type="button" id="confirm-dateCycle-button" class="sync-style" onclick="animateConfirmDateCycleButton();" style="width:70%;height:45px;margin-top: 18px;">
+                    + Add Event Please
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+        <!--<div id="export-hover-box" class="export-my-dates" style="width: 80%; padding: 20px; background: #00000030; border-radius: 10px; margin: auto; margin-top: 40px; margin-bottom: 0px;">
+
+          <div>
+            <p style="margin: 16px auto 10px auto;">Your personal calendars are stored in your browser cache and are 100% private.</p>
+            <div id="export-down-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="openDateCycleExports(), populateDropdown()"></div>
+          </div>
+
+          <div id="export-import" style="display: none;">
+            <h2 style="font-family: Mulish; margin: 0px;">Manage Calendars</h2>
+            <h6 style="margin: 16px auto 10px auto;">Export your Earthcal events and cycles here:</h6>
+            <button id="datecycles-download" onclick="downloadDateCycles()" aria-label="Download Events & Cycles">
+              ▼ Download
+            </button>
+
+            <h6 style="margin: 25px 0px 0px 5px;">Upload a DateCycles file to your calendar...</h6>
+
+            <div class="dateCycles-export" style="width: 380px; padding: 10px; margin: 10px auto 15px auto; background-color: var(--slider); border-radius: 10px; width: fit-content;">
+
+              <input type="file" id="jsonUpload" accept=".json" aria-label="Choose a JSON file">
+              <button id="booknotes-upload-go" onclick="uploadDateCycles()" aria-label="Upload Booknotes file">▲ Upload</button>
+            </div>
+
+            <div id="delete-calendar-form">
+              <label for="calendarToDelete">Select Calendar:</label>
+              <select id="calendarToDelete">
+                <option disabled selected>Select calendar...</option>
+              </select>
+              <button onclick="deleteSelectedCalendar()">Delete Calendar</button>
+            </div>
+            <br><br>
+            <hr>
+            <br>
+            <button onclick="clearAllDateCycles()">⚠️ Clear All EarthCal Data</button>
+            <p style="color:red;">Caution! All personal dates will be deleted.</p>
+
+
+          </div>
+          -->
+        <div id="export-up-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="closeDateCycleExports()"></div>
+
+    </div>
+
+</div>
+</div>
+
+
+<div id="page-content">
+
+    <div id="header" class="top-menu">  <!-- Why 140px?-->
+
+        <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
+            <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
+                <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
+                    <div id="current-date-info"></div>
+                    <div id="user-timezone-lang"></div>
+
+                </div>
+
+                <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;padding-top:8px;">
+                    <button type="button" class="top-add-button" onclick="openAddCycle()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
+                </div>
+            </div>
+
+            <div id="date-cycle-count-box" style="display: flex; flex-flow:row;">
+                <div id="current-datecycle-count" style="font-size: 0.88em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;padding: 0px 0px 5px 0px;margin-bottom: 15px;margin-right: 0px;text-align:right;max-width:210px;margin-left:auto;"></div>
+                <div id="eye-icon"></div>
+            </div>
+        </div>
+
+        <div id="date-controls">
+
+            <div id="time-controller" style="display: flex;flex-flow: row;width: 200px;height: 50px;">
+
+                <div id="next-year" class="next-button" aria-lable="Next Year" title="Go to next year"></div>
+
+
+                <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
+
+                <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
+
+                <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
+
+                <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
+
+
+            </div>
+
+
+        </div>
+
+        <!--PINNED-->
+        <div id="all-pinned-datecycles" style="height:calc(100vh - 265px); margin-top: 140px; position: relative; overflow: hidden;pointer-events: none;">
+            <!-- Top gradient overlay -->
+            <div id="top-gradient-pinned" class="top-gradient-overlay"></div>
+            <div id="pinned-datecycles" class="date-info" style="
+                    height: 100%;
+                    overflow-y: auto;
+                    direction: rtl; /* Force scrollbar to the left */
+                    text-align: left; /* Ensure content alignment remains left-to-right */
+
+                    padding: 0 12px;
+                    position: relative;
+                    z-index: 21;
+                    background:var(--transparent);
+                    ">
+            </div>
+            <!--<div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>-->
+        </div>
+        <!--CURRENT-->
+        <div id="all-current-datecycles" style="overflow-y: auto;height:calc(100vh - 0px);width:fit-content;margin-left:auto;margin-right:12px;margin-top:140px;  position: relative;background:none;">
+            <div id="top-gradient-current" class="top-gradient-overlay"></div>
+            <div id="current-datecycles" class="date-info" style="overflow-y: auto;position: relative;height:auto;
+                    z-index: 21;
+                    ">
+            </div>
+            <!--<div id="bottom-gradient-current" class="bottom-gradient-overlay"></div>-->
+        </div>
+    </div>
+
+
+
+    <div id="top-left-buttons" class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:15px;z-index:20;top:0;background: var(--general-background);
+  border-radius: 15px;">
+
+        <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
+
+        <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
+        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings"></button></div>
+
+        <!--<div><button type="button" class="top-clock-button" onclick="openClock(timezone)" aria-label="Clock view"></button></div>-->
+
+    </div>
+
+
+    <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">
+
+        <div id="neptune-cycle" class="planet-info-box">
+            <div id="neptune-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(200.6deg) saturate(140%) brightness(80%);">🌕</div>
+            <div id="neptune-phase-info" style="text-align: center;" class="planet-info"><span style="font-size:1.5em;"> Neptune ♆</span><br>Orbit: 164.81 years<br>
+                Max Dist.: 30.1 AU<br>
+                Min Dist: 29.8 AU</div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="uranus-cycle" class="planet-info-box">
+            <div id="uranus-phase" style="font-size:1.9em;padding:5px;filter:hue-rotate(145deg) saturate(140%);">🌕</div>
+            <div id="uranus-phase-info" style="text-align:center;" class="planet-info"><span style="font-size:1.5em;">Uranus ♅ </span><br>Orbit: 84.07 years<br>
+                Max Dist.: 20.1 AU<br>
+                Min Dist.: 29.8 AU</div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="saturn-cycle" class="planet-info-box">
+            <div id="saturn-phase" title="Saturn" style="filter:saturate(50%)"></div>
+            <div id="saturn-phase-info" class="planet-info"></div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="jupiter-cycle" class="planet-info-box">
+            <div id="jupiter-phase" title="Jupiter"  style="padding:0px;filter:hue-rotate(330deg) saturate(360%);"></div>
+            <div id="jupiter-phase-info" class="planet-info"></div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="mars-cycle" class="planet-info-box">
+            <div id="mars-phase" title="Mars Phase" style="padding:10px; filter:hue-rotate(310deg) saturate(900%) brightness(70%);"></div>
+            <div id="mars-phase-info" class="planet-info"></div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="earth-cycle" class="planet-info-box">
+            <div id="earth-phase"><img src="cycles/cariboo-cycle-map.svg" width="40" heigh="40"></div>
+            <div id="earth-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Earth ♁</span><br>
+                The third planet from the sun.<br>
+                Orbit: 1 year<br>
+                Distance from sun: 1 AU<br>
+            </div>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="venus-cycle" class="planet-info-box">
+            <div id="venus-phase" style="padding:10px;filter:hue-rotate(45deg) saturate(300%);"></div>
+            <div id="venus-phase-info" style="text-align: right;display: contents;" class="planet-info"></div><br>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="mercury-cycle" class="planet-info-box">
+            <div id="mercury-phase" style="padding:10px;filter:hue-rotate(295deg) saturate(70%) brightness(70%);">🌕</div>
+            <div id="mercury-phase-info" style="text-align: right;display: contents;" class="planet-info"><span style="font-size:1.5em;">Mercury ☿</span><br>
+                Orbit: 0.24 years<br>
+                max Dist.': 1.4 AU<br>
+                min Dist.': 0.61 AU</div><br>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+        <div id="moon-cycle" class="planet-info-box">
+            <div id="moon-phase" style="font-size:x-small;height:75px" class="phase-image" ></div>
+            <div id="moon-info" class="planet-info" style="text-align: right;display: contents;"></div><br>
+            <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
+        </div>
+
+    </div>
+
+
+    <!--MOON-->
+
+
+
+
+    <!--ANIMALS-->
+
+    <div id="whale-cycle" class="animal-info-box">
+        <div id="whale-phase" class="phase-image">
+            <img src="icons/whale.svg" width="60" height="40"></div>
+        <div id="whale-info" class="planet-info" style="text-align: left;">
+        </div>
+    </div>
+
+
+    <div id="stork-cycle" class="animal-info-box">
+        <div id="stork-phase" class="phase-image">
+            <img src="icons/stork.svg" width="60" height="40">
+        </div>
+        <div id="stork-info" class="planet-info" style="text-align: left;">
+
+        </div>
+    </div>
+
+
+    <div id="the-cal">
+
+        <!--The raw file-->
+
+    </div>
+
+    <!-- MAIN PAGE MENU -->d
+
+    <div id="main-menu-overlay" class="overlay-settings">
+
+        <button type="button" style="cursor:pointer" onclick="closeMainMenu(), updateBackgroundColor(),
+      updateHighlightColor()" aria-label="Close" class="x-button">
+        </button>
+
+        <div id="main-menu-content" class="overlay-content-settings">
+
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PALETTE MAIN BUTTONS -->
+    <div id="bottom-left-buttons" class="icon-button-columns" style="display: flex;width:fit-content;flex-direction: column;z-index:20; bottom:20px;right:20px;position:absolute; background: var(--general-background);
+  padding:
+15px 0px 10px 0px;
+  border-radius:
+6px;">
+
+        <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
+
+        <button id="whale-earthbutton" class="cycle-toggle" data-show="kin-buttons" data-hide="planet-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate ecological cycles" data-role="palette-root"></button>
+
+        <button id="moon-button" class="cycle-toggle" data-show="moon-cycle moon-phase themoonphases" data-hide="planet-buttons kin-buttons americas-map euro-map" data-function="calculateHijriMonthNames" title="Activate lunar tracking" data-role="palette-root"></button>
+
+    </div>
+
+    <!-- PALETTE KIN BUTTONS -->
+    <div id="kin-buttons" class="icon-button-row">
+
+        <button type="button" id="whale-button" class="totems-icon active cycle-toggle" data-show="americas-map whale-cycle whale-info whale-cycler" data-hide="stork-cycle stork-info storkCycler" data-function="UpdateWhaleCycle animateWhaleCycle" style="border-color:blue;" aria-label="Access whale cycle"><img src="icons/whale.svg" title="grey whale migration"></button>
+
+
+
+        <button type="button" id="stork-button" class="totems-icon cycle-toggle" data-show="euro-map stork-cycle stork-info storkCycler" data-hide="whale-cycle whale-info whaleCycler" data-function="updateStorkCycle"  aria-label="Access stork cycle" style="border-color:red;"><img src="icons/stork.svg" title="black stork migration"></button>
+
+        <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg" title="Cariboo migration"></button>
+
+
+        <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
+
+    </div>
+
+
+
+    <!-- PLANET BUTTONS -->
+    <div id="planet-buttons" class="icon-button-column">
+
+        <button type="button" id="saturn-button" class="planet-icon cycle-toggle" data-show="saturn-cycle" data-function="UpdateSaturnData" title="Saturn" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle"></button>
+
+        <button type="button" id="jupiter-button" class="planet-icon cycle-toggle" data-show="jupiter-cycle" data-function="UpdateJupiterData"   style="border-color:#f59d04;" aria-label="Access Jupiter's cycle" title="Jupiter"><img src="icons/jupiter-cycle.svg" ></button>
+
+        <button type="button" id="mars-button" class="planet-icon cycle-toggle" data-show="mars-cycle" data-function="UpdateMarsData"   aria-label="Access Mars's cycle" title="Mars" style="border-color:red;"><img src="icons/mars-cycle.svg"></button>
+
+        <button type="button" id="venus-button" class="planet-icon cycle-toggle" data-show="venus-cycle" data-function="UpdateVenusData"  aria-label="Access Venus's cycle" title="Venus" style="border-color:green;"><img src="icons/venus-cycle.svg"></button>
+
+        <button type="button" id="mercury-button" class="planet-icon cycle-toggle" data-show="mercury-cycle" data-function="UpdateMercuryData"  aria-label="Access Mercury cycle" title="☿ Mercury" style="border-color:rgb(144, 106, 4);"><img src="icons/mercury-cycle.svg"></button>
+
+    </div>
+
+
+
+
+
+</div>
+
+
+<!--close page content-->
+
+
+</BODY>
+
+
+
+<script>
+    async function showIntroModal() {
+        const tokenKey = 'newVersionInfoSeen';
+        const lang = (userLanguage || 'en').toLowerCase();
+
+        const translations = await loadTranslations(lang);
+        const content = translations.versioning;
+
+        const featureList = content.features.map(feature => `<li>${feature}</li>`).join('');
+        const modalContent = `
+        <div style="text-align:center;">
+            <h1>${content.title}</h1>
+            <h4>${content.subtitle}</h4>
+        </div>
+        <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
+            <ul style="font-size:1em;">${featureList}</ul>
+        </div>
+        <div style="display:flex;flex-flow:column;justify-content:center;">
+            <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
+            <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
+        </div>
+    `;
+
+        const modalBox = document.getElementById('modal-content');
+        modalBox.innerHTML = modalContent;
+
+        const modal = document.getElementById('form-modal-message');
+        modal.classList.remove('modal-hidden');
+        modal.classList.add('modal-visible');
+        document.getElementById("page-content").classList.add("blur");
+
+        document.getElementById('got-it-button').addEventListener('click', function () {
+            closeTheModal();
+            localStorage.setItem(tokenKey, 'true');
+        });
+
+        document.getElementById('take-tour').addEventListener('click', function () {
+            closeTheModal();
+            localStorage.setItem(tokenKey, 'true');
+            guidedTour();
+            sendDownRegistration();
+        });
+    }
+
+
+
+    function checkTourToken() {
+        // Check if the token exists in localStorage
+        const tourToken = localStorage.getItem('tourToken');
+
+        if (!tourToken) {
+            // Token doesn't exist, trigger the guided tour
+            guidedTour(); sendDownRegistration();
+        }
+    }
+
+    function tourTaken() {
+        // Save the token in localStorage to indicate that the tour has been seen
+        localStorage.setItem('tourToken', 'seen');
+
+    }
+
+</script>
+
+
+<script>
+
+
+
+
+
+
+
+    // JavaScript to handle touch events
+    // Get all SVG elements containing paths with id*="-day"
+    //const currentElements = svg.querySelectorAll("path[id*='-day'], g[id*='-day']");
+
+    const svgElements = document.querySelectorAll("svg");
+    const paths = [];
+
+    let selectedPath = null; // Track the currently selected path
+
+    svgElements.forEach((svg) => {
+        // Get the paths in the current SVG that have '-day' in their ID
+        const currentPaths = svg.querySelectorAll("path[id*='-day']");
+        paths.push(...currentPaths);
+
+        currentPaths.forEach((path) => {
+            // Add click and touch event listeners to each path
+            path.addEventListener("click", function () {
+                resetPaths(); // Reset all paths to their default state
+                this.classList.add("active", "final");
+                selectedPath = this; // Set this path as the selected path
+            });
+            path.addEventListener("touchstart", onTouch, false);
+            path.addEventListener("touchmove", onTouch, false);
+            path.addEventListener("touchend", onTouchEnd, false);
+        });
+    });
+
+
+    function onTouch(event) {
+        // Prevent default touch behavior
+        event.preventDefault();
+
+        // Get the touch object
+        const touch = event.changedTouches[0];
+
+        // Get the element at the touch position
+        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // Check if the touched element is a path with '-day' in its ID
+        if (targetElement.tagName === "path" && targetElement.matches("path[id*='-day']")) {
+            // Remove the 'active' class from all '-day' paths and set fill-opacity to 0.3
+            paths.forEach((path) => {
+                if (path.id.includes('-day')) {
+                    path.classList.remove("active");
+                    // path.style.fillOpacity = "0.3"; // Set fill-opacity to 0.3
+                }
+            });
+
+            // Add the 'active' class to the touched element
+            targetElement.style.transition = 'none'; // Disable transitions temporarily
+            targetElement.classList.remove("final");
+            targetElement.classList.add("active");
+
+            setTimeout(() => {
+                targetElement.style.transition = ''; // Enable transitions again
+            }, 0);
+
+            selectedPath = targetElement; // Update the selected path
+
+            // Call the handleDayPathTouchStart function with the ID of the selected path
+            handleDayPathTouchStart(selectedPath.id);
+            displayMoonPhaseOnTouch(selectedPath.id);
+        }
+    }
+
+
+
+    function onTouchEnd(event) {
+        // Prevent default touch behavior
+        event.preventDefault();
+
+        // Remove the 'active' class from all paths
+        // paths.forEach((path) => path.classList.remove("final"));
+        // resetPaths();
+
+        // Check if the selected path contains '-day' in its ID
+        if (selectedPath.id.includes("-day")) {
+
+
+            let pathIdArr = selectedPath.id.split('-'); // Corrected variable name from pathId to selectedPath.id
+            let month = pathIdArr[2] - 1;
+            let day = pathIdArr[1];
+            let year = pathIdArr[3];
+            targetDate = new Date(year, month, day);
+
+            calendarRefresh();
+
+
+            startDate = targetDate;
+            // document.getElementById("reset").style.display = "block";
+            /* document.getElementById("tomorrow").style.display = "none";
+             document.getElementById("yesterday").style.display = "none";*/
+            // document.getElementById("current-time").style.display = "none";
+
+            // displayMoonPhaseOnTouch(selectedPath.id);
+
+        }
+
+        // Add the 'final' class to the selected path (if it exists)
+        if (selectedPath && selectedPath.classList.contains("active")) {
+            selectedPath.classList.add("final");
+        }
+    }
+
+    // Helper function to reset all paths to their default state
+    function resetPaths() {
+        paths.forEach((path) => {
+            path.classList.remove("active");
+            path.classList.remove("final");
+        });
+    }
+
+
+
+
+
+
+
+</script>
+
+
+<script>
+    const container = document.getElementById('registration-container');
+    const children  = [
+        document.getElementById('reg-up-button'),
+        document.getElementById('registration-footer')
+    ];
+
+    children.forEach(el => {
+        el.addEventListener('mouseenter', () => container.classList.add('hover'));
+        el.addEventListener('mouseleave', () => container.classList.remove('hover'));
+    });
+</script>
+
+
+
+
+<script src="js/1-event-management.js?v=2"></script>
+<script src="js/calendar-scripts.js"></script>
+<script src="js/kin-cycles.js"></script>
+
+
+
+</html>
+
+
