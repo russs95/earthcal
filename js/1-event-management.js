@@ -1583,7 +1583,9 @@ async function prefillAddDateCycle(data) {
 //**************************
 // ADD DATECYCLE
 //***************************
-async function addDatecycle() {
+
+
+""async function addDatecycle() {
     console.log("📝 addDatecycle called");
 
     // Step 1: Validate form fields
@@ -1618,8 +1620,8 @@ async function addDatecycle() {
     const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
     const pinned = document.getElementById('pinOrNot').value === "1";
 
-    const addNoteCheckbox = document.getElementById('add-note-checkbox').checked ? "1" : "0";
     const addDateNote = document.getElementById('add-date-note').value.trim();
+    const comment = addDateNote.length > 0 ? "1" : "0";
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
     const nowISO = new Date().toISOString().split('.')[0] + "Z";
@@ -1652,7 +1654,7 @@ async function addDatecycle() {
         day: dayField,
         month: monthField,
         year: yearField,
-        comment: addNoteCheckbox,
+        comment: comment,
         comments: addDateNote,
         last_edited: lastEdited,
         created_at: createdAt,
@@ -1690,6 +1692,7 @@ async function addDatecycle() {
     console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
     await highlightDateCycles(targetDate);
 }
+
 
 
 
