@@ -253,20 +253,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-
 function useDefaultUser() {
-    userLanguage = navigator.language.slice(0, 2);
-    userTimeZone = "America/New_York";
-    userProfile = {
+    let userLanguage = navigator.language ? navigator.language.slice(0, 2) : 'en';
+
+    let userTimeZone;
+    try {
+        userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Jakarta";
+    } catch (e) {
+        userTimeZone = "Asia/Jakarta"; // fallback if browser doesn't support timeZone
+    }
+
+    const userProfile = {
         first_name: "Earthling",
         earthling_emoji: "🐸",
         email: null,
         buwana_id: null,
         status: "new"
     };
+
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 }
+
 
 
 
