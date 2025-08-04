@@ -7,11 +7,12 @@
     <!--
     EARTHCYCLES CALENDAR PROJECT
     Code and Calendar by Russell Maier
-    Copyright 2020-2023
+    Copyright 2020-2025
     https://calendar.earthen.io
-    https://github/russs95/earthcycles
+    https://github/russs95/earthcal
+    https://earthcal.app
 
-    Z-INDEX:
+    Z-INDEX FOR COMPONENTS:
 
     EarthCycles: 0;
     main-menu-overlay: 56;
@@ -33,34 +34,34 @@
 
     -->
 
-    <!--  Set any page specific graphics to preload-->
+    <!--  PRELOADING-->
+    <!-- Dark images -->
     <link rel="preload" as="image" href="svgs/up-reg-arrow-dark.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-over.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-active.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-dark-active-hover.svg">
-
+    <!-- Light images -->
     <link rel="preload" as="image" href="svgs/up-reg-arrow-light.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-light-over.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-light-active.svg">
     <link rel="preload" as="image" href="svgs/up-reg-arrow-light-active-hover.svg">
 
 
-    <link rel="canonical" href="https://cycles.earthen.io">
-    <link rel="alternate" href="https://cycles.earthen.io" hreflang="en" >
-    <link rel="alternate" href="http://cycles.earthen.io" hreflang="x-default" >
+    <link rel="canonical" href="https://earthcal.app/">
+    <link rel="alternate" href="https://earthcal.app/" hreflang="en" >
+    <link rel="alternate" href="https://earthcal.app/" hreflang="x-default" >
 
-    <meta name="keywords" content="calendar, circular, solar system, planet, planet positions, earth, mars, venus, mercury, jupiter, uranus, saturn">
-
-    <meta name="description" content="Sync your calendar with the cycles the moon, the planets and the earth.">
+    <meta name="keywords" content="circular calendar, to-do, cycles, earthen, grey whale, black stork, calendar, circular, solar system, planet, planet positions, earth, mars, venus, mercury, jupiter, uranus, saturn">
+    <meta name="description" content="Sync your moments with Earth's cycles.">
 
     <meta name="author" content="Earthen.io">
 
     <!-- Facebook Open Graph Tags for social sharing-->
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" >
-    <meta property="og:url"           content="https://cycles.earthen.io/">
+    <meta property="og:url"           content="https://earthcal.app/">
     <meta property="og:type"          content="app">
     <meta property="og:title"         content="EarthCal | The Earthen Cycles Calendar">
-    <meta property="og:description"   content="Sync with Earth's cycles." >
+    <meta property="og:description"   content="Sync your moments with Earth's cycles." >
     <meta property="og:image"         content="images/cal-banner.png" >
     <meta property="og:image:width" content="1200" >
     <meta property="og:image:height" content="753" >
@@ -90,16 +91,14 @@
             });
         }
     </script>
+
+    <!--CORE SCRIPTS-->
     <script src="js/gsap.min.js"></script>
     <script src="js/MotionPathPlugin.min.js"></script>
     <script src="js/suncalc.min.js"></script>
     <script src="js/astronomy.browser.js"></script><!-- Functional orbital calculations-->
-
     <!--<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.0.25/dist/hijri-js.common.min.js"></script>-->
-
     <script src="js/hijri-js.common.min.js"></script>
-    <!--This loads the main calendar javascript -->
-
     <script src="js/core-javascripts.js?v=2"></script> <!--functional scripts-->
     <script src="js/breakouts-2.js"></script> <!--breakout control scripts-->
     <script src="js/set-targetdate.js"></script> <!--functional scripts-->
@@ -110,16 +109,12 @@
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
-
-    <!--Stylesheets for light and dark mode.  They need to be called here-->
     <link rel="stylesheet" href="css/light.css?v6" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
     <link rel="stylesheet" href="css/dark.css?v6" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="css/slider.css?v=1.2">
 
-
     <!--This enables the Light and Dark mode switching-->
     <script type="module" src="js/dark-mode-toggle.mjs.js" async></script>
-
 
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=4.0">
