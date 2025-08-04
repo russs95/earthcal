@@ -111,17 +111,24 @@ class Planet {
   }
 }
 
-// Create instances of the Planet class
-document.addEventListener('svgLoaded', () => {
-  const mercury = new Planet('mercury', 'mercury-orbit', 88);
-  const venus = new Planet('venus', 'venus-orbit', 224.7);
-  const earth = new Planet('earth', 'earth-orbit', 365);
-  const mars = new Planet('mars', 'mars-orbit', 687);
-  const jupiter = new Planet('jupiter', 'jupiter-orbit', 4333);
-  const saturn = new Planet('saturn', 'saturn-orbit', 10759);
-  const uranus = new Planet('uranus', 'uranus-orbit', 30687);
-  const neptune = new Planet('neptune', 'neptune-orbit', 60190);
+// Declare planet variables in the global scope so other scripts (e.g. core-javascripts.js)
+// can access them after the SVG has been injected. Previously these were scoped to the
+// svgLoaded listener which meant calendarRefresh() would instead reference DOM elements
+// with matching IDs, causing `Element.animate` errors when invoked without arguments.
+let mercury, venus, earth, mars, jupiter, saturn, uranus, neptune;
 
+// Create instances of the Planet class once the calendar SVG is loaded
+document.addEventListener('svgLoaded', () => {
+  mercury = new Planet('mercury', 'mercury-orbit', 88);
+  venus   = new Planet('venus',   'venus-orbit',   224.7);
+  earth   = new Planet('earth',   'earth-orbit',   365);
+  mars    = new Planet('mars',    'mars-orbit',    687);
+  jupiter = new Planet('jupiter', 'jupiter-orbit', 4333);
+  saturn  = new Planet('saturn',  'saturn-orbit',  10759);
+  uranus  = new Planet('uranus',  'uranus-orbit',  30687);
+  neptune = new Planet('neptune', 'neptune-orbit', 60190);
+
+  // Kick off initial animations now that the elements exist
   mercury.animate();
   venus.animate();
   earth.animate();
