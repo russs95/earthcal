@@ -254,16 +254,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 function useDefaultUser() {
-    let userLanguage = navigator.language ? navigator.language.slice(0, 2) : 'en';
+    userLanguage = (navigator.language || 'en').slice(0, 2);
 
-    let userTimeZone;
     try {
         userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Jakarta";
     } catch (e) {
         userTimeZone = "Asia/Jakarta"; // fallback if browser doesn't support timeZone
     }
 
-    const userProfile = {
+    userProfile = {
         first_name: "Earthling",
         earthling_emoji: "🐸",
         email: null,
