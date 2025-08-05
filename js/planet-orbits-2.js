@@ -617,38 +617,42 @@ function adjustSaturnSize(per_dist) {
 document.addEventListener("DOMContentLoaded", () => {
 
 
-document.getElementById("mercury").addEventListener("click", () => {
-  console.log("Mercury clicked - No update function defined yet.");
-});
+document.addEventListener("svgLoaded", () => {
+  const planetHandlers = [
+    ["mercury", () => {
+      console.log("Mercury clicked - No update function defined yet.");
+    }],
+    ["venus", () => {
+      UpdateVenusData(targetDate);
+    }],
+    ["earth", () => {
+      console.log("Earth clicked - No update function defined yet.");
+    }],
+    ["mars", () => {
+      UpdateMarsData(targetDate);
+    }],
+    ["jupiter", () => {
+      UpdateJupiterData(targetDate);
+    }],
+    ["saturn", () => {
+      UpdateSaturnData(targetDate);
+    }],
+    ["uranus", () => {
+      console.log("Uranus clicked - No update function defined yet.");
+    }],
+    ["neptune", () => {
+      console.log("Neptune clicked - No update function defined yet.");
+    }]
+  ];
 
-document.getElementById("venus").addEventListener("click", () => {
-  UpdateVenusData(targetDate);
-});
-
-document.getElementById("earth").addEventListener("click", () => {
-  console.log("Earth clicked - No update function defined yet.");
-});
-
-document.getElementById("mars").addEventListener("click", () => {
-  UpdateMarsData(targetDate);
-});
-
-document.getElementById("jupiter").addEventListener("click", () => {
-  UpdateJupiterData(targetDate);
-});
-
-document.getElementById("saturn").addEventListener("click", () => {
-  UpdateSaturnData(targetDate);
-});
-
-document.getElementById("uranus").addEventListener("click", () => {
-  console.log("Uranus clicked - No update function defined yet.");
-});
-
-document.getElementById("neptune").addEventListener("click", () => {
-  console.log("Neptune clicked - No update function defined yet.");
-});
-
+  planetHandlers.forEach(([id, handler]) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("click", handler);
+    } else {
+      console.warn(`Element #${id} not found for click handler`);
+    }
+  });
 });
 
 
