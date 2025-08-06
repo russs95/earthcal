@@ -1,12 +1,13 @@
 {
   "name": "earthcal",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "Sync your moments with Earth's cycles",
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
     "package": "electron-packager . earthcal --platform=linux --arch=x64 --overwrite",
-    "snap": "electron-installer-snap --src earthcal-linux-x64/ --dest snap/"
+    "snap": "electron-installer-snap --src earthcal-linux-x64/ --dest snap/",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,8 @@
   "license": "MIT",
   "devDependencies": {
     "electron": "^26.6.10",
+    "electron-installer-snap": "^5.2.0",
     "electron-packager": "^17.1.2",
-    "electron-installer-snap": "^5.2.0"
-  },
-  "dependencies": {}
+    "jest": "^30.0.5"
+  }
 }
