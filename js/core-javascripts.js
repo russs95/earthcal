@@ -425,14 +425,21 @@ function getTheDayOfYear(targetDate) {
     updateTargetDay();
   // Phase 2: animations after 0.1sec
 
-    mercury.animate();
-    venus.animate();
-    earth.animate();
-    mars.animate();
-    jupiter.animate();
-    saturn.animate();
-    uranus.animate();
-    neptune.animate();
+    // Animate planets only when the Planet objects are available.
+    // Without this check, `mercury`, `venus`, etc. may resolve to DOM
+    // elements before `planet-orbits-2.js` initialises the Planet
+    // instances, causing Element.animate to be invoked without
+    // arguments.  Guarding the calls ensures we only trigger the
+    // custom animation logic once the objects exist.
+    if (typeof Planet !== "undefined") {
+      [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune].forEach(
+        (planet) => {
+          if (planet instanceof Planet) {
+            planet.animate();
+          }
+        }
+      );
+    }
 
     animateWhaleCycle(targetDate);
     UpdateWhaleCycle(targetDate);
