@@ -121,17 +121,19 @@
       // Register the service worker
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
-          navigator.serviceWorker.register("js/service-worker.js?v=3.0").then(
-            function (registration) {
-              console.log(
-                "ServiceWorker registration successful with scope:",
-                registration.scope,
-              );
-            },
-            function (error) {
-              console.log("ServiceWorker registration failed:", error);
-            },
-          );
+          navigator.serviceWorker
+            .register("js/service-worker.js?v=3.0")
+            .then(
+              function (registration) {
+                console.log(
+                  "ServiceWorker registration successful with scope:",
+                  registration.scope
+                );
+              },
+              function (error) {
+                console.log("ServiceWorker registration failed:", error);
+              }
+            );
         });
       }
     </script>
@@ -521,7 +523,7 @@
         // 🌀 Welcome new Earthling!
         if (params.get("status") === "firsttime") {
           alert(
-            "Welcome!  Looks like this is your first time logging into Earthcal with your Buwana account.  See the user menu at the bottom left corner for your newfound calendar powers.",
+            "Welcome!  Looks like this is your first time logging into Earthcal with your Buwana account.  See the user menu at the bottom left corner for your newfound calendar powers."
           );
         }
 
@@ -543,7 +545,7 @@
             from: decodeURIComponent(params.get("from") || "An Earthcal user"),
             year,
             month,
-            day,
+            day
           };
 
           prefillAddDateCycle(cycleData);
@@ -2111,7 +2113,7 @@
       // Get the element at the touch position
       const targetElement = document.elementFromPoint(
         touch.clientX,
-        touch.clientY,
+        touch.clientY
       );
 
       // Check if the touched element is a path with '-day' in its ID
@@ -2190,13 +2192,15 @@
     const container = document.getElementById("registration-container");
     const children = [
       document.getElementById("reg-up-button"),
-      document.getElementById("registration-footer"),
+      document.getElementById("registration-footer")
     ];
 
     children.forEach((el) => {
-      el.addEventListener("mouseenter", () => container.classList.add("hover"));
+      el.addEventListener("mouseenter", () =>
+        container.classList.add("hover")
+      );
       el.addEventListener("mouseleave", () =>
-        container.classList.remove("hover"),
+        container.classList.remove("hover")
       );
     });
   </script>
