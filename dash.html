@@ -562,7 +562,11 @@
         // UpdateJupiterData(targetDate);
         // UpdateSaturnData(targetDate);
 
-        setTimeout(animatePlanetsIfReady, 1500);
+        if (typeof animatePlanetsIfReady === "function") {
+          setTimeout(animatePlanetsIfReady, 1500);
+        } else {
+          console.warn("animatePlanetsIfReady is not defined");
+        }
 
         setTimeout(function () {
           startDate = targetDate;

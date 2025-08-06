@@ -1,6 +1,8 @@
 // References to the SVG elements (populated after SVG injection)
 let prevYear, nextYear, currentYearText, weekPaths;
 
+window.userLanguage = window.userLanguage || (navigator.language || 'en').slice(0, 2);
+window.userTimeZone = window.userTimeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
 // Helper function to calculate the date range for each week
 function getWeekDateRange(year, week) {
   const startDate = new Date(Date.UTC(year, 0, 1));
@@ -206,22 +208,34 @@ function displayPlanetInfoOnHover(event) {
   // }
 
   // Check if the venus-cycle div is set to display block
-  if (document.getElementById("venus-cycle").style.display === "block") {
+  if (
+    document.getElementById("venus-cycle").style.display === "block" &&
+    typeof UpdateVenusData === "function"
+  ) {
     UpdateVenusData(date);
   }
 
   // Check if the mars-cycle div is set to display block
-  if (document.getElementById("mars-cycle").style.display === "block") {
+  if (
+    document.getElementById("mars-cycle").style.display === "block" &&
+    typeof UpdateMarsData === "function"
+  ) {
     UpdateMarsData(date);
   }
 
   // Check if the jupiter-cycle div is set to display block
-  if (document.getElementById("jupiter-cycle").style.display === "block") {
+  if (
+    document.getElementById("jupiter-cycle").style.display === "block" &&
+    typeof UpdateJupiterData === "function"
+  ) {
     UpdateJupiterData(date);
   }
 
   // Check if the saturn-cycle div is set to display block
-  if (document.getElementById("saturn-cycle").style.display === "block") {
+  if (
+    document.getElementById("saturn-cycle").style.display === "block" &&
+    typeof UpdateSaturnData === "function"
+  ) {
     UpdateSaturnData(date);
   }
 }
@@ -247,22 +261,34 @@ function displayMoonPhaseOnTouch(pathID) {
   // }
 
   // Check if the venus-cycle div is set to display block
-  if (document.getElementById("venus-cycle").style.display === "block") {
+  if (
+    document.getElementById("venus-cycle").style.display === "block" &&
+    typeof UpdateVenusData === "function"
+  ) {
     UpdateVenusData(date);
   }
 
   // Check if the mars-cycle div is set to display block
-  if (document.getElementById("mars-cycle").style.display === "block") {
+  if (
+    document.getElementById("mars-cycle").style.display === "block" &&
+    typeof UpdateMarsData === "function"
+  ) {
     UpdateMarsData(date);
   }
 
   // Check if the jupiter-cycle div is set to display block
-  if (document.getElementById("jupiter-cycle").style.display === "block") {
+  if (
+    document.getElementById("jupiter-cycle").style.display === "block" &&
+    typeof UpdateJupiterData === "function"
+  ) {
     UpdateJupiterData(date);
   }
 
   // Check if the saturn-cycle div is set to display block
-  if (document.getElementById("saturn-cycle").style.display === "block") {
+  if (
+    document.getElementById("saturn-cycle").style.display === "block" &&
+    typeof UpdateSaturnData === "function"
+  ) {
     UpdateSaturnData(date);
   }
 }
@@ -273,7 +299,9 @@ function redisplayTargetData() {
   // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   displayMoonPhaseInDiv(targetDate);
   displayDayInfo(targetDate, userLanguage, userTimeZone);
-  UpdateVenusData(targetDate);
+  if (typeof UpdateVenusData === "function") {
+    UpdateVenusData(targetDate);
+  }
 }
 
 function handleTouchEnd() {

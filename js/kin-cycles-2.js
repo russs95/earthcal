@@ -336,10 +336,18 @@ function openPlanetInfoBox() {
   // Get all the SVG paths that have an ID ending with "-orbit"
   const orbitPaths = document.querySelectorAll('[id$="_system"]');
 
-    UpdateVenusData(targetDate);
-    UpdateMarsData(targetDate);
-    UpdateJupiterData(targetDate);
-    UpdateSaturnData(targetDate);
+    if (typeof UpdateVenusData === "function") {
+      UpdateVenusData(targetDate);
+    }
+    if (typeof UpdateMarsData === "function") {
+      UpdateMarsData(targetDate);
+    }
+    if (typeof UpdateJupiterData === "function") {
+      UpdateJupiterData(targetDate);
+    }
+    if (typeof UpdateSaturnData === "function") {
+      UpdateSaturnData(targetDate);
+    }
 
   // For each orbit path, add a click event listener
   orbitPaths.forEach(path => {
