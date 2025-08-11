@@ -13,6 +13,35 @@ let dayOfYear;
 let timezone;
 let language;
 
+// Ensure planet-orbits script is present before invoking planet data updates
+function ensurePlanetData(date) {
+  if (typeof UpdateVenusData === "function") {
+    UpdateVenusData(date);
+    if (typeof UpdateMarsData === "function") {
+      UpdateMarsData(date);
+    }
+    if (typeof UpdateJupiterData === "function") {
+      UpdateJupiterData(date);
+    }
+    if (typeof UpdateSaturnData === "function") {
+      UpdateSaturnData(date);
+    }
+    return;
+  }
+
+  let script = document.getElementById("planet-orbits-loader");
+  if (!script) {
+    script = document.createElement("script");
+    script.id = "planet-orbits-loader";
+    script.src = "js/planet-orbits-2.js";
+    script.defer = true;
+    script.onload = () => ensurePlanetData(date);
+    document.head.appendChild(script);
+  } else {
+    script.addEventListener("load", () => ensurePlanetData(date), { once: true });
+  }
+}
+
 
 
 
@@ -466,17 +495,14 @@ function getTheDayOfYear(targetDate) {
     currentYearText.textContent = targetDate.getFullYear().toString();
     const currentYear = parseInt(currentYearText.textContent);
 
-    setLunarMonthForTarget(targetDate, currentYear);
+   setLunarMonthForTarget(targetDate, currentYear);
 
    setTimeout(function() {
     displayMoonPhaseInDiv(targetDate);
 
     displayMoonPhaseInDiv(targetDate);
 
-    UpdateVenusData(targetDate);
-    UpdateMarsData(targetDate);
-    UpdateJupiterData(targetDate);
-    UpdateSaturnData(targetDate);
+    ensurePlanetData(targetDate);
 
     // redisplayTargetData();
     startDate = targetDate;
