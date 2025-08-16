@@ -562,9 +562,16 @@
         // UpdateJupiterData(targetDate);
         // UpdateSaturnData(targetDate);
 
-        planetsReady.then(() => {
+        // Refresh the calendar once planetary orbits are initialised. If the
+        // orbital script fails to load for any reason, fall back to an
+        // immediate refresh so the page still functions.
+        if (window.planetsReady) {
+          window.planetsReady.then(() => {
+            calendarRefresh();
+          });
+        } else {
           calendarRefresh();
-        });
+        }
 
         setTimeout(function () {
           startDate = targetDate;
