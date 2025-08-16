@@ -483,6 +483,8 @@
 
       /*ROLL CALL*/
       window.onload = async function () {
+        // Ensure dates exist before SVG load dispatches 'svgLoaded'
+        setCurrentDate();
         await loadCalendarSvg();
 
         const solarCenterDiv = document.getElementById("solar-system-center");
@@ -535,8 +537,6 @@
           };
 
           prefillAddDateCycle(cycleData);
-        } else {
-          setCurrentDate(); // Fallback if no shared event
         }
 
         const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
@@ -562,11 +562,9 @@
         // UpdateJupiterData(targetDate);
         // UpdateSaturnData(targetDate);
 
-        if (typeof animatePlanetsIfReady === "function") {
-          setTimeout(animatePlanetsIfReady, 1500);
-        } else {
-          console.warn("animatePlanetsIfReady is not defined");
-        }
+        planetsReady.then(() => {
+          calendarRefresh();
+        });
 
         setTimeout(function () {
           startDate = targetDate;

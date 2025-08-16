@@ -117,6 +117,12 @@ class Planet {
 // with matching IDs, causing `Element.animate` errors when invoked without arguments.
 let mercury, venus, earth, mars, jupiter, saturn, uranus, neptune;
 
+// Promise that resolves when planet instances are ready
+let planetsReadyResolve;
+const planetsReady = new Promise((resolve) => {
+  planetsReadyResolve = resolve;
+});
+
 // Create instances of the Planet class once the calendar SVG is loaded
 document.addEventListener('svgLoaded', () => {
   mercury = new Planet('mercury', 'mercury-orbit', 88);
@@ -128,15 +134,7 @@ document.addEventListener('svgLoaded', () => {
   uranus  = new Planet('uranus',  'uranus-orbit',  30687);
   neptune = new Planet('neptune', 'neptune-orbit', 60190);
 
-  // Kick off initial animations now that the elements exist
-  mercury.animate();
-  venus.animate();
-  earth.animate();
-  mars.animate();
-  jupiter.animate();
-  saturn.animate();
-  uranus.animate();
-  neptune.animate();
+  planetsReadyResolve();
 });
 
 
