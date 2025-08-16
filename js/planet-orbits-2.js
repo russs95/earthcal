@@ -122,6 +122,10 @@ let planetsReadyResolve;
 const planetsReady = new Promise((resolve) => {
   planetsReadyResolve = resolve;
 });
+// Expose the promise on the global object so other scripts can safely
+// reference it without causing a ReferenceError when this file hasn't been
+// loaded yet.
+window.planetsReady = planetsReady;
 
 // Create instances of the Planet class once the calendar SVG is loaded
 document.addEventListener('svgLoaded', () => {
