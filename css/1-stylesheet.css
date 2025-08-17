@@ -2580,10 +2580,10 @@ INFO MODAL
   }
 
     @media screen and (min-width: 700px) {
-
-  .blur-form-field {
-  width:300px;
-  }
+  
+  /*.blur-form-field {*/
+  /*width:300px;*/
+  /*}*/
 
   .confirmation-blur-button {
       width:360px;

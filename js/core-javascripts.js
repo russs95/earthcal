@@ -1,8 +1,7 @@
 
-
-
-
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
+
+/* Declare variables */
 
 let startCoords = { cx: 0, cy: 0 };
 let targetDate;
@@ -12,22 +11,6 @@ let currentDate;
 let dayOfYear;
 let timezone;
 let language;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* DAY SEARCH FUNCTIONS */
@@ -293,12 +276,6 @@ async function openMainMenu() {
 
 
 
-
-
-
-
-
-
 function focusMainMenuRestrict(event) {
     const modal = document.getElementById("main-menu-overlay");
     if (modalOpen && !modal.contains(event.target)) {
@@ -306,6 +283,7 @@ function focusMainMenuRestrict(event) {
         modal.focus();
     }
 }
+
 function closeMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
     modal.style.width = "0%";
@@ -326,18 +304,9 @@ function modalCloseCurtains(event) {
 document.addEventListener("keydown", modalCloseCurtains);
 
 
-
-
-
-
-
-
-
-       
 /* ---------------------------
 
 Animate the planets into position 
-
 
 -------------------------------*/
 
@@ -375,16 +344,10 @@ function getTheDayOfYear(targetDate) {
 }
 
 
-
-  
 ///
 
 
-
-
 // TRIGGERS PLANET ANIMATION ON DAY PATH CLICK
-
-
 
   function triggerPlanets() {
  // Set startDate to the current value of targetDate
@@ -459,7 +422,6 @@ function getTheDayOfYear(targetDate) {
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     // setLunarMonthForTarget(targetDate);
     
-  
 
     dayOfYear = getDayOfYear(targetDate);
     const currentYearText = document.getElementById('current-year').querySelector('tspan');

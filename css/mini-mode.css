@@ -1,0 +1,109 @@
+
+/* 🔹 Default Full-Sized Mode */
+#page-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+/* 🔹 Floating Mode (When Minimized) */
+@media screen and (max-width: 250px) {
+    #page-content {
+        width: 200px;
+        height: 200px;
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+
+        border-radius: 10px;
+        transition: all 0.3s ease-in-out;
+        -webkit-app-region: drag; /* Enable dragging */
+    }
+
+    /* ✅ Apply Drag Cursor to the Entire Body */
+    body {
+        cursor: grab !important;
+    }
+
+    /* Hide UI elements when minimized */
+    #header,
+    #top-menu,
+    #top-left-buttons,
+    #time-controller,
+    #bottom-left-buttons,
+    #registration-footer {
+        display: none !important;
+    }
+
+    /* ✅ Fully Disable All Interactivity in Mini Mode */
+    #page-content *,
+    #page-content {
+        pointer-events: none !important;
+        user-select: none !important;
+        touch-action: none !important;
+    }
+
+    /* ✅ Disable Hover Effects */
+    #page-content:hover,
+    #page-content *:hover {
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+
+    /* Floating Panel Hint */
+    #floating-hint {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 5px;
+        text-align: center;
+        transition: opacity 0.3s ease-in-out;
+    }
+}
+
+/* ✅ Restore UI When Back to Full Screen */
+@media screen and (min-width: 251px) {
+    #page-content {
+        -webkit-app-region: none; /* Disable drag */
+    }
+
+    /* ✅ Restore Default Cursor */
+    body {
+        cursor: default !important;
+    }
+
+    #header {
+        display:flex;
+    }
+
+    /* Restore all UI elements */
+
+    #top-menu,
+    #top-search,
+    #time-controller,
+    #bottom-left-buttons,
+    #registration-footer {
+        display: block;
+    }
+
+    /* ✅ Restore Full Interactivity */
+    #page-content *,
+    #page-content {
+        pointer-events: auto;
+        user-select: auto;
+        touch-action: auto;
+    }
+
+    #floating-hint {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
