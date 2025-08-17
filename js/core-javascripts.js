@@ -413,8 +413,6 @@ function getTheDayOfYear(targetDate) {
 
     // Phase 3: Actions after 1 sec
 
-
-
     highlightDateCycles(targetDate);
     //displayMatchingDateCycle();
 
