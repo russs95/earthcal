@@ -289,13 +289,6 @@ function adjustMoonSize(per_MoonDist) {
 
 
 
-// Initialize the event listeners and display the current Moon phase
-addMoonPhaseInteraction();
-displayCurrentMoonPhase();
-//displayMoonPhaseOnTouch();
-//handleTouchEnd();
-
-
 // This function displays the current moon phase NEEDED
 function displayCurrentMoonPhase() {
 const currentDate = targetDate;
@@ -306,6 +299,10 @@ const currentDate = targetDate;
 
 
 
+
+function displayMoonPhaseOnHover(event) {
+  handleDayPathMouseOver(event);
+}
 
 function addMoonPhaseInteraction() {
   const dayPaths = document.querySelectorAll('path[id$="-day"]');
@@ -372,6 +369,11 @@ function handleDayPathMouseOut(event) {
   function handleDayPathTouchEnd(event) {
     resetMoonPhase();
   }
+
+addMoonPhaseInteraction();
+displayCurrentMoonPhase();
+//displayMoonPhaseOnTouch();
+//handleTouchEnd();
 
 
 
