@@ -221,10 +221,15 @@ function formatDate(date) {
   }
 
   // Check if the saturn-cycle div is set to display block
-  if (document.getElementById('saturn-cycle').style.display === 'block') {
-    UpdateSaturnData(date);
+    if (document.getElementById('saturn-cycle').style.display === 'block') {
+      UpdateSaturnData(date);
+    }
   }
-}
+
+  // Backward-compatible alias for legacy code
+  function displayMoonPhaseOnHover(event) {
+    displayPlanetInfoOnHover(event);
+  }
 
 
 
