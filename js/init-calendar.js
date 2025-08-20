@@ -53,12 +53,12 @@ async function init() {
       'js/core-javascripts.js?v=2',
       'js/breakouts.js',
       'js/set-targetdate.js',
-      'js/1-lunar-scripts.js',
       'js/planet-orbits.js',
       'js/login-scripts.js',
       'js/time-setting.js',
       'js/1-event-management.js?v=2',
       'js/calendar-scripts.js',
+      'js/1-lunar-scripts.js',
       'js/kin-cycles.js',
       'js/dark-mode-toggle.mjs.js'
     ];
