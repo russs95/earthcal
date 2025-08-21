@@ -57,8 +57,8 @@ async function init() {
       'js/login-scripts.js',
       'js/time-setting.js',
       'js/1-event-management.js?v=2',
+      'js/1-lunar-scripts.js', // defines displayCurrentMoonPhase before calendar-scripts.js
       'js/calendar-scripts.js',
-      'js/1-lunar-scripts.js',
       'js/kin-cycles.js',
       'js/dark-mode-toggle.mjs.js'
     ];
