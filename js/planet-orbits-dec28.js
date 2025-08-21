@@ -15,21 +15,36 @@ class Planet {
   }
 
   // Define the animate method to move the planet along its orbit
-  animate() {
+  animate(startDate, targetDate) {
+    const start =
+      startDate instanceof Date && !isNaN(startDate.getTime())
+        ? startDate
+        : new Date();
+    const target =
+      targetDate instanceof Date && !isNaN(targetDate.getTime())
+        ? targetDate
+        : new Date();
+
     // Get the SVG elements for the planet and its orbit using their IDs
     let planetElement = document.getElementById(this.element_id);
     let planetOrbitElement = document.getElementById(this.orbit_id);
+
+    if (!planetElement || !planetOrbitElement) {
+      console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
+      return;
+    }
+
     // Set a reference date of January 1, 2023 - WHAT?  why isn't this 2024 now that the vector positions are updated?
 
     let yearStart = new Date(2023, 0, 1);
-     //console.log("Initiating:"+ yearStart + startDate);
+     //console.log("Initiating:"+ yearStart + start);
 
     let planetAnimation2;
 
     // Calculate the number of days since the reference date 'yearStart'
-    let daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
-    // Calculate the number of days from the 'startDate' to the 'targetDate'
-    let daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+    let daysSinceYearStart = Math.floor((start - yearStart) / (1000 * 60 * 60 * 24));
+    // Calculate the number of days from the 'start' to the 'target'
+    let daysSinceTargetDate = Math.floor((target - start) / (1000 * 60 * 60 * 24));
     // Sum the two durations to get the total days
     let totalDays = daysSinceYearStart + daysSinceTargetDate;
 

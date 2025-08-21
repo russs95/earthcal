@@ -5,21 +5,30 @@ class Planet {
     this.orbit_days = orbit_days; // Number of days the planet takes to orbit
   }
 
-  animate() {
+  animate(startDate, targetDate) {
+    const start =
+      startDate instanceof Date && !isNaN(startDate.getTime())
+        ? startDate
+        : new Date();
+    const target =
+      targetDate instanceof Date && !isNaN(targetDate.getTime())
+        ? targetDate
+        : new Date();
+
     const planetElement = document.getElementById(this.element_id);
     const planetOrbitElement = document.getElementById(this.orbit_id);
 
-  if (!planetElement || !planetOrbitElement) {
-    console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
-    return;
-  }
+    if (!planetElement || !planetOrbitElement) {
+      console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
+      return;
+    }
     // Reference date
     const yearStart = new Date(2023, 0, 1);
-    //console.log("Initiating:" + yearStart + startDate);
+    //console.log("Initiating:" + yearStart + start);
 
     // Calculate days and ratios
-    const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
-    const daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+    const daysSinceYearStart = Math.floor((start - yearStart) / (1000 * 60 * 60 * 24));
+    const daysSinceTargetDate = Math.floor((target - start) / (1000 * 60 * 60 * 24));
     const totalDays = daysSinceYearStart + daysSinceTargetDate;
 
     const orbitRatio1 = daysSinceYearStart / this.orbit_days;
@@ -121,6 +130,13 @@ const saturn = new Planet("saturn", "saturn-orbit", 10759);
 const uranus = new Planet("uranus", "uranus-orbit", 30687);
 const neptune = new Planet("neptune", "neptune-orbit", 60190);
 
+
+if (!(startDate instanceof Date) || isNaN(startDate.getTime())) {
+  startDate = new Date();
+}
+if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) {
+  targetDate = new Date();
+}
 
 mercury.animate(startDate, targetDate);
 venus.animate(startDate, targetDate);
