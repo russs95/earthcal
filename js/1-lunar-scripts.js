@@ -289,35 +289,23 @@ function adjustMoonSize(per_MoonDist) {
 
 
 
-// Displays the Moon phase for the globally selected target date.
-//
-// The function defers to other helpers if they are available so it can be
-// safely executed even if some dependencies have not yet been loaded. This is
-// useful because 1-lunar-scripts.js is loaded before calendar-scripts.js where
-// `displayMoonPhaseInDiv` is defined.
+// Initialize the event listeners and display the current Moon phase
+addMoonPhaseInteraction();
+displayCurrentMoonPhase();
+//displayMoonPhaseOnTouch();
+//handleTouchEnd();
+
+
+// This function displays the current moon phase NEEDED
 function displayCurrentMoonPhase() {
-  const currentDate = typeof targetDate !== "undefined" ? targetDate : new Date();
-
-  // Update the textual/emoji representation of the Moon phase if the helper
-  // exists.
-  if (typeof displayMoonPhaseInDiv === "function") {
-    displayMoonPhaseInDiv(currentDate);
-  }
-
-  // Update the SVG representation of the Moon phase if the helper exists.
-  if (typeof updateMoonPhase === "function") {
-    updateMoonPhase(currentDate);
-  }
+const currentDate = targetDate;
+// TODO: This function should call displayMoonPhaseInDiv() with the current date
 }
 
 
 
 
 
-
-function displayMoonPhaseOnHover(event) {
-  handleDayPathMouseOver(event);
-}
 
 function addMoonPhaseInteraction() {
   const dayPaths = document.querySelectorAll('path[id$="-day"]');
@@ -384,13 +372,6 @@ function handleDayPathMouseOut(event) {
   function handleDayPathTouchEnd(event) {
     resetMoonPhase();
   }
-
-// Initialization moved to calendar-scripts.js to ensure dependencies are
-// available when these functions are executed.
-//addMoonPhaseInteraction();
-//displayCurrentMoonPhase();
-//displayMoonPhaseOnTouch();
-//handleTouchEnd();
 
 
 
