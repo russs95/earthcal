@@ -49,7 +49,6 @@ async function init() {
       'js/MotionPathPlugin.min.js',
       'js/suncalc.min.js',
       'js/astronomy.browser.js',
-      'js/hijri-js.common.min.js',
       'js/core-javascripts.js?v=2',
       'js/breakouts.js',
       'js/set-targetdate.js',
