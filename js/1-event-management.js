@@ -1115,7 +1115,20 @@ function push2today(uniqueKey) {
     let found = false;
 
     for (const key of calendarKeys) {
-        let calendarData = JSON.parse(localStorage.getItem(key) || '[]');
+        let calendarData = [];
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            if (Array.isArray(parsed)) {
+                calendarData = parsed;
+            } else {
+                console.warn(`⚠️ Expected array for ${key}, got`, typeof parsed);
+                continue;
+            }
+        } catch (e) {
+            console.warn(`⚠️ Failed to parse calendar data for ${key}`, e);
+            continue;
+        }
+
         const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
 
         if (index !== -1) {
@@ -1889,7 +1902,12 @@ async function syncDatecycles() {
                 let localDateCycles = [];
 
                 try {
-                    localDateCycles = JSON.parse(localStorage.getItem(localKey)) || [];
+                    const parsed = JSON.parse(localStorage.getItem(localKey)) || [];
+                    if (Array.isArray(parsed)) {
+                        localDateCycles = parsed;
+                    } else {
+                        console.warn(`⚠️ Expected array for ${localKey}, got`, typeof parsed);
+                    }
                 } catch (e) {
                     console.warn(`⚠️ Failed to load local dateCycles for ${localKey}`, e);
                 }
