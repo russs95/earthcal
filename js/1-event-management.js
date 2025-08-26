@@ -539,6 +539,14 @@ function toggleDateCycleView() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const eyeIcon = document.getElementById("eye-icon");
+    if (eyeIcon) {
+        eyeIcon.addEventListener("click", toggleDateCycleView);
+    }
+});
+
+
 // Update the count box and optionally hide/show elements based on current content
 
 
