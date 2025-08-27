@@ -1161,8 +1161,12 @@ function push2today(uniqueKey) {
                 dateCycle.synced = "0";
             }
 
-            // Attempt to update the server immediately if online.
-            if (navigator.onLine && localStorage.getItem('buwana_id')) {
+            // Attempt to update the server immediately if online and logged in.
+            const buwanaId =
+                JSON.parse(sessionStorage.getItem('buwana_user') || '{}').buwana_id ||
+                localStorage.getItem('buwana_id');
+
+            if (navigator.onLine && buwanaId) {
                 updateServerDateCycle(dateCycle)
                     .then(() => {
                         console.log(`Server successfully updated for ${dateCycle.title}`);
