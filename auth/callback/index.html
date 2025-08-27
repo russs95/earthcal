@@ -42,7 +42,17 @@
     }, 400);
 
     (async function() {
-        const urlParams = new URLSearchParams(window.location.search);
+        // 🛠️ Some providers incorrectly append query parameters using '?' instead of '&'.
+        //    Normalize the query string so code and state can be parsed reliably.
+        let search = window.location.search;
+        if ((search.match(/\?/g) || []).length > 1) {
+            const parts = search.split('?');
+            search = '?' + parts.slice(1).join('&');
+            const newUrl = window.location.pathname + search + window.location.hash;
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        const urlParams = new URLSearchParams(search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
         const status = urlParams.get("status");
