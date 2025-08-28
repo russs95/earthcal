@@ -755,6 +755,7 @@ function initializeToggleListener() {
 async function updateServerDateCycle(dateCycle) {
     // Ensure comment text field isn't populated with numeric zeroes
     const commentsSanitized = sanitizeComment(dateCycle.comments);
+
     const sanitized = {
         ...dateCycle,
         comment: commentsSanitized ? 1 : 0,
@@ -784,6 +785,7 @@ async function updateServerDateCycle(dateCycle) {
 // Push a completion update via the unified upsert endpoint
 async function pushCompletionUpdate(dateCycle, buwanaId) {
     const commentsSanitized = sanitizeComment(dateCycle.comments);
+
 
     const payload = {
         buwana_id: buwanaId,
@@ -1837,6 +1839,7 @@ async function syncDatecycles() {
                     const sanitized = sanitizeComment(dc.comments);
                     if (sanitized !== dc.comments) {
                         dc.comments = sanitized;
+
                         dirty = true;
                     }
                 });
@@ -2022,6 +2025,7 @@ async function updateServerDatecycles(cal_id, dateCycles) {
 
         const commentsSanitized = sanitizeComment(dc.comments);
 
+
         const dateCycleToSend = {
             ...dc,
             buwana_id: buwanaId,
@@ -2092,6 +2096,7 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
         const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
 
         const commentsSanitized = sanitizeComment(serverDC.comments);
+
         const commentFlag = commentsSanitized ? 1 : 0;
 
         if (isNewer) {
