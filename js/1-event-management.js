@@ -1,5 +1,9 @@
 //  OPENING THE ADD DATECYCLE FORM
 
+function sanitizeComment(text) {
+    return text && text !== 0 && text !== '0' && text !== 'null' ? text : '';
+}
+
 async function openAddCycle() {
     console.log('openAddCycle called');
     document.body.style.overflowY = 'hidden';
@@ -658,7 +662,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     </div>
                 </div>
                 <div class="current-date-notes" style="height: fit-content; max-width:300px;">
-                    ${dateCycle.comments}
+                    ${sanitizeComment(dateCycle.comments)}
                 </div>
             </div>
 
@@ -750,10 +754,8 @@ function initializeToggleListener() {
 
 async function updateServerDateCycle(dateCycle) {
     // Ensure comment text field isn't populated with numeric zeroes
-    const commentsSanitized =
-        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
-            ? dateCycle.comments
-            : null;
+    const commentsSanitized = sanitizeComment(dateCycle.comments);
+
     const sanitized = {
         ...dateCycle,
         comment: commentsSanitized ? 1 : 0,
@@ -782,10 +784,8 @@ async function updateServerDateCycle(dateCycle) {
 
 // Push a completion update via the unified upsert endpoint
 async function pushCompletionUpdate(dateCycle, buwanaId) {
-    const commentsSanitized =
-        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
-            ? dateCycle.comments
-            : null;
+    const commentsSanitized = sanitizeComment(dateCycle.comments);
+
 
     const payload = {
         buwana_id: buwanaId,
@@ -827,6 +827,7 @@ async function pushCompletionUpdate(dateCycle, buwanaId) {
     if (!resp.ok || !data.success) {
         throw new Error(data.message || `Update failed: ${resp.status}`);
     }
+    dateCycle.comments = commentsSanitized;
     return data;
 }
 
@@ -1027,7 +1028,7 @@ function editDateCycle(uniqueKey) {
             </div>
 
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
-                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
+                <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${sanitizeComment(dateCycle.comments)}</textarea>
             </div>
             <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
                 🐿️ Save Changes
@@ -1057,7 +1058,8 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     const monthField = parseInt(document.getElementById('edit-month-field2').value);
     const title = document.getElementById('edit-add-date-title').value.trim();
     const eventColor = document.getElementById('edit-DateColorPicker').value;
-    const comments = document.getElementById('edit-add-date-note').value.trim();
+    const comments = sanitizeComment(document.getElementById('edit-add-date-note').value.trim());
+    const commentFlag = comments ? 1 : 0;
     const lastEdited = new Date().toISOString();
     const formattedDate = `${yearField}-${String(monthField).padStart(2, '0')}-${String(dayField).padStart(2, '0')}`;
 
@@ -1077,6 +1079,7 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
         date: formattedDate,
         title,
         datecycle_color: eventColor,
+        comment: commentFlag,
         comments,
         last_edited: lastEdited,
         synced: 0
@@ -1117,7 +1120,7 @@ function shareDateCycle(uniqueKey) {
     const day = document.getElementById('edit-day-field2').value;
     const title = encodeURIComponent(document.getElementById('edit-add-date-title').value.trim());
     const color = document.getElementById('edit-DateColorPicker').value;
-    const note = encodeURIComponent(document.getElementById('edit-add-date-note').value.trim());
+    const note = encodeURIComponent(sanitizeComment(document.getElementById('edit-add-date-note').value.trim()));
 
     const date = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
@@ -1603,9 +1606,10 @@ async function prefillAddDateCycle(data) {
     if (data.month) document.getElementById('month-field2').value = data.month;
     if (data.day) document.getElementById('day-field2').value = data.day;
     if (data.title) document.getElementById('add-date-title').value = data.title;
-    if (data.comments) {
+    const inviteNote = sanitizeComment(data.comments);
+    if (inviteNote) {
         document.getElementById('add-note-checkbox').checked = true;
-        document.getElementById('add-date-note').value = data.comments;
+        document.getElementById('add-date-note').value = inviteNote;
     }
     if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
 
@@ -1663,8 +1667,8 @@ async function prefillAddDateCycle(data) {
     const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
     const pinned = document.getElementById('pinOrNot').value === "1";
 
-    const addDateNote = document.getElementById('add-date-note').value.trim();
-    const comment = addDateNote.length > 0 ? "1" : "0";
+    const addDateNote = sanitizeComment(document.getElementById('add-date-note').value.trim());
+    const comment = addDateNote ? "1" : "0";
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
     const nowISO = new Date().toISOString().split('.')[0] + "Z";
@@ -1832,8 +1836,10 @@ async function syncDatecycles() {
                 const arr = JSON.parse(localStorage.getItem(k) || '[]');
                 let dirty = false;
                 arr.forEach(dc => {
-                    if (dc.comments === 0 || dc.comments === '0') {
-                        dc.comments = null;
+                    const sanitized = sanitizeComment(dc.comments);
+                    if (sanitized !== dc.comments) {
+                        dc.comments = sanitized;
+
                         dirty = true;
                     }
                 });
@@ -2017,10 +2023,8 @@ async function updateServerDatecycles(cal_id, dateCycles) {
         // Only push those not yet synced
         if (dc.synced === 1 || dc.synced === "1") continue;
 
-        const commentsSanitized =
-            dc.comment == 1 && dc.comments !== 0 && dc.comments !== "0"
-                ? dc.comments
-                : null;
+        const commentsSanitized = sanitizeComment(dc.comments);
+
 
         const dateCycleToSend = {
             ...dc,
@@ -2091,10 +2095,8 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
         const key = serverDC.unique_key;
         const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
 
-        const commentsSanitized =
-            serverDC.comment == 1 && serverDC.comments !== 0 && serverDC.comments !== "0"
-                ? serverDC.comments
-                : null;
+        const commentsSanitized = sanitizeComment(serverDC.comments);
+
         const commentFlag = commentsSanitized ? 1 : 0;
 
         if (isNewer) {
@@ -2153,33 +2155,36 @@ function fetchLocalCalendarByCalId(calId) {
         console.log(`Parsed data for cal_id ${calId}:`, parsedData);
 
         // Map over the parsed data to ensure each dateCycle has required fields, including unique_key.
-        return parsedData.map(dateCycle => ({
-            ID: dateCycle.ID || "missing",
-            buwana_id: dateCycle.buwana_id || "missing",
-            cal_id: dateCycle.cal_id || "missing",
-            title: dateCycle.title || "missing",
-            date: dateCycle.date || "missing",
-            time: dateCycle.time || "missing",
-            time_zone: dateCycle.time_zone || "missing",
-            day: dateCycle.day || "missing",
-            month: dateCycle.month || "missing",
-            year: dateCycle.year || "missing",
-            frequency: dateCycle.frequency || "missing",
-            completed: dateCycle.completed || "0",
-            pinned: dateCycle.pinned || "0",
-            public: dateCycle.public || "0",
-            comment: dateCycle.comment || "0",
-            comments: dateCycle.comments || "",
-            datecycle_color: dateCycle.datecycle_color || "missing",
-            cal_name: dateCycle.cal_name || "missing",
-            cal_color: dateCycle.cal_color || "missing",
-            synced: dateCycle.synced || "1",
-            conflict: dateCycle.conflict || "0",
-            delete_it: dateCycle.delete_it || "0",
-            last_edited: dateCycle.last_edited || new Date().toISOString(),
-            unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
-            // raw_json: JSON.stringify(dateCycle),
-        }));
+        return parsedData.map(dateCycle => {
+            const commentText = sanitizeComment(dateCycle.comments);
+            return {
+                ID: dateCycle.ID || "missing",
+                buwana_id: dateCycle.buwana_id || "missing",
+                cal_id: dateCycle.cal_id || "missing",
+                title: dateCycle.title || "missing",
+                date: dateCycle.date || "missing",
+                time: dateCycle.time || "missing",
+                time_zone: dateCycle.time_zone || "missing",
+                day: dateCycle.day || "missing",
+                month: dateCycle.month || "missing",
+                year: dateCycle.year || "missing",
+                frequency: dateCycle.frequency || "missing",
+                completed: dateCycle.completed || "0",
+                pinned: dateCycle.pinned || "0",
+                public: dateCycle.public || "0",
+                comment: commentText ? "1" : "0",
+                comments: commentText,
+                datecycle_color: dateCycle.datecycle_color || "missing",
+                cal_name: dateCycle.cal_name || "missing",
+                cal_color: dateCycle.cal_color || "missing",
+                synced: dateCycle.synced || "1",
+                conflict: dateCycle.conflict || "0",
+                delete_it: dateCycle.delete_it || "0",
+                last_edited: dateCycle.last_edited || new Date().toISOString(),
+                unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
+                // raw_json: JSON.stringify(dateCycle),
+            };
+        });
     } catch (error) {
         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
         return [];
