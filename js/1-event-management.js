@@ -749,11 +749,22 @@ function initializeToggleListener() {
 
 
 async function updateServerDateCycle(dateCycle) {
+    // Ensure comment text field isn't populated with numeric zeroes
+    const commentsSanitized =
+        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
+            ? dateCycle.comments
+            : null;
+    const sanitized = {
+        ...dateCycle,
+        comment: commentsSanitized ? 1 : 0,
+        comments: commentsSanitized
+    };
+
     // Send the updated dateCycle object to the upsert endpoint
     const response = await fetch('https://buwana.ecobricks.org/earthcal/upsert_datecycle.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dateCycle)
+        body: JSON.stringify(sanitized)
     });
 
     const data = await response.json();
@@ -762,12 +773,20 @@ async function updateServerDateCycle(dateCycle) {
         throw new Error(data.message || 'Failed to upsert dateCycle on server.');
     }
 
+    // Reflect sanitized field locally
+    dateCycle.comments = sanitized.comments;
+
     return data;
 }
 
 
 // Push a completion update via the unified upsert endpoint
 async function pushCompletionUpdate(dateCycle, buwanaId) {
+    const commentsSanitized =
+        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
+            ? dateCycle.comments
+            : null;
+
     const payload = {
         buwana_id: buwanaId,
         unique_key: String(dateCycle.unique_key),
@@ -788,8 +807,8 @@ async function pushCompletionUpdate(dateCycle, buwanaId) {
         datecycle_color: dateCycle.datecycle_color || "green",
         date_emoji: dateCycle.date_emoji || "📆",
         pinned: Number(dateCycle.pinned || 0),
-        comment: Number(dateCycle.comment || 0),
-        comments: dateCycle.comments || "",
+        comment: commentsSanitized ? 1 : 0,
+        comments: commentsSanitized,
         completed: Number(dateCycle.completed || 0),
         public: Number(dateCycle.public || 1),
         delete_it: Number(dateCycle.delete_it || 0),
@@ -1806,6 +1825,21 @@ async function syncDatecycles() {
 
         console.log(`🌿 Starting dateCycle sync for buwana_id ${buwanaId}...`);
 
+        // 🧹 Clean up any local dateCycles with numeric zero comments
+        Object.keys(localStorage)
+            .filter(k => k.startsWith('calendar_'))
+            .forEach(k => {
+                const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                let dirty = false;
+                arr.forEach(dc => {
+                    if (dc.comments === 0 || dc.comments === '0') {
+                        dc.comments = null;
+                        dirty = true;
+                    }
+                });
+                if (dirty) localStorage.setItem(k, JSON.stringify(arr));
+            });
+
         let serverCalendars = [];
         let hasInternetConnection = 1;
         let totalDateCyclesUpdated = 0;
@@ -1983,10 +2017,17 @@ async function updateServerDatecycles(cal_id, dateCycles) {
         // Only push those not yet synced
         if (dc.synced === 1 || dc.synced === "1") continue;
 
+        const commentsSanitized =
+            dc.comment == 1 && dc.comments !== 0 && dc.comments !== "0"
+                ? dc.comments
+                : null;
+
         const dateCycleToSend = {
             ...dc,
             buwana_id: buwanaId,
             cal_id: cal_id,
+            comment: commentsSanitized ? 1 : 0,
+            comments: commentsSanitized,
             last_edited: new Date().toISOString().slice(0, 19).replace('T', ' ')
         };
 
@@ -2004,6 +2045,7 @@ async function updateServerDatecycles(cal_id, dateCycles) {
             }
 
             dc.synced = 1; // Mark as synced
+            dc.comments = commentsSanitized; // keep local copy clean
             updated++;
         } catch (err) {
             console.error("⚠️ Failed to push dateCycle to server:", err);
@@ -2049,9 +2091,17 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
         const key = serverDC.unique_key;
         const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
 
+        const commentsSanitized =
+            serverDC.comment == 1 && serverDC.comments !== 0 && serverDC.comments !== "0"
+                ? serverDC.comments
+                : null;
+        const commentFlag = commentsSanitized ? 1 : 0;
+
         if (isNewer) {
             map[key] = {
                 ...serverDC,
+                comment: commentFlag,
+                comments: commentsSanitized,
                 synced: 1
             };
         }
