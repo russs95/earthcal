@@ -658,7 +658,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     </div>
                 </div>
                 <div class="current-date-notes" style="height: fit-content; max-width:300px;">
-                    ${dateCycle.comments}
+                    ${dateCycle.comments || ""}
                 </div>
             </div>
 
@@ -748,12 +748,17 @@ function initializeToggleListener() {
 
 
 
+function sanitizeComments(commentFlag, comments) {
+    if (commentFlag != 1) return "";
+    if (comments === undefined || comments === null) return "";
+    const text = String(comments).trim();
+    if (!text || text === "0" || text.toLowerCase() === "null") return "";
+    return text;
+}
+
 async function updateServerDateCycle(dateCycle) {
     // Ensure comment text field isn't populated with numeric zeroes
-    const commentsSanitized =
-        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
-            ? dateCycle.comments
-            : null;
+    const commentsSanitized = sanitizeComments(dateCycle.comment, dateCycle.comments);
     const sanitized = {
         ...dateCycle,
         comment: commentsSanitized ? 1 : 0,
@@ -775,6 +780,7 @@ async function updateServerDateCycle(dateCycle) {
 
     // Reflect sanitized field locally
     dateCycle.comments = sanitized.comments;
+    dateCycle.comment = sanitized.comment;
 
     return data;
 }
@@ -782,10 +788,7 @@ async function updateServerDateCycle(dateCycle) {
 
 // Push a completion update via the unified upsert endpoint
 async function pushCompletionUpdate(dateCycle, buwanaId) {
-    const commentsSanitized =
-        dateCycle.comment == 1 && dateCycle.comments !== 0 && dateCycle.comments !== "0"
-            ? dateCycle.comments
-            : null;
+    const commentsSanitized = sanitizeComments(dateCycle.comment, dateCycle.comments);
 
     const payload = {
         buwana_id: buwanaId,
@@ -1825,15 +1828,17 @@ async function syncDatecycles() {
 
         console.log(`🌿 Starting dateCycle sync for buwana_id ${buwanaId}...`);
 
-        // 🧹 Clean up any local dateCycles with numeric zero comments
+        // 🧹 Clean up any local dateCycles with placeholder comments
         Object.keys(localStorage)
             .filter(k => k.startsWith('calendar_'))
             .forEach(k => {
                 const arr = JSON.parse(localStorage.getItem(k) || '[]');
                 let dirty = false;
                 arr.forEach(dc => {
-                    if (dc.comments === 0 || dc.comments === '0') {
-                        dc.comments = null;
+                    const sanitized = sanitizeComments(dc.comment, dc.comments);
+                    if (sanitized !== dc.comments) {
+                        dc.comments = sanitized;
+                        dc.comment = sanitized ? 1 : 0;
                         dirty = true;
                     }
                 });
@@ -2017,10 +2022,7 @@ async function updateServerDatecycles(cal_id, dateCycles) {
         // Only push those not yet synced
         if (dc.synced === 1 || dc.synced === "1") continue;
 
-        const commentsSanitized =
-            dc.comment == 1 && dc.comments !== 0 && dc.comments !== "0"
-                ? dc.comments
-                : null;
+        const commentsSanitized = sanitizeComments(dc.comment, dc.comments);
 
         const dateCycleToSend = {
             ...dc,
@@ -2091,10 +2093,7 @@ async function updateLocalDatecycles(cal_id, serverDateCycles) {
         const key = serverDC.unique_key;
         const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
 
-        const commentsSanitized =
-            serverDC.comment == 1 && serverDC.comments !== 0 && serverDC.comments !== "0"
-                ? serverDC.comments
-                : null;
+        const commentsSanitized = sanitizeComments(serverDC.comment, serverDC.comments);
         const commentFlag = commentsSanitized ? 1 : 0;
 
         if (isNewer) {
@@ -2153,33 +2152,36 @@ function fetchLocalCalendarByCalId(calId) {
         console.log(`Parsed data for cal_id ${calId}:`, parsedData);
 
         // Map over the parsed data to ensure each dateCycle has required fields, including unique_key.
-        return parsedData.map(dateCycle => ({
-            ID: dateCycle.ID || "missing",
-            buwana_id: dateCycle.buwana_id || "missing",
-            cal_id: dateCycle.cal_id || "missing",
-            title: dateCycle.title || "missing",
-            date: dateCycle.date || "missing",
-            time: dateCycle.time || "missing",
-            time_zone: dateCycle.time_zone || "missing",
-            day: dateCycle.day || "missing",
-            month: dateCycle.month || "missing",
-            year: dateCycle.year || "missing",
-            frequency: dateCycle.frequency || "missing",
-            completed: dateCycle.completed || "0",
-            pinned: dateCycle.pinned || "0",
-            public: dateCycle.public || "0",
-            comment: dateCycle.comment || "0",
-            comments: dateCycle.comments || "",
-            datecycle_color: dateCycle.datecycle_color || "missing",
-            cal_name: dateCycle.cal_name || "missing",
-            cal_color: dateCycle.cal_color || "missing",
-            synced: dateCycle.synced || "1",
-            conflict: dateCycle.conflict || "0",
-            delete_it: dateCycle.delete_it || "0",
-            last_edited: dateCycle.last_edited || new Date().toISOString(),
-            unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
-            // raw_json: JSON.stringify(dateCycle),
-        }));
+        return parsedData.map(dateCycle => {
+            const sanitizedComments = sanitizeComments(dateCycle.comment, dateCycle.comments);
+            return {
+                ID: dateCycle.ID || "missing",
+                buwana_id: dateCycle.buwana_id || "missing",
+                cal_id: dateCycle.cal_id || "missing",
+                title: dateCycle.title || "missing",
+                date: dateCycle.date || "missing",
+                time: dateCycle.time || "missing",
+                time_zone: dateCycle.time_zone || "missing",
+                day: dateCycle.day || "missing",
+                month: dateCycle.month || "missing",
+                year: dateCycle.year || "missing",
+                frequency: dateCycle.frequency || "missing",
+                completed: dateCycle.completed || "0",
+                pinned: dateCycle.pinned || "0",
+                public: dateCycle.public || "0",
+                comment: sanitizedComments ? "1" : "0",
+                comments: sanitizedComments,
+                datecycle_color: dateCycle.datecycle_color || "missing",
+                cal_name: dateCycle.cal_name || "missing",
+                cal_color: dateCycle.cal_color || "missing",
+                synced: dateCycle.synced || "1",
+                conflict: dateCycle.conflict || "0",
+                delete_it: dateCycle.delete_it || "0",
+                last_edited: dateCycle.last_edited || new Date().toISOString(),
+                unique_key: dateCycle.unique_key || "",  // Ensure unique_key is returned
+                // raw_json: JSON.stringify(dateCycle),
+            };
+        });
     } catch (error) {
         console.error(`Error parsing calendar data for cal_id ${calId}:`, error);
         return [];
