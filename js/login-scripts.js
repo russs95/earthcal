@@ -124,6 +124,12 @@ async function getUserData() {
 
     if (!ok || !payload?.buwana_id) {
         console.warn("⚪ Not logged in or token expired. Using default view.");
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("calendar_")) {
+                localStorage.removeItem(key);
+            }
+        });
+        sessionStorage.removeItem("user_calendars");
         useDefaultUser();
         return;
     }
