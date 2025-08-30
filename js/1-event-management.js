@@ -1625,8 +1625,6 @@ async function prefillAddDateCycle(data) {
     }
     if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
 
-    document.getElementById('emojiPickerBtn').textContent = '🔗';
-
     // Select "My Calendar"
     const calDropdown = document.getElementById('select-calendar');
     for (let i = 0; i < calDropdown.options.length; i++) {
@@ -1676,8 +1674,8 @@ async function prefillAddDateCycle(data) {
 
     const targetDate = new Date(yearField, monthField - 1, dayField);
 
-    const dateEmoji = document.getElementById('emojiPickerBtn').textContent.trim();
-    const pinned = document.getElementById('pinOrNot').value === "1";
+    const dateEmoji = '';
+    const pinned = 0;
 
     const addDateNote = document.getElementById('add-date-note').value.trim();
     const comment = addDateNote.length > 0 ? "1" : "0";
@@ -1743,7 +1741,6 @@ async function prefillAddDateCycle(data) {
     document.getElementById('add-date-title').value = '';
     document.getElementById('add-note-checkbox').checked = false;
     document.getElementById('add-date-note').value = '';
-    document.getElementById('emojiPickerBtn').textContent = '😀';
 
     closeAddCycle();
     closeDateCycleExports();
@@ -2401,72 +2398,4 @@ function fetchDateCycleCalendars() {
 
 
 
-
-function showEmojiPicker(event) {
-    event.stopPropagation(); // Prevent modal from closing immediately
-
-    const emojiGrid = document.getElementById("emojiPickerGrid");
-    emojiGrid.innerHTML = ""; // Clear previous emojis
-
-    eventEmojis.forEach(emoji => {
-        let emojiDiv = document.createElement("div");
-        emojiDiv.textContent = emoji;
-        emojiDiv.dataset.emoji = emoji;
-        emojiDiv.style.fontSize = "1.5em";
-        emojiDiv.style.cursor = "pointer";
-        emojiDiv.style.padding = "8px";
-        emojiDiv.style.display = "inline-block";
-        emojiDiv.style.textAlign = "center";
-        emojiDiv.style.userSelect = "none";
-        emojiDiv.onclick = (e) => selectEmoji(e.target.dataset.emoji);
-        emojiGrid.appendChild(emojiDiv);
-    });
-
-    const modal = document.getElementById("emojiPickerModal");
-    modal.style.display = "block";
-    modal.setAttribute("aria-hidden", "false");
-
-    // Prevents multiple event listeners
-    document.removeEventListener("click", closeEmojiPicker);
-
-    // Add an event listener to close when clicking outside
-    setTimeout(() => {
-        document.addEventListener("click", handleOutsideClick);
-    }, 200);
-}
-
-function handleOutsideClick(event) {
-    const emojiPickerModal = document.getElementById("emojiPickerModal");
-    const emojiPickerButton = document.getElementById("emojiPickerBtn");
-
-    if (
-        !emojiPickerModal.contains(event.target) &&
-        !emojiPickerButton.contains(event.target)
-    ) {
-        closeEmojiPicker();
-    }
-}
-
-function selectEmoji(emoji) {
-    try {
-        if (emoji && typeof emoji === "string") {
-            document.getElementById("emojiPickerBtn").textContent = emoji;
-            console.log(`Emoji selected: ${emoji}`);
-        } else {
-            console.warn("Invalid emoji selection:", emoji);
-        }
-    } catch (error) {
-        console.error("Error setting emoji:", error);
-    }
-    closeEmojiPicker();
-}
-
-function closeEmojiPicker() {
-    const modal = document.getElementById("emojiPickerModal");
-    modal.style.display = "none";
-    modal.setAttribute("aria-hidden", "true");
-
-    // Remove the outside click listener
-    document.removeEventListener("click", handleOutsideClick);
-}
 
