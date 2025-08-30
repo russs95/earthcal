@@ -58,6 +58,9 @@ export const translations = {
 
     dayTranslations: 'Day',
     ofTranslations: 'of',
+    todayYouveGot: "Today you've got",
+    event: "event",
+    events: "events",
 
 
 //VERSION ANNOUNCEMENT

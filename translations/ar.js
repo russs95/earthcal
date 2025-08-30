@@ -56,6 +56,9 @@ export const translations = {
 
   dayTranslations: 'يوم',
   ofTranslations: 'من',
+  todayYouveGot: 'لديك اليوم',
+  event: 'حدث',
+  events: 'أحداث',
 
 // VERSION ANNOUNCEMENT
 

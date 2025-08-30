@@ -56,6 +56,9 @@ export const translations = {
 
   dayTranslations: '日',
   ofTranslations: '的',
+  todayYouveGot: '今天你有',
+  event: '个事件',
+  events: '个事件',
 
 // VERSION ANNOUNCEMENT
 

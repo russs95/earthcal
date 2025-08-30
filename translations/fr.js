@@ -56,6 +56,9 @@ export const translations = {
 
   dayTranslations: 'Jour',
   ofTranslations: 'de',
+  todayYouveGot: "Aujourd'hui, vous avez",
+  event: 'événement',
+  events: 'événements',
 
 // VERSION ANNOUNCEMENT
 
