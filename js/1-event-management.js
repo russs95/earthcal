@@ -410,7 +410,7 @@ async function highlightDateCycles(targetDate) {
     // 🔹 Ensure we have an array before proceeding
     if (!Array.isArray(dateCycleEvents) || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
-        updateDateCycleCount(0, 0); // No events, reset count display
+        await updateDateCycleCount(0, 0); // No events, reset count display
         return;
     }
 
@@ -492,7 +492,7 @@ async function highlightDateCycles(targetDate) {
     });
 
     // Update the event count display
-    updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
+    await updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
 
     // Highlight corresponding date paths ending with "-day-marker"
     dateCycleEvents.forEach(dc => {
@@ -547,11 +547,22 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// Helper to load translations with fallback to English
+async function loadTranslationsWithFallback(langCode) {
+    if (typeof loadTranslations === "function") {
+        return await loadTranslations(langCode);
+    }
+    try {
+        const module = await import(`../translations/${langCode}.js?v=4`);
+        return module.translations;
+    } catch (e) {
+        const fallback = await import("../translations/en.js");
+        return fallback.translations;
+    }
+}
+
 // Update the count box and optionally hide/show elements based on current content
-
-
-
-function updateDateCycleCount(pinnedCount, currentCount) {
+async function updateDateCycleCount(pinnedCount, currentCount) {
     const dateCycleCountBox = document.getElementById("date-cycle-count-box");
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
     const eyeIcon = document.getElementById("eye-icon");
@@ -569,8 +580,14 @@ function updateDateCycleCount(pinnedCount, currentCount) {
         eyeIcon.classList.add("eye-open");
         eyeIcon.classList.remove("eye-closed");
 
-        // Simplified message
-        const message = `Today you've got ${totalCount} event${totalCount > 1 ? "s" : ""}`;
+        const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
+        const translations = await loadTranslationsWithFallback(lang);
+        const prefix = translations.todayYouveGot || "Today you've got";
+        const eventWord = totalCount === 1
+            ? (translations.event || translations.events || "event")
+            : (translations.events || translations.event || "events");
+
+        const message = `${prefix} ${totalCount} ${eventWord}`;
 
         currentDatecycleCount.textContent = message;
     }
