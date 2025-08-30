@@ -2190,7 +2190,7 @@ background-color: var(--button-2-1);
 }
 
 .current-date-info-title {
-  font-size: larger;
+  font-size: medium;
   margin-bottom: 0;
   margin-right: 25px;
   padding-top: 0;
