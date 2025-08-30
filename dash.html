@@ -583,9 +583,10 @@
 
 
 <!--ADD DATECYCLE FORM, hidden-->
+<!--ADD DATECYCLE FORM, hidden-->
 
 <div id="add-datecycle" class="overlay-add-datecycle modal-hidden" style="padding-top:33px;">
-    <button type="button" style="cursor:pointer" onclick="closeAddCycle(),   closeDateCycleExports(), highlightDateCycles()" aria-label="Close settings page" class="x-button"></button>
+    <button type="button" style="cursor:pointer" onclick="closeAddCycle(), closeDateCycleExports(), highlightDateCycles()" aria-label="Close settings page" class="x-button"></button>
     <div class="add-datecycle-content">
         <form id="dateCycleForm">
             <!-- Hidden fields added -->
@@ -603,28 +604,14 @@
                     <input type="text" id="add-date-title" placeholder="Event name..." class="blur-form-field"
                            style="width: 100%; border-radius: 10px; padding: 8px; cursor: text;height:45px;" title="Datecycle name">
                 </div>
-                <!-- DateCycle Options -->
+                <!-- DateCycle Options (simplified) -->
                 <div id="datecycle-options" style="display: flex; justify-content: center; width: 70%; margin: auto; gap: 5px;">
                     <!-- DateCycle-type-->
                     <select id="dateCycle-type" class="blur-form-field"
                             style="flex-grow: 1; font-size: 1em; text-align: center; height: 45px;" title="Frequency"
                             onchange="showYearMonthDaySetter()">
                     </select>
-                    <!-- Emoji Picker Button-->
-                    <div id="emojiPickerBtn" class="blur-form-field"
-                         onclick="showEmojiPicker(event)"
-                         style="width: 60px; background: var(--top-header);font-size: 18px; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; border: 2px solid var(--button-2-1); border-radius: 5px;" title="Event emoji">
-                        🗓️
-                    </div>
-                    <!-- Emoji Picker Modal -->
-                    <div id="emojiPickerModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-         background: var(--general-background); border-radius: 10px; padding: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); z-index: 1000;">
-                        <div id="emojiPickerGrid" style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 300px; max-height: 200px; overflow-y: auto;">
-                            <!-- Emojis will be populated dynamically -->
-                        </div>
-                        <div onclick="closeEmojiPicker()" style="margin-top: 10px; width: 100%;background:grey;color:var(--text-color);cursor:pointer;padding:5px;border-radius:5px;">Close</div>
-                    </div>
-                    <!-- Datecycle COlor Picker-->
+                    <!-- Datecycle Color Picker -->
                     <select id="DateColorPicker" name="color" class="blur-form-field"
                             style="width: 60px; font-size: 1.5em;" title="Event color">
                         <option value="green">🟢</option>
@@ -632,12 +619,6 @@
                         <option value="orange">🟠</option>
                         <option value="red">🔴</option>
                         <option value="blue" selected>🔵</option>
-                    </select>
-                    <!-- Pin or not-->
-                    <select id="pinOrNot" name="pinner" class="blur-form-field"
-                            style="width: 60px; font-size: 1.5em;" title="Pin event?">
-                        <option value="0" selected>-</option>
-                        <option value="1">📌</option>
                     </select>
                 </div>
                 <!--Select Calendar-->
@@ -716,9 +697,8 @@
                             <option value="31">31</option>
                         </select>
 
-
                         <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 45px;margin-right: auto;
-      margin-left: 0px;" class="blur-form-field"><!--onchange="showDateCycleTitleSetter()"-->
+      margin-left: 0px;" class="blur-form-field">
                             <option value="" disabled selected>Select month...</option>
                             <option value="1">January</option>
                             <option value="2">February</option>
@@ -734,13 +714,13 @@
                             <option value="12">December</option>
                         </select>
                     </div>
-                    <!--Add note section: this needs style work to fit box in allocated space-->
+                    <!--Add note section-->
                     <div id="add-note-check-boxed">
                         <input type="checkbox" id="add-note-checkbox">
                         <label for="add-note-checkbox">Add a note to this event</label>
                     </div>
                 </div>
-                <!-- this needs style work to fit box in allocated space-->
+                <!-- note box -->
                 <div id="add-note-form" style="margin-top:20px; margin-bottom: 30px;display:none; height:50px;width:70%;" >
                     <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
                 </div>
@@ -751,6 +731,8 @@
 
             </div>
         </form>
+
+
 
 
         <!-- EXPORT BOX: almost obselete!
