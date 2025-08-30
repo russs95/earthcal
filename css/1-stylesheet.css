@@ -2961,3 +2961,11 @@ svg path #june:hover {
 
 
 }
+
+
+@media screen and (max-width: 700px) {
+#dateCycleForm {
+    margin-bottom: auto;
+    margin-top: 100px;
+}
+}
