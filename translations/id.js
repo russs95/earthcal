@@ -55,6 +55,9 @@ ordinalSuffixes: ['st', 'nd', 'rd', 'th'], // Typically not translated in Indone
 
 dayTranslations: 'Hari',
 ofTranslations: 'dari',
+todayYouveGot: 'Hari ini kamu punya',
+event: 'acara',
+events: 'acara',
 
 // VERSION ANNOUNCEMENT
 versioning: {
