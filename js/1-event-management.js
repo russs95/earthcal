@@ -558,8 +558,10 @@ function updateDateCycleCount(pinnedCount, currentCount) {
 
     if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
 
-    if (pinnedCount === 0 && currentCount === 0) {
-        // No date cycles - hide the entire box
+    const totalCount = pinnedCount + currentCount;
+
+    if (totalCount === 0) {
+        // No events - hide the entire box
         dateCycleCountBox.style.display = "none";
     } else {
         // Show the box and update content
@@ -567,19 +569,13 @@ function updateDateCycleCount(pinnedCount, currentCount) {
         eyeIcon.classList.add("eye-open");
         eyeIcon.classList.remove("eye-closed");
 
-        let message = "Today: ";
-        if (pinnedCount > 0 && currentCount > 0) {
-            message += `${pinnedCount} pinned and ${currentCount} current dateCycles.`;
-        } else if (pinnedCount > 0) {
-            message += `${pinnedCount} pinned dateCycles.`;
-        } else {
-            message += `${currentCount} current dateCycles.`;
-        }
+        // Simplified message
+        const message = `Today you've got ${totalCount} event${totalCount > 1 ? "s" : ""}`;
 
-        // Update text without the red triangles
-        currentDatecycleCount.innerHTML = `${message}`;
+        currentDatecycleCount.textContent = message;
     }
 }
+
 
 
 
