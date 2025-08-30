@@ -567,30 +567,33 @@ async function updateDateCycleCount(pinnedCount, currentCount) {
     const currentDatecycleCount = document.getElementById("current-datecycle-count");
     const eyeIcon = document.getElementById("eye-icon");
 
-    if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
+    // If the container elements aren't present there's nothing to update
+    if (!dateCycleCountBox || !eyeIcon) return;
 
     const totalCount = pinnedCount + currentCount;
 
     if (totalCount === 0) {
         // No events - hide the entire box
         dateCycleCountBox.style.display = "none";
-    } else {
-        // Show the box and update content
-        dateCycleCountBox.style.display = "flex";
-        eyeIcon.classList.add("eye-open");
-        eyeIcon.classList.remove("eye-closed");
-
-        const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
-        const translations = await loadTranslationsWithFallback(lang);
-        const prefix = translations.todayYouveGot || "Today you've got";
-        const eventWord = totalCount === 1
-            ? (translations.event || translations.events || "event")
-            : (translations.events || translations.event || "events");
-
-        const message = `${prefix} ${totalCount} ${eventWord}`;
-
-        currentDatecycleCount.textContent = message;
+        return;
     }
+
+    // Show the box and update content
+    dateCycleCountBox.style.display = "flex";
+    eyeIcon.classList.add("eye-open");
+    eyeIcon.classList.remove("eye-closed");
+
+    const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
+    const translations = await loadTranslationsWithFallback(lang);
+    const prefix = translations.todayYouveGot || "Today you've got";
+    const eventWord = totalCount === 1
+        ? (translations.event || translations.events || "event")
+        : (translations.events || translations.event || "events");
+
+    const message = `${prefix} ${totalCount} ${eventWord}`;
+
+    // Safely update the count text if the element exists
+    currentDatecycleCount?.textContent = message;
 }
 
 
@@ -1765,6 +1768,11 @@ function animateConfirmDateCycleButton() {
     syncDatecycles().then(() => {
         confirmButton.classList.remove('loading');
         confirmButton.innerText = "✅ DateCycle Added!";
+
+        // Restore the default button text after a short delay (half the previous time)
+        setTimeout(() => {
+            if (confirmButton) confirmButton.innerText = "+ Add DateCycle";
+        }, 1000);
 
         // ✅ Call `addDatecycle()` after sync is successful
         addDatecycle();
