@@ -19,15 +19,11 @@ if ("serviceWorker" in navigator) {
 
 // Load required scripts sequentially
 const scripts = [
-    "js/gsap.min.js",
-    "js/MotionPathPlugin.min.js",
     "js/suncalc.min.js",
     "js/astronomy.browser.js",
-    "js/hijri-js.common.min.js",
     "js/core-javascripts.js?v=2",
     "js/breakouts.js",
     "js/set-targetdate.js",
-    "js/1-lunar-scripts.js",
     "js/planet-orbits.js",
     "js/login-scripts.js",
     "js/time-setting.js",
