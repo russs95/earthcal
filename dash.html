@@ -93,45 +93,7 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script>
-        // Register the service worker
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", function () {
-                navigator.serviceWorker
-                    .register("js/service-worker.js?v=3.0")
-                    .then(
-                        function (registration) {
-                            console.log(
-                                "ServiceWorker registration successful with scope:",
-                                registration.scope
-                            );
-                        },
-                        function (error) {
-                            console.log("ServiceWorker registration failed:", error);
-                        }
-                    );
-            });
-        }
-    </script>
-
-
-    <script src="js/gsap.min.js"></script>
-    <script src="js/MotionPathPlugin.min.js"></script>
-    <script src="js/suncalc.min.js"></script>
-    <script src="js/astronomy.browser.js"></script><!-- Functional orbital calculations-->
-
-    <!--<script src="https://cdn.jsdelivr.net/npm/hijri-js@1.0.25/dist/hijri-js.common.min.js"></script>-->
-
-    <script src="js/hijri-js.common.min.js"></script>
-    <!--This loads the main calendar javascript -->
-
-    <script src="js/core-javascripts.js?v=2"></script> <!--functional scripts-->
-    <script src="js/breakouts.js"></script> <!--breakout control scripts-->
-    <script src="js/set-targetdate.js"></script> <!--functional scripts-->
-    <script src="js/1-lunar-scripts.js"></script><!-- concerning the moon-->
-    <script src="js/planet-orbits.js"></script><!--planets-->
-    <script src="js/login-scripts.js"></script><!--planets-->
-    <script src="js/time-setting.js"></script><!--setting user time, timezone, clock-->
+    <script src="js/earthcal-init.js"></script>
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
@@ -142,8 +104,6 @@
     <link rel="stylesheet" href="css/slider.css?v=1.2">
 
 
-    <!--This enables the Light and Dark mode switching-->
-    <script type="module" src="js/dark-mode-toggle.mjs.js" async></script>
 
 
     <!-- Main Calendar Stylesheet-->
