@@ -276,8 +276,24 @@
             text-decoration: underline;
         }
     </style>
-
+    <script src="js/gsap.min.js"></script>
+    <script src="js/MotionPathPlugin.min.js"></script>
     <script>
+        function displayMoonPhaseOnHover(event) {
+            const pathId = event.target.id;
+            const [dayOfYear, day, month, year] = pathId.split('-').slice(0, 4);
+            const date = new Date(year, month - 1, day);
+            displayMoonPhaseInDiv(date);
+            updateMoonPhase(date);
+        }
+    </script>
+    <script src="js/1-lunar-scripts.js"></script>
+    <script>
+        function displayCurrentMoonPhase() {
+            displayMoonPhaseInDiv(targetDate);
+            updateMoonPhase(targetDate);
+        }
+
         //Initiate
         gsap.registerPlugin(MotionPathPlugin);
 
