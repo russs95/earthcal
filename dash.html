@@ -349,7 +349,7 @@
             }
 
             const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
-            displayMoonPhaseInDiv(targetDate);
+
             cyclesToggleSimplified();  // to show/hide animal cycles
             initializeToggleListener();  //to show or hide datecycles?
             updateDayIds(currentYear);  //Updates the day ids for the current year
@@ -360,6 +360,7 @@
             listenForMonthBreakout();
             listenForCloseBreakout();
             attachBreakoutTouchListeners();
+            // displayMoonPhaseInDiv(targetDate);
             updateMoonPhase(targetDate);
             setTimeout(animatePlanetsIfReady, 1500);
             setTimeout(function() {
