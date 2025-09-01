@@ -34,6 +34,7 @@ async function initCalendar() {
         "js/planet-orbits.js",
         "js/login-scripts.js",
         "js/time-setting.js",
+        "js/calendar-scripts.js",
     ];
 
     try {
@@ -73,6 +74,10 @@ async function initCalendar() {
         moduleScript.type = "module";
         moduleScript.src = "js/dark-mode-toggle.mjs.js";
         document.head.appendChild(moduleScript);
+
+        if (typeof initializePage === "function") {
+            initializePage();
+        }
     } catch (err) {
         console.error("Initialization error:", err);
     } finally {

@@ -133,7 +133,7 @@
         gsap.registerPlugin(MotionPathPlugin);
 
         /*ROLL CALL*/
-        window.onload = async function () {
+        async function initializePage() {
             const solarCenterDiv = document.getElementById('solar-system-center');
             const dayLinesDiv = document.getElementById('days-of-year-lines');
             const allDaymarkers = document.getElementById('all-daymarkers');
@@ -242,7 +242,7 @@
             // setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
             await getUserData(); // This sets time_zone, targetDate, etc.
             displayDayInfo(targetDate, userLanguage, userTimeZone);
-        };
+        }
 
     </script>
 </HEAD>
@@ -973,7 +973,6 @@
 <!-- FINAL LOADED SCRIPTS -->
 
 <script src="js/1-event-management.js?v=2"></script>
-<script src="js/calendar-scripts.js"></script>
 <script src="js/kin-cycles.js"></script>
 
 
