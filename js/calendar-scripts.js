@@ -483,9 +483,7 @@ function handleDayPathTouchStart(pathId) {
     addMoonPhaseInteraction();
   });
 
-  // Initialize event listeners for the Sun SVG paths and reset the Moon phase to the current date
-  addDayPathEventListeners();
-  resetMoonPhase();
+
 
 
 

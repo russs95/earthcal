@@ -361,6 +361,9 @@
             addMoonPhaseInteraction();
             // displayCurrentMoonPhase();
             updateMoonPhase(targetDate);
+            // Initialize event listeners for the Sun SVG paths and reset the Moon phase to the current date
+            addDayPathEventListeners();
+            resetMoonPhase();
             setTimeout(animatePlanetsIfReady, 1500);
             setTimeout(function() {
                 startDate = targetDate;
