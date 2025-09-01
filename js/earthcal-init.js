@@ -17,31 +17,68 @@ if ("serviceWorker" in navigator) {
     });
 }
 
-// Load required scripts sequentially
-const scripts = [
-    "js/suncalc.min.js",
-    "js/astronomy.browser.js",
-    "js/core-javascripts.js?v=2",
-    "js/breakouts.js",
-    "js/set-targetdate.js",
-    "js/planet-orbits.js",
-    "js/login-scripts.js",
-    "js/time-setting.js",
-];
+document.addEventListener("DOMContentLoaded", initCalendar);
 
-function loadScriptsSequentially(index) {
-    if (index >= scripts.length) {
+async function initCalendar() {
+    const spinner = document.getElementById("loading-spinner");
+    if (spinner) {
+        spinner.classList.remove("hidden");
+    }
+
+    const scripts = [
+        "js/suncalc.min.js",
+        "js/astronomy.browser.js",
+        "js/core-javascripts.js?v=2",
+        "js/breakouts.js",
+        "js/set-targetdate.js",
+        "js/planet-orbits.js",
+        "js/login-scripts.js",
+        "js/time-setting.js",
+    ];
+
+    try {
+        try {
+            const response = await fetch("cals/earthcal-v1-0.svg");
+            const svg = await response.text();
+            const calContainer = document.getElementById("the-cal");
+            if (calContainer) {
+                calContainer.innerHTML = svg;
+            }
+        } catch (err) {
+            console.error("Failed to load SVG", err);
+        }
+
+        await Promise.all(
+            scripts.map((src) =>
+                fetch(src).catch((err) =>
+                    console.error("Preload failed for", src, err)
+                )
+            )
+        );
+
+        for (const src of scripts) {
+            await new Promise((resolve) => {
+                const s = document.createElement("script");
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = () => {
+                    console.error("Failed to load script:", src);
+                    resolve();
+                };
+                document.head.appendChild(s);
+            });
+        }
+
         const moduleScript = document.createElement("script");
         moduleScript.type = "module";
         moduleScript.src = "js/dark-mode-toggle.mjs.js";
-        moduleScript.async = true;
         document.head.appendChild(moduleScript);
-        return;
+    } catch (err) {
+        console.error("Initialization error:", err);
+    } finally {
+        if (spinner) {
+            spinner.classList.add("hidden");
+        }
     }
-    const s = document.createElement("script");
-    s.src = scripts[index];
-    s.onload = () => loadScriptsSequentially(index + 1);
-    document.head.appendChild(s);
 }
 
-loadScriptsSequentially(0);
