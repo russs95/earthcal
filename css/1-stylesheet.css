@@ -5,6 +5,170 @@ svg, svg * {
 }
 
 
+html, body {
+    overflow: hidden;
+}
+
+
+/* CSS animation for expanding the export-import div */
+@keyframes expand {
+    from {
+        height: 0;
+        opacity: 0;
+    }
+    to {
+        height: auto;
+        opacity: 1;
+    }
+}
+
+
+#lunar-1-month,#lunar-2-month-6,#lunar-3-month-5,#lunar-4-month-6,#lunar-5-month-2,#lunar-6-month-9,#lunar-7-month-1,#lunar-8-month-2,#lunar-9-month-7,#lunar-10-month-0,#lunar-11-month-9,#lunar-12-month-3,#lunar-13-month-0:hover {
+    opacity: 1;
+}
+
+
+path[id*="week-"] {
+    fill: var(--weeks-circle);
+}
+
+#world-background-circle {
+    fill: var(--general-background);
+}
+
+#north-america {
+    fill: var(--weeks-circle);
+}
+
+#europe-africa-background {
+    fill: var(--general-background);
+}
+
+#map-europe-africa {
+    fill: var(--weeks-circle);
+}
+
+
+#earth-map {
+    display: none;
+}
+
+#earth-orbit {
+    stroke: rgb(33, 33, 226);
+}
+
+/* path[id*="day-marker"] {
+  opacity: 0.2;
+}    */
+
+
+@font-face {
+    font-family: "Mulish";
+    src: url("fonts/Mulish-Light.ttf");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Arvo";
+    src: url("fonts/Arvo-Regular.ttf");
+    font-display: swap;
+}
+
+#solar-system-center {
+    transition: opacity 0.4s ease-out;
+}
+
+#all-daymarkers  {
+    transition: opacity 0.2s ease-out;
+}
+
+#days-of-year-lines  {
+    transition: opacity 1.3s ease-out;
+}
+
+
+#days-of-year-lines {
+    opacity: 0;
+}
+
+#all-daymarkers  {
+    opacity: 0;
+}
+
+#ray_lines  {
+    opacity: 0;
+}
+
+
+.previous-button {
+    width:30px;
+    height:30px;
+    text-align:center;
+    cursor:pointer;
+    margin-right: 10px;}
+
+.next-button {
+    width:30px;
+    height:30px;
+    text-align:center;
+    cursor:pointer;
+    margin-left:10px;}
+
+#reset-to-today {
+    width:35px;
+    height:30px;
+    text-align:center;
+    cursor:pointer;
+    margin-right: 7px;
+    margin-left: 7px;
+}
+
+.planet-info-box {
+    display:none;
+    text-align:left;
+    z-index: 37;
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+}
+
+
+.close-planet-info-button {
+    display: none;
+}
+
+.animal-info-box {
+    display:none;
+    width: 300px;
+    height:fit-content;
+    font-size: 0.8em;
+    text-align:left;
+    z-index: 20;
+    position: fixed;
+    bottom: 85px;
+    left: 25px;
+    pointer-events: none;
+}
+
+
+.modal-hidden {
+    display:none;}
+
+.modal-visible {
+    display: block;
+}
+
+#user-details {
+    cursor:pointer !important;
+}
+
+#user-details:hover {
+    text-decoration: underline;
+}
+
+
+
+/* END OF OLD INDEX INLINED CSS  */
 
 p {
  font-family: 'Mulish', sans-serif;
