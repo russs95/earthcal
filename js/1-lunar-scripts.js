@@ -189,6 +189,47 @@ function calculateHijriMonthNames(currentYear) {
 
 
 
+//
+//
+// // Assuming getTheDayOfYear sets the global variables dayOfYear and moonDay correctly
+// function getTheDayOfYearforLunar(date) {
+//   const start = new Date(date.getFullYear(), 0, 0);
+//   const diff = date - start;
+//   const oneDay = 1000 * 60 * 60 * 24;
+//   return Math.floor(diff / oneDay);
+// }
+//
+
+
+
+
+
+
+
+
+
+
+//
+// // Assuming getTheDayOfYear sets the global variables correctly
+// function getTheDayOfYear(date) {
+//   // Logic to set dayOfYear and moonDay based on the provided date
+//   const start = new Date(date.getFullYear(), 0, 0);
+//   const diff = date - start;
+//   const oneDay = 1000 * 60 * 60 * 24;
+//   dayOfYear = Math.floor(diff / oneDay);
+//
+//   // Example logic to set moonDay, this needs to be replaced with actual logic
+//   moonDay = calculateMoonDay(date);
+// }
+//
+// function calculateMoonDay(date) {
+//   // Dummy logic for moonDay calculation, replace with actual logic
+//   // For example, assuming the first new moon of the year is on the 10th day
+//   return 12;
+// }
+
+
+
 
 
   
