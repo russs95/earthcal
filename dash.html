@@ -358,6 +358,8 @@
             listenForCloseBreakout();
             attachBreakoutTouchListeners();
             // displayMoonPhaseInDiv(targetDate); //not needed this is for the moon info div!
+            addMoonPhaseInteraction();
+            displayCurrentMoonPhase();
             updateMoonPhase(targetDate);
             setTimeout(animatePlanetsIfReady, 1500);
             setTimeout(function() {

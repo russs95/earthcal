@@ -391,8 +391,7 @@ function focusRestrict(event) {
   }
 
   // Initialize the event listeners and display the current Moon phase
-  addMoonPhaseInteraction();
-  displayCurrentMoonPhase();
+
 
   // Updates the Moon SVG display based on the phase index
   function updateMoonPhaseDisplay(phaseIndex) {
