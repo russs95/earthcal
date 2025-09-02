@@ -1798,8 +1798,8 @@ TOOLTIPS AND MODALS
 
 }
 
-/* Calendar container and loading spinner */
-#calendar-container {
+/* Calendar and loading spinner */
+#the-cal {
     position: relative;
 }
 

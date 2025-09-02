@@ -51,7 +51,7 @@ async function initCalendar() {
             const svg = await response.text();
             const calContainer = document.getElementById("the-cal");
             if (calContainer) {
-                calContainer.innerHTML = svg;
+                calContainer.insertAdjacentHTML('afterbegin', svg);
             }
         } catch (err) {
             console.error("Failed to load SVG", err);
