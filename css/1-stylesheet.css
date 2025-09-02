@@ -1801,6 +1801,8 @@ TOOLTIPS AND MODALS
 /* Calendar and loading spinner */
 #the-cal {
     position: relative;
+    min-height: 100vh;
+    width: 100%;
 }
 
 #loading-spinner {
@@ -1814,6 +1816,11 @@ TOOLTIPS AND MODALS
 
 #loading-spinner.hidden {
     display: none;
+}
+
+#the-cal svg {
+    width: 100%;
+    height: auto;
 }
 
 /*
