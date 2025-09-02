@@ -21,15 +21,7 @@ document.addEventListener("DOMContentLoaded", initCalendar);
 
 async function initCalendar() {
     const spinner = document.getElementById("loading-spinner");
-    let phaseInterval;
     if (spinner) {
-        const phases = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
-        let index = 0;
-        spinner.textContent = phases[index];
-        phaseInterval = setInterval(() => {
-            index = (index + 1) % phases.length;
-            spinner.textContent = phases[index];
-        }, 400);
         spinner.classList.remove("hidden");
     }
 
@@ -51,7 +43,7 @@ async function initCalendar() {
             const svg = await response.text();
             const calContainer = document.getElementById("the-cal");
             if (calContainer) {
-                calContainer.insertAdjacentHTML('afterbegin', svg);
+                calContainer.innerHTML = svg;
             }
         } catch (err) {
             console.error("Failed to load SVG", err);
@@ -91,9 +83,6 @@ async function initCalendar() {
     } finally {
         if (spinner) {
             spinner.classList.add("hidden");
-            if (phaseInterval) {
-                clearInterval(phaseInterval);
-            }
         }
     }
 }
