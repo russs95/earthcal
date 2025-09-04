@@ -258,9 +258,12 @@ async function showUserCalSettings() {
         </form>
     `;
 
+    const header = modalContent.querySelector('.top-settings-icon');
+    if (header) header.classList.add('dim-blur');
+
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
-    document.getElementById("page-content").classList.add("blur");
+    document.body.style.overflowY = 'hidden';
 
     modal.setAttribute('tabindex', '0');
     modal.focus();

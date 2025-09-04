@@ -4,7 +4,8 @@ async function openAddCycle() {
     console.log('openAddCycle called');
     document.body.style.overflowY = 'hidden';
     document.getElementById('add-datecycle').classList.replace('modal-hidden','modal-shown');
-    document.getElementById('page-content').classList.add('blur');
+    const header = document.getElementById('add-datecycle-info');
+    if (header) header.classList.add('dim-blur');
     populateDateFields(targetDate);
 
     const confirmBtn = document.getElementById('confirm-dateCycle-button');
@@ -371,7 +372,6 @@ function closeAddCycle() {
 
     document.getElementById("add-datecycle").classList.add('modal-hidden');
     document.getElementById("add-datecycle").classList.remove('modal-shown');
-    document.getElementById("page-content").classList.remove("blur");
 
     // Reset select-cal to default value
     let selectCal = document.getElementById("select-cal");
