@@ -131,6 +131,7 @@ async function getUserData() {
         });
         sessionStorage.removeItem("user_calendars");
         useDefaultUser();
+        updateSessionStatus("⚪ Not logged in", false);
         return;
     }
 
@@ -154,6 +155,11 @@ async function getUserData() {
     };
 
     console.log("✅ Loaded userProfile:", userProfile);
+
+    updateSessionStatus(
+        `🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`,
+        true
+    );
 
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
