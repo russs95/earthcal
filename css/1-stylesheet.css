@@ -1966,7 +1966,8 @@ GUIDED TOUR---*
 }
 
 .dim-blur {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid red;
 }
 
 .next {
@@ -2696,7 +2697,6 @@ INFO MODAL
 .modal-content-box {
     position: relative;
     padding: 20px;
-    background-color: var(--general-background);/*Problem?!*/
     border-radius: 10px;
     max-width: 90%;
     max-height: 90vh; /* Restrict the modal height to 90% of the viewport */
