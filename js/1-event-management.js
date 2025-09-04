@@ -2,14 +2,6 @@
 
 async function openAddCycle() {
     console.log('openAddCycle called');
-    document.body.style.overflowY = 'hidden';
-    const modal = document.getElementById('add-datecycle');
-    modal.classList.replace('modal-hidden','modal-shown');
-    modal.classList.add('dim-blur');
-    populateDateFields(targetDate);
-
-    const confirmBtn = document.getElementById('confirm-dateCycle-button');
-    if (confirmBtn) confirmBtn.innerText = '+ Add DateCycle';
 
     const craftBuwana =
         JSON.parse(sessionStorage.getItem('buwana_user') || '{}').buwana_id ||
@@ -18,8 +10,18 @@ async function openAddCycle() {
 
     if (!craftBuwana) {
         alert('Please log in to add events.');
+        sendUpRegistration();
         return;
     }
+
+    document.body.style.overflowY = 'hidden';
+    const modal = document.getElementById('add-datecycle');
+    modal.classList.replace('modal-hidden','modal-shown');
+    modal.classList.add('dim-blur');
+    populateDateFields(targetDate);
+
+    const confirmBtn = document.getElementById('confirm-dateCycle-button');
+    if (confirmBtn) confirmBtn.innerText = '+ Add DateCycle';
 
     await populateCalendarDropdown(craftBuwana);
 }
