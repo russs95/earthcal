@@ -49,6 +49,7 @@ function closeSearchModal() {
   const modal = document.getElementById("day-search");
   modal.classList.remove("modal-shown");
   modal.classList.add("modal-hidden");
+  modal.classList.remove("dim-blur");
   document.body.style.overflowY = "unset";
 }
 
@@ -94,11 +95,8 @@ async function openDateSearch() {
 
     modal.classList.remove("modal-hidden");
     modal.classList.add("modal-shown");
+    modal.classList.add("dim-blur");
     document.body.style.overflowY = "hidden";
-    const header = document.getElementById("date-search-title");
-    if (header) header.classList.add("dim-blur");
-    const icon = modal.querySelector(".top-search-icon");
-    if (icon) icon.classList.add("dim-blur");
 
     const searchedYear = document.querySelector(".searched-year");
     let year = targetDate.getFullYear();

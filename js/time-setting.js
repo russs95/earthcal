@@ -258,8 +258,12 @@ async function showUserCalSettings() {
         </form>
     `;
 
-    const header = modalContent.querySelector('.top-settings-icon');
-    if (header) header.classList.add('dim-blur');
+    const contentBox = modal.querySelector('.modal-content-box');
+    if (contentBox) {
+        contentBox.id = 'modal-content-box';
+        contentBox.classList.add('dim-blur');
+        contentBox.style.backgroundColor = 'transparent';
+    }
 
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');

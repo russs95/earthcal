@@ -294,6 +294,11 @@ function handleTouchEnd() {
 
 function closeTheModal() {
     const modal = document.getElementById('form-modal-message');
+    const box = document.getElementById('modal-content-box');
+    if (box) {
+        box.classList.remove('dim-blur');
+        box.style.backgroundColor = '';
+    }
 
     // Hide the modal
     modal.classList.remove('modal-visible');
