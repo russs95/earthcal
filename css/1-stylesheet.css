@@ -1965,6 +1965,10 @@ GUIDED TOUR---*
   pointer-events: none;
 }
 
+.dim-blur {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 .next {
   background-color: green;
   border: none;

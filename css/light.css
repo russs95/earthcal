@@ -370,7 +370,12 @@
 
 /*
 .blur {
-  background: #ededed;}*/
+  background: #ededed;}
+*/
+
+.dim-blur {
+  background: rgba(255, 255, 255, 0.25);
+}
 .x-button {
   background: url(../svgs/x-day.svg) center no-repeat;
   background-size: contain;

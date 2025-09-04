@@ -47,11 +47,9 @@ function ensurePlanetData(date) {
 // Close the day search modal
 function closeSearchModal() {
   const modal = document.getElementById("day-search");
-  const underContent = document.getElementById("page-content");
-
-  underContent.classList.remove("blur");
   modal.classList.remove("modal-shown");
   modal.classList.add("modal-hidden");
+  document.body.style.overflowY = "unset";
 }
 
 // Open the day search modal
@@ -96,7 +94,11 @@ async function openDateSearch() {
 
     modal.classList.remove("modal-hidden");
     modal.classList.add("modal-shown");
-    document.getElementById("page-content").classList.add("blur");
+    document.body.style.overflowY = "hidden";
+    const header = document.getElementById("date-search-title");
+    if (header) header.classList.add("dim-blur");
+    const icon = modal.querySelector(".top-search-icon");
+    if (icon) icon.classList.add("dim-blur");
 
     const searchedYear = document.querySelector(".searched-year");
     let year = targetDate.getFullYear();

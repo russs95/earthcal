@@ -298,7 +298,8 @@ function closeTheModal() {
     // Hide the modal
     modal.classList.remove('modal-visible');
     modal.classList.add('modal-hidden');
-    document.getElementById("page-content").classList.remove("blur");
+
+    document.body.style.overflowY = 'unset';
 
     modalOpen = false;
 
