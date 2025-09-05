@@ -32,7 +32,9 @@
 <body>
 <h3>🌱 Preparing Earthcal<span id="dots">...</span></h3>
 
-<script>
+<script type="module">
+    import { redirectToBuwana } from "./js/oidc-login.js";
+
     const parseJwt = (tkn) => {
         try {
             const [, payload] = tkn.split(".");
@@ -65,11 +67,14 @@
             return;
         }
 
-        if (isLoggedIn()) {
-            const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
-            if (profile) {
-                sessionStorage.setItem("buwana_user", JSON.stringify(profile));
-            }
+        if (!isLoggedIn()) {
+            redirectToBuwana();
+            return;
+        }
+
+        const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
+        if (profile) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
         }
 
         window.location.href = redirectTarget;
