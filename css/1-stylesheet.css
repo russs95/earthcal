@@ -1750,7 +1750,7 @@ TOOLTIPS AND MODALS
   width: 100%;
    transition: 0.5s;
 
-    z-index: 20;
+    z-index: 55;
     flex-flow:column;
     justify-content:center;
     padding-bottom: 50px;
@@ -1966,8 +1966,8 @@ GUIDED TOUR---*
 }
 
 .dim-blur {
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px solid red;
+  background: rgba(255, 255, 255, 0.8);
+
 }
 
 .next {
