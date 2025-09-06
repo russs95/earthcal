@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Earthcal Landing</title>
+    <title>Earthcal |  Loading...</title>
     <link rel="icon" href="icons/favicon.ico" />
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources -->
@@ -42,7 +42,7 @@
             }
         }
         #spinner {
-            font-size: 1.5em;
+            font-size: 3.5em;
         }
         h3 {
             font-size: 0.9em;
@@ -52,8 +52,9 @@
     </style>
 </head>
 <body>
+<div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
 <div id="spinner" aria-hidden="true">🌑</div>
-<h3>Preparing Earthcal<span id="dots">...</span></h3>
+<h3>Loading Earthcal<span id="dots">...</span></h3>
 
 <script type="module">
     const parseJwt = (tkn) => {
