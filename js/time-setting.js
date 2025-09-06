@@ -252,7 +252,7 @@ async function showUserCalSettings() {
                     </dark-mode-toggle>
                 </div>
             </div>
-            <button type="button" name="apply" onclick="applySettings()" class="confirmation-blur-button">
+            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit">
                 ${settingsContent.applySettings}
             </button>
         </form>
@@ -288,6 +288,17 @@ function getUtcOffset(tz) {
 }
 
 
+
+function animateApplySettingsButton() {
+    const applyButton = document.querySelector('#user-settings-form button[name="apply"]');
+    if (!applyButton) return;
+    applyButton.classList.add('loading');
+    setTimeout(() => {
+        applyButton.classList.remove('loading');
+        applyButton.innerText = 'Settings Updated!';
+        applySettings();
+    }, 500);
+}
 
 async function applySettings() {
     const timezoneSelect = document.getElementById('timezone');

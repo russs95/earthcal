@@ -112,10 +112,14 @@ const t = translations.openDateSearch || {};
 
         if (!validateDate(day, month, yeard, t)) return;
 
-
-        targetDate = new Date(yeard, month - 1, day);
-        searchGoDate(targetDate);
-        closeSearchModal();
+        searchButton.classList.add('loading');
+        setTimeout(() => {
+            searchButton.classList.remove('loading');
+            searchButton.innerText = 'Searching…';
+            targetDate = new Date(yeard, month - 1, day);
+            searchGoDate(targetDate);
+            closeSearchModal();
+        }, 500);
     };
 
     prevYearButton.onclick = () => {
