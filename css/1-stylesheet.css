@@ -2957,7 +2957,7 @@ svg path #june:hover {
 /* SYNCING  */
 
 /* General Sync Button Styling */
-.sync-style {
+.sync-style, .stellar-submit {
     position: relative;
     padding: 10px 20px;
     border-radius: 10px;
@@ -2970,12 +2970,12 @@ svg path #june:hover {
 }
 
 /* Loading State for Sync Buttons */
-.sync-style.loading {
+.sync-style.loading, .stellar-submit.loading {
     pointer-events: none; /* Disable button clicks during sync */
     background-color: grey;
 }
 
-.sync-style.loading::before {
+.sync-style.loading::before, .stellar-submit.loading::before {
     content: "";
     position: absolute;
     left: 10px;
@@ -2995,7 +2995,7 @@ svg path #june:hover {
 }
 
 /* Hover Effect */
-.sync-style:hover {
+.sync-style:hover, .stellar-submit:hover {
     background-color: var(--button-2-1-over);
 
 }
