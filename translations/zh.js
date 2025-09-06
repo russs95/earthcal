@@ -89,6 +89,7 @@ export const translations = {
       AR: "AR - 阿拉伯语"
     },
     applySettings: "应用设置",
+    saving: "保存中...",
     darkMode: {
       legend: "切换明暗模式：",
       remember: "记住所有页面的设置"
@@ -108,7 +109,8 @@ openDateSearch: {
   goToDate: "跳转到日期",
   invalidDay: "请选择一个不超过31的有效日期！",
   invalidFebruary: "请选择二月份的有效日期！",
-  invalidLeapYear: "平年中请选择二月份小于29号的日期！"
+  invalidLeapYear: "平年中请选择二月份小于29号的日期！",
+  searching: "搜索中..."
 },
 
 // LOG IN SCREEN

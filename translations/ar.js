@@ -89,6 +89,7 @@ export const translations = {
       AR: "AR - العربية"
     },
     applySettings: "تطبيق الإعدادات",
+    saving: "جارٍ الحفظ...",
     darkMode: {
       legend: "تبديل بين الوضع الداكن والفاتح:",
       remember: "تذكر لجميع الصفحات"
@@ -108,7 +109,8 @@ openDateSearch: {
   goToDate: "الانتقال إلى التاريخ",
   invalidDay: "يرجى التأكد من اختيار يوم مناسب أقل من 31!",
   invalidFebruary: "يرجى التأكد من اختيار تاريخ مناسب لشهر فبراير!",
-  invalidLeapYear: "يرجى اختيار يوم أقل من 29 لشهر فبراير في سنة غير كبيسة!"
+  invalidLeapYear: "يرجى اختيار يوم أقل من 29 لشهر فبراير في سنة غير كبيسة!",
+  searching: "جارٍ البحث..."
 },
 
 // LOG IN SCREEN
