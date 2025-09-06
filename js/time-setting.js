@@ -227,6 +227,9 @@ async function showUserCalSettings() {
         `<option value="${key}" ${key.toLowerCase() === userLanguage.toLowerCase() ? 'selected' : ''}>${label}</option>`
     ).join('');
 
+    const mainClock = document.getElementById('main-clock');
+    const clockVisible = mainClock && mainClock.style.display === 'block';
+
     const modalContent = document.getElementById('modal-content');
     modalContent.innerHTML = `
         <div class="top-settings-icon"></div>
@@ -241,16 +244,22 @@ async function showUserCalSettings() {
                     ${languageOptions}
                 </select>
             </div>
-            <div class="compro-toggle" style="margin: 15px auto 10px auto; width: fit-content;">
-                <div style="text-align:center;">
-                    <dark-mode-toggle
-                        id="dark-mode-toggle-5" style="padding:10px;"
-                        class="slider"
-                        legend="${settingsContent.darkMode.legend}"
-                        remember="${settingsContent.darkMode.remember}"
-                        appearance="toggle">
-                    </dark-mode-toggle>
-                </div>
+            <div class="toggle-row">
+                <span>Toggle dark and light mode:</span>
+                <dark-mode-toggle
+                    id="dark-mode-toggle-5"
+                    class="slider"
+                    legend="${settingsContent.darkMode.legend}"
+                    remember="${settingsContent.darkMode.remember}"
+                    appearance="toggle">
+                </dark-mode-toggle>
+            </div>
+            <div class="toggle-row">
+                <span>Toggle clock view:</span>
+                <label class="switch">
+                    <input type="checkbox" id="clock-toggle" ${clockVisible ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit">
                 ${settingsContent.applySettings}
@@ -381,7 +390,15 @@ function openClock(time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone)
     }
 }
 
-
+function toggleClockView(isChecked) {
+    const mainClock = document.getElementById('main-clock');
+    const isVisible = mainClock && mainClock.style.display === 'block';
+    if (isChecked && !isVisible) {
+        openClock(userTimeZone);
+    } else if (!isChecked && isVisible) {
+        openClock(userTimeZone);
+    }
+}
 
 let clockVisible = false;
 
