@@ -26,6 +26,7 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
@@ -40,18 +41,21 @@
                 color: white;
             }
         }
-        h3 {
+        #spinner {
             font-size: 1.5em;
+        }
+        h3 {
+            font-size: 0.9em;
+            color: grey;
             text-align: center;
         }
     </style>
 </head>
 <body>
-<h3>🌱 Preparing Earthcal<span id="dots">...</span></h3>
+<div id="spinner" aria-hidden="true">🌑</div>
+<h3>Preparing Earthcal<span id="dots">...</span></h3>
 
 <script type="module">
-    import { redirectToBuwana } from "./js/oidc-login.js";
-
     const parseJwt = (tkn) => {
         try {
             const [, payload] = tkn.split(".");
@@ -75,6 +79,14 @@
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
+    const spinner = document.getElementById("spinner");
+    const phases = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+    let phaseIndex = 0;
+    setInterval(() => {
+        spinner.textContent = phases[phaseIndex];
+        phaseIndex = (phaseIndex + 1) % phases.length;
+    }, 200);
+
     (async function initApp() {
         const redirectTarget = "dash.html";
 
@@ -85,7 +97,15 @@
         }
 
         if (!isLoggedIn()) {
-            redirectToBuwana();
+            const defaultProfile = {
+                first_name: "Earthling",
+                earthling_emoji: "🐸",
+                email: null,
+                buwana_id: null,
+                status: "new"
+            };
+            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            window.location.href = redirectTarget;
             return;
         }
 
