@@ -88,11 +88,14 @@
         phaseIndex = (phaseIndex + 1) % phases.length;
     }, 200);
 
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
     (async function initApp() {
         const redirectTarget = "dash.html";
 
         if (!navigator.onLine) {
             console.warn("⚠️ Offline. Redirecting to:", redirectTarget);
+            await delay(10000);
             window.location.href = redirectTarget;
             return;
         }
@@ -106,6 +109,7 @@
                 status: "new"
             };
             sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            await delay(10000);
             window.location.href = redirectTarget;
             return;
         }
@@ -115,6 +119,7 @@
             sessionStorage.setItem("buwana_user", JSON.stringify(profile));
         }
 
+        await delay(10000);
         window.location.href = redirectTarget;
     })();
 </script>
