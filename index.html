@@ -44,6 +44,13 @@
         #spinner {
             font-size: 3.5em;
         }
+        #load-progress {
+            width: 0%;
+            height: 4px;
+            background-color: grey;
+            margin-top: 10px;
+            transition: width 0.3s ease;
+        }
         h3 {
             font-size: 0.9em;
             color: grey;
@@ -54,6 +61,7 @@
 <body>
 <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
 <div id="spinner" aria-hidden="true">🌑</div>
+<div id="load-progress"></div>
 <h3>Loading Earthcal<span id="dots">...</span></h3>
 
 <script type="module">
@@ -88,17 +96,44 @@
         phaseIndex = (phaseIndex + 1) % phases.length;
     }, 200);
 
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const assets = [
+        "js/earthcal-init.js",
+        "css/light.css",
+        "css/dark.css",
+        "css/1-stylesheet.css",
+        "fonts/Mulish-Light.ttf",
+        "fonts/Mulish-Medium.ttf",
+        "fonts/Arvo-Regular.ttf",
+        "svgs/up-reg-arrow-dark.svg",
+        "svgs/up-reg-arrow-dark-over.svg",
+        "svgs/up-reg-arrow-dark-active.svg",
+        "svgs/up-reg-arrow-dark-active-hover.svg",
+        "svgs/up-reg-arrow-light.svg",
+        "svgs/up-reg-arrow-light-over.svg",
+        "svgs/up-reg-arrow-light-active.svg",
+        "svgs/up-reg-arrow-light-active-hover.svg",
+    ];
+
+    const preloadAssets = async () => {
+        const bar = document.getElementById("load-progress");
+        let loaded = 0;
+        const update = () => {
+            bar.style.width = `${(loaded / assets.length) * 100}%`;
+        };
+        await Promise.all(
+            assets.map((asset) =>
+                fetch(asset)
+                    .catch((err) => console.warn("Failed to load", asset, err))
+                    .finally(() => {
+                        loaded++;
+                        update();
+                    })
+            )
+        );
+    };
 
     (async function initApp() {
         const redirectTarget = "dash.html";
-
-        if (!navigator.onLine) {
-            console.warn("⚠️ Offline. Redirecting to:", redirectTarget);
-            await delay(10000);
-            window.location.href = redirectTarget;
-            return;
-        }
 
         if (!isLoggedIn()) {
             const defaultProfile = {
@@ -106,20 +141,21 @@
                 earthling_emoji: "🐸",
                 email: null,
                 buwana_id: null,
-                status: "new"
+                status: "new",
             };
             sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
-            await delay(10000);
-            window.location.href = redirectTarget;
-            return;
+        } else {
+            const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
+            if (profile) {
+                sessionStorage.setItem("buwana_user", JSON.stringify(profile));
+            }
         }
 
-        const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
-        if (profile) {
-            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
+        if (!navigator.onLine) {
+            console.warn("⚠️ Offline. Preloading may fail.");
         }
 
-        await delay(10000);
+        await preloadAssets();
         window.location.href = redirectTarget;
     })();
 </script>
