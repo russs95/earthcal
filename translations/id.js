@@ -89,6 +89,7 @@ settings: {
     ZH: "ZH - 中文" // ✅ Added Chinese
   },
   applySettings: "Terapkan Pengaturan",
+  saving: "Menyimpan...",
   darkMode: {
     legend: "Ganti mode terang dan gelap:",
     remember: "Ingat untuk semua halaman"
@@ -109,7 +110,8 @@ openDateSearch: {
   goToDate: "Pergi ke Tanggal",
   invalidDay: "Pastikan Anda memilih tanggal yang wajar di bawah 31!",
   invalidFebruary: "Pastikan Anda memilih tanggal yang sesuai untuk bulan Februari!",
-  invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari pada tahun bukan kabisat!"
+  invalidLeapYear: "Silakan pilih hari di bawah 29 untuk Februari pada tahun bukan kabisat!",
+  searching: "Mencari..."
 },
 
 // LOG IN SCREEN

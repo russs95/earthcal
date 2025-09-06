@@ -92,6 +92,7 @@ settings: {
         ZH: "ZH - 中文" // ✅ Chinese added
     },
     applySettings: "Apply Settings",
+    saving: "Saving...",
     darkMode: {
         legend: "Toggle dark and light mode:",
         remember: "Remember for all pages"
@@ -112,7 +113,8 @@ settings: {
         goToDate: "Go to Date",
         invalidDay: "Please make sure you're choosing a reasonable date under 31!",
         invalidFebruary: "Please make sure you're choosing a reasonable date for February!",
-        invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!"
+        invalidLeapYear: "Please choose a day under 29 for February in a non-leap year!",
+        searching: "Searching..."
     },
 
 

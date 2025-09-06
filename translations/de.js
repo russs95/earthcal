@@ -89,6 +89,7 @@ export const translations = {
       AR: "AR - Arabisch"
     },
     applySettings: "Einstellungen anwenden",
+    saving: "Speichern...",
     darkMode: {
       legend: "Dunkel- und Hellmodus umschalten:",
       remember: "Für alle Seiten merken"
@@ -108,7 +109,8 @@ openDateSearch: {
   goToDate: "Zum Datum",
   invalidDay: "Bitte wähle ein gültiges Datum unter 31!",
   invalidFebruary: "Bitte wähle ein gültiges Datum für den Februar!",
-  invalidLeapYear: "Bitte wähle einen Tag unter 29 für Februar in einem Nicht-Schaltjahr!"
+  invalidLeapYear: "Bitte wähle einen Tag unter 29 für Februar in einem Nicht-Schaltjahr!",
+  searching: "Suchen..."
 },
 
 // LOG IN SCREEN

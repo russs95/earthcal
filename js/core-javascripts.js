@@ -105,6 +105,7 @@ async function openDateSearch() {
     dayField.value = targetDate.getDate();
     monthField.value = targetDate.getMonth() + 1;
 const t = translations.openDateSearch || {};
+const searchingText = t.searching || 'Searching...';
     searchButton.onclick = () => {
         const day = parseInt(dayField.value, 10);
         const month = parseInt(monthField.value, 10);
@@ -113,13 +114,10 @@ const t = translations.openDateSearch || {};
         if (!validateDate(day, month, yeard, t)) return;
 
         searchButton.classList.add('loading');
-        setTimeout(() => {
-            searchButton.classList.remove('loading');
-            searchButton.innerText = 'Searching…';
-            targetDate = new Date(yeard, month - 1, day);
-            searchGoDate(targetDate);
-            closeSearchModal();
-        }, 500);
+        searchButton.innerText = searchingText;
+        targetDate = new Date(yeard, month - 1, day);
+        searchGoDate(targetDate);
+        closeSearchModal();
     };
 
     prevYearButton.onclick = () => {

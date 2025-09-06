@@ -2969,6 +2969,10 @@ svg path #june:hover {
     cursor: pointer;
 }
 
+.stellar-submit {
+    width: 100%;
+}
+
 /* Loading State for Sync Buttons */
 .sync-style.loading, .stellar-submit.loading {
     pointer-events: none; /* Disable button clicks during sync */

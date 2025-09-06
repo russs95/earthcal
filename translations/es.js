@@ -89,9 +89,10 @@ export const translations = {
       ES: "ES - Español",
       DE: "DE - Alemán",
       AR: "AR - Árabe"
-    },
-    applySettings: "Aplicar Configuración",
-    darkMode: {
+  },
+  applySettings: "Aplicar Configuración",
+  saving: "Guardando...",
+  darkMode: {
       legend: "Cambiar entre modo claro y oscuro:",
       remember: "Recordar en todas las páginas"
     }
@@ -110,7 +111,8 @@ openDateSearch: {
   goToDate: "Ir a la Fecha",
   invalidDay: "¡Asegúrate de elegir una fecha válida menor de 31!",
   invalidFebruary: "¡Asegúrate de elegir una fecha válida para febrero!",
-  invalidLeapYear: "¡Elige un día menor de 29 para febrero en un año no bisiesto!"
+  invalidLeapYear: "¡Elige un día menor de 29 para febrero en un año no bisiesto!",
+  searching: "Buscando..."
 },
 
 // LOG IN SCREEN

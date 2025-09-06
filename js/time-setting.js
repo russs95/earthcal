@@ -289,15 +289,16 @@ function getUtcOffset(tz) {
 
 
 
-function animateApplySettingsButton() {
+async function animateApplySettingsButton() {
     const applyButton = document.querySelector('#user-settings-form button[name="apply"]');
     if (!applyButton) return;
+    const lang = (userLanguage || 'en').toLowerCase();
+    const translations = await loadTranslations(lang);
+    const savingText = translations.settings?.saving || 'Saving...';
     applyButton.classList.add('loading');
-    setTimeout(() => {
-        applyButton.classList.remove('loading');
-        applyButton.innerText = 'Settings Updated!';
-        applySettings();
-    }, 500);
+    applyButton.innerText = savingText;
+    await applySettings();
+    applyButton.classList.remove('loading');
 }
 
 async function applySettings() {
