@@ -7,7 +7,7 @@
    version="1.1"
    viewBox="0 0 293.51111 293.5111"
    id="svg2"
-   sodipodi:docname="clock.svg"
+   sodipodi:docname="clock-off.svg"
    inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -27,7 +27,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.38877217"
-     inkscape:cx="466.85441"
+     inkscape:cx="466.8544"
      inkscape:cy="435.988"
      inkscape:window-width="1366"
      inkscape:window-height="697"
@@ -116,23 +116,23 @@
        cy="146.39999"
        r="137.25"
        stroke-width="13.133"
-       style="stroke:#000000;stroke-width:22.0238;stroke-dasharray:none;stroke-opacity:1" />
+       style="stroke:#999999;stroke-width:22.0238;stroke-dasharray:none;stroke-opacity:1" />
     <g
        stroke-width="8.263"
        id="g2"
-       style="stroke:#000000;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1"
+       style="stroke:#999999;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1"
        transform="translate(0,8.2505626)">
       <path
          id="minute-hand"
          d="M 99.983,38.209375 99.50797,145.019"
          stroke-linejoin="round"
-         style="stroke:#000000;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1"
+         style="stroke:#999999;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1"
          sodipodi:nodetypes="cc" />
       <path
          id="hour-hand"
          d="m 160.36582,181.76757 -60.1931,-34.7525"
          stroke-linejoin="round"
-         style="stroke:#000000;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1" />
+         style="stroke:#999999;stroke-width:23.1351;stroke-dasharray:none;stroke-opacity:1" />
     </g>
   </g>
 </svg>
