@@ -77,10 +77,33 @@
             font-size: 0.8em;
             color: grey;
         }
+        .earthcal-app-logo,
+        .earthcal-app-logo svg {
+            width: 120px;
+            height: 120px;
+        }
+        @media screen and (max-width: 768px) {
+            .earthcal-app-logo,
+            .earthcal-app-logo svg {
+                width: 180px;
+                height: 180px;
+            }
+            #progress-container {
+                width: 150px;
+                height: 15px;
+            }
+            #footer {
+                font-size: 1em;
+            }
+            #footer img {
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="earthcal-app-logo" style="margin-bottom: 20px;width: 120px;text-align: center;">
+<div class="earthcal-app-logo" style="margin-bottom: 20px;text-align: center;">
 
     <svg
             width="120px"
@@ -251,7 +274,7 @@
 
     (async function initApp() {
         const redirectTarget = "dash.html";
-        const MIN_WAIT = 200000;
+        const MIN_WAIT = 2000;
         const startTime = Date.now();
 
         if (!isLoggedIn()) {
