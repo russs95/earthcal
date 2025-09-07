@@ -3188,19 +3188,20 @@ svg path #june:hover {
     height: 38px;
 }
 
-.switch {
+.toggle-switch {
     position: relative;
     display: inline-block;
     width: 50px;
     height: 24px;
 }
 
-.switch input {
+.toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
+/* Generic slider knob used for settings toggles */
 .toggle-slider {
     position: absolute;
     cursor: pointer;
@@ -3225,67 +3226,10 @@ svg path #june:hover {
     border-radius: 50%;
 }
 
-.switch input:checked + .toggle-slider {
+.toggle-switch input:checked + .toggle-slider {
     background-color: #4e5255;
 }
 
-.switch input:checked + .toggle-slider:before {
+.toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(26px);
-}
-
-/* Clock toggle emulating dark-mode-toggle styling */
-.clock-switch {
-    --clock-toggle-icon-size: 1.0rem;
-    position: relative;
-    display: inline-block;
-    width: calc(var(--clock-toggle-icon-size, 1rem) * 4.5);
-    height: calc(var(--clock-toggle-icon-size, 1rem) * 2);
-}
-
-.clock-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.clock-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #b7bbbd;
-    transition: 0.4s;
-    border-radius: var(--clock-toggle-icon-size, 1rem);
-}
-
-.clock-slider:before {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: calc(var(--clock-toggle-icon-size, 1rem) * 0.25);
-    left: calc(var(--clock-toggle-icon-size, 1rem) * 0.25);
-    height: calc(var(--clock-toggle-icon-size, 1rem) * 1.5);
-    width: calc(var(--clock-toggle-icon-size, 1rem) * 1.5);
-    border-radius: 50%;
-    background-color: #fff;
-    background-position: center;
-    background-size: var(--clock-toggle-icon-size, 1rem);
-    background-repeat: no-repeat;
-    background-image: none;
-    box-shadow: 0 0.15em 0.3em rgb(0 0 0 / 15%), 0 0.2em 0.5em rgb(0 0 0 / 30%);
-    transition: 0.4s;
-    content: "";
-}
-
-.clock-switch input:checked + .clock-slider {
-    background-color: #4e5255;
-}
-
-.clock-switch input:checked + .clock-slider:before {
-    left: calc(100% - var(--clock-toggle-icon-size, 1rem) * 1.75);
-    filter: invert(100%);
-    background-image: url("../icons/clock.svg");
 }
