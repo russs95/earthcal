@@ -3235,7 +3235,7 @@ svg path #june:hover {
 
 /* Clock toggle emulating dark-mode-toggle styling */
 .clock-switch {
-    --clock-toggle-icon-size: 1.2rem;
+    --clock-toggle-icon-size: 1.0rem;
     position: relative;
     display: inline-block;
     width: calc(var(--clock-toggle-icon-size, 1rem) * 4.5);
@@ -3273,26 +3273,10 @@ svg path #june:hover {
     background-color: #fff;
     background-position: center;
     background-size: var(--clock-toggle-icon-size, 1rem);
-    background-image: url("../icons/clocks.svg");
+    background-repeat: no-repeat;
+    background-image: none;
     box-shadow: 0 0.15em 0.3em rgb(0 0 0 / 15%), 0 0.2em 0.5em rgb(0 0 0 / 30%);
     transition: 0.4s;
-    content: "";
-}
-
-.clock-slider:after {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: calc(var(--clock-toggle-icon-size, 1rem) * 0.25);
-    left: calc(100% - var(--clock-toggle-icon-size, 1rem) * 1.75);
-    height: calc(var(--clock-toggle-icon-size, 1rem) * 1.5);
-    width: calc(var(--clock-toggle-icon-size, 1rem) * 1.5);
-    border-radius: 50%;
-    background-position: center;
-    background-size: var(--clock-toggle-icon-size, 1rem);
-    background-image: url("../icons/clocks.svg");
-    opacity: 0.5;
     content: "";
 }
 
@@ -3303,8 +3287,5 @@ svg path #june:hover {
 .clock-switch input:checked + .clock-slider:before {
     left: calc(100% - var(--clock-toggle-icon-size, 1rem) * 1.75);
     filter: invert(100%);
-}
-
-.clock-switch input:checked + .clock-slider:after {
-    left: calc(var(--clock-toggle-icon-size, 1rem) * 0.25);
+    background-image: url("../icons/clock.svg");
 }
