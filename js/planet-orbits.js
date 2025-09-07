@@ -25,6 +25,10 @@ class Planet {
     const orbitRatio1 = daysSinceYearStart / this.orbit_days;
     const orbitRatio2 = totalDays / this.orbit_days;
 
+    if (isNaN(orbitRatio1) || isNaN(orbitRatio2)) {
+      return;
+    }
+
     // Pre-calculate trigonometric values
     const orbitRadius = planetOrbitElement.r.baseVal.value;
     const finalCoords1 = {
@@ -120,16 +124,6 @@ const jupiter = new Planet("jupiter", "jupiter-orbit", 4333);
 const saturn = new Planet("saturn", "saturn-orbit", 10759);
 const uranus = new Planet("uranus", "uranus-orbit", 30687);
 const neptune = new Planet("neptune", "neptune-orbit", 60190);
-
-
-mercury.animate(startDate, targetDate);
-venus.animate(startDate, targetDate);
-earth.animate(startDate, targetDate);
-mars.animate(startDate, targetDate);
-jupiter.animate(startDate, targetDate);
-saturn.animate(startDate, targetDate);
-uranus.animate(startDate, targetDate);
-neptune.animate(startDate, targetDate);
 
 
 /*----------------------------------
