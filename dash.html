@@ -181,9 +181,10 @@
                 prefillAddDateCycle(cycleData);
             } else {
                 setCurrentDate(); // Fallback if no shared event
-            }
+                animatePlanetsIfReady();
+              }
 
-            const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
+              const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
 
             cyclesToggleSimplified();  // to show/hide animal cycles
             initializeToggleListener();  //to show or hide datecycles?
@@ -200,11 +201,13 @@
             // displayCurrentMoonPhase();
             updateMoonPhase(targetDate);
             // Initialize event listeners for the Sun SVG paths and reset the Moon phase to the current date
-            addDayPathEventListeners();
-            resetMoonPhase();
-            setTimeout(animatePlanetsIfReady, 1500);
-            setTimeout(function() {
+              addDayPathEventListeners();
+              resetMoonPhase();
+              setTimeout(function() {
                 startDate = targetDate;
+                if (params.get('action') === 'add-event') {
+                    animatePlanetsIfReady();
+                }
                 setYearsMonthsOn();
                 updateTargetMonth();
                 if (localStorage.getItem('buwana_id')) {
