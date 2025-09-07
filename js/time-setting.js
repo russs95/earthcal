@@ -256,12 +256,12 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row">
                 <span>Toggle clock view:</span>
-                <label class="switch">
+                <label class="clock-switch">
                     <input type="checkbox" id="clock-toggle" ${clockVisible ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
-                    <span class="toggle-slider"></span>
+                    <span class="clock-slider"></span>
                 </label>
             </div>
-            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit">
+            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
                 ${settingsContent.applySettings}
             </button>
         </form>
@@ -290,6 +290,27 @@ async function showUserCalSettings() {
     modalOpen = true;
 
     document.addEventListener('focus', focusRestrict, true);
+
+    const timezoneSelect = modalContent.querySelector('#timezone');
+    const languageSelect = modalContent.querySelector('#language');
+    const applyButton = modalContent.querySelector('.stellar-submit');
+
+    const initialTimezone = timezoneSelect?.value || '';
+    const initialLanguage = (languageSelect?.value || '').toLowerCase();
+
+    const checkSettingsChange = () => {
+        const tzChanged = timezoneSelect?.value !== initialTimezone;
+        const langChanged = (languageSelect?.value || '').toLowerCase() !== initialLanguage;
+        if (tzChanged || langChanged) {
+            applyButton.style.display = 'block';
+        } else {
+            applyButton.style.display = 'none';
+        }
+    };
+
+    timezoneSelect?.addEventListener('change', checkSettingsChange);
+    languageSelect?.addEventListener('change', checkSettingsChange);
+    checkSettingsChange();
 }
 
 function getUtcOffset(tz) {
