@@ -3184,7 +3184,7 @@ svg path #june:hover {
     margin: 10px auto;
     background: var(--general-background);
     border-radius: 15px;
-    width: 260px;
+    height: 38px;
 }
 
 .switch {
