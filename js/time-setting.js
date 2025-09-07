@@ -428,25 +428,13 @@ function toggleClockView(isChecked) {
     }
 }
 
-let clockVisible = false;
-
-function checkScreenSize(time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
+function checkScreenSize() {
+    const time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const mainClock = document.getElementById('main-clock');
 
     if (window.innerWidth <= 350) {
-        if (!clockVisible) {
-            clockVisible = true;
-            if (time_zone) {
-                openClock(time_zone);
-            } else {
-                console.warn("No time_zone passed. Falling back to UTC.");
-                openClock("UTC");
-            }
-        }
-    } else {
-        if (clockVisible) {
-            clockVisible = false;
-            if (mainClock) mainClock.style.display = 'none';
+        if (mainClock && mainClock.style.display === 'block') {
+            openClock(time_zone);
         }
     }
 }
@@ -454,7 +442,7 @@ function checkScreenSize(time_zone = Intl.DateTimeFormat().resolvedOptions().tim
 
 
 // ✅ Run on Window Resize
-window.addEventListener("resize", checkScreenSize);
+window.addEventListener("resize", () => checkScreenSize());
 
 // ✅ Run on Page Load (so clock shows immediately if needed)
 //window.addEventListener("load", checkScreenSize);
