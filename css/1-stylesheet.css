@@ -3233,3 +3233,12 @@ svg path #june:hover {
 .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(26px);
 }
+
+/* Clock toggle icon styles */
+.toggle-slider.clock-toggle-slider:before {
+    background: #fff url('../icons/clock-off.svg') center/14px no-repeat;
+}
+
+.toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
+    background: #fff url('../icons/clock-on.svg') center/14px no-repeat;
+}
