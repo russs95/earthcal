@@ -200,7 +200,7 @@ function getTimeZoneOffsetDisplay(timeZone) {
     return tzPart ? tzPart.value.replace('GMT', 'UTC') : '';
 }
 
-
+////${settingsContent.darkMode.remember}
 
 async function showUserCalSettings() {
     const modal = document.getElementById('form-modal-message');
@@ -245,12 +245,12 @@ async function showUserCalSettings() {
                 </select>
             </div>
             <div class="toggle-row">
-                <span>Toggle dark and light mode:</span>
+                <span>${settingsContent.darkMode.legend}</span>
                 <dark-mode-toggle
                     id="dark-mode-toggle-5"
                     class="slider"
-                    legend="${settingsContent.darkMode.legend}"
-                    remember="${settingsContent.darkMode.remember}"
+                    legend=""
+                    remember="" 
                     appearance="toggle">
                 </dark-mode-toggle>
             </div>
