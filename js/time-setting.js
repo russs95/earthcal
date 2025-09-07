@@ -258,7 +258,7 @@ async function showUserCalSettings() {
                 <span>Toggle clock view:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="clock-toggle" ${clockVisible ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
-                    <span class="toggle-slider"></span>
+                    <span class="toggle-slider clock-toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
