@@ -250,15 +250,22 @@ async function showUserCalSettings() {
                     id="dark-mode-toggle-5"
                     class="slider"
                     legend=""
-                    remember="" 
+                    remember=""
                     appearance="toggle">
                 </dark-mode-toggle>
             </div>
             <div class="toggle-row">
                 <span>Toggle clock view:</span>
-                <label class="clock-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="clock-toggle" ${clockVisible ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
-                    <span class="clock-slider"></span>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <span>Solar system animations:</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="solar-animations-toggle" aria-label="Toggle solar system animations">
+                    <span class="toggle-slider"></span>
                 </label>
             </div>
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
