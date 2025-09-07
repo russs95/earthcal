@@ -267,6 +267,13 @@ async function showUserCalSettings() {
         </form>
     `;
 
+    const darkModeToggleEl = modalContent.querySelector('#dark-mode-toggle-5');
+    if (darkModeToggleEl) {
+        const isDark = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .some(link => link.href.includes('dark.css') && link.media !== 'not all' && !link.disabled);
+        darkModeToggleEl.mode = isDark ? 'dark' : 'light';
+    }
+
     const contentBox = modal.querySelector('.modal-content-box');
     if (contentBox) {
         contentBox.id = 'modal-content-box';
