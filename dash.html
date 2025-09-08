@@ -181,7 +181,11 @@
                 prefillAddDateCycle(cycleData);
             } else {
                 setCurrentDate(); // Fallback if no shared event
-                if (userAnimations) animatePlanetsIfReady();
+                if (userAnimations) {
+                    turnOnAnimations();
+                } else {
+                    turnOffAnimations();
+                }
               }
 
               const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
@@ -206,7 +210,11 @@
               setTimeout(function() {
                 startDate = targetDate;
                 if (params.get('action') === 'add-event') {
-                    if (userAnimations) animatePlanetsIfReady();
+                    if (userAnimations) {
+                        turnOnAnimations();
+                    } else {
+                        turnOffAnimations();
+                    }
                 }
                 setYearsMonthsOn();
                 updateTargetMonth();
