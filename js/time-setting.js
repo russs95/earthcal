@@ -1,4 +1,23 @@
+// Load persisted user preferences or defaults
+window.userDarkMode = localStorage.getItem('user_dark_mode')
+    || localStorage.getItem('dark-mode-toggle')
+    || 'light';
+window.userClock = localStorage.getItem('user_clock') === 'true';
+window.userAnimations = localStorage.getItem('user_animations') === 'true';
 
+function applyUserDarkMode() {
+    if (userDarkMode !== 'dark') return;
+    const lightLinks = document.querySelectorAll('link[href*="light.css"]');
+    const darkLinks = document.querySelectorAll('link[href*="dark.css"]');
+    darkLinks.forEach(link => { link.media = 'all'; link.disabled = false; });
+    lightLinks.forEach(link => { link.media = 'not all'; link.disabled = true; });
+}
+
+if (document.readyState !== 'loading') {
+    applyUserDarkMode();
+} else {
+    document.addEventListener('DOMContentLoaded', applyUserDarkMode);
+}
 
 async function displayUserData(time_zone, language) {
     const translations = await loadTranslations(language.toLowerCase());
@@ -229,6 +248,7 @@ async function showUserCalSettings() {
 
     const mainClock = document.getElementById('main-clock');
     const clockVisible = mainClock && mainClock.style.display === 'block';
+    userClock = clockVisible;
 
     const modalContent = document.getElementById('modal-content');
     modalContent.innerHTML = `
@@ -251,21 +271,22 @@ async function showUserCalSettings() {
                     class="slider"
                     legend=""
                     remember=""
-                    appearance="toggle">
+                    appearance="toggle"
+                    permanent>
                 </dark-mode-toggle>
             </div>
             <div class="toggle-row">
                 <span>Toggle clock view:</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="clock-toggle" ${clockVisible ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
+                    <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
                     <span class="toggle-slider clock-toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
                 <span>Solar system animations:</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="solar-animations-toggle" aria-label="Toggle solar system animations">
-                    <span class="toggle-slider"></span>
+                    <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
+                    <span class="toggle-slider orbit-toggle-slider"></span>
                 </label>
             </div>
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
@@ -276,9 +297,11 @@ async function showUserCalSettings() {
 
     const darkModeToggleEl = modalContent.querySelector('#dark-mode-toggle-5');
     if (darkModeToggleEl) {
-        const isDark = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-            .some(link => link.href.includes('dark.css') && link.media !== 'not all' && !link.disabled);
-        darkModeToggleEl.mode = isDark ? 'dark' : 'light';
+        darkModeToggleEl.mode = userDarkMode === 'dark' ? 'dark' : 'light';
+        darkModeToggleEl.addEventListener('colorschemechange', (e) => {
+            userDarkMode = e.detail.colorScheme;
+            localStorage.setItem('user_dark_mode', userDarkMode);
+        });
     }
 
     const contentBox = modal.querySelector('.modal-content-box');
@@ -432,6 +455,24 @@ function toggleClockView(isChecked) {
         openClock(userTimeZone);
     } else if (!isChecked && isVisible) {
         openClock(userTimeZone);
+    }
+    userClock = isChecked;
+    localStorage.setItem('user_clock', isChecked);
+}
+
+function toggleSolarAnimations(isChecked) {
+    userAnimations = isChecked;
+    localStorage.setItem('user_animations', isChecked);
+    if (isChecked) {
+        if (typeof animatePlanetsIfReady === 'function') {
+            animatePlanetsIfReady();
+        }
+    } else {
+        const planets = ['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'];
+        planets.forEach(id => {
+            const el = document.getElementById(id);
+            el?.getAnimations().forEach(anim => anim.cancel());
+        });
     }
 }
 
