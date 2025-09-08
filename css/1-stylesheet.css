@@ -2664,7 +2664,7 @@ color: #b2b1b1;
 
     #reg-down-button {
         width: 20%;
-        margin: 10px 0px 25px auto;
+        margin: 10px auto 25px auto;
         height: 20px;
     }
 
@@ -3112,8 +3112,8 @@ svg path #june:hover {
 .buwana-word-mark {
     background: url('../svgs/b-logo.svg') center no-repeat;
     background-size: contain;
-    height: 30px;
-    width: 200px;
+    height: 22px;
+    width: 177px;
     margin: auto;
     margin-top: 5px;
 
