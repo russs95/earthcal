@@ -1,5 +1,138 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"/>
-  <circle cx="18" cy="12" r="2" fill="black"/>
-  <line x1="4" y1="4" x2="20" y2="20" stroke="black" stroke-width="2"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="293.51111mm"
+   height="293.51111mm"
+   version="1.1"
+   viewBox="0 0 293.51111 293.5111"
+   id="svg2"
+   sodipodi:docname="orbit-off.svg"
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.38877217"
+     inkscape:cx="464.2822"
+     inkscape:cy="513.15402"
+     inkscape:window-width="1366"
+     inkscape:window-height="697"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="clock"
+     showguides="true">
+    <sodipodi:guide
+       position="146.92316,54.148318"
+       orientation="1,0"
+       id="guide1"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="221.78491,18.078559"
+       orientation="0,-1"
+       id="guide2"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="133.39003,146.50983"
+       orientation="0,-1"
+       id="guide3"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <script
+     id="script1">window.onload = function start() {   
+  animateClock()
+}</script>
+  <script
+     id="script2">function animateClock() {
+  // Get the SVG elements
+  const minuteHand = document.getElementById(&quot;minute-hand&quot;);
+  const hourHand = document.getElementById(&quot;hour-hand&quot;);
+  const secondHand = document.getElementById(&quot;second-hand&quot;);
+
+  // Get the clock circle center coordinates
+  const clockCircle = document.getElementById(&quot;clock-circle&quot;);
+  const cx = parseFloat(clockCircle.getAttribute(&quot;cx&quot;));
+  const cy = parseFloat(clockCircle.getAttribute(&quot;cy&quot;));
+
+  // Calculate the rotation angles for each hand
+  function calculateRotationAngles() {
+  const now = new Date();
+  const seconds = now.getSeconds();
+  const minutes = now.getMinutes() + seconds / 60;
+  const hours = (now.getHours() % 12) + minutes / 60;
+  const secondAngle = seconds * 6;
+  const minuteAngle = minutes * 6;
+  const hourAngle = (hours * 30) - 90; // Calibrate the hour angle
+  return { secondAngle, minuteAngle, hourAngle };
+}
+
+  // Update the clock hands positions and rotate them
+  function updateClockHands() {
+    const { secondAngle, minuteAngle, hourAngle } = calculateRotationAngles();
+
+    // Update the second hand position and rotation
+    const secondX = cx + 90 * Math.sin((secondAngle - 90) * (Math.PI / 180));
+    const secondY = cy + 90 * Math.cos((secondAngle - 90) * (Math.PI / 180));
+    secondHand.setAttribute(&quot;d&quot;, `M ${cx},${cy} L ${secondX},${secondY}`);
+
+    // Update the minute hand rotation
+    minuteHand.setAttribute(&quot;transform&quot;, `rotate(${minuteAngle},${cx},${cy})`);
+
+    // Update the hour hand rotation
+    hourHand.setAttribute(&quot;transform&quot;, `rotate(${hourAngle},${cx},${cy})`);
+  }
+
+  // Animate the movement of the second hand
+  function animateSecondHand() {
+    const { secondAngle } = calculateRotationAngles();
+    secondHand.setAttribute(&quot;transform&quot;, `rotate(${secondAngle},${cx},${cy})`);
+
+    // Call the function again after 1 second
+    setTimeout(animateSecondHand, 1000);
+  }
+
+  // Initial setup
+  updateClockHands();
+  animateSecondHand();
+}</script>
+  <g
+     id="clock"
+     transform="matrix(0.98984,0,0,0.98984,48.799015,1.8429891)"
+     fill="none"
+     stroke="#000000"
+     stroke-linecap="round">
+    <circle
+       id="clock-circle"
+       cx="98.961998"
+       cy="146.39999"
+       r="117.5191"
+       stroke-width="13.133"
+       style="stroke:#999999;stroke-width:18.8577;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:30.8468"
+       id="path1"
+       cx="185.15359"
+       cy="65.517685"
+       r="30.252062" />
+    <circle
+       style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:39.2596"
+       id="circle1"
+       cx="99.897781"
+       cy="143.21048"
+       r="38.502625" />
+  </g>
 </svg>
