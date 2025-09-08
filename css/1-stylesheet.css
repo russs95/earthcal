@@ -3191,8 +3191,8 @@ svg path #june:hover {
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 73px;
-    height: 32px;
+    width: 68px;
+    height: 30px;
 }
 
 .toggle-switch input {
@@ -3211,14 +3211,14 @@ svg path #june:hover {
     bottom: 0;
     background-color: var(--toggle-bg, #b7bbbd);
     transition: 0.4s;
-    border-radius: 32px;
+    border-radius: 30px;
 }
 
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 24px;
-    width: 24px;
+    height: 22px;
+    width: 22px;
     left: 4px;
     bottom: 4px;
     background-color: var(--toggle-knob-bg, #fff);
@@ -3231,23 +3231,23 @@ svg path #june:hover {
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(41px);
+    transform: translateX(38px);
 }
 
 /* Clock toggle icon styles */
 .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/clock-off.svg') center/24px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/clock-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/clock-on.svg') center/24px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/clock-on.svg') center/22px no-repeat;
 }
 
 /* Orbit toggle icon styles */
 .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-off.svg') center/24px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-on.svg') center/24px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-on.svg') center/22px no-repeat;
 }
