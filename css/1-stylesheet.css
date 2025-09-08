@@ -3242,10 +3242,3 @@ svg path #june:hover {
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
     background: #fff url('../icons/clock-on.svg') center/20px no-repeat;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .planet-wrapper {
-    animation: none !important;
-    transition: none !important;
-  }
-}

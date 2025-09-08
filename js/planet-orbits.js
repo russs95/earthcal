@@ -1,32 +1,3 @@
-function wrapPlanetElement(element) {
-  const svgNS = "http://www.w3.org/2000/svg";
-  if (element.parentElement && element.parentElement.classList.contains("planet-wrapper")) {
-    return element.parentElement;
-  }
-  const wrapper = document.createElementNS(svgNS, "g");
-  wrapper.classList.add("planet-wrapper");
-  wrapper.id = `${element.id}-wrapper`;
-  const cx = parseFloat(element.getAttribute("cx") || 0);
-  const cy = parseFloat(element.getAttribute("cy") || 0);
-  wrapper.setAttribute("transform", `translate(${cx},${cy})`);
-  if (element.hasAttribute("cx")) element.setAttribute("cx", 0);
-  if (element.hasAttribute("cy")) element.setAttribute("cy", 0);
-  element.parentNode.insertBefore(wrapper, element);
-  wrapper.appendChild(element);
-  return wrapper;
-}
-
-function getTranslateCoords(transform) {
-  const match = /translate\(([-\d.]+)[ ,]([-\d.]+)\)/.exec(transform || "");
-  return {
-    x: match ? parseFloat(match[1]) : 0,
-    y: match ? parseFloat(match[2]) : 0,
-  };
-}
-
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-window.planetAnimationsEnabled = !prefersReducedMotion;
-
 class Planet {
   constructor(element_id, orbit_id, orbit_days) {
     this.element_id = element_id; // ID of the SVG planet element
@@ -37,13 +8,11 @@ class Planet {
   animate() {
     const planetElement = document.getElementById(this.element_id);
     const planetOrbitElement = document.getElementById(this.orbit_id);
-    if (!planetElement || !planetOrbitElement) {
-      console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
-      return;
-    }
 
-    const planetWrapper = wrapPlanetElement(planetElement);
-
+  if (!planetElement || !planetOrbitElement) {
+    console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
+    return;
+  }
     // Reference date
     const yearStart = new Date(2023, 0, 1);
     //console.log("Initiating:" + yearStart + startDate);
@@ -71,27 +40,32 @@ class Planet {
       y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio2),
     };
 
-    if (!window.planetAnimationsEnabled) {
-      planetWrapper.setAttribute(
-        "transform",
-        `translate(${finalCoords2.x.toFixed(2)},${finalCoords2.y.toFixed(2)}) rotate(${orbitRatio2 * 360})`
-      );
-      return;
+    // GPU optimization with `will-change`
+    planetElement.style.willChange = "transform";
+
+    // Set the planet's position to the starting coordinates
+    if (startCoords.cx == 0 && startCoords.cy == 0) {
+      startCoords = {
+        cx: parseFloat(planetElement.getAttribute("cx") || 0),
+        cy: parseFloat(planetElement.getAttribute("cy") || 0),
+      };
     }
 
-    // GPU optimization with `will-change`
-    planetWrapper.style.willChange = "transform";
+    planetElement.setAttribute("cx", startCoords.cx);
+    planetElement.setAttribute("cy", startCoords.cy);
 
-    const startCoords = getTranslateCoords(planetWrapper.getAttribute("transform"));
-
-    // Create the first animation on the wrapper
-    const planetAnimation1 = planetWrapper.animate(
+    // Create the first animation
+    const planetAnimation1 = planetElement.animate(
       [
         {
-          transform: `translate(${startCoords.x}px, ${startCoords.y}px) rotate(0deg)`,
+          cx: startCoords.cx,
+          cy: startCoords.cy,
+          transform: `rotate(0deg)`,
         },
         {
-          transform: `translate(${finalCoords1.x.toFixed(2)}px, ${finalCoords1.y.toFixed(2)}px) rotate(${orbitRatio1 * 360}deg)`,
+          cx: finalCoords1.x.toFixed(2) + "px",
+          cy: finalCoords1.y.toFixed(2) + "px",
+          transform: `rotate(${orbitRatio1 * 360}deg)`,
         },
       ],
       {
@@ -118,13 +92,17 @@ class Planet {
         animationDuration = 4000;
       }
 
-      planetWrapper.animate(
+      planetElement.animate(
         [
           {
-            transform: `translate(${finalCoords1.x.toFixed(2)}px, ${finalCoords1.y.toFixed(2)}px) rotate(${orbitRatio1 * 360}deg)`,
+            cx: finalCoords1.x.toFixed(2) + "px",
+            cy: finalCoords1.y.toFixed(2) + "px",
+            transform: `rotate(${orbitRatio1 * 360}deg)`,
           },
           {
-            transform: `translate(${finalCoords2.x.toFixed(2)}px, ${finalCoords2.y.toFixed(2)}px) rotate(${orbitRatio2 * 360}deg)`,
+            cx: finalCoords2.x.toFixed(2) + "px",
+            cy: finalCoords2.y.toFixed(2) + "px",
+            transform: `rotate(${orbitRatio2 * 360}deg)`,
           },
         ],
         {
@@ -685,23 +663,4 @@ function animatePlanetsIfReady(retries = 10) {
   } else {
     console.error("Planet elements still missing after multiple retries.");
   }
-}
-
-function turnOffAnimations() {
-  window.planetAnimationsEnabled = false;
-  document.querySelectorAll('.planet-wrapper').forEach((wrapper) => {
-    if (wrapper.getAnimations) {
-      wrapper.getAnimations().forEach((anim) => anim.cancel());
-    }
-  });
-  [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune].forEach(
-    (planet) => planet.animate()
-  );
-}
-
-function turnOnAnimations() {
-  window.planetAnimationsEnabled = true;
-  [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune].forEach(
-    (planet) => planet.animate()
-  );
 }

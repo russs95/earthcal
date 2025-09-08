@@ -281,22 +281,6 @@ async function showUserCalSettings() {
         darkModeToggleEl.mode = isDark ? 'dark' : 'light';
     }
 
-    const solarAnimationsToggle = modalContent.querySelector('#solar-animations-toggle');
-    if (solarAnimationsToggle) {
-        solarAnimationsToggle.checked = window.planetAnimationsEnabled;
-        solarAnimationsToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                if (typeof turnOnAnimations === 'function') {
-                    turnOnAnimations();
-                }
-            } else {
-                if (typeof turnOffAnimations === 'function') {
-                    turnOffAnimations();
-                }
-            }
-        });
-    }
-
     const contentBox = modal.querySelector('.modal-content-box');
     if (contentBox) {
         contentBox.id = 'modal-content-box';
