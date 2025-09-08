@@ -181,7 +181,7 @@
                 prefillAddDateCycle(cycleData);
             } else {
                 setCurrentDate(); // Fallback if no shared event
-                animatePlanetsIfReady();
+                if (userAnimations) animatePlanetsIfReady();
               }
 
               const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
@@ -206,7 +206,7 @@
               setTimeout(function() {
                 startDate = targetDate;
                 if (params.get('action') === 'add-event') {
-                    animatePlanetsIfReady();
+                    if (userAnimations) animatePlanetsIfReady();
                 }
                 setYearsMonthsOn();
                 updateTargetMonth();
@@ -245,6 +245,7 @@
             // setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
             await getUserData(); // This sets time_zone, targetDate, etc.
             displayDayInfo(targetDate, userLanguage, userTimeZone);
+            if (userClock) openClock(userTimeZone);
         }
 
     </script>

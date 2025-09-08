@@ -3191,8 +3191,8 @@ svg path #june:hover {
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 72px;
-    height: 32px;
+    width: 61px;
+    height: 27px;
 }
 
 .toggle-switch input {
@@ -3211,16 +3211,16 @@ svg path #june:hover {
     bottom: 0;
     background-color: #b7bbbd;
     transition: 0.4s;
-    border-radius: 32px;
+    border-radius: 27px;
 }
 
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 24px;
-    width: 24px;
-    left: 4px;
-    bottom: 4px;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
     background-color: #fff;
     transition: 0.4s;
     border-radius: 50%;
@@ -3231,7 +3231,7 @@ svg path #june:hover {
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(40px);
+    transform: translateX(35px);
 }
 
 /* Clock toggle icon styles */
@@ -3241,4 +3241,13 @@ svg path #june:hover {
 
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
     background: #fff url('../icons/clock-on.svg') center/20px no-repeat;
+}
+
+/* Orbit toggle icon styles */
+.toggle-slider.orbit-toggle-slider:before {
+    background: #fff url('../icons/orbit-off.svg') center/20px no-repeat;
+}
+
+.toggle-switch input:checked + .toggle-slider.orbit-toggle-slider:before {
+    background: #fff url('../icons/orbit-on.svg') center/20px no-repeat;
 }
