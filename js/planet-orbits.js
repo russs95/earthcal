@@ -125,6 +125,38 @@ const saturn = new Planet("saturn", "saturn-orbit", 10759);
 const uranus = new Planet("uranus", "uranus-orbit", 30687);
 const neptune = new Planet("neptune", "neptune-orbit", 60190);
 
+let animationsEnabled = true;
+
+function turnOnAnimations() {
+  animationsEnabled = true;
+  animatePlanetsIfReady();
+}
+
+function turnOffAnimations() {
+  animationsEnabled = false;
+  if (!arePlanetsReady()) {
+    return;
+  }
+  const planets = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
+  const yearStart = new Date(2023, 0, 1);
+  const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
+  const daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+  const totalDays = daysSinceYearStart + daysSinceTargetDate;
+  planets.forEach(planet => {
+    const planetElement = document.getElementById(planet.element_id);
+    const planetOrbitElement = document.getElementById(planet.orbit_id);
+    if (!planetElement || !planetOrbitElement) return;
+    planetElement.getAnimations().forEach(anim => anim.cancel());
+    const orbitRatio = totalDays / planet.orbit_days;
+    const orbitRadius = planetOrbitElement.r.baseVal.value;
+    const finalX = orbitRadius * Math.sin(2 * Math.PI * orbitRatio);
+    const finalY = orbitRadius * Math.cos(2 * Math.PI * orbitRatio);
+    planetElement.setAttribute("cx", finalX.toFixed(2) + "px");
+    planetElement.setAttribute("cy", finalY.toFixed(2) + "px");
+    planetElement.style.transform = `rotate(${orbitRatio * 360}deg)`;
+  });
+}
+
 
 /*----------------------------------
 
@@ -648,6 +680,16 @@ function arePlanetsReady() {
 }
 
 function animatePlanetsIfReady(retries = 10) {
+  if (!animationsEnabled) {
+    if (arePlanetsReady()) {
+      turnOffAnimations();
+    } else if (retries > 0) {
+      setTimeout(() => animatePlanetsIfReady(retries - 1), 300);
+    } else {
+      console.error("Planet elements still missing after multiple retries.");
+    }
+    return;
+  }
   if (arePlanetsReady()) {
     mercury.animate();
     venus.animate();

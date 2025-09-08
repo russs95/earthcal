@@ -464,15 +464,13 @@ function toggleSolarAnimations(isChecked) {
     userAnimations = isChecked;
     localStorage.setItem('user_animations', isChecked);
     if (isChecked) {
-        if (typeof animatePlanetsIfReady === 'function') {
-            animatePlanetsIfReady();
+        if (typeof turnOnAnimations === 'function') {
+            turnOnAnimations();
         }
     } else {
-        const planets = ['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'];
-        planets.forEach(id => {
-            const el = document.getElementById(id);
-            el?.getAnimations().forEach(anim => anim.cancel());
-        });
+        if (typeof turnOffAnimations === 'function') {
+            turnOffAnimations();
+        }
     }
 }
 
