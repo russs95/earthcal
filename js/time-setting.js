@@ -2,8 +2,14 @@
 window.userDarkMode = localStorage.getItem('user_dark_mode')
     || localStorage.getItem('dark-mode-toggle')
     || 'light';
-window.userClock = localStorage.getItem('user_clock') === 'true';
-window.userAnimations = localStorage.getItem('user_animations') === 'true';
+
+const storedClock = localStorage.getItem('user_clock');
+window.userClock = storedClock === null ? false : storedClock === 'true';
+if (storedClock === null) localStorage.setItem('user_clock', 'false');
+
+const storedAnimations = localStorage.getItem('user_animations');
+window.userAnimations = storedAnimations === null ? true : storedAnimations === 'true';
+if (storedAnimations === null) localStorage.setItem('user_animations', 'true');
 
 function applyUserDarkMode() {
     if (userDarkMode !== 'dark') return;
