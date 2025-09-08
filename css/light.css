@@ -6,6 +6,9 @@
    :root {
 
        --slider: red;
+       --toggle-bg: #b7bbbd;
+       --toggle-bg-active: #4e5255;
+       --toggle-knob-bg: #ffffff;
 /*    --side-overlays: rgb(225, 225, 225);*/
     --side-overlays: white;
     --slide-highlight: rgb(212, 212, 213);
