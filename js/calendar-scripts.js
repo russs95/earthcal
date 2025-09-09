@@ -300,6 +300,8 @@ function closeTheModal() {
         box.style.backgroundColor = '';
     }
 
+    modal.classList.remove('dim-blur');
+
     // Hide the modal
     modal.classList.remove('modal-visible');
     modal.classList.add('modal-hidden');
