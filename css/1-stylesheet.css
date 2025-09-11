@@ -751,7 +751,7 @@ border-color: #00a112 !important;
 
 #day-search .x-button {
     top:25px;
-    left: 25px;
+    right:25px;
     }
 
 #right-settings-overlay .x-button {
@@ -2506,6 +2506,12 @@ color: #b2b1b1;
     text-align: left;
     padding: 10px;
     margin: auto;
+    position: relative;
+}
+
+#login-form-section .x-button {
+    top: 20px;
+    right: 20px;
 }
 
 
@@ -2519,14 +2525,7 @@ color: #b2b1b1;
     height: fit-content;
 }
 
-#reg-down-button {
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    padding: 0;
-    z-index: 51;
-    display: none;
-}
+
 
 
 
@@ -2626,15 +2625,6 @@ color: #b2b1b1;
         height: 30px;
     }
 
-    #reg-down-button {
-        width: 15%;
-        margin: 20px auto 0px auto;
-        height: 12px;
-    }
-
-    #reg-down-button img {
-        height: 19px;
-    }
 }
 
 @media screen and (min-width: 701px) and (max-width: 1200px) {
@@ -2644,15 +2634,6 @@ color: #b2b1b1;
         margin-bottom: 5px;
     }
 
-    #reg-down-button {
-        width: 15%;
-        margin: 20px auto 0px auto;
-        height: 19px;
-    }
-
-    #reg-down-button img {
-        height: 19px;
-    }
 }
 
 @media screen and (min-width: 1201px) {
@@ -2662,15 +2643,6 @@ color: #b2b1b1;
         height: 40px;
     }
 
-    #reg-down-button {
-        width: 20%;
-        margin: 10px auto 25px auto;
-        height: 20px;
-    }
-
-    #reg-down-button img {
-        height: 20px;
-    }
 }
 
 
@@ -3191,8 +3163,8 @@ svg path #june:hover {
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 61px;
-    height: 27px;
+    width: 68px;
+    height: 30px;
 }
 
 .toggle-switch input {
@@ -3209,45 +3181,45 @@ svg path #june:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #b7bbbd;
+    background-color: var(--toggle-bg, #b7bbbd);
     transition: 0.4s;
-    border-radius: 27px;
+    border-radius: 30px;
 }
 
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: #fff;
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--toggle-knob-bg, #fff);
     transition: 0.4s;
     border-radius: 50%;
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background-color: #4e5255;
+    background-color: var(--toggle-bg-active, #4e5255);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(35px);
+    transform: translateX(38px);
 }
 
 /* Clock toggle icon styles */
 .toggle-slider.clock-toggle-slider:before {
-    background: #fff url('../icons/clock-off.svg') center/20px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/clock-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
-    background: #fff url('../icons/clock-on.svg') center/20px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/clock-on.svg') center/22px no-repeat;
 }
 
 /* Orbit toggle icon styles */
 .toggle-slider.orbit-toggle-slider:before {
-    background: #fff url('../icons/orbit-off.svg') center/20px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.orbit-toggle-slider:before {
-    background: #fff url('../icons/orbit-on.svg') center/20px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-on.svg') center/22px no-repeat;
 }

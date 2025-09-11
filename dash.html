@@ -322,6 +322,7 @@
         <div class="registration-footer-holder">
             <!--<div id="user-session-status" style="color:grey;font-size:small; width:100%; text-align:left; padding:10px;height: 12px;margin-top:-45px;font-family:'Mulish',sans-serif;"></div>-->
             <div class="form-container" id="login-form-section">
+                <button id="reg-down-button" type="button" onclick="sendDownRegistration()" aria-label="Hide Login" class="x-button"></button>
                 <div style="text-align:center;width:100%;" >
                     <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
                     <div id="status-message">Login to EarthCal</div>
@@ -340,9 +341,6 @@
             <!--To be shown upon login-->
             <div id="logged-in-view" style="display:none; text-align:center;">
             </div>
-            <button id="reg-down-button" onclick="sendDownRegistration()" aria-label="Hide Login" data-lang-id="106-hide-subscription-registration">
-                <img src="svgs/down-arrow.svg" alt="Hide Earthen Newsletter registration" data-lang-id="107-hide-subscription-image-alt">
-            </button>
         </div>
     </div>
 </div>
@@ -808,7 +806,7 @@
         const modal = document.getElementById('form-modal-message');
         modal.classList.remove('modal-hidden');
         modal.classList.add('modal-visible');
-        document.getElementById("page-content").classList.add("blur");
+        modal.classList.add('dim-blur');
 
         document.getElementById('got-it-button').addEventListener('click', function () {
             closeTheModal();
