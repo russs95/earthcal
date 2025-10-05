@@ -3060,20 +3060,70 @@ svg path #june:hover {
 #date-controls {
     z-index: 29;
     position: fixed;
-    bottom: 2px;
-    left: 50%;
+    bottom: 20px;
+    right: 20px;
     background-color: var(--date-controls);
     border-radius: 15px;
-    padding: 10px 20px 0px 20px;
-    transform: translateX(-50%);
+    padding: 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#time-controller {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+#date-controls .next-button,
+#date-controls .previous-button,
+#date-controls #reset-to-today {
+    margin: 0;
+}
+
+#date-controls .next-button,
+#date-controls .previous-button {
+    transform: rotate(90deg);
+    transform-origin: center;
+}
+
+#bottom-left-buttons {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: fit-content;
+    max-width: calc(100vw - 260px);
+    flex-wrap: wrap;
+    background: var(--general-background);
+    padding: 15px 20px 10px 20px;
+    border-radius: 6px;
+    z-index: 20;
+}
+
+#bottom-left-buttons button {
+    margin: 0;
 }
 
 @media screen and (max-width: 700px) {
     #date-controls {
-        bottom: 27px;
+        bottom: 110px;
+        right: 15px;
     }
     #bottom-left-buttons {
-        right: 5px !important;
+        bottom: 20px;
+        left: 15px;
+        transform: none;
+        max-width: calc(100vw - 200px);
+        gap: 8px;
+        padding: 12px 16px;
     }
     #top-left-buttons {
         margin-left: 3px !important;
