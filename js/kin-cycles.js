@@ -4,8 +4,59 @@
 
 function cyclesToggleSimplified() {
   const buttons = document.querySelectorAll('.cycle-toggle');
-  const paletteRootButtons = document.querySelectorAll('.cycle-toggle[data-role="palette-root"]');
-  let activePalette = null;
+  let activePaletteId = null;
+  let activePaletteTrigger = null;
+
+  function hidePalette(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display = "none";
+    el.style.top = "";
+    el.style.left = "";
+    el.style.visibility = "";
+  }
+
+  function positionPalette(paletteId, triggerButton) {
+    const palette = document.getElementById(paletteId);
+    if (!palette || !triggerButton) {
+      return;
+    }
+
+    const gap = 12;
+    const viewportPadding = 16;
+
+    palette.style.bottom = "auto";
+    palette.style.right = "auto";
+    palette.style.visibility = "hidden";
+
+    requestAnimationFrame(() => {
+      if (palette.style.display !== "block") {
+        palette.style.visibility = "";
+        return;
+      }
+
+      const buttonRect = triggerButton.getBoundingClientRect();
+      const paletteRect = palette.getBoundingClientRect();
+      const paletteWidth = paletteRect.width;
+      const paletteHeight = paletteRect.height;
+
+      const centredLeft = buttonRect.left + (buttonRect.width / 2) - (paletteWidth / 2);
+      const maxLeft = window.innerWidth - paletteWidth - viewportPadding;
+      const clampedLeft = Math.max(viewportPadding, Math.min(centredLeft, maxLeft));
+
+      let top = buttonRect.top - paletteHeight - gap;
+      if (top < viewportPadding) {
+        top = buttonRect.bottom + gap;
+      }
+      const maxTop = window.innerHeight - paletteHeight - viewportPadding;
+      top = Math.min(top, maxTop);
+
+      palette.style.left = `${clampedLeft}px`;
+      palette.style.top = `${top}px`;
+      palette.style.visibility = "visible";
+    });
+  }
 
   buttons.forEach(button => {
     button.addEventListener('click', (e) => {
@@ -14,6 +65,7 @@ function cyclesToggleSimplified() {
       const isPaletteRoot = button.dataset.role === "palette-root";
       const targetPaletteId = button.dataset.show?.split(' ')[0];
       const targetPaletteEl = targetPaletteId ? document.getElementById(targetPaletteId) : null;
+      const isTargetPalette = targetPaletteEl && (targetPaletteEl.id === "planet-buttons" || targetPaletteEl.id === "kin-buttons");
       const isAlreadyActive = targetPaletteEl && targetPaletteEl.style.display === "block";
 
       if (isPaletteRoot) {
@@ -25,9 +77,15 @@ function cyclesToggleSimplified() {
       if (!isAlreadyActive) {
         // Show designated elements
         const toShow = button.dataset.show?.split(' ') || [];
+        const palettesToPosition = [];
         toShow.forEach(id => {
           const el = document.getElementById(id);
-          if (el) el.style.display = "block";
+          if (el) {
+            el.style.display = "block";
+            if (id === "planet-buttons" || id === "kin-buttons") {
+              palettesToPosition.push(id);
+            }
+          }
         });
 
         // Run any attached functions
@@ -39,30 +97,53 @@ function cyclesToggleSimplified() {
         });
 
         button.classList.add("totems-active");
-        activePalette = targetPaletteId;
+
+        if (palettesToPosition.length > 0) {
+          const paletteId = palettesToPosition[0];
+          positionPalette(paletteId, button);
+          activePaletteId = paletteId;
+          activePaletteTrigger = button;
+        } else if (isTargetPalette) {
+          positionPalette(targetPaletteEl.id, button);
+          activePaletteId = targetPaletteEl.id;
+          activePaletteTrigger = button;
+        } else {
+          activePaletteId = null;
+          activePaletteTrigger = null;
+        }
       } else {
-        activePalette = null;
+        activePaletteId = null;
+        activePaletteTrigger = null;
       }
     });
   });
 
   // Hide palettes when clicking elsewhere
   document.addEventListener('click', function (e) {
-    if (activePalette) {
-      const palette = document.getElementById(activePalette);
+    if (activePaletteId) {
+      const palette = document.getElementById(activePaletteId);
       const isClickInsidePalette = palette?.contains(e.target);
       const isClickOnButton = [...buttons].some(btn => btn.contains(e.target));
 
       if (!isClickInsidePalette && !isClickOnButton) {
         resetPalettesOnly();
-        activePalette = null;
+        activePaletteId = null;
+        activePaletteTrigger = null;
       }
     }
   });
 
+  window.addEventListener('resize', () => {
+    if (activePaletteId && activePaletteTrigger) {
+      positionPalette(activePaletteId, activePaletteTrigger);
+    }
+  });
+
   function resetPalettesOnly() {
-    document.getElementById("planet-buttons").style.display = "none";
-    document.getElementById("kin-buttons").style.display = "none";
+    hidePalette("planet-buttons");
+    hidePalette("kin-buttons");
+    activePaletteId = null;
+    activePaletteTrigger = null;
     const allButtons = document.querySelectorAll('.cycle-toggle');
     allButtons.forEach(btn => btn.classList.remove("totems-active"));
   }

@@ -261,36 +261,22 @@ p {
     }
   }
 
-.icon-button-row {
-justify-content: flex-end;
-  position: fixed;
-  z-index: 29;
-  bottom: 70px;
-  right: 20px;
-  background: rgba(128, 128, 128, 0.17);
-  border-radius: 8px;
-  display: flex;
-  padding-right: 60px;
-  height: 48px;
-  padding-left: 10px;
-display:none;
-}
-
+.icon-button-row,
 .icon-button-column {
-
-justify-content: flex-end;
-  justify-content: flex-end;
-  position: absolute;
-  bottom: 115px;
-  right: 22px;
-  border-radius: 8px;
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 14px 12px;
   background: rgba(128, 128, 128, 0.17);
-  width: 50px;
-  height: fit-content;
-  flex-flow: column;
-  padding-bottom: 50px;
-z-index:20;
-display: none;
+  border-radius: 8px;
+  z-index: 30;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
 }
 
 
@@ -3095,15 +3081,13 @@ svg path #june:hover {
     bottom: 20px;
     left: 20px;
     transform: none;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
     gap: 12px;
     width: fit-content;
-    max-width: calc(100vw - 260px);
-    flex-wrap: wrap;
     background: var(--general-background);
-    padding: 15px 20px 10px 20px;
+    padding: 16px 20px;
     border-radius: 5px;
     z-index: 20;
 }
@@ -3120,10 +3104,8 @@ svg path #june:hover {
     #bottom-left-buttons {
         bottom: 10px;
         left: 15px;
-        transform: none;
-        max-width: calc(100vw - 200px);
-        gap: 8px;
-        padding: 12px 16px;
+        gap: 10px;
+        padding: 14px 16px;
     }
     #top-left-buttons {
         margin-left: 3px !important;
