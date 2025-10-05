@@ -39,7 +39,7 @@ async function displayUserData(time_zone, language) {
         userTimezoneLangDiv.innerHTML = `
             <span id="current-user-time"></span>
             <span id="user-details" style="cursor:pointer"
-                onclick="showUserCalSettings()"
+                onclick="openAddItem()"
                 onmouseover="this.style.textDecoration='underline'"
                 onmouseout="this.style.textDecoration='none'">
                 ${userDetailsString}
