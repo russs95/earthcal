@@ -41,18 +41,39 @@ function cyclesToggleSimplified() {
       const paletteWidth = paletteRect.width;
       const paletteHeight = paletteRect.height;
 
-      const centredLeft = buttonRect.left + (buttonRect.width / 2) - (paletteWidth / 2);
-      const maxLeft = window.innerWidth - paletteWidth - viewportPadding;
-      const clampedLeft = Math.max(viewportPadding, Math.min(centredLeft, maxLeft));
+      const shouldAlignRight =
+        triggerButton.dataset.role === "palette-root" &&
+        (paletteId === "planet-buttons" || paletteId === "kin-buttons");
 
-      let top = buttonRect.top - paletteHeight - gap;
-      if (top < viewportPadding) {
-        top = buttonRect.bottom + gap;
+      let left;
+      let top;
+
+      if (shouldAlignRight) {
+        const preferredLeft = buttonRect.right + gap;
+        const maxLeft = window.innerWidth - paletteWidth - viewportPadding;
+        if (preferredLeft + paletteWidth > window.innerWidth - viewportPadding) {
+          left = Math.max(viewportPadding, buttonRect.left - paletteWidth - gap);
+        } else {
+          left = Math.min(preferredLeft, maxLeft);
+        }
+
+        const preferredTop = buttonRect.top + (buttonRect.height / 2) - (paletteHeight / 2);
+        const maxTop = window.innerHeight - paletteHeight - viewportPadding;
+        top = Math.max(viewportPadding, Math.min(preferredTop, maxTop));
+      } else {
+        const centredLeft = buttonRect.left + (buttonRect.width / 2) - (paletteWidth / 2);
+        const maxLeft = window.innerWidth - paletteWidth - viewportPadding;
+        left = Math.max(viewportPadding, Math.min(centredLeft, maxLeft));
+
+        top = buttonRect.top - paletteHeight - gap;
+        if (top < viewportPadding) {
+          top = buttonRect.bottom + gap;
+        }
+        const maxTop = window.innerHeight - paletteHeight - viewportPadding;
+        top = Math.min(top, maxTop);
       }
-      const maxTop = window.innerHeight - paletteHeight - viewportPadding;
-      top = Math.min(top, maxTop);
 
-      palette.style.left = `${clampedLeft}px`;
+      palette.style.left = `${left}px`;
       palette.style.top = `${top}px`;
       palette.style.visibility = "visible";
     });
