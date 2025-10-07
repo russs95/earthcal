@@ -2,7 +2,7 @@
 <HTML lang="en">
 <HEAD>
     <title>Earthcal</title>
-    <link rel="icon" href="icons/favicon.ico" />
+    <link rel="icon" href="assets/icons/favicon.ico" />
     <!--
     EARTHCYCLES CALENDAR PROJECT
     Code and Calendar by Russell Maier
@@ -368,7 +368,7 @@
         </div>
 
         <div id="information-three" style="display:none;" class="information">
-            <div class="tour-image"><img src="icons/saturn-cycle.svg" title="Our Neighbourhood" alt="Our Neighbourhood"></div>
+            <div class="tour-image"><img src="assets/icons/saturn-cycle.svg" title="Our Neighbourhood" alt="Our Neighbourhood"></div>
             <div class="modal-header" id="tour-header-3"></div>
             <div class="modal-description" id="tour-desc-3"></div>
             <button class="back" id="back-3"></button>
@@ -384,7 +384,7 @@
         </div>
 
         <div id="information-five" style="display:none;" class="information">
-            <div class="tour-image"><img src="icons/whale.svg" title="Earth and animal cycles" alt="animal cycles"></div>
+            <div class="tour-image"><img src="assets/icons/whale.svg" title="Earth and animal cycles" alt="animal cycles"></div>
             <div class="modal-description" id="tour-desc-5"></div>
             <button class="back" id="back-5"></button>
             <button class="next" id="next-5"></button>
@@ -593,7 +593,7 @@
 <!--MAIN PAGE-->
 <div id="page-content">
 
-    <div id="header" class="top-menu">  <!-- Why 140px?-->
+    <div id="header" class="top-menu" title="Earthcal v0.9">  <!-- Why 140px?-->
         <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
             <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
                 <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
@@ -719,14 +719,14 @@
     <!--ANIMALS-->
     <div id="whale-cycle" class="animal-info-box">
         <div id="whale-phase" class="phase-image">
-            <img src="icons/whale.svg" width="60" height="40"></div>
+            <img src="assets/icons/whale.svg" width="60" height="40"></div>
         <div id="whale-info" class="planet-info" style="text-align: left;">
         </div>
     </div>
 
     <div id="stork-cycle" class="animal-info-box">
         <div id="stork-phase" class="phase-image">
-            <img src="icons/stork.svg" width="60" height="40">
+            <img src="assets/icons/stork.svg" width="60" height="40">
         </div>
         <div id="stork-info" class="planet-info" style="text-align: left;">
 
@@ -756,19 +756,19 @@
 
     <!-- PALETTE KIN BUTTONS -->
     <div id="kin-buttons" class="icon-button-row">
-        <button type="button" id="whale-button" class="totems-icon active cycle-toggle" data-show="americas-map whale-cycle whale-info whale-cycler" data-hide="stork-cycle stork-info storkCycler" data-function="UpdateWhaleCycle animateWhaleCycle" style="border-color:blue;" aria-label="Access whale cycle"><img src="icons/whale.svg" title="grey whale migration"></button>
-        <button type="button" id="stork-button" class="totems-icon cycle-toggle" data-show="euro-map stork-cycle stork-info storkCycler" data-hide="whale-cycle whale-info whaleCycler" data-function="updateStorkCycle"  aria-label="Access stork cycle" style="border-color:red;"><img src="icons/stork.svg" title="black stork migration"></button>
-        <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="icons/cariboo.svg" title="Cariboo migration"></button>
-        <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="icons/monarch.svg"></button>
+        <button type="button" id="whale-button" class="totems-icon active cycle-toggle" data-show="americas-map whale-cycle whale-info whale-cycler" data-hide="stork-cycle stork-info storkCycler" data-function="UpdateWhaleCycle animateWhaleCycle" style="border-color:blue;" aria-label="Access whale cycle"><img src="assets/icons/whale.svg" title="grey whale migration"></button>
+        <button type="button" id="stork-button" class="totems-icon cycle-toggle" data-show="euro-map stork-cycle stork-info storkCycler" data-hide="whale-cycle whale-info whaleCycler" data-function="updateStorkCycle"  aria-label="Access stork cycle" style="border-color:red;"><img src="assets/icons/stork.svg" title="black stork migration"></button>
+        <button type="button" id="cariboo-button" class="totems-icon"  aria-label="Access cariboo cycle" style="border-color:teal;"><img src="assets/icons/cariboo.svg" title="Cariboo migration"></button>
+        <button type="button" id="monarch-button" class="totems-icon"  aria-label="Access monarch cycle" style="border-color:orange;"><img src="assets/icons/monarch.svg"></button>
     </div>
 
     <!-- PLANET BUTTONS -->
     <div id="planet-buttons" class="icon-button-column">
-        <button type="button" id="saturn-button" class="planet-icon cycle-toggle" data-show="saturn-cycle" data-function="UpdateSaturnData" title="Saturn" style="border-color:grey"><img src="icons/saturn-cycle.svg" aria-label="Access Saturn's cycle"></button>
-        <button type="button" id="jupiter-button" class="planet-icon cycle-toggle" data-show="jupiter-cycle" data-function="UpdateJupiterData"   style="border-color:#f59d04;" aria-label="Access Jupiter's cycle" title="Jupiter"><img src="icons/jupiter-cycle.svg" ></button>
-        <button type="button" id="mars-button" class="planet-icon cycle-toggle" data-show="mars-cycle" data-function="UpdateMarsData"   aria-label="Access Mars's cycle" title="Mars" style="border-color:red;"><img src="icons/mars-cycle.svg"></button>
-        <button type="button" id="venus-button" class="planet-icon cycle-toggle" data-show="venus-cycle" data-function="UpdateVenusData"  aria-label="Access Venus's cycle" title="Venus" style="border-color:green;"><img src="icons/venus-cycle.svg"></button>
-        <button type="button" id="mercury-button" class="planet-icon cycle-toggle" data-show="mercury-cycle" data-function="UpdateMercuryData"  aria-label="Access Mercury cycle" title="☿ Mercury" style="border-color:rgb(144, 106, 4);"><img src="icons/mercury-cycle.svg"></button>
+        <button type="button" id="saturn-button" class="planet-icon cycle-toggle" data-show="saturn-cycle" data-function="UpdateSaturnData" title="Saturn" style="border-color:grey"><img src="assets/icons/saturn-cycle.svg" aria-label="Access Saturn's cycle"></button>
+        <button type="button" id="jupiter-button" class="planet-icon cycle-toggle" data-show="jupiter-cycle" data-function="UpdateJupiterData"   style="border-color:#f59d04;" aria-label="Access Jupiter's cycle" title="Jupiter"><img src="assets/icons/jupiter-cycle.svg" ></button>
+        <button type="button" id="mars-button" class="planet-icon cycle-toggle" data-show="mars-cycle" data-function="UpdateMarsData"   aria-label="Access Mars's cycle" title="Mars" style="border-color:red;"><img src="assets/icons/mars-cycle.svg"></button>
+        <button type="button" id="venus-button" class="planet-icon cycle-toggle" data-show="venus-cycle" data-function="UpdateVenusData"  aria-label="Access Venus's cycle" title="Venus" style="border-color:green;"><img src="assets/icons/venus-cycle.svg"></button>
+        <button type="button" id="mercury-button" class="planet-icon cycle-toggle" data-show="mercury-cycle" data-function="UpdateMercuryData"  aria-label="Access Mercury cycle" title="☿ Mercury" style="border-color:rgb(144, 106, 4);"><img src="assets/icons/mercury-cycle.svg"></button>
     </div>
 </div>  <!--close page content-->
 

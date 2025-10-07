@@ -923,7 +923,7 @@ function editDateCycle(uniqueKey) {
     const modal = document.getElementById('form-modal-message');
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
-    document.getElementById("page-content").classList.add("blur");
+
 }
 
 

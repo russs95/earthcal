@@ -64,13 +64,13 @@ path[id*="week-"] {
 
 @font-face {
     font-family: "Mulish";
-    src: url("../fonts/Mulish-Light.ttf");
+    src: url("../assets/fonts/Mulish-Light.ttf");
     font-display: swap;
 }
 
 @font-face {
     font-family: "Arvo";
-    src: url("../fonts/Arvo-Regular.ttf");
+    src: url("../assets/fonts/Arvo-Regular.ttf");
     font-display: swap;
 }
 
@@ -115,7 +115,7 @@ path[id*="week-"] {
     margin-left:10px;}
 
 #reset-to-today {
-    width:35px;
+    width:30px;
     height:30px;
     text-align:center;
     cursor:pointer;
@@ -3248,18 +3248,18 @@ svg path #june:hover {
 
 /* Clock toggle icon styles */
 .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/clock-off.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/clock-on.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-on.svg') center/22px no-repeat;
 }
 
 /* Orbit toggle icon styles */
 .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-off.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-off.svg') center/22px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../icons/orbit-on.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-on.svg') center/22px no-repeat;
 }

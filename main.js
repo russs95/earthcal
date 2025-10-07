@@ -12,7 +12,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1028,
     height: 769,
-    icon: path.join(__dirname, 'icons', 'earthcal.png'),
+    icon: path.join(__dirname, 'assets', 'earthcal.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       sandbox: false,
