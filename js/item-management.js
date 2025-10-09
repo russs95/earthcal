@@ -39,6 +39,9 @@ async function openAddItem() {
     // scope calendar reads/writes. If missing, prompt login/registration.
     // ============================================================
     const user = getCurrentUser(); // { buwana_id, time_zone?, name? }
+
+    console.log('[openAddItem] user object:', getCurrentUser());
+
     if (!user?.buwana_id) {
         alert('Please log in to add items.');
         if (typeof sendUpRegistration === 'function') sendUpRegistration();
@@ -53,39 +56,84 @@ async function openAddItem() {
     // ============================================================
     const { dateStr, timeStr } = resolveTargetDateParts();
 
-    // ============================================================
-    // 2. ENSURE DEFAULT "MY CALENDAR" EXISTS (CREATE IF MISSING)
-    // ------------------------------------------------------------
-    // We try to load the user's calendars. If none exist or there is
-    // no default_my_calendar (or no "My Calendar" by name), we call
-    // create_my_calendar.php to create it, then reload the list.
-    // ============================================================
-    let calendars = await loadUserCalendars(user.buwana_id, { force: true }).catch(() => []);
-    let defaultCal =
-        calendars.find(c => c.is_default) ||
-        calendars.find(c => /my\s*calendar/i.test(c.name || ''));
 
+
+    // ============================================================
+// 2. ENSURE DEFAULT "MY CALENDAR" EXISTS (CREATE IF MISSING)
+// ------------------------------------------------------------
+// We try to load the user's calendars. If none exist or there is
+// no valid default_my_calendar (or no "My Calendar" by name), we call
+// create_my_calendar.php to create it, then reload the list.
+// ============================================================
+    console.log('[openAddItem] checking for existing My Calendar…');
+
+    let calendars = [];
+    try {
+        calendars = await loadUserCalendars(user.buwana_id, { force: true });
+        console.log('[openAddItem] calendars loaded:', calendars);
+    } catch (err) {
+        console.error('[openAddItem] loadUserCalendars() failed:', err);
+        calendars = [];
+    }
+
+// 🧠 Filter out any legacy or invalid calendar entries
+    calendars = calendars.filter(c => {
+        const validId = Number.isInteger(c.calendar_id) && c.calendar_id > 0;
+        const validName = typeof c.name === 'string' && c.name.trim() !== '';
+        const isV1 = c?.tzid || c?.category || c?.visibility; // new v1 fields
+        return validId && validName && isV1;
+    });
+
+    console.log('[openAddItem] filtered calendars (valid only):', calendars);
+
+    let defaultCal = null;
+    if (Array.isArray(calendars) && calendars.length > 0) {
+        defaultCal =
+            calendars.find(c => c.is_default) ||
+            calendars.find(c => /my\s*calendar/i.test(c.name || ''));
+    }
+
+    console.log('[openAddItem] defaultCal initial:', defaultCal);
+
+// 🧩 If no valid calendar, trigger creation
     if (!defaultCal) {
+        console.log('[openAddItem] no valid default calendar found — creating new v1 My Calendar…');
         try {
+            const payload = {
+                buwana_id: user.buwana_id,
+                tzid: getUserTZ(),
+            };
+            console.log('[openAddItem] sending create_my_calendar request with payload:', payload);
+
             const makeRes = await fetch('/api/v1/create_my_calendar.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ buwana_id: user.buwana_id, tzid: getUserTZ() })
+                body: JSON.stringify(payload)
             });
+
+            console.log('[openAddItem] create_my_calendar status:', makeRes.status);
             const makeJson = await makeRes.json().catch(() => ({}));
+            console.log('[openAddItem] create_my_calendar response:', makeJson);
+
             if (!makeRes.ok || !makeJson?.ok) {
                 console.warn('[openAddItem] create_my_calendar failed:', makeJson);
                 alert('Could not create your default calendar. Please try again.');
                 return;
             }
-            // refresh cache → list again
+
+            // 🔄 Re-fetch updated calendar list
             calendars = await loadUserCalendars(user.buwana_id, { force: true }).catch(() => []);
+            console.log('[openAddItem] calendars after creation:', calendars);
+
             defaultCal =
                 calendars.find(c => c.is_default) ||
                 calendars.find(c => /my\s*calendar/i.test(c.name || ''));
+
+            console.log('[openAddItem] defaultCal after creation:', defaultCal);
+
         } catch (err) {
-            console.error('[openAddItem] create_my_calendar error:', err);
+            console.error('[openAddItem] create_my_calendar network or logic error:', err);
             alert('Could not reach the server to create your calendar.');
             return;
         }
@@ -93,10 +141,16 @@ async function openAddItem() {
 
     const calendarId = defaultCal?.calendar_id ?? null;
     const calendarName = defaultCal?.name ?? 'My Calendar';
+
+    console.log('[openAddItem] final defaultCal:', defaultCal);
+    console.log('[openAddItem] calendarId:', calendarId);
+
     if (!calendarId) {
         alert('No calendar was found or created. Please try again.');
         return;
     }
+
+
 
     // ============================================================
     // 3. OPEN THE MODAL CONTAINER
