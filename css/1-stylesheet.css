@@ -86,7 +86,6 @@ path[id*="week-"] {
     transition: opacity 1.3s ease-out;
 }
 
-
 #days-of-year-lines {
     opacity: 0;
 }
@@ -98,7 +97,6 @@ path[id*="week-"] {
 #ray_lines  {
     opacity: 0;
 }
-
 
 .previous-button {
     width:30px;
@@ -1702,7 +1700,7 @@ TOOLTIPS AND MODALS
 
 
 /* Modal content box */
-.modal-content {
+#modal-content {
   position: fixed;
   top: 50%;
   left: 0;
@@ -1725,13 +1723,13 @@ TOOLTIPS AND MODALS
 }
 
 @media screen and (min-width: 769px) and (max-width: 1199px) {
-  .modal-content {
+  #modal-content {
     width: 72%;
   }
 }
 
 @media screen and (min-width: 1200px) {
-  .modal-content {
+  #modal-content {
     width: 65%;
   }
 }

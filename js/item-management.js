@@ -360,32 +360,35 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <option value="journal">Journal</option>
           </select>
         </div>
-
-        <div class="ec-form-field">
+        
+             <div class="ec-form-field">
           <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
             ${calendarOptions}
             <option value="__add_new__">+ Add new calendar</option>
           </select>
         </div>
-
-        <div class="ec-form-field">
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
-        </div>
-
-        <div class="ec-form-field">
-          <label for="ec-frequency" class="ec-inline-label">Frequency</label>
+        
+          <div class="ec-form-field">
           <select id="ec-frequency" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
-            <option value="today" selected>Just today</option>
+            <option value="today" selected>One-time</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
         </div>
 
+   
+
+        <div class="ec-form-field">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
+        </div>
+
+      
+
         <div id="ec-todo-fields" class="ec-form-inline">
           <div class="ec-inline-field ec-pin-field">
             <div class="ec-toggle-chip">
-              <span class="ec-inline-label">Pin?</span>
+              <span class="ec-inline-label">📌</span>
               <label class="toggle-switch" for="ec-pinned">
                 <input id="ec-pinned" type="checkbox" aria-label="Pin to calendar">
                 <span class="toggle-slider"></span>
@@ -408,7 +411,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
 
         <div class="ec-form-field ec-notes-toggle-row">
           <div class="ec-toggle-chip">
-            <span class="ec-inline-label">Add notes</span>
+            <span class="ec-inline-label">✏️</span>
             <label class="toggle-switch" for="ec-notes-toggle">
               <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
               <span class="toggle-slider"></span>
