@@ -93,29 +93,58 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=0.1"></script>
+    <script>
+        // Increment this version to force browsers to reload Earthcal assets.
+        window.EARTHCAL_ASSET_VERSION = 1;
 
-    <!--Default Light Styles to load first-->
-    <link rel="preload" href="css/light.css?v5.2" as="style" onload="this.rel='stylesheet'">
+        window.versionedUrl = function versionedUrl(url) {
+            const [path, query = ""] = url.split("?");
+            const filteredQuery = query
+                .split("&")
+                .filter((part) => part && !/^v=/.test(part))
+                .join("&");
+            const separator = filteredQuery ? "&" : "";
+            return `${path}?${filteredQuery}${separator}v=${window.EARTHCAL_ASSET_VERSION}`;
+        };
 
-    <!--Stylesheets for light and dark mode.  They need to be called here-->
-    <link rel="stylesheet" href="css/light.css?v6" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
-    <link rel="stylesheet" href="css/dark.css?v6" media="(prefers-color-scheme: dark)">
-    <link rel="stylesheet" href="css/slider.css?v=1.2">
-
-
-
-
-    <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=4.1">
-    <link rel="stylesheet" href="css/login-styles.css?v=1">
-    <link rel="stylesheet" href="css/mini-mode.css?v=1">
+        document.write(
+            `<script src="${window.versionedUrl("js/earthcal-init.js")}"><\\/script>`
+        );
+        document.write(
+            `<link rel="preload" href="${window.versionedUrl("css/light.css")}" as="style" onload="this.rel='stylesheet'">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/light.css")}" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/dark.css")}" media="(prefers-color-scheme: dark)">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/slider.css")}">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/1-stylesheet.css")}">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/login-styles.css")}">`
+        );
+        document.write(
+            `<link rel="stylesheet" href="${window.versionedUrl("css/mini-mode.css")}">`
+        );
+        document.write(
+            `<script src="${window.versionedUrl("js/gsap.min.js")}"><\\/script>`
+        );
+        document.write(
+            `<script src="${window.versionedUrl("js/MotionPathPlugin.min.js")}"><\\/script>`
+        );
+        document.write(
+            `<script src="${window.versionedUrl("js/1-lunar-scripts.js")}"><\\/script>`
+        );
+    </script>
 
     <!-- Inline styles current being experimented with-->
     <style>
     </style>
-    <script src="js/gsap.min.js"></script>
-    <script src="js/MotionPathPlugin.min.js"></script>
     <script>
         function displayMoonPhaseOnHover(event) {
             const pathId = event.target.id;
@@ -125,7 +154,6 @@
             updateMoonPhase(date);
         }
     </script>
-    <script src="js/1-lunar-scripts.js"></script>
     <script>
 
 
