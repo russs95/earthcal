@@ -204,10 +204,50 @@ async function openAddItem() {
         notesBox.style.display = notesToggle.checked ? 'block' : 'none';
     });
 
-    const emojiInput = document.getElementById('ec-emoji');
-    emojiInput.addEventListener('input', (e) => {
-        e.target.value = sanitizeEmojiInput(e.target.value);
-    });
+    const emojiButton = document.getElementById('ec-emoji-button');
+    const emojiPicker = document.getElementById('ec-emoji-picker');
+    const emojiHiddenInput = document.getElementById('ec-emoji');
+    const emojiPreview = document.getElementById('ec-emoji-preview');
+
+    if (emojiButton && emojiPicker && emojiHiddenInput && emojiPreview) {
+        const togglePicker = () => {
+            const nowOpen = !emojiPicker.classList.contains('ec-emoji-picker--visible');
+            if (nowOpen) {
+                emojiPicker.classList.add('ec-emoji-picker--visible');
+            } else {
+                emojiPicker.classList.remove('ec-emoji-picker--visible');
+            }
+            emojiButton.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+        };
+
+        emojiButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            togglePicker();
+        });
+
+        emojiPicker.addEventListener('click', (event) => {
+            const option = event.target.closest('.ec-emoji-option');
+            if (!option) return;
+            const chosen = sanitizeEmojiInput(option.dataset.emoji || option.textContent || '');
+            emojiHiddenInput.value = chosen;
+            emojiPreview.textContent = chosen || '🙂';
+            emojiPicker.classList.remove('ec-emoji-picker--visible');
+            emojiButton.setAttribute('aria-expanded', 'false');
+        });
+
+        const handleDocumentClick = (event) => {
+            if (!document.body.contains(emojiPicker)) {
+                document.removeEventListener('click', handleDocumentClick);
+                return;
+            }
+            if (!emojiPicker.classList.contains('ec-emoji-picker--visible')) return;
+            if (emojiPicker.contains(event.target) || emojiButton.contains(event.target)) return;
+            emojiPicker.classList.remove('ec-emoji-picker--visible');
+            emojiButton.setAttribute('aria-expanded', 'false');
+        };
+
+        document.addEventListener('click', handleDocumentClick);
+    }
 
     // ============================================================
     // 6. SAVE HANDLER — CALL /api/v1/add_item.php (LIVE)
@@ -274,90 +314,101 @@ async function openAddItem() {
 
 function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid }) {
     return `
-    <div style="padding: 8px 4px;">
-      <h3 style="margin: 0 0 10px 0;">Add a to-do item for this ${displayDate}.</h3>
+    <div class="add-date-form" style="margin:auto;">
+      <h3 class="ec-form-title">Add a to-do item for this ${displayDate}.</h3>
 
-      <form id="ec-add-item-form" class="blur-form-field" autocomplete="off" onsubmit="return false;">
-        <!-- Item kind (locked to To-Do for now) -->
-        <label style="display:block;margin:8px 0 4px;">Item type</label>
-        <select id="ec-item-kind" class="blur-form-field" style="height:40px;width:220px;">
-          <option value="todo" selected>To-Do</option>
-          <option value="event">Event</option>
-          <option value="journal">Journal</option>
-        </select>
+      <form id="ec-add-item-form" autocomplete="off" onsubmit="return false;">
+        <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
+        <input id="ec-time" type="hidden" value="${escapeAttr(timeStr)}">
+        <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
 
-        <!-- Calendar (preset) -->
-        <div style="margin-top:10px;">
-          <label style="display:block;margin:8px 0 4px;">Calendar</label>
-          <input id="ec-calendar-label" type="text" value="${escapeHTML(calendarName)}" class="blur-form-field"
-                 style="height:40px;width:320px;" readonly>
+        <div class="ec-form-field">
+          <label for="ec-item-kind">Item type</label>
+          <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
+            <option value="todo" selected>To-Do</option>
+            <option value="event">Event</option>
+            <option value="journal">Journal</option>
+          </select>
+        </div>
+
+        <div class="ec-form-field">
+          <label for="ec-calendar-label">Calendar</label>
+          <input id="ec-calendar-label" type="text" value="${escapeHTML(calendarName)}" class="blur-form-field" style="height:45px;width:100%;cursor:text;" readonly>
           <input id="ec-calendar-id" type="hidden" value="${escapeAttr(calendarId)}">
-          <!-- Later we can add a "Change" button that opens a picker -->
         </div>
 
-        <!-- Date / Time preset -->
-        <div style="display:flex;gap:8px;align-items:flex-end;margin-top:10px;">
-          <div>
-            <label style="display:block;margin:8px 0 4px;">Date</label>
-            <input id="ec-date" type="date" value="${dateStr}" class="blur-form-field" style="height:40px;">
-          </div>
-          <div>
-            <label style="display:block;margin:8px 0 4px;">Time</label>
-            <input id="ec-time" type="time" value="${timeStr}" class="blur-form-field" style="height:40px;">
-          </div>
-          <div>
-            <label style="display:block;margin:8px 0 4px;">Time Zone</label>
-            <input id="ec-tzid" type="text" value="${escapeAttr(tzid)}" class="blur-form-field"
-                   style="height:40px;width:220px;" title="IANA time zone (e.g., Asia/Jakarta)">
-          </div>
+        <div class="ec-form-field">
+          <label for="ec-title">Title</label>
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;">
         </div>
 
-        <!-- Title -->
-        <div style="margin-top:12px;">
-          <label style="display:block;margin:8px 0 4px;">Title</label>
-          <input id="ec-title" type="text" class="blur-form-field"
-                 placeholder="What needs doing?" style="height:44px;width:100%;">
-        </div>
-
-        <!-- To-Do specific: pinned, emoji, color -->
-        <div id="ec-todo-fields" style="display:block;margin-top:12px;">
-          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:8px;">
-              <input id="ec-pinned" type="checkbox"> Pinned
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;">
-              Emoji <input id="ec-emoji" type="text" maxlength="4" placeholder="🙂" class="blur-form-field" style="height:40px;width:70px;text-align:center;">
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;">
-              Color <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field" style="height:40px;width:60px;padding:0;">
-            </label>
+        <div id="ec-todo-fields" class="ec-form-inline">
+          <label class="ec-inline-field ec-checkbox">
+            <input id="ec-pinned" type="checkbox"> Pinned
+          </label>
+          <div class="ec-inline-field ec-emoji-field">
+            <span class="ec-inline-label">Emoji</span>
+            <div class="ec-emoji-input">
+              <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false">
+                <span id="ec-emoji-preview" class="ec-emoji-preview">🙂</span>
+                <span class="ec-emoji-button-label">Choose emoji</span>
+              </button>
+              ${buildEmojiPicker()}
+              <input type="hidden" id="ec-emoji" value="">
+            </div>
           </div>
+          <label class="ec-inline-field" for="ec-color">
+            <span class="ec-inline-label">Color</span>
+            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input">
+          </label>
         </div>
 
-        <!-- Notes -->
-        <div style="margin-top:8px;">
-          <label style="display:flex;align-items:center;gap:8px;">
+        <div class="ec-form-field">
+          <label class="ec-checkbox" for="ec-notes-toggle">
             <input id="ec-notes-toggle" type="checkbox"> Add notes
           </label>
-          <div id="ec-notes-box" style="display:none;margin-top:8px;">
-            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:90px;"></textarea>
+          <div id="ec-notes-box" style="display:none;">
+            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
           </div>
         </div>
 
-        <!-- Actions -->
-        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="ec-form-actions">
           <button type="button" id="ec-save-item" class="stellar-submit" style="height:44px;">Save To-Do</button>
-          <button type="button" class="x-button" style="height:44px;" onclick="closeTheModal()">Cancel</button>
         </div>
       </form>
     </div>
   `;
 }
 
+function buildEmojiPicker() {
+    const emojis = [
+        '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
+        '🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚',
+        '😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥳',
+        '😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖',
+        '😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯',
+        '😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔',
+        '🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦',
+        '😧','😮','😲','🥱','😴','🤤','😪','😵','😵‍💫','🤐',
+        '🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀',
+        '☠️','👽','👾','🤖','🎃','😺','😸','😹','😻','😼'
+    ];
+
+    const options = emojis
+        .map(emoji => `<button type="button" class="ec-emoji-option" data-emoji="${escapeAttr(emoji)}">${emoji}</button>`)
+        .join('');
+
+    return `
+        <div class="ec-emoji-picker" id="ec-emoji-picker" role="listbox" aria-label="Choose an emoji">
+          ${options}
+        </div>
+    `;
+}
+
 function toggleKindFields(kind) {
     // When you implement Event/Journal, you’ll show/hide extra blocks here.
     const todoBlock = document.getElementById('ec-todo-fields');
-    if (todoBlock) todoBlock.style.display = kind === 'todo' ? 'block' : 'none';
+    if (todoBlock) todoBlock.style.display = kind === 'todo' ? 'flex' : 'none';
 }
 
 function collectAddItemFormData(user) {
@@ -365,7 +416,8 @@ function collectAddItemFormData(user) {
     const calendar_id = valueOf('#ec-calendar-id') || null;
     const title = valueOf('#ec-title')?.trim() || '';
     const pinned = checked('#ec-pinned');
-    const emoji = valueOf('#ec-emoji') || null;
+    const rawEmoji = valueOf('#ec-emoji');
+    const emoji = rawEmoji ? sanitizeEmojiInput(rawEmoji) : null;
     const color_hex = valueOf('#ec-color') || null;
     const tzid = valueOf('#ec-tzid') || getUserTZ();
     const dateStr = valueOf('#ec-date');

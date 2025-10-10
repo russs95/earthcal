@@ -235,7 +235,6 @@ p {
   }
 
 
-  
   @media screen and (min-width: 700px) {
 
 
@@ -2722,6 +2721,136 @@ INFO MODAL
   }
 
 
+.ec-form-title {
+    width: 85%;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.ec-form-field {
+    width: 70%;
+    margin: 10px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ec-form-inline {
+    width: 70%;
+    margin: 10px auto 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.ec-inline-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+}
+
+.ec-inline-field.ec-emoji-field {
+    flex: 1 1 200px;
+    min-width: 200px;
+}
+
+.ec-inline-field.ec-checkbox {
+    flex: 0 0 auto;
+}
+
+.ec-inline-label {
+    font-weight: 500;
+}
+
+.ec-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ec-emoji-input {
+    position: relative;
+    width: 100%;
+}
+
+.ec-emoji-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.ec-emoji-button .ec-emoji-button-label {
+    flex: 1;
+    text-align: left;
+}
+
+.ec-emoji-preview {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+.ec-emoji-picker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--general-background, rgba(12, 16, 19, 0.92));
+    border-radius: 15px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    display: none;
+    grid-template-columns: repeat(10, minmax(32px, 1fr));
+    gap: 6px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 15;
+}
+
+.ec-emoji-picker--visible {
+    display: grid;
+}
+
+.ec-emoji-option {
+    border: none;
+    background: transparent;
+    font-size: 1.35rem;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.ec-emoji-option:hover,
+.ec-emoji-option:focus {
+    background: var(--form-field-background);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.ec-color-input {
+    width: 60px;
+    height: 45px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.ec-form-actions {
+    width: 70%;
+    margin: 25px auto 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+
 
 
 
@@ -2736,6 +2865,16 @@ INFO MODAL
   .confirmation-blur-button {
       width: 100%;
 
+  }
+
+  .ec-form-field,
+  .ec-form-inline,
+  .ec-form-actions {
+      width: 90%;
+  }
+
+  .ec-inline-field.ec-emoji-field {
+      min-width: 160px;
   }
   }
 
