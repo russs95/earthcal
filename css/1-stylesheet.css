@@ -2760,6 +2760,11 @@ INFO MODAL
     flex: 0 0 auto;
 }
 
+.ec-inline-field.ec-pin-field,
+.ec-inline-field.ec-color-field {
+    flex: 0 0 auto;
+}
+
 .ec-inline-label {
     font-weight: 500;
 }
@@ -2778,7 +2783,7 @@ INFO MODAL
 .ec-emoji-button {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 12px;
     width: 100%;
     cursor: pointer;
