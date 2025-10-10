@@ -177,7 +177,8 @@ async function openAddItem() {
         timeStr,
         calendarId,
         calendarName,
-        tzid: getUserTZ()
+        tzid: getUserTZ(),
+        calendars
     });
 
     // ============================================================
@@ -197,6 +198,26 @@ async function openAddItem() {
         }
     });
     toggleKindFields('todo'); // initial state
+
+    const calendarSelect = document.getElementById('ec-calendar-select');
+    if (calendarSelect) {
+        const setPreviousValue = (value) => {
+            calendarSelect.dataset.previousValue = value;
+        };
+        setPreviousValue(calendarSelect.value);
+        calendarSelect.addEventListener('change', (e) => {
+            if (e.target.value === '__add_new__') {
+                if (typeof addNewCalendarV1 === 'function') {
+                    addNewCalendarV1();
+                }
+                const fallback = calendarSelect.dataset.previousValue ?? String(calendarId ?? '');
+                calendarSelect.value = fallback;
+                setPreviousValue(calendarSelect.value);
+            } else {
+                setPreviousValue(e.target.value);
+            }
+        });
+    }
 
     const notesToggle = document.getElementById('ec-notes-toggle');
     const notesBox = document.getElementById('ec-notes-box');
@@ -312,7 +333,17 @@ async function openAddItem() {
 
 // ===== Helpers =====
 
-function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid }) {
+function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid, calendars = [] }) {
+    const calendarOptions = Array.isArray(calendars) && calendars.length
+        ? calendars.map(cal => {
+            const idRaw = cal.calendar_id ?? cal.id ?? '';
+            const id = escapeAttr(idRaw);
+            const name = escapeHTML(cal.name ?? cal.calendar_name ?? 'Untitled calendar');
+            const selected = String(idRaw) === String(calendarId) ? ' selected' : '';
+            return `<option value="${id}"${selected}>${name}</option>`;
+        }).join('')
+        : `<option value="${escapeAttr(calendarId)}" selected>${escapeHTML(calendarName)}</option>`;
+
     return `
     <div class="add-date-form" style="margin:auto;">
       <h3 class="ec-form-title">Add a to-do item for this ${displayDate}.</h3>
@@ -323,8 +354,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
 
         <div class="ec-form-field">
-          <label for="ec-item-kind">Item type</label>
-          <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
+          <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Item type">
             <option value="todo" selected>To-Do</option>
             <option value="event">Event</option>
             <option value="journal">Journal</option>
@@ -332,35 +362,46 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         </div>
 
         <div class="ec-form-field">
-          <label for="ec-calendar-label">Calendar</label>
-          <input id="ec-calendar-label" type="text" value="${escapeHTML(calendarName)}" class="blur-form-field" style="height:45px;width:100%;cursor:text;" readonly>
-          <input id="ec-calendar-id" type="hidden" value="${escapeAttr(calendarId)}">
+          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
+            ${calendarOptions}
+            <option value="__add_new__">+ Add new calendar</option>
+          </select>
         </div>
 
         <div class="ec-form-field">
-          <label for="ec-title">Title</label>
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
+        </div>
+
+        <div class="ec-form-field">
+          <label for="ec-frequency" class="ec-inline-label">Frequency</label>
+          <select id="ec-frequency" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
+            <option value="today" selected>Just today</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
         </div>
 
         <div id="ec-todo-fields" class="ec-form-inline">
-          <label class="ec-inline-field ec-checkbox">
-            <input id="ec-pinned" type="checkbox"> Pinned
-          </label>
+          <div class="ec-inline-field ec-pin-field">
+            <span class="ec-inline-label">Pin?</span>
+            <label class="toggle-switch" for="ec-pinned">
+              <input id="ec-pinned" type="checkbox" aria-label="Pin to calendar">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <div class="ec-inline-field ec-emoji-field">
-            <span class="ec-inline-label">Emoji</span>
             <div class="ec-emoji-input">
-              <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false">
+              <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
                 <span id="ec-emoji-preview" class="ec-emoji-preview">🙂</span>
-                <span class="ec-emoji-button-label">Choose emoji</span>
               </button>
               ${buildEmojiPicker()}
               <input type="hidden" id="ec-emoji" value="">
             </div>
           </div>
-          <label class="ec-inline-field" for="ec-color">
-            <span class="ec-inline-label">Color</span>
-            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input">
-          </label>
+          <div class="ec-inline-field ec-color-field">
+            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
+          </div>
         </div>
 
         <div class="ec-form-field">
@@ -411,14 +452,20 @@ function toggleKindFields(kind) {
     if (todoBlock) todoBlock.style.display = kind === 'todo' ? 'flex' : 'none';
 }
 
+function addNewCalendarV1() {
+    alert('Sorry this function is still under construction! In the meantime please use your My Calendar.');
+}
+
 function collectAddItemFormData(user) {
     const kind = valueOf('#ec-item-kind') || 'todo';
-    const calendar_id = valueOf('#ec-calendar-id') || null;
+    const calendarSelection = valueOf('#ec-calendar-select');
+    const calendar_id = calendarSelection && calendarSelection !== '__add_new__' ? calendarSelection : null;
     const title = valueOf('#ec-title')?.trim() || '';
     const pinned = checked('#ec-pinned');
     const rawEmoji = valueOf('#ec-emoji');
     const emoji = rawEmoji ? sanitizeEmojiInput(rawEmoji) : null;
     const color_hex = valueOf('#ec-color') || null;
+    const frequency = valueOf('#ec-frequency') || 'today';
     const tzid = valueOf('#ec-tzid') || getUserTZ();
     const dateStr = valueOf('#ec-date');
     const timeStr = valueOf('#ec-time');
@@ -440,6 +487,7 @@ function collectAddItemFormData(user) {
         pinned,
         emoji,
         color_hex,
+        frequency,
         notes
     };
 }
