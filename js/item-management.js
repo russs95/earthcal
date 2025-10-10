@@ -384,11 +384,13 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
 
         <div id="ec-todo-fields" class="ec-form-inline">
           <div class="ec-inline-field ec-pin-field">
-            <span class="ec-inline-label">Pin?</span>
-            <label class="toggle-switch" for="ec-pinned">
-              <input id="ec-pinned" type="checkbox" aria-label="Pin to calendar">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="ec-toggle-chip">
+              <span class="ec-inline-label">Pin?</span>
+              <label class="toggle-switch" for="ec-pinned">
+                <input id="ec-pinned" type="checkbox" aria-label="Pin to calendar">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
           <div class="ec-inline-field ec-emoji-field">
             <div class="ec-emoji-input">
@@ -404,10 +406,14 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           </div>
         </div>
 
-        <div class="ec-form-field">
-          <label class="ec-checkbox" for="ec-notes-toggle">
-            <input id="ec-notes-toggle" type="checkbox"> Add notes
-          </label>
+        <div class="ec-form-field ec-notes-toggle-field">
+          <div class="ec-toggle-chip">
+            <span class="ec-inline-label">Add notes</span>
+            <label class="toggle-switch" for="ec-notes-toggle">
+              <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <div id="ec-notes-box" style="display:none;">
             <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
           </div>

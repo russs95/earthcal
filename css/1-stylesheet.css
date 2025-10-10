@@ -2721,47 +2721,59 @@ INFO MODAL
   }
 
 
+#modal-content .add-date-form {
+    width: 65vw;
+    max-width: 720px;
+    margin: 0 auto 20px auto;
+    padding: 10px 24px 30px 24px;
+}
+
+@media screen and (max-width: 1199px) {
+    #modal-content .add-date-form {
+        width: 72vw;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #modal-content .add-date-form {
+        width: 90vw;
+    }
+}
+
 .ec-form-title {
-    width: 85%;
+    width: 100%;
     margin: 20px auto;
     text-align: center;
 }
 
 .ec-form-field {
-    width: 70%;
-    margin: 10px auto;
+    width: 100%;
+    margin: 10px 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
 .ec-form-inline {
-    width: 70%;
-    margin: 10px auto 20px auto;
+    width: 100%;
+    margin: 10px 0 20px 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
     align-items: center;
+    justify-content: flex-start;
 }
 
 .ec-inline-field {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex: 0 1 auto;
-}
-
-.ec-inline-field.ec-emoji-field {
-    flex: 1 1 200px;
-    min-width: 200px;
-}
-
-.ec-inline-field.ec-checkbox {
+    gap: 12px;
     flex: 0 0 auto;
 }
 
-.ec-inline-field.ec-pin-field,
-.ec-inline-field.ec-color-field {
+.ec-inline-field.ec-emoji-field,
+.ec-inline-field.ec-color-field,
+.ec-inline-field.ec-pin-field {
     flex: 0 0 auto;
 }
 
@@ -2769,30 +2781,22 @@ INFO MODAL
     font-weight: 500;
 }
 
-.ec-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .ec-emoji-input {
     position: relative;
-    width: 100%;
+    width: auto;
 }
 
 .ec-emoji-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    width: 100%;
+    width: 45px;
+    height: 45px;
     cursor: pointer;
     font-size: 1rem;
-}
-
-.ec-emoji-button .ec-emoji-button-label {
-    flex: 1;
-    text-align: left;
+    border-radius: 12px;
+    padding: 0;
+    margin: 0;
 }
 
 .ec-emoji-preview {
@@ -2800,10 +2804,40 @@ INFO MODAL
     line-height: 1;
 }
 
+.ec-color-input {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    border-radius: 12px;
+    margin: 0;
+}
+
+.ec-toggle-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 45px;
+    border-radius: 999px;
+    background: var(--general-background);
+}
+
+.ec-toggle-chip .toggle-switch {
+    flex-shrink: 0;
+}
+
+.ec-notes-toggle-field {
+    gap: 8px;
+}
+
+.ec-notes-toggle-field .ec-toggle-chip {
+    align-self: flex-start;
+}
+
 .ec-emoji-picker {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     top: calc(100% + 8px);
     background: var(--general-background, rgba(12, 16, 19, 0.92));
     border-radius: 15px;
@@ -2815,6 +2849,7 @@ INFO MODAL
     max-height: 240px;
     overflow-y: auto;
     z-index: 15;
+    min-width: 260px;
 }
 
 .ec-emoji-picker--visible {
@@ -2842,7 +2877,7 @@ INFO MODAL
 }
 
 .ec-color-input {
-    width: 60px;
+    width: 45px;
     height: 45px;
     padding: 0;
     cursor: pointer;
