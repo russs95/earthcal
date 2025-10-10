@@ -1709,7 +1709,7 @@ TOOLTIPS AND MODALS
   margin-top: -200px;
   margin-left: -15px;
   padding: 20px 20px 20px 40px;
-  width: 20%;
+  width: 90%;
   height: fit-content;
   max-width: 800px;
   max-height: 800px;
@@ -1722,6 +1722,18 @@ TOOLTIPS AND MODALS
   color: var(--text-color);
   transition: 0.5s;
 
+}
+
+@media screen and (min-width: 769px) and (max-width: 1199px) {
+  .modal-content {
+    width: 72%;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .modal-content {
+    width: 65%;
+  }
 }
 
 
@@ -2751,15 +2763,7 @@ INFO MODAL
     flex: 0 1 auto;
 }
 
-.ec-inline-field.ec-emoji-field {
-    flex: 1 1 200px;
-    min-width: 200px;
-}
-
-.ec-inline-field.ec-checkbox {
-    flex: 0 0 auto;
-}
-
+.ec-inline-field.ec-emoji-field,
 .ec-inline-field.ec-pin-field,
 .ec-inline-field.ec-color-field {
     flex: 0 0 auto;
@@ -2777,7 +2781,8 @@ INFO MODAL
 
 .ec-emoji-input {
     position: relative;
-    width: 100%;
+    width: 45px;
+    height: 45px;
 }
 
 .ec-emoji-button {
@@ -2785,7 +2790,10 @@ INFO MODAL
     align-items: center;
     justify-content: center;
     gap: 12px;
-    width: 100%;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
     font-size: 1rem;
 }
@@ -2802,8 +2810,9 @@ INFO MODAL
 
 .ec-emoji-picker {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     top: calc(100% + 8px);
     background: var(--general-background, rgba(12, 16, 19, 0.92));
     border-radius: 15px;
@@ -2813,6 +2822,7 @@ INFO MODAL
     grid-template-columns: repeat(10, minmax(32px, 1fr));
     gap: 6px;
     max-height: 240px;
+    min-width: 220px;
     overflow-y: auto;
     z-index: 15;
 }
@@ -2842,10 +2852,47 @@ INFO MODAL
 }
 
 .ec-color-input {
-    width: 60px;
+    width: 45px;
     height: 45px;
     padding: 0;
     cursor: pointer;
+    border-radius: 12px;
+    margin: 0;
+}
+
+.ec-toggle-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 45px;
+    background: var(--general-background);
+    border-radius: 999px;
+}
+
+.ec-toggle-chip .ec-inline-label {
+    margin: 0;
+}
+
+.ec-pin-field {
+    height: 45px;
+}
+
+.ec-pin-field .ec-toggle-chip {
+    margin: 0;
+}
+
+.ec-notes-toggle-row {
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ec-notes-toggle-row .ec-toggle-chip {
+    margin-bottom: 6px;
+}
+
+.ec-notes-toggle-row #ec-notes-box {
+    width: 100%;
 }
 
 .ec-form-actions {
