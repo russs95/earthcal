@@ -1,28 +1,8 @@
-const EARTHCAL_ASSET_VERSION =
-    window.EARTHCAL_ASSET_VERSION !== undefined
-        ? window.EARTHCAL_ASSET_VERSION
-        : 1;
-
-const versionedUrl =
-    typeof window.versionedUrl === "function"
-        ? window.versionedUrl
-        : function fallbackVersionedUrl(url) {
-              const [path, query = ""] = url.split("?");
-              const filteredQuery = query
-                  .split("&")
-                  .filter((part) => part && !/^v=/.test(part))
-                  .join("&");
-              const separator = filteredQuery ? "&" : "";
-              return `${path}?${filteredQuery}${separator}v=${EARTHCAL_ASSET_VERSION}`;
-          };
-
-window.versionedUrl = versionedUrl;
-
 // Register the service worker
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
         navigator.serviceWorker
-            .register(versionedUrl("js/service-worker.js"))
+            .register("js/service-worker.js?v=3.0")
             .then(
                 function (registration) {
                     console.log(
@@ -48,19 +28,19 @@ async function initCalendar() {
     const scripts = [
         "js/suncalc.min.js",
         "js/astronomy.browser.js",
-        "js/core-javascripts.js",
+        "js/core-javascripts.js?v=2",
         "js/breakouts.js",
         "js/set-targetdate.js",
         "js/planet-orbits.js",
         "js/login-scripts.js",
-        "js/item-management.js",
+        "js/item-management.js?v=2",
         "js/time-setting.js",
         "js/calendar-scripts.js",
-    ].map((src) => versionedUrl(src));
+    ];
 
     try {
         try {
-            const response = await fetch(versionedUrl("cals/earthcal-v1-0.svg"));
+            const response = await fetch("cals/earthcal-v1-0.svg");
             const svg = await response.text();
             const calContainer = document.getElementById("the-cal");
             if (calContainer) {
@@ -93,7 +73,7 @@ async function initCalendar() {
 
         const moduleScript = document.createElement("script");
         moduleScript.type = "module";
-        moduleScript.src = versionedUrl("js/dark-mode-toggle.mjs.js");
+        moduleScript.src = "js/dark-mode-toggle.mjs.js";
         document.head.appendChild(moduleScript);
 
         if (typeof initializePage === "function") {
