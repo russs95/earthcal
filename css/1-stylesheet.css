@@ -3264,6 +3264,10 @@ svg path #june:hover {
     width: 100%;
 }
 
+.cycle-toggle {
+    margin-bottom:10px;
+}
+
 #planet-buttons,
 #kin-buttons {
     flex-direction: row;
