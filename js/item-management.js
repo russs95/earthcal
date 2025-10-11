@@ -462,7 +462,115 @@ function toggleKindFields(kind) {
 }
 
 function addNewCalendarV1() {
-    alert('Sorry this function is still under construction! In the meantime please use your My Calendar.');
+    const modalContent = document.getElementById('modal-content');
+    if (!modalContent) {
+        console.warn('[addNewCalendarV1] #modal-content not found.');
+        return;
+    }
+
+    // Ensure the base container can host an overlay that covers existing content.
+    const computedPosition = window.getComputedStyle(modalContent).position;
+    if (computedPosition === 'static' && !modalContent.dataset.originalPosition) {
+        modalContent.dataset.originalPosition = 'static';
+        modalContent.style.position = 'relative';
+    }
+
+    // Remove any existing overlay before rendering a fresh instance.
+    const existingOverlay = document.getElementById('ec-add-calendar-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ec-add-calendar-overlay';
+    overlay.classList.add('main-background');
+    Object.assign(overlay.style, {
+        position: 'absolute',
+        inset: '0',
+        zIndex: '20',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '24px',
+        gap: '20px',
+        overflowY: 'auto',
+        background: 'var(--main-background, #ffffff)'
+    });
+
+    overlay.innerHTML = `
+        <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
+            <h2 style="margin:0;font-size:1.5rem;">Add New Calendar</h2>
+            <p style="margin:0;color:var(--text-muted, #4b5563);font-size:0.95rem;">Provide the details below to create a new calendar.</p>
+        </div>
+        <form id="ec-add-calendar-form" style="display:flex;flex-direction:column;gap:16px;">
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                Calendar name
+                <input id="ec-cal-name" name="calendar_name" type="text" placeholder="My amazing calendar" required style="padding:10px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);font-weight:400;" />
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                Calendar description
+                <textarea id="ec-cal-description" name="calendar_description" rows="3" placeholder="Describe what this calendar is for" style="padding:10px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);font-weight:400;resize:vertical;"></textarea>
+            </label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">
+                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                    Calendar emoji
+                    <input id="ec-cal-emoji" name="calendar_emoji" type="text" maxlength="4" placeholder="🌍" style="padding:10px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);font-weight:400;" />
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                    Calendar color
+                    <input id="ec-cal-color" name="calendar_color" type="color" value="#ff6b6b" style="height:48px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);padding:6px;" />
+                </label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                Category
+                <select id="ec-cal-category" name="calendar_category" style="padding:10px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);font-weight:400;">
+                    <option value="personal">Personal</option>
+                    <option value="holidays">Holidays</option>
+                    <option value="birthdays">Birthdays</option>
+                    <option value="astronomy">Astronomy</option>
+                    <option value="migration">Migration</option>
+                    <option value="other">Other</option>
+                </select>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                Visibility
+                <select id="ec-cal-visibility" name="calendar_visibility" style="padding:10px;border-radius:8px;border:1px solid var(--border-muted, #d1d5db);font-weight:400;">
+                    <option value="public">Public</option>
+                    <option value="private" selected>Private</option>
+                </select>
+            </label>
+            <div class="ec-add-calendar-actions" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <button type="submit" style="padding:12px 20px;border-radius:999px;border:none;background:var(--accent, #2563eb);color:#fff;font-weight:600;cursor:pointer;">Create calendar</button>
+                <button type="button" data-action="cancel" style="padding:12px 20px;border-radius:999px;border:1px solid var(--border-muted, #d1d5db);background:#e5e7eb;color:#111827;font-weight:600;cursor:pointer;">Cancel</button>
+            </div>
+        </form>
+    `;
+
+    const form = overlay.querySelector('#ec-add-calendar-form');
+    if (form) {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            console.log('[addNewCalendarV1] Submit new calendar payload placeholder:', {
+                name: valueOf('#ec-cal-name'),
+                description: valueOf('#ec-cal-description'),
+                emoji: valueOf('#ec-cal-emoji'),
+                color: valueOf('#ec-cal-color'),
+                category: valueOf('#ec-cal-category'),
+                visibility: valueOf('#ec-cal-visibility')
+            });
+            // TODO: Wire to backend endpoint for creating calendars (v1).
+        });
+    }
+
+    const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            if (modalContent.dataset.originalPosition === 'static') {
+                modalContent.style.position = '';
+                delete modalContent.dataset.originalPosition;
+            }
+        });
+    }
+
+    modalContent.appendChild(overlay);
 }
 
 function collectAddItemFormData(user) {
