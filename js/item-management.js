@@ -1,5 +1,5 @@
 
-/* OPENING THE ADD DATECYCLE FORM
+/* OPENING THE ADD DATECYCLE FORM v=3.3
 
 but this time using the modal archetecture
 
@@ -11,7 +11,6 @@ Options to change/add calendar, change item type from to-do, to event, to journa
 
 Options to add to-do title, color, emoji and description
 
-test heloooo  jkjkjkkjkjkkjjk asdasdsdfsdfsdfasd
 
  */
 
@@ -352,12 +351,26 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
         <input id="ec-time" type="hidden" value="${escapeAttr(timeStr)}">
         <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
+        
+        
+        <div class="ec-form-field">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
+        </div>
 
         <div class="ec-form-field">
           <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Item type">
             <option value="todo" selected>To-Do</option>
             <option value="event">Event</option>
             <option value="journal">Journal</option>
+          </select>
+        </div>
+        
+         <div class="ec-form-field">
+          <select id="ec-frequency" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
+            <option value="today" selected>One-time</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
           </select>
         </div>
         
@@ -368,18 +381,8 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           </select>
         </div>
         
-          <div class="ec-form-field">
-          <select id="ec-frequency" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
-            <option value="today" selected>One-time</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </div>
+         
 
-        <div class="ec-form-field">
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
-        </div>
 
       
 
@@ -393,6 +396,15 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
               </label>
             </div>
           </div>
+          
+          <div class="ec-toggle-chip">
+            <span class="ec-inline-label" title="Add notes">✏️</span>
+            <label class="toggle-switch" for="ec-notes-toggle">
+              <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
           <div class="ec-inline-field ec-emoji-field">
             <div class="ec-emoji-input">
               <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
@@ -405,13 +417,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           <div class="ec-inline-field ec-color-field">
             <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
           </div>
-          <div class="ec-toggle-chip">
-            <span class="ec-inline-label" title="Add notes">✏️</span>
-            <label class="toggle-switch" for="ec-notes-toggle">
-              <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
+          
         </div>
 
         <div class="ec-form-field ec-notes-toggle-row">
