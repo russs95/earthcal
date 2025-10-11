@@ -1696,32 +1696,6 @@ TOOLTIPS AND MODALS
 }
 
 
-
-
-
-/* Modal content box */
-#modal-content {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  margin-top: -200px;
-  margin-left: -15px;
-  padding: 20px 20px 20px 40px;
-  width: 90%;
-  height: fit-content;
-  max-width: 800px;
-  max-height: 800px;
-  background-color: var(--modal-background);
-  border-radius: 20px;
-  border: 1px solid var(--months-lunar);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  overflow: auto;
-  font-family: 'Mulish', sans-serif;
-  color: var(--text-color);
-  transition: 0.5s;
-
-}
-
 @media screen and (min-width: 769px) and (max-width: 1199px) {
   #modal-content {
     width: 72%;

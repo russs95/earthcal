@@ -377,8 +377,6 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           </select>
         </div>
 
-   
-
         <div class="ec-form-field">
           <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
         </div>
@@ -407,16 +405,17 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           <div class="ec-inline-field ec-color-field">
             <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
           </div>
-        </div>
-
-        <div class="ec-form-field ec-notes-toggle-row">
           <div class="ec-toggle-chip">
-            <span class="ec-inline-label">✏️</span>
+            <span class="ec-inline-label" title="Add notes">✏️</span>
             <label class="toggle-switch" for="ec-notes-toggle">
               <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
               <span class="toggle-slider"></span>
             </label>
           </div>
+        </div>
+
+        <div class="ec-form-field ec-notes-toggle-row">
+
           <div id="ec-notes-box" style="display:none;">
             <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
           </div>
