@@ -380,11 +380,6 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <option value="__add_new__">+ Add new calendar</option>
           </select>
         </div>
-        
-         
-
-
-      
 
         <div id="ec-todo-fields" class="ec-form-inline">
           <div class="ec-inline-field ec-pin-field">
