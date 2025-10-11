@@ -1,19 +1,47 @@
+const cachingEnabled =
+    typeof window === "undefined" ||
+    window.EARTHCAL_CACHE_CONFIG?.enabled !== false;
+
+async function clearServiceWorkersAndCaches() {
+    try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(
+            registrations.map((registration) => registration.unregister())
+        );
+    } catch (error) {
+        console.error("Failed to unregister service workers", error);
+    }
+
+    if (typeof caches !== "undefined") {
+        try {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+        } catch (error) {
+            console.error("Failed to clear caches", error);
+        }
+    }
+}
+
 // Register the service worker
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-        navigator.serviceWorker
-            .register("js/service-worker.js?v=3.0")
-            .then(
-                function (registration) {
-                    console.log(
-                        "ServiceWorker registration successful with scope:",
-                        registration.scope
-                    );
-                },
-                function (error) {
-                    console.log("ServiceWorker registration failed:", error);
-                }
-            );
+        if (cachingEnabled) {
+            navigator.serviceWorker
+                .register("js/service-worker.js?v=3.0")
+                .then(
+                    function (registration) {
+                        console.log(
+                            "ServiceWorker registration successful with scope:",
+                            registration.scope
+                        );
+                    },
+                    function (error) {
+                        console.log("ServiceWorker registration failed:", error);
+                    }
+                );
+        } else {
+            clearServiceWorkersAndCaches();
+        }
     });
 }
 
