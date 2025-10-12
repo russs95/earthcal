@@ -232,7 +232,6 @@ async function openAddItem() {
 
     wireEmojiPicker({
         buttonId: 'ec-emoji-button',
-        pickerId: 'ec-emoji-picker',
         hiddenInputId: 'ec-emoji',
         previewId: 'ec-emoji-preview',
         defaultEmoji: '🙂'
@@ -381,7 +380,6 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
               <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
                 <span id="ec-emoji-preview" class="ec-emoji-preview">🙂</span>
               </button>
-              ${buildEmojiPicker()}
               <input type="hidden" id="ec-emoji" value="">
             </div>
           </div>
@@ -406,83 +404,160 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
   `;
 }
 
-function buildEmojiPicker(pickerId = 'ec-emoji-picker') {
-    const emojis = [
-        '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
-        '🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚',
-        '😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥳',
-        '😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖',
-        '😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯',
-        '😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔',
-        '🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦',
-        '😧','😮','😲','🥱','😴','🤤','😪','😵','😵‍💫','🤐',
-        '🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀',
-        '☠️','👽','👾','🤖','🎃','😺','😸','😹','😻','😼'
-    ];
+const EC_EMOJI_OPTIONS = [
+    '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
+    '🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚',
+    '😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥳',
+    '😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖',
+    '😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯',
+    '😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔',
+    '🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦',
+    '😧','😮','😲','🥱','😴','🤤','😪','😵','😵‍💫','🤐',
+    '🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀',
+    '☠️','👽','👾','🤖','🎃','😺','😸','😹','😻','😼'
+];
 
-    const options = emojis
+function buildEmojiPicker() {
+    return EC_EMOJI_OPTIONS
         .map(emoji => `<button type="button" class="ec-emoji-option" data-emoji="${escapeAttr(emoji)}">${emoji}</button>`)
         .join('');
-
-    return `
-        <div class="ec-emoji-picker" id="${escapeAttr(pickerId)}" role="listbox" aria-label="Choose an emoji">
-          ${options}
-        </div>
-    `;
 }
 
-function wireEmojiPicker({ buttonId, pickerId, hiddenInputId, previewId, defaultEmoji = '🙂' }) {
-    const button = document.getElementById(buttonId);
-    const picker = document.getElementById(pickerId);
-    const hiddenInput = document.getElementById(hiddenInputId);
-    const preview = document.getElementById(previewId);
+function ensureGlobalEmojiPicker() {
+    const selector = document.getElementById('ec-global-emoji-selector');
+    if (!selector) return null;
+    const grid = selector.querySelector('.ec-emoji-picker');
+    if (!grid) return null;
 
-    if (!button || !picker || !hiddenInput || !preview) {
-        return () => {};
+    if (!grid.dataset.initialized) {
+        grid.innerHTML = buildEmojiPicker();
+        grid.dataset.initialized = 'true';
     }
 
-    const closePicker = () => {
-        picker.classList.remove('ec-emoji-picker--visible');
-        button.setAttribute('aria-expanded', 'false');
-    };
+    const closeButton = selector.querySelector('.ec-emoji-selector-close');
+    return { selector, grid, closeButton };
+}
 
-    const togglePicker = () => {
-        const nowOpen = !picker.classList.contains('ec-emoji-picker--visible');
-        if (nowOpen) {
-            picker.classList.add('ec-emoji-picker--visible');
-            button.setAttribute('aria-expanded', 'true');
-        } else {
-            closePicker();
+let activeEmojiPickerControl = null;
+
+function openGlobalEmojiPicker(button, onSelect) {
+    const globalPicker = ensureGlobalEmojiPicker();
+    if (!globalPicker) return null;
+
+    const { selector, grid, closeButton } = globalPicker;
+
+    if (activeEmojiPickerControl && activeEmojiPickerControl.close) {
+        activeEmojiPickerControl.close();
+    }
+
+    let closed = false;
+
+    const close = () => {
+        if (closed) return;
+        closed = true;
+        selector.classList.remove('ec-emoji-selector--visible');
+        selector.setAttribute('aria-hidden', 'true');
+        selector.removeAttribute('data-active-button');
+        button.setAttribute('aria-expanded', 'false');
+        grid.removeEventListener('click', handleGridClick);
+        if (closeButton) closeButton.removeEventListener('click', handleCloseClick);
+        document.removeEventListener('keydown', handleKeyDown);
+        document.removeEventListener('click', handleOutsideClick);
+        if (activeEmojiPickerControl?.button === button) {
+            activeEmojiPickerControl = null;
         }
     };
 
-    const handleButtonClick = (event) => {
-        event.stopPropagation();
-        togglePicker();
-    };
-
-    const handlePickerClick = (event) => {
+    const handleGridClick = (event) => {
         const option = event.target.closest('.ec-emoji-option');
         if (!option) return;
         const chosen = sanitizeEmojiInput(option.dataset.emoji || option.textContent || '');
-        hiddenInput.value = chosen;
-        preview.textContent = chosen || defaultEmoji;
-        closePicker();
+        if (chosen) {
+            onSelect(chosen);
+        } else {
+            onSelect('');
+        }
+        close();
     };
 
-    const handleDocumentClick = (event) => {
-        if (!document.body.contains(picker)) {
-            document.removeEventListener('click', handleDocumentClick);
+    const handleCloseClick = (event) => {
+        event.preventDefault();
+        close();
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            close();
+        }
+    };
+
+    const handleOutsideClick = (event) => {
+        if (selector.contains(event.target) || button.contains(event.target)) return;
+        close();
+    };
+    let outsideHandlerAttached = false;
+
+    selector.classList.add('ec-emoji-selector--visible');
+    selector.setAttribute('aria-hidden', 'false');
+    selector.dataset.activeButton = button.id || '';
+    button.setAttribute('aria-expanded', 'true');
+
+    grid.addEventListener('click', handleGridClick);
+    if (closeButton) closeButton.addEventListener('click', handleCloseClick);
+    document.addEventListener('keydown', handleKeyDown);
+    setTimeout(() => {
+        if (!closed) {
+            document.addEventListener('click', handleOutsideClick);
+            outsideHandlerAttached = true;
+        }
+    }, 0);
+
+    const firstOption = grid.querySelector('.ec-emoji-option');
+    if (firstOption) firstOption.focus();
+
+    activeEmojiPickerControl = { button, close };
+    const originalClose = close;
+    activeEmojiPickerControl.close = () => {
+        if (outsideHandlerAttached) {
+            document.removeEventListener('click', handleOutsideClick);
+            outsideHandlerAttached = false;
+        }
+        originalClose();
+    };
+    return activeEmojiPickerControl.close;
+}
+
+function wireEmojiPicker({ buttonId, hiddenInputId, previewId, defaultEmoji = '🙂' }) {
+    const button = document.getElementById(buttonId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const preview = document.getElementById(previewId);
+
+    if (!button || !hiddenInput || !preview) {
+        return () => {};
+    }
+
+    ensureGlobalEmojiPicker();
+
+    const applyEmoji = (emoji) => {
+        const sanitized = sanitizeEmojiInput(emoji) || defaultEmoji;
+        hiddenInput.value = sanitized;
+        preview.textContent = sanitized;
+    };
+
+    const handleButtonClick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (activeEmojiPickerControl?.button === button) {
+            activeEmojiPickerControl.close();
             return;
         }
-        if (!picker.classList.contains('ec-emoji-picker--visible')) return;
-        if (picker.contains(event.target) || button.contains(event.target)) return;
-        closePicker();
+
+        openGlobalEmojiPicker(button, applyEmoji);
     };
 
     button.addEventListener('click', handleButtonClick);
-    picker.addEventListener('click', handlePickerClick);
-    document.addEventListener('click', handleDocumentClick);
 
     if (hiddenInput.value) {
         const sanitized = sanitizeEmojiInput(hiddenInput.value) || defaultEmoji;
@@ -494,9 +569,9 @@ function wireEmojiPicker({ buttonId, pickerId, hiddenInputId, previewId, default
 
     return () => {
         button.removeEventListener('click', handleButtonClick);
-        picker.removeEventListener('click', handlePickerClick);
-        document.removeEventListener('click', handleDocumentClick);
-        closePicker();
+        if (activeEmojiPickerControl?.button === button) {
+            activeEmojiPickerControl.close();
+        }
     };
 }
 
@@ -567,21 +642,24 @@ async function addNewCalendarV1() {
             </p>
         </div>
         <form id="ec-add-calendar-form" style="display:flex;flex-direction:column;gap:16px;">
-            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                <span style="font-size:0.95rem;">Calendar name</span>
+            <div style="display:flex;flex-direction:column;">
+                <label class="ec-visually-hidden" for="ec-cal-name">Calendar name</label>
                 <input id="ec-cal-name" name="calendar_name" type="text" placeholder="Name your new calendar..." required
+                       aria-label="Calendar name"
                        style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;" />
-            </label>
-            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                <span style="font-size:0.95rem;">Description</span>
+            </div>
+            <div style="display:flex;flex-direction:column;">
+                <label class="ec-visually-hidden" for="ec-cal-description">Description</label>
                 <textarea id="ec-cal-description" name="calendar_description" rows="3"
                           placeholder="Describe what this calendar is for"
+                          aria-label="Calendar description"
                           style="padding:10px;border-radius:8px;border:1px solid grey;font-weight:400;resize:vertical;background:var(--top-header)"></textarea>
-            </label>
-            <div style="display:flex;gap:12px;align-items:flex-end;">
-                <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                    <span style="font-size:0.95rem;">Calendar category</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                    <label class="ec-visually-hidden" for="ec-cal-category">Calendar category</label>
                     <select id="ec-cal-category" name="calendar_category"
+                            aria-label="Calendar category"
                             style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
                         <option value="" disabled selected>Select calendar category...</option>
                         <option value="personal">Personal</option>
@@ -591,7 +669,7 @@ async function addNewCalendarV1() {
                         <option value="migration">Migration</option>
                         <option value="other">Other</option>
                     </select>
-                </label>
+                </div>
                 <div class="ec-inline-field ec-emoji-field" style="width:auto;">
                     <div class="ec-emoji-input">
                         <button type="button" id="ec-cal-emoji-button" class="blur-form-field ec-emoji-button"
@@ -599,29 +677,28 @@ async function addNewCalendarV1() {
                                 style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
                             <span id="ec-cal-emoji-preview" class="ec-emoji-preview">🌍</span>
                         </button>
-                        ${buildEmojiPicker('ec-cal-emoji-picker')}
                         <input type="hidden" id="ec-cal-emoji" name="calendar_emoji" value="🌍">
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:12px;align-items:flex-end;">
-                <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                    <span style="font-size:0.95rem;">Visibility</span>
+            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+                <div style="flex:1;display:flex;flex-direction:column;">
+                    <label class="ec-visually-hidden" for="ec-cal-visibility">Visibility</label>
                     <select id="ec-cal-visibility" name="calendar_visibility"
+                            aria-label="Calendar visibility"
                             style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
                         <option value="public">Public</option>
                         <option value="private" selected>Private</option>
                     </select>
-                </label>
+                </div>
                 <div class="ec-inline-field ec-color-field" style="width:auto;">
                     <input id="ec-cal-color" name="calendar_color" type="color" value="#ff6b6b"
                            class="blur-form-field ec-color-input" aria-label="Calendar color"
                            style="width:45px;height:45px;padding:0;">
                 </div>
             </div>
-            <div class="ec-add-calendar-actions" style="margin-top:8px;">
-                <button type="submit" style="width:100%;padding:12px 20px;border-radius:999px;border:none;
-                        background:var(--h1, #2563eb);color:#fff;font-weight:600;cursor:pointer;">Create calendar</button>
+            <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
+                <button type="submit" class="stellar-submit">Create calendar</button>
             </div>
         </form>
     `;
@@ -632,7 +709,6 @@ async function addNewCalendarV1() {
     // 🧠 Emoji picker integration
     const detachEmojiPicker = wireEmojiPicker({
         buttonId: 'ec-cal-emoji-button',
-        pickerId: 'ec-cal-emoji-picker',
         hiddenInputId: 'ec-cal-emoji',
         previewId: 'ec-cal-emoji-preview',
         defaultEmoji: '🌍'
