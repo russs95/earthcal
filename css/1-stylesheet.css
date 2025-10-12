@@ -160,6 +160,18 @@ path[id*="week-"] {
     display: block;
 }
 
+.ec-visually-hidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    white-space: nowrap;
+}
+
 #user-details {
     cursor:pointer !important;
 }
@@ -2784,27 +2796,58 @@ INFO MODAL
     line-height: 1;
 }
 
-.ec-emoji-picker {
+.ec-emoji-selector {
     position: absolute;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    top: calc(100% + 8px);
-    background: var(--general-background, rgba(12, 16, 19, 0.92));
-    border-radius: 15px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-    padding: 12px;
+    inset: 0;
     display: none;
-    grid-template-columns: repeat(10, minmax(32px, 1fr));
-    gap: 6px;
-    max-height: 240px;
-    min-width: 220px;
-    overflow-y: auto;
-    z-index: 15;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 60;
 }
 
-.ec-emoji-picker--visible {
+.ec-emoji-selector--visible {
+    display: flex;
+}
+
+.ec-emoji-selector-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(420px, 100%);
+    max-height: min(360px, 80vh);
+    background: var(--general-background, rgba(12, 16, 19, 0.95));
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    padding: 20px;
+}
+
+.ec-emoji-selector-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-color, #fff);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.ec-emoji-selector-close:hover,
+.ec-emoji-selector-close:focus {
+    color: var(--subdued-text, #d1d5db);
+    outline: none;
+}
+
+.ec-emoji-picker {
     display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .ec-emoji-option {
@@ -2825,6 +2868,16 @@ INFO MODAL
     background: var(--form-field-background);
     outline: none;
     transform: translateY(-1px);
+}
+
+#ec-todo-fields {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#ec-todo-fields > * {
+    flex: 0 0 auto;
 }
 
 .ec-color-input {
@@ -3260,7 +3313,7 @@ svg path #june:hover {
 }
 
 #bottom-left-buttons button {
-    margin: 0;
+    margin: 0 0 10px 0;
     width: 100%;
 }
 
