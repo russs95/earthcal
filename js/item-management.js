@@ -180,6 +180,12 @@ async function openAddItem() {
         calendars
     });
 
+    const titleInput = document.getElementById('ec-title');
+    if (titleInput) {
+        titleInput.focus();
+        titleInput.select();
+    }
+
     // ============================================================
     // 5. WIRE UI INTERACTIONS (KIND TOGGLING, NOTES TOGGLE, EMOJI)
     // ------------------------------------------------------------
@@ -224,50 +230,13 @@ async function openAddItem() {
         notesBox.style.display = notesToggle.checked ? 'block' : 'none';
     });
 
-    const emojiButton = document.getElementById('ec-emoji-button');
-    const emojiPicker = document.getElementById('ec-emoji-picker');
-    const emojiHiddenInput = document.getElementById('ec-emoji');
-    const emojiPreview = document.getElementById('ec-emoji-preview');
-
-    if (emojiButton && emojiPicker && emojiHiddenInput && emojiPreview) {
-        const togglePicker = () => {
-            const nowOpen = !emojiPicker.classList.contains('ec-emoji-picker--visible');
-            if (nowOpen) {
-                emojiPicker.classList.add('ec-emoji-picker--visible');
-            } else {
-                emojiPicker.classList.remove('ec-emoji-picker--visible');
-            }
-            emojiButton.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
-        };
-
-        emojiButton.addEventListener('click', (event) => {
-            event.stopPropagation();
-            togglePicker();
-        });
-
-        emojiPicker.addEventListener('click', (event) => {
-            const option = event.target.closest('.ec-emoji-option');
-            if (!option) return;
-            const chosen = sanitizeEmojiInput(option.dataset.emoji || option.textContent || '');
-            emojiHiddenInput.value = chosen;
-            emojiPreview.textContent = chosen || '🙂';
-            emojiPicker.classList.remove('ec-emoji-picker--visible');
-            emojiButton.setAttribute('aria-expanded', 'false');
-        });
-
-        const handleDocumentClick = (event) => {
-            if (!document.body.contains(emojiPicker)) {
-                document.removeEventListener('click', handleDocumentClick);
-                return;
-            }
-            if (!emojiPicker.classList.contains('ec-emoji-picker--visible')) return;
-            if (emojiPicker.contains(event.target) || emojiButton.contains(event.target)) return;
-            emojiPicker.classList.remove('ec-emoji-picker--visible');
-            emojiButton.setAttribute('aria-expanded', 'false');
-        };
-
-        document.addEventListener('click', handleDocumentClick);
-    }
+    wireEmojiPicker({
+        buttonId: 'ec-emoji-button',
+        pickerId: 'ec-emoji-picker',
+        hiddenInputId: 'ec-emoji',
+        previewId: 'ec-emoji-preview',
+        defaultEmoji: '🙂'
+    });
 
     // ============================================================
     // 6. SAVE HANDLER — CALL /api/v1/add_item.php (LIVE)
@@ -275,8 +244,11 @@ async function openAddItem() {
     // Collect fields → POST JSON → handle response. On success,
     // close modal and (optionally) trigger a UI refresh function.
     // ============================================================
+    const form = document.getElementById('ec-add-item-form');
     const saveBtn = document.getElementById('ec-save-item');
-    saveBtn.addEventListener('click', async () => {
+    const handleSubmit = async (event) => {
+        if (event) event.preventDefault();
+        if (!saveBtn) return;
         // Basic front-end validation
         const titleVal = (document.getElementById('ec-title')?.value || '').trim();
         if (!titleVal) {
@@ -325,7 +297,11 @@ async function openAddItem() {
             saveBtn.disabled = false;
             saveBtn.textContent = origText;
         }
-    });
+    };
+
+    if (form) {
+        form.addEventListener('submit', handleSubmit);
+    }
 }
 
 
@@ -347,7 +323,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
     <div class="add-date-form" style="margin:auto;">
       <h3 class="ec-form-title">Add a to-do item for this ${displayDate}.</h3>
 
-      <form id="ec-add-item-form" autocomplete="off" onsubmit="return false;">
+      <form id="ec-add-item-form" autocomplete="off">
         <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
         <input id="ec-time" type="hidden" value="${escapeAttr(timeStr)}">
         <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
@@ -423,14 +399,14 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         </div>
 
         <div class="ec-form-actions">
-          <button type="button" id="ec-save-item" class="stellar-submit" style="height:44px;">Save To-Do</button>
+          <button type="submit" id="ec-save-item" class="stellar-submit" style="height:44px;">Save To-Do</button>
         </div>
       </form>
     </div>
   `;
 }
 
-function buildEmojiPicker() {
+function buildEmojiPicker(pickerId = 'ec-emoji-picker') {
     const emojis = [
         '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
         '🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚',
@@ -449,10 +425,79 @@ function buildEmojiPicker() {
         .join('');
 
     return `
-        <div class="ec-emoji-picker" id="ec-emoji-picker" role="listbox" aria-label="Choose an emoji">
+        <div class="ec-emoji-picker" id="${escapeAttr(pickerId)}" role="listbox" aria-label="Choose an emoji">
           ${options}
         </div>
     `;
+}
+
+function wireEmojiPicker({ buttonId, pickerId, hiddenInputId, previewId, defaultEmoji = '🙂' }) {
+    const button = document.getElementById(buttonId);
+    const picker = document.getElementById(pickerId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const preview = document.getElementById(previewId);
+
+    if (!button || !picker || !hiddenInput || !preview) {
+        return () => {};
+    }
+
+    const closePicker = () => {
+        picker.classList.remove('ec-emoji-picker--visible');
+        button.setAttribute('aria-expanded', 'false');
+    };
+
+    const togglePicker = () => {
+        const nowOpen = !picker.classList.contains('ec-emoji-picker--visible');
+        if (nowOpen) {
+            picker.classList.add('ec-emoji-picker--visible');
+            button.setAttribute('aria-expanded', 'true');
+        } else {
+            closePicker();
+        }
+    };
+
+    const handleButtonClick = (event) => {
+        event.stopPropagation();
+        togglePicker();
+    };
+
+    const handlePickerClick = (event) => {
+        const option = event.target.closest('.ec-emoji-option');
+        if (!option) return;
+        const chosen = sanitizeEmojiInput(option.dataset.emoji || option.textContent || '');
+        hiddenInput.value = chosen;
+        preview.textContent = chosen || defaultEmoji;
+        closePicker();
+    };
+
+    const handleDocumentClick = (event) => {
+        if (!document.body.contains(picker)) {
+            document.removeEventListener('click', handleDocumentClick);
+            return;
+        }
+        if (!picker.classList.contains('ec-emoji-picker--visible')) return;
+        if (picker.contains(event.target) || button.contains(event.target)) return;
+        closePicker();
+    };
+
+    button.addEventListener('click', handleButtonClick);
+    picker.addEventListener('click', handlePickerClick);
+    document.addEventListener('click', handleDocumentClick);
+
+    if (hiddenInput.value) {
+        const sanitized = sanitizeEmojiInput(hiddenInput.value) || defaultEmoji;
+        hiddenInput.value = sanitized;
+        preview.textContent = sanitized;
+    } else {
+        preview.textContent = defaultEmoji;
+    }
+
+    return () => {
+        button.removeEventListener('click', handleButtonClick);
+        picker.removeEventListener('click', handlePickerClick);
+        document.removeEventListener('click', handleDocumentClick);
+        closePicker();
+    };
 }
 
 function toggleKindFields(kind) {
@@ -477,7 +522,13 @@ function addNewCalendarV1() {
 
     // Remove any existing overlay before rendering a fresh instance.
     const existingOverlay = document.getElementById('ec-add-calendar-overlay');
-    if (existingOverlay) existingOverlay.remove();
+    if (existingOverlay) {
+        if (typeof existingOverlay.__ecTeardown === 'function') {
+            existingOverlay.__ecTeardown();
+        } else {
+            existingOverlay.remove();
+        }
+    }
 
     const overlay = document.createElement('div');
     overlay.id = 'ec-add-calendar-overlay';
@@ -498,52 +549,57 @@ function addNewCalendarV1() {
     overlay.innerHTML = `
         <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
             <h2 style="margin:0;font-size:1.5rem;">Add New Calendar</h2>
-            <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">Private calendars help you manage personal events, public calendars let folks subscribe to you lists of events.</p>
+            <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">Private calendars help you manage personal events, public calendars let folks subscribe to your lists of events.</p>
         </div>
         <form id="ec-add-calendar-form" style="display:flex;flex-direction:column;gap:16px;">
             <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                
+                <span style="font-size:0.95rem;">Calendar name</span>
                 <input id="ec-cal-name" name="calendar_name" type="text" placeholder="Name your new calendar..." required style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;" />
             </label>
             <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                
+                <span style="font-size:0.95rem;">Description</span>
                 <textarea id="ec-cal-description" name="calendar_description" rows="3" placeholder="Describe what this calendar is for" style="padding:10px;border-radius:8px;border:1px solid grey;font-weight:400;resize:vertical;background:var(--top-header)"></textarea>
             </label>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">
-                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                    
-                    <input id="ec-cal-emoji" name="calendar_emoji" type="text" maxlength="4" placeholder="🌍" style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;" />
+            <div style="display:flex;gap:12px;align-items:flex-end;">
+                <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                    <span style="font-size:0.95rem;">Calendar category</span>
+                    <select id="ec-cal-category" name="calendar_category" style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
+                        <option value="" disabled selected>Select calendar category...</option>
+                        <option value="personal">Personal</option>
+                        <option value="holidays">Holidays</option>
+                        <option value="birthdays">Birthdays</option>
+                        <option value="astronomy">Astronomy</option>
+                        <option value="migration">Migration</option>
+                        <option value="other">Other</option>
+                    </select>
                 </label>
-                <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                    
-                    <input id="ec-cal-color" name="calendar_color" type="color" value="#ff6b6b" style="height:48px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);padding:6px;" />
-                </label>
+                <div class="ec-inline-field ec-emoji-field" style="width:auto;">
+                    <div class="ec-emoji-input">
+                        <button type="button" id="ec-cal-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose calendar emoji" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+                            <span id="ec-cal-emoji-preview" class="ec-emoji-preview">🌍</span>
+                        </button>
+                        ${buildEmojiPicker('ec-cal-emoji-picker')}
+                        <input type="hidden" id="ec-cal-emoji" name="calendar_emoji" value="🌍">
+                    </div>
+                </div>
             </div>
-            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                
-                <select id="ec-cal-category" name="calendar_category" style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
-                    <option value="personal">Personal</option>
-                    <option value="holidays">Holidays</option>
-                    <option value="birthdays">Birthdays</option>
-                    <option value="astronomy">Astronomy</option>
-                    <option value="migration">Migration</option>
-                    <option value="other">Other</option>
-                </select>
-            </label>
-            <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;">
-                
-                <select id="ec-cal-visibility" name="calendar_visibility" style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
-                    <option value="public">Public</option>
-                    <option value="private" selected>Private</option>
-                </select>
-            </label>
-            <div class="ec-add-calendar-actions" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
-                <button type="submit" style="width: 70%; padding:12px 20px;border-radius:999px;border:none;background:var(--h1, #2563eb);color:#fff;font-weight:600;cursor:pointer;">Create calendar</button>
-                <button type="button" data-action="cancel" style="width: 25%; padding:12px 20px;border-radius:999px;border:1px solid var(--subdued-text, #d1d5db);background:#e5e7eb;color:#111827;font-weight:600;cursor:pointer;">Cancel</button>
+            <div style="display:flex;gap:12px;align-items:flex-end;">
+                <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-weight:600;">
+                    <span style="font-size:0.95rem;">Visibility</span>
+                    <select id="ec-cal-visibility" name="calendar_visibility" style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
+                        <option value="public">Public</option>
+                        <option value="private" selected>Private</option>
+                    </select>
+                </label>
+                <div class="ec-inline-field ec-color-field" style="width:auto;">
+                    <input id="ec-cal-color" name="calendar_color" type="color" value="#ff6b6b" class="blur-form-field ec-color-input" aria-label="Calendar color" style="width:45px;height:45px;padding:0;">
+                </div>
+            </div>
+            <div class="ec-add-calendar-actions" style="margin-top:8px;">
+                <button type="submit" style="width:100%;padding:12px 20px;border-radius:999px;border:none;background:var(--h1, #2563eb);color:#fff;font-weight:600;cursor:pointer;">Create calendar</button>
             </div>
         </form>
     `;
-
     const form = overlay.querySelector('#ec-add-calendar-form');
     if (form) {
         form.addEventListener('submit', (event) => {
@@ -560,18 +616,55 @@ function addNewCalendarV1() {
         });
     }
 
-    const cancelBtn = overlay.querySelector('[data-action="cancel"]');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            if (modalContent.dataset.originalPosition === 'static') {
-                modalContent.style.position = '';
-                delete modalContent.dataset.originalPosition;
-            }
-        });
-    }
-
     modalContent.appendChild(overlay);
+
+    const detachEmojiPicker = wireEmojiPicker({
+        buttonId: 'ec-cal-emoji-button',
+        pickerId: 'ec-cal-emoji-picker',
+        hiddenInputId: 'ec-cal-emoji',
+        previewId: 'ec-cal-emoji-preview',
+        defaultEmoji: '🌍'
+    });
+
+    const restoreModalPosition = () => {
+        if (modalContent.dataset.originalPosition === 'static') {
+            modalContent.style.position = '';
+            delete modalContent.dataset.originalPosition;
+        }
+    };
+
+    const closeButton = document.querySelector('#form-modal-message .x-button');
+    const originalCloseHandler = closeButton ? closeButton.onclick : null;
+    const originalCloseAttr = closeButton ? closeButton.getAttribute('onclick') : null;
+
+    const teardownOverlay = () => {
+        detachEmojiPicker();
+        if (overlay.parentElement) {
+            overlay.remove();
+        }
+        restoreModalPosition();
+        if (closeButton) {
+            closeButton.onclick = originalCloseHandler || null;
+            if (originalCloseAttr !== null) {
+                closeButton.setAttribute('onclick', originalCloseAttr);
+            } else {
+                closeButton.removeAttribute('onclick');
+            }
+        }
+        delete overlay.__ecTeardown;
+    };
+
+    overlay.__ecTeardown = teardownOverlay;
+
+    if (closeButton) {
+        closeButton.onclick = (event) => {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+                event.stopImmediatePropagation();
+            }
+            teardownOverlay();
+        };
+    }
 }
 
 function collectAddItemFormData(user) {
