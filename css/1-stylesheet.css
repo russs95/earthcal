@@ -2937,10 +2937,11 @@ INFO MODAL
 
 
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 768px) {
 
   .blur-form-field {
   width:100%;
+  box-sizing:border-box;
   }
 
   .confirmation-blur-button {
@@ -2951,13 +2952,18 @@ INFO MODAL
   .ec-form-field,
   .ec-form-inline,
   .ec-form-actions {
-      width: 90%;
+      width: 100%;
+      max-width: 100%;
   }
 
-  .ec-inline-field.ec-emoji-field {
-      min-width: 160px;
+  .ec-form-inline {
+      justify-content: flex-start;
   }
+
+  .ec-inline-field {
+      min-width: 0;
   }
+}
 
     @media screen and (min-width: 700px) {
   
