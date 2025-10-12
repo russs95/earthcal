@@ -641,26 +641,26 @@ async function addNewCalendarV1() {
                 Private calendars help you manage personal events, public calendars let folks subscribe to your lists of events.
             </p>
         </div>
-        <form id="ec-add-calendar-form" style="display:flex;flex-direction:column;gap:16px;">
-            <div style="display:flex;flex-direction:column;">
+        <form id="ec-add-calendar-form" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:100%;">
+            <div style="display:flex;flex-direction:column;width:100%;">
                 <label class="ec-visually-hidden" for="ec-cal-name">Calendar name</label>
                 <input id="ec-cal-name" name="calendar_name" type="text" placeholder="Name your new calendar..." required
                        aria-label="Calendar name"
-                       style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;" />
+                       style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;" />
             </div>
-            <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;flex-direction:column;width:100%;">
                 <label class="ec-visually-hidden" for="ec-cal-description">Description</label>
-                <textarea id="ec-cal-description" name="calendar_description" rows="3"
-                          placeholder="Describe what this calendar is for"
-                          aria-label="Calendar description"
-                          style="padding:10px;border-radius:8px;border:1px solid grey;font-weight:400;resize:vertical;background:var(--top-header)"></textarea>
+                <input id="ec-cal-description" name="calendar_description" type="text"
+                       placeholder="Describe what this calendar is for"
+                       aria-label="Calendar description"
+                       style="padding:10px;border-radius:8px;border:1px solid grey;font-weight:400;background:var(--top-header);width:100%;box-sizing:border-box;" />
             </div>
-            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-                <div style="flex:1;display:flex;flex-direction:column;">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%;">
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;min-width:min(200px,100%);">
                     <label class="ec-visually-hidden" for="ec-cal-category">Calendar category</label>
                     <select id="ec-cal-category" name="calendar_category"
                             aria-label="Calendar category"
-                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
+                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;">
                         <option value="" disabled selected>Select calendar category...</option>
                         <option value="personal">Personal</option>
                         <option value="holidays">Holidays</option>
@@ -681,20 +681,20 @@ async function addNewCalendarV1() {
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-                <div style="flex:1;display:flex;flex-direction:column;">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%;">
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;min-width:min(200px,100%);">
                     <label class="ec-visually-hidden" for="ec-cal-visibility">Visibility</label>
                     <select id="ec-cal-visibility" name="calendar_visibility"
                             aria-label="Calendar visibility"
-                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;">
+                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;">
                         <option value="public">Public</option>
                         <option value="private" selected>Private</option>
                     </select>
                 </div>
-                <div class="ec-inline-field ec-color-field" style="width:auto;">
+                <div class="ec-inline-field ec-color-field" style="width:auto;display:flex;align-items:center;">
                     <input id="ec-cal-color" name="calendar_color" type="color" value="#ff6b6b"
                            class="blur-form-field ec-color-input" aria-label="Calendar color"
-                           style="width:45px;height:45px;padding:0;">
+                           style="width:40px;height:40px;padding:0;">
                 </div>
             </div>
             <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
