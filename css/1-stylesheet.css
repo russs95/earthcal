@@ -2727,12 +2727,102 @@ INFO MODAL
     text-align: center;
 }
 
+
 .ec-form-field {
     width: 70%;
     margin: 10px auto;
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.ec-title-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.ec-title-row #ec-title {
+    margin: 0;
+}
+
+.ec-notes-toggle-button {
+    width: 20px;
+    min-width: 20px;
+    height: 45px;
+    border: none;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--form-field-background);
+    color: var(--form-field-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ec-notes-toggle-button:hover {
+    background: var(--general-background);
+}
+
+.ec-notes-toggle-button:focus-visible {
+    outline: 2px solid var(--form-field-text);
+    outline-offset: 2px;
+    background: var(--general-background);
+}
+
+.ec-notes-toggle-button.is-open {
+    transform: translateY(1px);
+}
+
+.ec-notes-field {
+    overflow: visible;
+}
+
+.ec-notes-collapsible {
+    width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+
+.ec-notes-collapsible.is-open {
+    opacity: 1;
+}
+
+#ec-notes {
+    margin: 10px 0 0 0;
+}
+
+.ec-frequency-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ec-frequency-select {
+    flex: 1 1 200px;
+    margin: 0;
+}
+
+.ec-frequency-row .blur-form-field {
+    margin: 0;
+}
+
+.ec-frequency-row .ec-inline-field {
+    flex: 0 0 auto;
+}
+
+.ec-color-input {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 12px;
+    margin: 0;
 }
 
 .ec-form-inline {
@@ -2868,60 +2958,6 @@ INFO MODAL
     background: var(--form-field-background);
     outline: none;
     transform: translateY(-1px);
-}
-
-#ec-todo-fields {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-#ec-todo-fields > * {
-    flex: 0 0 auto;
-}
-
-.ec-color-input {
-    width: 45px;
-    height: 45px;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 12px;
-    margin: 0;
-}
-
-.ec-toggle-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-    height: 45px;
-    background: var(--general-background);
-    border-radius: 999px;
-}
-
-.ec-toggle-chip .ec-inline-label {
-    margin: 0;
-}
-
-.ec-pin-field {
-    height: 45px;
-}
-
-.ec-pin-field .ec-toggle-chip {
-    margin: 0;
-}
-
-.ec-notes-toggle-row {
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.ec-notes-toggle-row .ec-toggle-chip {
-    margin-bottom: 6px;
-}
-
-.ec-notes-toggle-row #ec-notes-box {
-    width: 100%;
 }
 
 .ec-form-actions {
