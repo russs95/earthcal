@@ -41,14 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // -------------------------------------------------------------
 //  1️⃣ Database connection (via PDO)
 // -------------------------------------------------------------
-require_once '../calconn_env.php'; // defines $host, $port, $db, $user, $pass
-
 try {
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-    $pdo->exec("SET time_zone = '+00:00'");
+    require_once __DIR__ . '/../pdo_connect.php';
+    $pdo = earthcal_get_pdo();
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'db_connect_failed', 'detail' => $e->getMessage()]);
