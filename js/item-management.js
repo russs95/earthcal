@@ -226,9 +226,43 @@ async function openAddItem() {
 
     const notesToggle = document.getElementById('ec-notes-toggle');
     const notesBox = document.getElementById('ec-notes-box');
-    notesToggle.addEventListener('change', () => {
-        notesBox.style.display = notesToggle.checked ? 'block' : 'none';
-    });
+    if (notesToggle && notesBox) {
+        const notesField = notesBox.querySelector('textarea');
+        const updateMaxHeight = () => {
+            notesBox.style.maxHeight = `${notesBox.scrollHeight}px`;
+        };
+        const setNotesExpanded = (expanded) => {
+            notesToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            notesToggle.setAttribute('aria-label', expanded ? 'Hide notes' : 'Show notes');
+            notesToggle.title = expanded ? 'Hide notes' : 'Show notes';
+            notesToggle.classList.toggle('is-open', expanded);
+            notesToggle.textContent = expanded ? '▼' : '▲';
+
+            notesBox.classList.toggle('is-open', expanded);
+            notesBox.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+            if (expanded) {
+                updateMaxHeight();
+            } else {
+                notesBox.style.maxHeight = '0px';
+            }
+        };
+
+        setNotesExpanded(false);
+
+        notesToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            const currentlyExpanded = notesToggle.getAttribute('aria-expanded') === 'true';
+            setNotesExpanded(!currentlyExpanded);
+        });
+
+        if (notesField) {
+            notesField.addEventListener('input', () => {
+                if (notesToggle.getAttribute('aria-expanded') === 'true') {
+                    updateMaxHeight();
+                }
+            });
+        }
+    }
 
     wireEmojiPicker({
         buttonId: 'ec-emoji-button',
@@ -328,8 +362,15 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
         
         
-        <div class="ec-form-field">
+        <div class="ec-form-field ec-title-row">
           <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
+          <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">▲</button>
+        </div>
+
+        <div class="ec-form-field ec-notes-field">
+          <div id="ec-notes-box" class="ec-notes-collapsible" aria-hidden="true">
+            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
+          </div>
         </div>
 
         <div class="ec-form-field">
@@ -339,42 +380,15 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <option value="journal">Journal</option>
           </select>
         </div>
-        
-         <div class="ec-form-field">
-          <select id="ec-frequency" class="blur-form-field" style="height:45px;width:100%;text-align:center;">
+
+        <div id="ec-frequency-row" class="ec-form-field ec-frequency-row">
+          <select id="ec-frequency" class="blur-form-field ec-frequency-select" style="height:45px;text-align:center;">
             <option value="today" selected>One-time</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
-        </div>
-        
-             <div class="ec-form-field">
-          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
-            ${calendarOptions}
-            <option value="__add_new__">+ Add new calendar</option>
-          </select>
-        </div>
 
-        <div id="ec-todo-fields" class="ec-form-inline">
-          <div class="ec-inline-field ec-pin-field">
-            <div class="ec-toggle-chip">
-              <span class="ec-inline-label">📌</span>
-              <label class="toggle-switch" for="ec-pinned">
-                <input id="ec-pinned" type="checkbox" aria-label="Pin to calendar">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-          
-          <div class="ec-toggle-chip">
-            <span class="ec-inline-label" title="Add notes">✏️</span>
-            <label class="toggle-switch" for="ec-notes-toggle">
-              <input id="ec-notes-toggle" type="checkbox" aria-label="Toggle notes field">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
           <div class="ec-inline-field ec-emoji-field">
             <div class="ec-emoji-input">
               <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
@@ -386,14 +400,14 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           <div class="ec-inline-field ec-color-field">
             <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
           </div>
-          
+
         </div>
 
-        <div class="ec-form-field ec-notes-toggle-row">
-
-          <div id="ec-notes-box" style="display:none;">
-            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
-          </div>
+        <div class="ec-form-field">
+          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
+            ${calendarOptions}
+            <option value="__add_new__">+ Add new calendar</option>
+          </select>
         </div>
 
         <div class="ec-form-actions">
@@ -577,8 +591,8 @@ function wireEmojiPicker({ buttonId, hiddenInputId, previewId, defaultEmoji = '�
 
 function toggleKindFields(kind) {
     // When you implement Event/Journal, you’ll show/hide extra blocks here.
-    const todoBlock = document.getElementById('ec-todo-fields');
-    if (todoBlock) todoBlock.style.display = kind === 'todo' ? 'flex' : 'none';
+    const frequencyRow = document.getElementById('ec-frequency-row');
+    if (frequencyRow) frequencyRow.style.display = kind === 'todo' ? 'flex' : 'none';
 }
 
 
