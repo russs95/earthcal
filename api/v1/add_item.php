@@ -87,6 +87,13 @@ function rand_slug(int $len = 12): string {
     $s=''; for($i=0;$i<$len;$i++) $s .= $alphabet[random_int(0, strlen($alphabet)-1)];
     return $s;
 }
+function generate_uid(): string {
+    try {
+        return bin2hex(random_bytes(12)) . '@earthcal.app';
+    } catch (Throwable $e) {
+        return uniqid('', true) . '@earthcal.app';
+    }
+}
 function to_utc(string $local, string $tzid): string {
     try { $tz = new DateTimeZone($tzid ?: 'Etc/UTC'); }
     catch (Throwable $e) { $tz = new DateTimeZone('Etc/UTC'); }
@@ -153,7 +160,15 @@ if ($all_day) {
 } else {
     $start_ts_utc = to_utc($start_local, $tzid);
     $end_ts_utc   = null;
+    if ($duration_minutes && $duration_minutes > 0) {
+        $end_dt = new DateTime($start_ts_utc, new DateTimeZone('UTC'));
+        $end_dt->modify('+' . $duration_minutes . ' minutes');
+        $end_ts_utc = $end_dt->format('Y-m-d H:i:s');
+    }
 }
+
+$component_type = in_array($item_kind, ['todo','event','journal'], true) ? $item_kind : 'todo';
+$due_ts_utc = ($component_type === 'todo') ? ($end_ts_utc ?: $start_ts_utc) : null;
 
 // -------------------------------------------------------------
 //  6️⃣ Insert item into items_v1_tb
@@ -168,20 +183,21 @@ try {
 
     // Candidate field map
     $candidate = [
-        'user_id'          => $buwana_id,
         'calendar_id'      => $calendar_id,
-        'item_kind'        => in_array($item_kind, ['todo','event','journal'], true) ? $item_kind : 'todo',
-        'title'            => $title,
+        'uid'              => generate_uid(),
+        'component_type'   => $component_type,
+        'summary'          => $title ?: null,
+        'description'      => $notes ?: null,
         'tzid'             => $tzid,
+        'dtstart_utc'      => $start_ts_utc,
+        'dtend_utc'        => $end_ts_utc,
         'all_day'          => $all_day,
-        'start_ts_utc'     => $start_ts_utc,
-        'end_ts_utc'       => $end_ts_utc,
-        'duration_minutes' => $duration_minutes,
-        'notes'            => $notes ?: null,
         'pinned'           => $pinned,
-        'emoji'            => $emoji ?: null,
-        'color_hex'        => $color_hex ?: null,
-        'completed'        => ($item_kind === 'todo') ? 0 : null,
+        'item_emoji'       => $emoji ?: null,
+        'item_color'       => $color_hex ?: null,
+        'due_utc'          => $due_ts_utc,
+        'percent_complete' => ($component_type === 'todo') ? 0 : null,
+        'status'           => ($component_type === 'todo') ? 'NEEDS-ACTION' : null,
     ];
 
     // Add timestamps if columns exist
@@ -211,9 +227,11 @@ try {
         'ok' => true,
         'item_id' => $new_id,
         'calendar_id' => $calendar_id,
-        'item_kind' => $candidate['item_kind'],
+        'item_kind' => $component_type,
+        'uid' => $candidate['uid'],
         'title' => $title,
         'start_ts_utc' => $start_ts_utc,
+        'end_ts_utc' => $end_ts_utc,
         'start_local' => $start_local,
         'tzid' => $tzid,
         'pinned' => (bool)$pinned,
