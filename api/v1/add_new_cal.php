@@ -1,4 +1,6 @@
 <?php
+
+
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
@@ -60,6 +62,21 @@ try {
     echo json_encode(['ok'=>false,'error'=>'db_connect_failed','detail'=>$e->getMessage()]);
     exit;
 }
+
+error_reporting(E_ALL);
+ini_set('display_errors', '0'); // hide from HTTP output
+ini_set('log_errors', '1');
+ini_set('error_log', '/var/www/html/api/debug_add_cal.log');
+
+error_log("---- add_new_cal.php triggered at " . date('c'));
+
+try {
+    $stmt = $pdo->query("SELECT NOW() AS test_time");
+    error_log("✅ PDO test success: " . json_encode($stmt->fetch()));
+} catch (PDOException $e) {
+    error_log("❌ PDO test failed: " . $e->getMessage());
+}
+
 
 // -------------------------------------------------------------
 // 2️⃣ Parse input
