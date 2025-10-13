@@ -37,12 +37,8 @@ try {
   // ---------------------------------------------------------
   //  DATABASE CONNECTION (updated credentials)
   // ---------------------------------------------------------
-require_once '../calconn_env.php';    // provides $cal_conn (mysqli)
-
-  $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4", $user, $pass, [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-  ]);
+  require_once __DIR__ . '/../pdo_connect.php';
+  $pdo = earthcal_get_pdo();
 
   $pdo->beginTransaction();
 
