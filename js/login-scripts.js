@@ -130,6 +130,7 @@ async function getUserData() {
             }
         });
         sessionStorage.removeItem("user_calendars");
+        sessionStorage.removeItem("user_calendars_v1");
         useDefaultUser();
         updateSessionStatus("⚪ Not logged in", false);
         return;
@@ -165,47 +166,60 @@ async function getUserData() {
     setCurrentDate(userTimeZone, userLanguage);
 
     // 📅 Load calendar data: session first, then fetch from API if missing
-    const calendarCache = sessionStorage.getItem("user_calendars");
+    const calendarCache = sessionStorage.getItem('user_calendars_v1');
 
-    let calendarData = null;
+    let calendars = null;
     if (calendarCache) {
         try {
-            calendarData = JSON.parse(calendarCache);
-            console.log("📅 Using cached calendar data");
+            const parsed = JSON.parse(calendarCache);
+            if (Array.isArray(parsed)) {
+                calendars = parsed;
+                console.log('📅 Using cached v1 calendar data');
+            }
         } catch (e) {
-            console.warn("⚠️ Cached calendar data was corrupted. Will fetch fresh data.");
+            console.warn('⚠️ Cached v1 calendar data was corrupted. Will fetch fresh data.');
         }
     }
 
-    if (!calendarData) {
+    if (!calendars) {
         try {
-            const calendarRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const calendarRes = await fetch('/api/v1/list_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({ buwana_id: buwanaId })
             });
 
+            if (!calendarRes.ok) {
+                throw new Error(`HTTP ${calendarRes.status}`);
+            }
+
             const freshData = await calendarRes.json();
 
-            if (freshData.success) {
-                calendarData = freshData;
-                sessionStorage.setItem("user_calendars", JSON.stringify(freshData));
-                console.log("📡 Fetched and cached fresh calendar data.");
+            if (freshData?.ok && Array.isArray(freshData.calendars)) {
+                calendars = freshData.calendars;
+                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
+                try {
+                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
+                } catch (err) {
+                    console.warn('⚠️ Unable to cache legacy calendar view:', err);
+                }
+                console.log('📡 Fetched and cached fresh v1 calendar data.');
             } else {
-                console.warn("⚠️ API calendar fetch failed:", freshData.message);
+                console.warn('⚠️ API calendar fetch failed:', freshData?.error || freshData?.message || 'unknown_error');
             }
         } catch (err) {
-            console.error("❌ Error fetching calendar data from API:", err);
+            console.error('❌ Error fetching calendar data from API:', err);
         }
     }
 
-    if (!calendarData) {
+    if (!calendars) {
         useDefaultUser();
         return;
     }
 
     // 🌟 Show logged-in panel and trigger sync
-    showLoggedInView(calendarData);
+    showLoggedInView(calendars);
     await syncDatecycles();  // 🔄 Begin sync with latest calendar state
 }
 
@@ -312,7 +326,57 @@ function showErrorState(loggedOutView, loggedInView) {
     showLoginForm(loggedOutView, loggedInView);
 }
 
-async function showLoggedInView(calendarData = {}) {
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[ch] || ch));
+}
+
+function formatDateDisplay(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return escapeHtml(value);
+    return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function sanitizeCalendarColor(color) {
+    if (typeof color !== 'string') return '#3b82f6';
+    const trimmed = color.trim();
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+        return trimmed;
+    }
+    return '#3b82f6';
+}
+
+function buildLegacyCalendarCache(calendars) {
+    const list = Array.isArray(calendars) ? calendars : [];
+    return {
+        personal_calendars: list.map(cal => ({
+            calendar_id: cal?.calendar_id ?? null,
+            calendar_name: cal?.name ?? 'Untitled Calendar',
+            calendar_color: cal?.color || cal?.color_hex || '#3b82f6',
+            calendar_public: cal?.visibility === 'public' ? 1 : 0,
+            last_updated: cal?.updated_at ?? null,
+            calendar_created: cal?.created_at ?? null,
+            description: cal?.description ?? '',
+            category: cal?.category ?? '',
+            emoji: cal?.emoji ?? '',
+            is_readonly: cal?.is_readonly ? 1 : 0
+        })),
+        subscribed_calendars: [],
+        public_calendars: []
+    };
+}
+
+async function showLoggedInView(calendars = []) {
     const loggedInView = document.getElementById("logged-in-view");
 
     // ✅ Validate login status first
@@ -326,47 +390,82 @@ async function showLoggedInView(calendarData = {}) {
     const earthling_emoji = payload["buwana:earthlingEmoji"] || "🌍";
     const buwana_id = payload.buwana_id;
 
-    const {
-        personal_calendars = [],
-        subscribed_calendars = [],
-        public_calendars = []
-    } = calendarData;
-
     const lang = window.userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
     const {
         welcome,
         syncingInfo,
         noPersonal,
-        noPublic,
         logout
     } = translations.loggedIn;
 
-    const personalCalendarHTML = personal_calendars.length > 0
-        ? personal_calendars.map(cal => `
-            <div class="calendar-item">
-                <input type="checkbox" id="personal-${cal.calendar_id}" name="personal_calendar" value="${cal.calendar_id}" checked disabled />
-                <label for="personal-${cal.calendar_id}">${cal.calendar_name}</label>
-            </div>
-        `).join('')
-        : `<p>${noPersonal}</p>`;
+    const calendarList = Array.isArray(calendars) ? [...calendars] : [];
+    calendarList.sort((a, b) => {
+        const nameA = (a?.name || '').toLocaleLowerCase();
+        const nameB = (b?.name || '').toLocaleLowerCase();
+        return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+    });
 
-    const publicCalendarHTML = public_calendars.length > 0
-        ? public_calendars.map(cal => {
-            const isChecked = subscribed_calendars.some(sub => sub.calendar_id === cal.calendar_id);
+    const personalCalendarHTML = calendarList.length > 0
+        ? calendarList.map(cal => {
+            const rowId = `cal-row-${cal.calendar_id}`;
+            const emoji = cal?.emoji?.trim() || '📅';
+            const description = cal?.description ? escapeHtml(cal.description) : `<span class="cal-detail-empty">—</span>`;
+            const eventCount = (typeof cal?.event_count === 'number' && cal.event_count >= 0)
+                ? cal.event_count
+                : '—';
+            const createdAt = formatDateDisplay(cal?.created_at);
+            const updatedAt = formatDateDisplay(cal?.updated_at);
+            const color = sanitizeCalendarColor(cal?.color || cal?.color_hex);
+            const category = cal?.category ? escapeHtml(cal.category) : `<span class="cal-detail-empty">—</span>`;
+
             return `
-                <div class="calendar-item">
-                    <input type="checkbox" id="public-${cal.calendar_id}" name="public_calendar" value="${cal.calendar_id}"
-                        ${isChecked ? 'checked' : ''}
-                        onchange="toggleSubscription('${cal.calendar_id}', this.checked)" />
-                    <label for="public-${cal.calendar_id}">${cal.calendar_name}</label>
+                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${cal.calendar_id}">
+                    <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
+                        <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
+                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" onchange="toggleV1CalVisibility(${cal.calendar_id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="cal-row-details">
+                        <dl class="cal-details-list">
+                            <div class="cal-detail-item">
+                                <dt>Description</dt>
+                                <dd>${description}</dd>
+                            </div>
+                            <div class="cal-detail-item">
+                                <dt>Events</dt>
+                                <dd>${eventCount}</dd>
+                            </div>
+                            <div class="cal-detail-item">
+                                <dt>Created</dt>
+                                <dd>${createdAt}</dd>
+                            </div>
+                            <div class="cal-detail-item">
+                                <dt>Last updated</dt>
+                                <dd>${updatedAt}</dd>
+                            </div>
+                            <div class="cal-detail-item">
+                                <dt>Category</dt>
+                                <dd>${category}</dd>
+                            </div>
+                            <div class="cal-detail-item">
+                                <dt>Color</dt>
+                                <dd><span class="cal-color-dot" style="background:${color};"></span> ${escapeHtml(color)}</dd>
+                            </div>
+                        </dl>
+                        <div class="cal-row-actions">
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id})" aria-label="Delete calendar">❌</button>
+                        </div>
+                    </div>
                 </div>
             `;
         }).join('')
-        : `<p>${noPublic}</p>`;
-
-    const personalSection = `<div class="form-item">${personalCalendarHTML}</div>`;
-    const publicSection = `<div class="form-item">${publicCalendarHTML}</div>`;
+        : `<p>${noPersonal}</p>`;
 
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
@@ -379,12 +478,11 @@ async function showLoggedInView(calendarData = {}) {
              <div id="sync-status">
                 <p>${syncingInfo}</p>
             </div>
-            
 
-            <form id="calendar-selection-form" style="text-align:left; width:360px; margin:auto;">
-                ${personalSection}
-                ${publicSection}
-            </form>
+
+            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; width:360px; margin:auto;">
+                ${personalCalendarHTML}
+            </div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
@@ -583,41 +681,60 @@ async function sendUpRegistration() {
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
 
-        let calendarData = null;
-        const calendarCache = sessionStorage.getItem("user_calendars");
+        let calendars = null;
+        const v1Cache = sessionStorage.getItem("user_calendars_v1");
 
-        if (calendarCache) {
+        if (v1Cache) {
             try {
-                calendarData = JSON.parse(calendarCache);
-                console.log("📅 Using cached calendar data.");
-            } catch (e) {
-                console.warn("⚠️ Failed to parse cached calendar data:", e);
-            }
-        }
-
-        if (!calendarData && payload?.buwana_id) {
-            console.log("📡 Fetching fresh calendar data...");
-            try {
-                const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ buwana_id: payload.buwana_id })
-                });
-                const calJson = await calRes.json();
-                if (calJson.success) {
-                    calendarData = calJson;
-                    sessionStorage.setItem("user_calendars", JSON.stringify(calJson));
-                    console.log("✅ Fresh calendar data loaded.");
-                } else {
-                    console.warn("⚠️ Calendar fetch failed:", calJson.message);
+                const parsed = JSON.parse(v1Cache);
+                if (Array.isArray(parsed)) {
+                    calendars = parsed;
+                    console.log("📅 Using cached v1 calendar data.");
                 }
             } catch (e) {
-                console.error("❌ Error fetching calendar data:", e);
+                console.warn("⚠️ Failed to parse cached v1 calendar data:", e);
             }
         }
 
-        if (calendarData) {
-            showLoggedInView(calendarData);
+        if (!calendars && payload?.buwana_id) {
+            console.log("📡 Fetching fresh v1 calendar data...");
+            try {
+                const calRes = await fetch('/api/v1/list_calendars.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ buwana_id: payload.buwana_id })
+                });
+
+                if (!calRes.ok) {
+                    throw new Error(`HTTP ${calRes.status}`);
+                }
+
+                const calJson = await calRes.json();
+                if (calJson?.ok && Array.isArray(calJson.calendars)) {
+                    calendars = calJson.calendars;
+                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
+                    try {
+                        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
+                    } catch (err) {
+                        console.warn('⚠️ Unable to cache legacy calendar view:', err);
+                    }
+                    console.log("✅ Fresh v1 calendar data loaded.");
+                } else {
+                    console.warn("⚠️ Calendar fetch failed:", calJson?.error || calJson?.message || 'unknown_error');
+                }
+            } catch (e) {
+                console.error("❌ Error fetching v1 calendar data:", e);
+            }
+        }
+
+        if (calendars) {
+            try {
+                sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
+            } catch (err) {
+                console.debug('Unable to update legacy calendar cache:', err);
+            }
+            showLoggedInView(calendars);
         } else {
             console.warn("❌ No calendar data available to render logged-in view.");
         }
@@ -627,6 +744,30 @@ async function sendUpRegistration() {
     }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
+}
+
+function toggleCalDetails(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.classList.toggle('is-expanded');
+}
+
+function collapseCalDetails(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.classList.remove('is-expanded');
+}
+
+function toggleV1CalVisibility(calendarId, isVisible) {
+    console.log(`[placeholder] toggleV1CalVisibility → calendarId: ${calendarId}, visible: ${isVisible}`);
+}
+
+function editV1cal(calendarId) {
+    console.log(`[placeholder] editV1cal → calendarId: ${calendarId}`);
+}
+
+function deleteV1cal(calendarId) {
+    console.log(`[placeholder] deleteV1cal → calendarId: ${calendarId}`);
 }
 
 
@@ -764,19 +905,29 @@ async function toggleSubscription(calendarId, subscribe) {
 
         // 3. Refresh calendar metadata cache
         try {
-            const calRes = await fetch("https://buwana.ecobricks.org/earthcal/fetch_all_calendars.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+            const calRes = await fetch('/api/v1/list_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({ buwana_id: buwanaId })
             });
 
+            if (!calRes.ok) {
+                throw new Error(`HTTP ${calRes.status}`);
+            }
+
             const calData = await calRes.json();
-            if (calData.success) {
-                sessionStorage.setItem("user_calendars", JSON.stringify(calData));
-                console.log("🔁 user_calendars cache refreshed.");
+            if (calData?.ok && Array.isArray(calData.calendars)) {
+                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calData.calendars));
+                try {
+                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calData.calendars)));
+                } catch (err) {
+                    console.warn('⚠️ Unable to refresh legacy calendar cache:', err);
+                }
+                console.log('🔁 user_calendars cache refreshed.');
             }
         } catch (e) {
-            console.warn("⚠️ Calendar list refresh failed:", e);
+            console.warn('⚠️ Calendar list refresh failed:', e);
         }
 
         // Optional: UI refresh hooks
