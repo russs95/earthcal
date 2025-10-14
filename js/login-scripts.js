@@ -395,8 +395,7 @@ async function showLoggedInView(calendars = []) {
     const {
         welcome,
         syncingInfo,
-        noPersonal,
-        logout
+        noPersonal
     } = translations.loggedIn;
 
     const calendarList = Array.isArray(calendars) ? [...calendars] : [];
@@ -469,6 +468,9 @@ async function showLoggedInView(calendars = []) {
 
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
+    document.removeEventListener('click', handleCalOutsideClick, true);
+    currentExpandedCalRowId = null;
+
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
             <h1 style="font-size: 5em; margin-bottom: 20px;margin-top:10px;">${earthling_emoji}</h1>
@@ -485,11 +487,17 @@ async function showLoggedInView(calendars = []) {
             </div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" class="confirmation-blur-button cancel">
+                    ➕ New personal calendar
+                </button>
+                <button type="button" class="confirmation-blur-button cancel">
+                    ➕ Subscribe to public Earthcal
+                </button>
+                <button type="button" class="confirmation-blur-button cancel">
+                    ➕ Connect Google Calendar
+                </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ✏️ Edit Buwana Profile
-                </button>
-                <button type="button" onclick="logoutBuwana()" class="confirmation-blur-button cancel">
-                    🐳 ${logout}
                 </button>
             </div>
 
@@ -746,16 +754,62 @@ async function sendUpRegistration() {
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
 
+let currentExpandedCalRowId = null;
+
 function toggleCalDetails(rowId) {
     const row = document.getElementById(rowId);
-    if (!row) return;
+    if (!row) {
+        return;
+    }
+
+    if (currentExpandedCalRowId && currentExpandedCalRowId !== rowId) {
+        collapseCalDetails(currentExpandedCalRowId);
+    }
+
+    const willExpand = !row.classList.contains('is-expanded');
     row.classList.toggle('is-expanded');
+
+    if (willExpand) {
+        currentExpandedCalRowId = rowId;
+        document.addEventListener('click', handleCalOutsideClick, true);
+    } else if (currentExpandedCalRowId === rowId) {
+        currentExpandedCalRowId = null;
+        document.removeEventListener('click', handleCalOutsideClick, true);
+    }
 }
 
 function collapseCalDetails(rowId) {
     const row = document.getElementById(rowId);
-    if (!row) return;
+    if (!row) {
+        return;
+    }
+
     row.classList.remove('is-expanded');
+
+    if (currentExpandedCalRowId === rowId) {
+        currentExpandedCalRowId = null;
+        document.removeEventListener('click', handleCalOutsideClick, true);
+    }
+}
+
+function handleCalOutsideClick(event) {
+    if (!currentExpandedCalRowId) {
+        document.removeEventListener('click', handleCalOutsideClick, true);
+        return;
+    }
+
+    const currentRow = document.getElementById(currentExpandedCalRowId);
+    if (!currentRow) {
+        currentExpandedCalRowId = null;
+        document.removeEventListener('click', handleCalOutsideClick, true);
+        return;
+    }
+
+    if (currentRow.contains(event.target)) {
+        return;
+    }
+
+    collapseCalDetails(currentExpandedCalRowId);
 }
 
 function toggleV1CalVisibility(calendarId, isVisible) {
@@ -766,8 +820,79 @@ function editV1cal(calendarId) {
     console.log(`[placeholder] editV1cal → calendarId: ${calendarId}`);
 }
 
-function deleteV1cal(calendarId) {
-    console.log(`[placeholder] deleteV1cal → calendarId: ${calendarId}`);
+async function deleteV1cal(calendarId) {
+    if (!calendarId) {
+        return;
+    }
+
+    const warningMessage = "Are you sure you want to delete this calendar?  It and all its to-dos, events and journals will also be irrevocably deleted!";
+    const confirmed = window.confirm(warningMessage);
+    if (!confirmed) {
+        return;
+    }
+
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    if (!ok || !payload?.buwana_id) {
+        alert("You must be logged in to delete a calendar.");
+        return;
+    }
+
+    const buwanaId = payload.buwana_id;
+
+    try {
+        setSyncStatus("Deleting calendar...", "🗑️", true);
+
+        const response = await fetch('/api/v1/delete_cal.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result?.ok) {
+            const errorMsg = result?.error || 'unknown_error';
+            alert(`Unable to delete calendar: ${errorMsg}`);
+            setSyncStatus("⚠️ Failed to delete calendar.");
+            return;
+        }
+
+        localStorage.removeItem(`calendar_${calendarId}`);
+
+        try {
+            const calRes = await fetch('/api/v1/list_calendars.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ buwana_id: buwanaId })
+            });
+
+            if (calRes.ok) {
+                const calData = await calRes.json();
+                if (calData?.ok && Array.isArray(calData.calendars)) {
+                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(calData.calendars));
+                    try {
+                        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calData.calendars)));
+                    } catch (err) {
+                        console.warn('⚠️ Unable to refresh legacy calendar cache after delete:', err);
+                    }
+                    showLoggedInView(calData.calendars);
+                }
+            }
+        } catch (refreshErr) {
+            console.warn('⚠️ Calendar list refresh failed after delete:', refreshErr);
+        }
+
+        setSyncStatus("🗑️ Calendar deleted.");
+    } catch (error) {
+        console.error('❌ deleteV1cal failed:', error);
+        alert('Something went wrong while deleting the calendar. Please try again.');
+        setSyncStatus("⚠️ Calendar deletion failed.");
+    }
 }
 
 
