@@ -701,8 +701,8 @@ margin-right: auto;
 
 .cal-toggle-row {
     background: var(--toggle-row-bg, var(--general-background));
-    border-radius: 18px;
-    padding: 10px 14px;
+    border-radius: 12px;
+    padding: 6px 12px;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
 }
@@ -721,12 +721,12 @@ margin-right: auto;
 .cal-row-name {
     flex: 1 1 auto;
     font-weight: 600;
-    font-size: 1.2em;
+    font-size: 1.0em;
 }
 
 .cal-row-emoji::before {
     content: attr(data-emoji);
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     transition: transform 0.2s ease;
 }
 

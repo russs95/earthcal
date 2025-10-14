@@ -473,7 +473,7 @@ async function showLoggedInView(calendars = []) {
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 5em; margin-bottom: 20px;margin-top:10px;">${earthling_emoji}</h1>
+            <h1 style="font-size: 4em; margin-bottom: 20px;margin-top:10px;">${earthling_emoji}</h1>
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
                 ${welcome} ${first_name}!
             </h2>
@@ -482,7 +482,7 @@ async function showLoggedInView(calendars = []) {
             </div>
 
 
-            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; width:360px; margin:0 auto 32px;">
+            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;">
                 ${personalCalendarHTML}
             </div>
 
