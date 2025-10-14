@@ -32,6 +32,7 @@
     #top-menu,
     #top-left-buttons,
     #time-controller,
+    #date-cycle-count-box,
     #bottom-left-buttons,
     #registration-footer {
         display: none !important;
@@ -92,6 +93,15 @@
     #bottom-left-buttons,
     #registration-footer {
         display: block;
+    }
+
+    #time-controller,
+    #bottom-left-buttons {
+        display: flex;
+    }
+
+    #date-cycle-count-box {
+        display: grid;
     }
 
     /* ✅ Restore Full Interactivity */
