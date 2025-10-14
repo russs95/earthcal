@@ -422,17 +422,35 @@ document.addEventListener("DOMContentLoaded", function () {
         dateCycleCountBox.addEventListener("focusin", pauseNotice);
         dateCycleCountBox.addEventListener("mouseleave", resumeNotice);
         dateCycleCountBox.addEventListener("focusout", resumeNotice);
+
+        const closeNoticeButton = document.getElementById("close-datecycle-notice");
+        if (closeNoticeButton) {
+            closeNoticeButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                hideDateCycleNotice();
+                closeNoticeButton.blur();
+            });
+        }
     }
 });
 
-const DATE_CYCLE_NOTICE_DURATION = 5000;
+const DATE_CYCLE_NOTICE_DURATION = 10000;
 let dateCycleNoticeTimeoutId = null;
 
 function clearDateCycleNoticeHide() {
-    if (dateCycleNoticeTimeoutId) {
+    if (dateCycleNoticeTimeoutId !== null) {
         clearTimeout(dateCycleNoticeTimeoutId);
         dateCycleNoticeTimeoutId = null;
     }
+}
+
+function hideDateCycleNotice() {
+    clearDateCycleNoticeHide();
+
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (!dateCycleCountBox) return;
+
+    dateCycleCountBox.classList.remove("show");
 }
 
 function scheduleDateCycleNoticeHide(delay = DATE_CYCLE_NOTICE_DURATION) {
@@ -442,8 +460,7 @@ function scheduleDateCycleNoticeHide(delay = DATE_CYCLE_NOTICE_DURATION) {
     clearDateCycleNoticeHide();
 
     dateCycleNoticeTimeoutId = setTimeout(() => {
-        dateCycleCountBox.classList.remove("show");
-        dateCycleNoticeTimeoutId = null;
+        hideDateCycleNotice();
     }, delay);
 }
 
@@ -475,7 +492,7 @@ async function updateDateCycleCount(pinnedCount, currentCount) {
     clearDateCycleNoticeHide();
 
     if (totalCount === 0) {
-        dateCycleCountBox.classList.remove("show");
+        hideDateCycleNotice();
         currentDatecycleCount.textContent = "";
         eyeIcon.classList.remove("eye-open");
         eyeIcon.classList.add("eye-closed");
@@ -487,7 +504,7 @@ async function updateDateCycleCount(pinnedCount, currentCount) {
 
     const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
     const translations = await loadTranslationsWithFallback(lang);
-    const prefix = translations.todayYouveGot || "Today you've got";
+    const prefix = translations.todayYouveGot || "On this day you've got";
     const eventWord = totalCount === 1
         ? (translations.event || translations.events || "event")
         : (translations.events || translations.event || "events");

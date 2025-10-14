@@ -600,8 +600,18 @@
 <!--MAIN PAGE-->
 <div id="page-content">
 
-    <div id="date-cycle-count-box" role="status" aria-live="polite" aria-atomic="true">
-        <div id="current-datecycle-count"></div>
+    <div id="date-cycle-count-box">
+        <button
+            type="button"
+            id="close-datecycle-notice"
+            aria-label="Dismiss date cycle count notice"
+        ></button>
+        <div
+            id="current-datecycle-count"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+        ></div>
         <div id="eye-icon"></div>
     </div>
 

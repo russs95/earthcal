@@ -107,7 +107,6 @@ path[id*="week-"] {
     height:22.5px;
     text-align:center;
     cursor:pointer;
-    margin-right: 8px;
 }
 
 .next-button {
@@ -115,7 +114,6 @@ path[id*="week-"] {
     height:22.5px;
     text-align:center;
     cursor:pointer;
-    margin-left: 8px;
 }
 
 #reset-to-today {
@@ -123,9 +121,8 @@ path[id*="week-"] {
     height:22.5px;
     text-align:center;
     cursor:pointer;
-    margin-right: 8px;
-    margin-left: 8px;
 }
+
 
 .planet-info-box {
     display:none;
@@ -3301,7 +3298,7 @@ svg path #june:hover {
     width: 28.5px;
     height: 18.75px;
     cursor: pointer;
-    margin-left: 10px;
+    margin-left: 0;
     flex-shrink: 0;
 }
 
@@ -3312,10 +3309,10 @@ svg path #june:hover {
     transform: translate(-50%, -12px);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: var(--date-controls);
     border-radius: 999px;
-    padding: 10px 18px;
+    padding: 8px 18px 8px 12px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
     opacity: 0;
     pointer-events: none;
@@ -3336,25 +3333,65 @@ svg path #june:hover {
     text-align: center;
     cursor: default;
     max-width: 260px;
+    flex: 1 1 auto;
+}
+
+#close-datecycle-notice {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--subdued-text);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+}
+
+#close-datecycle-notice::before {
+    content: "×";
+}
+
+#close-datecycle-notice:hover,
+#close-datecycle-notice:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-color, #000000);
+    outline: none;
+}
+
+#close-datecycle-notice:focus-visible {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.18);
 }
 
 #time-controller {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    margin: 10px 10px 0 10px;
-    padding: 8px 12px;
+    justify-content: space-between;
+    gap: 0;
+    margin: 10px 10px 0 auto;
+    padding: 8px 16px;
     background: var(--date-controls);
     border-radius: 999px;
+    width: 100%;
+    max-width: 260px;
+}
+
+#time-controller > div {
+    flex: 0 0 auto;
 }
 
 #bottom-left-buttons {
     display: flex;
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    right: 0;
     left: auto;
     transform: none;
     flex-direction: column;
@@ -3363,18 +3400,18 @@ svg path #june:hover {
     gap: 12px;
     width: fit-content;
     background: var(--general-background);
-    padding: 16px 20px;
+    padding: 16px 25px;
     border-radius: 5px;
     z-index: 20;
 }
 
 #bottom-left-buttons button {
-    margin: 0 0 10px 0;
+    margin: 0;
     width: 100%;
 }
 
 .cycle-toggle {
-    margin-bottom:10px;
+    margin-bottom: 0;
 }
 
 
@@ -3388,10 +3425,11 @@ svg path #june:hover {
 @media screen and (max-width: 700px) {
     #bottom-left-buttons {
         bottom: 10px;
-        right: 15px;
+        right: 0;
         left: auto;
         gap: 10px;
-        padding: 14px 16px;
+        padding: 14px 25px;
+        border-radius: 5px;
     }
     #top-left-buttons {
         margin-left: 3px !important;
