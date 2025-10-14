@@ -480,7 +480,7 @@ async function showLoggedInView(calendars = []) {
             </div>
 
 
-            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; width:360px; margin:auto;">
+            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; width:360px; margin:0 auto 32px;">
                 ${personalCalendarHTML}
             </div>
 

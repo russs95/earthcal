@@ -690,20 +690,25 @@ margin-right: auto;
 #logged-in-view .cal-toggle-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 2px;
     margin-top: 16px;
+    font-family: 'Mulish', sans-serif;
+}
+
+#calendar-selection-form {
+    font-family: 'Mulish', sans-serif;
 }
 
 .cal-toggle-row {
-    background: var(--general-background);
+    background: var(--toggle-row-bg, var(--general-background));
     border-radius: 18px;
-    padding: 14px 18px;
+    padding: 10px 14px;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
 }
 
 .cal-toggle-row:hover {
-    background: var(--general-background-highlight);
+    background: var(--toggle-row-overbg, var(--general-background-highlight));
 }
 
 .cal-row-summary {
@@ -716,6 +721,7 @@ margin-right: auto;
 .cal-row-name {
     flex: 1 1 auto;
     font-weight: 600;
+    font-size: 1.2em;
 }
 
 .cal-row-emoji::before {
@@ -778,14 +784,21 @@ margin-right: auto;
 }
 
 .cal-row-details {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 1px solid transparent;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease, padding-top 0.3s ease;
 }
 
 .cal-toggle-row.is-expanded .cal-row-details {
-    display: block;
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top-color: rgba(0, 0, 0, 0.08);
 }
 
 .cal-details-list {
