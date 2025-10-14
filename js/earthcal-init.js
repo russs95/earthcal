@@ -26,7 +26,7 @@ if ("serviceWorker" in navigator) {
         }
 
         navigator.serviceWorker
-            .register("js/service-worker.js?v=3.0")
+            .register("js/service-worker.js?v=3.1")
             .then(
                 function (registration) {
                     console.log(
@@ -56,7 +56,7 @@ async function initCalendar() {
         "js/breakouts.js",
         "js/set-targetdate.js",
         "js/planet-orbits.js",
-        "js/login-scripts.js",
+        "js/login-scripts.js?v=1",
         "js/item-management.js?v=3.3",
         "js/time-setting.js",
         "js/calendar-scripts.js",

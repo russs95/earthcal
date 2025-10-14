@@ -1,13 +1,22 @@
 <?php
 declare(strict_types=1);
 
-require_once '../calconn_env.php';    // provides $cal_conn (mysqli)
+require_once '../calconn_env.php';
 require_once '../earthenAuth_helper.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-/* ---- CORS ---- */
-$allowed_origins = ['https://ecobricks.org','https://earthcal.app','https://beta.earthcal.app','http://localhost','file://'];
+// ------------------------------------------------------
+// CORS
+// ------------------------------------------------------
+$allowed_origins = [
+    'https://ecobricks.org',
+    'https://earthcal.app',
+    'https://beta.earthcal.app',
+    'http://localhost',
+    'file://'
+];
+
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array(rtrim($origin, '/'), $allowed_origins)) {
     header('Access-Control-Allow-Origin: ' . rtrim($origin, '/'));
@@ -18,6 +27,7 @@ if (in_array(rtrim($origin, '/'), $allowed_origins)) {
     echo json_encode(['ok'=>false,'error'=>'cors_denied']);
     exit;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -29,7 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-/* ---- Input ---- */
+// ------------------------------------------------------
+// Input validation
+// ------------------------------------------------------
 $raw = file_get_contents('php://input');
 $in  = json_decode($raw ?: '[]', true);
 if (!is_array($in)) $in = $_POST;
@@ -41,24 +53,22 @@ if (!$buwana_id) {
     exit;
 }
 
-/* ---- Query ---- */
+// ------------------------------------------------------
+// Query
+// ------------------------------------------------------
 try {
-    $sql = "SELECT calendar_id, name, default_my_calendar, description,
-                   cal_emoji, color, tzid, category, visibility, is_readonly,
-                   created_at, updated_at
-            FROM calendars_v1_tb
-            WHERE user_id = ?
-            ORDER BY default_my_calendar DESC, name ASC";
-    $stmt = $cal_conn->prepare($sql);
-    if (!$stmt) { throw new Exception('prepare_failed: '.$cal_conn->error); }
-    $stmt->bind_param('i', $buwana_id);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $rows = [];
-    while ($r = $res->fetch_assoc()) { $rows[] = $r; }
-    $stmt->close();
+    $stmt = $pdo->prepare("
+        SELECT calendar_id, name, default_my_calendar, description,
+               cal_emoji, color, tzid, category, visibility, is_readonly,
+               created_at, updated_at
+        FROM calendars_v1_tb
+        WHERE user_id = ?
+        ORDER BY default_my_calendar DESC, name ASC
+    ");
+    $stmt->execute([$buwana_id]);
+    $rows = $stmt->fetchAll();
 
-    $calendars = array_map(function($r){
+    $calendars = array_map(static function(array $r): array {
         return [
             'calendar_id' => (int)$r['calendar_id'],
             'name'        => $r['name'],
@@ -77,7 +87,13 @@ try {
     }, $rows);
 
     echo json_encode(['ok'=>true, 'calendars'=>$calendars]);
+
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['ok'=>false,'error'=>'server_error','detail'=>$e->getMessage()]);
+    echo json_encode([
+        'ok'=>false,
+        'error'=>'server_error',
+        'detail'=>$e->getMessage()
+    ]);
 }
+?>
