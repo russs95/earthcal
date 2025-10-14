@@ -1,4 +1,4 @@
-/* 1-stylesheet v 4.4 */
+/* 1-stylesheet v 4.6 */
 
 
 
@@ -762,14 +762,11 @@ border-color: #00a112 !important;
     right: 20px;
     }
 
-#form-modal-message .x-button {
+#form-modal-message > .x-button {
+    position: fixed;
     top:25px;
     right: 12px;
-    }
-
- #form-modal-message .x-button {
-    top:25px;
-    right: 12px;
+    z-index: 60;
     }
 
  .planet-info-container .x-button {
@@ -1712,13 +1709,13 @@ TOOLTIPS AND MODALS
 
 
 @media screen and (min-width: 769px) and (max-width: 1199px) {
-  #modal-content {
+  .modal-message {
     width: 72%;
   }
 }
 
 @media screen and (min-width: 1200px) {
-  #modal-content {
+  .modal-message {
     width: 65%;
   }
 }
