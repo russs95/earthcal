@@ -58,7 +58,7 @@ export const translations = {
 
     dayTranslations: 'Day',
     ofTranslations: 'of',
-    todayYouveGot: "Today you've got",
+    todayYouveGot: "On this day you've got",
     event: "event",
     events: "events",
 
