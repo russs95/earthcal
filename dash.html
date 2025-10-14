@@ -600,6 +600,11 @@
 <!--MAIN PAGE-->
 <div id="page-content">
 
+    <div id="date-cycle-count-box" role="status" aria-live="polite" aria-atomic="true">
+        <div id="current-datecycle-count"></div>
+        <div id="eye-icon"></div>
+    </div>
+
     <div id="header" class="top-menu" title="Earthcal v0.9.93">  <!-- Why 140px?-->
         <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
             <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
@@ -611,21 +616,16 @@
                     <button type="button" class="top-add-button" onclick="openAddCycle()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
                 </div>
             </div>
-            <div id="date-cycle-count-box" style="display: flex; flex-flow:row;">
-                <div id="current-datecycle-count" style="font-size: 0.88em; cursor:pointer; color: var(--subdued-text);font-family: 'Mulish';padding: 11px;padding: 0px 0px 5px 0px;margin-bottom: 15px;margin-right: 5px; margin-top:5px;text-align:right;max-width:210px;margin-left:auto;"></div>
-                <div id="eye-icon"></div>
+            <div id="time-controller">
+                <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
+                <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
+                <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
+                <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
+                <div id="next-year" class="next-button" aria-lable="Next Year" title="Go to next year"></div>
             </div>
         </div>
 
-        <div id="date-controls">
-            <div id="time-controller">
-                <div id="next-year" class="next-button" aria-lable="Next Year" title="Go to next year"></div>
-                <div id="next-day" class="next-button" onclick="set2Tomorrow()" aria-lable="Next Day" title="Go to next day"></div>
-                <div id="reset-to-today" class="today-button" onclick="set2Today()" aria-lable="Today" title="Today"></div>
-                <div id="prev-day" class="previous-button" onclick="set2Yesterday()" aria-lable="Yesterday" title="Go back one day"></div>
-                <div id="prev-year" class="previous-button" onclick="prevYear()" aria-lable="Previous Year" title="Go to previous year"></div>
-            </div>
-        </div>
+
 
         <!--PINNED-->
         <div id="all-pinned-datecycles" style="height:calc(100vh - 265px); margin-top: 140px; position: relative; overflow: hidden;pointer-events: none;">

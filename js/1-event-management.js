@@ -408,7 +408,44 @@ document.addEventListener("DOMContentLoaded", function () {
     if (eyeIcon) {
         eyeIcon.addEventListener("click", toggleDateCycleView);
     }
+
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (dateCycleCountBox) {
+        const pauseNotice = () => clearDateCycleNoticeHide();
+        const resumeNotice = () => {
+            if (dateCycleCountBox.classList.contains("show")) {
+                scheduleDateCycleNoticeHide();
+            }
+        };
+
+        dateCycleCountBox.addEventListener("mouseenter", pauseNotice);
+        dateCycleCountBox.addEventListener("focusin", pauseNotice);
+        dateCycleCountBox.addEventListener("mouseleave", resumeNotice);
+        dateCycleCountBox.addEventListener("focusout", resumeNotice);
+    }
 });
+
+const DATE_CYCLE_NOTICE_DURATION = 5000;
+let dateCycleNoticeTimeoutId = null;
+
+function clearDateCycleNoticeHide() {
+    if (dateCycleNoticeTimeoutId) {
+        clearTimeout(dateCycleNoticeTimeoutId);
+        dateCycleNoticeTimeoutId = null;
+    }
+}
+
+function scheduleDateCycleNoticeHide(delay = DATE_CYCLE_NOTICE_DURATION) {
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (!dateCycleCountBox) return;
+
+    clearDateCycleNoticeHide();
+
+    dateCycleNoticeTimeoutId = setTimeout(() => {
+        dateCycleCountBox.classList.remove("show");
+        dateCycleNoticeTimeoutId = null;
+    }, delay);
+}
 
 
 // Helper to load translations with fallback to English
@@ -435,26 +472,31 @@ async function updateDateCycleCount(pinnedCount, currentCount) {
 
     const totalCount = pinnedCount + currentCount;
 
+    clearDateCycleNoticeHide();
+
     if (totalCount === 0) {
-        // No events - hide the entire box
-        dateCycleCountBox.style.display = "none";
-    } else {
-        // Show the box and update content
-        dateCycleCountBox.style.display = "flex";
-        eyeIcon.classList.add("eye-open");
-        eyeIcon.classList.remove("eye-closed");
-
-        const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
-        const translations = await loadTranslationsWithFallback(lang);
-        const prefix = translations.todayYouveGot || "Today you've got";
-        const eventWord = totalCount === 1
-            ? (translations.event || translations.events || "event")
-            : (translations.events || translations.event || "events");
-
-        const message = `${prefix} ${totalCount} ${eventWord}`;
-
-        currentDatecycleCount.textContent = message;
+        dateCycleCountBox.classList.remove("show");
+        currentDatecycleCount.textContent = "";
+        eyeIcon.classList.remove("eye-open");
+        eyeIcon.classList.add("eye-closed");
+        return;
     }
+
+    eyeIcon.classList.add("eye-open");
+    eyeIcon.classList.remove("eye-closed");
+
+    const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
+    const translations = await loadTranslationsWithFallback(lang);
+    const prefix = translations.todayYouveGot || "Today you've got";
+    const eventWord = totalCount === 1
+        ? (translations.event || translations.events || "event")
+        : (translations.events || translations.event || "events");
+
+    const message = `${prefix} ${totalCount} ${eventWord}`;
+
+    currentDatecycleCount.textContent = message;
+    dateCycleCountBox.classList.add("show");
+    scheduleDateCycleNoticeHide();
 }
 
 
