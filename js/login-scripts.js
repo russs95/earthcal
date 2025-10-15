@@ -458,7 +458,7 @@ async function showLoggedInView(calendars = []) {
                         <div class="cal-row-actions">
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
-                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id})" aria-label="Delete calendar">❌</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar">❌</button>
                         </div>
                     </div>
                 </div>
@@ -487,7 +487,7 @@ async function showLoggedInView(calendars = []) {
             </div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" class="confirmation-blur-button cancel">
+                <button type="button" id="ec-add-personal-calendar-btn" class="confirmation-blur-button cancel">
                     ➕ New personal calendar
                 </button>
                 <button type="button" class="confirmation-blur-button cancel">
@@ -506,6 +506,26 @@ async function showLoggedInView(calendars = []) {
     `;
 
     loggedInView.style.display = "block";
+
+    const syncStatusDiv = loggedInView.querySelector('#sync-status');
+    if (syncStatusDiv) {
+        const defaultHtml = syncStatusDiv.innerHTML;
+        syncStatusDiv.dataset.defaultHtml = defaultHtml;
+        if (syncStatusDiv.__resetTimer) {
+            clearTimeout(syncStatusDiv.__resetTimer);
+            syncStatusDiv.__resetTimer = null;
+        }
+    }
+
+    const addPersonalButton = loggedInView.querySelector('#ec-add-personal-calendar-btn');
+    if (addPersonalButton) {
+        addPersonalButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (typeof addNewCalendarV1 === 'function') {
+                addNewCalendarV1({ host: loggedInView });
+            }
+        });
+    }
 }
 
 
@@ -820,8 +840,13 @@ function editV1cal(calendarId) {
     console.log(`[placeholder] editV1cal → calendarId: ${calendarId}`);
 }
 
-async function deleteV1cal(calendarId) {
+async function deleteV1cal(calendarId, isDefault = false) {
     if (!calendarId) {
+        return;
+    }
+
+    if (isDefault) {
+        alert('Sorry but "My Calendar" is your default Earthcal and cannot be deleted.  If you really need it gone, you must delete your account.');
         return;
     }
 
@@ -856,8 +881,13 @@ async function deleteV1cal(calendarId) {
         const result = await response.json();
         if (!result?.ok) {
             const errorMsg = result?.error || 'unknown_error';
-            alert(`Unable to delete calendar: ${errorMsg}`);
-            setSyncStatus("⚠️ Failed to delete calendar.");
+            if (errorMsg === 'default_calendar_protected') {
+                alert('Sorry but "My Calendar" is your default Earthcal and cannot be deleted.  If you really need it gone, you must delete your account.');
+                setSyncStatus("⚠️ Cannot delete default calendar.");
+            } else {
+                alert(`Unable to delete calendar: ${errorMsg}`);
+                setSyncStatus("⚠️ Failed to delete calendar.");
+            }
             return;
         }
 
@@ -887,7 +917,7 @@ async function deleteV1cal(calendarId) {
             console.warn('⚠️ Calendar list refresh failed after delete:', refreshErr);
         }
 
-        setSyncStatus("🗑️ Calendar deleted.");
+        setSyncStatus("✅ Calendar successfully deleted.", '', false, { temporary: true, duration: 4000 });
     } catch (error) {
         console.error('❌ deleteV1cal failed:', error);
         alert('Something went wrong while deleting the calendar. Please try again.');
@@ -951,12 +981,39 @@ async function fetchCalendarDatecycles(buwanaId, calendarId) {
 
 
 
-function setSyncStatus(text, emoji = '', spinning = false) {
+function setSyncStatus(text, emoji = '', spinning = false, options = {}) {
     const statusDiv = document.getElementById("sync-status");
     if (!statusDiv) return;
 
-    const spinner = spinning ? `<span class="sync-spinner" style="display:inline-block; margin-right:6px;">${emoji}</span>` : `${emoji}`;
-    statusDiv.innerHTML = `<p>${spinner} ${text}</p>`;
+    const opts = (typeof options === 'object' && options !== null) ? options : {};
+    const temporary = Boolean(opts.temporary);
+    const duration = typeof opts.duration === 'number' && opts.duration > 0 ? opts.duration : 4000;
+
+    if (!statusDiv.dataset.defaultHtml) {
+        statusDiv.dataset.defaultHtml = statusDiv.innerHTML || '';
+    }
+
+    if (statusDiv.__resetTimer) {
+        clearTimeout(statusDiv.__resetTimer);
+        statusDiv.__resetTimer = null;
+    }
+
+    const spinnerMarkup = spinning
+        ? `<span class="sync-spinner" style="display:inline-block; margin-right:6px;">${emoji}</span>`
+        : `${emoji}`;
+    statusDiv.innerHTML = `<p>${spinnerMarkup} ${text}</p>`;
+
+    if (temporary) {
+        statusDiv.__resetTimer = window.setTimeout(() => {
+            const fallbackHtml = statusDiv.dataset.defaultHtml || '';
+            if (fallbackHtml) {
+                statusDiv.innerHTML = fallbackHtml;
+            } else {
+                statusDiv.textContent = '';
+            }
+            statusDiv.__resetTimer = null;
+        }, duration);
+    }
 }
 
 async function toggleSubscription(calendarId, subscribe) {

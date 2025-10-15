@@ -66,7 +66,7 @@ try {
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare(
-        'SELECT calendar_id, user_id FROM calendars_v1_tb WHERE calendar_id = ? LIMIT 1'
+        'SELECT calendar_id, user_id, default_my_calendar, name FROM calendars_v1_tb WHERE calendar_id = ? LIMIT 1'
     );
     $stmt->execute([$calendarId]);
     $calendar = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,6 +75,13 @@ try {
         $pdo->rollBack();
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'calendar_not_found']);
+        exit;
+    }
+
+    if ((int)($calendar['default_my_calendar'] ?? 0) === 1) {
+        $pdo->rollBack();
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'default_calendar_protected']);
         exit;
     }
 
