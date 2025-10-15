@@ -442,14 +442,6 @@ async function showLoggedInView(calendars = []) {
         ? calendarList.map(cal => {
             const rowId = `cal-row-${cal.calendar_id}`;
             const emoji = cal?.emoji?.trim() || '📅';
-            const description = cal?.description ? escapeHtml(cal.description) : `<span class="cal-detail-empty">—</span>`;
-            const eventCount = (typeof cal?.event_count === 'number' && cal.event_count >= 0)
-                ? cal.event_count
-                : '—';
-            const createdAt = formatDateDisplay(cal?.created_at);
-            const updatedAt = formatDateDisplay(cal?.updated_at);
-            const color = sanitizeCalendarColor(cal?.color || cal?.color_hex);
-            const category = cal?.category ? escapeHtml(cal.category) : `<span class="cal-detail-empty">—</span>`;
 
             return `
                 <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${cal.calendar_id}">
@@ -461,37 +453,14 @@ async function showLoggedInView(calendars = []) {
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-                    <div class="cal-row-details">
-                        <dl class="cal-details-list">
-                            <div class="cal-detail-item">
-                                <dt>Description</dt>
-                                <dd>${description}</dd>
-                            </div>
-                            <div class="cal-detail-item">
-                                <dt>Events</dt>
-                                <dd>${eventCount}</dd>
-                            </div>
-                            <div class="cal-detail-item">
-                                <dt>Created</dt>
-                                <dd>${createdAt}</dd>
-                            </div>
-                            <div class="cal-detail-item">
-                                <dt>Last updated</dt>
-                                <dd>${updatedAt}</dd>
-                            </div>
-                            <div class="cal-detail-item">
-                                <dt>Category</dt>
-                                <dd>${category}</dd>
-                            </div>
-                            <div class="cal-detail-item">
-                                <dt>Color</dt>
-                                <dd><span class="cal-color-dot" style="background:${color};"></span> ${escapeHtml(color)}</dd>
-                            </div>
-                        </dl>
+                    <div class="cal-row-details" data-calendar-id="${cal.calendar_id}" data-loaded="false">
+                        <div class="cal-details-content" aria-live="polite">
+                            <p class="cal-details-placeholder">Expand to load calendar details.</p>
+                        </div>
                         <div class="cal-row-actions">
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
-                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar">❌</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -819,7 +788,146 @@ async function sendUpRegistration() {
 
 let currentExpandedCalRowId = null;
 
-function toggleCalDetails(rowId) {
+async function requestCalendarDetails(calendarId) {
+    if (!calendarId) {
+        throw new Error('missing_calendar_id');
+    }
+
+    let buwanaId = null;
+    try {
+        const loginState = isLoggedIn({ returnPayload: true }) || {};
+        if (loginState.isLoggedIn && loginState.payload?.buwana_id) {
+            buwanaId = loginState.payload.buwana_id;
+        }
+    } catch (err) {
+        console.warn('⚠️ Unable to determine login state before fetching calendar info:', err);
+    }
+
+    const body = { calendar_id: calendarId };
+    if (buwanaId) {
+        body.buwana_id = buwanaId;
+    }
+
+    const response = await fetch('/api/v1/get_cal_info.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (!data?.ok || !data.calendar) {
+        const error = data?.error || 'unknown_error';
+        throw new Error(`calendar_fetch_failed:${error}`);
+    }
+
+    return data.calendar;
+}
+
+async function loadCalDetailsForRow(row) {
+    if (!row) {
+        return;
+    }
+
+    const detailsContainer = row.querySelector('.cal-row-details');
+    if (!detailsContainer) {
+        return;
+    }
+
+    if (detailsContainer.dataset.loaded === 'true' || detailsContainer.dataset.loading === 'true') {
+        return;
+    }
+
+    const calendarId = Number.parseInt(detailsContainer.dataset.calendarId, 10);
+    if (!Number.isFinite(calendarId) || calendarId <= 0) {
+        console.warn('⚠️ Unable to load calendar details — invalid calendar id.');
+        return;
+    }
+
+    const detailsContent = detailsContainer.querySelector('.cal-details-content');
+    if (detailsContent) {
+        detailsContent.innerHTML = '<p class="cal-details-placeholder">Loading calendar details...</p>';
+    }
+
+    detailsContainer.dataset.loading = 'true';
+
+    try {
+        const calendar = await requestCalendarDetails(calendarId);
+        const description = calendar?.description
+            ? escapeHtml(calendar.description)
+            : '<span class="cal-detail-empty">—</span>';
+        const eventCount = (typeof calendar?.item_count === 'number' && calendar.item_count >= 0)
+            ? calendar.item_count
+            : '—';
+        const createdAt = formatDateDisplay(calendar?.created_at);
+        const updatedAt = formatDateDisplay(calendar?.updated_at);
+        const category = calendar?.category
+            ? escapeHtml(calendar.category)
+            : '<span class="cal-detail-empty">—</span>';
+        const visibility = calendar?.visibility
+            ? escapeHtml(calendar.visibility)
+            : '<span class="cal-detail-empty">—</span>';
+        const color = sanitizeCalendarColor(calendar?.color);
+
+        if (detailsContent) {
+            detailsContent.innerHTML = `
+                <dl class="cal-details-list">
+                    <div class="cal-detail-item">
+                        <dt>Description</dt>
+                        <dd>${description}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Events</dt>
+                        <dd>${eventCount}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Created</dt>
+                        <dd>${createdAt}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Last updated</dt>
+                        <dd>${updatedAt}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Category</dt>
+                        <dd>${category}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Visibility</dt>
+                        <dd>${visibility}</dd>
+                    </div>
+                    <div class="cal-detail-item">
+                        <dt>Color</dt>
+                        <dd><span class="cal-color-dot" style="background:${color};"></span> ${escapeHtml(color)}</dd>
+                    </div>
+                </dl>
+            `;
+        }
+
+        const emoji = typeof calendar?.emoji === 'string' ? calendar.emoji.trim() : '';
+        if (emoji) {
+            const emojiSpan = row.querySelector('.cal-row-emoji');
+            if (emojiSpan) {
+                emojiSpan.setAttribute('data-emoji', emoji);
+            }
+        }
+
+        detailsContainer.dataset.loaded = 'true';
+    } catch (error) {
+        console.error('❌ Unable to load calendar details:', error);
+        if (detailsContent) {
+            detailsContent.innerHTML = '<p class="cal-details-error">Unable to load calendar details. Please try again later.</p>';
+        }
+    } finally {
+        delete detailsContainer.dataset.loading;
+    }
+}
+
+async function toggleCalDetails(rowId) {
     const row = document.getElementById(rowId);
     if (!row) {
         return;
@@ -833,6 +941,9 @@ function toggleCalDetails(rowId) {
     row.classList.toggle('is-expanded');
 
     if (willExpand) {
+        loadCalDetailsForRow(row).catch((err) => {
+            console.error('❌ Error while loading calendar details:', err);
+        });
         currentExpandedCalRowId = rowId;
         document.addEventListener('click', handleCalOutsideClick, true);
     } else if (currentExpandedCalRowId === rowId) {
