@@ -600,10 +600,30 @@ function toggleKindFields(kind) {
 /* ADD V1 CALENDAR  */
 
 
-async function addNewCalendarV1() {
-    const modalContent = document.getElementById('modal-content');
-    if (!modalContent) {
-        console.warn('[addNewCalendarV1] #modal-content not found.');
+async function addNewCalendarV1(hostTarget) {
+    const isElement = (node) => node instanceof HTMLElement;
+
+    let hostElement = null;
+    if (isElement(hostTarget)) {
+        hostElement = hostTarget;
+    } else if (hostTarget && typeof hostTarget === 'object') {
+        if (isElement(hostTarget.host)) {
+            hostElement = hostTarget.host;
+        } else if (isElement(hostTarget.container)) {
+            hostElement = hostTarget.container;
+        } else if (hostTarget.currentTarget && isElement(hostTarget.currentTarget)) {
+            const maybeHost = hostTarget.currentTarget.closest('#modal-content, #logged-in-view');
+            if (maybeHost) hostElement = maybeHost;
+        }
+    }
+
+    if (!hostElement) {
+        hostElement = document.getElementById('modal-content')
+            || document.getElementById('logged-in-view');
+    }
+
+    if (!isElement(hostElement)) {
+        console.warn('[addNewCalendarV1] overlay host not found.');
         return;
     }
 
@@ -614,11 +634,18 @@ async function addNewCalendarV1() {
         return;
     }
 
-    // Ensure modal positioning
-    const computedPosition = window.getComputedStyle(modalContent).position;
-    if (computedPosition === 'static' && !modalContent.dataset.originalPosition) {
-        modalContent.dataset.originalPosition = 'static';
-        modalContent.style.position = 'relative';
+    // Ensure host positioning for absolute overlay
+    const computedPosition = window.getComputedStyle(hostElement).position;
+    const previousInlinePosition = hostElement.style.position;
+    const datasetAlreadySet = hostElement.dataset.ecOverlayOriginalPosition !== undefined;
+    let restoreHostPositionNeeded = false;
+
+    if (computedPosition === 'static') {
+        if (!datasetAlreadySet) {
+            hostElement.dataset.ecOverlayOriginalPosition = previousInlinePosition || '__empty__';
+        }
+        hostElement.style.position = 'relative';
+        restoreHostPositionNeeded = true;
     }
 
     // Remove any existing overlay
@@ -649,6 +676,10 @@ async function addNewCalendarV1() {
     });
 
     overlay.innerHTML = `
+        <div style="display:flex;justify-content:flex-end;">
+            <button type="button" id="ec-add-calendar-close" aria-label="Close add calendar form"
+                    style="background:none;border:none;color:var(--subdued-text);font-size:1.5rem;cursor:pointer;">✕</button>
+        </div>
         <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
             <h2 style="margin:0;font-size:1.5rem;">Add New Calendar</h2>
             <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
@@ -717,8 +748,8 @@ async function addNewCalendarV1() {
         </form>
     `;
 
-    // 🧩 Append overlay to modal
-    modalContent.appendChild(overlay);
+    // 🧩 Append overlay to host
+    hostElement.appendChild(overlay);
 
     // 🧠 Emoji picker integration
     const detachEmojiPicker = wireEmojiPicker({
@@ -728,23 +759,36 @@ async function addNewCalendarV1() {
         defaultEmoji: '🌍'
     });
 
-    // 🔁 Restore modal position on close
-    const restoreModalPosition = () => {
-        if (modalContent.dataset.originalPosition === 'static') {
-            modalContent.style.position = '';
-            delete modalContent.dataset.originalPosition;
+    // 🔁 Restore host positioning on close
+    const restoreHostPosition = () => {
+        if (!restoreHostPositionNeeded) return;
+
+        if (!datasetAlreadySet) {
+            const stored = hostElement.dataset.ecOverlayOriginalPosition;
+            if (stored === '__empty__' || stored === undefined) {
+                hostElement.style.removeProperty('position');
+            } else {
+                hostElement.style.position = stored;
+            }
+        } else {
+            hostElement.style.position = previousInlinePosition;
+        }
+
+        if (hostElement.dataset.ecOverlayOriginalPosition !== undefined) {
+            delete hostElement.dataset.ecOverlayOriginalPosition;
         }
     };
 
     // 🔒 Close overlay handler
-    const closeButton = document.querySelector('#form-modal-message .x-button');
+    const isModalHost = hostElement.id === 'modal-content';
+    const closeButton = isModalHost ? document.querySelector('#form-modal-message .x-button') : null;
     const originalCloseHandler = closeButton ? closeButton.onclick : null;
     const originalCloseAttr = closeButton ? closeButton.getAttribute('onclick') : null;
 
     const teardownOverlay = () => {
         detachEmojiPicker();
         if (overlay.parentElement) overlay.remove();
-        restoreModalPosition();
+        restoreHostPosition();
         if (closeButton) {
             closeButton.onclick = originalCloseHandler || null;
             if (originalCloseAttr !== null) {
@@ -763,6 +807,14 @@ async function addNewCalendarV1() {
             event.stopImmediatePropagation?.();
             teardownOverlay();
         };
+    }
+
+    const inlineClose = overlay.querySelector('#ec-add-calendar-close');
+    if (inlineClose) {
+        inlineClose.addEventListener('click', (event) => {
+            event.preventDefault();
+            teardownOverlay();
+        });
     }
 
     // 📨 Form submission
