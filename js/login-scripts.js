@@ -520,14 +520,14 @@ async function showLoggedInView(calendars = []) {
             </div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="ec-add-personal-calendar-btn" class="confirmation-blur-button cancel">
-                    ➕ New personal calendar
+                <button type="button" id="ec-add-personal-calendar-btn" class="confirmation-blur-button ">
+                    + New personal calendar
                 </button>
-                <button type="button" id="ec-browse-public-calendars-btn" class="confirmation-blur-button cancel">
-                    ➕ Subscribe to public Earthcal
+                <button type="button" id="ec-browse-public-calendars-btn" class="confirmation-blur-button ">
+                    + Add public Calendars
                 </button>
-                <button type="button" class="confirmation-blur-button cancel">
-                    ➕ Connect Google Calendar
+                <button type="button" class="confirmation-blur-button style="background-color:red">
+                    + Connect Google Calendar
                 </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ✏️ Edit Buwana Profile

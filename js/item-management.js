@@ -713,7 +713,6 @@ function hijackHostCloseButton(hostElement, onClose) {
     };
 }
 
-
 async function addNewCalendarV1(hostTarget) {
     const hostElement = resolveOverlayHost(hostTarget);
 
