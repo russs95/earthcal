@@ -599,30 +599,125 @@ function toggleKindFields(kind) {
 
 /* ADD V1 CALENDAR  */
 
-
-async function addNewCalendarV1(hostTarget) {
+function resolveOverlayHost(hostTarget) {
     const isElement = (node) => node instanceof HTMLElement;
 
-    let hostElement = null;
     if (isElement(hostTarget)) {
-        hostElement = hostTarget;
-    } else if (hostTarget && typeof hostTarget === 'object') {
+        return hostTarget;
+    }
+
+    if (hostTarget && typeof hostTarget === 'object') {
         if (isElement(hostTarget.host)) {
-            hostElement = hostTarget.host;
-        } else if (isElement(hostTarget.container)) {
-            hostElement = hostTarget.container;
-        } else if (hostTarget.currentTarget && isElement(hostTarget.currentTarget)) {
+            return hostTarget.host;
+        }
+        if (isElement(hostTarget.container)) {
+            return hostTarget.container;
+        }
+        if (hostTarget.currentTarget && isElement(hostTarget.currentTarget)) {
             const maybeHost = hostTarget.currentTarget.closest('#modal-content, #logged-in-view');
-            if (maybeHost) hostElement = maybeHost;
+            if (maybeHost) return maybeHost;
         }
     }
 
-    if (!hostElement) {
-        hostElement = document.getElementById('modal-content')
-            || document.getElementById('logged-in-view');
+    return document.getElementById('modal-content')
+        || document.getElementById('logged-in-view')
+        || document.body;
+}
+
+function prepareHostForOverlay(hostElement) {
+    if (!hostElement) return () => {};
+
+    const datasetKey = 'ecOverlayOriginalPosition';
+    const datasetHadValue = Object.prototype.hasOwnProperty.call(hostElement.dataset, datasetKey);
+    const previousInlinePosition = hostElement.style.position;
+    const computedPosition = window.getComputedStyle(hostElement).position;
+    let weChangedPosition = false;
+
+    if (computedPosition === 'static') {
+        if (!datasetHadValue) {
+            hostElement.dataset[datasetKey] = previousInlinePosition || '__empty__';
+        }
+        hostElement.style.position = 'relative';
+        weChangedPosition = true;
     }
 
-    if (!isElement(hostElement)) {
+    return () => {
+        if (!weChangedPosition) return;
+
+        if (!datasetHadValue) {
+            const stored = hostElement.dataset[datasetKey];
+            if (stored === '__empty__' || stored === undefined) {
+                hostElement.style.removeProperty('position');
+            } else {
+                hostElement.style.position = stored;
+            }
+            delete hostElement.dataset[datasetKey];
+        } else {
+            hostElement.style.position = previousInlinePosition;
+        }
+    };
+}
+
+function removeOverlayById(id) {
+    if (!id) return;
+    const existingOverlay = document.getElementById(id);
+    if (!existingOverlay) return;
+
+    if (typeof existingOverlay.__ecTeardown === 'function') {
+        existingOverlay.__ecTeardown();
+    } else {
+        existingOverlay.remove();
+    }
+}
+
+function hijackHostCloseButton(hostElement, onClose) {
+    if (!hostElement || typeof onClose !== 'function') {
+        return () => {};
+    }
+
+    const findCloseButton = () => {
+        const modalContainer = hostElement.closest('#form-modal-message');
+        if (modalContainer) {
+            const modalClose = modalContainer.querySelector('.x-button');
+            if (modalClose) return modalClose;
+        }
+
+        const registrationFooter = hostElement.closest('#registration-footer');
+        if (registrationFooter) {
+            const footerClose = registrationFooter.querySelector('.x-button');
+            if (footerClose) return footerClose;
+        }
+
+        return hostElement.querySelector('.x-button');
+    };
+
+    const closeButton = findCloseButton();
+    if (!closeButton) {
+        console.warn('[overlay] Unable to locate close button for host overlay.');
+        return () => {};
+    }
+
+    const handler = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+        }
+        onClose();
+    };
+
+    closeButton.addEventListener('click', handler, true);
+
+    return () => {
+        closeButton.removeEventListener('click', handler, true);
+    };
+}
+
+
+async function addNewCalendarV1(hostTarget) {
+    const hostElement = resolveOverlayHost(hostTarget);
+
+    if (!(hostElement instanceof HTMLElement)) {
         console.warn('[addNewCalendarV1] overlay host not found.');
         return;
     }
@@ -634,29 +729,10 @@ async function addNewCalendarV1(hostTarget) {
         return;
     }
 
-    // Ensure host positioning for absolute overlay
-    const computedPosition = window.getComputedStyle(hostElement).position;
-    const previousInlinePosition = hostElement.style.position;
-    const datasetAlreadySet = hostElement.dataset.ecOverlayOriginalPosition !== undefined;
-    let restoreHostPositionNeeded = false;
-
-    if (computedPosition === 'static') {
-        if (!datasetAlreadySet) {
-            hostElement.dataset.ecOverlayOriginalPosition = previousInlinePosition || '__empty__';
-        }
-        hostElement.style.position = 'relative';
-        restoreHostPositionNeeded = true;
-    }
+    const restoreHostPosition = prepareHostForOverlay(hostElement);
 
     // Remove any existing overlay
-    const existingOverlay = document.getElementById('ec-add-calendar-overlay');
-    if (existingOverlay) {
-        if (typeof existingOverlay.__ecTeardown === 'function') {
-            existingOverlay.__ecTeardown();
-        } else {
-            existingOverlay.remove();
-        }
-    }
+    removeOverlayById('ec-add-calendar-overlay');
 
     // Build overlay
     const overlay = document.createElement('div');
@@ -676,10 +752,6 @@ async function addNewCalendarV1(hostTarget) {
     });
 
     overlay.innerHTML = `
-        <div style="display:flex;justify-content:flex-end;">
-            <button type="button" id="ec-add-calendar-close" aria-label="Close add calendar form"
-                    style="background:none;border:none;color:var(--subdued-text);font-size:1.5rem;cursor:pointer;">✕</button>
-        </div>
         <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
             <h2 style="margin:0;font-size:1.5rem;">Add New Calendar</h2>
             <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
@@ -751,6 +823,8 @@ async function addNewCalendarV1(hostTarget) {
     // 🧩 Append overlay to host
     hostElement.appendChild(overlay);
 
+    const cleanupFns = [];
+
     // 🧠 Emoji picker integration
     const detachEmojiPicker = wireEmojiPicker({
         buttonId: 'ec-cal-emoji-button',
@@ -758,64 +832,24 @@ async function addNewCalendarV1(hostTarget) {
         previewId: 'ec-cal-emoji-preview',
         defaultEmoji: '🌍'
     });
+    cleanupFns.push(detachEmojiPicker);
 
-    // 🔁 Restore host positioning on close
-    const restoreHostPosition = () => {
-        if (!restoreHostPositionNeeded) return;
-
-        if (!datasetAlreadySet) {
-            const stored = hostElement.dataset.ecOverlayOriginalPosition;
-            if (stored === '__empty__' || stored === undefined) {
-                hostElement.style.removeProperty('position');
-            } else {
-                hostElement.style.position = stored;
-            }
-        } else {
-            hostElement.style.position = previousInlinePosition;
-        }
-
-        if (hostElement.dataset.ecOverlayOriginalPosition !== undefined) {
-            delete hostElement.dataset.ecOverlayOriginalPosition;
-        }
-    };
-
-    // 🔒 Close overlay handler
-    const isModalHost = hostElement.id === 'modal-content';
-    const closeButton = isModalHost ? document.querySelector('#form-modal-message .x-button') : null;
-    const originalCloseHandler = closeButton ? closeButton.onclick : null;
-    const originalCloseAttr = closeButton ? closeButton.getAttribute('onclick') : null;
-
+    let closed = false;
     const teardownOverlay = () => {
-        detachEmojiPicker();
+        if (closed) return;
+        closed = true;
+        while (cleanupFns.length) {
+            const fn = cleanupFns.shift();
+            try { fn && fn(); } catch (err) { console.debug('[addNewCalendarV1] cleanup failed:', err); }
+        }
         if (overlay.parentElement) overlay.remove();
         restoreHostPosition();
-        if (closeButton) {
-            closeButton.onclick = originalCloseHandler || null;
-            if (originalCloseAttr !== null) {
-                closeButton.setAttribute('onclick', originalCloseAttr);
-            } else {
-                closeButton.removeAttribute('onclick');
-            }
-        }
         delete overlay.__ecTeardown;
     };
     overlay.__ecTeardown = teardownOverlay;
 
-    if (closeButton) {
-        closeButton.onclick = (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation?.();
-            teardownOverlay();
-        };
-    }
-
-    const inlineClose = overlay.querySelector('#ec-add-calendar-close');
-    if (inlineClose) {
-        inlineClose.addEventListener('click', (event) => {
-            event.preventDefault();
-            teardownOverlay();
-        });
-    }
+    const detachCloseButton = hijackHostCloseButton(hostElement, teardownOverlay);
+    cleanupFns.push(detachCloseButton);
 
     // 📨 Form submission
     const form = overlay.querySelector('#ec-add-calendar-form');
@@ -874,6 +908,347 @@ async function addNewCalendarV1(hostTarget) {
             }
         });
     }
+}
+
+
+async function showPublicCalendars(hostTarget) {
+    const hostElement = resolveOverlayHost(hostTarget);
+
+    if (!(hostElement instanceof HTMLElement)) {
+        console.warn('[showPublicCalendars] overlay host not found.');
+        return;
+    }
+
+    const langGuess = window.userLanguage || (typeof navigator !== 'undefined' ? navigator.language : 'en') || 'en';
+    const normalizedLang = typeof langGuess === 'string' ? langGuess.slice(0, 2).toLowerCase() : 'en';
+    let noPublicText = 'No public calendars available.';
+
+    if (typeof loadTranslations === 'function') {
+        try {
+            const translations = await loadTranslations(normalizedLang);
+            if (translations?.loggedIn?.noPublic) {
+                noPublicText = translations.loggedIn.noPublic;
+            }
+        } catch (err) {
+            console.debug('[showPublicCalendars] Unable to load translations:', err);
+        }
+    }
+
+    const restoreHostPosition = prepareHostForOverlay(hostElement);
+    removeOverlayById('ec-public-cal-overlay');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ec-public-cal-overlay';
+    overlay.classList.add('main-background');
+    Object.assign(overlay.style, {
+        position: 'absolute',
+        inset: '0',
+        zIndex: '20',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '24px',
+        gap: '20px',
+        overflowY: 'auto',
+        borderRadius: '10px',
+        background: 'var(--general-background)'
+    });
+
+    overlay.innerHTML = `
+        <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
+            <h2 style="margin:0;font-size:1.5rem;">Explore public Earthcals</h2>
+            <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
+                Subscribe to community calendars curated by fellow Earthcal keepers.
+            </p>
+        </div>
+        <div id="ec-select-public-cals" style="display:flex;flex-direction:column;gap:12px;" role="list"></div>
+        <div class="ec-public-pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px;">
+            <button type="button" class="confirmation-blur-button cancel" data-ec-public-nav="prev" style="min-width:120px;">← Previous 10</button>
+            <span class="ec-public-page-status" style="flex:1;text-align:center;color:var(--subdued-text);font-size:0.9rem;"></span>
+            <button type="button" class="confirmation-blur-button cancel" data-ec-public-nav="next" style="min-width:120px;">Next 10 →</button>
+        </div>
+    `;
+
+    hostElement.appendChild(overlay);
+
+    const cleanupFns = [];
+    let closed = false;
+    const teardownOverlay = () => {
+        if (closed) return;
+        closed = true;
+        while (cleanupFns.length) {
+            const fn = cleanupFns.shift();
+            try { fn && fn(); } catch (err) { console.debug('[showPublicCalendars] cleanup failed:', err); }
+        }
+        if (overlay.parentElement) overlay.remove();
+        restoreHostPosition();
+        delete overlay.__ecTeardown;
+    };
+    overlay.__ecTeardown = teardownOverlay;
+
+    const detachCloseButton = hijackHostCloseButton(hostElement, teardownOverlay);
+    cleanupFns.push(detachCloseButton);
+
+    const handleEscape = (event) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            teardownOverlay();
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+    cleanupFns.push(() => document.removeEventListener('keydown', handleEscape));
+
+    const listContainer = overlay.querySelector('#ec-select-public-cals');
+    const pagination = overlay.querySelector('.ec-public-pagination');
+    const prevBtn = overlay.querySelector('[data-ec-public-nav="prev"]');
+    const nextBtn = overlay.querySelector('[data-ec-public-nav="next"]');
+    const pageStatus = overlay.querySelector('.ec-public-page-status');
+
+    if (!listContainer) {
+        console.warn('[showPublicCalendars] list container not found.');
+        teardownOverlay();
+        return;
+    }
+
+    const loader = document.createElement('div');
+    loader.className = 'ec-public-loader';
+    loader.textContent = 'Loading public calendars…';
+    loader.style.color = 'var(--subdued-text)';
+    listContainer.appendChild(loader);
+
+    let calendars = [];
+    try {
+        calendars = await loadPublicCalendars({ force: true });
+    } catch (err) {
+        console.warn('[showPublicCalendars] Unable to load public calendars:', err);
+    }
+
+    if (loader.parentElement) loader.remove();
+
+    calendars = Array.isArray(calendars) ? calendars.filter(Boolean) : [];
+    calendars.sort((a, b) => {
+        const nameA = (a?.name || '').toLocaleLowerCase();
+        const nameB = (b?.name || '').toLocaleLowerCase();
+        return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+    });
+
+    if (!calendars.length) {
+        const empty = document.createElement('p');
+        empty.textContent = noPublicText;
+        empty.style.margin = '0';
+        empty.style.color = 'var(--subdued-text)';
+        listContainer.appendChild(empty);
+        if (pagination) pagination.style.display = 'none';
+        return;
+    }
+
+    const pageSize = 10;
+    let pageIndex = 0;
+    let expandedRowId = null;
+
+    const collapseRow = (rowId) => {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        row.classList.remove('is-expanded');
+        if (expandedRowId === rowId) {
+            expandedRowId = null;
+        }
+    };
+
+    const toggleRow = (rowId) => {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        const willExpand = !row.classList.contains('is-expanded');
+        if (expandedRowId && expandedRowId !== rowId) {
+            collapseRow(expandedRowId);
+        }
+        row.classList.toggle('is-expanded', willExpand);
+        expandedRowId = willExpand ? rowId : null;
+    };
+
+    const createTextValue = (value) => {
+        if (value === null || value === undefined) {
+            const empty = document.createElement('span');
+            empty.className = 'cal-detail-empty';
+            empty.textContent = '—';
+            return empty;
+        }
+        const str = typeof value === 'string' ? value.trim() : String(value);
+        if (!str) {
+            const empty = document.createElement('span');
+            empty.className = 'cal-detail-empty';
+            empty.textContent = '—';
+            return empty;
+        }
+        const span = document.createElement('span');
+        span.textContent = str;
+        return span;
+    };
+
+    const formatDateValue = (value) => {
+        if (!value) return createTextValue(null);
+        const date = new Date(value);
+        if (!Number.isNaN(date.getTime())) {
+            return createTextValue(date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }));
+        }
+        return createTextValue(value);
+    };
+
+    const buildRow = (cal, absoluteIndex) => {
+        const safeSuffix = String(cal?.calendar_id ?? `index-${absoluteIndex}`).replace(/[^a-zA-Z0-9_-]/g, '-');
+        const rowId = `public-cal-row-${safeSuffix}`;
+        const row = document.createElement('div');
+        row.className = 'cal-toggle-row';
+        row.id = rowId;
+        row.dataset.calendarId = cal?.calendar_id ?? '';
+
+        const summary = document.createElement('div');
+        summary.className = 'cal-row-summary';
+        summary.addEventListener('click', () => toggleRow(rowId));
+
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'cal-row-emoji';
+        const emoji = sanitizeEmojiInput(cal?.emoji || '📅') || '📅';
+        emojiSpan.dataset.emoji = emoji;
+        emojiSpan.setAttribute('aria-hidden', 'true');
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'cal-row-name';
+        nameSpan.textContent = cal?.name || 'Untitled Calendar';
+
+        const toggleLabel = document.createElement('label');
+        toggleLabel.className = 'toggle-switch cal-row-toggle';
+        toggleLabel.addEventListener('click', (event) => event.stopPropagation());
+
+        const toggleInput = document.createElement('input');
+        toggleInput.type = 'checkbox';
+        toggleInput.checked = !!cal?.is_subscribed;
+        toggleInput.setAttribute('aria-label', 'Toggle calendar subscription');
+        toggleInput.addEventListener('click', (event) => event.stopPropagation());
+        toggleInput.addEventListener('change', (event) => {
+            event.stopPropagation();
+            if (cal) cal.is_subscribed = event.target.checked;
+            console.log('[showPublicCalendars] toggle subscription placeholder', cal?.calendar_id, event.target.checked);
+        });
+
+        const toggleSlider = document.createElement('span');
+        toggleSlider.className = 'toggle-slider';
+
+        toggleLabel.appendChild(toggleInput);
+        toggleLabel.appendChild(toggleSlider);
+
+        summary.appendChild(emojiSpan);
+        summary.appendChild(nameSpan);
+        summary.appendChild(toggleLabel);
+
+        const details = document.createElement('div');
+        details.className = 'cal-row-details';
+
+        const detailsList = document.createElement('dl');
+        detailsList.className = 'cal-details-list';
+
+        const appendDetail = (label, valueNode) => {
+            const item = document.createElement('div');
+            item.className = 'cal-detail-item';
+            const dt = document.createElement('dt');
+            dt.textContent = label;
+            const dd = document.createElement('dd');
+            if (valueNode instanceof HTMLElement) {
+                dd.appendChild(valueNode);
+            } else if (typeof valueNode === 'string') {
+                dd.textContent = valueNode;
+            } else {
+                dd.appendChild(createTextValue(null));
+            }
+            item.appendChild(dt);
+            item.appendChild(dd);
+            detailsList.appendChild(item);
+        };
+
+        appendDetail('Description', createTextValue(cal?.description));
+        const curator = cal?.owner || cal?.curator || cal?.publisher || cal?.creator || cal?.creator_name;
+        if (curator) {
+            appendDetail('Curated by', createTextValue(curator));
+        }
+
+        const eventCount = Number(cal?.event_count);
+        appendDetail('Events', createTextValue(Number.isFinite(eventCount) ? eventCount : null));
+        appendDetail('Category', createTextValue(cal?.category));
+        appendDetail('Updated', formatDateValue(cal?.updated_at));
+        appendDetail('Created', formatDateValue(cal?.created_at));
+
+        const colorHex = sanitizeHexColor(cal?.color_hex || cal?.color || cal?.calendar_color);
+        const colorValue = document.createElement('span');
+        const colorDot = document.createElement('span');
+        colorDot.className = 'cal-color-dot';
+        colorDot.style.background = colorHex;
+        colorValue.appendChild(colorDot);
+        colorValue.appendChild(document.createTextNode(` ${colorHex}`));
+        appendDetail('Color', colorValue);
+
+        const sourceUrl = sanitizeUrl(cal?.source_url || cal?.url || cal?.website || cal?.link);
+        if (sourceUrl) {
+            const link = document.createElement('a');
+            link.href = sourceUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = sourceUrl;
+            appendDetail('More info', link);
+        }
+
+        details.appendChild(detailsList);
+
+        row.appendChild(summary);
+        row.appendChild(details);
+        row.setAttribute('role', 'listitem');
+
+        return row;
+    };
+
+    const renderPage = () => {
+        const start = pageIndex * pageSize;
+        const pageItems = calendars.slice(start, start + pageSize);
+        listContainer.innerHTML = '';
+        pageItems.forEach((cal, idx) => {
+            const row = buildRow(cal, start + idx);
+            listContainer.appendChild(row);
+        });
+        const rangeEnd = Math.min(start + pageItems.length, calendars.length);
+        if (pageStatus) {
+            pageStatus.textContent = `Showing ${start + 1}–${rangeEnd} of ${calendars.length}`;
+        }
+        if (prevBtn) prevBtn.disabled = pageIndex === 0;
+        if (nextBtn) nextBtn.disabled = rangeEnd >= calendars.length;
+        if (pagination) {
+            pagination.style.display = calendars.length > pageSize ? 'flex' : 'none';
+        }
+    };
+
+    const handlePrev = (event) => {
+        event.preventDefault();
+        if (pageIndex === 0) return;
+        pageIndex -= 1;
+        expandedRowId = null;
+        renderPage();
+    };
+
+    const handleNext = (event) => {
+        event.preventDefault();
+        if ((pageIndex + 1) * pageSize >= calendars.length) return;
+        pageIndex += 1;
+        expandedRowId = null;
+        renderPage();
+    };
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', handlePrev);
+        cleanupFns.push(() => prevBtn.removeEventListener('click', handlePrev));
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', handleNext);
+        cleanupFns.push(() => nextBtn.removeEventListener('click', handleNext));
+    }
+
+    renderPage();
 }
 
 
@@ -985,6 +1360,34 @@ function sanitizeEmojiInput(v) {
     // Keep it tiny; users can paste 1–2 glyphs. Trim spaces, cap length.
     return (v || '').trim().slice(0, 4);
 }
+
+function sanitizeHexColor(color, fallback = '#3b82f6') {
+    if (typeof color !== 'string') return fallback;
+    const trimmed = color.trim();
+    if (/^#([0-9a-f]{3})$/i.test(trimmed)) {
+        return '#' + trimmed.slice(1).split('').map((ch) => ch + ch).join('');
+    }
+    if (/^#([0-9a-f]{6})$/i.test(trimmed)) {
+        return trimmed;
+    }
+    return fallback;
+}
+
+function sanitizeUrl(url) {
+    if (typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    try {
+        const base = (typeof window !== 'undefined' && window.location) ? window.location.origin : 'https://earthcal.app';
+        const parsed = new URL(trimmed, base);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            return parsed.href;
+        }
+    } catch (_) {
+        // ignore invalid URLs
+    }
+    return '';
+}
 function humanDate(yyyy_mm_dd) {
     const [y,m,d] = (yyyy_mm_dd||'').split('-').map(n=>parseInt(n,10));
     const dt = (!isNaN(y)&&!isNaN(m)&&!isNaN(d)) ? new Date(y, m-1, d) : new Date();
@@ -998,6 +1401,8 @@ function humanDate(yyyy_mm_dd) {
 
 const CAL_CACHE_KEY = 'earthcal_calendars';
 const CAL_CACHE_AT_KEY = 'earthcal_calendars_cached_at';
+const PUBLIC_CAL_CACHE_KEY = 'earthcal_public_calendars';
+const PUBLIC_CAL_CACHE_AT_KEY = 'earthcal_public_calendars_cached_at';
 
 /**
  * Load calendars for a user.
@@ -1087,6 +1492,102 @@ function invalidateCalendarsCache() {
     sessionStorage.removeItem(CAL_CACHE_AT_KEY);
 }
 
+async function loadPublicCalendars({ force = false, maxAgeMs = 5 * 60 * 1000 } = {}) {
+    let cached = null;
+    if (!force) {
+        cached = readPublicCalendarsFromCache(maxAgeMs);
+        if (cached) return cached;
+    } else {
+        cached = readPublicCalendarsFromCache(Infinity);
+    }
+
+    const legacy = readLegacyPublicCalendars();
+
+    const fetched = await fetchPublicCalendarsFromApi();
+    if (fetched.length) {
+        savePublicCalendarsToCache(fetched);
+        return fetched;
+    }
+
+    if (legacy.length) {
+        if (!force) savePublicCalendarsToCache(legacy);
+        return legacy;
+    }
+
+    if (cached && Array.isArray(cached) && cached.length) {
+        return cached;
+    }
+
+    return [];
+}
+
+function readPublicCalendarsFromCache(maxAgeMs) {
+    try {
+        const at = Number(sessionStorage.getItem(PUBLIC_CAL_CACHE_AT_KEY) || 0);
+        if (at && Date.now() - at <= maxAgeMs) {
+            const arr = JSON.parse(sessionStorage.getItem(PUBLIC_CAL_CACHE_KEY) || '[]');
+            if (Array.isArray(arr) && arr.length) return arr;
+        }
+    } catch (_) {}
+    return null;
+}
+
+function savePublicCalendarsToCache(list) {
+    try {
+        sessionStorage.setItem(PUBLIC_CAL_CACHE_KEY, JSON.stringify(list || []));
+        sessionStorage.setItem(PUBLIC_CAL_CACHE_AT_KEY, String(Date.now()));
+    } catch (e) {
+        console.debug('savePublicCalendarsToCache failed (quota?)', e);
+    }
+}
+
+function readLegacyPublicCalendars() {
+    try {
+        const raw = sessionStorage.getItem('user_calendars');
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        const list = Array.isArray(parsed?.public_calendars) ? parsed.public_calendars : [];
+        return list
+            .map(normalizeLegacyPublicCalendarShape)
+            .filter(Boolean);
+    } catch (err) {
+        console.debug('readLegacyPublicCalendars failed:', err);
+        return [];
+    }
+}
+
+async function fetchPublicCalendarsFromApi() {
+    const endpoint = '/api/v1/list_public_calendars.php';
+    const attempts = [
+        { method: 'GET', options: { method: 'GET', headers: { 'Accept': 'application/json' } } },
+        { method: 'POST', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' } }
+    ];
+    let lastError = null;
+
+    for (const attempt of attempts) {
+        try {
+            const response = await fetch(endpoint, { credentials: 'same-origin', ...attempt.options });
+            if (!response.ok) {
+                lastError = new Error(`HTTP ${response.status}`);
+                continue;
+            }
+
+            const data = await response.json().catch(() => ({}));
+            const rawList = Array.isArray(data?.calendars) ? data.calendars : [];
+            if (rawList.length) {
+                return rawList.map(normalizePublicCalendarShape);
+            }
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    if (lastError) {
+        console.warn('[loadPublicCalendars] Unable to fetch public calendars:', lastError);
+    }
+    return [];
+}
+
 /** Normalize assorted backend field names to a stable UI shape. */
 function normalizeCalendarShape(c) {
     return {
@@ -1099,6 +1600,48 @@ function normalizeCalendarShape(c) {
         color_hex: c.color_hex || '#3b82f6',
         emoji: c.emoji || '',
         tzid: c.tzid || getUserTZ()
+    };
+}
+
+function normalizePublicCalendarShape(c) {
+    if (!c || typeof c !== 'object') return null;
+    const eventCount = Number(c.event_count);
+    return {
+        calendar_id: c.calendar_id ?? c.id ?? null,
+        name: c.name ?? c.calendar_name ?? 'Untitled Calendar',
+        description: c.description ?? c.calendar_description ?? '',
+        emoji: sanitizeEmojiInput(c.emoji || c.cal_emoji || '📅') || '📅',
+        color_hex: sanitizeHexColor(c.color_hex || c.color || c.calendar_color),
+        category: c.category ?? c.calendar_category ?? '',
+        event_count: Number.isFinite(eventCount) ? eventCount : null,
+        updated_at: c.updated_at ?? c.last_updated ?? null,
+        created_at: c.created_at ?? c.calendar_created ?? null,
+        owner: c.owner ?? c.curator ?? c.publisher ?? c.creator ?? c.creator_name ?? '',
+        tzid: c.tzid ?? c.time_zone ?? null,
+        visibility: 'public',
+        is_subscribed: toBool(c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following ?? 0),
+        source_url: c.source_url ?? c.url ?? c.website ?? c.link ?? ''
+    };
+}
+
+function normalizeLegacyPublicCalendarShape(c) {
+    if (!c || typeof c !== 'object') return null;
+    const eventCount = Number(c.event_count ?? c.total_events);
+    return {
+        calendar_id: c.calendar_id ?? c.id ?? null,
+        name: c.calendar_name ?? c.name ?? 'Untitled Calendar',
+        description: c.description ?? c.calendar_description ?? '',
+        emoji: sanitizeEmojiInput(c.emoji || c.cal_emoji || '📅') || '📅',
+        color_hex: sanitizeHexColor(c.calendar_color || c.color_hex || c.color),
+        category: c.category ?? c.calendar_category ?? '',
+        event_count: Number.isFinite(eventCount) ? eventCount : null,
+        updated_at: c.last_updated ?? c.updated_at ?? null,
+        created_at: c.calendar_created ?? c.created_at ?? null,
+        owner: c.owner ?? c.curator ?? c.publisher ?? c.creator ?? c.creator_name ?? '',
+        tzid: c.tzid ?? c.time_zone ?? null,
+        visibility: 'public',
+        is_subscribed: toBool(c.subscribed ?? c.is_subscribed ?? c.following ?? c.is_following ?? 0),
+        source_url: c.source_url ?? c.url ?? c.website ?? c.link ?? ''
     };
 }
 
