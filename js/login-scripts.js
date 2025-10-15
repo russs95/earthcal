@@ -398,7 +398,40 @@ async function showLoggedInView(calendars = []) {
         noPersonal
     } = translations.loggedIn;
 
-    const calendarList = Array.isArray(calendars) ? [...calendars] : [];
+    const fallbackCalendars = Array.isArray(calendars) ? [...calendars] : [];
+    let calendarList = [];
+
+    if (typeof loadUserCalendars === 'function') {
+        try {
+            calendarList = await loadUserCalendars(buwana_id, { force: true });
+        } catch (err) {
+            console.warn('[showLoggedInView] Unable to refresh v1 calendars:', err);
+            calendarList = [];
+        }
+    } else {
+        calendarList = [...fallbackCalendars];
+    }
+
+    if (!Array.isArray(calendarList) || !calendarList.length) {
+        calendarList = [...fallbackCalendars];
+    }
+
+    if (!Array.isArray(calendarList)) {
+        calendarList = [];
+    }
+
+    try {
+        sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendarList));
+    } catch (err) {
+        console.debug('[showLoggedInView] Unable to cache v1 calendars:', err);
+    }
+
+    try {
+        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendarList)));
+    } catch (err) {
+        console.debug('[showLoggedInView] Unable to refresh legacy calendar cache:', err);
+    }
+
     calendarList.sort((a, b) => {
         const nameA = (a?.name || '').toLocaleLowerCase();
         const nameB = (b?.name || '').toLocaleLowerCase();
@@ -490,7 +523,7 @@ async function showLoggedInView(calendars = []) {
                 <button type="button" id="ec-add-personal-calendar-btn" class="confirmation-blur-button cancel">
                     ➕ New personal calendar
                 </button>
-                <button type="button" class="confirmation-blur-button cancel">
+                <button type="button" id="ec-browse-public-calendars-btn" class="confirmation-blur-button cancel">
                     ➕ Subscribe to public Earthcal
                 </button>
                 <button type="button" class="confirmation-blur-button cancel">
@@ -523,6 +556,16 @@ async function showLoggedInView(calendars = []) {
             event.preventDefault();
             if (typeof addNewCalendarV1 === 'function') {
                 addNewCalendarV1({ host: loggedInView });
+            }
+        });
+    }
+
+    const browsePublicButton = loggedInView.querySelector('#ec-browse-public-calendars-btn');
+    if (browsePublicButton) {
+        browsePublicButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (typeof showPublicCalendars === 'function') {
+                showPublicCalendars({ host: loggedInView });
             }
         });
     }
