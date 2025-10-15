@@ -2665,6 +2665,7 @@ INFO MODAL
   
   .modal-message {
     margin: auto;
+      height: 100%;
   }
   
   .modal-content-box .x-button {
@@ -2707,8 +2708,10 @@ INFO MODAL
     font-size: larger;
     background-color: var(--form-conf-background);
     color: var(--form-conf-text);
-    margin: 1px auto 50px auto;
+    margin: 1px auto 0px auto;
     cursor: pointer;
+
+    width: 100%;
     }
 
 
@@ -3004,8 +3007,8 @@ INFO MODAL
   /*}*/
 
   .confirmation-blur-button {
-      width:360px;
-
+      max-width: 500px;
+        width: 100%;
   }
   }
 
