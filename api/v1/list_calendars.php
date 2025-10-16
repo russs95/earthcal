@@ -16,7 +16,6 @@ $allowed_origins = [
     'http://localhost',
     'file://'
 ];
-
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array(rtrim($origin, '/'), $allowed_origins)) {
     header('Access-Control-Allow-Origin: ' . rtrim($origin, '/'));
@@ -54,46 +53,98 @@ if (!$buwana_id) {
 }
 
 // ------------------------------------------------------
-// Query
+// Query all calendar sources
 // ------------------------------------------------------
 try {
-    $stmt = $pdo->prepare("
-        SELECT calendar_id, name, default_my_calendar, description,
-               cal_emoji, color, tzid, category, visibility, is_readonly,
-               created_at, updated_at
-        FROM calendars_v1_tb
-        WHERE user_id = ?
-        ORDER BY default_my_calendar DESC, name ASC
+
+    // === 1️⃣ Personal calendars owned by user ===
+    $stmt1 = $pdo->prepare("
+        SELECT c.calendar_id, c.name, c.default_my_calendar, c.description,
+               c.cal_emoji, c.color, c.tzid, c.category, c.visibility,
+               c.is_readonly, c.created_at, c.updated_at,
+               s.display_enabled
+        FROM calendars_v1_tb AS c
+        LEFT JOIN subscriptions_v1_tb AS s
+            ON s.user_id = c.user_id
+           AND s.calendar_id = c.calendar_id
+        WHERE c.user_id = :uid
+        ORDER BY c.default_my_calendar DESC, c.name ASC
     ");
-    $stmt->execute([$buwana_id]);
-    $rows = $stmt->fetchAll();
+    $stmt1->execute(['uid' => $buwana_id]);
+    $personal = $stmt1->fetchAll();
 
-    $calendars = array_map(static function(array $r): array {
+    // === 2️⃣ Public Earthcal calendars the user follows ===
+    $stmt2 = $pdo->prepare("
+        SELECT s.subscription_id, s.display_enabled, s.is_active,
+               s.color, s.emoji, s.earthcal_calendar_id AS calendar_id,
+               c.name, c.description, c.cal_emoji, c.color AS cal_color,
+               c.tzid, c.category, c.visibility, c.is_readonly,
+               c.created_at, c.updated_at
+        FROM subscriptions_v1_tb AS s
+        INNER JOIN calendars_v1_tb AS c
+                ON s.earthcal_calendar_id = c.calendar_id
+        WHERE s.user_id = :uid
+          AND s.source_type = 'earthcal'
+    ");
+    $stmt2->execute(['uid' => $buwana_id]);
+    $earthcal = $stmt2->fetchAll();
+
+    // === 3️⃣ External Webcal feeds ===
+    $stmt3 = $pdo->prepare("
+        SELECT s.subscription_id, s.display_enabled, s.is_active,
+               s.url, s.feed_title AS name, s.color, s.emoji,
+               s.refresh_interval_minutes, s.last_fetch_at, s.last_error
+        FROM subscriptions_v1_tb AS s
+        WHERE s.user_id = :uid
+          AND s.source_type = 'webcal'
+    ");
+    $stmt3->execute(['uid' => $buwana_id]);
+    $webcals = $stmt3->fetchAll();
+
+    // ------------------------------------------------------
+    // Merge all results into a consistent schema
+    // ------------------------------------------------------
+    $normalize = static function(array $r, string $source): array {
         return [
-            'calendar_id' => (int)$r['calendar_id'],
-            'name'        => $r['name'],
-            'is_default'  => (int)$r['default_my_calendar'] === 1,
-            'description' => $r['description'],
-            'emoji'       => $r['cal_emoji'],
-            'color'       => $r['color'],
-            'color_hex'   => $r['color'],
-            'tzid'        => $r['tzid'],
-            'category'    => $r['category'],
-            'visibility'  => $r['visibility'],
-            'is_readonly' => (int)$r['is_readonly'] === 1,
-            'created_at'  => $r['created_at'],
-            'updated_at'  => $r['updated_at'],
+            'calendar_id'    => isset($r['calendar_id']) ? (int)$r['calendar_id'] : null,
+            'name'           => $r['name'] ?? '(Unnamed)',
+            'description'    => $r['description'] ?? null,
+            'emoji'          => $r['emoji'] ?? $r['cal_emoji'] ?? '📅',
+            'color'          => $r['color'] ?? $r['cal_color'] ?? '#3b82f6',
+            'tzid'           => $r['tzid'] ?? 'Etc/UTC',
+            'category'       => $r['category'] ?? 'personal',
+            'visibility'     => $r['visibility'] ?? 'private',
+            'is_readonly'    => isset($r['is_readonly']) ? (bool)$r['is_readonly'] : ($source !== 'personal'),
+            'is_default'     => (isset($r['default_my_calendar']) && (int)$r['default_my_calendar'] === 1),
+            'display_enabled'=> isset($r['display_enabled']) ? (bool)$r['display_enabled'] : true,
+            'source_type'    => $source,
+            'is_active'      => isset($r['is_active']) ? (bool)$r['is_active'] : true,
+            'url'            => $r['url'] ?? null,
+            'feed_title'     => $r['feed_title'] ?? null,
+            'created_at'     => $r['created_at'] ?? null,
+            'updated_at'     => $r['updated_at'] ?? null,
+            'last_fetch_at'  => $r['last_fetch_at'] ?? null,
+            'last_error'     => $r['last_error'] ?? null,
         ];
-    }, $rows);
+    };
 
-    echo json_encode(['ok'=>true, 'calendars'=>$calendars]);
+    $combined = [];
+    foreach ($personal as $r) $combined[] = $normalize($r, 'personal');
+    foreach ($earthcal as $r) $combined[] = $normalize($r, 'earthcal');
+    foreach ($webcals as $r)  $combined[] = $normalize($r, 'webcal');
+
+    echo json_encode([
+        'ok' => true,
+        'count' => count($combined),
+        'calendars' => $combined
+    ], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
-        'ok'=>false,
-        'error'=>'server_error',
-        'detail'=>$e->getMessage()
+        'ok' => false,
+        'error' => 'server_error',
+        'detail' => $e->getMessage()
     ]);
 }
 ?>

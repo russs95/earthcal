@@ -1556,7 +1556,7 @@ function readLegacyPublicCalendars() {
 }
 
 async function fetchPublicCalendarsFromApi() {
-    const endpoint = '/api/v1/list_public_calendars.php';
+    const endpoint = '/api/v1/get_public_cals.php';
     const attempts = [
         { method: 'GET', options: { method: 'GET', headers: { 'Accept': 'application/json' } } },
         { method: 'POST', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' } }
