@@ -369,11 +369,105 @@ function buildLegacyCalendarCache(calendars) {
             description: cal?.description ?? '',
             category: cal?.category ?? '',
             emoji: cal?.emoji ?? '',
-            is_readonly: cal?.is_readonly ? 1 : 0
+            is_readonly: cal?.is_readonly ? 1 : 0,
+            is_active: cal?.is_active ? 1 : 0
         })),
         subscribed_calendars: [],
         public_calendars: []
     };
+}
+
+const CAL_CACHE_KEY_NAME = 'earthcal_calendars';
+const CAL_CACHE_AT_KEY_NAME = 'earthcal_calendars_cached_at';
+let calToggleStatusTimer = null;
+
+function showCalendarToggleStatus(isActive) {
+    const notice = document.getElementById('cal-toggle-status');
+    if (!notice) {
+        return;
+    }
+
+    notice.textContent = isActive
+        ? '✅ Calendar is now active on your earthcal!'
+        : '🙈Calendar is now hidden from your Earthcal.';
+
+    notice.classList.add('is-visible');
+
+    if (calToggleStatusTimer) {
+        clearTimeout(calToggleStatusTimer);
+    }
+
+    calToggleStatusTimer = window.setTimeout(() => {
+        notice.classList.remove('is-visible');
+        calToggleStatusTimer = null;
+    }, 1000);
+}
+
+function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceType, isActive }) {
+    const normalizedSource = (sourceType || 'personal').toString().toLowerCase();
+    const matchCalendar = (entry) => {
+        if (!entry || typeof entry !== 'object') return false;
+        const entrySource = (entry.source_type || entry.sourceType || 'personal').toString().toLowerCase();
+        if (entrySource !== normalizedSource) return false;
+
+        if (normalizedSource === 'webcal') {
+            const subId = Number(entry.subscription_id ?? entry.subscriptionId);
+            return Number.isFinite(subId) && Number(subId) === Number(subscriptionId);
+        }
+
+        const calId = Number(entry.calendar_id ?? entry.id);
+        return Number.isFinite(calId) && Number(calId) === Number(calendarId);
+    };
+
+    const updateListCache = (key) => {
+        try {
+            const raw = sessionStorage.getItem(key);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return;
+
+            let changed = false;
+            const next = parsed.map((entry) => {
+                if (matchCalendar(entry)) {
+                    changed = true;
+                    return { ...entry, is_active: !!isActive };
+                }
+                return entry;
+            });
+
+            if (changed) {
+                sessionStorage.setItem(key, JSON.stringify(next));
+                sessionStorage.setItem(CAL_CACHE_AT_KEY_NAME, String(Date.now()));
+            }
+        } catch (err) {
+            console.debug('[updateCachedCalendarActiveState] unable to refresh cache', err);
+        }
+    };
+
+    updateListCache(CAL_CACHE_KEY_NAME);
+    updateListCache('user_calendars_v1');
+
+    try {
+        const legacyRaw = sessionStorage.getItem('user_calendars');
+        if (!legacyRaw) return;
+        const legacy = JSON.parse(legacyRaw);
+        if (!legacy || typeof legacy !== 'object') return;
+        let changed = false;
+        if (Array.isArray(legacy.personal_calendars)) {
+            legacy.personal_calendars = legacy.personal_calendars.map((entry) => {
+                if (matchCalendar(entry)) {
+                    changed = true;
+                    return { ...entry, is_active: isActive ? 1 : 0 };
+                }
+                return entry;
+            });
+        }
+        if (changed) {
+            sessionStorage.setItem('user_calendars', JSON.stringify(legacy));
+        }
+    } catch (err) {
+        console.debug('[updateCachedCalendarActiveState] unable to update legacy cache', err);
+    }
 }
 
 async function showLoggedInView(calendars = []) {
@@ -438,22 +532,35 @@ async function showLoggedInView(calendars = []) {
         return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
     });
 
-    const personalCalendarHTML = calendarList.length > 0
-        ? calendarList.map(cal => {
-            const rowId = `cal-row-${cal.calendar_id}`;
+    const statusNoticeHtml = `
+        <div id="cal-toggle-status" class="cal-toggle-status" role="status" aria-live="polite"></div>
+    `;
+
+    const personalCalendarHTML = statusNoticeHtml + (calendarList.length > 0
+        ? calendarList.map((cal, index) => {
             const emoji = cal?.emoji?.trim() || '📅';
+            const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
+            const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+            const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
+            const safeCalendarId = escapeHtml(calendarIdValue);
+            const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+            const isActive = !!cal?.is_active;
+            const checkedAttr = isActive ? 'checked' : '';
+            const activeState = isActive ? 'true' : 'false';
+            const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
+            const rowId = `cal-row-${rowKey}`;
 
             return `
-                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${cal.calendar_id}">
+                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
-                            <input type="checkbox" aria-label="Toggle calendar visibility" onchange="toggleV1CalVisibility(${cal.calendar_id}, this.checked)">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-                    <div class="cal-row-details" data-calendar-id="${cal.calendar_id}" data-loaded="false">
+                    <div class="cal-row-details" data-calendar-id="${safeCalendarId}" data-loaded="false">
                         <div class="cal-details-content" aria-live="polite">
                             <p class="cal-details-placeholder">Expand to load calendar details.</p>
                         </div>
@@ -466,7 +573,7 @@ async function showLoggedInView(calendars = []) {
                 </div>
             `;
         }).join('')
-        : `<p>${noPersonal}</p>`;
+        : `<p>${noPersonal}</p>`);
 
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
@@ -986,8 +1093,98 @@ function handleCalOutsideClick(event) {
     collapseCalDetails(currentExpandedCalRowId);
 }
 
-function toggleV1CalVisibility(calendarId, isVisible) {
-    console.log(`[placeholder] toggleV1CalVisibility → calendarId: ${calendarId}, visible: ${isVisible}`);
+async function toggleV1CalVisibility(toggleInput) {
+    if (!toggleInput) {
+        return;
+    }
+
+    const previousActive = toggleInput.dataset.active === 'true';
+    const desiredActive = !!toggleInput.checked;
+    const sourceType = (toggleInput.dataset.sourceType || 'personal').toLowerCase();
+    const calendarIdRaw = toggleInput.dataset.calendarId;
+    const subscriptionIdRaw = toggleInput.dataset.subscriptionId;
+    const calendarId = calendarIdRaw ? Number(calendarIdRaw) : null;
+    const subscriptionId = subscriptionIdRaw ? Number(subscriptionIdRaw) : null;
+
+    if (!['personal', 'earthcal', 'webcal'].includes(sourceType)) {
+        console.warn('[toggleV1CalVisibility] Unknown source type:', sourceType);
+        toggleInput.checked = previousActive;
+        return;
+    }
+
+    if (sourceType === 'webcal' && !Number.isFinite(subscriptionId)) {
+        console.warn('[toggleV1CalVisibility] Missing subscription_id for webcal source.');
+        toggleInput.checked = previousActive;
+        return;
+    }
+
+    if (sourceType !== 'webcal' && !Number.isFinite(calendarId)) {
+        console.warn('[toggleV1CalVisibility] Missing calendar_id for source:', sourceType);
+        toggleInput.checked = previousActive;
+        return;
+    }
+
+    if (previousActive === desiredActive) {
+        return;
+    }
+
+    const loginState = isLoggedIn({ returnPayload: true }) || {};
+    if (!loginState.isLoggedIn || !loginState.payload?.buwana_id) {
+        toggleInput.checked = previousActive;
+        alert('You must be logged in to change calendar visibility.');
+        return;
+    }
+
+    const buwanaId = Number(loginState.payload.buwana_id);
+    const requestBody = {
+        buwana_id: buwanaId,
+        source_type: sourceType,
+        is_active: desiredActive
+    };
+
+    if (Number.isFinite(calendarId) && calendarId !== null) {
+        requestBody.calendar_id = calendarId;
+    }
+
+    if (Number.isFinite(subscriptionId) && subscriptionId !== null) {
+        requestBody.subscription_id = subscriptionId;
+    }
+
+    toggleInput.disabled = true;
+
+    try {
+        const response = await fetch('/api/v1/cal_active_toggle.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            throw new Error(`http_${response.status}`);
+        }
+
+        const data = await response.json().catch(() => ({}));
+        if (!data?.ok) {
+            const reason = data?.error || 'toggle_failed';
+            throw new Error(reason);
+        }
+
+        toggleInput.dataset.active = desiredActive ? 'true' : 'false';
+        showCalendarToggleStatus(desiredActive);
+        updateCachedCalendarActiveState({
+            calendarId,
+            subscriptionId,
+            sourceType,
+            isActive: desiredActive
+        });
+    } catch (err) {
+        console.error('[toggleV1CalVisibility] Unable to update calendar visibility:', err);
+        toggleInput.checked = previousActive;
+        alert('We could not update your calendar visibility. Please try again.');
+    } finally {
+        toggleInput.disabled = false;
+    }
 }
 
 function editV1cal(calendarId) {
