@@ -1408,6 +1408,7 @@ const PUBLIC_CAL_CACHE_AT_KEY = 'earthcal_public_calendars_cached_at';
  * - Uses sessionStorage cache by default (5 min TTL).
  * - Set {force:true} to bypass cache, or tweak {maxAgeMs}.
  * - Normalizes field names (id/name/flags) for the UI.
+ *
  */
 async function loadUserCalendars(buwana_id, { force = false, maxAgeMs = 5 * 60 * 1000 } = {}) {
     if (!buwana_id) throw new Error('loadUserCalendars: buwana_id is required');
