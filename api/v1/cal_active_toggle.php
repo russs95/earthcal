@@ -103,6 +103,25 @@ try {
 
     $updated = 0;
 
+    $makeInternalUrl = static function (string $type, int $uid, int $calId): string {
+        // Ensure each internal subscription gets a deterministic pseudo URL so
+        // required NOT NULL columns (url/url_hash) are satisfied even though
+        // these entries never hit the network.
+        return sprintf('earthcal://%s/%d/%d', $type, $uid, $calId);
+    };
+
+    $makeInsertPayload = static function (bool $isActive, array $base): array {
+        $url = $base['url'];
+        return [
+            'uid' => $base['uid'],
+            'cid' => $base['cid'] ?? ($base['ecid'] ?? null),
+            'ecid' => $base['ecid'] ?? null,
+            'is_active' => $isActive ? 1 : 0,
+            'url' => $url,
+            'url_hash' => hash('sha256', $url),
+        ];
+    };
+
     if ($sourceType === 'personal') {
         $stmt = $pdo->prepare(
             "UPDATE subscriptions_v1_tb
@@ -119,14 +138,15 @@ try {
         if ($updated === 0) {
             $insert = $pdo->prepare(
                 "INSERT INTO subscriptions_v1_tb
-                 (user_id, calendar_id, source_type, is_active, display_enabled, created_at, updated_at)
-                 VALUES (:uid, :cid, 'personal', :is_active, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+                 (user_id, calendar_id, source_type, url, url_hash, is_active, display_enabled, created_at, updated_at)
+                 VALUES (:uid, :cid, 'personal', :url, :url_hash, :is_active, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
             );
-            $insert->execute([
+            $payload = $makeInsertPayload($isActive, [
                 'uid' => $buwanaId,
                 'cid' => $calendarId,
-                'is_active' => $isActive ? 1 : 0
+                'url' => $makeInternalUrl('personal', $buwanaId, $calendarId)
             ]);
+            $insert->execute($payload);
             $updated = $insert->rowCount();
         }
     } elseif ($sourceType === 'earthcal') {
@@ -145,14 +165,15 @@ try {
         if ($updated === 0) {
             $insert = $pdo->prepare(
                 "INSERT INTO subscriptions_v1_tb
-                 (user_id, earthcal_calendar_id, source_type, is_active, display_enabled, created_at, updated_at)
-                 VALUES (:uid, :cid, 'earthcal', :is_active, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+                 (user_id, earthcal_calendar_id, source_type, url, url_hash, is_active, display_enabled, created_at, updated_at)
+                 VALUES (:uid, :cid, 'earthcal', :url, :url_hash, :is_active, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
             );
-            $insert->execute([
+            $payload = $makeInsertPayload($isActive, [
                 'uid' => $buwanaId,
-                'cid' => $calendarId,
-                'is_active' => $isActive ? 1 : 0
+                'ecid' => $calendarId,
+                'url' => $makeInternalUrl('earthcal', $buwanaId, $calendarId)
             ]);
+            $insert->execute($payload);
             $updated = $insert->rowCount();
         }
     } else { // webcal
