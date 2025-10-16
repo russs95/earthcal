@@ -1589,16 +1589,35 @@ async function fetchPublicCalendarsFromApi() {
 
 /** Normalize assorted backend field names to a stable UI shape. */
 function normalizeCalendarShape(c) {
+    const source = (c?.source_type || '').toString().toLowerCase();
+    const source_type = ['personal', 'earthcal', 'webcal'].includes(source) ? source : 'personal';
+    const color_hex = sanitizeHexColor(c.color_hex || c.color || c.calendar_color || '#3b82f6');
+    const emoji = sanitizeEmojiInput(c.emoji || c.cal_emoji || '');
+    const calendar_id = c.calendar_id ?? c.id ?? null;
+    const subscription_id = c.subscription_id ?? null;
+
     return {
-        calendar_id: c.calendar_id ?? c.id ?? null,
+        calendar_id: calendar_id !== null ? Number(calendar_id) : null,
+        subscription_id: subscription_id !== null ? Number(subscription_id) : null,
         name: c.name ?? c.calendar_name ?? 'Untitled Calendar',
-        is_default: toBool(c.is_default),
+        description: c.description ?? c.calendar_description ?? '',
+        is_default: toBool(c.is_default ?? c.default_my_calendar),
         is_readonly: toBool(c.is_readonly),
         visibility: (c.visibility || c.calendar_public === 1 ? 'public' : 'private'),
         category: c.category || 'personal',
-        color_hex: c.color_hex || '#3b82f6',
-        emoji: c.emoji || '',
-        tzid: c.tzid || getUserTZ()
+        color_hex,
+        color: color_hex,
+        emoji,
+        tzid: c.tzid || getUserTZ(),
+        source_type,
+        display_enabled: typeof c.display_enabled === 'boolean' ? c.display_enabled : toBool(c.display_enabled ?? true),
+        is_active: typeof c.is_active === 'boolean' ? c.is_active : toBool(c.is_active ?? true),
+        url: c.url ?? null,
+        feed_title: c.feed_title ?? null,
+        created_at: c.created_at ?? c.calendar_created ?? null,
+        updated_at: c.updated_at ?? c.last_updated ?? null,
+        last_fetch_at: c.last_fetch_at ?? null,
+        last_error: c.last_error ?? null
     };
 }
 
@@ -1660,8 +1679,20 @@ function fallbackMyCalendar() {
         visibility: 'private',
         category: 'personal',
         color_hex: '#3b82f6',
+        color: '#3b82f6',
         emoji: '📅',
-        tzid: getUserTZ()
+        tzid: getUserTZ(),
+        source_type: 'personal',
+        display_enabled: true,
+        is_active: true,
+        subscription_id: null,
+        description: '',
+        url: null,
+        feed_title: null,
+        created_at: null,
+        updated_at: null,
+        last_fetch_at: null,
+        last_error: null
     };
 }
 
