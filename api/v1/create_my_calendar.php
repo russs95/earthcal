@@ -14,6 +14,9 @@ function rand_slug(int $len = 12): string {
   $s=''; for($i=0;$i<$len;$i++) $s .= $alphabet[random_int(0, strlen($alphabet)-1)];
   return $s;
 }
+function make_internal_subscription_url(string $type, int $uid, int $calId): string {
+  return sprintf('earthcal://%s/%d/%d', $type, $uid, $calId);
+}
 
 try {
   $raw = file_get_contents('php://input');
@@ -95,6 +98,25 @@ try {
   $row = $pdo->prepare("SELECT * FROM calendars_v1_tb WHERE calendar_id = ?");
   $row->execute([$newId]);
   $c = $row->fetch();
+
+  // Ensure a matching subscription is created and active
+  $subscriptionUrl = make_internal_subscription_url('personal', $buwana_id, $newId);
+  $sub = $pdo->prepare("
+    INSERT INTO subscriptions_v1_tb
+      (user_id, calendar_id, source_type, url, url_hash, is_active, display_enabled, created_at, updated_at)
+    VALUES
+      (?, ?, 'personal', ?, ?, 1, 1, NOW(), NOW())
+    ON DUPLICATE KEY UPDATE
+      is_active = VALUES(is_active),
+      display_enabled = VALUES(display_enabled),
+      updated_at = VALUES(updated_at)
+  ");
+  $sub->execute([
+    $buwana_id,
+    $newId,
+    $subscriptionUrl,
+    hash('sha256', $subscriptionUrl),
+  ]);
 
   $pdo->commit();
 
