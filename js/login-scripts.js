@@ -391,54 +391,71 @@ function sortCalendarsByName(calendars) {
 
 function renderCalendarSelectionForm(calendars, {
     container,
+    publicContainer,
     noPersonalText,
+    noPublicText,
     addPersonalLabel,
     hostElement
 } = {}) {
-    const form = container || document.getElementById('calendar-selection-form');
-    if (!form) {
+    const personalForm = container || document.getElementById('personal-calendar-selection-form');
+    const publicForm = publicContainer || document.getElementById('public-calendar-selection-form');
+
+    if (!personalForm && !publicForm) {
         return;
     }
 
-    const emptyState = typeof noPersonalText === 'string'
-        ? noPersonalText
-        : (form.dataset.noPersonal || 'No personal calendars available.');
-    form.dataset.noPersonal = emptyState;
-
-    const addLabel = typeof addPersonalLabel === 'string'
-        ? addPersonalLabel
-        : (form.dataset.addLabel || 'Add new personal calendar');
-    form.dataset.addLabel = addLabel;
-
-    if (hostElement instanceof HTMLElement) {
-        form.__ecAddCalendarHost = hostElement;
-    } else if (!form.__ecAddCalendarHost) {
-        const fallbackHost = form.closest('#logged-in-view') || document.getElementById('logged-in-view');
-        if (fallbackHost) {
-            form.__ecAddCalendarHost = fallbackHost;
-        }
-    }
-
     const list = Array.isArray(calendars) ? calendars : [];
-    const statusNoticeHtml = `
-        <div id="cal-toggle-status" class="cal-toggle-status" role="status" aria-live="polite"></div>
-    `;
 
-    const rowsHtml = list.length > 0
-        ? list.map((cal, index) => {
-            const emoji = cal?.emoji?.trim() || '📅';
-            const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
-            const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
-            const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
-            const safeCalendarId = escapeHtml(calendarIdValue);
-            const safeSubscriptionId = escapeHtml(subscriptionIdValue);
-            const isActive = !!cal?.is_active;
-            const checkedAttr = isActive ? 'checked' : '';
-            const activeState = isActive ? 'true' : 'false';
-            const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
-            const rowId = `cal-row-${rowKey}`;
+    const getHost = () => {
+        if (hostElement instanceof HTMLElement) return hostElement;
+        const fallback = (personalForm || publicForm)?.closest('#logged-in-view') || document.getElementById('logged-in-view');
+        return fallback instanceof HTMLElement ? fallback : null;
+    };
 
-            return `
+    const overlayHost = getHost();
+
+    if (personalForm) {
+        const emptyState = typeof noPersonalText === 'string'
+            ? noPersonalText
+            : (personalForm.dataset.noPersonal || 'No personal calendars available.');
+        personalForm.dataset.noPersonal = emptyState;
+
+        const addLabel = typeof addPersonalLabel === 'string'
+            ? addPersonalLabel
+            : (personalForm.dataset.addLabel || 'Add new personal calendar');
+        personalForm.dataset.addLabel = addLabel;
+
+        personalForm.__ecAddCalendarHost = overlayHost;
+
+        const isPublicSubscription = (cal) => {
+            if (!cal) return false;
+            const visibility = (cal.visibility || '').toString().toLowerCase();
+            const source = (cal.source_type || '').toString().toLowerCase();
+            const subscriptionId = cal.subscription_id;
+            const normalizedSubscriptionId = subscriptionId === null || subscriptionId === undefined
+                ? NaN
+                : Number(subscriptionId);
+            const hasSubscription = Number.isFinite(normalizedSubscriptionId);
+            return visibility === 'public' && source !== 'personal' && hasSubscription;
+        };
+
+        const personalCalendars = list.filter((cal) => !isPublicSubscription(cal));
+
+        const rowsHtml = personalCalendars.length > 0
+            ? personalCalendars.map((cal, index) => {
+                const emoji = cal?.emoji?.trim() || '📅';
+                const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
+                const safeCalendarId = escapeHtml(calendarIdValue);
+                const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+                const isActive = !!cal?.is_active;
+                const checkedAttr = isActive ? 'checked' : '';
+                const activeState = isActive ? 'true' : 'false';
+                const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
+                const rowId = `cal-row-${rowKey}`;
+
+                return `
                 <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
@@ -460,11 +477,11 @@ function renderCalendarSelectionForm(calendars, {
                     </div>
                 </div>
             `;
-        }).join('')
-        : `<p>${escapeHtml(emptyState)}</p>`;
+            }).join('')
+            : `<p>${escapeHtml(emptyState)}</p>`;
 
-    const addRowLabel = escapeHtml(addLabel);
-    const addRowHtml = `
+        const addRowLabel = escapeHtml(addLabel);
+        const addRowHtml = `
         <div class="cal-toggle-row cal-add-personal-row">
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="${addRowLabel}">
                 <span class="cal-row-emoji" data-emoji="📅" aria-hidden="true"></span>
@@ -474,29 +491,114 @@ function renderCalendarSelectionForm(calendars, {
         </div>
     `;
 
-    form.innerHTML = `${statusNoticeHtml}${rowsHtml}${addRowHtml}`;
+        personalForm.innerHTML = `${rowsHtml}${addRowHtml}`;
 
-    const addSummary = form.querySelector('.cal-add-personal-row .cal-row-summary');
-    if (addSummary) {
-        const handleActivate = (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        const addSummary = personalForm.querySelector('.cal-add-personal-row .cal-row-summary');
+        if (addSummary) {
+            const handleActivate = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
 
-            const host = form.__ecAddCalendarHost instanceof HTMLElement
-                ? form.__ecAddCalendarHost
-                : document.getElementById('logged-in-view');
+                const host = personalForm.__ecAddCalendarHost instanceof HTMLElement
+                    ? personalForm.__ecAddCalendarHost
+                    : document.getElementById('logged-in-view');
 
-            if (typeof addNewCalendarV1 === 'function' && host) {
-                addNewCalendarV1({ host });
-            }
-        };
+                if (typeof addNewCalendarV1 === 'function' && host) {
+                    addNewCalendarV1({ host });
+                }
+            };
 
-        addSummary.addEventListener('click', handleActivate);
-        addSummary.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
-                handleActivate(event);
-            }
+            addSummary.addEventListener('click', handleActivate);
+            addSummary.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                    handleActivate(event);
+                }
+            });
+        }
+    }
+
+    if (publicForm) {
+        const emptyPublicText = typeof noPublicText === 'string'
+            ? noPublicText
+            : (publicForm.dataset.noPublic || 'No subscribed public calendars yet.');
+        publicForm.dataset.noPublic = emptyPublicText;
+
+        publicForm.__ecBrowsePublicHost = overlayHost;
+
+        const publicCalendars = list.filter((cal) => {
+            if (!cal) return false;
+            const visibility = (cal.visibility || '').toString().toLowerCase();
+            const source = (cal.source_type || '').toString().toLowerCase();
+            const subscriptionId = cal.subscription_id;
+            const normalizedSubscriptionId = subscriptionId === null || subscriptionId === undefined
+                ? NaN
+                : Number(subscriptionId);
+            return visibility === 'public' && source !== 'personal' && Number.isFinite(normalizedSubscriptionId);
         });
+
+        const publicRowsHtml = publicCalendars.length > 0
+            ? publicCalendars.map((cal, index) => {
+                const emoji = cal?.emoji?.trim() || '📅';
+                const sourceType = escapeHtml((cal?.source_type || 'earthcal').toString());
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
+                const safeCalendarId = escapeHtml(calendarIdValue);
+                const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+                const isActive = !!cal?.is_active;
+                const checkedAttr = isActive ? 'checked' : '';
+                const activeState = isActive ? 'true' : 'false';
+                const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `pub-${index}`);
+                const rowId = `public-cal-row-${rowKey}`;
+
+                return `
+                <div class="cal-toggle-row cal-public-cal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
+                    <div class="cal-row-summary">
+                        <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
+                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            }).join('')
+            : `<p>${escapeHtml(emptyPublicText)}</p>`;
+
+        const browseRowHtml = `
+        <div class="cal-toggle-row cal-browse-public-row">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Browse public calendars">
+                <span class="cal-row-emoji" data-emoji="🌐" aria-hidden="true"></span>
+                <span class="cal-row-name">Browse public calendars</span>
+                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+            </div>
+        </div>
+    `;
+
+        publicForm.innerHTML = `${publicRowsHtml}${browseRowHtml}`;
+
+        const browseSummary = publicForm.querySelector('.cal-browse-public-row .cal-row-summary');
+        if (browseSummary) {
+            const handleBrowse = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const host = publicForm.__ecBrowsePublicHost instanceof HTMLElement
+                    ? publicForm.__ecBrowsePublicHost
+                    : document.getElementById('logged-in-view');
+
+                if (typeof showPublicCalendars === 'function' && host) {
+                    showPublicCalendars({ host });
+                }
+            };
+
+            browseSummary.addEventListener('click', handleBrowse);
+            browseSummary.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                    handleBrowse(event);
+                }
+            });
+        }
     }
 }
 
@@ -507,28 +609,35 @@ if (typeof window !== 'undefined') {
 
 const CAL_CACHE_KEY_NAME = 'earthcal_calendars';
 const CAL_CACHE_AT_KEY_NAME = 'earthcal_calendars_cached_at';
-let calToggleStatusTimer = null;
 
 function showCalendarToggleStatus(isActive) {
-    const notice = document.getElementById('cal-toggle-status');
-    if (!notice) {
+    const message = isActive
+        ? '✅ Calendar is now active on your Earthcal!'
+        : '🙈 Calendar is now hidden from your Earthcal.';
+
+    if (typeof setSyncStatus === 'function') {
+        setSyncStatus(message, '', false, { temporary: true, duration: 3000 });
         return;
     }
 
-    notice.textContent = isActive
-        ? '✅ Calendar is now active on your earthcal!'
-        : '🙈Calendar is now hidden from your Earthcal.';
-
-    notice.classList.add('is-visible');
-
-    if (calToggleStatusTimer) {
-        clearTimeout(calToggleStatusTimer);
+    const syncStatus = document.getElementById('sync-status');
+    if (!syncStatus) {
+        return;
     }
 
-    calToggleStatusTimer = window.setTimeout(() => {
-        notice.classList.remove('is-visible');
-        calToggleStatusTimer = null;
-    }, 1000);
+    const previousContent = syncStatus.innerHTML;
+    syncStatus.textContent = message;
+
+    if (syncStatus.__toggleTimer) {
+        clearTimeout(syncStatus.__toggleTimer);
+    }
+
+    syncStatus.__toggleTimer = window.setTimeout(() => {
+        syncStatus.innerHTML = typeof syncStatus.dataset?.defaultHtml === 'string'
+            ? syncStatus.dataset.defaultHtml
+            : previousContent;
+        syncStatus.__toggleTimer = null;
+    }, 3000);
 }
 
 function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceType, isActive }) {
@@ -674,12 +783,10 @@ async function showLoggedInView(calendars = []) {
             </div>
 
 
-            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="ec-browse-public-calendars-btn" class="confirmation-blur-button ">
-                    + Add public Calendars
-                </button>
                 <button type="button" class="confirmation-blur-button style="background-color:red">
                     + Connect Google Calendar
                 </button>
@@ -693,7 +800,8 @@ async function showLoggedInView(calendars = []) {
     `;
 
     renderCalendarSelectionForm(sortedCalendars, {
-        container: loggedInView.querySelector('#calendar-selection-form'),
+        container: loggedInView.querySelector('#personal-calendar-selection-form'),
+        publicContainer: loggedInView.querySelector('#public-calendar-selection-form'),
         noPersonalText: noPersonal,
         addPersonalLabel,
         hostElement: loggedInView
@@ -711,15 +819,6 @@ async function showLoggedInView(calendars = []) {
         }
     }
 
-    const browsePublicButton = loggedInView.querySelector('#ec-browse-public-calendars-btn');
-    if (browsePublicButton) {
-        browsePublicButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (typeof showPublicCalendars === 'function') {
-                showPublicCalendars({ host: loggedInView });
-            }
-        });
-    }
 }
 
 
