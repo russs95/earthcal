@@ -2526,6 +2526,14 @@ color: #b2b1b1;
     overflow-x: hidden;
 }
 
+#reg-down-button {
+    position: sticky;
+    top: 12px;
+    align-self: flex-end;
+    margin: 12px 12px 0 0;
+    z-index: 60;
+}
+
 #reg-up-button {
     border: none;
     cursor: pointer;
@@ -2886,7 +2894,7 @@ INFO MODAL
 }
 
 .ec-emoji-selector {
-    position: absolute;
+    position: fixed;
     inset: 0;
     display: none;
     align-items: center;

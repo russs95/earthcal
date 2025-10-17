@@ -377,6 +377,134 @@ function buildLegacyCalendarCache(calendars) {
     };
 }
 
+function sortCalendarsByName(calendars) {
+    if (!Array.isArray(calendars)) {
+        return [];
+    }
+
+    return [...calendars].sort((a, b) => {
+        const nameA = (a?.name || '').toLocaleLowerCase();
+        const nameB = (b?.name || '').toLocaleLowerCase();
+        return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+    });
+}
+
+function renderCalendarSelectionForm(calendars, {
+    container,
+    noPersonalText,
+    addPersonalLabel,
+    hostElement
+} = {}) {
+    const form = container || document.getElementById('calendar-selection-form');
+    if (!form) {
+        return;
+    }
+
+    const emptyState = typeof noPersonalText === 'string'
+        ? noPersonalText
+        : (form.dataset.noPersonal || 'No personal calendars available.');
+    form.dataset.noPersonal = emptyState;
+
+    const addLabel = typeof addPersonalLabel === 'string'
+        ? addPersonalLabel
+        : (form.dataset.addLabel || 'Add new personal calendar');
+    form.dataset.addLabel = addLabel;
+
+    if (hostElement instanceof HTMLElement) {
+        form.__ecAddCalendarHost = hostElement;
+    } else if (!form.__ecAddCalendarHost) {
+        const fallbackHost = form.closest('#logged-in-view') || document.getElementById('logged-in-view');
+        if (fallbackHost) {
+            form.__ecAddCalendarHost = fallbackHost;
+        }
+    }
+
+    const list = Array.isArray(calendars) ? calendars : [];
+    const statusNoticeHtml = `
+        <div id="cal-toggle-status" class="cal-toggle-status" role="status" aria-live="polite"></div>
+    `;
+
+    const rowsHtml = list.length > 0
+        ? list.map((cal, index) => {
+            const emoji = cal?.emoji?.trim() || '📅';
+            const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
+            const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+            const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
+            const safeCalendarId = escapeHtml(calendarIdValue);
+            const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+            const isActive = !!cal?.is_active;
+            const checkedAttr = isActive ? 'checked' : '';
+            const activeState = isActive ? 'true' : 'false';
+            const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
+            const rowId = `cal-row-${rowKey}`;
+
+            return `
+                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
+                    <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
+                        <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
+                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="cal-row-details" data-calendar-id="${safeCalendarId}" data-loaded="false">
+                        <div class="cal-details-content" aria-live="polite">
+                            <p class="cal-details-placeholder">Expand to load calendar details.</p>
+                        </div>
+                        <div class="cal-row-actions">
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('')
+        : `<p>${escapeHtml(emptyState)}</p>`;
+
+    const addRowLabel = escapeHtml(addLabel);
+    const addRowHtml = `
+        <div class="cal-toggle-row cal-add-personal-row">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="${addRowLabel}">
+                <span class="cal-row-emoji" data-emoji="📅" aria-hidden="true"></span>
+                <span class="cal-row-name">${addRowLabel}</span>
+                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+            </div>
+        </div>
+    `;
+
+    form.innerHTML = `${statusNoticeHtml}${rowsHtml}${addRowHtml}`;
+
+    const addSummary = form.querySelector('.cal-add-personal-row .cal-row-summary');
+    if (addSummary) {
+        const handleActivate = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const host = form.__ecAddCalendarHost instanceof HTMLElement
+                ? form.__ecAddCalendarHost
+                : document.getElementById('logged-in-view');
+
+            if (typeof addNewCalendarV1 === 'function' && host) {
+                addNewCalendarV1({ host });
+            }
+        };
+
+        addSummary.addEventListener('click', handleActivate);
+        addSummary.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                handleActivate(event);
+            }
+        });
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.sortCalendarsByName = sortCalendarsByName;
+    window.renderCalendarSelectionForm = renderCalendarSelectionForm;
+}
+
 const CAL_CACHE_KEY_NAME = 'earthcal_calendars';
 const CAL_CACHE_AT_KEY_NAME = 'earthcal_calendars_cached_at';
 let calToggleStatusTimer = null;
@@ -486,11 +614,13 @@ async function showLoggedInView(calendars = []) {
 
     const lang = window.userLanguage?.toLowerCase() || 'en';
     const translations = await loadTranslations(lang);
+    const loggedInStrings = translations.loggedIn || {};
     const {
         welcome,
         syncingInfo,
-        noPersonal
-    } = translations.loggedIn;
+        noPersonal,
+        addPersonal: addPersonalLabel = 'Add new personal calendar'
+    } = loggedInStrings;
 
     const fallbackCalendars = Array.isArray(calendars) ? [...calendars] : [];
     let calendarList = [];
@@ -526,54 +656,7 @@ async function showLoggedInView(calendars = []) {
         console.debug('[showLoggedInView] Unable to refresh legacy calendar cache:', err);
     }
 
-    calendarList.sort((a, b) => {
-        const nameA = (a?.name || '').toLocaleLowerCase();
-        const nameB = (b?.name || '').toLocaleLowerCase();
-        return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
-    });
-
-    const statusNoticeHtml = `
-        <div id="cal-toggle-status" class="cal-toggle-status" role="status" aria-live="polite"></div>
-    `;
-
-    const personalCalendarHTML = statusNoticeHtml + (calendarList.length > 0
-        ? calendarList.map((cal, index) => {
-            const emoji = cal?.emoji?.trim() || '📅';
-            const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
-            const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
-            const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
-            const safeCalendarId = escapeHtml(calendarIdValue);
-            const safeSubscriptionId = escapeHtml(subscriptionIdValue);
-            const isActive = !!cal?.is_active;
-            const checkedAttr = isActive ? 'checked' : '';
-            const activeState = isActive ? 'true' : 'false';
-            const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
-            const rowId = `cal-row-${rowKey}`;
-
-            return `
-                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
-                    <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
-                        <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
-                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
-                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
-                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="cal-row-details" data-calendar-id="${safeCalendarId}" data-loaded="false">
-                        <div class="cal-details-content" aria-live="polite">
-                            <p class="cal-details-placeholder">Expand to load calendar details.</p>
-                        </div>
-                        <div class="cal-row-actions">
-                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
-                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
-                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('')
-        : `<p>${noPersonal}</p>`);
+    const sortedCalendars = sortCalendarsByName(calendarList);
 
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
@@ -591,14 +674,9 @@ async function showLoggedInView(calendars = []) {
             </div>
 
 
-            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;">
-                ${personalCalendarHTML}
-            </div>
+            <div id="calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="ec-add-personal-calendar-btn" class="confirmation-blur-button ">
-                    + New personal calendar
-                </button>
                 <button type="button" id="ec-browse-public-calendars-btn" class="confirmation-blur-button ">
                     + Add public Calendars
                 </button>
@@ -614,6 +692,13 @@ async function showLoggedInView(calendars = []) {
         </div>
     `;
 
+    renderCalendarSelectionForm(sortedCalendars, {
+        container: loggedInView.querySelector('#calendar-selection-form'),
+        noPersonalText: noPersonal,
+        addPersonalLabel,
+        hostElement: loggedInView
+    });
+
     loggedInView.style.display = "block";
 
     const syncStatusDiv = loggedInView.querySelector('#sync-status');
@@ -624,16 +709,6 @@ async function showLoggedInView(calendars = []) {
             clearTimeout(syncStatusDiv.__resetTimer);
             syncStatusDiv.__resetTimer = null;
         }
-    }
-
-    const addPersonalButton = loggedInView.querySelector('#ec-add-personal-calendar-btn');
-    if (addPersonalButton) {
-        addPersonalButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (typeof addNewCalendarV1 === 'function') {
-                addNewCalendarV1({ host: loggedInView });
-            }
-        });
     }
 
     const browsePublicButton = loggedInView.querySelector('#ec-browse-public-calendars-btn');

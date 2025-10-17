@@ -753,6 +753,29 @@ margin-right: auto;
     content: "ℹ️";
 }
 
+.cal-add-personal-row .cal-row-summary {
+    cursor: pointer;
+}
+
+.cal-add-personal-row .cal-row-summary:focus-visible {
+    outline: 2px solid var(--toggle-bg-active, #4e5255);
+    outline-offset: 2px;
+}
+
+.cal-add-personal-row .cal-row-emoji::before,
+.cal-add-personal-row:hover .cal-row-emoji::before {
+    content: attr(data-emoji);
+}
+
+.cal-row-action-icon {
+    margin-left: auto;
+    font-size: 1.4rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .cal-row-toggle {
     margin-left: auto;
 }
