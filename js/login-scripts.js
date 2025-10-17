@@ -817,8 +817,9 @@ async function showLoggedInView(calendars = []) {
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="connect-google-calendar-button" class="confirmation-blur-button">
-                    + Connect Google Calendar
+                <button type="button" id="connect-google-calendar-button" class="confirmation-blur-button" style="background-color:#d93025;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;border:none;">
+                    <img src="assets/icons/google-g.png" alt="" width="20" height="20" aria-hidden="true">
+                    <span>Add Google Calendar</span>
                 </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ✏️ Edit Buwana Profile
@@ -880,20 +881,26 @@ function openGoogleCalendarConnectModal() {
                 <input id="ec-google-calendar-url" type="url" name="google_calendar_url" required
                        placeholder="https://calendar.google.com/calendar/..."
                        class="blur-form-field" style="width:100%;text-align:left;">
+                <p id="ec-google-calendar-feedback" aria-live="polite" style="margin:0;color:#d93025;font-size:0.9rem;min-height:1.2em;"></p>
                 <button type="submit" class="stellar-submit">Connect</button>
             </form>
         </div>
     `;
 
     const form = document.getElementById('ec-google-calendar-form');
+    const feedbackEl = document.getElementById('ec-google-calendar-feedback');
+    if (feedbackEl) {
+        feedbackEl.textContent = '';
+    }
     if (form) {
+        const submitButton = form.querySelector('button[type="submit"]');
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const urlInput = document.getElementById('ec-google-calendar-url');
             const calendarUrl = urlInput ? urlInput.value.trim() : '';
 
             if (typeof connectGcal === 'function') {
-                connectGcal(calendarUrl);
+                connectGcal(calendarUrl, { form, submitButton, feedbackElement: feedbackEl });
             } else {
                 console.warn('[GoogleCalendar] connectGcal is not defined.');
             }
