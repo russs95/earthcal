@@ -452,6 +452,10 @@ function renderCalendarSelectionForm(calendars, {
                 const isActive = !!cal?.is_active;
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
+                const calColor = (cal?.cal_color || '').toString().trim();
+                const safeCalColor = escapeHtml(calColor);
+                const toggleActiveColor = escapeHtml(calColor || '#2ecc71');
+                const toggleStyle = isActive ? ` style="--toggle-bg-active: ${toggleActiveColor};"` : '';
                 const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `idx-${index}`);
                 const rowId = `cal-row-${rowKey}`;
 
@@ -460,8 +464,8 @@ function renderCalendarSelectionForm(calendars, {
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
-                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
-                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -484,7 +488,7 @@ function renderCalendarSelectionForm(calendars, {
         const addRowHtml = `
         <div class="cal-toggle-row cal-add-personal-row">
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="${addRowLabel}">
-                <span class="cal-row-emoji" data-emoji="📅" aria-hidden="true"></span>
+                <span class="cal-row-emoji" data-emoji="👥" aria-hidden="true"></span>
                 <span class="cal-row-name">${addRowLabel}</span>
                 <span class="cal-row-action-icon" aria-hidden="true">➕</span>
             </div>
@@ -547,6 +551,10 @@ function renderCalendarSelectionForm(calendars, {
                 const isActive = !!cal?.is_active;
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
+                const calColor = (cal?.cal_color || '').toString().trim();
+                const safeCalColor = escapeHtml(calColor);
+                const toggleActiveColor = escapeHtml(calColor || '#2ecc71');
+                const toggleStyle = isActive ? ` style="--toggle-bg-active: ${toggleActiveColor};"` : '';
                 const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `pub-${index}`);
                 const rowId = `public-cal-row-${rowKey}`;
 
@@ -555,8 +563,8 @@ function renderCalendarSelectionForm(calendars, {
                     <div class="cal-row-summary">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
-                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();">
-                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" onchange="toggleV1CalVisibility(this)">
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -709,12 +717,34 @@ function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceTyp
 
 async function showLoggedInView(calendars = []) {
     const loggedInView = document.getElementById("logged-in-view");
+    const registrationContainer = document.getElementById('registration-container');
+    const footer = document.getElementById('registration-footer');
+    const loggedOutView = document.getElementById('login-form-section');
+    const upArrow = document.getElementById('reg-up-button');
+    const downArrow = document.getElementById('reg-down-button');
 
     // ✅ Validate login status first
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
     if (!ok || !payload?.buwana_id) {
         console.warn("❌ Cannot show logged-in view — user not authenticated.");
         return;
+    }
+
+    if (registrationContainer) {
+        registrationContainer.classList.add('expanded');
+        registrationContainer.classList.remove('collapsing');
+    }
+
+    if (loggedOutView) {
+        loggedOutView.style.display = 'none';
+    }
+
+    if (loggedInView) {
+        loggedInView.style.display = 'block';
+    }
+
+    if (footer && upArrow && downArrow) {
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
     }
 
     const first_name = payload.given_name || "Earthling";
@@ -787,7 +817,7 @@ async function showLoggedInView(calendars = []) {
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" class="confirmation-blur-button style="background-color:red">
+                <button type="button" id="connect-google-calendar-button" class="confirmation-blur-button">
                     + Connect Google Calendar
                 </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
@@ -807,6 +837,14 @@ async function showLoggedInView(calendars = []) {
         hostElement: loggedInView
     });
 
+    const connectGoogleButton = loggedInView.querySelector('#connect-google-calendar-button');
+    if (connectGoogleButton) {
+        connectGoogleButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            openGoogleCalendarConnectModal();
+        });
+    }
+
     loggedInView.style.display = "block";
 
     const syncStatusDiv = loggedInView.querySelector('#sync-status');
@@ -819,6 +857,56 @@ async function showLoggedInView(calendars = []) {
         }
     }
 
+}
+
+function openGoogleCalendarConnectModal() {
+    const modal = document.getElementById('form-modal-message');
+    const modalContent = document.getElementById('modal-content');
+
+    if (!modal || !modalContent) {
+        console.warn('[GoogleCalendar] Modal container not available.');
+        return;
+    }
+
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    document.body.style.overflowY = 'hidden';
+
+    modalContent.innerHTML = `
+        <div class="add-date-form" style="margin:auto;">
+            <h3 class="ec-form-title">Please add the URL of a public Google Calendar to sync it with your Earthcal.</h3>
+            <form id="ec-google-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:16px;">
+                <label class="ec-visually-hidden" for="ec-google-calendar-url">Google Calendar URL</label>
+                <input id="ec-google-calendar-url" type="url" name="google_calendar_url" required
+                       placeholder="https://calendar.google.com/calendar/..."
+                       class="blur-form-field" style="width:100%;text-align:left;">
+                <button type="submit" class="stellar-submit">Connect</button>
+            </form>
+        </div>
+    `;
+
+    const form = document.getElementById('ec-google-calendar-form');
+    if (form) {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById('ec-google-calendar-url');
+            const calendarUrl = urlInput ? urlInput.value.trim() : '';
+
+            if (typeof connectGcal === 'function') {
+                connectGcal(calendarUrl);
+            } else {
+                console.warn('[GoogleCalendar] connectGcal is not defined.');
+            }
+        });
+    }
+
+    const urlField = document.getElementById('ec-google-calendar-url');
+    if (urlField) {
+        urlField.focus();
+        if (typeof urlField.select === 'function') {
+            urlField.select();
+        }
+    }
 }
 
 
@@ -1345,6 +1433,16 @@ async function toggleV1CalVisibility(toggleInput) {
         }
 
         toggleInput.dataset.active = desiredActive ? 'true' : 'false';
+        const toggleLabel = toggleInput.closest('.toggle-switch');
+        if (toggleLabel) {
+            if (desiredActive) {
+                const rawColor = (toggleInput.dataset.calColor || '').trim();
+                const resolvedColor = rawColor || '#2ecc71';
+                toggleLabel.style.setProperty('--toggle-bg-active', resolvedColor);
+            } else {
+                toggleLabel.style.removeProperty('--toggle-bg-active');
+            }
+        }
         showCalendarToggleStatus(desiredActive);
         updateCachedCalendarActiveState({
             calendarId,
@@ -1689,27 +1787,68 @@ async function sendDownRegistration() {
     const upArrow      = document.getElementById("reg-up-button");
     const downArrow    = document.getElementById("reg-down-button");
 
-    container.classList.remove("expanded");
+    let cleanupExecuted = false;
+    const runCleanup = async () => {
+        if (cleanupExecuted) return;
+        cleanupExecuted = true;
 
-    setTimeout(async () => {
-        footer.style.height = "25px";
-        loggedOutView.style.display = "none";
-        upArrow.style.display = "block";
+        if (footer) {
+            footer.style.height = "25px";
+            footer.style.marginBottom = "";
+        }
 
-        // 🧹 Purge stale localStorage calendars first
+        if (loggedOutView) {
+            loggedOutView.style.display = "none";
+        }
+
+        if (upArrow) {
+            upArrow.style.display = "block";
+        }
+
+        if (downArrow) {
+            downArrow.style.display = "none";
+        }
+
         const subscribedIds = getSubscribedCalendarIdsFromCache();
         purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds);
 
-        // 🔁 Repaint UI with the now-clean cache
-        calendarRefresh();
+        if (typeof calendarRefresh === 'function') {
+            calendarRefresh();
+        }
 
-        // 🔄 Optionally re-sync in background to reconcile with server
         try {
             await syncDatecycles();
         } catch (e) {
             console.warn("syncDatecycles failed after closing modal:", e);
         }
-    }, 300); // Match your CSS transition
+    };
+
+    if (container) {
+        container.classList.remove("expanded");
+        container.classList.add('collapsing');
+
+        const handleTransitionEnd = async (event) => {
+            if (event.target !== container || event.propertyName !== 'transform') {
+                return;
+            }
+            container.removeEventListener('transitionend', handleTransitionEnd);
+            container.classList.remove('collapsing');
+            await runCleanup();
+        };
+
+        container.addEventListener('transitionend', handleTransitionEnd);
+
+        window.setTimeout(async () => {
+            if (!container.classList.contains('collapsing')) {
+                return;
+            }
+            container.removeEventListener('transitionend', handleTransitionEnd);
+            container.classList.remove('collapsing');
+            await runCleanup();
+        }, 450);
+    } else {
+        await runCleanup();
+    }
 }
 
 

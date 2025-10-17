@@ -2556,13 +2556,13 @@ color: #b2b1b1;
     touch-action: none;
     pointer-events: none;
     transition: transform 0.3s ease;
-    transform: translateY(calc(100% - -5px)); /* collapsed state */
+    transform: translateY(100%);
 }
 
 /* Expanded: fully slid up */
 #registration-container.expanded {
     transform: translateY(0);
-    height: 94vh;
+    height: 100vh;
 }
 
 /* Allow pointer events only when expanded */
