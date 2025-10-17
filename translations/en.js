@@ -123,6 +123,7 @@ settings: {
         welcome: "Welcome",
         syncingInfo: "You are syncing the following personal and public calendars:",
         noPersonal: "No personal calendars available.",
+        addPersonal: "Add new personal calendar",
         noPublic: "No public calendars available.",
         syncNow: "Sync Now",
         logout: "Logout",

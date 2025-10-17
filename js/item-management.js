@@ -440,6 +440,13 @@ function buildEmojiPicker() {
 function ensureGlobalEmojiPicker() {
     const selector = document.getElementById('ec-global-emoji-selector');
     if (!selector) return null;
+    if (typeof document !== 'undefined' && document.body && selector.parentElement !== document.body) {
+        try {
+            document.body.appendChild(selector);
+        } catch (err) {
+            console.debug('[ensureGlobalEmojiPicker] unable to reparent selector', err);
+        }
+    }
     const grid = selector.querySelector('.ec-emoji-picker');
     if (!grid) return null;
 
@@ -895,7 +902,39 @@ async function addNewCalendarV1(hostTarget) {
                 teardownOverlay();
 
                 if (typeof loadUserCalendars === 'function') {
-                    await loadUserCalendars(user.buwana_id, { force: true });
+                    let updatedCalendars = [];
+                    try {
+                        updatedCalendars = await loadUserCalendars(user.buwana_id, { force: true });
+                    } catch (err) {
+                        console.debug('[addNewCalendarV1] Unable to refresh calendars after create:', err);
+                    }
+
+                    let sortedCalendars = Array.isArray(updatedCalendars) ? [...updatedCalendars] : [];
+                    if (typeof sortCalendarsByName === 'function') {
+                        try {
+                            sortedCalendars = sortCalendarsByName(updatedCalendars);
+                        } catch (err) {
+                            console.debug('[addNewCalendarV1] Unable to sort calendars for render:', err);
+                        }
+                    }
+
+                    try {
+                        sessionStorage.setItem('user_calendars_v1', JSON.stringify(updatedCalendars || []));
+                    } catch (err) {
+                        console.debug('[addNewCalendarV1] Unable to refresh v1 calendar cache:', err);
+                    }
+
+                    if (typeof buildLegacyCalendarCache === 'function') {
+                        try {
+                            sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(updatedCalendars || [])));
+                        } catch (err) {
+                            console.debug('[addNewCalendarV1] Unable to refresh legacy calendar cache:', err);
+                        }
+                    }
+
+                    if (typeof renderCalendarSelectionForm === 'function') {
+                        renderCalendarSelectionForm(sortedCalendars, { hostElement });
+                    }
                 }
 
             } catch (err) {
