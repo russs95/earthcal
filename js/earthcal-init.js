@@ -56,8 +56,8 @@ async function initCalendar() {
         "js/breakouts.js",
         "js/set-targetdate.js",
         "js/planet-orbits.js",
-        "js/login-scripts.js?v=6",
-        "js/item-management.js?v=5.4",
+        "js/login-scripts.js?v=7.2",
+        "js/item-management.js?v=5.5",
         "js/time-setting.js",
         "js/calendar-scripts.js",
     ];
