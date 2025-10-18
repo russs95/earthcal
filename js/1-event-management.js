@@ -525,6 +525,17 @@ async function highlightDateCycles(targetDate) {
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
 
+    const previouslyDecoratedPaths = document.querySelectorAll('path[data-datecycle-tooltip], path[data-datecycle-title], path[data-datecycle-count], path[style*="--datecycle-highlight-color"]');
+    previouslyDecoratedPaths.forEach(path => {
+        path.removeAttribute('data-datecycle-tooltip');
+        path.removeAttribute('data-datecycle-count');
+        if (path.hasAttribute('data-datecycle-title')) {
+            path.removeAttribute('title');
+            path.removeAttribute('data-datecycle-title');
+        }
+        path.style.removeProperty('--datecycle-highlight-color');
+    });
+
     // 🔹 Fetch all dateCycles from storage or API
     const dateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
 
@@ -616,6 +627,8 @@ async function highlightDateCycles(targetDate) {
     await updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
 
     // Highlight corresponding date paths ending with "-day-marker"
+    const pathEventMap = new Map();
+
     dateCycleEvents.forEach(dc => {
         const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
         const formattedAnnual = `-${dc.day}-${dc.month}-`; // For annual events
@@ -629,10 +642,56 @@ async function highlightDateCycles(targetDate) {
         }
 
         matchingPaths.forEach(path => {
-            if (path.id.endsWith("-day-marker")) {
-                path.classList.add("date_event");
+            if (!path.id.endsWith("-day-marker")) {
+                return;
             }
+
+            path.classList.add("date_event");
+
+            const entry = pathEventMap.get(path) || [];
+            const isPinned = String(dc.pinned) === "1";
+            const emoji = dc.date_emoji || (isPinned ? "📌" : "⬤");
+            const sanitizedTime = (dc.time && dc.time !== 'under dev' && dc.time !== '00:00') ? dc.time : null;
+            const allDay = Number(dc.all_day) === 1 || (!sanitizedTime && !dc.dtstart_utc);
+
+            entry.push({
+                emoji,
+                title: dc.title || "Untitled Event",
+                calendar: dc.cal_name || "",
+                time: sanitizedTime,
+                allDay,
+                color: dc.datecycle_color || dc.cal_color || '#3b82f6',
+                pinned: isPinned
+            });
+
+            pathEventMap.set(path, entry);
         });
+    });
+
+    pathEventMap.forEach((events, path) => {
+        if (!Array.isArray(events) || events.length === 0) {
+            return;
+        }
+
+        const tooltipLines = events.map(event => {
+            const pinPrefix = event.pinned ? '📌 ' : '';
+            const timeLabel = event.allDay ? window.translations?.allDay || 'All Day' : (event.time && event.time !== '00:00' ? ` @ ${event.time}` : '');
+            const calendarLabel = event.calendar ? ` • ${event.calendar}` : '';
+            return `${pinPrefix}${event.emoji} ${event.title}${timeLabel}${calendarLabel}`.trim();
+        });
+
+        const tooltip = tooltipLines.join('\n');
+        if (tooltip) {
+            path.setAttribute('data-datecycle-tooltip', tooltip);
+            path.setAttribute('data-datecycle-count', String(events.length));
+            path.setAttribute('data-datecycle-title', '1');
+            path.setAttribute('title', tooltip);
+        }
+
+        const highlightColor = events.find(ev => ev.color)?.color;
+        if (highlightColor) {
+            path.style.setProperty('--datecycle-highlight-color', highlightColor);
+        }
     });
 }
 
