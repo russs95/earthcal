@@ -2546,7 +2546,7 @@ color: #b2b1b1;
 }
 
 #reg-down-button {
-    position: sticky;
+    position: fixed;
     top: 12px;
     align-self: flex-end;
     margin: 12px 12px 0 0;
@@ -2652,8 +2652,6 @@ color: #b2b1b1;
     }
 
 }
-
-
 
 
 /*-----------------------------------------
