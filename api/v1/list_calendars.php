@@ -107,7 +107,8 @@ try {
     $normalize = static function(array $r, string $source): array {
         return [
             'calendar_id'    => isset($r['calendar_id']) ? (int)$r['calendar_id'] : null,
-            'name'           => $r['name'] ?? '(Unnamed)',
+            'subscription_id' => isset($r['subscription_id']) ? (int)$r['subscription_id'] : null,
+            'name'            => $r['name'] ?? '(Unnamed)',
             'description'    => $r['description'] ?? null,
             'emoji'          => $r['emoji'] ?? $r['cal_emoji'] ?? '📅',
             'color'          => $r['color'] ?? $r['cal_color'] ?? '#3b82f6',
