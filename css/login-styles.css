@@ -780,6 +780,28 @@ margin-right: auto;
     margin-left: auto;
 }
 
+.ec-public-cal-checkbox {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.ec-public-cal-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.ec-public-cal-checkbox.is-loading {
+    opacity: 0.65;
+}
+
+.ec-public-cal-checkbox.is-active span {
+    color: var(--toggle-bg-active, #4e5255);
+}
+
 #logged-in-view .toggle-switch {
     position: relative;
     display: inline-block;

@@ -1154,30 +1154,109 @@ async function showPublicCalendars(hostTarget) {
         nameSpan.className = 'cal-row-name';
         nameSpan.textContent = cal?.name || 'Untitled Calendar';
 
-        const toggleLabel = document.createElement('label');
-        toggleLabel.className = 'toggle-switch cal-row-toggle';
-        toggleLabel.addEventListener('click', (event) => event.stopPropagation());
+        const subscribeLabel = document.createElement('label');
+        subscribeLabel.className = 'ec-public-cal-checkbox';
+        subscribeLabel.title = 'Subscribe to this calendar';
+        subscribeLabel.addEventListener('click', (event) => event.stopPropagation());
 
-        const toggleInput = document.createElement('input');
-        toggleInput.type = 'checkbox';
-        toggleInput.checked = !!cal?.is_subscribed;
-        toggleInput.setAttribute('aria-label', 'Toggle calendar subscription');
-        toggleInput.addEventListener('click', (event) => event.stopPropagation());
-        toggleInput.addEventListener('change', (event) => {
+        const subscribeCheckbox = document.createElement('input');
+        subscribeCheckbox.type = 'checkbox';
+        subscribeCheckbox.checked = !!cal?.is_subscribed;
+        subscribeCheckbox.setAttribute('aria-label', 'Subscribe to this calendar');
+        subscribeCheckbox.addEventListener('click', (event) => event.stopPropagation());
+
+        const subscribeText = document.createElement('span');
+
+        const updateSubscribeState = () => {
+            const isChecked = !!subscribeCheckbox.checked;
+            subscribeLabel.classList.toggle('is-active', isChecked);
+            subscribeCheckbox.setAttribute(
+                'aria-label',
+                isChecked ? 'Unsubscribe from this calendar' : 'Subscribe to this calendar'
+            );
+            subscribeLabel.title = isChecked ? 'Unsubscribe from this calendar' : 'Subscribe to this calendar';
+            subscribeText.textContent = isChecked ? 'Subscribed' : 'Subscribe';
+        };
+
+        updateSubscribeState();
+
+        subscribeCheckbox.addEventListener('change', async (event) => {
             event.stopPropagation();
-            if (cal) cal.is_subscribed = event.target.checked;
-            console.log('[showPublicCalendars] toggle subscription placeholder', cal?.calendar_id, event.target.checked);
+
+            const desired = !!event.target.checked;
+            const previous = !desired;
+            const calendarNumericId = Number(cal?.calendar_id);
+
+            if (!Number.isFinite(calendarNumericId)) {
+                console.warn('[showPublicCalendars] Missing calendar_id for public calendar subscribe.');
+                event.target.checked = previous;
+                updateSubscribeState();
+                alert('Unable to identify this calendar. Please try again later.');
+                return;
+            }
+
+            if (typeof toggleSubscription !== 'function') {
+                console.warn('[showPublicCalendars] toggleSubscription function is unavailable.');
+                event.target.checked = previous;
+                updateSubscribeState();
+                alert('Subscriptions are unavailable right now. Please try again later.');
+                return;
+            }
+
+            subscribeLabel.classList.add('is-loading');
+            subscribeCheckbox.disabled = true;
+            subscribeText.textContent = desired ? 'Subscribing…' : 'Removing…';
+
+            try {
+                const result = await toggleSubscription(calendarNumericId, desired);
+                if (!result?.success) {
+                    event.target.checked = previous;
+                    updateSubscribeState();
+                    return;
+                }
+
+                if (desired) {
+                    cal.is_subscribed = true;
+                    cal.is_active = true;
+                } else {
+                    cal.is_subscribed = false;
+                    cal.is_active = false;
+                }
+
+                if (Array.isArray(result.calendars)) {
+                    const match = result.calendars.find((entry) => Number(entry?.calendar_id) === calendarNumericId);
+                    if (match) {
+                        cal.subscription_id = match.subscription_id;
+                        cal.is_active = !!match.is_active;
+                        if (match.source_type) {
+                            cal.source_type = match.source_type;
+                        }
+                    } else if (!desired) {
+                        delete cal.subscription_id;
+                    }
+
+                    if (typeof refreshLoggedInCalendarLists === 'function') {
+                        refreshLoggedInCalendarLists(result.calendars);
+                    }
+                } else if (typeof refreshLoggedInCalendarLists === 'function') {
+                    refreshLoggedInCalendarLists();
+                }
+            } catch (err) {
+                console.error('[showPublicCalendars] Unable to update subscription:', err);
+                event.target.checked = previous;
+            } finally {
+                subscribeCheckbox.disabled = false;
+                subscribeLabel.classList.remove('is-loading');
+                updateSubscribeState();
+            }
         });
 
-        const toggleSlider = document.createElement('span');
-        toggleSlider.className = 'toggle-slider';
-
-        toggleLabel.appendChild(toggleInput);
-        toggleLabel.appendChild(toggleSlider);
+        subscribeLabel.appendChild(subscribeCheckbox);
+        subscribeLabel.appendChild(subscribeText);
 
         summary.appendChild(emojiSpan);
         summary.appendChild(nameSpan);
-        summary.appendChild(toggleLabel);
+        summary.appendChild(subscribeLabel);
 
         const details = document.createElement('div');
         details.className = 'cal-row-details';

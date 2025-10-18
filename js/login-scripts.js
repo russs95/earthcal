@@ -314,6 +314,22 @@ function updateFooterAndArrowUI(footer, upArrow, downArrow) {
 }
 
 
+function setRegistrationFooterBackground(mode) {
+    const footer = document.getElementById('registration-footer');
+    if (!footer) {
+        return;
+    }
+
+    footer.classList.remove('showing-login', 'showing-logged-in');
+
+    if (mode === 'login') {
+        footer.classList.add('showing-login');
+    } else if (mode === 'logged-in') {
+        footer.classList.add('showing-logged-in');
+    }
+}
+
+
 // If not logged in then...
 
 
@@ -610,9 +626,56 @@ function renderCalendarSelectionForm(calendars, {
     }
 }
 
+
+function refreshLoggedInCalendarLists(nextCalendars) {
+    const loggedInView = document.getElementById('logged-in-view');
+    if (!(loggedInView instanceof HTMLElement)) {
+        return;
+    }
+
+    const personalForm = loggedInView.querySelector('#personal-calendar-selection-form');
+    const publicForm = loggedInView.querySelector('#public-calendar-selection-form');
+
+    if (!personalForm && !publicForm) {
+        return;
+    }
+
+    let calendars = Array.isArray(nextCalendars) ? nextCalendars : null;
+
+    if (!calendars) {
+        try {
+            const cachedRaw = sessionStorage.getItem('user_calendars_v1');
+            if (cachedRaw) {
+                const parsed = JSON.parse(cachedRaw);
+                if (Array.isArray(parsed)) {
+                    calendars = parsed;
+                }
+            }
+        } catch (err) {
+            console.debug('[refreshLoggedInCalendarLists] unable to parse cached calendars', err);
+        }
+    }
+
+    if (!Array.isArray(calendars)) {
+        calendars = [];
+    }
+
+    const sortedCalendars = sortCalendarsByName(calendars);
+
+    renderCalendarSelectionForm(sortedCalendars, {
+        container: personalForm || undefined,
+        publicContainer: publicForm || undefined,
+        noPersonalText: personalForm?.dataset?.noPersonal,
+        noPublicText: publicForm?.dataset?.noPublic,
+        addPersonalLabel: personalForm?.dataset?.addLabel,
+        hostElement: loggedInView
+    });
+}
+
 if (typeof window !== 'undefined') {
     window.sortCalendarsByName = sortCalendarsByName;
     window.renderCalendarSelectionForm = renderCalendarSelectionForm;
+    window.refreshLoggedInCalendarLists = refreshLoggedInCalendarLists;
 }
 
 const CAL_CACHE_KEY_NAME = 'earthcal_calendars';
@@ -742,6 +805,8 @@ async function showLoggedInView(calendars = []) {
     if (loggedInView) {
         loggedInView.style.display = 'block';
     }
+
+    setRegistrationFooterBackground('logged-in');
 
     if (footer && upArrow && downArrow) {
         updateFooterAndArrowUI(footer, upArrow, downArrow);
@@ -995,6 +1060,8 @@ LOGIN FORM
 
 
 async function showLoginForm(loggedOutView, loggedInView) {
+    setRegistrationFooterBackground('login');
+
     loggedOutView.style.display = "block";
     loggedInView.style.display = "none";
 
@@ -1566,6 +1633,8 @@ async function sendUpLogin() {
     const upArrow = document.getElementById("reg-up-button");
     const downArrow = document.getElementById("reg-down-button");
 
+    setRegistrationFooterBackground('login');
+
     // Always hide logged-in view and show logged-out view
     loggedInView.style.display = "none";
     loggedOutView.style.display = "block";
@@ -1660,6 +1729,7 @@ async function toggleSubscription(calendarId, subscribe) {
 
     const buwanaId = payload.buwana_id;
     const subFlag = subscribe ? "1" : "0";
+    let latestCalendars = null;
     console.log(`🔄 Updating subscription for calendar ${calendarId}, subscribe: ${subFlag}`);
 
     try {
@@ -1730,12 +1800,60 @@ async function toggleSubscription(calendarId, subscribe) {
 
             const calData = await calRes.json();
             if (calData?.ok && Array.isArray(calData.calendars)) {
-                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calData.calendars));
+                const calendars = calData.calendars;
+
+                if (subscribe) {
+                    const targetCal = calendars.find((entry) => Number(entry?.calendar_id) === Number(calendarId));
+                    if (targetCal) {
+                        const normalizedSource = (targetCal.source_type || 'earthcal').toString().toLowerCase();
+                        const activationPayload = {
+                            buwana_id: Number(buwanaId) || buwanaId,
+                            source_type: normalizedSource,
+                            is_active: true
+                        };
+                        const calendarIdNum = Number(targetCal.calendar_id);
+                        const subscriptionIdNum = Number(targetCal.subscription_id);
+
+                        if (normalizedSource === 'webcal' && Number.isFinite(subscriptionIdNum)) {
+                            activationPayload.subscription_id = subscriptionIdNum;
+                        } else if (Number.isFinite(calendarIdNum)) {
+                            activationPayload.calendar_id = calendarIdNum;
+                        }
+
+                        if (activationPayload.calendar_id !== undefined || activationPayload.subscription_id !== undefined) {
+                            try {
+                                const activateRes = await fetch('/api/v1/cal_active_toggle.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'same-origin',
+                                    body: JSON.stringify(activationPayload)
+                                });
+
+                                if (!activateRes.ok) {
+                                    throw new Error(`http_${activateRes.status}`);
+                                }
+
+                                const activateJson = await activateRes.json().catch(() => ({}));
+                                if (!activateJson?.ok) {
+                                    throw new Error(activateJson?.error || 'activate_failed');
+                                }
+
+                                targetCal.is_active = 1;
+                            } catch (activateErr) {
+                                console.warn('[toggleSubscription] Unable to activate subscription:', activateErr);
+                            }
+                        }
+                    }
+                }
+
+                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
                 try {
-                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calData.calendars)));
+                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
                 } catch (err) {
                     console.warn('⚠️ Unable to refresh legacy calendar cache:', err);
                 }
+
+                latestCalendars = calendars;
                 console.log('🔁 user_calendars cache refreshed.');
             }
         } catch (e) {
@@ -1745,7 +1863,7 @@ async function toggleSubscription(calendarId, subscribe) {
         // Optional: UI refresh hooks
         if (typeof calendarRefresh === "function") calendarRefresh();
 
-        return { success: true };
+        return { success: true, calendars: latestCalendars };
     } catch (err) {
         console.error("❌ Error in toggleSubscription:", err);
         alert("Something went wrong. Please try again.");
@@ -1894,6 +2012,8 @@ function logoutBuwana() {
         loggedInView.style.display = "none";
         loggedInView.innerHTML = "";
     }
+
+    setRegistrationFooterBackground('login');
 
     // 🌿 Update login status message
     const sessionStatusEl = document.getElementById('user-session-status');
