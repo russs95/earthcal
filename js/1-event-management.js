@@ -27,6 +27,283 @@ async function openAddCycle() {
 }
 
 
+const EARTHCAL_V1_API_BASE = 'https://buwana.ecobricks.org/earthcal/api/v1';
+
+function getActiveUserContext() {
+    if (typeof isLoggedIn === 'function') {
+        try {
+            const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true }) || {};
+            if (ok && payload?.buwana_id) {
+                return {
+                    buwana_id: Number(payload.buwana_id),
+                    payload
+                };
+            }
+        } catch (err) {
+            console.warn('isLoggedIn helper failed:', err);
+        }
+    }
+
+    try {
+        const sessionUser = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+        if (sessionUser?.buwana_id) {
+            return {
+                buwana_id: Number(sessionUser.buwana_id),
+                payload: sessionUser
+            };
+        }
+    } catch (err) {
+        console.warn('Failed to parse session buwana_user:', err);
+    }
+
+    const storedId = localStorage.getItem('buwana_id');
+    if (storedId) {
+        return {
+            buwana_id: Number(storedId),
+            payload: { buwana_id: Number(storedId) }
+        };
+    }
+
+    return { buwana_id: null, payload: null };
+}
+
+function getUserTimezone() {
+    try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Etc/UTC';
+    } catch (err) {
+        console.warn('Unable to resolve user timezone, defaulting to Etc/UTC:', err);
+        return 'Etc/UTC';
+    }
+}
+
+async function callV1Api(endpoint, payload) {
+    const url = `${EARTHCAL_V1_API_BASE}/${endpoint}`;
+    const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {})
+    };
+
+    const response = await fetch(url, options);
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (err) {
+        console.error(`Failed to parse JSON from ${endpoint}:`, err);
+    }
+
+    if (!response.ok || !data || data.ok === false || data.success === false) {
+        const errorMessage = data?.error || data?.message || `Request to ${endpoint} failed`;
+        throw new Error(errorMessage);
+    }
+
+    return data;
+}
+
+function parseDateFromItem(dtstartUtc, tzid) {
+    if (!dtstartUtc) {
+        return {
+            date: null,
+            timeLabel: null,
+            components: { year: null, month: null, day: null }
+        };
+    }
+
+    try {
+        const iso = dtstartUtc.endsWith('Z') ? dtstartUtc : `${dtstartUtc}Z`;
+        const startDate = new Date(iso);
+
+        if (Number.isNaN(startDate.getTime())) {
+            throw new Error('Invalid start date');
+        }
+
+        const year = startDate.getFullYear();
+        const month = startDate.getMonth() + 1;
+        const day = startDate.getDate();
+
+        const hours = startDate.getHours();
+        const minutes = startDate.getMinutes();
+        const timeLabel = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+        return {
+            date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+            timeLabel,
+            components: {
+                year: String(year),
+                month: String(month),
+                day: String(day)
+            }
+        };
+    } catch (err) {
+        console.warn('parseDateFromItem failed:', dtstartUtc, tzid, err);
+        return {
+            date: null,
+            timeLabel: null,
+            components: { year: null, month: null, day: null }
+        };
+    }
+}
+
+function normalizeV1Item(item, calendar, buwanaId) {
+    const { date, timeLabel, components } = parseDateFromItem(item.dtstart_utc, item.tzid);
+    const calendarColor = calendar.color || '#3b82f6';
+    const itemColor = item.item_color || calendarColor;
+    const emoji = item.item_emoji || calendar.emoji || '⬤';
+    const calEmoji = calendar.emoji || '📅';
+    const description = item.description || '';
+    const isCompleted =
+        (typeof item.percent_complete === 'number' && item.percent_complete >= 100) ||
+        (item.status && String(item.status).toUpperCase() === 'COMPLETED') ||
+        Boolean(item.completed_at);
+
+    return {
+        unique_key: `v1_${calendar.calendar_id}_${item.item_id}`,
+        ID: String(item.item_id),
+        item_id: Number(item.item_id),
+        buwana_id: buwanaId,
+        cal_id: Number(calendar.calendar_id),
+        cal_name: calendar.name || 'My Calendar',
+        cal_color: calendarColor,
+        cal_emoji: calEmoji,
+        title: item.summary || 'Untitled Event',
+        date: date || item.date || '',
+        time: timeLabel || '00:00',
+        time_zone: item.tzid || calendar.tzid || 'Etc/UTC',
+        day: components.day || '1',
+        month: components.month || '1',
+        year: components.year || new Date().getFullYear().toString(),
+        comment: description ? '1' : '0',
+        comments: description,
+        last_edited: item.updated_at || new Date().toISOString(),
+        created_at: item.created_at || new Date().toISOString(),
+        unique_id: item.uid || null,
+        unique_key_v1: item.uid || null,
+        datecycle_color: itemColor,
+        date_emoji: emoji,
+        frequency: 'One-time',
+        pinned: item.pinned ? '1' : '0',
+        completed: isCompleted ? '1' : '0',
+        public: calendar.visibility === 'public' ? '1' : '0',
+        delete_it: '0',
+        synced: '1',
+        conflict: '0',
+        component_type: item.component_type,
+        all_day: item.all_day ? 1 : 0,
+        tzid: item.tzid || calendar.tzid || 'Etc/UTC',
+        dtstart_utc: item.dtstart_utc || null,
+        dtend_utc: item.dtend_utc || null,
+        due_utc: item.due_utc || null,
+        raw_v1: item
+    };
+}
+
+function findDateCycleInStorage(uniqueKey) {
+    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    for (const key of calendarKeys) {
+        let calendarData = [];
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            if (Array.isArray(parsed)) {
+                calendarData = parsed;
+            }
+        } catch (err) {
+            console.warn(`Unable to parse localStorage for ${key}:`, err);
+            continue;
+        }
+
+        const index = calendarData.findIndex(dc => dc?.unique_key === uniqueKey);
+        if (index !== -1) {
+            return {
+                calendarKey: key,
+                calendarData,
+                index,
+                dateCycle: calendarData[index]
+            };
+        }
+    }
+    return null;
+}
+
+function buildStartLocal(dateCycle) {
+    const baseDate = dateCycle?.date || `${dateCycle.year}-${String(dateCycle.month).padStart(2, '0')}-${String(dateCycle.day).padStart(2, '0')}`;
+    const timeValue = dateCycle?.time && dateCycle.time !== 'under dev' ? dateCycle.time : '00:00';
+    return `${baseDate} ${timeValue.length === 5 ? `${timeValue}:00` : timeValue}`;
+}
+
+function resolveColorToHex(colorValue) {
+    if (!colorValue) return null;
+    if (typeof colorValue === 'string' && colorValue.trim().startsWith('#')) {
+        return colorValue.trim();
+    }
+
+    const temp = document.createElement('span');
+    temp.style.color = colorValue;
+    temp.style.display = 'none';
+    document.body.appendChild(temp);
+    const computed = getComputedStyle(temp).color;
+    document.body.removeChild(temp);
+
+    const match = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    if (!match) return null;
+
+    const r = Number(match[1]).toString(16).padStart(2, '0');
+    const g = Number(match[2]).toString(16).padStart(2, '0');
+    const b = Number(match[3]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`.toUpperCase();
+}
+
+async function persistDateCycle(dateCycle, overrides = {}) {
+    const { buwana_id } = getActiveUserContext();
+    if (!buwana_id) {
+        throw new Error('User must be logged in to update datecycles.');
+    }
+
+    if (!dateCycle?.item_id) {
+        throw new Error('Missing item_id for v1 update. Please sync again.');
+    }
+
+    const sanitizedComments = sanitizeComments(dateCycle.comment, dateCycle.comments);
+    if (dateCycle) {
+        dateCycle.comments = sanitizedComments;
+        dateCycle.comment = sanitizedComments ? 1 : 0;
+    }
+
+    const payload = {
+        buwana_id,
+        item_id: Number(dateCycle.item_id),
+        calendar_id: Number(dateCycle.cal_id),
+        summary: dateCycle.title,
+        description: overrides.description !== undefined ? overrides.description : sanitizedComments,
+        start_local: buildStartLocal({ ...dateCycle, ...overrides }),
+        tzid: overrides.tzid || dateCycle.tzid || getUserTimezone(),
+        pinned: overrides.pinned !== undefined ? Boolean(overrides.pinned) : Number(dateCycle.pinned) === 1,
+        all_day: overrides.all_day !== undefined ? overrides.all_day : (dateCycle.all_day ? 1 : 0),
+        color_hex: overrides.color_hex ? resolveColorToHex(overrides.color_hex) : resolveColorToHex(dateCycle.datecycle_color),
+        emoji: overrides.emoji || dateCycle.date_emoji || '⬤',
+        percent_complete: overrides.percent_complete !== undefined ? overrides.percent_complete : (Number(dateCycle.completed) === 1 ? 100 : 0),
+        status: overrides.status || (Number(dateCycle.completed) === 1 ? 'COMPLETED' : 'NEEDS-ACTION')
+    };
+
+    if (overrides.start_local) {
+        payload.start_local = overrides.start_local;
+    }
+    if (overrides.description !== undefined) {
+        payload.description = overrides.description;
+    }
+    if (overrides.summary !== undefined) {
+        payload.summary = overrides.summary;
+    }
+
+    Object.keys(payload).forEach(key => {
+        if (payload[key] === undefined || payload[key] === null) {
+            delete payload[key];
+        }
+    });
+
+    return await callV1Api('update_item.php', payload);
+}
+
+
 
 
 async function populateCalendarDropdown(buwanaId) {
@@ -41,28 +318,23 @@ async function populateCalendarDropdown(buwanaId) {
     setBuwana.value = buwanaId;
 
     try {
-        const res = await fetch('https://buwana.ecobricks.org/earthcal/grab_user_calendars.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: buwanaId }),
-        });
-
-        const { success, calendars = [], buwana_id } = await res.json();
-        if (!success) throw new Error("API calendar fetch failed");
+        const data = await callV1Api('list_calendars.php', { buwana_id: Number(buwanaId) });
+        const calendars = Array.isArray(data.calendars) ? data.calendars : [];
 
         let fallbackSet = false;
 
-        calendars.forEach(c => {
+        calendars.forEach(calendar => {
             const opt = document.createElement('option');
-            opt.value = c.calendar_id;
-            opt.text = c.calendar_name;
-            opt.style.color = c.calendar_color;
+            opt.value = calendar.calendar_id;
+            opt.text = calendar.name || 'Unnamed Calendar';
+            opt.style.color = calendar.color || '#3b82f6';
+            opt.dataset.emoji = calendar.emoji || '📅';
             dd.appendChild(opt);
 
-            if (c.calendar_name === "My Calendar" && !fallbackSet) {
+            if (!fallbackSet && (calendar.is_default || calendar.name === 'My Calendar')) {
                 opt.selected = true;
-                setId.value = c.calendar_id;
-                setColor.value = c.calendar_color;
+                setId.value = calendar.calendar_id;
+                setColor.value = calendar.color || '#3b82f6';
                 fallbackSet = true;
             }
         });
@@ -70,23 +342,25 @@ async function populateCalendarDropdown(buwanaId) {
         if (!fallbackSet && calendars.length) {
             const first = calendars[0];
             setId.value = first.calendar_id;
-            setColor.value = first.calendar_color;
+            setColor.value = first.color || '#3b82f6';
             dd.selectedIndex = 0;
         }
 
         const addNew = document.createElement('option');
-        addNew.value = "add_new_calendar";
-        addNew.textContent = "+ Add New Calendar...";
+        addNew.value = 'add_new_calendar';
+        addNew.textContent = '+ Add New Calendar...';
         dd.appendChild(addNew);
 
         dd.onchange = (e) => {
             const opt = e.target.selectedOptions[0];
+            if (!opt) return;
             setId.value = opt.value;
-            setColor.value = opt.style.color;
-            if (opt.value === "add_new_calendar") showAdderForm();
+            setColor.value = opt.style.color || '#3b82f6';
+            if (opt.value === 'add_new_calendar') showAdderForm();
         };
 
-        document.getElementById('addNewCalendar').style.display = 'none';
+        const addNewForm = document.getElementById('addNewCalendar');
+        if (addNewForm) addNewForm.style.display = 'none';
     } catch (err) {
         console.error("❌ Calendar dropdown error:", err);
         dd.innerHTML = '<option disabled selected>Error loading calendars</option>';
@@ -160,53 +434,36 @@ async function addNewCalendar() {
         return;
     }
 
-    const buwanaId = localStorage.getItem('buwana_id');
-    if (!buwanaId) {
+    const { buwana_id } = getActiveUserContext();
+    if (!buwana_id) {
         alert('You must be logged in to create a calendar.');
         return;
     }
 
-    // 🔹 Generate `created_at` timestamp in milliseconds
-    const createdAt = Date.now();
-
-    const newCalendar = {
-        buwana_id: buwanaId,
-        name: calendarName,
-        color: color,
-        public: isPublic ? 1 : 0, // Convert boolean to 1/0 for PHP
-        created_at: createdAt // ✅ Pass the created_at timestamp
-    };
-
     try {
-        const response = await fetch('https://buwana.ecobricks.org/earthcal/create_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newCalendar)
-        });
+        const payload = {
+            buwana_id,
+            name: calendarName,
+            color,
+            emoji: '📅',
+            visibility: isPublic ? 'public' : 'private',
+            tzid: getUserTimezone()
+        };
 
-        const result = await response.json();
-        console.log('Response from create_calendar API:', result);
+        const result = await callV1Api('add_new_cal.php', payload);
+        console.log('Response from add_new_cal API:', result);
 
-        if (result.success) {
-            alert('New calendar added successfully!');
-            document.getElementById('addNewCalendar').style.display = 'none'; // Hide the form
-
-            // Update local cache
-            const userCalendars = JSON.parse(localStorage.getItem('userCalendars') || '[]');
-            userCalendars.push({
-                id: result.calendar_id,
-                name: calendarName,
-                color: color,
-                public: isPublic,
-                created_at: createdAt // ✅ Store created_at locally
-            });
-            localStorage.setItem('userCalendars', JSON.stringify(userCalendars));
-
-            // Re-populate the dropdown with the updated list
-            populateCalendarDropdown(buwanaId);
-        } else {
-            throw new Error(result.message || 'Failed to add new calendar.');
+        if (!result?.calendar?.calendar_id && !result?.calendar_id) {
+            throw new Error('Calendar creation response missing calendar_id');
         }
+
+        alert('New calendar added successfully!');
+
+        const form = document.getElementById('addNewCalendar');
+        if (form) form.style.display = 'none';
+
+        await populateCalendarDropdown(buwana_id);
+        await syncDatecycles();
     } catch (error) {
         console.error('Error creating new calendar:', error);
         alert('An error occurred while adding the calendar. Please try again later.');
@@ -692,202 +949,78 @@ function sanitizeComments(commentFlag, comments) {
     return text;
 }
 
-async function updateServerDateCycle(dateCycle) {
-    // Ensure comment text field isn't populated with numeric zeroes
-    const commentsSanitized = sanitizeComments(dateCycle.comment, dateCycle.comments);
-    const sanitized = {
-        ...dateCycle,
-        comment: commentsSanitized ? 1 : 0,
-        comments: commentsSanitized
-    };
-
-    // Send the updated dateCycle object to the upsert endpoint
-    const response = await fetch('https://buwana.ecobricks.org/earthcal/upsert_datecycle.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sanitized)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to upsert dateCycle on server.');
-    }
-
-    // Reflect sanitized field locally
-    dateCycle.comments = sanitized.comments;
-    dateCycle.comment = sanitized.comment;
-
-    return data;
-}
-
-
-// Push a completion update via the unified upsert endpoint
-async function pushCompletionUpdate(dateCycle, buwanaId) {
-    const commentsSanitized = sanitizeComments(dateCycle.comment, dateCycle.comments);
-
-    const payload = {
-        buwana_id: buwanaId,
-        unique_key: String(dateCycle.unique_key),
-        cal_id: Number(dateCycle.cal_id),
-        cal_name: dateCycle.cal_name || "Unknown Calendar",
-        cal_color: dateCycle.cal_color || "red",
-        title: dateCycle.title || "Untitled",
-        date: dateCycle.date,
-        time: dateCycle.time || "00:00",
-        time_zone: dateCycle.time_zone || "UTC-0",
-        day: Number(dateCycle.day),
-        month: Number(dateCycle.month),
-        year: dateCycle.year !== undefined ? Number(dateCycle.year) : null,
-        frequency: dateCycle.frequency || "One-time",
-        created_at: dateCycle.created_at || new Date().toISOString().slice(0, 19).replace("T", " "),
-        last_edited: new Date().toISOString().slice(0, 19).replace("T", " "),
-        synced: 1,
-        datecycle_color: dateCycle.datecycle_color || "green",
-        date_emoji: dateCycle.date_emoji || "📆",
-        pinned: Number(dateCycle.pinned || 0),
-        comment: commentsSanitized ? 1 : 0,
-        comments: commentsSanitized,
-        completed: Number(dateCycle.completed || 0),
-        public: Number(dateCycle.public || 1),
-        delete_it: Number(dateCycle.delete_it || 0),
-        conflict: Number(dateCycle.conflict || 0),
-        raw_json: dateCycle.raw_json || "",
-        cal_emoji: dateCycle.cal_emoji || "📅"
-    };
-
-    const resp = await fetch('https://buwana.ecobricks.org/earthcal/upsert_datecycle.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok || !data.success) {
-        throw new Error(data.message || `Update failed: ${resp.status}`);
-    }
-    return data;
+async function updateServerDateCycle(dateCycle, overrides = {}) {
+    return persistDateCycle(dateCycle, overrides);
 }
 
 
 
-function checkOffDatecycle(uniqueKey) {
+async function checkOffDatecycle(uniqueKey) {
     console.log(`Toggling completion for dateCycle with unique_key: ${uniqueKey}`);
 
-    const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith('calendar_'));
-    let found = false;
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
+        return;
+    }
 
-    for (const key of calendarKeys) {
-        let calendarData;
-        try {
-            calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-            if (!Array.isArray(calendarData)) continue;
-        } catch (e) {
-            continue;
-        }
+    const wasCompleted = Number(record.dateCycle.completed) === 1;
+    const updatedDateCycle = {
+        ...record.dateCycle,
+        completed: wasCompleted ? '0' : '1',
+        last_edited: new Date().toISOString()
+    };
 
-        const idx = calendarData.findIndex(dc => dc?.unique_key === uniqueKey);
-        if (idx === -1) continue;
+    const overrides = {
+        percent_complete: updatedDateCycle.completed === '1' ? 100 : 0,
+        status: updatedDateCycle.completed === '1' ? 'COMPLETED' : 'NEEDS-ACTION'
+    };
 
-        const dc = { ...calendarData[idx] };
-        const wasCompleted = Number(dc.completed) === 1;
-        dc.completed = wasCompleted ? 0 : 1;
-        dc.last_edited = new Date().toISOString();
-        dc.synced = 0;
-
-        calendarData[idx] = dc;
-        localStorage.setItem(key, JSON.stringify(calendarData));
-
-        const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-        if (ok && navigator.onLine && payload?.buwana_id) {
-            pushCompletionUpdate(dc, payload.buwana_id)
-                .then(() => {
-                    const fresh = JSON.parse(localStorage.getItem(key) || '[]');
-                    const j = fresh.findIndex(x => x?.unique_key === uniqueKey);
-                    if (j !== -1) {
-                        fresh[j].synced = 1;
-                        localStorage.setItem(key, JSON.stringify(fresh));
-                    }
-                    console.log(`✅ Server updated completion for ${dc.title}`);
-                })
-                .catch(err => {
-                    console.error(`⚠️ Server update failed for ${dc.title}`, err);
-                });
-        }
+    try {
+        await updateServerDateCycle(updatedDateCycle, overrides);
+        await syncDatecycles();
 
         const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-        if (!wasCompleted && dateCycleDiv) {
-            dateCycleDiv.classList.add("celebrate-animation");
+        if (updatedDateCycle.completed === '1' && dateCycleDiv) {
+            dateCycleDiv.classList.add('celebrate-animation');
             setTimeout(() => {
-                dateCycleDiv.classList.remove("celebrate-animation");
+                dateCycleDiv.classList.remove('celebrate-animation');
                 highlightDateCycles(targetDate);
             }, 500);
         } else {
             highlightDateCycles(targetDate);
         }
 
-        found = true;
-        break;
-    }
-
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+        console.log(`✅ Server updated completion for ${updatedDateCycle.title}`);
+    } catch (error) {
+        console.error(`⚠️ Server update failed for ${updatedDateCycle.title}`, error);
+        alert('Unable to update completion status right now. Please try again later.');
     }
 }
 
 
 
 
-function pinThisDatecycle(uniqueKey) {
+async function pinThisDatecycle(uniqueKey) {
     console.log(`Toggling pin status for dateCycle with unique_key: ${uniqueKey}`);
 
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
-
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-        const idx = calendarData.findIndex(dc => dc?.unique_key === uniqueKey);
-        if (idx === -1) continue;
-
-        let dc = { ...calendarData[idx] };
-        dc.pinned = Number(dc.pinned) === 1 ? 0 : 1;
-        dc.synced = 0;
-        dc.last_edited = new Date().toISOString();
-
-        calendarData[idx] = dc;
-        localStorage.setItem(key, JSON.stringify(calendarData));
-
-        const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-        if (ok && navigator.onLine && payload?.buwana_id) {
-            pushCompletionUpdate(dc, payload.buwana_id)
-                .then(() => {
-                    const fresh = JSON.parse(localStorage.getItem(key) || '[]');
-                    const j = fresh.findIndex(x => x?.unique_key === uniqueKey);
-                    if (j !== -1) {
-                        fresh[j].synced = 1;
-                        localStorage.setItem(key, JSON.stringify(fresh));
-                    }
-                    console.log(`✅ Server updated pin for ${dc.title}`);
-                })
-                .catch(err => {
-                    console.error(`⚠️ Server update failed for ${dc.title}`, err);
-                });
-        }
-
-        const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-        if (dc.pinned === 1 && dateCycleDiv) {
-            dateCycleDiv.classList.add("slide-out-right");
-            setTimeout(() => highlightDateCycles(targetDate), 400);
-        } else {
-            highlightDateCycles(targetDate);
-        }
-
-        found = true;
-        break;
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
+        return;
     }
 
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    const { dateCycle } = record;
+    const newPinned = Number(dateCycle.pinned) === 1 ? 0 : 1;
+
+    try {
+        await updateServerDateCycle({ ...dateCycle, pinned: newPinned }, { pinned: newPinned });
+        await syncDatecycles();
+        highlightDateCycles(targetDate);
+        console.log(`✅ Server updated pin for ${dateCycle.title}`);
+    } catch (error) {
+        console.error(`⚠️ Failed to update pin for ${dateCycle.title}`, error);
+        alert('Unable to update pin status right now. Please try again later.');
     }
 }
 
@@ -968,7 +1101,7 @@ function editDateCycle(uniqueKey) {
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
                 <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
             </div>
-            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}', '${calendarKey}')">
+            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}')">
                 🐿️ Save Changes
             </button>
             <button type="button" class="confirmation-blur-button" style="width:100%;" onclick="shareDateCycle('${uniqueKey}')">
@@ -989,7 +1122,7 @@ function editDateCycle(uniqueKey) {
 
 
 
-function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
+async function saveDateCycleEditedChanges(uniqueKey) {
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = parseInt(document.getElementById('edit-year-field2').value);
     const dayField = parseInt(document.getElementById('edit-day-field2').value);
@@ -997,51 +1130,46 @@ function saveDateCycleEditedChanges(uniqueKey, calendarKey) {
     const title = document.getElementById('edit-add-date-title').value.trim();
     const eventColor = document.getElementById('edit-DateColorPicker').value;
     const comments = document.getElementById('edit-add-date-note').value.trim();
-    const lastEdited = new Date().toISOString();
     const formattedDate = `${yearField}-${String(monthField).padStart(2, '0')}-${String(dayField).padStart(2, '0')}`;
 
-    let calendarData = JSON.parse(localStorage.getItem(calendarKey) || '[]');
-    const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-    if (index === -1) {
-        alert("Could not find the dateCycle to update.");
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        alert('Could not find the dateCycle to update.');
         return;
     }
 
-    let dateCycle = { ...calendarData[index] };
-    Object.assign(dateCycle, {
+    const updatedDateCycle = {
+        ...record.dateCycle,
         frequency,
-        year: yearField,
-        day: dayField,
-        month: monthField,
+        year: String(yearField),
+        day: String(dayField),
+        month: String(monthField),
         date: formattedDate,
         title,
         datecycle_color: eventColor,
         comments,
-        last_edited: lastEdited,
-        synced: 0
-    });
+        last_edited: new Date().toISOString()
+    };
 
-    calendarData[index] = dateCycle;
-    localStorage.setItem(calendarKey, JSON.stringify(calendarData));
+    const startLocal = `${formattedDate} 00:00:00`;
 
-    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-    if (ok && navigator.onLine && payload?.buwana_id) {
-        pushCompletionUpdate(dateCycle, payload.buwana_id)
-            .then(() => {
-                dateCycle.synced = 1;
-                calendarData[index] = dateCycle;
-                localStorage.setItem(calendarKey, JSON.stringify(calendarData));
-                console.log(`✅ Server updated for edited dateCycle: ${dateCycle.title}`);
-            })
-            .catch(error => {
-                console.error(`⚠️ Error updating server for edited dateCycle: ${dateCycle.title}`, error);
-            });
-    } else {
-        console.log("Offline or not logged in – update queued for next sync.");
+    try {
+        await updateServerDateCycle(updatedDateCycle, {
+            summary: title,
+            description: comments,
+            start_local: startLocal,
+            color_hex: resolveColorToHex(eventColor)
+        });
+        await syncDatecycles();
+        console.log(`✅ Server updated for edited dateCycle: ${title}`);
+    } catch (error) {
+        console.error(`⚠️ Error updating server for edited dateCycle: ${title}`, error);
+        alert('Unable to update event right now. Please try again later.');
+        return;
     }
 
     document.getElementById('form-modal-message').classList.replace('modal-visible', 'modal-hidden');
-    document.getElementById("page-content").classList.remove("blur");
+    document.getElementById('page-content').classList.remove('blur');
 
     highlightDateCycles(targetDate);
 }
@@ -1073,96 +1201,36 @@ function shareDateCycle(uniqueKey) {
 
 
 
-function push2today(uniqueKey) {
+async function push2today(uniqueKey) {
     console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today`);
 
-    // Retrieve all calendar keys from localStorage.
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    let found = false;
-
-    for (const key of calendarKeys) {
-        let calendarData = [];
-        try {
-            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
-            if (Array.isArray(parsed)) {
-                calendarData = parsed;
-            } else {
-                console.warn(`⚠️ Expected array for ${key}, got`, typeof parsed);
-                continue;
-            }
-        } catch (e) {
-            console.warn(`⚠️ Failed to parse calendar data for ${key}`, e);
-            continue;
-        }
-
-        const index = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-
-        if (index !== -1) {
-            let dateCycle = calendarData[index];
-            const currentDate = new Date();
-            const formattedDate = currentDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-
-            // Update the date fields
-            dateCycle.day = currentDate.getDate();
-            dateCycle.month = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
-            dateCycle.year = currentDate.getFullYear();
-            dateCycle.date = formattedDate;
-            dateCycle.last_edited = currentDate.toISOString();
-
-            // Ensure pinned is set to "0" if not defined.
-            if (!dateCycle.pinned) {
-                dateCycle.pinned = '0';
-            }
-
-            // Mark as unsynced if previously synced
-            if (dateCycle.synced === "1") {
-                dateCycle.synced = "0";
-            }
-
-            // Attempt to update the server immediately if online and logged in.
-            const buwanaId =
-                JSON.parse(sessionStorage.getItem('buwana_user') || '{}').buwana_id ||
-                localStorage.getItem('buwana_id');
-
-            if (navigator.onLine && buwanaId) {
-                updateServerDateCycle(dateCycle)
-                    .then(() => {
-                        console.log(`Server successfully updated for ${dateCycle.title}`);
-                        dateCycle.synced = "1"; // Mark as synced
-                        calendarData[index] = dateCycle;
-                        localStorage.setItem(key, JSON.stringify(calendarData));
-                    })
-                    .catch(error => {
-                        console.error(`Error updating server for ${dateCycle.title}:`, error);
-                    });
-            } else {
-                console.log("Offline or not logged in – update queued for next sync.");
-            }
-
-            // Update localStorage with modified calendar data.
-            calendarData[index] = dateCycle;
-            localStorage.setItem(key, JSON.stringify(calendarData));
-
-            // Handle animation and UI refresh.
-            const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-            if (dateCycleDiv) {
-                dateCycleDiv.classList.add("slide-out-right");
-
-                setTimeout(() => {
-                    dateCycleDiv.classList.remove("slide-out-right");
-                    highlightDateCycles(targetDate); // Refresh UI
-                }, 400);
-            } else {
-                highlightDateCycles(targetDate); // Ensure UI updates even if no div found
-            }
-
-            found = true;
-            break;
-        }
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
+        return;
     }
 
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    const [year, month, day] = formattedDate.split('-');
+
+    const updatedDateCycle = {
+        ...record.dateCycle,
+        year,
+        month,
+        day,
+        date: formattedDate,
+        last_edited: currentDate.toISOString()
+    };
+
+    try {
+        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} 00:00:00` });
+        await syncDatecycles();
+        highlightDateCycles(targetDate);
+        console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
+    } catch (error) {
+        console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
+        alert('Unable to push this event to today right now. Please try again later.');
     }
 }
 
@@ -1171,87 +1239,38 @@ function push2today(uniqueKey) {
 async function deleteDateCycle(uniqueKey) {
     console.log(`deleteDateCycle called for unique_key: ${uniqueKey}`);
 
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    if (calendarKeys.length === 0) {
-        console.log("No calendar data found in storage.");
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
         return;
     }
 
     const userResponse = confirm('Are you sure you want to delete this event?');
     if (!userResponse) return;
 
-    let found = false;
-    let dateCycle = null;
-    let calendarKey = null;
-
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-        const dateCycleIndex = calendarData.findIndex(dc => dc.unique_key === uniqueKey);
-
-        if (dateCycleIndex !== -1) {
-            dateCycle = calendarData[dateCycleIndex];
-            dateCycle.delete_it = navigator.onLine ? "1" : "pending";
-            calendarKey = key;
-
-            if (!navigator.onLine) {
-                dateCycle.synced = "0";
-                calendarData[dateCycleIndex] = dateCycle;
-            } else {
-                calendarData.splice(dateCycleIndex, 1);
-            }
-
-            localStorage.setItem(key, JSON.stringify(calendarData));
-            console.log(`Updated dateCycle with unique_key: ${uniqueKey} in calendar: ${key}`);
-            found = true;
-            break;
-        }
-    }
-
-    if (!found) {
-        console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
+    if (!record.dateCycle?.item_id) {
+        alert('Unable to delete this event. Please sync and try again.');
         return;
     }
 
-    if (navigator.onLine && dateCycle) {
-        const buwanaId = localStorage.getItem('buwana_id') || dateCycle.buwana_id;
-        if (!buwanaId) {
-            console.log('User is not logged in. Cannot delete server data.');
-        } else {
-            try {
-                const response = await fetch('https://buwana.ecobricks.org/earthcal/delete_datecycle.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        buwana_id: buwanaId,
-                        unique_key: uniqueKey
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Server response for deletion:', result);
-
-                if (!result.success) {
-                    console.error('Failed to delete dateCycle from server:', result.message);
-                    alert('Server deletion failed. It will be retried during the next sync.');
-                } else {
-                    console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
-                }
-            } catch (error) {
-                console.error('Error deleting dateCycle from the server:', error);
-                alert('An error occurred while deleting from the server. It will be retried during the next sync.');
-            }
-        }
+    const { buwana_id } = getActiveUserContext();
+    if (!buwana_id) {
+        alert('Please log in to delete events.');
+        return;
     }
-    setTimeout(() => {
-        highlightDateCycles(new Date()); // You may want to use the actual targetDate
-    }, 500);
 
-    console.log(`Final state of localStorage after deletion:`);
-    Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('calendar_')) {
-            console.log(`Key: ${key}, Value:`, JSON.parse(localStorage.getItem(key)));
-        }
-    });
+    try {
+        await callV1Api('delete_item.php', {
+            buwana_id,
+            item_id: Number(record.dateCycle.item_id)
+        });
+        await syncDatecycles();
+        highlightDateCycles(targetDate);
+        console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
+    } catch (error) {
+        console.error('Error deleting dateCycle from the server:', error);
+        alert('An error occurred while deleting this event. Please try again later.');
+    }
 }
 
 
@@ -1565,111 +1584,83 @@ async function prefillAddDateCycle(data) {
 // ADD DATECYCLE
 //***************************
 
-    async function addDatecycle() {
-    console.log("📝 addDatecycle called");
+async function addDatecycle() {
+    console.log('📝 addDatecycle called');
 
-    // Step 1: Validate form fields
     const dayField = document.getElementById('day-field2').value;
     const monthField = document.getElementById('month-field2').value;
-    const addDateTitle = document.getElementById('add-date-title').value;
+    const addDateTitle = document.getElementById('add-date-title').value.trim();
 
     if (!dayField || !monthField || !addDateTitle) {
-        alert("Please fill out all required fields to add a new event.");
+        alert('Please fill out all required fields to add a new event.');
         return;
     }
 
-    // Step 2: Extract hidden and selected values
     const selCalendarId = document.getElementById('set-calendar-id').value;
-    const selCalendarColor = document.getElementById('set-calendar-color').value;
-    const buwanaId = document.getElementById('buwana-id').value;
     const calendarDropdown = document.getElementById('select-calendar');
     const selCalendarName = calendarDropdown?.options[calendarDropdown.selectedIndex]?.text;
 
-    if (!selCalendarId || !buwanaId || !selCalendarName) {
-        alert("Missing calendar selection or user login. Cannot continue.");
+    if (!selCalendarId || !selCalendarName) {
+        alert('Missing calendar selection.');
         return;
     }
 
-    const dateCycleType = document.getElementById('dateCycle-type').value;
-    const yearField = dateCycleType === "Annual"
-        ? document.getElementById('year-field2').value || ""
-        : new Date().getFullYear();
+    const { buwana_id } = getActiveUserContext();
+    const fallbackBuwanaId = document.getElementById('buwana-id')?.value;
+    const resolvedBuwanaId = buwana_id || Number(fallbackBuwanaId);
 
-    const targetDate = new Date(yearField, monthField - 1, dayField);
+    if (!resolvedBuwanaId) {
+        alert('You must be logged in to add events.');
+        return;
+    }
 
-    const dateEmoji = '';
-    const pinned = 0;
-
+    const dateCycleType = document.getElementById('dateCycle-type').value || 'One-time';
+    const yearFieldRaw = document.getElementById('year-field2').value;
+    const yearField = yearFieldRaw ? Number(yearFieldRaw) : new Date().getFullYear();
     const addDateNote = document.getElementById('add-date-note').value.trim();
-    const comment = addDateNote.length > 0 ? "1" : "0";
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
-    const nowISO = new Date().toISOString().split('.')[0] + "Z";
-    const createdAt = nowISO;
-    const lastEdited = nowISO;
+    const paddedMonth = String(monthField).padStart(2, '0');
+    const paddedDay = String(dayField).padStart(2, '0');
+    const startLocal = `${yearField}-${paddedMonth}-${paddedDay} 00:00:00`;
+    const tzid = getUserTimezone();
+    const colorHex = resolveColorToHex(dateColorPicker);
 
-    const calendarStorageKey = `calendar_${selCalendarId}`;
-    let existingCalendar = [];
-    try {
-        existingCalendar = JSON.parse(localStorage.getItem(calendarStorageKey)) || [];
-    } catch (error) {
-        console.error(`❌ Failed to parse local calendar data for ${calendarStorageKey}`, error);
-        alert("An error occurred accessing local calendar data.");
-        return;
-    }
-
-    const newID = Math.random().toString(36).substring(2, 16);
-    const unique_key = `${selCalendarId}_${yearField}-${monthField}-${dayField}_${newID}`;
-
-    const dateCycle = {
-        ID: newID,
-        buwana_id: buwanaId,
-        cal_id: selCalendarId,
-        cal_name: selCalendarName,
-        cal_color: selCalendarColor,
+    const payload = {
+        buwana_id: Number(resolvedBuwanaId),
+        calendar_id: Number(selCalendarId),
         title: addDateTitle,
-        date: `${yearField}-${monthField}-${dayField}`,
-        time: "under dev",
-        time_zone: "under dev",
-        day: dayField,
-        month: monthField,
-        year: yearField,
-        comment: comment,
-        comments: addDateNote,
-        last_edited: lastEdited,
-        created_at: createdAt,
-        unique_key: unique_key,
-        datecycle_color: dateColorPicker,
-        frequency: dateCycleType,
-        pinned: pinned,
-        date_emoji: dateEmoji,
-        completed: "0",
-        public: "0",
-        delete_it: "0",
-        synced: "0",
-        conflict: "0",
+        item_kind: 'event',
+        start_local: startLocal,
+        tzid,
+        notes: addDateNote,
+        all_day: 1,
+        pinned: false,
+        emoji: '',
+        color_hex: colorHex,
+        frequency: dateCycleType
     };
 
-    existingCalendar.push(dateCycle);
-    localStorage.setItem(calendarStorageKey, JSON.stringify(existingCalendar));
-    console.log(`📥 Saved new dateCycle in localStorage:`, dateCycle);
+    try {
+        await callV1Api('add_item.php', payload);
+        await syncDatecycles();
 
-    console.log("🔄 Syncing dateCycles before highlighting...");
-    await syncDatecycles();
-    console.log("✅ Sync complete!");
+        document.getElementById('select-calendar').value = 'Select calendar...';
+        document.getElementById('dateCycle-type').value = 'One-time';
+        document.getElementById('add-date-title').value = '';
+        document.getElementById('add-note-checkbox').checked = false;
+        document.getElementById('add-date-note').value = '';
 
-    // Reset form
-    document.getElementById('select-calendar').value = 'Select calendar...';
-    document.getElementById('dateCycle-type').value = 'One-time';
-    document.getElementById('add-date-title').value = '';
-    document.getElementById('add-note-checkbox').checked = false;
-    document.getElementById('add-date-note').value = '';
+        closeAddCycle();
+        closeDateCycleExports();
 
-    closeAddCycle();
-    closeDateCycleExports();
-
-    console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
-    await highlightDateCycles(targetDate);
+        const targetDate = new Date(yearField, Number(monthField) - 1, Number(dayField));
+        console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
+        await highlightDateCycles(targetDate);
+    } catch (error) {
+        console.error('Failed to add datecycle via v1 API:', error);
+        alert(error.message || 'Unable to add event at this time.');
+    }
 }
 
 
@@ -1684,18 +1675,13 @@ function animateConfirmDateCycleButton() {
     confirmButton.classList.add('loading');
     confirmButton.innerText = "Adding...";
 
-    // Simulate Sync Process (Replace with Actual Sync Logic if Needed)
-    syncDatecycles().then(() => {
+    addDatecycle().then(() => {
         confirmButton.classList.remove('loading');
         confirmButton.innerText = "✅ DateCycle Added!";
-
-        // ✅ Call `addDatecycle()` after sync is successful
-        addDatecycle();
-
     }).catch((error) => {
         confirmButton.classList.remove('loading');
         confirmButton.innerText = "⚠️ Add Failed!";
-        console.error("Adding event failed:", error);
+        console.error('Adding event failed:', error);
     });
 }
 
@@ -1730,321 +1716,58 @@ function animateSyncButton() {
 
 
 async function syncDatecycles() {
+    const { buwana_id } = getActiveUserContext();
+    if (!buwana_id) {
+        console.warn('syncDatecycles: no buwana_id found.');
+        return 'Please log in to sync your calendars.';
+    }
+
     try {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            console.warn("No access token found. Skipping sync.");
-            return;
-        }
+        const data = await callV1Api('get_user_items.php', { buwana_id });
+        const calendars = Array.isArray(data.calendars) ? data.calendars : [];
 
-        let decoded = null;
-        try {
-            const parts = token.split('.');
-            if (parts.length !== 3) throw new Error('Invalid JWT format');
-            decoded = JSON.parse(atob(parts[1]));
-        } catch (e) {
-            console.error('Failed to decode JWT:', e);
-            return;
-        }
+        const keysToKeep = new Set();
+        let totalItems = 0;
 
-        const now = Math.floor(Date.now() / 1000);
-        if (decoded?.exp && decoded.exp < now) {
-            console.warn("⚠️ Access token has expired.");
-        }
-
-        const profile = JSON.parse(sessionStorage.getItem("buwana_user") || "{}");
-        const buwanaId = profile.buwana_id || decoded?.buwana_id;
-        if (!buwanaId) {
-            console.warn("No buwana_id found in session or token. Skipping sync.");
-            return;
-        }
-
-        console.log(`🌿 Starting dateCycle sync for buwana_id ${buwanaId}...`);
-
-        // 🧹 Clean up any local dateCycles with placeholder comments
-        Object.keys(localStorage)
-            .filter(k => k.startsWith('calendar_'))
-            .forEach(k => {
-                const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                let dirty = false;
-                arr.forEach(dc => {
-                    const sanitized = sanitizeComments(dc.comment, dc.comments);
-                    if (sanitized !== dc.comments) {
-                        dc.comments = sanitized;
-                        dc.comment = sanitized ? 1 : 0;
-                        dirty = true;
-                    }
-                });
-                if (dirty) localStorage.setItem(k, JSON.stringify(arr));
-            });
-
-        let serverCalendars = [];
-        let hasInternetConnection = 1;
-        let totalDateCyclesUpdated = 0;
-
-        function findDuplicateCalIds(list, idKey = "calendar_id") {
-            const counts = {};
-            for (const c of list) {
-                const id = c?.[idKey];
-                if (!id) continue;
-                counts[id] = (counts[id] || 0) + 1;
-            }
-            return Object.entries(counts)
-                .filter(([, n]) => n > 1)
-                .map(([id]) => id);
-        }
-
-        try {
-            const calendarCache = sessionStorage.getItem("user_calendars");
-            if (!calendarCache) {
-                console.warn("⚠️ No cached calendars found. Sync aborted.");
+        calendars.forEach(calendar => {
+            if (!calendar || calendar.calendar_id === undefined || calendar.calendar_id === null) {
                 return;
             }
 
-            const calendarData = JSON.parse(calendarCache);
+            const storageKey = `calendar_${calendar.calendar_id}`;
+            const isActive = calendar.is_active !== false;
+            const isVisible = calendar.display_enabled !== false;
 
-            // 🔎 Duplicate checks
-            const subs = calendarData.subscribed_calendars || [];
-            const dupSubIds = findDuplicateCalIds(subs);
-            if (dupSubIds.length) {
-                console.warn("⚠️ Duplicate subscriptions detected:", dupSubIds);
-                console.table(subs.filter(s => dupSubIds.includes(String(s.calendar_id))));
+            if (!isActive || !isVisible) {
+                localStorage.removeItem(storageKey);
+                return;
             }
 
-            const allCalendarsRaw = [
-                ...(calendarData.personal_calendars || []),
-                ...(calendarData.subscribed_calendars || []),
-                ...(calendarData.public_calendars || [])
-            ];
-            const dupAllIds = findDuplicateCalIds(allCalendarsRaw);
-            if (dupAllIds.length) {
-                console.warn("⚠️ Duplicate calendar_ids across all sets:", dupAllIds);
-                console.table(allCalendarsRaw.filter(c => dupAllIds.includes(String(c.calendar_id))));
-            }
+            const items = Array.isArray(calendar.items) ? calendar.items : [];
+            const normalized = items.map(item => normalizeV1Item(item, calendar, buwana_id));
+            localStorage.setItem(storageKey, JSON.stringify(normalized));
+            keysToKeep.add(storageKey);
+            totalItems += normalized.length;
+        });
 
-            serverCalendars = allCalendarsRaw.map(calendar => ({
-                cal_id: calendar.calendar_id,
-                cal_name: calendar.calendar_name,
-                cal_color: calendar.calendar_color || "gray",
-                calendar_public: calendar.calendar_public ?? 0,
-                last_updated: calendar.last_updated || null,
-                created_at: calendar.calendar_created || null
-            }));
-
-            console.log('✅ Loaded calendars from session:', serverCalendars);
-        } catch (error) {
-            console.warn('⚠️ Unable to process cached calendar data:', error);
-            hasInternetConnection = 0;
-        }
-
-        if (!hasInternetConnection) return;
-
-        const getSubscribedCalendarIdsFromCache = () => {
-            const cache = sessionStorage.getItem("user_calendars");
-            if (!cache) return [];
-
-            try {
-                const data = JSON.parse(cache);
-                const personal = (data.personal_calendars || []).map(c => Number(c.calendar_id));
-                const subscribed = (data.subscribed_calendars || []).map(c => Number(c.calendar_id));
-                return Array.from(new Set([...personal, ...subscribed]));
-            } catch (e) {
-                console.warn("getSubscribedCalendarIdsFromCache: parse failed", e);
-                return [];
-            }
-        };
-
-        const purgeUnsubscribedCalendarsFromLocalStorage = (subscribedIds) => {
-            const keep = new Set(subscribedIds.map(Number));
-            Object.keys(localStorage)
-                .filter(k => /^calendar_\d+$/.test(k))
-                .forEach(k => {
-                    const id = Number(k.split('_')[1]);
-                    if (!keep.has(id)) {
-                        localStorage.removeItem(k);
-                        console.log(`🧼 Purged unsubscribed calendar from localStorage: ${k}`);
-                    }
-                });
-        };
-
-        const subscribedIds = getSubscribedCalendarIdsFromCache();
-        purgeUnsubscribedCalendarsFromLocalStorage(subscribedIds);
-
-        const calendarsToSync = serverCalendars.filter(c => subscribedIds.includes(Number(c.cal_id)));
-        console.log("📂 Syncing only the subscribed calendars:", calendarsToSync);
-
-        for (const calendar of calendarsToSync) {
-            try {
-                if (!buwanaId || !calendar.cal_id) {
-                    console.error("❌ Missing buwana_id or cal_id. Skipping calendar.");
-                    continue;
-                }
-
-                console.log('📂 Syncing calendar:', calendar);
-
-                const localKey = `calendar_${calendar.cal_id}`;
-                let localDateCycles = [];
-
-                try {
-                    const parsed = JSON.parse(localStorage.getItem(localKey)) || [];
-                    if (Array.isArray(parsed)) {
-                        localDateCycles = parsed;
-                    } else {
-                        console.warn(`⚠️ Expected array for ${localKey}, got`, typeof parsed);
-                    }
-                } catch (e) {
-                    console.warn(`⚠️ Failed to load local dateCycles for ${localKey}`, e);
-                }
-
-                const unsyncedDateCycles = localDateCycles.filter(dc => dc.synced !== 1 && dc.synced !== "1");
-
-                console.log(`🧭 Found ${unsyncedDateCycles.length} unsynced dateCycles in localStorage for calendar ${calendar.cal_id}`);
-
-                await updateServerDatecycles(calendar.cal_id, unsyncedDateCycles);
-
-                // Refresh local copy from server after syncing
-                let serverDateCycles = [];
-                try {
-                    const response = await fetch('https://buwana.ecobricks.org/earthcal/get_calendar_data.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendar.cal_id }),
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        serverDateCycles = data.dateCycles || [];
-                        console.log(`📊 Fetched ${serverDateCycles.length} dateCycles from server for cal_id ${calendar.cal_id}`);
-                    } else {
-                        console.warn(`⚠️ Server returned error for calendar ${calendar.cal_id}:`, data.message);
-                    }
-                } catch (err) {
-                    console.warn(`⚠️ Failed to fetch server dateCycles for calendar ${calendar.cal_id}:`, err);
-                }
-
-                await updateLocalDatecycles(calendar.cal_id, serverDateCycles);
-                totalDateCyclesUpdated += serverDateCycles.length;
-
-            } catch (error) {
-                console.error(`⚠️ Error syncing calendar '${calendar.cal_name}':`, error);
-            }
-        }
-
-        console.log("✅ Sync complete. Local calendars updated.");
-        return `Your ${calendarsToSync.length} calendars and ${totalDateCyclesUpdated} datecycles were updated`;
-    } catch (error) {
-        console.error("Sync failed:", error);
-        return "⚠️ Sync failed!";
-    }
-}
-
-
-
-
-// 🚀 Push dateCycles to server via upsert
-async function updateServerDatecycles(cal_id, dateCycles) {
-    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-    const buwanaId = ok ? payload.buwana_id : null;
-
-    if (!buwanaId) {
-        console.warn("❌ No buwana_id found. Cannot push dateCycles to server.");
-        return;
-    }
-
-    let updated = 0;
-    for (const dc of dateCycles) {
-        // Only push those not yet synced
-        if (dc.synced === 1 || dc.synced === "1") continue;
-
-        const commentsSanitized = sanitizeComments(dc.comment, dc.comments);
-
-        const dateCycleToSend = {
-            ...dc,
-            buwana_id: buwanaId,
-            cal_id: cal_id,
-            comment: commentsSanitized ? 1 : 0,
-            comments: commentsSanitized,
-            last_edited: new Date().toISOString().slice(0, 19).replace('T', ' ')
-        };
+        Object.keys(localStorage)
+            .filter(key => /^calendar_\d+$/.test(key) && !keysToKeep.has(key))
+            .forEach(key => localStorage.removeItem(key));
 
         try {
-            const response = await fetch("https://buwana.ecobricks.org/earthcal/upsert_datecycle.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(dateCycleToSend)
-            });
-
-            const result = await response.json().catch(() => ({}));
-            if (!response.ok || !result.success) {
-                console.warn(`⚠️ Server rejected dateCycle ${dc.title || dc.unique_key}:`, result.message);
-                continue;
-            }
-
-            dc.synced = 1; // Mark as synced
-            dc.comments = commentsSanitized; // keep local copy clean
-            updated++;
-        } catch (err) {
-            console.error("⚠️ Failed to push dateCycle to server:", err);
+            sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
+        } catch (storageErr) {
+            console.warn('Unable to cache user calendars in sessionStorage:', storageErr);
         }
-    }
 
-    console.log(`☁️ ${updated} dateCycles pushed to server for calendar ${cal_id}`);
+        const summary = `Your ${calendars.length} calendars and ${totalItems} datecycles were updated`;
+        console.log('✅ Sync complete:', summary);
+        return summary;
+    } catch (error) {
+        console.error('Sync failed:', error);
+        throw error;
+    }
 }
-
-
-
-
-
-
-async function updateLocalDatecycles(cal_id, serverDateCycles) {
-    if (!Array.isArray(serverDateCycles)) {
-        console.warn(`⚠️ Server returned invalid dateCycles for calendar ${cal_id}`);
-        return;
-    }
-
-    let localCalendar = [];
-    try {
-        const raw = localStorage.getItem(`calendar_${cal_id}`);
-        const parsed = JSON.parse(raw || "[]");
-        if (Array.isArray(parsed)) {
-            localCalendar = parsed;
-        } else {
-            console.warn(`⚠️ localCalendar data for ${cal_id} was not an array. Resetting.`);
-        }
-    } catch (e) {
-        console.error(`❌ Failed to parse localCalendar for calendar ${cal_id}:`, e);
-    }
-
-    let map = {};
-    localCalendar.forEach(dc => {
-        if (dc?.unique_key) {
-            map[dc.unique_key] = dc;
-        }
-    });
-
-    serverDateCycles.forEach(serverDC => {
-        if (!serverDC.unique_key) return;
-        const key = serverDC.unique_key;
-        const isNewer = !map[key] || new Date(serverDC.last_edited) > new Date(map[key].last_edited);
-
-        const commentsSanitized = sanitizeComments(serverDC.comment, serverDC.comments);
-        const commentFlag = commentsSanitized ? 1 : 0;
-
-        if (isNewer) {
-            map[key] = {
-                ...serverDC,
-                comment: commentFlag,
-                comments: commentsSanitized,
-                synced: 1
-            };
-        }
-    });
-
-    const updated = Object.values(map);
-    localStorage.setItem(`calendar_${cal_id}`, JSON.stringify(updated));
-    console.log(`💾 Updated local calendar_${cal_id} with ${updated.length} dateCycles`);
-}
-
-
 
 
 
