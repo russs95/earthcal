@@ -217,10 +217,9 @@ try {
         $query = "SELECT i.item_id, i.calendar_id, i.uid, i.component_type, i.summary, i.description,
                          i.location, i.url, i.tzid, i.dtstart_utc, i.dtend_utc, i.due_utc, i.all_day,
                          i.pinned, i.item_emoji, i.item_color, i.percent_complete, i.priority, i.status,
-                         i.completed_at, i.classification, i.created_at, i.updated_at
+                         i.completed_at, i.classification, i.created_at, i.updated_at, i.deleted_at
                     FROM items_v1_tb AS i
-                   WHERE i.calendar_id IN (" . implode(',', $placeholders) . ")
-                     AND (i.deleted_at IS NULL OR i.deleted_at = '0000-00-00 00:00:00')";
+                   WHERE i.calendar_id IN (" . implode(',', $placeholders) . ")";
         if ($yearFilter !== null) {
             $query .= " AND ( (i.dtstart_utc IS NOT NULL AND YEAR(i.dtstart_utc) = :year_dtstart)"
                    . " OR (i.due_utc IS NOT NULL AND YEAR(i.due_utc) = :year_due) )";
@@ -233,6 +232,11 @@ try {
         $itemStmt->execute($params);
 
         while ($row = $itemStmt->fetch(PDO::FETCH_ASSOC)) {
+            $deletedAtRaw = $row['deleted_at'] ?? null;
+            if ($deletedAtRaw !== null && $deletedAtRaw !== '0000-00-00 00:00:00' && $deletedAtRaw !== '0000-00-00') {
+                continue;
+            }
+
             $calendarId = (int)$row['calendar_id'];
             if (!isset($calendars[$calendarId])) {
                 continue;
