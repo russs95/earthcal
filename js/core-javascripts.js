@@ -226,7 +226,6 @@ function updateHighlightColor() {
 }
 
 
-//<div class="menu-page-item">${userStatusHTML}</div>
 let modalOpen = false;
 
 async function openMainMenu() {
@@ -236,35 +235,10 @@ async function openMainMenu() {
     const lang = userLanguage?.toLowerCase() || 'en';
     const { mainMenu } = await loadTranslations(lang);
 
-    // 🔒 Use unified session checker (no UI update from here)
-    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-
-    const firstName = userProfile?.first_name || payload?.given_name || "Earthling";
-    const earthlingEmoji = userProfile?.earthling_emoji || payload?.["buwana:earthlingEmoji"] || "🌎";
-
-    let userStatusHTML = '';
-    if (ok) {
-        userStatusHTML = `
-            <div id="user-status">
-                ${earthlingEmoji} ${mainMenu.loggedIn?.welcome || 'Welcome Back,'} ${firstName}
-                | <a href="#" onclick="logoutBuwana(); closeMainMenu();">Logout</a>
-            </div>
-        `;
-    } else {
-        userStatusHTML = `
-            <div id="or-login-signup">
-                <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58">Signup</a> |
-                <a href="#" onclick="closeMainMenu(); sendUpRegistration()">Log in</a>
-            </div>
-        `;
-    }
-
     content.innerHTML = `
         <div class="earthcal-app-logo" style="margin-bottom: auto; margin-top: auto;">
             <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
-
-        ${userStatusHTML}
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
             ${mainMenu.featureTour}
