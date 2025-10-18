@@ -192,20 +192,26 @@ try {
 
     $itemCount = 0;
     if (!empty($calendarIdsForItems)) {
-        $placeholders = implode(',', array_fill(0, count($calendarIdsForItems), '?'));
+        $params = [];
+        $placeholders = [];
+        foreach (array_values($calendarIdsForItems) as $index => $calendarId) {
+            $placeholder = ':cal' . $index;
+            $placeholders[] = $placeholder;
+            $params[$placeholder] = $calendarId;
+        }
+
         $query = "SELECT i.item_id, i.calendar_id, i.uid, i.component_type, i.summary, i.description,
                          i.location, i.url, i.tzid, i.dtstart_utc, i.dtend_utc, i.due_utc, i.all_day,
                          i.pinned, i.item_emoji, i.item_color, i.percent_complete, i.priority, i.status,
                          i.completed_at, i.classification, i.created_at, i.updated_at
                     FROM items_v1_tb AS i
-                   WHERE i.calendar_id IN ($placeholders)
+                   WHERE i.calendar_id IN (" . implode(',', $placeholders) . ")
                      AND (i.deleted_at IS NULL OR i.deleted_at = '0000-00-00 00:00:00')";
-        $params = $calendarIdsForItems;
-        if ($yearFilter) {
-            $query .= " AND ( (i.dtstart_utc IS NOT NULL AND YEAR(i.dtstart_utc) = ?)"
-                   . " OR (i.due_utc IS NOT NULL AND YEAR(i.due_utc) = ?) )";
-            $params[] = $yearFilter;
-            $params[] = $yearFilter;
+        if ($yearFilter !== null) {
+            $query .= " AND ( (i.dtstart_utc IS NOT NULL AND YEAR(i.dtstart_utc) = :year_dtstart)"
+                   . " OR (i.due_utc IS NOT NULL AND YEAR(i.due_utc) = :year_due) )";
+            $params[':year_dtstart'] = $yearFilter;
+            $params[':year_due'] = $yearFilter;
         }
 
         $itemStmt = $pdo->prepare($query);
