@@ -195,9 +195,9 @@ try {
         $params = [];
         $placeholders = [];
         foreach (array_values($calendarIdsForItems) as $index => $calendarId) {
-            $placeholder = ':cal' . $index;
-            $placeholders[] = $placeholder;
-            $params[$placeholder] = $calendarId;
+            $placeholderName = 'cal_' . $index;
+            $placeholders[] = ':' . $placeholderName;
+            $params[$placeholderName] = $calendarId;
         }
 
         $query = "SELECT i.item_id, i.calendar_id, i.uid, i.component_type, i.summary, i.description,
@@ -210,8 +210,8 @@ try {
         if ($yearFilter !== null) {
             $query .= " AND ( (i.dtstart_utc IS NOT NULL AND YEAR(i.dtstart_utc) = :year_dtstart)"
                    . " OR (i.due_utc IS NOT NULL AND YEAR(i.due_utc) = :year_due) )";
-            $params[':year_dtstart'] = $yearFilter;
-            $params[':year_due'] = $yearFilter;
+            $params['year_dtstart'] = $yearFilter;
+            $params['year_due'] = $yearFilter;
         }
 
         $itemStmt = $pdo->prepare($query);
