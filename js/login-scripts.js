@@ -373,7 +373,7 @@ function sanitizeCalendarColor(color) {
 }
 
 function buildLegacyCalendarCache(calendars) {
-    const list = Array.isArray(calendars) ? calendars : [];
+    const list = normalizeCalendarList(calendars);
     return {
         personal_calendars: list.map(cal => ({
             calendar_id: cal?.calendar_id ?? null,
@@ -386,7 +386,7 @@ function buildLegacyCalendarCache(calendars) {
             category: cal?.category ?? '',
             emoji: cal?.emoji ?? '',
             is_readonly: cal?.is_readonly ? 1 : 0,
-            is_active: cal?.is_active ? 1 : 0
+            is_active: normalizeCalendarActiveValue(cal?.is_active) ? 1 : 0
         })),
         subscribed_calendars: [],
         public_calendars: []
@@ -405,6 +405,57 @@ function sortCalendarsByName(calendars) {
     });
 }
 
+function normalizeCalendarActiveValue(value) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        if (!Number.isFinite(value)) {
+            return false;
+        }
+        return value !== 0;
+    }
+
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (['1', 'true', 'yes', 'y', 'on', 'active'].includes(normalized)) {
+            return true;
+        }
+        if (['0', 'false', 'no', 'n', 'off', 'inactive', ''].includes(normalized)) {
+            return false;
+        }
+    }
+
+    if (value === null || value === undefined) {
+        return false;
+    }
+
+    return Boolean(value);
+}
+
+function normalizeCalendarEntry(entry) {
+    if (!entry || typeof entry !== 'object') {
+        return entry;
+    }
+
+    const next = { ...entry };
+    if ('cal_active' in next && !('is_active' in next)) {
+        next.is_active = normalizeCalendarActiveValue(next.cal_active);
+    } else {
+        next.is_active = normalizeCalendarActiveValue(next.is_active);
+    }
+    return next;
+}
+
+function normalizeCalendarList(calendars) {
+    if (!Array.isArray(calendars)) {
+        return [];
+    }
+
+    return calendars.map((entry) => normalizeCalendarEntry(entry));
+}
+
 function renderCalendarSelectionForm(calendars, {
     container,
     publicContainer,
@@ -420,7 +471,7 @@ function renderCalendarSelectionForm(calendars, {
         return;
     }
 
-    const list = Array.isArray(calendars) ? calendars : [];
+    const list = normalizeCalendarList(calendars);
 
     const getHost = () => {
         if (hostElement instanceof HTMLElement) return hostElement;
@@ -465,7 +516,7 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
-                const isActive = !!cal?.is_active;
+                const isActive = normalizeCalendarActiveValue(cal?.is_active);
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
                 const calColor = (cal?.cal_color || '').toString().trim();
@@ -564,7 +615,7 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
-                const isActive = !!cal?.is_active;
+                const isActive = normalizeCalendarActiveValue(cal?.is_active);
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
                 const calColor = (cal?.cal_color || '').toString().trim();
@@ -660,7 +711,8 @@ function refreshLoggedInCalendarLists(nextCalendars) {
         calendars = [];
     }
 
-    const sortedCalendars = sortCalendarsByName(calendars);
+    const normalizedCalendars = normalizeCalendarList(calendars);
+    const sortedCalendars = sortCalendarsByName(normalizedCalendars);
 
     renderCalendarSelectionForm(sortedCalendars, {
         container: personalForm || undefined,
@@ -848,19 +900,21 @@ async function showLoggedInView(calendars = []) {
         calendarList = [];
     }
 
+    const normalizedCalendars = normalizeCalendarList(calendarList);
+
     try {
-        sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendarList));
+        sessionStorage.setItem('user_calendars_v1', JSON.stringify(normalizedCalendars));
     } catch (err) {
         console.debug('[showLoggedInView] Unable to cache v1 calendars:', err);
     }
 
     try {
-        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendarList)));
+        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(normalizedCalendars)));
     } catch (err) {
         console.debug('[showLoggedInView] Unable to refresh legacy calendar cache:', err);
     }
 
-    const sortedCalendars = sortCalendarsByName(calendarList);
+    const sortedCalendars = sortCalendarsByName(normalizedCalendars);
 
     const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
 
@@ -1517,6 +1571,13 @@ async function toggleV1CalVisibility(toggleInput) {
                 toggleLabel.style.removeProperty('--toggle-bg-active');
             }
         }
+        console.log('[cal_active_toggle] Updated calendar visibility:', {
+            calendar_id: calendarId,
+            subscription_id: subscriptionId,
+            source_type: sourceType,
+            is_active: desiredActive,
+            response: data
+        });
         showCalendarToggleStatus(desiredActive);
         updateCachedCalendarActiveState({
             calendarId,
@@ -1800,7 +1861,7 @@ async function toggleSubscription(calendarId, subscribe) {
 
             const calData = await calRes.json();
             if (calData?.ok && Array.isArray(calData.calendars)) {
-                const calendars = calData.calendars;
+                const calendars = normalizeCalendarList(calData.calendars);
 
                 if (subscribe) {
                     const targetCal = calendars.find((entry) => Number(entry?.calendar_id) === Number(calendarId));
@@ -1838,7 +1899,7 @@ async function toggleSubscription(calendarId, subscribe) {
                                     throw new Error(activateJson?.error || 'activate_failed');
                                 }
 
-                                targetCal.is_active = 1;
+                                targetCal.is_active = true;
                             } catch (activateErr) {
                                 console.warn('[toggleSubscription] Unable to activate subscription:', activateErr);
                             }
