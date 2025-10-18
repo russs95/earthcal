@@ -231,12 +231,15 @@ async function openAddItem() {
         const updateMaxHeight = () => {
             notesBox.style.maxHeight = `${notesBox.scrollHeight}px`;
         };
+        const track = notesToggle.querySelector('.ec-notes-toggle-track');
+        const thumb = notesToggle.querySelector('.ec-notes-toggle-thumb');
         const setNotesExpanded = (expanded) => {
             notesToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
             notesToggle.setAttribute('aria-label', expanded ? 'Hide notes' : 'Show notes');
             notesToggle.title = expanded ? 'Hide notes' : 'Show notes';
             notesToggle.classList.toggle('is-open', expanded);
-            notesToggle.textContent = expanded ? '▼' : '▲';
+            if (track) track.classList.toggle('is-open', expanded);
+            if (thumb) thumb.classList.toggle('is-open', expanded);
 
             notesBox.classList.toggle('is-open', expanded);
             notesBox.setAttribute('aria-hidden', expanded ? 'false' : 'true');
@@ -317,9 +320,47 @@ async function openAddItem() {
                 return;
             }
 
-            // Success UX — close modal, optionally refresh items for that day
+            // Success UX — close modal, refresh cached data, then update highlights
             if (typeof closeTheModal === 'function') closeTheModal();
-            if (typeof highlightDateCycles === 'function') highlightDateCycles(); // or your newer refresh method
+
+            if (typeof syncDatecycles === 'function') {
+                try {
+                    await syncDatecycles();
+                } catch (syncErr) {
+                    console.warn('[openAddItem] syncDatecycles error after add_item:', syncErr);
+                }
+            }
+
+            if (typeof highlightDateCycles === 'function') {
+                const ensureValidDate = (value) => {
+                    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+                        return value;
+                    }
+                    return null;
+                };
+
+                let highlightTarget = ensureValidDate(typeof targetDate !== 'undefined' ? targetDate : null);
+
+                if (!highlightTarget && typeof payload?.start_local === 'string') {
+                    const [datePart] = payload.start_local.split(' ');
+                    if (datePart) {
+                        const [yyyy, mm, dd] = datePart.split('-').map(Number);
+                        if ([yyyy, mm, dd].every((num) => Number.isFinite(num))) {
+                            highlightTarget = ensureValidDate(new Date(yyyy, mm - 1, dd));
+                        }
+                    }
+                }
+
+                if (!highlightTarget) {
+                    highlightTarget = new Date();
+                }
+
+                try {
+                    highlightDateCycles(highlightTarget);
+                } catch (highlightErr) {
+                    console.warn('[openAddItem] highlightDateCycles error:', highlightErr);
+                }
+            }
             // Optionally toast:
             // showToast('To-Do added!', 'success');
 
@@ -364,7 +405,11 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         
         <div class="ec-form-field ec-title-row">
           <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
-          <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">▲</button>
+          <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">
+            <span class="ec-notes-toggle-track" aria-hidden="true">
+              <span class="ec-notes-toggle-thumb"></span>
+            </span>
+          </button>
         </div>
 
         <div class="ec-form-field ec-notes-field">

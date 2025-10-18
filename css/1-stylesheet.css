@@ -2771,33 +2771,63 @@ INFO MODAL
 }
 
 .ec-notes-toggle-button {
-    width: 20px;
-    min-width: 20px;
+    width: 32px;
+    min-width: 32px;
     height: 45px;
-    border: none;
-    border-radius: 10px;
+    padding: 0;
+    border: 2px solid var(--button-2-1);
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--form-field-background);
-    color: var(--form-field-text);
-    font-size: 0.9rem;
+    background: var(--general-background);
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.ec-notes-toggle-track {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--form-field-background);
+    pointer-events: none;
+    transition: background 0.2s ease;
+}
+
+.ec-notes-toggle-thumb {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--button-2-1);
+    transition: top 0.2s ease, transform 0.2s ease;
+}
+
+.ec-notes-toggle-button.is-open .ec-notes-toggle-thumb,
+.ec-notes-toggle-thumb.is-open {
+    top: calc(100% - 6px - 16px);
 }
 
 .ec-notes-toggle-button:hover {
-    background: var(--general-background);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
 .ec-notes-toggle-button:focus-visible {
-    outline: 2px solid var(--form-field-text);
+    outline: 2px solid var(--button-2-1);
     outline-offset: 2px;
-    background: var(--general-background);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
 }
 
-.ec-notes-toggle-button.is-open {
-    transform: translateY(1px);
+.ec-notes-toggle-button.is-open .ec-notes-toggle-track,
+.ec-notes-toggle-track.is-open {
+    background: var(--general-background);
 }
 
 .ec-notes-field {
