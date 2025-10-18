@@ -40,10 +40,10 @@ if (!function_exists('earthcal_get_pdo')) {
         $port = $port ?: 3306;
         $dsn  = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
 
-        $$cached = new PDO($dsn, (string)$user, (string)$pass, [
+        $cached = new PDO($dsn, (string)$user, (string)$pass, [
              PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
              PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-             PDO::ATTR_EMULATE_PREPARES   => false,                // ✅ Add this line
+             PDO::ATTR_EMULATE_PREPARES   => true,
              PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
          ]);
 
