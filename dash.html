@@ -409,191 +409,6 @@
 
 <!--ADD DATECYCLE FORM, hidden-->
 
-<div id="add-datecycle" class="overlay-add-datecycle modal-hidden">
-    <button type="button" style="cursor:pointer" onclick="closeAddCycle(), closeDateCycleExports(), highlightDateCycles()" aria-label="Close settings page" class="x-button"></button>
-    <div class="add-datecycle-content">
-        <form id="dateCycleForm">
-            <!-- Hidden fields added -->
-            <input type="hidden" id="set-calendar-id" name="calendarId" value="">
-            <input type="hidden" id="set-calendar-color" name="calendarColor" value="">
-            <input type="hidden" id="buwana-id" name="buwanaId" value="">
-            <div class="add-date-form" style="margin:auto;">
-                <!-- Form header-->
-                <div id="add-datecycle-info">
-                    <!--<div class="top-add-icon"></div>-->
-                    <h3 style="width:85%;margin:20px auto;" id="add-event-title">Add an event for this date.</h3>
-                </div>
-                <!-- Single-Line Event Name Field -->
-                <div id="name-event" style="margin: 0px auto 10px auto; width: 70%;">
-                    <input type="text" id="add-date-title" placeholder="Event name..." class="blur-form-field"
-                           style="width: 100%; border-radius: 10px; padding: 8px; cursor: text;height:45px;" title="Datecycle name">
-                </div>
-                <!-- DateCycle Options (simplified) -->
-                <div id="datecycle-options" style="display: flex; justify-content: center; width: 70%; margin: auto; gap: 5px;">
-                    <!-- DateCycle-type-->
-                    <select id="dateCycle-type" class="blur-form-field"
-                            style="flex-grow: 1; font-size: 1em; text-align: center; height: 45px;" title="Frequency"
-                            onchange="showYearMonthDaySetter()">
-                    </select>
-                    <!-- Datecycle Color Picker -->
-                    <select id="DateColorPicker" name="color" class="blur-form-field"
-                            style="width: 60px; font-size: 1.5em;" title="Event color">
-                        <option value="green">🟢</option>
-                        <option value="yellow">🟡</option>
-                        <option value="orange">🟠</option>
-                        <option value="red">🔴</option>
-                        <option value="blue" selected>🔵</option>
-                    </select>
-                </div>
-                <!--Select Calendar-->
-                <div id="select-cal" style="margin-bottom: 30px;" >
-                    <select id="select-calendar" label="select-calendar" style="width: 70%; margin-bottom: -20px; font-size: 1em; text-align: center; height: 45px;" onchange="handleAddNewCal()" class="blur-form-field" >
-                    </select>
-                </div>
-                <!--Add new Calendar-->
-                <div id="addNewCalendar" style="display: none; background-color: var(--button-1-1-over);
-                border-radius: 10px;
-                padding: 20px;
-                width: fit-content;
-                margin: auto;
-                margin-bottom: 25px;">
-                    <form id="calendar-adding-form">
-                        <label for="calendarName">Name:</label>
-                        <input type="text" id="calendarName" name="calendarName" placeholder="Enter Calendar Name"><br>
-                        <label for="colorPicker">Choose a color:</label>
-                        <select id="colorPicker" name="color">
-                            <option value="red">🔴 Red</option>
-                            <option value="blue">🔵 Blue</option>
-                            <option value="green">🟢 Green</option>
-                            <option value="orange">🟠 Orange</option>
-                        </select><br>
-                        <input type="checkbox" id="publicCalendar" name="publicCalendar">
-                        <label for="publicCalendar">Public Calendar</label><br><br>
-                        <button type="button" id="add-new-cal" onclick="addNewCalendar()" class="confirmation-blur-button">+ Add Calendar</button>
-                    </form>
-                </div>
-                <div id="datecycle-setter"></div>
-                <div id="dateCycle-year-option" >
-                    <select name="year" id="year-field2" style="width:70%;font-size: 1em;text-align:center;height:45px;margin-top:10px" class="blur-form-field" >
-                        <option value="" disabled >Select year...</option>
-                        <option>2025</option>
-                        <option>2026</option>
-                        <option>2027</option>
-                        <option>2028</option>
-                        <option>2029</option>
-                    </select>
-                </div>
-
-                <div id="set-date" > <!-- style="display:none;" -->
-                    <div class="date-search fields" style="display: flex;flex-flow:row; padding:10px;margin-right:auto; margin-left:auto;justify-content: center;margin-left: auto;" >
-                        <select name="day" id="day-field2" style="width: 22%; margin-right: 10px; font-size: 1em;height:45px; text-align: center;" class="blur-form-field" >
-                            <option value="" disabled selected>Select day...</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                            <option value="13">13</option>
-                            <option value="14">14</option>
-                            <option value="15">15</option>
-                            <option value="16">16</option>
-                            <option value="17">17</option>
-                            <option value="18">18</option>
-                            <option value="19">19</option>
-                            <option value="20">20</option>
-                            <option value="21">21</option>
-                            <option value="22">22</option>
-                            <option value="23">23</option>
-                            <option value="24">24</option>
-                            <option value="25">25</option>
-                            <option value="26">26</option>
-                            <option value="27">27</option>
-                            <option value="28">28</option>
-                            <option value="29">29</option>
-                            <option value="30">30</option>
-                            <option value="31">31</option>
-                        </select>
-
-                        <select name="month" id="month-field2" style="width: 48%; font-size: 1em; text-align: center; height: 45px;margin-right: auto;
-      margin-left: 0px;" class="blur-form-field">
-                            <option value="" disabled selected>Select month...</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                    </div>
-                    <!--Add note section-->
-                    <div id="add-note-check-boxed">
-                        <input type="checkbox" id="add-note-checkbox">
-                        <label for="add-note-checkbox">Add a note to this event</label>
-                    </div>
-                </div>
-                <!-- note box -->
-                <div id="add-note-form" style="margin-top:20px; margin-bottom: 30px;display:none; height:50px;width:70%;" >
-                    <textarea id="add-date-note" placeholder="Add a note to this event..." class="blur-form-field"></textarea>
-                </div>
-
-                <button type="button" id="confirm-dateCycle-button" class="stellar-submit" onclick="animateConfirmDateCycleButton();" style="width:70%;height:45px;margin-top: 18px;">
-                    + Add Event Please
-                </button>
-
-            </div>
-        </form>
-
-
-
-
-        <!-- EXPORT BOX: almost obselete!
-
-        <div id="export-hover-box" class="export-my-dates" style="width: 80%; padding: 20px; background: #00000030; border-radius: 10px; margin: auto; margin-top: 40px; margin-bottom: 0px;">
-          <div>
-            <p style="margin: 16px auto 10px auto;">Your personal calendars are stored in your browser cache and are 100% private.</p>
-            <div id="export-down-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="openDateCycleExports(), populateDropdown()"></div>
-          </div>
-          <div id="export-import" style="display: none;">
-            <h2 style="font-family: Mulish; margin: 0px;">Manage Calendars</h2>
-            <h6 style="margin: 16px auto 10px auto;">Export your Earthcal events and cycles here:</h6>
-            <button id="datecycles-download" onclick="downloadDateCycles()" aria-label="Download Events & Cycles">
-              ▼ Download
-            </button>
-            <h6 style="margin: 25px 0px 0px 5px;">Upload a DateCycles file to your calendar...</h6>
-            <div class="dateCycles-export" style="width: 380px; padding: 10px; margin: 10px auto 15px auto; background-color: var(--slider); border-radius: 10px; width: fit-content;">
-              <input type="file" id="jsonUpload" accept=".json" aria-label="Choose a JSON file">
-              <button id="booknotes-upload-go" onclick="uploadDateCycles()" aria-label="Upload Booknotes file">▲ Upload</button>
-            </div>
-            <div id="delete-calendar-form">
-              <label for="calendarToDelete">Select Calendar:</label>
-              <select id="calendarToDelete">
-                <option disabled selected>Select calendar...</option>
-              </select>
-              <button onclick="deleteSelectedCalendar()">Delete Calendar</button>
-            </div>
-            <br><br>
-            <hr>
-            <br>
-            <button onclick="clearAllDateCycles()">⚠️ Clear All EarthCal Data</button>
-            <p style="color:red;">Caution! All personal dates will be deleted.</p>
-          </div>
-          <div id="export-up-arrow" style="height: 25px; width: 100px; margin: 15px auto 10px auto; cursor: pointer;" onclick="closeDateCycleExports()"></div>
-          -->
-    </div>
-</div>
 
 <!--MAIN PAGE-->
 <div id="page-content">
@@ -613,7 +428,7 @@
         <div id="eye-icon"></div>
     </div>
 
-    <div id="header" class="top-menu" title="Earthcal v0.9.96">  <!-- Why 140px?-->
+    <div id="header" class="top-menu" title="Earthcal v1.0.0">  <!-- Why 140px?-->
         <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10">
             <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
                 <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
@@ -621,7 +436,7 @@
                     <div id="user-timezone-lang"></div>
                 </div>
                 <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;padding-top:8px;">
-                    <button type="button" class="top-add-button" onclick="openAddCycle()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
+                    <button type="button" class="top-add-button" onclick="showUserCalSettings()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
                 </div>
             </div>
             <div id="time-controller">

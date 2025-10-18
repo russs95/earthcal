@@ -49,6 +49,10 @@ if (!function_exists('earthcal_get_pdo')) {
 
         $cached->exec("SET time_zone = '+00:00'");
 
+        error_log('EarthCal PDO created at: ' . (__FILE__) . ' emulate_prepares=' .
+                  var_export($cached->getAttribute(PDO::ATTR_EMULATE_PREPARES), true));
+
+
         return $cached;
     }
 }
