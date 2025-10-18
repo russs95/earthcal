@@ -125,3 +125,7 @@ function connectGcal(calendarUrl, options = {}) {
 if (typeof window !== 'undefined') {
   window.connectGcal = connectGcal;
 }
+
+
+
+/*  ADD CALENDAR BASICS*/
