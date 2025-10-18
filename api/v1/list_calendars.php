@@ -62,11 +62,12 @@ try {
         SELECT c.calendar_id, c.name, c.default_my_calendar, c.description,
                c.cal_emoji, c.color, c.tzid, c.category, c.visibility,
                c.is_readonly, c.created_at, c.updated_at,
-               s.display_enabled
+               s.subscription_id, s.is_active, s.display_enabled
         FROM calendars_v1_tb AS c
         LEFT JOIN subscriptions_v1_tb AS s
             ON s.user_id = c.user_id
            AND s.calendar_id = c.calendar_id
+           AND s.source_type = 'personal'
         WHERE c.user_id = :uid
         ORDER BY c.default_my_calendar DESC, c.name ASC
     ");
