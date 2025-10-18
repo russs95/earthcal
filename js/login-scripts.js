@@ -352,6 +352,20 @@ function escapeHtml(str) {
     }[ch] || ch));
 }
 
+function parseNumericId(rawValue) {
+    if (rawValue === undefined || rawValue === null) {
+        return null;
+    }
+
+    const trimmed = String(rawValue).trim();
+    if (trimmed === '' || trimmed.toLowerCase() === 'null' || trimmed.toLowerCase() === 'undefined') {
+        return null;
+    }
+
+    const numericValue = Number(trimmed);
+    return Number.isFinite(numericValue) ? numericValue : null;
+}
+
 function formatDateDisplay(value) {
     if (!value) return '—';
     const date = new Date(value);
@@ -1491,10 +1505,11 @@ async function toggleV1CalVisibility(toggleInput) {
     const previousActive = toggleInput.dataset.active === 'true';
     const desiredActive = !!toggleInput.checked;
     const sourceType = (toggleInput.dataset.sourceType || 'personal').toLowerCase();
-    const calendarIdRaw = toggleInput.dataset.calendarId;
-    const subscriptionIdRaw = toggleInput.dataset.subscriptionId;
-    const calendarId = calendarIdRaw ? Number(calendarIdRaw) : null;
-    const subscriptionId = subscriptionIdRaw ? Number(subscriptionIdRaw) : null;
+    const parentRow = toggleInput.closest('.cal-toggle-row');
+    const calendarIdRaw = toggleInput.dataset.calendarId ?? parentRow?.dataset?.calendarId;
+    const subscriptionIdRaw = toggleInput.dataset.subscriptionId ?? parentRow?.dataset?.subscriptionId;
+    const calendarId = parseNumericId(calendarIdRaw);
+    const subscriptionId = parseNumericId(subscriptionIdRaw);
 
     if (!['personal', 'earthcal', 'webcal'].includes(sourceType)) {
         console.warn('[toggleV1CalVisibility] Unknown source type:', sourceType);
