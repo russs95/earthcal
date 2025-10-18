@@ -71,6 +71,21 @@ $includePublic = $boolFilter($includePublicRaw, true);
 $onlyActive   = $boolFilter($payload['only_active'] ?? true, true);
 $yearFilter   = isset($payload['year']) ? (int)$payload['year'] : null;
 
+$debugEnv = getenv('EARTHCAL_DEBUG_GET_USER_ITEMS') ?: '';
+$shouldLog = in_array(strtolower((string)$debugEnv), ['1', 'true', 'on', 'yes'], true);
+
+$log = static function (string $message, array $context = [], bool $always = false) use ($buwanaId, $shouldLog): void {
+    if (!$always && !$shouldLog) {
+        return;
+    }
+
+    $prefix = '[get_user_items buwana_id=' . $buwanaId . '] ';
+    if (!empty($context)) {
+        $message .= ' ' . json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+    error_log($prefix . $message);
+};
+
 try {
     require_once __DIR__ . '/../pdo_connect.php';
     $pdo = earthcal_get_pdo();
@@ -140,22 +155,27 @@ $ensureCalendar = static function (array $row, string $sourceType, array $overri
 
 try {
     // Personal calendars owned by the user
+    $log('Executing personal calendar lookup', ['params' => ['uid_join' => $buwanaId, 'uid_filter' => $buwanaId]]);
     $personalStmt = $pdo->prepare(
         "SELECT c.*, s.subscription_id, s.is_active AS sub_is_active, s.display_enabled AS sub_display_enabled,
                 s.source_type, s.color AS sub_color, s.emoji AS sub_emoji
            FROM calendars_v1_tb AS c
       LEFT JOIN subscriptions_v1_tb AS s
-             ON s.user_id = :uid
+             ON s.user_id = :uid_join
             AND s.source_type = 'personal'
             AND s.calendar_id = c.calendar_id
-          WHERE c.user_id = :uid"
+          WHERE c.user_id = :uid_filter"
     );
-    $personalStmt->execute(['uid' => $buwanaId]);
+    $personalStmt->execute([
+        'uid_join' => $buwanaId,
+        'uid_filter' => $buwanaId,
+    ]);
     foreach ($personalStmt as $row) {
         $ensureCalendar($row, 'personal');
     }
 
     // Calendars the user subscribes to from the Earthcal directory
+    $log('Executing Earthcal subscription lookup', ['params' => ['uid' => $buwanaId]]);
     $earthcalStmt = $pdo->prepare(
         "SELECT s.subscription_id, s.is_active AS sub_is_active, s.display_enabled AS sub_display_enabled,
                 s.color AS sub_color, s.emoji AS sub_emoji, s.earthcal_calendar_id AS calendar_id,
@@ -172,6 +192,7 @@ try {
     }
 
     if ($includePublic) {
+        $log('Executing public calendar lookup');
         $publicStmt = $pdo->prepare(
             "SELECT c.*
                FROM calendars_v1_tb AS c
@@ -203,10 +224,9 @@ try {
         $query = "SELECT i.item_id, i.calendar_id, i.uid, i.component_type, i.summary, i.description,
                          i.location, i.url, i.tzid, i.dtstart_utc, i.dtend_utc, i.due_utc, i.all_day,
                          i.pinned, i.item_emoji, i.item_color, i.percent_complete, i.priority, i.status,
-                         i.completed_at, i.classification, i.created_at, i.updated_at
+                         i.completed_at, i.classification, i.created_at, i.updated_at, i.deleted_at
                     FROM items_v1_tb AS i
-                   WHERE i.calendar_id IN (" . implode(',', $placeholders) . ")
-                     AND (i.deleted_at IS NULL OR i.deleted_at = '0000-00-00 00:00:00')";
+                   WHERE i.calendar_id IN (" . implode(',', $placeholders) . ")";
         if ($yearFilter !== null) {
             $query .= " AND ( (i.dtstart_utc IS NOT NULL AND YEAR(i.dtstart_utc) = :year_dtstart)"
                    . " OR (i.due_utc IS NOT NULL AND YEAR(i.due_utc) = :year_due) )";
@@ -214,10 +234,16 @@ try {
             $params['year_due'] = $yearFilter;
         }
 
+        $log('Executing item lookup', ['calendar_ids' => $calendarIdsForItems, 'params' => array_keys($params)]);
         $itemStmt = $pdo->prepare($query);
         $itemStmt->execute($params);
 
         while ($row = $itemStmt->fetch(PDO::FETCH_ASSOC)) {
+            $deletedAtRaw = $row['deleted_at'] ?? null;
+            if ($deletedAtRaw !== null && $deletedAtRaw !== '0000-00-00 00:00:00' && $deletedAtRaw !== '0000-00-00') {
+                continue;
+            }
+
             $calendarId = (int)$row['calendar_id'];
             if (!isset($calendars[$calendarId])) {
                 continue;
@@ -267,6 +293,7 @@ try {
         }
     }
 
+    $log('Successfully assembled response', ['calendar_count' => count($calendars), 'item_count' => $itemCount]);
     echo json_encode([
         'ok' => true,
         'calendar_count' => count($calendars),
@@ -275,6 +302,7 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     http_response_code(500);
+    $log('Unhandled error', ['exception' => $e->getMessage(), 'trace' => $e->getTraceAsString()], true);
     echo json_encode([
         'ok' => false,
         'error' => 'server_error',
