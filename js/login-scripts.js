@@ -1943,9 +1943,8 @@ async function toggleSubscription(calendarId, subscribe) {
     }
 
     const buwanaId = payload.buwana_id;
-    const subFlag = subscribe ? "1" : "0";
     let latestCalendars = null;
-    console.log(`🔄 Updating subscription for calendar ${calendarId}, subscribe: ${subFlag}`);
+    console.log(`🔄 Updating subscription for calendar ${calendarId}, subscribe: ${subscribe ? '1' : '0'}`);
 
     try {
         // 🟢 Show sync in-progress UI
@@ -1955,26 +1954,33 @@ async function toggleSubscription(calendarId, subscribe) {
             setSyncStatus("Removing calendar subscription...", "🔴", true);
         }
 
+        const endpoint = subscribe
+            ? '/api/v1/add_pub_subscription.php'
+            : '/api/v1/delete_pub_subscription.php';
+
         const requestBody = {
             buwana_id: buwanaId,
-            calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : calendarId,
-            subscribe: subFlag
+            calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : calendarId
         };
 
-        console.info('📨 update_pub_cal_subs payload', {
-            url: '/api/v1/update_pub_cal_subs.php',
+        if (!subscribe && Number.isFinite(summary.subscription_id)) {
+            requestBody.subscription_id = summary.subscription_id;
+        }
+
+        console.info('📨 public subscription payload', {
+            url: endpoint,
             body: requestBody
         });
 
         // 1. Subscribe/unsubscribe server call
-        const response = await fetch('/api/v1/update_pub_cal_subs.php', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
             body: JSON.stringify(requestBody),
         });
         const result = await response.json();
-        console.info('📩 update_pub_cal_subs response', {
+        console.info('📩 public subscription response', {
             status: response.status,
             ok: response.ok,
             result
