@@ -212,7 +212,7 @@ p {
   @media screen and (max-width: 700px) {
 
   #user-timezone-lang {
-    /*margin-right:-55px;*/
+    display: none;
     }
 
   .date-info h2 {
@@ -2751,6 +2751,54 @@ INFO MODAL
     text-align: center;
 }
 
+
+.ec-moon-phase {
+    width: 85%;
+    margin: 12px auto 0;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: var(--form-field-background);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+
+.ec-moon-phase-emoji {
+    font-size: 2.4rem;
+    line-height: 1;
+}
+
+.ec-moon-phase-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ec-moon-phase-name {
+    font-weight: 600;
+    font-size: 1.05em;
+}
+
+.ec-moon-phase-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.9em;
+    color: var(--subdued-text);
+}
+
+.ec-moon-phase-metrics span::after {
+    content: '\2022';
+    margin-left: 8px;
+    opacity: 0.6;
+}
+
+.ec-moon-phase-metrics span:last-child::after {
+    content: '';
+    margin: 0;
+}
 
 .ec-form-field {
     width: 70%;

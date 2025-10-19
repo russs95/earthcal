@@ -180,6 +180,25 @@ async function openAddItem() {
         calendars
     });
 
+    const resolvedMoonDate = (() => {
+        if (typeof targetDate !== 'undefined' && targetDate instanceof Date && !Number.isNaN(targetDate.getTime())) {
+            return new Date(targetDate);
+        }
+        if (typeof dateStr === 'string' && dateStr) {
+            const isoCandidate = `${dateStr}T${timeStr || '00:00'}`;
+            const candidate = new Date(isoCandidate);
+            if (!Number.isNaN(candidate.getTime())) {
+                return candidate;
+            }
+        }
+        return new Date();
+    })();
+
+    displayMoonPhasev1({
+        date: resolvedMoonDate,
+        container: modalContent.querySelector('.add-date-form')
+    });
+
     const titleInput = document.getElementById('ec-title');
     if (titleInput) {
         titleInput.focus();
@@ -991,6 +1010,110 @@ async function addNewCalendarV1(hostTarget) {
             }
         });
     }
+}
+
+function displayMoonPhasev1({ date, container } = {}) {
+    const host = container instanceof HTMLElement ? container : document.querySelector('#modal-content .add-date-form');
+    if (!host) {
+        console.warn('[displayMoonPhasev1] Unable to locate add item form container.');
+        return null;
+    }
+
+    if (typeof SunCalc === 'undefined' || typeof SunCalc.getMoonIllumination !== 'function') {
+        console.warn('[displayMoonPhasev1] SunCalc library is unavailable.');
+        return null;
+    }
+
+    const isValidDate = value => value instanceof Date && !Number.isNaN(value.getTime());
+    const target = isValidDate(date) ? date : new Date();
+
+    const lat = -8.506853;
+    const lon = 115.262477;
+
+    const safeToFixed = (value, digits) => (Number.isFinite(value) ? value.toFixed(digits) : null);
+    const normalizePhase = phase => (Number.isFinite(phase) ? phase : 0);
+    const toDegrees = radians => (Number.isFinite(radians) ? radians * (180 / Math.PI) : NaN);
+    const getPhaseIndexLocal = phase => Math.round(normalizePhase(phase) * 30);
+    const getMoonPhaseEmojiLocal = phase => {
+        const phaseIndex = getPhaseIndexLocal(phase);
+        if (phaseIndex <= 1) return '🌑';
+        if (phaseIndex > 1 && phaseIndex <= 6) return '🌒';
+        if (phaseIndex > 6 && phaseIndex <= 9) return '🌓';
+        if (phaseIndex > 9 && phaseIndex <= 14) return '🌔';
+        if (phaseIndex > 14 && phaseIndex <= 16) return '🌕';
+        if (phaseIndex > 16 && phaseIndex <= 22) return '🌖';
+        if (phaseIndex > 22 && phaseIndex <= 24) return '🌗';
+        if (phaseIndex > 24 && phaseIndex <= 29) return '🌘';
+        return '🌑';
+    };
+    const getMoonPhaseNameLocal = phase => {
+        const phaseIndex = getPhaseIndexLocal(phase);
+        if (phaseIndex > 0 && phaseIndex <= 1) return 'New Moon';
+        if (phaseIndex > 1 && phaseIndex <= 7) return 'Waxing Crescent';
+        if (phaseIndex === 8) return 'First Quarter';
+        if (phaseIndex > 8 && phaseIndex <= 14) return 'Waxing Gibbous';
+        if (phaseIndex > 14 && phaseIndex <= 16) return 'Full Moon';
+        if (phaseIndex > 16 && phaseIndex <= 23) return 'Waning Gibbous';
+        if (phaseIndex === 24) return 'Last Quarter';
+        if (phaseIndex > 24 && phaseIndex <= 29) return 'Waning Crescent';
+        return 'New Moon';
+    };
+
+    const moonIllumination = SunCalc.getMoonIllumination(target);
+    const phase = normalizePhase(moonIllumination?.phase);
+    const fraction = Number.isFinite(moonIllumination?.fraction) ? moonIllumination.fraction : null;
+
+    let moonPosition;
+    try {
+        moonPosition = SunCalc.getMoonPosition(target, lat, lon);
+    } catch (err) {
+        console.warn('[displayMoonPhasev1] Unable to compute moon position.', err);
+    }
+
+    const distance = Number.isFinite(moonPosition?.distance) ? moonPosition.distance : null;
+    const angleDeg = toDegrees(moonPosition?.parallacticAngle);
+
+    const maxMoonDist = 406700;
+    const minMoonDist = 363300;
+    const percentOfMax = Number.isFinite(distance)
+        ? ((distance - minMoonDist) / (maxMoonDist - minMoonDist)) * 100
+        : null;
+
+    const metrics = [];
+    if (fraction !== null) metrics.push(`${Math.round(fraction * 100)}% illuminated`);
+    if (Number.isFinite(angleDeg)) {
+        const angleFormatted = safeToFixed(angleDeg, 2);
+        if (angleFormatted !== null) metrics.push(`Angle: ${angleFormatted}°`);
+    }
+    if (distance !== null) {
+        const distanceFormatted = safeToFixed(distance, 0);
+        if (distanceFormatted !== null) metrics.push(`Distance: ${distanceFormatted} km`);
+    }
+    if (percentOfMax !== null && Number.isFinite(percentOfMax)) {
+        metrics.push(`${safeToFixed(percentOfMax, 0)}% of max distance`);
+    }
+
+    const existing = host.querySelector('.ec-moon-phase');
+    if (existing) existing.remove();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ec-moon-phase';
+    wrapper.innerHTML = `
+        <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
+        <div class="ec-moon-phase-details">
+            <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
+            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<span>${text}</span>`).join('')}</div>` : ''}
+        </div>
+    `;
+
+    const title = host.querySelector('.ec-form-title');
+    if (title && title.parentNode === host) {
+        host.insertBefore(wrapper, title);
+    } else {
+        host.prepend(wrapper);
+    }
+
+    return wrapper;
 }
 
 
