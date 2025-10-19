@@ -473,15 +473,18 @@ function normalizeCalendarList(calendars) {
 function renderCalendarSelectionForm(calendars, {
     container,
     publicContainer,
+    webcalContainer,
     noPersonalText,
     noPublicText,
+    noWebcalText,
     addPersonalLabel,
     hostElement
 } = {}) {
     const personalForm = container || document.getElementById('personal-calendar-selection-form');
     const publicForm = publicContainer || document.getElementById('public-calendar-selection-form');
+    const webcalForm = webcalContainer || document.getElementById('webcal-calendar-selection-form');
 
-    if (!personalForm && !publicForm) {
+    if (!personalForm && !publicForm && !webcalForm) {
         return;
     }
 
@@ -489,7 +492,8 @@ function renderCalendarSelectionForm(calendars, {
 
     const getHost = () => {
         if (hostElement instanceof HTMLElement) return hostElement;
-        const fallback = (personalForm || publicForm)?.closest('#logged-in-view') || document.getElementById('logged-in-view');
+        const fallback = (personalForm || webcalForm || publicForm)?.closest('#logged-in-view')
+            || document.getElementById('logged-in-view');
         return fallback instanceof HTMLElement ? fallback : null;
     };
 
@@ -520,7 +524,11 @@ function renderCalendarSelectionForm(calendars, {
             return visibility === 'public' && source !== 'personal' && hasSubscription;
         };
 
-        const personalCalendars = list.filter((cal) => !isPublicSubscription(cal));
+        const personalCalendars = list.filter((cal) => {
+            if (isPublicSubscription(cal)) return false;
+            const source = (cal?.source_type || '').toString().toLowerCase();
+            return source !== 'webcal';
+        });
 
         const rowsHtml = personalCalendars.length > 0
             ? personalCalendars.map((cal, index) => {
@@ -602,6 +610,68 @@ function renderCalendarSelectionForm(calendars, {
         }
     }
 
+    if (webcalForm) {
+        const emptyWebcalText = typeof noWebcalText === 'string'
+            ? noWebcalText
+            : (webcalForm.dataset.noWebcal || 'No connected Google calendars yet.');
+        webcalForm.dataset.noWebcal = emptyWebcalText;
+
+        webcalForm.__ecAddCalendarHost = overlayHost;
+
+        const webcalCalendars = list.filter((cal) => {
+            if (!cal) return false;
+            const source = (cal.source_type || '').toString().toLowerCase();
+            return source === 'webcal';
+        });
+
+        const webcalRowsHtml = webcalCalendars.length > 0
+            ? webcalCalendars.map((cal, index) => {
+                const sourceType = 'webcal';
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const calendarIdNum = Number(cal?.calendar_id);
+                const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
+                const safeCalendarId = escapeHtml(calendarIdValue);
+                const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+                const isActive = normalizeCalendarActiveValue(cal?.is_active);
+                const checkedAttr = isActive ? 'checked' : '';
+                const activeState = isActive ? 'true' : 'false';
+                const calColor = (cal?.cal_color || '').toString().trim();
+                const safeCalColor = escapeHtml(calColor);
+                const toggleActiveColor = escapeHtml(calColor || '#2ecc71');
+                const toggleStyle = isActive ? ` style="--toggle-bg-active: ${toggleActiveColor};"` : '';
+                const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `web-${index}`);
+                const rowId = `webcal-row-${rowKey}`;
+                const editCalendarId = Number.isFinite(calendarIdNum) ? calendarIdNum : 'null';
+                const deleteCalendarId = editCalendarId;
+
+                return `
+                <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
+                    <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
+                        <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
+                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Google Calendar')}</span>
+                        <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="cal-row-details" data-calendar-id="${safeCalendarId}" data-loaded="false">
+                        <div class="cal-details-content" aria-live="polite">
+                            <p class="cal-details-placeholder">Expand to load calendar details.</p>
+                        </div>
+                        <div class="cal-row-actions">
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${editCalendarId})" aria-label="Edit calendar">✏️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${deleteCalendarId}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('')
+            : `<p>${escapeHtml(emptyWebcalText)}</p>`;
+
+        webcalForm.innerHTML = webcalRowsHtml;
+    }
+
     if (publicForm) {
         const emptyPublicText = typeof noPublicText === 'string'
             ? noPublicText
@@ -618,7 +688,8 @@ function renderCalendarSelectionForm(calendars, {
             const normalizedSubscriptionId = subscriptionId === null || subscriptionId === undefined
                 ? NaN
                 : Number(subscriptionId);
-            return visibility === 'public' && source !== 'personal' && Number.isFinite(normalizedSubscriptionId);
+            const isExcludedSource = source === 'personal' || source === 'webcal';
+            return visibility === 'public' && !isExcludedSource && Number.isFinite(normalizedSubscriptionId);
         });
 
         const publicRowsHtml = publicCalendars.length > 0
@@ -699,9 +770,10 @@ function refreshLoggedInCalendarLists(nextCalendars) {
     }
 
     const personalForm = loggedInView.querySelector('#personal-calendar-selection-form');
+    const webcalForm = loggedInView.querySelector('#webcal-calendar-selection-form');
     const publicForm = loggedInView.querySelector('#public-calendar-selection-form');
 
-    if (!personalForm && !publicForm) {
+    if (!personalForm && !publicForm && !webcalForm) {
         return;
     }
 
@@ -730,9 +802,11 @@ function refreshLoggedInCalendarLists(nextCalendars) {
 
     renderCalendarSelectionForm(sortedCalendars, {
         container: personalForm || undefined,
+        webcalContainer: webcalForm || undefined,
         publicContainer: publicForm || undefined,
         noPersonalText: personalForm?.dataset?.noPersonal,
         noPublicText: publicForm?.dataset?.noPublic,
+        noWebcalText: webcalForm?.dataset?.noWebcal,
         addPersonalLabel: personalForm?.dataset?.addLabel,
         hostElement: loggedInView
     });
@@ -947,6 +1021,7 @@ async function showLoggedInView(calendars = []) {
 
 
             <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
@@ -965,6 +1040,7 @@ async function showLoggedInView(calendars = []) {
 
     renderCalendarSelectionForm(sortedCalendars, {
         container: loggedInView.querySelector('#personal-calendar-selection-form'),
+        webcalContainer: loggedInView.querySelector('#webcal-calendar-selection-form'),
         publicContainer: loggedInView.querySelector('#public-calendar-selection-form'),
         noPersonalText: noPersonal,
         addPersonalLabel,
