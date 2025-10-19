@@ -1106,7 +1106,7 @@ function displayMoonPhasev1({ date, container } = {}) {
             ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<div class="ec-moon-phase-metric">${text}</div>`).join('<br>')}</div>` : ''}
         </div>
     `;
-    
+
 
     const title = host.querySelector('.ec-form-title');
     if (title && title.parentNode === host) {
