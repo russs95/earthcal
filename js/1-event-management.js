@@ -870,6 +870,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     // Use cal_emoji or default to 🗓️
     const calendarEmoji = dateCycle.cal_emoji || '🗓️';
 
+    const commentText = typeof dateCycle.comments === 'string' ? dateCycle.comments : '';
+    const hasComments = commentText.trim() !== '';
+    const isCompleted = Number(dateCycle.completed) === 1;
+    const notesHtml = (!isCompleted && hasComments)
+        ? `<div class="current-date-notes" style="height: fit-content; max-width:300px;">${commentText}</div>`
+        : '';
+
     divElement.innerHTML += `
         <div class="date-info" data-key="${dateCycle.unique_key}" style="
             display: flex;
@@ -909,9 +916,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                         ${calendarEmoji} ${dateCycle.cal_name}
                     </div>
                 </div>
-                <div class="current-date-notes" style="height: fit-content; max-width:300px;">
-                    ${dateCycle.comments || ""}
-                </div>
+                ${notesHtml}
             </div>
 
             <!-- Action Buttons -->
