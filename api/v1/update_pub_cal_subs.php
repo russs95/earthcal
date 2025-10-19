@@ -161,7 +161,8 @@ try {
         if ($existing) {
             $updateStmt = $pdo->prepare(
                 'UPDATE subscriptions_v1_tb
-                    SET is_active = 1,
+                    SET calendar_id = :cid,
+                        is_active = 1,
                         display_enabled = 1,
                         color = :color,
                         emoji = :emoji,
@@ -169,6 +170,7 @@ try {
                   WHERE subscription_id = :sid'
             );
             $updateStmt->execute([
+                'cid' => $calendarId,
                 'color' => $colorToUse,
                 'emoji' => $emojiToUse,
                 'sid' => $subscriptionId,
@@ -176,9 +178,9 @@ try {
         } else {
             $insertStmt = $pdo->prepare(
                 'INSERT INTO subscriptions_v1_tb
-                    (user_id, source_type, earthcal_calendar_id, color, emoji, is_active, display_enabled, created_at, updated_at)
+                    (user_id, calendar_id, source_type, earthcal_calendar_id, color, emoji, is_active, display_enabled, created_at, updated_at)
                  VALUES
-                    (:uid, \'earthcal\', :cid, :color, :emoji, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+                    (:uid, :cid, \'earthcal\', :cid, :color, :emoji, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
             );
             $insertStmt->execute([
                 'uid' => $buwanaId,
