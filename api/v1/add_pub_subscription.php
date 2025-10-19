@@ -43,31 +43,8 @@ if (!is_array($input)) {
     $input = $_POST;
 }
 
-$boolFilter = static function ($value): ?bool {
-    if (is_bool($value)) {
-        return $value;
-    }
-
-    if (is_numeric($value)) {
-        return (int)$value === 1 ? true : ((int)$value === 0 ? false : null);
-    }
-
-    if (is_string($value)) {
-        $normalized = strtolower(trim($value));
-        if (in_array($normalized, ['1', 'true', 'yes', 'on', 'subscribe'], true)) {
-            return true;
-        }
-        if (in_array($normalized, ['0', 'false', 'no', 'off', 'unsubscribe'], true)) {
-            return false;
-        }
-    }
-
-    return null;
-};
-
 $buwanaId = filter_var($input['buwana_id'] ?? null, FILTER_VALIDATE_INT);
 $calendarId = filter_var($input['calendar_id'] ?? $input['cal_id'] ?? null, FILTER_VALIDATE_INT);
-$subscribe = $boolFilter($input['subscribe'] ?? null);
 $color = isset($input['color']) && is_string($input['color']) ? trim($input['color']) : null;
 $emoji = isset($input['emoji']) && is_string($input['emoji']) ? trim($input['emoji']) : null;
 
@@ -80,12 +57,6 @@ if (!$buwanaId) {
 if (!$calendarId) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'calendar_id_required']);
-    exit;
-}
-
-if ($subscribe === null) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'success' => false, 'error' => 'subscribe_flag_invalid']);
     exit;
 }
 
@@ -154,68 +125,41 @@ try {
     $defaultColor = $calendarRow['color'] ?? '#3b82f6';
     $defaultEmoji = $calendarRow['cal_emoji'] ?? '📅';
 
-    if ($subscribe) {
-        $colorToUse = $color !== null && $color !== '' ? $color : ($existing['color'] ?? $defaultColor);
-        $emojiToUse = $emoji !== null && $emoji !== '' ? $emoji : ($existing['emoji'] ?? $defaultEmoji);
-
-        if ($existing) {
-            $updateStmt = $pdo->prepare(
-                'UPDATE subscriptions_v1_tb
-                    SET calendar_id = :cid,
-                        is_active = 1,
-                        display_enabled = 1,
-                        color = :color,
-                        emoji = :emoji,
-                        updated_at = CURRENT_TIMESTAMP
-                  WHERE subscription_id = :sid'
-            );
-            $updateStmt->execute([
-                'cid' => $calendarId,
-                'color' => $colorToUse,
-                'emoji' => $emojiToUse,
-                'sid' => $subscriptionId,
-            ]);
-        } else {
-            $insertStmt = $pdo->prepare(
-                'INSERT INTO subscriptions_v1_tb
-                    (user_id, calendar_id, source_type, earthcal_calendar_id, color, emoji, is_active, display_enabled, created_at, updated_at)
-                 VALUES
-                    (:uid, :cid, \'earthcal\', :earthcal_cid, :color, :emoji, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
-            );
-            $insertStmt->execute([
-                'uid' => $buwanaId,
-                'cid' => $calendarId,
-                'earthcal_cid' => $calendarId,
-                'color' => $colorToUse,
-                'emoji' => $emojiToUse,
-            ]);
-            $subscriptionId = (int)$pdo->lastInsertId();
-        }
-
-        $pdo->commit();
-
-        echo json_encode([
-            'ok' => true,
-            'success' => true,
-            'subscribed' => true,
-            'calendar_id' => (int)$calendarRow['calendar_id'],
-            'subscription_id' => $subscriptionId,
-            'color' => $colorToUse,
-            'emoji' => $emojiToUse,
-            'calendar_name' => $calendarRow['name'] ?? null,
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+    $colorToUse = $color !== null && $color !== '' ? $color : ($existing['color'] ?? $defaultColor);
+    $emojiToUse = $emoji !== null && $emoji !== '' ? $emoji : ($existing['emoji'] ?? $defaultEmoji);
 
     if ($existing) {
-        $deactivateStmt = $pdo->prepare(
+        $updateStmt = $pdo->prepare(
             'UPDATE subscriptions_v1_tb
-                SET is_active = 0,
-                    display_enabled = 0,
+                SET calendar_id = :cid,
+                    is_active = 1,
+                    display_enabled = 1,
+                    color = :color,
+                    emoji = :emoji,
                     updated_at = CURRENT_TIMESTAMP
               WHERE subscription_id = :sid'
         );
-        $deactivateStmt->execute(['sid' => $subscriptionId]);
+        $updateStmt->execute([
+            'cid' => $calendarId,
+            'color' => $colorToUse,
+            'emoji' => $emojiToUse,
+            'sid' => $subscriptionId,
+        ]);
+    } else {
+        $insertStmt = $pdo->prepare(
+            'INSERT INTO subscriptions_v1_tb
+                (user_id, calendar_id, source_type, earthcal_calendar_id, color, emoji, is_active, display_enabled, created_at, updated_at)
+             VALUES
+                (:uid, :cid, \'earthcal\', :earthcal_cid, :color, :emoji, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+        );
+        $insertStmt->execute([
+            'uid' => $buwanaId,
+            'cid' => $calendarId,
+            'earthcal_cid' => $calendarId,
+            'color' => $colorToUse,
+            'emoji' => $emojiToUse,
+        ]);
+        $subscriptionId = (int)$pdo->lastInsertId();
     }
 
     $pdo->commit();
@@ -223,9 +167,12 @@ try {
     echo json_encode([
         'ok' => true,
         'success' => true,
-        'subscribed' => false,
+        'subscribed' => true,
         'calendar_id' => (int)$calendarRow['calendar_id'],
         'subscription_id' => $subscriptionId,
+        'color' => $colorToUse,
+        'emoji' => $emojiToUse,
+        'calendar_name' => $calendarRow['name'] ?? null,
     ], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
