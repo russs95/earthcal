@@ -1103,7 +1103,7 @@ function displayMoonPhasev1({ date, container } = {}) {
         <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
         <div class="ec-moon-phase-details">
             <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
-            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<span>${text}</span><br>`).join('')}</div>` : ''}
+            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<div class="ec-moon-phase-metric">${text}</div>`).join('')}</div>` : ''}
         </div>
     `;
 
@@ -1161,7 +1161,8 @@ async function showPublicCalendars(hostTarget) {
         borderRadius: '10px',
         background: 'var(--general-background)',
         fontFamily: "'Mulish', 'Helvetica Neue', Arial, sans-serif",
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        width: '100%'
     });
 
     overlay.innerHTML = `

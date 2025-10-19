@@ -315,10 +315,131 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
 
     const form = overlay.querySelector('#ec-add-ical-form');
     if (form) {
-        form.addEventListener('submit', (event) => {
+        const handleSubmit = async (event) => {
             event.preventDefault();
-            alert('Saving Google Calendar connections is coming soon!');
-        });
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.textContent : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Connecting…';
+            }
+
+            const formData = new FormData(form);
+            const calendarNameInput = (formData.get('calendar_name') || '').toString().trim();
+            const payload = {
+                buwana_id: user.buwana_id,
+                ical_url: normalizedUrl,
+                calendar_name: calendarNameInput || feedTitle,
+                calendar_description: (formData.get('calendar_description') || '').toString().trim(),
+                calendar_emoji: (formData.get('calendar_emoji') || defaultEmoji).toString(),
+                calendar_color: (formData.get('calendar_color') || defaultColor).toString(),
+                calendar_visibility: (formData.get('calendar_visibility') || visibilityDefault).toString(),
+                calendar_category: (formData.get('calendar_category') || categoryDefault).toString(),
+                feed_title: feedTitle,
+                item_count: eventCount,
+                size_kb: sizeKb
+            };
+
+            try {
+                const res = await fetch('/api/v1/connect_ical.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || !data?.ok) {
+                    const errorMessage = data?.error || data?.message || 'Could not connect that calendar. Please try again.';
+                    alert(errorMessage);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                    return;
+                }
+
+                const calendarLabel = payload.calendar_name || feedTitle;
+                const alreadyConnected = data?.existing === true;
+                const successMessage = alreadyConnected
+                    ? `ℹ️ Calendar "${calendarLabel}" is already connected.`
+                    : `✅ Calendar "${calendarLabel}" connected successfully!`;
+                alert(successMessage);
+
+                const calendarId = Number(data?.calendar_id);
+
+                if (Number.isFinite(calendarId) && typeof fetchCalendarDatecycles === 'function') {
+                    try {
+                        const dateCycles = await fetchCalendarDatecycles(user.buwana_id, calendarId);
+                        localStorage.setItem(
+                            `calendar_${calendarId}`,
+                            JSON.stringify({ cal_id: calendarId, last_synced: Date.now(), datecycles: dateCycles })
+                        );
+                    } catch (syncErr) {
+                        console.warn('[addNewiCal] Unable to sync datecycles after connect:', syncErr);
+                    }
+                }
+
+                if (typeof loadUserCalendars === 'function') {
+                    let updatedCalendars = [];
+                    try {
+                        updatedCalendars = await loadUserCalendars(user.buwana_id, { force: true });
+                    } catch (err) {
+                        console.debug('[addNewiCal] Unable to refresh calendars after connect:', err);
+                    }
+
+                    let sortedCalendars = Array.isArray(updatedCalendars) ? [...updatedCalendars] : [];
+                    if (typeof sortCalendarsByName === 'function') {
+                        try {
+                            sortedCalendars = sortCalendarsByName(updatedCalendars);
+                        } catch (sortErr) {
+                            console.debug('[addNewiCal] Unable to sort calendars for render:', sortErr);
+                        }
+                    }
+
+                    try {
+                        sessionStorage.setItem('user_calendars_v1', JSON.stringify(updatedCalendars || []));
+                    } catch (cacheErr) {
+                        console.debug('[addNewiCal] Unable to refresh v1 calendar cache:', cacheErr);
+                    }
+
+                    if (typeof buildLegacyCalendarCache === 'function') {
+                        try {
+                            sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(updatedCalendars || [])));
+                        } catch (legacyErr) {
+                            console.debug('[addNewiCal] Unable to refresh legacy calendar cache:', legacyErr);
+                        }
+                    }
+
+                    if (typeof renderCalendarSelectionForm === 'function') {
+                        renderCalendarSelectionForm(sortedCalendars, { hostElement });
+                    }
+                }
+
+                if (typeof calendarRefresh === 'function') {
+                    try {
+                        calendarRefresh();
+                    } catch (refreshErr) {
+                        console.debug('[addNewiCal] calendarRefresh failed:', refreshErr);
+                    }
+                }
+
+                teardownOverlay();
+            } catch (err) {
+                console.error('[addNewiCal] Error connecting calendar:', err);
+                alert('Network error — could not reach the server.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText || 'Add calendar';
+                }
+            }
+        };
+
+        form.addEventListener('submit', handleSubmit);
+        cleanupFns.push(() => form.removeEventListener('submit', handleSubmit));
     }
 
     const nameField = overlay.querySelector('#ec-cal-name');

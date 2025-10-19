@@ -1920,15 +1920,26 @@ function setSyncStatus(text, emoji = '', spinning = false, options = {}) {
 }
 
 async function toggleSubscription(calendarId, subscribe) {
+    const desiredActive = !!subscribe;
+    const numericCalendarId = Number(calendarId);
+    const summary = {
+        calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : null,
+        subscription_id: null,
+        source_type: null,
+        desiredActive,
+        is_active: null,
+        response: null
+    };
+
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
     if (!ok || !payload?.buwana_id) {
         console.warn("❌ toggleSubscription: Not logged in or no buwana_id.");
-        return { success: false, error: "not_logged_in" };
+        return { ...summary, success: false, error: "not_logged_in" };
     }
 
     if (!calendarId) {
         console.warn("❌ toggleSubscription: Missing calendarId");
-        return { success: false, error: "no_calendar_id" };
+        return { ...summary, success: false, error: "no_calendar_id" };
     }
 
     const buwanaId = payload.buwana_id;
@@ -1952,11 +1963,21 @@ async function toggleSubscription(calendarId, subscribe) {
             body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId, subscribe: subFlag }),
         });
         const result = await response.json();
+        summary.response = result;
+        if (Number.isFinite(Number(result?.calendar_id))) {
+            summary.calendar_id = Number(result.calendar_id);
+        }
+        if (Number.isFinite(Number(result?.subscription_id))) {
+            summary.subscription_id = Number(result.subscription_id);
+        }
+        if (typeof result?.subscribed === 'boolean') {
+            summary.is_active = result.subscribed;
+        }
         if (!response.ok || result.success === false || result.ok === false) {
             const errorMessage = result?.error || result?.message || 'update_failed';
             console.error(`❌ Failed to update subscription: ${errorMessage}`);
             alert(`Error: ${errorMessage}`);
-            return { success: false, error: errorMessage };
+            return { ...summary, success: false, error: errorMessage };
         }
 
         // 2. Add or remove datecycles
@@ -1982,6 +2003,7 @@ async function toggleSubscription(calendarId, subscribe) {
             localStorage.removeItem(key);
             console.log(`🧼 Removed localStorage entry: ${key}`);
             setSyncStatus("👋 Calendar removed.");
+            summary.is_active = false;
         }
 
         // 3. Refresh calendar metadata cache
@@ -2005,6 +2027,7 @@ async function toggleSubscription(calendarId, subscribe) {
                     const targetCal = calendars.find((entry) => Number(entry?.calendar_id) === Number(calendarId));
                     if (targetCal) {
                         const normalizedSource = (targetCal.source_type || 'earthcal').toString().toLowerCase();
+                        summary.source_type = normalizedSource;
                         const activationPayload = {
                             buwana_id: Number(buwanaId) || buwanaId,
                             source_type: normalizedSource,
@@ -2012,6 +2035,13 @@ async function toggleSubscription(calendarId, subscribe) {
                         };
                         const calendarIdNum = Number(targetCal.calendar_id);
                         const subscriptionIdNum = Number(targetCal.subscription_id);
+
+                        if (Number.isFinite(calendarIdNum)) {
+                            summary.calendar_id = calendarIdNum;
+                        }
+                        if (Number.isFinite(subscriptionIdNum)) {
+                            summary.subscription_id = subscriptionIdNum;
+                        }
 
                         if (normalizedSource === 'webcal' && Number.isFinite(subscriptionIdNum)) {
                             activationPayload.subscription_id = subscriptionIdNum;
@@ -2043,6 +2073,14 @@ async function toggleSubscription(calendarId, subscribe) {
                             }
                         }
                     }
+                } else if (!summary.source_type) {
+                    const fallback = calendars.find((entry) => Number(entry?.calendar_id) === summary.calendar_id);
+                    if (fallback && fallback.source_type) {
+                        summary.source_type = fallback.source_type.toString().toLowerCase();
+                    }
+                    if (fallback && Number.isFinite(Number(fallback.subscription_id))) {
+                        summary.subscription_id = Number(fallback.subscription_id);
+                    }
                 }
 
                 sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
@@ -2062,12 +2100,16 @@ async function toggleSubscription(calendarId, subscribe) {
         // Optional: UI refresh hooks
         if (typeof calendarRefresh === "function") calendarRefresh();
 
-        return { success: true, calendars: latestCalendars };
+        if (summary.is_active === null) {
+            summary.is_active = desiredActive;
+        }
+
+        return { ...summary, success: true, calendars: latestCalendars };
     } catch (err) {
         console.error("❌ Error in toggleSubscription:", err);
         alert("Something went wrong. Please try again.");
         setSyncStatus("⚠️ Sync error occurred.");
-        return { success: false, error: "network_error" };
+        return { ...summary, success: false, error: "network_error" };
     }
 }
 

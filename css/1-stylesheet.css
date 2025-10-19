@@ -2802,6 +2802,8 @@ INFO MODAL
 
 #ec-public-cal-overlay {
     font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #ec-public-cal-overlay .ec-public-cal-overlay-content {
