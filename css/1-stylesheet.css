@@ -2753,16 +2753,16 @@ INFO MODAL
 
 
 .ec-moon-phase {
-    width: 85%;
+    width: fit-content;
     margin: 12px auto 0;
     padding: 12px 16px;
     border-radius: 18px;
-    background: var(--lighter);
+
     color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    margin-bottom: 30px;
 }
 
 .ec-moon-phase-emoji {

@@ -1091,7 +1091,7 @@ function displayMoonPhasev1({ date, container } = {}) {
     const metrics = [];
     if (fraction !== null) metrics.push(`${Math.round(fraction * 100)}% illuminated`);
     if (percentOfMax !== null && Number.isFinite(percentOfMax)) {
-        metrics.push(`${safeToFixed(percentOfMax, 0)}% of max distance`);
+        metrics.push(`${safeToFixed(percentOfMax, 0)}% max distance`);
     }
 
     const existing = host.querySelector('.ec-moon-phase');
@@ -1103,7 +1103,7 @@ function displayMoonPhasev1({ date, container } = {}) {
         <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
         <div class="ec-moon-phase-details">
             <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
-            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<span>${text}</span>`).join('')}</div>` : ''}
+            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<span>${text}</span><br>`).join('')}</div>` : ''}
         </div>
     `;
 
