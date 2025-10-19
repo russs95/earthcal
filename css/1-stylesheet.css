@@ -2757,7 +2757,7 @@ INFO MODAL
     margin: 12px auto 0;
     padding: 12px 16px;
     border-radius: 18px;
-    background: var(--form-field-background);
+    background: var(--lighter);
     color: var(--text-color);
     display: flex;
     align-items: center;
@@ -2798,6 +2798,60 @@ INFO MODAL
 .ec-moon-phase-metrics span:last-child::after {
     content: '';
     margin: 0;
+}
+
+#ec-public-cal-overlay {
+    font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
+}
+
+#ec-public-cal-overlay .ec-public-cal-overlay-content {
+    width: min(720px, 100%);
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    border-radius: 16px;
+    background: var(--general-background);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    overflow-y: auto;
+}
+
+#ec-public-cal-overlay .ec-public-cal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#ec-public-cal-overlay .ec-public-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+#ec-public-cal-overlay .ec-public-page-status {
+    flex: 1;
+    text-align: center;
+    color: var(--subdued-text);
+    font-size: 0.9rem;
+}
+
+.ec-public-nav-link {
+    background: none;
+    border: none;
+    color: var(--link-color, var(--accent-color, #2563eb));
+    padding: 0;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.ec-public-nav-link[disabled] {
+    color: var(--subdued-text);
+    cursor: default;
+    text-decoration: none;
 }
 
 .ec-form-field {
