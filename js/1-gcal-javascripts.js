@@ -363,12 +363,54 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
 
                 const calendarLabel = payload.calendar_name || feedTitle;
                 const alreadyConnected = data?.existing === true;
+                const calendarId = Number(data?.calendar_id);
+                const subscriptionId = Number(data?.subscription_id);
+
+                let syncNotice = '';
+                if (Number.isFinite(subscriptionId)) {
+                    const syncPayload = { subscription_id: subscriptionId };
+                    if (!alreadyConnected) {
+                        syncPayload.force_full = true;
+                    }
+
+                    try {
+                        const syncRes = await fetch('/api/v1/sync_ical.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin',
+                            body: JSON.stringify(syncPayload)
+                        });
+
+                        const syncData = await syncRes.json().catch(() => ({}));
+
+                        if (syncRes.ok && syncData?.ok) {
+                            if (syncData?.skipped) {
+                                syncNotice = 'ℹ️ Calendar feed is already up to date.';
+                            } else {
+                                const inserted = Number(syncData?.inserted) || 0;
+                                const updated = Number(syncData?.updated) || 0;
+                                const parts = [];
+                                if (inserted > 0) parts.push(`${inserted} new events`);
+                                if (updated > 0) parts.push(`${updated} updates`);
+                                const summary = parts.length ? parts.join(' and ') : 'events';
+                                syncNotice = `✅ Imported ${summary} from Google.`;
+                            }
+                        } else {
+                            const detail = syncData?.error || syncData?.detail || 'unknown_error';
+                            syncNotice = `⚠️ Connected, but importing events failed (${detail}).`;
+                            console.warn('[addNewiCal] sync_ical.php failed:', syncData);
+                        }
+                    } catch (syncErr) {
+                        syncNotice = '⚠️ Connected, but we could not import events right now.';
+                        console.error('[addNewiCal] Error syncing calendar:', syncErr);
+                    }
+                }
+
                 const successMessage = alreadyConnected
                     ? `ℹ️ Calendar "${calendarLabel}" is already connected.`
                     : `✅ Calendar "${calendarLabel}" connected successfully!`;
-                alert(successMessage);
-
-                const calendarId = Number(data?.calendar_id);
+                const finalMessage = syncNotice ? `${successMessage}\n${syncNotice}` : successMessage;
+                alert(finalMessage);
 
                 if (Number.isFinite(calendarId) && typeof fetchCalendarDatecycles === 'function') {
                     try {

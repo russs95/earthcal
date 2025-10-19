@@ -749,6 +749,17 @@ margin-right: auto;
     transition: transform 0.2s ease;
 }
 
+.cal-row-icon::before,
+.cal-toggle-row:hover .cal-row-icon::before {
+    content: '';
+}
+
+.cal-row-icon img {
+    display: block;
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
 .cal-toggle-row:hover .cal-row-emoji::before {
     content: "ℹ️";
 }
