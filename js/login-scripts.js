@@ -1955,14 +1955,30 @@ async function toggleSubscription(calendarId, subscribe) {
             setSyncStatus("Removing calendar subscription...", "🔴", true);
         }
 
+        const requestBody = {
+            buwana_id: buwanaId,
+            calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : calendarId,
+            subscribe: subFlag
+        };
+
+        console.info('📨 update_pub_cal_subs payload', {
+            url: '/api/v1/update_pub_cal_subs.php',
+            body: requestBody
+        });
+
         // 1. Subscribe/unsubscribe server call
         const response = await fetch('/api/v1/update_pub_cal_subs.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId, subscribe: subFlag }),
+            body: JSON.stringify(requestBody),
         });
         const result = await response.json();
+        console.info('📩 update_pub_cal_subs response', {
+            status: response.status,
+            ok: response.ok,
+            result
+        });
         summary.response = result;
         if (Number.isFinite(Number(result?.calendar_id))) {
             summary.calendar_id = Number(result.calendar_id);
