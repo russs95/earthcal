@@ -482,9 +482,15 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
   `;
 }
 
-const EC_EMOJI_OPTIONS = [
+const FEATURED_EC_EMOJIS = [
+    '👍','🙏','🚀','🎉','❤️','💪','⚠️','😍','🤩','🤞','💾',
+    '☀️','🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘','🌙','🌚','🌛','🌜','🌝',
+    '🌎','🌍','🌏','🪐','☿️','♀️','♂️','♃','♄','♅','♆','♇'
+];
+
+const BASE_EC_EMOJIS = [
     '😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇',
-    '🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚',
+    '🙂','🙃','😉','😌','🥰','😘','😗','😙','😚',
     '😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥳',
     '😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖',
     '😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯',
@@ -494,6 +500,11 @@ const EC_EMOJI_OPTIONS = [
     '🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀',
     '☠️','👽','👾','🤖','🎃','😺','😸','😹','😻','😼'
 ];
+
+const EC_EMOJI_OPTIONS = Array.from(new Set([
+    ...FEATURED_EC_EMOJIS,
+    ...BASE_EC_EMOJIS
+]));
 
 function buildEmojiPicker() {
     return EC_EMOJI_OPTIONS
@@ -1032,7 +1043,6 @@ function displayMoonPhasev1({ date, container } = {}) {
 
     const safeToFixed = (value, digits) => (Number.isFinite(value) ? value.toFixed(digits) : null);
     const normalizePhase = phase => (Number.isFinite(phase) ? phase : 0);
-    const toDegrees = radians => (Number.isFinite(radians) ? radians * (180 / Math.PI) : NaN);
     const getPhaseIndexLocal = phase => Math.round(normalizePhase(phase) * 30);
     const getMoonPhaseEmojiLocal = phase => {
         const phaseIndex = getPhaseIndexLocal(phase);
@@ -1071,7 +1081,6 @@ function displayMoonPhasev1({ date, container } = {}) {
     }
 
     const distance = Number.isFinite(moonPosition?.distance) ? moonPosition.distance : null;
-    const angleDeg = toDegrees(moonPosition?.parallacticAngle);
 
     const maxMoonDist = 406700;
     const minMoonDist = 363300;
@@ -1081,14 +1090,6 @@ function displayMoonPhasev1({ date, container } = {}) {
 
     const metrics = [];
     if (fraction !== null) metrics.push(`${Math.round(fraction * 100)}% illuminated`);
-    if (Number.isFinite(angleDeg)) {
-        const angleFormatted = safeToFixed(angleDeg, 2);
-        if (angleFormatted !== null) metrics.push(`Angle: ${angleFormatted}°`);
-    }
-    if (distance !== null) {
-        const distanceFormatted = safeToFixed(distance, 0);
-        if (distanceFormatted !== null) metrics.push(`Distance: ${distanceFormatted} km`);
-    }
     if (percentOfMax !== null && Number.isFinite(percentOfMax)) {
         metrics.push(`${safeToFixed(percentOfMax, 0)}% of max distance`);
     }
@@ -1153,25 +1154,30 @@ async function showPublicCalendars(hostTarget) {
         zIndex: '20',
         display: 'flex',
         flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: '24px',
-        gap: '20px',
         overflowY: 'auto',
         borderRadius: '10px',
-        background: 'var(--general-background)'
+        background: 'var(--general-background)',
+        fontFamily: "'Mulish', 'Helvetica Neue', Arial, sans-serif",
+        boxSizing: 'border-box'
     });
 
     overlay.innerHTML = `
-        <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
-            <h2 style="margin:0;font-size:1.5rem;">Explore public Earthcals</h2>
-            <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
-                Subscribe to community calendars curated by fellow Earthcal keepers.
-            </p>
-        </div>
-        <div id="ec-select-public-cals" style="display:flex;flex-direction:column;gap:12px;" role="list"></div>
-        <div class="ec-public-pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px;">
-            <button type="button" class="confirmation-blur-button cancel" data-ec-public-nav="prev" style="min-width:120px;">← Previous 10</button>
-            <span class="ec-public-page-status" style="flex:1;text-align:center;color:var(--subdued-text);font-size:0.9rem;"></span>
-            <button type="button" class="confirmation-blur-button cancel" data-ec-public-nav="next" style="min-width:120px;">Next 10 →</button>
+        <div class="ec-public-cal-overlay-content" role="dialog" aria-labelledby="ec-public-overlay-heading">
+            <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
+                <h2 id="ec-public-overlay-heading" style="margin:0;font-size:1.5rem;">Explore public Earthcals</h2>
+                <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
+                    Subscribe to community calendars curated by fellow Earthcal keepers.
+                </p>
+            </div>
+            <div id="ec-select-public-cals" class="ec-public-cal-list" role="list"></div>
+            <div class="ec-public-pagination">
+                <button type="button" class="ec-public-nav-link" data-ec-public-nav="prev">← Previous 10</button>
+                <span class="ec-public-page-status"></span>
+                <button type="button" class="ec-public-nav-link" data-ec-public-nav="next">Next 10 →</button>
+            </div>
         </div>
     `;
 
@@ -1783,7 +1789,7 @@ async function loadPublicCalendars({ force = false, maxAgeMs = 5 * 60 * 1000 } =
     let cached = null;
     if (!force) {
         cached = readPublicCalendarsFromCache(maxAgeMs);
-        if (cached) return cached;
+        if (cached) return mergePublicCalendarSubscriptions(cached);
     } else {
         cached = readPublicCalendarsFromCache(Infinity);
     }
@@ -1792,17 +1798,19 @@ async function loadPublicCalendars({ force = false, maxAgeMs = 5 * 60 * 1000 } =
 
     const fetched = await fetchPublicCalendarsFromApi();
     if (fetched.length) {
-        savePublicCalendarsToCache(fetched);
-        return fetched;
+        const mergedFetched = mergePublicCalendarSubscriptions(fetched);
+        savePublicCalendarsToCache(mergedFetched);
+        return mergedFetched;
     }
 
     if (legacy.length) {
-        if (!force) savePublicCalendarsToCache(legacy);
-        return legacy;
+        const mergedLegacy = mergePublicCalendarSubscriptions(legacy);
+        if (!force) savePublicCalendarsToCache(mergedLegacy);
+        return mergedLegacy;
     }
 
     if (cached && Array.isArray(cached) && cached.length) {
-        return cached;
+        return mergePublicCalendarSubscriptions(cached);
     }
 
     return [];
@@ -1826,6 +1834,72 @@ function savePublicCalendarsToCache(list) {
     } catch (e) {
         console.debug('savePublicCalendarsToCache failed (quota?)', e);
     }
+}
+
+function getSubscribedPublicCalendarMap() {
+    const map = new Map();
+    const cached = readCalendarsFromCache(Infinity);
+    if (!Array.isArray(cached)) return map;
+
+    for (const entry of cached) {
+        if (!entry) continue;
+        const subscriptionId = Number(entry.subscription_id ?? entry.sub_id ?? entry.subscriptionId);
+        if (!Number.isFinite(subscriptionId)) continue;
+        const calendarId = Number(entry.calendar_id ?? entry.id);
+        if (!Number.isFinite(calendarId)) continue;
+        const visibility = (entry.visibility || '').toString().toLowerCase();
+        const source = (entry.source_type || '').toString().toLowerCase();
+        const qualifies = visibility === 'public' || visibility === 'unlisted' || source === 'earthcal';
+        if (!qualifies) continue;
+
+        const isActive = typeof entry.is_active === 'boolean' ? entry.is_active : toBool(entry.is_active ?? true);
+        const displayFlag = entry.display_enabled;
+        const normalizedDisplay = displayFlag === undefined
+            ? undefined
+            : (typeof displayFlag === 'boolean' ? displayFlag : toBool(displayFlag));
+
+        const state = {
+            subscription_id: subscriptionId,
+            is_active: isActive,
+            is_subscribed: true
+        };
+
+        if (normalizedDisplay !== undefined) {
+            state.display_enabled = normalizedDisplay;
+        }
+
+        map.set(calendarId, state);
+    }
+
+    return map;
+}
+
+function mergePublicCalendarSubscriptions(list) {
+    if (!Array.isArray(list)) return [];
+    const map = getSubscribedPublicCalendarMap();
+    if (!map.size) {
+        return list.map((entry) => (entry && typeof entry === 'object') ? { ...entry } : entry);
+    }
+
+    return list.map((entry) => {
+        if (!entry || typeof entry !== 'object') return entry;
+        const merged = { ...entry };
+        const calendarId = Number(merged.calendar_id ?? merged.id);
+        if (Number.isFinite(calendarId) && map.has(calendarId)) {
+            const state = map.get(calendarId);
+            merged.is_subscribed = true;
+            if (state.subscription_id !== undefined) {
+                merged.subscription_id = state.subscription_id;
+            }
+            if (state.is_active !== undefined) {
+                merged.is_active = state.is_active;
+            }
+            if (state.display_enabled !== undefined) {
+                merged.display_enabled = state.display_enabled;
+            }
+        }
+        return merged;
+    });
 }
 
 function readLegacyPublicCalendars() {
@@ -1912,6 +1986,19 @@ function normalizeCalendarShape(c) {
 function normalizePublicCalendarShape(c) {
     if (!c || typeof c !== 'object') return null;
     const eventCount = Number(c.event_count);
+    const rawSubscriptionId = c.subscription_id ?? c.sub_id ?? c.subscriptionId ?? c.follow_id ?? null;
+    const subscriptionId = Number(rawSubscriptionId);
+    const normalizedSubscriptionId = Number.isFinite(subscriptionId) ? subscriptionId : null;
+    const displayFlag = c.display_enabled ?? c.display ?? null;
+    const normalizedDisplay = displayFlag === null || displayFlag === undefined
+        ? undefined
+        : (typeof displayFlag === 'boolean' ? displayFlag : toBool(displayFlag));
+    const subscribedFallback = normalizedSubscriptionId !== null ? 1 : 0;
+    const isSubscribed = toBool(c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following ?? subscribedFallback);
+    const isActive = typeof c.is_active === 'boolean'
+        ? c.is_active
+        : toBool(c.is_active ?? (normalizedDisplay !== undefined ? normalizedDisplay : isSubscribed));
+
     return {
         calendar_id: c.calendar_id ?? c.id ?? null,
         name: c.name ?? c.calendar_name ?? 'Untitled Calendar',
@@ -1925,7 +2012,11 @@ function normalizePublicCalendarShape(c) {
         owner: c.owner ?? c.curator ?? c.publisher ?? c.creator ?? c.creator_name ?? '',
         tzid: c.tzid ?? c.time_zone ?? null,
         visibility: 'public',
-        is_subscribed: toBool(c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following ?? 0),
+        source_type: 'earthcal',
+        is_subscribed: isSubscribed,
+        subscription_id: normalizedSubscriptionId,
+        is_active: isActive,
+        display_enabled: normalizedDisplay,
         source_url: c.source_url ?? c.url ?? c.website ?? c.link ?? ''
     };
 }
@@ -1933,6 +2024,19 @@ function normalizePublicCalendarShape(c) {
 function normalizeLegacyPublicCalendarShape(c) {
     if (!c || typeof c !== 'object') return null;
     const eventCount = Number(c.event_count ?? c.total_events);
+    const rawSubscriptionId = c.subscription_id ?? c.sub_id ?? c.subscriptionId ?? c.follow_id ?? null;
+    const subscriptionId = Number(rawSubscriptionId);
+    const normalizedSubscriptionId = Number.isFinite(subscriptionId) ? subscriptionId : null;
+    const displayFlag = c.display_enabled ?? c.display ?? null;
+    const normalizedDisplay = displayFlag === null || displayFlag === undefined
+        ? undefined
+        : (typeof displayFlag === 'boolean' ? displayFlag : toBool(displayFlag));
+    const subscribedFallback = normalizedSubscriptionId !== null ? 1 : 0;
+    const isSubscribed = toBool(c.subscribed ?? c.is_subscribed ?? c.following ?? c.is_following ?? subscribedFallback);
+    const isActive = typeof c.is_active === 'boolean'
+        ? c.is_active
+        : toBool(c.is_active ?? (normalizedDisplay !== undefined ? normalizedDisplay : isSubscribed));
+
     return {
         calendar_id: c.calendar_id ?? c.id ?? null,
         name: c.calendar_name ?? c.name ?? 'Untitled Calendar',
@@ -1946,7 +2050,11 @@ function normalizeLegacyPublicCalendarShape(c) {
         owner: c.owner ?? c.curator ?? c.publisher ?? c.creator ?? c.creator_name ?? '',
         tzid: c.tzid ?? c.time_zone ?? null,
         visibility: 'public',
-        is_subscribed: toBool(c.subscribed ?? c.is_subscribed ?? c.following ?? c.is_following ?? 0),
+        source_type: 'earthcal',
+        is_subscribed: isSubscribed,
+        subscription_id: normalizedSubscriptionId,
+        is_active: isActive,
+        display_enabled: normalizedDisplay,
         source_url: c.source_url ?? c.url ?? c.website ?? c.link ?? ''
     };
 }
