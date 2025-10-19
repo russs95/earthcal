@@ -1743,15 +1743,143 @@ async function sendUpLogin() {
 
 
 
+function parseV1UtcDateParts(dtstartUtc) {
+    if (!dtstartUtc) {
+        return {
+            date: null,
+            timeLabel: null,
+            components: { year: null, month: null, day: null }
+        };
+    }
+
+    try {
+        const iso = typeof dtstartUtc === 'string' && dtstartUtc.endsWith('Z')
+            ? dtstartUtc
+            : `${dtstartUtc}Z`;
+        const startDate = new Date(iso);
+
+        if (Number.isNaN(startDate.getTime())) {
+            throw new Error('Invalid start date');
+        }
+
+        const year = startDate.getFullYear();
+        const month = startDate.getMonth() + 1;
+        const day = startDate.getDate();
+
+        const hours = startDate.getHours();
+        const minutes = startDate.getMinutes();
+        const timeLabel = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+        return {
+            date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+            timeLabel,
+            components: {
+                year: String(year),
+                month: String(month),
+                day: String(day)
+            }
+        };
+    } catch (err) {
+        console.warn('parseV1UtcDateParts failed:', dtstartUtc, err);
+        return {
+            date: null,
+            timeLabel: null,
+            components: { year: null, month: null, day: null }
+        };
+    }
+}
+
+function normalizeV1ItemForStorage(item, calendar, buwanaId) {
+    if (!item || typeof item !== 'object') return null;
+
+    const normalizedCalendar = calendar && typeof calendar === 'object' ? calendar : {};
+    const calendarIdValue = normalizedCalendar.calendar_id ?? item.calendar_id ?? item.cal_id ?? null;
+    const calendarIdNumber =
+        calendarIdValue !== null && calendarIdValue !== undefined && calendarIdValue !== ''
+            ? Number(calendarIdValue)
+            : NaN;
+    const calendarId = Number.isFinite(calendarIdNumber) ? calendarIdNumber : null;
+    const calendarName = normalizedCalendar.name || item.calendar_name || 'My Calendar';
+    const calendarColor = normalizedCalendar.color || normalizedCalendar.color_hex || '#3b82f6';
+    const calendarEmoji = normalizedCalendar.emoji || normalizedCalendar.cal_emoji || '📅';
+    const { date, timeLabel, components } = parseV1UtcDateParts(item.dtstart_utc);
+    const itemColor = item.item_color || calendarColor;
+    const dateEmoji = item.item_emoji || calendarEmoji || '⬤';
+    const description = item.description || '';
+    const pinnedRaw = item.pinned;
+    const pinned = pinnedRaw === true || pinnedRaw === 1 || pinnedRaw === '1' ? '1' : '0';
+    const percentComplete = typeof item.percent_complete === 'number' ? item.percent_complete : Number(item.percent_complete);
+    const isCompleted = (typeof percentComplete === 'number' && percentComplete >= 100)
+        || (item.status && String(item.status).toUpperCase() === 'COMPLETED')
+        || Boolean(item.completed_at);
+
+    const fallbackYear = new Date().getFullYear().toString();
+
+    return {
+        unique_key: calendarId !== null ? `v1_${calendarId}_${item.item_id}` : `v1_unknown_${item.item_id}`,
+        ID: String(item.item_id),
+        item_id: Number(item.item_id),
+        buwana_id: Number.isFinite(Number(buwanaId)) ? Number(buwanaId) : null,
+        cal_id: calendarId,
+        cal_name: calendarName,
+        cal_color: calendarColor,
+        cal_emoji: calendarEmoji,
+        title: item.summary || 'Untitled Event',
+        date: date || item.date || '',
+        time: timeLabel || '00:00',
+        time_zone: item.tzid || normalizedCalendar.tzid || 'Etc/UTC',
+        day: components.day || '1',
+        month: components.month || '1',
+        year: components.year || fallbackYear,
+        comment: description ? '1' : '0',
+        comments: description,
+        last_edited: item.updated_at || new Date().toISOString(),
+        created_at: item.created_at || new Date().toISOString(),
+        unique_id: item.uid || null,
+        unique_key_v1: item.uid || null,
+        datecycle_color: itemColor,
+        date_emoji: dateEmoji,
+        frequency: 'One-time',
+        pinned,
+        completed: isCompleted ? '1' : '0',
+        public: normalizedCalendar.visibility === 'public' ? '1' : '0',
+        delete_it: '0',
+        synced: '1',
+        conflict: '0',
+        component_type: item.component_type,
+        all_day: item.all_day ? 1 : 0,
+        tzid: item.tzid || normalizedCalendar.tzid || 'Etc/UTC',
+        dtstart_utc: item.dtstart_utc || null,
+        dtend_utc: item.dtend_utc || null,
+        due_utc: item.due_utc || null,
+        raw_v1: item
+    };
+}
+
+function mapV1ItemsToDateCycles(items, calendar, buwanaId) {
+    if (!Array.isArray(items)) return [];
+    return items
+        .map(item => normalizeV1ItemForStorage(item, calendar, buwanaId))
+        .filter(Boolean);
+}
+
 async function fetchCalendarDatecycles(buwanaId, calendarId) {
-    const res = await fetch("https://buwana.ecobricks.org/earthcal/get_calendar_data.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendarId })
+    const res = await fetch('/api/v1/get_pub_cal_items.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId })
     });
+
     const data = await res.json();
-    if (!data.success) throw new Error(data.message || "Failed to fetch datecycles");
-    return data.dateCycles || [];
+    if (!res.ok || (data && data.success === false) || (data && data.ok === false)) {
+        const errorMessage = data?.error || data?.message || 'Failed to fetch datecycles';
+        throw new Error(errorMessage);
+    }
+
+    const calendar = data?.calendar || { calendar_id: calendarId };
+    const items = Array.isArray(data?.items) ? data.items : [];
+    return mapV1ItemsToDateCycles(items, calendar, buwanaId);
 }
 
 
@@ -1817,29 +1945,24 @@ async function toggleSubscription(calendarId, subscribe) {
         }
 
         // 1. Subscribe/unsubscribe server call
-        const response = await fetch("https://buwana.ecobricks.org/earthcal/update_pub_cal_subs.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/v1/update_pub_cal_subs.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId, subscribe: subFlag }),
         });
         const result = await response.json();
-        if (!result.success) {
-            console.error(`❌ Failed to update subscription: ${result.error}`);
-            alert(`Error: ${result.error}`);
-            return { success: false, error: result.error };
+        if (!response.ok || result.success === false || result.ok === false) {
+            const errorMessage = result?.error || result?.message || 'update_failed';
+            console.error(`❌ Failed to update subscription: ${errorMessage}`);
+            alert(`Error: ${errorMessage}`);
+            return { success: false, error: errorMessage };
         }
 
         // 2. Add or remove datecycles
         if (subscribe) {
             try {
-                const res = await fetch("https://buwana.ecobricks.org/earthcal/get_calendar_data.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ buwana_id: buwanaId, cal_id: calendarId })
-                });
-                const data = await res.json();
-                if (!data.success) throw new Error(data.message || "Fetch failed");
-                const dateCycles = data.dateCycles || [];
+                const dateCycles = await fetchCalendarDatecycles(buwanaId, calendarId);
 
                 localStorage.setItem(
                     `calendar_${calendarId}`,
