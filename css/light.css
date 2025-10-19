@@ -362,14 +362,14 @@
 
 
 .top-clock-button {
-    background: url(../svgs/clock-day.svg) no-repeat;
+    background: url(../assets/icons/event-show.svg) no-repeat;
     background-size: contain;
 }
 
 .top-clock-button:hover {
-      background: url(../svgs/clock-day-over.svg) no-repeat;
-      background-size: contain;
-  }
+    background: url(../assets/icons/event-show-over.svg) no-repeat;
+    background-size: contain;
+}
 
 /*
 .blur {

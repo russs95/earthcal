@@ -127,12 +127,12 @@
 
 
 .top-clock-button {
-    background: url(../svgs/clock-night.svg) no-repeat;
+    background: url(../assets/icons/event-show.svg) no-repeat;
     background-size: contain;
 }
 
 .top-clock-button:hover {
-      background: url(../svgs/clock-night-over.svg) no-repeat;
+      background: url(../assets/icons/event-show-over.svg) no-repeat;
       background-size: contain;
   }
 
