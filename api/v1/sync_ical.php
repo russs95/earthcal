@@ -73,10 +73,150 @@ function parse_ics_datetime(string $val, ?string $propParamsTzid): array {
   }
   return ['utc'=>null,'all_day'=>false];
 }
-function normalize_ics_payload(string $ics): string { /* unchanged */ }
-function unfold_ical(string $ics): array { /* unchanged */ }
-function split_components(string $ics): array { /* unchanged */ }
-function parse_prop(string $line): array { /* unchanged */ }
+function normalize_ics_payload(string $ics): string {
+  $ics = preg_replace('/^\xEF\xBB\xBF/', '', $ics); // strip UTF-8 BOM
+  $ics = str_replace(["\r\n", "\r"], "\n", $ics);
+  // remove control characters except tab and newline
+  $ics = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $ics);
+  return $ics;
+}
+
+function unfold_ical(string $ics): array {
+  $normalized = normalize_ics_payload($ics);
+  $lines = explode("\n", $normalized);
+  $unfolded = [];
+
+  foreach ($lines as $line) {
+    if ($line === '') {
+      continue;
+    }
+
+    $firstChar = $line[0] ?? '';
+    if (!empty($unfolded) && ($firstChar === ' ' || $firstChar === "\t")) {
+      $unfolded[count($unfolded) - 1] .= ltrim($line);
+    } else {
+      $unfolded[] = rtrim($line, "\n");
+    }
+  }
+
+  return $unfolded;
+}
+
+function split_components(string $ics): array {
+  $lines = unfold_ical($ics);
+  $stack = [];
+  $topLevel = [];
+
+  foreach ($lines as $line) {
+    if ($line === '') continue;
+
+    if (stripos($line, 'BEGIN:') === 0) {
+      $name = strtoupper(trim(substr($line, 6)));
+      $stack[] = ['name' => $name, 'lines' => [], 'children' => []];
+      continue;
+    }
+
+    if (stripos($line, 'END:') === 0) {
+      if (empty($stack)) {
+        continue;
+      }
+
+      $name = strtoupper(trim(substr($line, 4)));
+      $component = array_pop($stack);
+      if ($component['name'] === '') {
+        $component['name'] = $name;
+      }
+
+      if (!empty($stack)) {
+        $parentIndex = count($stack) - 1;
+        $stack[$parentIndex]['children'][] = $component;
+      } else {
+        $topLevel[] = $component;
+      }
+      continue;
+    }
+
+    if (!empty($stack)) {
+      $stack[count($stack) - 1]['lines'][] = $line;
+    }
+  }
+
+  $result = [];
+  $flatten = function (array $component) use (&$result, &$flatten): void {
+    $result[] = [
+      'name'  => $component['name'],
+      'lines' => $component['lines'],
+    ];
+    if (!empty($component['children'])) {
+      foreach ($component['children'] as $child) {
+        $flatten($child);
+      }
+    }
+  };
+
+  foreach ($topLevel as $component) {
+    $flatten($component);
+  }
+
+  return $result;
+}
+
+function parse_prop(string $line): array {
+  $line = trim($line);
+  if ($line === '') {
+    return ['name' => '', 'params' => [], 'value' => ''];
+  }
+
+  $parts = explode(':', $line, 2);
+  $nameAndParams = $parts[0];
+  $value = $parts[1] ?? '';
+
+  $segments = explode(';', $nameAndParams);
+  $name = strtoupper(array_shift($segments) ?? '');
+  $params = [];
+
+  foreach ($segments as $segment) {
+    if ($segment === '') continue;
+    if (strpos($segment, '=') === false) {
+      $params[strtolower($segment)] = true;
+      continue;
+    }
+
+    [$paramName, $paramValue] = explode('=', $segment, 2);
+    $paramName = strtolower(trim($paramName));
+    $paramValue = trim($paramValue);
+    $paramValue = trim($paramValue, '"');
+    $values = array_map(
+      static function (string $val): string {
+        $val = trim($val);
+        $val = trim($val, '"');
+        return strtr($val, [
+          '\\n' => "\n",
+          '\\N' => "\n",
+          '\\,' => ',',
+          '\\;' => ';',
+          '\\\\' => '\\',
+        ]);
+      },
+      explode(',', $paramValue)
+    );
+    $params[$paramName] = $values;
+  }
+
+  $value = strtr($value, [
+    '\\n' => "\n",
+    '\\N' => "\n",
+    '\\,' => ',',
+    '\\;' => ';',
+    '\\\\' => '\\',
+  ]);
+
+  return [
+    'name'   => $name,
+    'params' => $params,
+    'value'  => $value,
+  ];
+}
 
 /* -------------------- Fetch subscription row ------------------- */
 try {

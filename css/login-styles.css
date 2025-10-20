@@ -793,6 +793,42 @@ margin-right: auto;
     margin-left: auto;
 }
 
+.cal-row-sync-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.cal-row-sync-button:hover,
+.cal-row-sync-button:focus-visible {
+    transform: rotate(-10deg);
+}
+
+.cal-row-sync-button:focus-visible {
+    outline: 2px solid var(--toggle-bg-active, #4e5255);
+    outline-offset: 2px;
+}
+
+.cal-row-sync-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cal-row-sync-button.is-syncing {
+    animation: cal-sync-spin 1s linear infinite;
+}
+
+@keyframes cal-sync-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .cal-connect-google-row {
     --toggle-row-bg: #d93025;
     --toggle-row-overbg: #c5221f;
@@ -805,6 +841,29 @@ margin-right: auto;
 .cal-connect-google-row .cal-row-name,
 .cal-connect-google-row .cal-row-action-icon {
     color: inherit;
+}
+
+.cal-connect-apple-row {
+    --toggle-row-bg: linear-gradient(135deg, #0a0a0a, #1c1c1e);
+    --toggle-row-overbg: linear-gradient(135deg, #1c1c1e, #2c2c2f);
+}
+
+.cal-connect-apple-row .cal-row-summary {
+    color: #f5f5f7;
+}
+
+.cal-connect-apple-row .cal-row-name,
+.cal-connect-apple-row .cal-row-action-icon {
+    color: inherit;
+}
+
+.cal-connect-apple-row .cal-row-summary:focus-visible {
+    outline: 2px solid #f5f5f7;
+    outline-offset: 2px;
+}
+
+.cal-connect-apple-row .cal-row-icon img {
+    filter: invert(1);
 }
 
 .ec-public-cal-checkbox {

@@ -501,6 +501,23 @@ function renderCalendarSelectionForm(calendars, {
 
     const overlayHost = getHost();
 
+    const isWebcalSourceType = (cal) => {
+        if (!cal) return false;
+        const sourceRaw = cal?.source_type ?? cal?.source;
+        const source = (sourceRaw || '').toString().toLowerCase();
+        const webcalSources = ['webcal', 'google', 'ical', 'ics', 'gcal'];
+        if (webcalSources.includes(source)) {
+            return true;
+        }
+
+        const url = (cal?.url || '').toString().toLowerCase();
+        if (url.startsWith('webcal://') || url.endsWith('.ics')) {
+            return true;
+        }
+
+        return false;
+    };
+
     if (personalForm) {
         const emptyState = typeof noPersonalText === 'string'
             ? noPersonalText
@@ -528,22 +545,18 @@ function renderCalendarSelectionForm(calendars, {
 
         const personalCalendars = list.filter((cal) => {
             if (isPublicSubscription(cal)) return false;
-            const sourceRaw = cal?.source_type ?? cal?.source;
-            const source = (sourceRaw || '').toString().toLowerCase();
-            const disallowedSources = ['webcal', 'ical', 'ics', 'google', 'gcal'];
-            if (disallowedSources.includes(source)) {
-                return false;
-            }
+            if (isWebcalSourceType(cal)) return false;
+
             const subscriptionRaw = cal?.subscription_id ?? cal?.subscriptionId ?? cal?.sub_id ?? null;
             const subscriptionId = Number(subscriptionRaw);
             const hasSubscription = Number.isFinite(subscriptionId) && subscriptionId > 0;
+            const sourceRaw = cal?.source_type ?? cal?.source;
+            const source = (sourceRaw || '').toString().toLowerCase();
+
             if (hasSubscription && source !== 'personal') {
                 return false;
             }
-            const url = (cal?.url || '').toString().toLowerCase();
-            if (url.startsWith('webcal://') || url.endsWith('.ics')) {
-                return false;
-            }
+
             return true;
         });
 
@@ -635,13 +648,7 @@ function renderCalendarSelectionForm(calendars, {
 
         webcalForm.__ecAddCalendarHost = overlayHost;
 
-        const webcalCalendars = list.filter((cal) => {
-            if (!cal) return false;
-            const sourceRaw = cal.source_type ?? cal.source;
-            const source = (sourceRaw || '').toString().toLowerCase();
-            const allowedSources = ['webcal', 'google', 'ical', 'ics', 'gcal'];
-            return allowedSources.includes(source);
-        });
+        const webcalCalendars = list.filter((cal) => isWebcalSourceType(cal));
 
         const webcalRowsHtml = webcalCalendars.length > 0
             ? webcalCalendars.map((cal, index) => {
@@ -664,11 +671,18 @@ function renderCalendarSelectionForm(calendars, {
                 const editCalendarId = Number.isFinite(calendarIdNum) ? calendarIdNum : 'null';
                 const deleteCalendarId = editCalendarId;
 
+                const subscriptionIdNumeric = Number(subscriptionIdValue);
+                const hasSubscriptionId = Number.isFinite(subscriptionIdNumeric) && subscriptionIdNumeric > 0;
+                const syncButtonHtml = hasSubscriptionId
+                    ? `<button type="button" class="cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" aria-label="Sync calendar" title="Sync calendar">🔄</button>`
+                    : '';
+
                 return `
                 <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Google Calendar')}</span>
+                        ${syncButtonHtml}
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
                             <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
@@ -701,7 +715,7 @@ function renderCalendarSelectionForm(calendars, {
 
         const connectAppleRowHtml = `
         <div class="cal-toggle-row cal-connect-apple-row">
-            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Apple Calendar" style="background-color:#000;color:#fff;border-radius:12px;">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Apple Calendar">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/apple_logo.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">Add Apple Calendar</span>
                 <span class="cal-row-action-icon" aria-hidden="true">➕</span>
@@ -753,6 +767,69 @@ function renderCalendarSelectionForm(calendars, {
                 }
             });
         }
+
+        const syncButtons = webcalForm.querySelectorAll('.cal-row-sync-button');
+        const handleSyncClick = async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const button = event.currentTarget;
+            if (!(button instanceof HTMLElement)) return;
+
+            const subscriptionId = Number(button.dataset.subscriptionId || '');
+            if (!Number.isFinite(subscriptionId) || subscriptionId <= 0) {
+                alert('Cannot sync this calendar right now.');
+                return;
+            }
+
+            const originalText = button.textContent;
+            button.textContent = '⏳';
+            button.disabled = true;
+            button.classList.add('is-syncing');
+
+            try {
+                const res = await fetch('/api/v1/sync_ical.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ subscription_id: subscriptionId, force_full: true }),
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok && data?.ok) {
+                    if (data?.skipped) {
+                        alert('Calendar feed is already up to date.');
+                    } else {
+                        const inserted = Number(data?.inserted) || 0;
+                        const updated = Number(data?.updated) || 0;
+                        const parts = [];
+                        if (inserted > 0) parts.push(`${inserted} new events`);
+                        if (updated > 0) parts.push(`${updated} updates`);
+                        const summary = parts.length ? parts.join(' and ') : 'No changes';
+                        alert(`Sync complete: ${summary}.`);
+                    }
+                } else {
+                    const detail = data?.detail || data?.error || 'Unable to sync calendar.';
+                    alert(`Sync failed: ${detail}`);
+                }
+            } catch (error) {
+                console.error('[webcal sync] Failed to sync calendar', error);
+                alert('Sync failed: A network error occurred.');
+            } finally {
+                button.textContent = originalText || '🔄';
+                button.disabled = false;
+                button.classList.remove('is-syncing');
+            }
+        };
+
+        syncButtons.forEach((button) => {
+            if (button instanceof HTMLElement) {
+                if (button.dataset.syncBound === 'true') return;
+                button.dataset.syncBound = 'true';
+                button.addEventListener('click', handleSyncClick);
+            }
+        });
     }
 
     if (publicForm) {
