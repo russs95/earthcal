@@ -97,8 +97,31 @@ function parse_ics_datetime(string $val, ?string $propParamsTzid): array {
   return ['utc'=>null,'all_day'=>false];
 }
 
+function normalize_ics_payload(string $ics): string {
+  // Strip common BOM sequences and normalise encoding to UTF-8 when possible
+  if (strncmp($ics, "\xEF\xBB\xBF", 3) === 0) {
+    $ics = substr($ics, 3);
+  } elseif (strncmp($ics, "\xFE\xFF", 2) === 0) {
+    $converted = function_exists('mb_convert_encoding')
+      ? @mb_convert_encoding($ics, 'UTF-8', 'UTF-16BE')
+      : @iconv('UTF-16BE', 'UTF-8//IGNORE', $ics);
+    if (is_string($converted)) {
+      $ics = $converted;
+    }
+  } elseif (strncmp($ics, "\xFF\xFE", 2) === 0) {
+    $converted = function_exists('mb_convert_encoding')
+      ? @mb_convert_encoding($ics, 'UTF-8', 'UTF-16LE')
+      : @iconv('UTF-16LE', 'UTF-8//IGNORE', $ics);
+    if (is_string($converted)) {
+      $ics = $converted;
+    }
+  }
+  return $ics;
+}
+
 function unfold_ical(string $ics): array {
   // RFC5545 line unfolding (CRLF + space/tab)
+  $ics = normalize_ics_payload($ics);
   $ics = str_replace("\r\n", "\n", $ics);
   $lines = explode("\n", $ics);
   $out = [];
@@ -233,6 +256,8 @@ try {
     if (stripos($h,'ETag:')===0) $etagNew = trim(substr($h,5));
     if (stripos($h,'Last-Modified:')===0) $lmNew = trim(substr($h,13));
   }
+
+  $body = normalize_ics_payload($body);
 
   // Basic ICS check
   if (stripos($body,'BEGIN:VCALENDAR') === false) {
