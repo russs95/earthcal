@@ -669,7 +669,33 @@ function renderCalendarSelectionForm(calendars, {
             }).join('')
             : `<p>${escapeHtml(emptyWebcalText)}</p>`;
 
-        webcalForm.innerHTML = webcalRowsHtml;
+        const connectGoogleRowHtml = `
+        <div class="cal-toggle-row cal-connect-google-row">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Connect Google Calendar">
+                <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
+                <span class="cal-row-name">Connect Google Calendar</span>
+                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+            </div>
+        </div>
+    `;
+
+        webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}`;
+
+        const connectSummary = webcalForm.querySelector('.cal-connect-google-row .cal-row-summary');
+        if (connectSummary) {
+            const handleConnect = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                openGoogleCalendarConnectModal();
+            };
+
+            connectSummary.addEventListener('click', handleConnect);
+            connectSummary.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                    handleConnect(event);
+                }
+            });
+        }
     }
 
     if (publicForm) {
@@ -1024,10 +1050,6 @@ async function showLoggedInView(calendars = []) {
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" id="connect-google-calendar-button" class="confirmation-blur-button" style="background-color:#d93025;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;border:none;">
-                    <img src="assets/icons/google-g.png" alt="" width="20" height="20" aria-hidden="true">
-                    <span>Add Google Calendar</span>
-                </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ${earthling_emoji} Edit Buwana Profile
                 </button>
@@ -1045,14 +1067,6 @@ async function showLoggedInView(calendars = []) {
         addPersonalLabel,
         hostElement: loggedInView
     });
-
-    const connectGoogleButton = loggedInView.querySelector('#connect-google-calendar-button');
-    if (connectGoogleButton) {
-        connectGoogleButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            openGoogleCalendarConnectModal();
-        });
-    }
 
     loggedInView.style.display = "block";
 
@@ -1082,15 +1096,16 @@ function openGoogleCalendarConnectModal() {
     document.body.style.overflowY = 'hidden';
 
     modalContent.innerHTML = `
-        <div class="add-date-form" style="margin:auto;">
+        <div class="add-date-form" style="margin:auto;text-align:center;">
+            <img src="assets/icons/google-g.png" alt="" width="48" height="48" aria-hidden="true" style="display:block;margin:0 auto 12px;">
             <h3 class="ec-form-title">Please add the URL of a public Google Calendar to sync it with your Earthcal.</h3>
-            <form id="ec-google-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:16px;">
+            <form id="ec-google-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:10px;">
                 <label class="ec-visually-hidden" for="ec-google-calendar-url">Google Calendar URL</label>
                 <input id="ec-google-calendar-url" type="url" name="google_calendar_url" required
                        placeholder="https://calendar.google.com/calendar/..."
                        class="blur-form-field" style="width:100%;text-align:left;">
+                <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Connect</button>
                 <p id="ec-google-calendar-feedback" aria-live="polite" style="margin:0;color:#d93025;font-size:0.9rem;min-height:1.2em;"></p>
-                <button type="submit" class="stellar-submit">Connect</button>
             </form>
         </div>
     `;

@@ -117,3 +117,10 @@
         pointer-events: none;
     }
 }
+
+@media screen and (max-width: 700px) {
+    #date-cycle-count-box,
+    #date-cycle-count-box.show {
+        display: none !important;
+    }
+}
