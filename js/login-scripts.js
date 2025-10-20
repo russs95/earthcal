@@ -990,7 +990,8 @@ async function showLoggedInView(calendars = []) {
         welcome,
         syncingInfo,
         noPersonal,
-        addPersonal: addPersonalLabel = 'Add new personal calendar'
+        addPersonal: addPersonalLabel = 'Add new personal calendar',
+        publicCalendarsIntro = 'You are subscribed to the following public calendars...'
     } = loggedInStrings;
 
     const fallbackCalendars = Array.isArray(calendars) ? [...calendars] : [];
@@ -1047,6 +1048,7 @@ async function showLoggedInView(calendars = []) {
 
 
             <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</div>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
