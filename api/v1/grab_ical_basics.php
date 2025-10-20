@@ -119,6 +119,25 @@ try {
     exit;
 }
 
+// Normalise encoding and strip any byte-order mark so downstream parsing works consistently.
+if (strncmp($icalData, "\xEF\xBB\xBF", 3) === 0) {
+    $icalData = substr($icalData, 3);
+} elseif (strncmp($icalData, "\xFE\xFF", 2) === 0) {
+    $converted = function_exists('mb_convert_encoding')
+        ? @mb_convert_encoding($icalData, 'UTF-8', 'UTF-16BE')
+        : @iconv('UTF-16BE', 'UTF-8//IGNORE', $icalData);
+    if (is_string($converted)) {
+        $icalData = $converted;
+    }
+} elseif (strncmp($icalData, "\xFF\xFE", 2) === 0) {
+    $converted = function_exists('mb_convert_encoding')
+        ? @mb_convert_encoding($icalData, 'UTF-8', 'UTF-16LE')
+        : @iconv('UTF-16LE', 'UTF-8//IGNORE', $icalData);
+    if (is_string($converted)) {
+        $icalData = $converted;
+    }
+}
+
 /* -------------------- 3. Validate ICS Format -------------------- */
 if (stripos($icalData, 'BEGIN:VCALENDAR') === false) {
     http_response_code(400);
