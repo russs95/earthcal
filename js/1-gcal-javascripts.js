@@ -96,6 +96,8 @@ function connectGcal(calendarUrl, options = {}) {
         ical_url: data.ical_url || trimmedUrl
       };
 
+      console.log('[connectGcal] Received feed metadata:', meta);
+
       if (typeof closeTheModal === 'function') {
         try {
           closeTheModal();
@@ -276,7 +278,7 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                 </div>
             </div>
             <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
-                <button type="submit" class="stellar-submit">Add calendar</button>
+                <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Add calendar</button>
             </div>
         </form>
     `;
@@ -384,6 +386,16 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                         const syncData = await syncRes.json().catch(() => ({}));
 
                         if (syncRes.ok && syncData?.ok) {
+                            const importedItems = Array.isArray(syncData?.items) ? syncData.items : null;
+                            if (importedItems) {
+                                console.log('[addNewiCal] Imported items retrieved from iCal feed:', importedItems);
+                            } else {
+                                console.log('[addNewiCal] Imported item summary from iCal feed:', {
+                                    inserted: syncData?.inserted ?? 0,
+                                    updated: syncData?.updated ?? 0,
+                                    skipped: syncData?.skipped ?? false
+                                });
+                            }
                             if (syncData?.skipped) {
                                 syncNotice = 'ℹ️ Calendar feed is already up to date.';
                             } else {
@@ -395,6 +407,12 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                                 const summary = parts.length ? parts.join(' and ') : 'events';
                                 syncNotice = `✅ Imported ${summary} from Google.`;
                             }
+                            console.log('[addNewiCal] Imported items saved to calendar.', {
+                                calendarId,
+                                subscriptionId,
+                                inserted: syncData?.inserted ?? 0,
+                                updated: syncData?.updated ?? 0
+                            });
                         } else {
                             const detail = syncData?.error || syncData?.detail || 'unknown_error';
                             syncNotice = `⚠️ Connected, but importing events failed (${detail}).`;

@@ -526,7 +526,8 @@ function renderCalendarSelectionForm(calendars, {
 
         const personalCalendars = list.filter((cal) => {
             if (isPublicSubscription(cal)) return false;
-            const source = (cal?.source_type || '').toString().toLowerCase();
+            const sourceRaw = cal?.source_type ?? cal?.source;
+            const source = (sourceRaw || '').toString().toLowerCase();
             return source !== 'webcal';
         });
 
@@ -613,7 +614,7 @@ function renderCalendarSelectionForm(calendars, {
     if (webcalForm) {
         const emptyWebcalText = typeof noWebcalText === 'string'
             ? noWebcalText
-            : (webcalForm.dataset.noWebcal || 'No connected Google calendars yet.');
+            : (webcalForm.dataset.noWebcal || '');
         webcalForm.dataset.noWebcal = emptyWebcalText;
 
         webcalForm.__ecAddCalendarHost = overlayHost;
@@ -667,7 +668,7 @@ function renderCalendarSelectionForm(calendars, {
                 </div>
             `;
             }).join('')
-            : `<p>${escapeHtml(emptyWebcalText)}</p>`;
+            : '';
 
         const connectGoogleRowHtml = `
         <div class="cal-toggle-row cal-connect-google-row">
@@ -1053,6 +1054,9 @@ async function showLoggedInView(calendars = []) {
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     ${earthling_emoji} Edit Buwana Profile
                 </button>
+                <p class="ec-profile-connection-note" style="margin:0;text-align:center;font-size:0.85rem;color:var(--subdued-text, #6b7280);">
+                    You are connected to Earthcal with your ${earthling_emoji} ${escapeHtml(first_name)} Buwana account.
+                </p>
             </div>
 
             <p id="cal-datecycle-count"></p>
