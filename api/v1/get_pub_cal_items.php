@@ -1,8 +1,43 @@
 <?php
 declare(strict_types=1);
 
+/*
+|--------------------------------------------------------------------------
+| get_calendar_items.php — EarthCal v1.0
+|--------------------------------------------------------------------------
+| PURPOSE:
+|   This API retrieves a calendar and all its visible items (events, todos,
+|   journals) from `items_v1_tb`.
+|
+| BEHAVIOR:
+|   - Validates CORS (only EarthCal/GoBrik/localhost origins)
+|   - Accepts JSON POST containing { "calendar_id": ### }
+|   - Fetches the calendar metadata (joins user info)
+|   - Checks that the calendar is PUBLIC (otherwise denies access)
+|   - Returns:
+|       {
+|         ok: true,
+|         calendar: { metadata },
+|         items: [ ...items from items_v1_tb... ],
+|         count: <number_of_items>
+|       }
+|
+| NOTE:
+|   This endpoint is intended for *public calendar sharing* (e.g., showing
+|   calendars that others have made public).
+|
+|   For a user’s personal or subscribed (private) calendars, a separate
+|   authenticated endpoint should be used that verifies ownership or
+|   subscription permissions before returning items.
+|--------------------------------------------------------------------------
+*/
+
 header('Content-Type: application/json; charset=utf-8');
 
+/*--------------------------------------------------------
+| CORS (Cross-Origin Resource Sharing)
+| Only allow known origins to call this API.
+---------------------------------------------------------*/
 $allowedOrigins = [
     'https://ecobricks.org',
     'https://earthcal.app',
@@ -17,26 +52,37 @@ if ($origin !== '' && $origin !== null) {
     if (in_array($normalizedOrigin, $allowedOrigins, true)) {
         header('Access-Control-Allow-Origin: ' . $normalizedOrigin);
     } else {
+        // Block unexpected origins (security)
         http_response_code(403);
         echo json_encode(['ok' => false, 'success' => false, 'error' => 'cors_denied']);
         exit;
     }
 } else {
+    // Allow local file access or curl testing
     header('Access-Control-Allow-Origin: *');
 }
 
+/*--------------------------------------------------------
+| Handle preflight OPTIONS requests (CORS handshake)
+---------------------------------------------------------*/
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     exit(0);
 }
 
+/*--------------------------------------------------------
+| Enforce POST method
+---------------------------------------------------------*/
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'invalid_method']);
     exit;
 }
 
+/*--------------------------------------------------------
+| Parse input JSON or form POST data
+---------------------------------------------------------*/
 $raw = file_get_contents('php://input');
 $input = json_decode($raw ?: '[]', true);
 if (!is_array($input)) {
@@ -50,6 +96,9 @@ if (!$calendarId) {
     exit;
 }
 
+/*--------------------------------------------------------
+| Database Connection (PDO)
+---------------------------------------------------------*/
 try {
     require_once __DIR__ . '/../pdo_connect.php';
     $pdo = earthcal_get_pdo();
@@ -64,10 +113,13 @@ try {
     exit;
 }
 
+/*--------------------------------------------------------
+| Fetch calendar metadata (join with user info)
+---------------------------------------------------------*/
 try {
     $calendarStmt = $pdo->prepare(
-        'SELECT c.calendar_id, c.user_id, c.name, c.description, c.cal_emoji, c.color, c.tzid, c.category, c.visibility,
-                c.is_readonly, c.created_at, c.updated_at,
+        'SELECT c.calendar_id, c.user_id, c.name, c.description, c.cal_emoji, c.color, c.tzid,
+                c.category, c.visibility, c.is_readonly, c.created_at, c.updated_at,
                 u.first_name, u.last_name, u.full_name
            FROM calendars_v1_tb AS c
       LEFT JOIN users_tb AS u ON u.buwana_id = c.user_id
@@ -83,12 +135,20 @@ try {
         exit;
     }
 
+    /*----------------------------------------------------
+    | Only allow PUBLIC calendars to be fetched here.
+    | For private calendars, this prevents leaking data.
+    -----------------------------------------------------*/
     if (($calendarRow['visibility'] ?? '') !== 'public') {
         http_response_code(403);
         echo json_encode(['ok' => false, 'success' => false, 'error' => 'calendar_not_public']);
         exit;
     }
 
+    /*----------------------------------------------------
+    | Fetch all non-deleted items for this calendar.
+    | Items come from items_v1_tb (VEVENT/VTODO/VJOURNAL).
+    -----------------------------------------------------*/
     $itemsStmt = $pdo->prepare(
         'SELECT item_id, calendar_id, uid, component_type, summary, description, location, url, tzid,
                 dtstart_utc, dtend_utc, due_utc, all_day, pinned, item_emoji, item_color,
@@ -130,6 +190,9 @@ try {
         ];
     }
 
+    /*----------------------------------------------------
+    | Construct and return JSON response
+    -----------------------------------------------------*/
     $calendar = [
         'calendar_id' => (int)$calendarRow['calendar_id'],
         'name' => $calendarRow['name'],
@@ -158,6 +221,7 @@ try {
         'items' => $items,
         'count' => count($items),
     ], JSON_UNESCAPED_UNICODE);
+
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
@@ -167,3 +231,4 @@ try {
         'detail' => $e->getMessage(),
     ]);
 }
+?>
