@@ -241,6 +241,7 @@ try {
 
   $calendarId = (int)$subscription['calendar_id'];
   $icalUrl    = preg_replace('/^webcal:/i','https:', (string)$subscription['url']);
+  $providerName = trim((string)($subscription['provider'] ?? 'EarthCal'));
   error_log("[sync_ical] Fetched subscription record: calendar_id={$calendarId}, url={$icalUrl}");
 
   /* ---------------- Fetch ICS feed ---------------- */
@@ -273,7 +274,7 @@ try {
     $pdo->prepare("UPDATE subscriptions_v1_tb
       SET last_fetch_at = NOW(), last_http_status = 304, last_error = NULL
       WHERE subscription_id = :sid")->execute(['sid'=>$subscriptionId]);
-    echo json_encode(['ok'=>true,'skipped'=>true,'reason'=>'not_modified']); exit;
+    echo json_encode(['ok'=>true,'skipped'=>true,'reason'=>'not_modified','provider'=>$providerName]); exit;
   }
 
   if ($status < 200 || $status >= 300) {
@@ -315,6 +316,7 @@ try {
   }
 
   error_log("[sync_ical] Prepared ".count($toUpsert)." items with UID for upsert");
+  $itemsPreview = array_slice($toUpsert, 0, 10);
 
   /* ----------------- DB UPSERT ----------------- */
   $pdo->beginTransaction();
@@ -347,7 +349,10 @@ try {
     'inserted'=>$inserted,
     'updated'=>$updated,
     'count_uid'=>count($toUpsert),
-    'components'=>count($components)
+    'components'=>count($components),
+    'items'=>$itemsPreview,
+    'items_total'=>count($toUpsert),
+    'provider'=>$providerName
   ]);
 
 } catch (Throwable $e) {

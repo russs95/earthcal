@@ -75,6 +75,20 @@ function ec_sanitize_emoji(?string $emoji, string $default = '📅'): string {
     return substr($emoji, 0, 4);
 }
 
+function ec_detect_provider(string $url): string {
+    $host = strtolower((string)parse_url($url, PHP_URL_HOST));
+    if ($host === '') {
+        return 'EarthCal';
+    }
+    if (str_contains($host, 'google.com')) {
+        return 'Google';
+    }
+    if (str_contains($host, 'icloud.com') || str_contains($host, 'apple.com')) {
+        return 'Apple';
+    }
+    return 'EarthCal';
+}
+
 function ec_normalize_visibility(?string $visibility): string {
     $visibility = strtolower(trim((string)$visibility));
     $allowed = ['private', 'unlisted', 'public'];
@@ -165,6 +179,7 @@ if (!filter_var($icalUrl, FILTER_VALIDATE_URL)) {
 }
 
 $urlHash = hash('sha256', $icalUrl);
+$provider = ec_detect_provider($icalUrl);
 
 try {
     $pdo = earthcal_get_pdo();
@@ -216,6 +231,18 @@ try {
         $subscriptionId = (int)$existing['subscription_id'];
         $calendarRow = ec_fetch_calendar($pdo, $calendarId);
         $subscriptionRow = ec_fetch_subscription($pdo, $subscriptionId);
+
+        if ($subscriptionRow && strcasecmp((string)($subscriptionRow['provider'] ?? ''), $provider) !== 0) {
+            $updateProvider = $pdo->prepare(
+                'UPDATE subscriptions_v1_tb SET provider = :provider, updated_at = NOW() WHERE subscription_id = :sid'
+            );
+            $updateProvider->execute([
+                'provider' => $provider,
+                'sid' => $subscriptionId
+            ]);
+            $subscriptionRow['provider'] = $provider;
+        }
+
         $pdo->commit();
         echo json_encode([
             'ok' => true,
@@ -254,19 +281,20 @@ try {
             (user_id, calendar_id, source_type, url, url_hash,
              feed_title, is_active, display_enabled,
              import_mode, import_scope, refresh_interval_minutes,
-             created_at, updated_at)
+             provider, created_at, updated_at)
          VALUES
             (:uid, :cal_id, 'webcal', :url, :url_hash,
              :feed_title, 1, 1,
              'merge', 'all', 360,
-             NOW(), NOW())"
+             :provider, NOW(), NOW())"
     );
     $subInsert->execute([
         'uid' => $buwanaId,
         'cal_id' => $calendarId,
         'url' => $icalUrl,
         'url_hash' => $urlHash,
-        'feed_title' => $feedTitle
+        'feed_title' => $feedTitle,
+        'provider' => $provider
     ]);
     $subscriptionId = (int)$pdo->lastInsertId();
 

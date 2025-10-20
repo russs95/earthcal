@@ -547,11 +547,16 @@ function renderCalendarSelectionForm(calendars, {
             if (isPublicSubscription(cal)) return false;
             if (isWebcalSourceType(cal)) return false;
 
+            const sourceRaw = cal?.source_type ?? cal?.source;
+            const source = (sourceRaw || '').toString().toLowerCase();
+            const allowedPersonalSources = ['earthcal', 'personal'];
+            if (!allowedPersonalSources.includes(source)) {
+                return false;
+            }
+
             const subscriptionRaw = cal?.subscription_id ?? cal?.subscriptionId ?? cal?.sub_id ?? null;
             const subscriptionId = Number(subscriptionRaw);
             const hasSubscription = Number.isFinite(subscriptionId) && subscriptionId > 0;
-            const sourceRaw = cal?.source_type ?? cal?.source;
-            const source = (sourceRaw || '').toString().toLowerCase();
 
             if (hasSubscription && source !== 'personal') {
                 return false;
@@ -564,6 +569,8 @@ function renderCalendarSelectionForm(calendars, {
             ? personalCalendars.map((cal, index) => {
                 const emoji = cal?.emoji?.trim() || '📅';
                 const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
+                const providerName = (cal?.provider || 'EarthCal').toString();
+                const safeProvider = escapeHtml(providerName);
                 const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
@@ -579,12 +586,12 @@ function renderCalendarSelectionForm(calendars, {
                 const rowId = `cal-row-${rowKey}`;
 
                 return `
-                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
+                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
-                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -654,6 +661,17 @@ function renderCalendarSelectionForm(calendars, {
             ? webcalCalendars.map((cal, index) => {
                 const rawSourceType = (cal?.source_type || cal?.source || 'webcal').toString();
                 const sourceType = escapeHtml(rawSourceType.toLowerCase());
+                const providerNameRaw = (cal?.provider || '').toString().trim();
+                const providerName = providerNameRaw || 'Webcal';
+                const providerKey = providerName.toLowerCase();
+                const safeProvider = escapeHtml(providerName);
+                let providerIcon = 'assets/icons/earthcal-app.png';
+                if (providerKey === 'google') {
+                    providerIcon = 'assets/icons/google-g.png';
+                } else if (providerKey === 'apple') {
+                    providerIcon = 'assets/icons/apple-touch-icon.png';
+                }
+                const providerAlt = `${providerName} icon`;
                 const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
                 const calendarIdNum = Number(cal?.calendar_id);
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
@@ -674,17 +692,17 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdNumeric = Number(subscriptionIdValue);
                 const hasSubscriptionId = Number.isFinite(subscriptionIdNumeric) && subscriptionIdNumeric > 0;
                 const syncButtonHtml = hasSubscriptionId
-                    ? `<button type="button" class="cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" aria-label="Sync calendar" title="Sync calendar">🔄</button>`
+                    ? `<button type="button" class="cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" aria-label="Sync calendar" title="Sync calendar">🔄</button>`
                     : '';
 
                 return `
-                <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
+                <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
-                        <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
-                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Google Calendar')}</span>
+                        <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="${providerIcon}" alt="${escapeHtml(providerAlt)}" width="24" height="24"></span>
+                        <span class="cal-row-name">${escapeHtml(cal?.name || providerName)}</span>
                         ${syncButtonHtml}
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
-                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" onchange="toggleV1CalVisibility(this)">
+                            <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -776,6 +794,12 @@ function renderCalendarSelectionForm(calendars, {
             const button = event.currentTarget;
             if (!(button instanceof HTMLElement)) return;
 
+            const parentRow = button.closest('.cal-toggle-row');
+            const providerNormalized = ((button.dataset.provider || parentRow?.dataset?.provider || '')
+                .toString()
+                .trim()
+                .toLowerCase());
+
             const subscriptionId = Number(button.dataset.subscriptionId || '');
             if (!Number.isFinite(subscriptionId) || subscriptionId <= 0) {
                 alert('Cannot sync this calendar right now.');
@@ -798,6 +822,16 @@ function renderCalendarSelectionForm(calendars, {
                 const data = await res.json().catch(() => ({}));
 
                 if (res.ok && data?.ok) {
+                    if (providerNormalized === 'google') {
+                        const previewItems = Array.isArray(data?.items) ? data.items.slice(0, 10) : [];
+                        const totalItems = Number(data?.items_total) || previewItems.length;
+                        if (previewItems.length > 0) {
+                            console.log(`[webcal sync] Preview of first ${previewItems.length} Google webcal items (of ${totalItems} total):`, previewItems);
+                        } else {
+                            console.log('[webcal sync] Google calendar sync completed with no preview items returned.');
+                        }
+                    }
+
                     if (data?.skipped) {
                         alert('Calendar feed is already up to date.');
                     } else {
