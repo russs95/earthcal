@@ -1011,7 +1011,6 @@ async function showLoggedInView(calendars = []) {
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h1 style="font-size: 4em; margin-bottom: 20px;margin-top:10px;">${earthling_emoji}</h1>
             <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
                 ${welcome} ${first_name}!
             </h2>
@@ -1021,8 +1020,8 @@ async function showLoggedInView(calendars = []) {
 
 
             <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
-            <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
                 <button type="button" id="connect-google-calendar-button" class="confirmation-blur-button" style="background-color:#d93025;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;border:none;">
@@ -1030,7 +1029,7 @@ async function showLoggedInView(calendars = []) {
                     <span>Add Google Calendar</span>
                 </button>
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
-                    ✏️ Edit Buwana Profile
+                    ${earthling_emoji} Edit Buwana Profile
                 </button>
             </div>
 
@@ -1810,12 +1809,6 @@ async function sendUpLogin() {
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
 }
-
-
-
-
-
-
 
 
 

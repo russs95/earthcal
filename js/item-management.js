@@ -1103,7 +1103,7 @@ function displayMoonPhasev1({ date, container } = {}) {
         <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
         <div class="ec-moon-phase-details">
             <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
-            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<div class="ec-moon-phase-metric">${text}</div>`).join('<br>')}</div>` : ''}
+            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<div class="ec-moon-phase-metric">${text}</div>`).join('<br>|')}</div>` : ''}
         </div>
     `;
 

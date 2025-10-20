@@ -338,7 +338,7 @@ text-decoration: underline;
 #sub-status-message {
   margin-top: 0px;
   margin-bottom:0px;
-  font-family: 'Arvo', Georgia, serif;
+  font-family: 'Mulish', sans-serif;
   color: var(--subdued-text);
   font-weight: 300;
   padding:10px;
@@ -729,6 +729,7 @@ margin-right: auto;
 .cal-toggle-row:hover {
     background: var(--toggle-row-overbg, var(--general-background-highlight));
 }
+
 
 .cal-row-summary {
     display: flex;
