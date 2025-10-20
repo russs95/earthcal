@@ -1947,18 +1947,63 @@ function mapV1ItemsToDateCycles(items, calendar, buwanaId) {
         .filter(Boolean);
 }
 
-async function fetchCalendarDatecycles(buwanaId, calendarId) {
-    const res = await fetch('/api/v1/get_pub_cal_items.php', {
+async function fetchCalendarDatecycles(buwanaId, calendarId, options = {}) {
+    const opts = (options && typeof options === 'object') ? options : {};
+    const sourceType = typeof opts.source === 'string' ? opts.source : (typeof opts.type === 'string' ? opts.type : 'public');
+    const numericBuwanaId = Number.isFinite(Number(buwanaId)) ? Number(buwanaId) : buwanaId;
+
+    let endpoint = '/api/v1/get_pub_cal_items.php';
+    let payload = { buwana_id: numericBuwanaId, calendar_id: calendarId };
+
+    if (sourceType === 'user') {
+        endpoint = '/api/v1/get_user_items.php';
+        payload = { buwana_id: numericBuwanaId };
+
+        if ('include_public' in opts) {
+            payload.include_public = !!opts.include_public;
+        }
+        if ('only_active' in opts) {
+            payload.only_active = !!opts.only_active;
+        }
+        if ('year' in opts && opts.year !== null && opts.year !== undefined && opts.year !== '') {
+            payload.year = opts.year;
+        }
+    }
+
+    const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ buwana_id: buwanaId, calendar_id: calendarId })
+        body: JSON.stringify(payload)
     });
 
     const data = await res.json();
     if (!res.ok || (data && data.success === false) || (data && data.ok === false)) {
         const errorMessage = data?.error || data?.message || 'Failed to fetch datecycles';
         throw new Error(errorMessage);
+    }
+
+    if (sourceType === 'user') {
+        const calendars = Array.isArray(data?.calendars) ? data.calendars : [];
+        const numericCalendarId = Number(calendarId);
+        const matchingCalendar = calendars.find((entry) => {
+            if (!entry || typeof entry !== 'object') return false;
+            const candidateId = entry.calendar_id ?? entry.cal_id;
+            if (candidateId === undefined || candidateId === null || candidateId === '') return false;
+            if (Number.isFinite(numericCalendarId)) {
+                return Number(candidateId) === numericCalendarId;
+            }
+            return String(candidateId) === String(calendarId);
+        });
+
+        const calendar = matchingCalendar ? { ...matchingCalendar } : { calendar_id: calendarId };
+        const items = Array.isArray(matchingCalendar?.items) ? matchingCalendar.items : [];
+
+        if ('items' in calendar) {
+            delete calendar.items;
+        }
+
+        return mapV1ItemsToDateCycles(items, calendar, buwanaId);
     }
 
     const calendar = data?.calendar || { calendar_id: calendarId };

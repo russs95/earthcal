@@ -414,7 +414,11 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
 
                 if (Number.isFinite(calendarId) && typeof fetchCalendarDatecycles === 'function') {
                     try {
-                        const dateCycles = await fetchCalendarDatecycles(user.buwana_id, calendarId);
+                        const dateCycles = await fetchCalendarDatecycles(user.buwana_id, calendarId, {
+                            source: 'user',
+                            include_public: false,
+                            only_active: false
+                        });
                         localStorage.setItem(
                             `calendar_${calendarId}`,
                             JSON.stringify({ cal_id: calendarId, last_synced: Date.now(), datecycles: dateCycles })
