@@ -117,8 +117,13 @@ openDateSearch: {
 loggedIn: {
   welcome: "欢迎",
   syncingInfo: "您正在同步以下个人和公共日历：",
+  publicCalendarsIntro: "You are subscribed to the following public calendars...",
+  webcalHasSubscriptions: "You have the following iCal subscriptions...",
+  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "没有可用的个人日历。",
+  addPersonal: "Add new personal calendar",
   noPublic: "没有可用的公共日历。",
+  noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "立即同步",
   logout: "退出登录",
   notYetSynced: "您的日期循环尚未同步。",

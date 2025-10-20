@@ -119,8 +119,13 @@ openDateSearch: {
 loggedIn: {
   welcome: "Bienvenido",
   syncingInfo: "Estás sincronizando los siguientes calendarios personales y públicos:",
+  publicCalendarsIntro: "You are subscribed to the following public calendars...",
+  webcalHasSubscriptions: "You have the following iCal subscriptions...",
+  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "No hay calendarios personales disponibles.",
+  addPersonal: "Add new personal calendar",
   noPublic: "No hay calendarios públicos disponibles.",
+  noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "Sincronizar ahora",
   logout: "Cerrar sesión",
   notYetSynced: "Tus ciclos de fecha aún no se han sincronizado.",
