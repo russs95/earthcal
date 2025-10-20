@@ -51,6 +51,54 @@ error_log("[sync_ical] ===== Starting sync for subscription_id={$subscriptionId}
 
 /* -------------------- Helpers: dates & ICS --------------------- */
 // (helpers unchanged)
+function param_first(array $params, string $key): ?string {
+  if (!isset($params[$key])) return null;
+  $val = $params[$key];
+  if (is_array($val)) {
+    foreach ($val as $candidate) {
+      $candidate = trim((string)$candidate);
+      if ($candidate !== '') {
+        return $candidate;
+      }
+    }
+    return null;
+  }
+  $val = trim((string)$val);
+  return $val === '' ? null : $val;
+}
+
+function sanitize_timezone(?string $tz, string $fallback = 'Etc/UTC'): string {
+  $tz = $tz !== null ? trim($tz) : '';
+  if ($tz === '') return $fallback;
+  try {
+    new DateTimeZone($tz);
+    return $tz;
+  } catch (Throwable $e) {
+    return $fallback;
+  }
+}
+
+function parse_ics_duration(?string $value): ?int {
+  if ($value === null) return null;
+  $value = trim($value);
+  if ($value === '') return null;
+  $sign = 1;
+  if ($value[0] === '+') {
+    $value = substr($value, 1);
+  } elseif ($value[0] === '-') {
+    $sign = -1;
+    $value = substr($value, 1);
+  }
+  try {
+    $interval = new DateInterval($value);
+  } catch (Throwable $e) {
+    return null;
+  }
+  $reference = new DateTimeImmutable('@0');
+  $target = $reference->add($interval);
+  return ($target->getTimestamp()) * $sign;
+}
+
 function parse_ics_datetime(string $val, ?string $propParamsTzid): array {
   $val = trim($val);
   if (preg_match('/^\d{8}$/', $val)) {
@@ -292,6 +340,19 @@ try {
   /* ---------------- Parse ICS → components ---------------- */
   $components = split_components($body);
   error_log("[sync_ical] Total components parsed=".count($components));
+
+  $calendarDefaultTz = 'Etc/UTC';
+  foreach ($components as $comp) {
+    if (strtoupper($comp['name']) !== 'VCALENDAR') continue;
+    foreach ($comp['lines'] as $line) {
+      $prop = parse_prop($line);
+      if ($prop['name'] === 'X-WR-TIMEZONE' && trim($prop['value']) !== '') {
+        $calendarDefaultTz = sanitize_timezone($prop['value']);
+        break 2;
+      }
+    }
+  }
+
   $importThese = [];
   foreach ($components as $comp) {
     $kind = strtoupper($comp['name']);
@@ -312,11 +373,101 @@ try {
     foreach ($props as $p){ $map[$p['name']]=$p; }
     $uid = trim((string)($map['UID']['value'] ?? ''));
     if ($uid==='') continue;
-    $toUpsert[] = ['uid'=>$uid,'summary'=>$map['SUMMARY']['value']??''];
+    $kind = strtoupper($comp['name']);
+    $componentType = match ($kind) {
+      'VTODO'    => 'todo',
+      'VJOURNAL' => 'journal',
+      default    => 'event',
+    };
+
+    $summary = $map['SUMMARY']['value'] ?? '';
+    $description = $map['DESCRIPTION']['value'] ?? null;
+    $location = $map['LOCATION']['value'] ?? null;
+    $url = $map['URL']['value'] ?? null;
+    $organizer = $map['ORGANIZER']['value'] ?? null;
+
+    $tzid = $calendarDefaultTz;
+    $dtstartUtc = null;
+    $dtendUtc = null;
+    $dueUtc = null;
+    $allDay = 0;
+
+    if (isset($map['DTSTART'])) {
+      $startTz = sanitize_timezone(param_first($map['DTSTART']['params'], 'tzid'), $tzid);
+      $parsedStart = parse_ics_datetime($map['DTSTART']['value'], $startTz);
+      if (!empty($parsedStart['utc'])) {
+        $dtstartUtc = $parsedStart['utc'];
+        $tzid = $startTz;
+      }
+      if (!empty($parsedStart['all_day'])) {
+        $allDay = 1;
+      }
+    }
+
+    if (isset($map['DTEND'])) {
+      $endTz = sanitize_timezone(param_first($map['DTEND']['params'], 'tzid'), $tzid);
+      $parsedEnd = parse_ics_datetime($map['DTEND']['value'], $endTz);
+      if (!empty($parsedEnd['utc'])) {
+        $dtendUtc = $parsedEnd['utc'];
+      }
+      if (!empty($parsedEnd['all_day'])) {
+        $allDay = 1;
+      }
+    } elseif ($dtstartUtc !== null && isset($map['DURATION'])) {
+      $seconds = parse_ics_duration($map['DURATION']['value'] ?? null);
+      if ($seconds !== null) {
+        try {
+          $start = new DateTime($dtstartUtc, new DateTimeZone('UTC'));
+          $start->modify(($seconds >= 0 ? '+' : '').$seconds.' seconds');
+          $dtendUtc = $start->format('Y-m-d H:i:s');
+        } catch (Throwable $e) {
+          $dtendUtc = null;
+        }
+      }
+    }
+
+    if ($componentType === 'todo' && isset($map['DUE'])) {
+      $dueTz = sanitize_timezone(param_first($map['DUE']['params'], 'tzid'), $tzid);
+      $parsedDue = parse_ics_datetime($map['DUE']['value'], $dueTz);
+      if (!empty($parsedDue['utc'])) {
+        $dueUtc = $parsedDue['utc'];
+        if ($dtstartUtc === null) {
+          $tzid = $dueTz;
+        }
+      }
+      if (!empty($parsedDue['all_day'])) {
+        $allDay = 1;
+      }
+    }
+
+    $rawComponent = sprintf("BEGIN:%s\n%s\nEND:%s", $kind, implode("\n", $comp['lines']), $kind);
+
+    $toUpsert[] = [
+      'uid' => $uid,
+      'component_type' => $componentType,
+      'summary' => $summary,
+      'description' => $description,
+      'location' => $location,
+      'url' => $url,
+      'organizer' => $organizer,
+      'tzid' => $tzid,
+      'dtstart_utc' => $dtstartUtc,
+      'dtend_utc' => $dtendUtc,
+      'due_utc' => $dueUtc,
+      'all_day' => $allDay,
+      'raw_ics' => $rawComponent,
+    ];
   }
 
   error_log("[sync_ical] Prepared ".count($toUpsert)." items with UID for upsert");
-  $itemsPreview = array_slice($toUpsert, 0, 10);
+  $itemsPreview = array_map(
+    static function (array $item): array {
+      return array_intersect_key($item, array_flip([
+        'uid','summary','component_type','dtstart_utc','dtend_utc','due_utc','all_day','tzid'
+      ]));
+    },
+    array_slice($toUpsert, 0, 10)
+  );
 
   /* ----------------- DB UPSERT ----------------- */
   $pdo->beginTransaction();
@@ -327,14 +478,43 @@ try {
 
   $ins = $pdo->prepare("
     INSERT INTO items_v1_tb
-      (calendar_id, uid, component_type, summary, created_at, updated_at)
-    VALUES (:calendar_id, :uid, 'event', :summary, NOW(), NOW())
-    ON DUPLICATE KEY UPDATE summary=VALUES(summary), updated_at=NOW(), deleted_at=NULL
+      (calendar_id, uid, component_type, summary, description, location, url, organizer, tzid, dtstart_utc, dtend_utc, due_utc, all_day, raw_ics, created_at, updated_at)
+    VALUES (:calendar_id, :uid, :component_type, :summary, :description, :location, :url, :organizer, :tzid, :dtstart_utc, :dtend_utc, :due_utc, :all_day, :raw_ics, NOW(), NOW())
+    ON DUPLICATE KEY UPDATE
+      component_type=VALUES(component_type),
+      summary=VALUES(summary),
+      description=VALUES(description),
+      location=VALUES(location),
+      url=VALUES(url),
+      organizer=VALUES(organizer),
+      tzid=VALUES(tzid),
+      dtstart_utc=VALUES(dtstart_utc),
+      dtend_utc=VALUES(dtend_utc),
+      due_utc=VALUES(due_utc),
+      all_day=VALUES(all_day),
+      raw_ics=VALUES(raw_ics),
+      updated_at=NOW(),
+      deleted_at=NULL
   ");
 
   $inserted=0; $updated=0;
   foreach($toUpsert as $r){
-    $ins->execute(['calendar_id'=>$calendarId,'uid'=>$r['uid'],'summary'=>$r['summary']]);
+    $ins->execute([
+      'calendar_id' => $calendarId,
+      'uid' => $r['uid'],
+      'component_type' => $r['component_type'],
+      'summary' => $r['summary'],
+      'description' => $r['description'],
+      'location' => $r['location'],
+      'url' => $r['url'],
+      'organizer' => $r['organizer'],
+      'tzid' => $r['tzid'],
+      'dtstart_utc' => $r['dtstart_utc'],
+      'dtend_utc' => $r['dtend_utc'],
+      'due_utc' => $r['due_utc'],
+      'all_day' => $r['all_day'],
+      'raw_ics' => $r['raw_ics'],
+    ]);
     if(array_key_exists($r['uid'],$existing)) $updated++; else $inserted++;
   }
 
