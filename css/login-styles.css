@@ -761,10 +761,6 @@ margin-right: auto;
     height: 1.4rem;
 }
 
-.cal-toggle-row:hover .cal-row-emoji::before {
-    content: "ℹ️";
-}
-
 .cal-add-personal-row .cal-row-summary {
     cursor: pointer;
 }
@@ -779,6 +775,11 @@ margin-right: auto;
     content: attr(data-emoji);
 }
 
+.cal-connect-google-row .cal-row-summary:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
 .cal-row-action-icon {
     margin-left: auto;
     font-size: 1.4rem;
@@ -790,6 +791,20 @@ margin-right: auto;
 
 .cal-row-toggle {
     margin-left: auto;
+}
+
+.cal-connect-google-row {
+    --toggle-row-bg: #d93025;
+    --toggle-row-overbg: #c5221f;
+}
+
+.cal-connect-google-row .cal-row-summary {
+    color: #fff;
+}
+
+.cal-connect-google-row .cal-row-name,
+.cal-connect-google-row .cal-row-action-icon {
+    color: inherit;
 }
 
 .ec-public-cal-checkbox {
