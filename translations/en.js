@@ -121,7 +121,8 @@ settings: {
 //LOG IN SCREEN
     loggedIn: {
         welcome: "Welcome",
-        syncingInfo: "You are syncing the following personal and public calendars:",
+        syncingInfo: "You are managing the following personal and public calendars...",
+        publicCalendarsIntro: "You are subscribed to the following public calendars...",
         noPersonal: "No personal calendars available.",
         addPersonal: "Add new personal calendar",
         noPublic: "No public calendars available.",
