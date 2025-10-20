@@ -339,6 +339,12 @@ try {
       }
     }
 
+if ($uid==='') {
+    error_log("Skipping component with missing UID: ".json_encode($comp));
+    continue;
+}
+
+
     $toUpsert[] = [
       'calendar_id'      => $calendarId,
       'uid'              => $uid,

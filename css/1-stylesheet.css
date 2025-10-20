@@ -13,6 +13,10 @@ html, body {
     overflow: hidden;
 }
 
+h2 {
+    font-family: 'MUlish', sans-serif;
+    font-weight: 500;
+}
 
 /* CSS animation for expanding the export-import div */
 @keyframes expand {
@@ -215,10 +219,7 @@ p {
     display: none;
     }
 
-      h2 {
-          font-family: 'MUlish', sans-serif,
-          font-weight: 500;
-      }
+
 
   .date-info h2 {
     font-size: 1.2em;
