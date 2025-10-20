@@ -215,6 +215,11 @@ p {
     display: none;
     }
 
+      h2 {
+          font-family: 'MUlish', sans-serif,
+          font-weight: 500;
+      }
+
   .date-info h2 {
     font-size: 1.2em;
   
