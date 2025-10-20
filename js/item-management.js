@@ -1669,11 +1669,27 @@ function sanitizeHexColor(color, fallback = '#3b82f6') {
 
 function sanitizeUrl(url) {
     if (typeof url !== 'string') return '';
-    const trimmed = url.trim();
+    let trimmed = url.trim();
     if (!trimmed) return '';
+
+    // Normalize common calendar schemes (webcal → https)
+    trimmed = trimmed.replace(/^webcal:/i, 'https:');
+
+    // If the user omitted a scheme (e.g. "calendar.google.com/..."), normalize.
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) {
+        if (/^\/\//.test(trimmed)) {
+            // Protocol-relative URL ("//example.com/foo") → https
+            trimmed = `https:${trimmed}`;
+        } else if (trimmed.startsWith('/')) {
+            // Relative paths are not valid external feeds
+            return '';
+        } else {
+            trimmed = `https://${trimmed}`;
+        }
+    }
+
     try {
-        const base = (typeof window !== 'undefined' && window.location) ? window.location.origin : 'https://earthcal.app';
-        const parsed = new URL(trimmed, base);
+        const parsed = new URL(trimmed);
         if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
             return parsed.href;
         }
