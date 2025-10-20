@@ -118,8 +118,13 @@ openDateSearch: {
 loggedIn: {
   welcome: "Selamat datang",
   syncingInfo: "Anda sedang menyinkronkan kalender pribadi dan publik berikut:",
+  publicCalendarsIntro: "You are subscribed to the following public calendars...",
+  webcalHasSubscriptions: "You have the following iCal subscriptions...",
+  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "Tidak ada kalender pribadi yang tersedia.",
+  addPersonal: "Add new personal calendar",
   noPublic: "Tidak ada kalender publik yang tersedia.",
+  noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "Sinkronkan Sekarang",
   logout: "Keluar",
   notYetSynced: "Siklus tanggal Anda belum disinkronkan.",

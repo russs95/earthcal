@@ -478,7 +478,9 @@ function renderCalendarSelectionForm(calendars, {
     noPublicText,
     noWebcalText,
     addPersonalLabel,
-    hostElement
+    hostElement,
+    webcalIntroHasText,
+    webcalIntroEmptyText
 } = {}) {
     const personalForm = container || document.getElementById('personal-calendar-selection-form');
     const publicForm = publicContainer || document.getElementById('public-calendar-selection-form');
@@ -528,7 +530,21 @@ function renderCalendarSelectionForm(calendars, {
             if (isPublicSubscription(cal)) return false;
             const sourceRaw = cal?.source_type ?? cal?.source;
             const source = (sourceRaw || '').toString().toLowerCase();
-            return source !== 'webcal';
+            const disallowedSources = ['webcal', 'ical', 'ics', 'google', 'gcal'];
+            if (disallowedSources.includes(source)) {
+                return false;
+            }
+            const subscriptionRaw = cal?.subscription_id ?? cal?.subscriptionId ?? cal?.sub_id ?? null;
+            const subscriptionId = Number(subscriptionRaw);
+            const hasSubscription = Number.isFinite(subscriptionId) && subscriptionId > 0;
+            if (hasSubscription && source !== 'personal') {
+                return false;
+            }
+            const url = (cal?.url || '').toString().toLowerCase();
+            if (url.startsWith('webcal://') || url.endsWith('.ics')) {
+                return false;
+            }
+            return true;
         });
 
         const rowsHtml = personalCalendars.length > 0
@@ -621,13 +637,16 @@ function renderCalendarSelectionForm(calendars, {
 
         const webcalCalendars = list.filter((cal) => {
             if (!cal) return false;
-            const source = (cal.source_type || '').toString().toLowerCase();
-            return source === 'webcal';
+            const sourceRaw = cal.source_type ?? cal.source;
+            const source = (sourceRaw || '').toString().toLowerCase();
+            const allowedSources = ['webcal', 'google', 'ical', 'ics', 'gcal'];
+            return allowedSources.includes(source);
         });
 
         const webcalRowsHtml = webcalCalendars.length > 0
             ? webcalCalendars.map((cal, index) => {
-                const sourceType = 'webcal';
+                const rawSourceType = (cal?.source_type || cal?.source || 'webcal').toString();
+                const sourceType = escapeHtml(rawSourceType.toLowerCase());
                 const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
                 const calendarIdNum = Number(cal?.calendar_id);
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
@@ -672,15 +691,34 @@ function renderCalendarSelectionForm(calendars, {
 
         const connectGoogleRowHtml = `
         <div class="cal-toggle-row cal-connect-google-row">
-            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Connect Google Calendar">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Google Calendar">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
-                <span class="cal-row-name">Connect Google Calendar</span>
+                <span class="cal-row-name">Add Google Calendar</span>
                 <span class="cal-row-action-icon" aria-hidden="true">➕</span>
             </div>
         </div>
     `;
 
-        webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}`;
+        const connectAppleRowHtml = `
+        <div class="cal-toggle-row cal-connect-apple-row">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Apple Calendar" style="background-color:#000;color:#fff;border-radius:12px;">
+                <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/apple_logo.png" alt="" width="24" height="24"></span>
+                <span class="cal-row-name">Add Apple Calendar</span>
+                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+            </div>
+        </div>
+    `;
+
+        webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}${connectAppleRowHtml}`;
+
+        const webcalIntroEl = document.getElementById('webcal-intro-text');
+        if (webcalIntroEl) {
+            const hasWebcals = webcalCalendars.length > 0;
+            const introText = hasWebcals
+                ? (typeof webcalIntroHasText === 'string' ? webcalIntroHasText : 'You have the following iCal subscriptions...')
+                : (typeof webcalIntroEmptyText === 'string' ? webcalIntroEmptyText : "You don't yet have any webcal subscriptions.");
+            webcalIntroEl.textContent = introText;
+        }
 
         const connectSummary = webcalForm.querySelector('.cal-connect-google-row .cal-row-summary');
         if (connectSummary) {
@@ -694,6 +732,24 @@ function renderCalendarSelectionForm(calendars, {
             connectSummary.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
                     handleConnect(event);
+                }
+            });
+        }
+
+        const appleSummary = webcalForm.querySelector('.cal-connect-apple-row .cal-row-summary');
+        if (appleSummary) {
+            const handleAppleConnect = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof connectAppleCalendar === 'function') {
+                    connectAppleCalendar();
+                }
+            };
+
+            appleSummary.addEventListener('click', handleAppleConnect);
+            appleSummary.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                    handleAppleConnect(event);
                 }
             });
         }
@@ -991,7 +1047,10 @@ async function showLoggedInView(calendars = []) {
         syncingInfo,
         noPersonal,
         addPersonal: addPersonalLabel = 'Add new personal calendar',
-        publicCalendarsIntro = 'You are subscribed to the following public calendars...'
+        publicCalendarsIntro = 'You are subscribed to the following public calendars...',
+        webcalHasSubscriptions = 'You have the following iCal subscriptions...',
+        webcalNoSubscriptions = "You don't yet have any webcal subscriptions.",
+        noWebcal: noWebcalText
     } = loggedInStrings;
 
     const fallbackCalendars = Array.isArray(calendars) ? [...calendars] : [];
@@ -1048,8 +1107,9 @@ async function showLoggedInView(calendars = []) {
 
 
             <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
-            <div style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</div>
+            <p style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</p>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <p id="webcal-intro-text" style="text-align:center; margin-bottom: 8px;"></p>
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
@@ -1071,7 +1131,10 @@ async function showLoggedInView(calendars = []) {
         publicContainer: loggedInView.querySelector('#public-calendar-selection-form'),
         noPersonalText: noPersonal,
         addPersonalLabel,
-        hostElement: loggedInView
+        hostElement: loggedInView,
+        noWebcalText,
+        webcalIntroHasText: webcalHasSubscriptions,
+        webcalIntroEmptyText: webcalNoSubscriptions
     });
 
     loggedInView.style.display = "block";
@@ -1143,6 +1206,14 @@ function openGoogleCalendarConnectModal() {
             urlField.select();
         }
     }
+}
+
+function connectAppleCalendar() {
+    alert("Sorry, we're still working on adding Apple iCals to Earthcal.  Hold on tight!  Coming soon.");
+}
+
+if (typeof window !== 'undefined') {
+    window.connectAppleCalendar = connectAppleCalendar;
 }
 
 
