@@ -92,7 +92,7 @@ try {
 
     // === 3️⃣ External Webcal feeds ===
     $stmt3 = $pdo->prepare("
-        SELECT s.subscription_id, s.display_enabled, s.is_active,
+        SELECT s.subscription_id, s.calendar_id, s.display_enabled, s.is_active,
                s.url, s.feed_title AS name, s.color, s.emoji,
                s.refresh_interval_minutes, s.last_fetch_at, s.last_error
         FROM subscriptions_v1_tb AS s
