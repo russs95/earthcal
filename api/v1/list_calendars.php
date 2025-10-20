@@ -62,7 +62,8 @@ try {
         SELECT c.calendar_id, c.name, c.default_my_calendar, c.description,
                c.cal_emoji, c.color, c.tzid, c.category, c.visibility,
                c.is_readonly, c.created_at, c.updated_at,
-               s.subscription_id, s.is_active, s.display_enabled
+               s.subscription_id, s.is_active, s.display_enabled,
+               s.provider
         FROM calendars_v1_tb AS c
         LEFT JOIN subscriptions_v1_tb AS s
             ON s.user_id = c.user_id
@@ -80,7 +81,8 @@ try {
                s.color, s.emoji, s.earthcal_calendar_id AS calendar_id,
                c.name, c.description, c.cal_emoji, c.color AS cal_color,
                c.tzid, c.category, c.visibility, c.is_readonly,
-               c.created_at, c.updated_at
+               c.created_at, c.updated_at,
+               s.provider
         FROM subscriptions_v1_tb AS s
         INNER JOIN calendars_v1_tb AS c
                 ON s.earthcal_calendar_id = c.calendar_id
@@ -94,7 +96,8 @@ try {
     $stmt3 = $pdo->prepare("
         SELECT s.subscription_id, s.calendar_id, s.display_enabled, s.is_active,
                s.url, s.feed_title AS name, s.color, s.emoji,
-               s.refresh_interval_minutes, s.last_fetch_at, s.last_error
+               s.refresh_interval_minutes, s.last_fetch_at, s.last_error,
+               s.provider
         FROM subscriptions_v1_tb AS s
         WHERE s.user_id = :uid
           AND s.source_type = 'webcal'
@@ -123,6 +126,7 @@ try {
             'is_active'      => isset($r['is_active']) ? (bool)$r['is_active'] : true,
             'url'            => $r['url'] ?? null,
             'feed_title'     => $r['feed_title'] ?? null,
+            'provider'       => $r['provider'] ?? 'EarthCal',
             'created_at'     => $r['created_at'] ?? null,
             'updated_at'     => $r['updated_at'] ?? null,
             'last_fetch_at'  => $r['last_fetch_at'] ?? null,

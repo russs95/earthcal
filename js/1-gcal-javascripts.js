@@ -93,7 +93,8 @@ function connectGcal(calendarUrl, options = {}) {
 
       const meta = {
         ...data,
-        ical_url: data.ical_url || trimmedUrl
+        ical_url: data.ical_url || trimmedUrl,
+        provider: 'Google'
       };
 
       console.log('[connectGcal] Received feed metadata:', meta);
@@ -169,6 +170,7 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
         background: 'var(--general-background)'
     });
 
+    const providerHintRaw = (meta?.provider || '').toString().trim();
     const feedTitle = typeof meta?.feed_title === 'string' && meta.feed_title.trim()
         ? meta.feed_title.trim()
         : 'Google Calendar';
@@ -387,8 +389,22 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
 
                         if (syncRes.ok && syncData?.ok) {
                             const importedItems = Array.isArray(syncData?.items) ? syncData.items : null;
-                            if (importedItems) {
-                                console.log('[addNewiCal] Imported items retrieved from iCal feed:', importedItems);
+                            const providerFromSyncRaw = typeof syncData?.provider === 'string' && syncData.provider.trim()
+                                ? syncData.provider
+                                : providerHintRaw;
+                            const providerFromSync = providerFromSyncRaw.toString().trim().toLowerCase();
+
+                            if (providerFromSync === 'google') {
+                                const previewItems = importedItems ? importedItems.slice(0, 10) : [];
+                                const totalItems = Number(syncData?.items_total) || (importedItems ? importedItems.length : 0);
+                                if (previewItems.length > 0) {
+                                    console.log(`[addNewiCal] Preview of first ${previewItems.length} Google webcal items (of ${totalItems} total):`, previewItems);
+                                } else {
+                                    console.log('[addNewiCal] Google webcal sync returned no preview items.');
+                                }
+                            } else if (importedItems) {
+                                const previewItems = importedItems.slice(0, 10);
+                                console.log('[addNewiCal] Imported items retrieved from iCal feed:', previewItems);
                             } else {
                                 console.log('[addNewiCal] Imported item summary from iCal feed:', {
                                     inserted: syncData?.inserted ?? 0,
