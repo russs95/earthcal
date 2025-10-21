@@ -103,12 +103,13 @@ async function fetchUserData(buwanaId = null) {
 
 
 async function loadTranslations(langCode) {
+    const translationVersion = '1.0';
     try {
-        const module = await import(`../translations/${langCode}.js?v=4`);
+        const module = await import(`../translations/${langCode}.js?v=${translationVersion}`);
         return module.translations;
     } catch (e) {
         console.warn(`Could not load translations for '${langCode}'. Falling back to English.`);
-        const fallback = await import(`../translations/en.js`);
+        const fallback = await import(`../translations/en.js?v=${translationVersion}`);
         return fallback.translations;
     }
 }

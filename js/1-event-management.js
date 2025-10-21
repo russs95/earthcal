@@ -786,11 +786,12 @@ async function loadTranslationsWithFallback(langCode) {
     if (typeof loadTranslations === "function") {
         return await loadTranslations(langCode);
     }
+    const translationVersion = '1.0';
     try {
-        const module = await import(`../translations/${langCode}.js?v=4`);
+        const module = await import(`../translations/${langCode}.js?v=${translationVersion}`);
         return module.translations;
     } catch (e) {
-        const fallback = await import("../translations/en.js");
+        const fallback = await import(`../translations/en.js?v=${translationVersion}`);
         return fallback.translations;
     }
 }

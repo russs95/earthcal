@@ -793,6 +793,7 @@ margin-right: auto;
     margin-left: auto;
 }
 
+
 .cal-row-sync-button {
     border: none;
     background: transparent;
@@ -803,6 +804,10 @@ margin-right: auto;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.cal-row-actions .cal-row-sync-button {
+    font-size: 1.1rem;
 }
 
 .cal-row-sync-button:hover,
@@ -1007,8 +1012,8 @@ margin-right: auto;
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.cal-row-action:hover,
-.cal-row-action:focus-visible {
+.cal-row-action:hover:not(.cal-row-sync-button),
+.cal-row-action:focus-visible:not(.cal-row-sync-button) {
     transform: translateY(-2px);
     opacity: 0.85;
 }

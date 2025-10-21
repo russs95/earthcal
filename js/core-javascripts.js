@@ -748,7 +748,9 @@ function guidedTour() {
   modal.style.display = "flex";
   document.getElementById("page-content").classList.add("blur");
 
-  import(`../translations/${userLanguage}.js?v=4`).then(module => {
+  const translationVersion = '1.0';
+
+  import(`../translations/${userLanguage}.js?v=${translationVersion}`).then(module => {
     const t = module.translations.tour;
 
     // Populate tour text with specific button labels
