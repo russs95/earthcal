@@ -554,6 +554,11 @@ function renderCalendarSelectionForm(calendars, {
                 return false;
             }
 
+            const providerName = (cal?.provider || '').toString().trim().toLowerCase();
+            if (providerName === 'google' || providerName === 'apple') {
+                return false;
+            }
+
             const subscriptionRaw = cal?.subscription_id ?? cal?.subscriptionId ?? cal?.sub_id ?? null;
             const subscriptionId = Number(subscriptionRaw);
             const hasSubscription = Number.isFinite(subscriptionId) && subscriptionId > 0;
@@ -571,7 +576,7 @@ function renderCalendarSelectionForm(calendars, {
                 const sourceType = escapeHtml((cal?.source_type || 'personal').toString());
                 const providerName = (cal?.provider || 'EarthCal').toString();
                 const safeProvider = escapeHtml(providerName);
-                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id).trim() : '';
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
@@ -672,7 +677,7 @@ function renderCalendarSelectionForm(calendars, {
                     providerIcon = 'assets/icons/apple-touch-icon.png';
                 }
                 const providerAlt = `${providerName} icon`;
-                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id).trim() : '';
                 const calendarIdNum = Number(cal?.calendar_id);
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
@@ -890,7 +895,7 @@ function renderCalendarSelectionForm(calendars, {
             ? publicCalendars.map((cal, index) => {
                 const emoji = cal?.emoji?.trim() || '📅';
                 const sourceType = escapeHtml((cal?.source_type || 'earthcal').toString());
-                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id) : '';
+                const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id).trim() : '';
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
@@ -904,9 +909,21 @@ function renderCalendarSelectionForm(calendars, {
                 const rowKey = calendarIdValue || (subscriptionIdValue ? `sub-${subscriptionIdValue}` : `pub-${index}`);
                 const rowId = `public-cal-row-${rowKey}`;
 
+                const hasCalendarId = calendarIdValue !== '';
+                const summaryClickAttr = hasCalendarId ? ` onclick="toggleCalDetails('${rowId}')"` : '';
+                const detailsHtml = hasCalendarId
+                    ? `
+                    <div class="cal-row-details" data-calendar-id="${safeCalendarId}" data-loaded="false">
+                        <div class="cal-details-content" aria-live="polite">
+                            <p class="cal-details-placeholder">Expand to load calendar details.</p>
+                        </div>
+                    </div>
+                `
+                    : '';
+
                 return `
                 <div class="cal-toggle-row cal-public-cal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}">
-                    <div class="cal-row-summary">
+                    <div class="cal-row-summary"${summaryClickAttr}>
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
@@ -914,6 +931,7 @@ function renderCalendarSelectionForm(calendars, {
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                    ${detailsHtml}
                 </div>
             `;
             }).join('')
@@ -922,9 +940,9 @@ function renderCalendarSelectionForm(calendars, {
         const browseRowHtml = `
         <div class="cal-toggle-row cal-browse-public-row">
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="Browse public calendars">
-                <span class="cal-row-emoji" data-emoji="🌐" aria-hidden="true"></span>
+                <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/earthcal-app.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">Browse public calendars</span>
-                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+                <span class="cal-row-action-icon" aria-hidden="true">+</span>
             </div>
         </div>
     `;
