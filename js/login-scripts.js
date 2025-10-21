@@ -1225,7 +1225,7 @@ async function showLoggedInView(calendars = []) {
 
             <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
                 <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
-                    ${earthling_emoji} Edit Buwana Profile
+                    Edit Buwana Profile
                 </button>
                 <p class="ec-profile-connection-note" style="margin:0;text-align:center;font-size:0.85rem;color:var(--subdued-text, #6b7280);">
                     You are connected to Earthcal with your ${earthling_emoji} ${escapeHtml(first_name)} Buwana account.

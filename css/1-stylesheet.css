@@ -2564,7 +2564,7 @@ color: #b2b1b1;
     cursor: pointer;
     z-index: 10;
     width: 100px;
-    bottom: 4px;
+    bottom: 3px;
     position: fixed;
     left: 0;
     transition: transform 0.3s ease;
