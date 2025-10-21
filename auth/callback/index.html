@@ -1,50 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Earthcal Authentication Callback</title>
-    <link rel="icon" href="/assets/icons/favicon.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <title>Earthcal | Loading..</title>
+    <link rel="icon" href="/assets/icons/favicon.ico" />
+    <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
+    <link rel="preload" href="/js/earthcal-init.js?v=2.1" as="script">
+    <link rel="preload" href="/css/light.css?v7" as="style">
+    <link rel="preload" href="/css/dark.css?v7" as="style">
+    <link rel="preload" href="/css/1-stylesheet.css" as="style">
+    <link rel="preload" href="/assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/Arvo-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="/svgs/up-reg-arrow-dark.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-dark-over.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-dark-active.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-dark-active-hover.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-light.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-light-over.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-light-active.svg" as="image">
+    <link rel="preload" href="/svgs/up-reg-arrow-light-active-hover.svg" as="image">
     <style>
+        :root {
+            --general-background: rgb(245, 245, 245);
+        }
         body {
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            font-family: 'Mulish', 'Arial', sans-serif;
-            background-color: #f9f9f9ff;
-            color: #454545;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--general-background);
+            color: black;
             transition: all 0.3s ease;
+            position: relative;
         }
         @media (prefers-color-scheme: dark) {
+            :root {
+                --general-background: rgb(13, 15, 26);
+            }
             body {
-                background-color: rgb(13, 15, 26);
-                color: rgb(158, 162, 184);
+                color: white;
             }
         }
-        #authenticating {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
+        #progress-container {
+            width: 100px;
+            height: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
         }
-        h3 {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin: 0;
+        #load-progress {
+            display: none;
+        }
+        #authenticating-text {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            font-size: 0.65rem;
+            line-height: 10px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: inherit;
+        }
+        #authenticating-text span {
+            white-space: nowrap;
         }
         #dots {
             display: inline-block;
-            min-width: 1.2em;
+            min-width: 0.9em;
+            text-align: left;
+        }
+        @media (prefers-color-scheme: dark) {
+            #progress-container {
+                background-color: transparent;
+            }
+        }
+        #footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.8em;
+            color: grey;
+            text-align: center;
+        }
+        .earthcal-app-logo,
+        .earthcal-app-logo svg {
+            width: 120px;
+            height: 120px;
+        }
+        @media screen and (max-width: 768px) {
+            .earthcal-app-logo,
+            .earthcal-app-logo svg {
+                width: 180px;
+                height: 180px;
+            }
+            #progress-container {
+                width: 150px;
+                height: 15px;
+            }
+            #authenticating-text {
+                font-size: 0.8rem;
+                line-height: 15px;
+            }
+            #footer {
+                font-size: 1em;
+            }
+            #footer img {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 </head>
 <body>
-<div id="authenticating">
-    <h3>Authenticating with Buwana<span id="dots">...</span></h3>
+<div class="earthcal-app-logo" style="margin-bottom: 20px;text-align: center;">
+
+    <svg
+            width="120px"
+            height="120px"
+            version="1.1"
+            viewBox="0 0 103.23278 103.58668"
+            id="svg5"
+            sodipodi:docname="earthcal-icon.svg"
+            inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+            xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+            xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:svg="http://www.w3.org/2000/svg">
+        <sodipodi:namedview
+                id="namedview5"
+                pagecolor="#ffffff"
+                bordercolor="#000000"
+                borderopacity="0.25"
+                inkscape:showpageshadow="2"
+                inkscape:pageopacity="0.0"
+                inkscape:pagecheckerboard="0"
+                inkscape:deskcolor="#d1d1d1"
+                inkscape:document-units="mm"
+                inkscape:zoom="1.0395666"
+                inkscape:cx="284.73404"
+                inkscape:cy="404.49549"
+                inkscape:window-width="1033"
+                inkscape:window-height="697"
+                inkscape:window-x="167"
+                inkscape:window-y="32"
+                inkscape:window-maximized="0"
+                inkscape:current-layer="svg5" />
+        <defs
+                id="defs1">
+            <clipPath
+                    id="clipPath5535">
+                <path
+                        d="m 393.29,-172.81 a 52.077,52.077 0 0 0 -52.077,52.076 52.077,52.077 0 0 0 52.077,52.077 52.077,52.077 0 0 0 52.077,-52.077 52.077,52.077 0 0 0 -52.077,-52.076 z m -1.0583,22.029 a 30.048,30.048 0 0 1 30.048,30.047 30.048,30.048 0 0 1 -30.048,30.048 30.048,30.048 0 0 1 -30.048,-30.048 30.048,30.048 0 0 1 30.048,-30.047 z"
+                        fill="#00ffff"
+                        stroke-width="0"
+                        id="path1" />
+            </clipPath>
+        </defs>
+        <g
+                transform="translate(-341.213,172.60604)"
+                clip-path="url(#clipPath5535)"
+                id="g3">
+            <g
+                    transform="matrix(0.57548,0,0,0.57548,393.14,-121.3)"
+                    stroke-width="0.92194"
+                    id="g2">
+                <path
+                        id="october"
+                        d="m -45.782,-77.133 a 90,90 0 0 1 45.225,-12.02 l -0.29047,90 z"
+                        fill="#0055ff" />
+                <path
+                        id="november-9"
+                        d="m -90,-0.00023885 a 90,90 0 0 1 44.218,-77.133 l 44.935,77.133 z"
+                        fill="#001d9f" />
+                <path
+                        id="december"
+                        d="m -90,0 a 90,90 0 0 1 45.035,-77.133 L 0,0 Z"
+                        fill="#4343ff" />
+                <path
+                        id="january"
+                        d="m -44.965,-77.133 a 90,90 0 0 1 44.965,-12.867 L 0,0 Z"
+                        fill="#0cacf5" />
+                <path
+                        id="february"
+                        d="M 0,-90 A 90,90 0 0 1 45.035,-77.133 L 0,0 Z"
+                        fill="#00d2c3" />
+                <path
+                        id="march"
+                        d="M 44.935,-77.133 A 90,90 0 0 1 90,-0.00023885 L 0,0 Z"
+                        fill="#00ffbf" />
+                <path
+                        id="april"
+                        d="M 90,0 A 90,90 0 0 1 44.965,77.133 L 0,0 Z"
+                        fill="#d5ff21" />
+                <path
+                        id="may"
+                        d="M 44.965,77.133 A 90,90 0 0 1 0,90 L 0,0 Z"
+                        fill="#fff266" />
+                <path
+                        id="june"
+                        d="M 0,90 A 90,90 0 0 1 -45.035,77.133 L 0,0 Z"
+                        fill="#ffce3a" />
+                <path
+                        id="july"
+                        d="m -45.035,77.133 a 90,90 0 0 1 -44.965,12.867 L 0,0 Z"
+                        fill="#ff8a0a" />
+                <path
+                        id="august"
+                        d="m -90,90 a 90,90 0 0 1 -0.29047,-90 L 0,0 Z"
+                        fill="#ff3750" />
+                <path
+                        id="september"
+                        d="m -90,0.00023885 a 90,90 0 0 1 44.935,-77.133 L 0,0 Z"
+                        fill="#ff008c" />
+                <path
+                        id="october-7"
+                        d="M -45.065,77.904 A 90,90 0 0 1 0,90 L 0,0 Z"
+                        fill="#b600ff" />
+                <path
+                        id="november-5"
+                        d="m 43.78,-77.057 a 91.197,91.197 0 0 1 33.353,33.408 L -1.884,1.882 Z"
+                        fill="#4343ff"
+                        stroke-width="0.9342" />
+                <path
+                        id="november"
+                        d="m -0.77143,-89.153 a 90,90 0 0 1 44.989,12.095 l -45.065,77.904 z"
+                        fill="#0cacf5" />
+            </g>
+        </g>
+    </svg>
+
+</div>
+<div id="progress-container">
+    <div id="load-progress"></div>
+    <div id="authenticating-text" role="status" aria-live="polite">
+        <span>Authenticating with Buwana</span>
+        <span id="dots">...</span>
+    </div>
+</div>
+
+<div id="footer">
+    <img src="/svgs/earthen-icon.svg" style="width:30px;height:30px;" alt="Earthen Labs logo">
+    <p>by Earthen Labs | v0.9</p>
 </div>
 
 <script>
@@ -52,7 +260,7 @@
     let dotPhase = 0;
     const dotElem = document.getElementById("dots");
     setInterval(() => {
-        dotPhase = (dotPhase + 1) % 4;
+        dotPhase = (dotPhase % 3) + 1;
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
