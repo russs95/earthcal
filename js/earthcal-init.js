@@ -53,14 +53,14 @@ async function initCalendar() {
         "js/suncalc.min.js",
         "js/astronomy.browser.js",
         "js/core-javascripts.js?v=3",
-        "js/1-gcal-javascripts.js?v=1.4",
+        "js/1-gcal-javascripts.js?v=1.5",
         "js/breakouts.js",
         "js/set-targetdate.js",
         "js/planet-orbits.js",
-        "js/login-scripts.js?v=10.1",
-        "js/item-management.js?v=7",
+        "js/login-scripts.js?v=10.2",
+        "js/item-management.js?v=7.1",
         "js/time-setting.js",
-        "js/calendar-scripts.js?v=1",
+        "js/calendar-scripts.js?v=1.1",
     ];
 
     try {

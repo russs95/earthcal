@@ -2587,7 +2587,7 @@ color: #b2b1b1;
 /* Expanded: fully slid up */
 #registration-container.expanded {
     transform: translateY(0);
-    height: 100vh;
+    height: 95vh;
 }
 
 /* Allow pointer events only when expanded */
@@ -3553,10 +3553,11 @@ svg path #june:hover {
     gap: 0;
     padding: 8px 16px;
     background: var(--date-controls);
-    border-radius: 999px;
+    border-radius: 20px;
     width: 100%;
-    max-width: 177px;
+    max-width: 207px;
     margin-left: auto;
+    margin-top: -10px;
 }
 
 #time-controller > div {
