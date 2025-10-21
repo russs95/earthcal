@@ -2760,15 +2760,14 @@ INFO MODAL
 
 .ec-moon-phase {
     width: fit-content;
-    margin: 12px auto 0;
+    max-width: 100%;
+    margin: 0;
     padding: 12px 16px;
     border-radius: 18px;
-
     color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 30px;
 }
 
 .ec-moon-phase-emoji {
@@ -2787,23 +2786,35 @@ INFO MODAL
     font-size: 1.05em;
 }
 
-.ec-moon-phase-metrics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+.ec-moon-phase-metric {
     font-size: 0.9em;
     color: var(--subdued-text);
 }
 
-.ec-moon-phase-metrics span::after {
-    content: '\2022';
-    margin-left: 8px;
-    opacity: 0.6;
+.ec-moon-phase-metric + .ec-moon-phase-metric {
+    margin-top: 4px;
 }
 
-.ec-moon-phase-metrics span:last-child::after {
-    content: '';
+#modal-content .add-date-form {
+    position: relative;
+    padding: 120px 24px 32px;
+    margin: auto;
+    box-sizing: border-box;
+}
+
+#modal-content .add-date-form .ec-form-title {
+    margin-top: 0;
+}
+
+#modal-content .add-date-form .ec-moon-phase {
+    position: absolute;
+    top: 16px;
+    left: 16px;
     margin: 0;
+}
+
+#modal-content .add-date-form .ec-moon-phase-details {
+    max-width: min(260px, 100%);
 }
 
 #ec-public-cal-overlay {
@@ -2982,6 +2993,7 @@ INFO MODAL
 
 .ec-color-input {
     width: 45px;
+    min-width: 45px;
     height: 45px;
     padding: 0;
     cursor: pointer;
@@ -3009,6 +3021,7 @@ INFO MODAL
 .ec-inline-field.ec-pin-field,
 .ec-inline-field.ec-color-field {
     flex: 0 0 auto;
+    min-width: 52px;
 }
 
 .ec-inline-label {
@@ -3162,6 +3175,16 @@ INFO MODAL
 
   .ec-inline-field {
       min-width: 0;
+  }
+
+  #modal-content .add-date-form {
+      padding: 140px 16px 24px;
+  }
+
+  #modal-content .add-date-form .ec-moon-phase {
+      left: 16px;
+      right: 16px;
+      width: auto;
   }
 }
 

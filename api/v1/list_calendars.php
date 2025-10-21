@@ -126,7 +126,7 @@ try {
             'is_active'      => isset($r['is_active']) ? (bool)$r['is_active'] : true,
             'url'            => $r['url'] ?? null,
             'feed_title'     => $r['feed_title'] ?? null,
-            'provider'       => $r['provider'] ?? 'EarthCal',
+            'provider'       => $r['provider'] ?? null,
             'created_at'     => $r['created_at'] ?? null,
             'updated_at'     => $r['updated_at'] ?? null,
             'last_fetch_at'  => $r['last_fetch_at'] ?? null,

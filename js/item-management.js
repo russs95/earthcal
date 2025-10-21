@@ -445,9 +445,17 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
           </select>
         </div>
 
+        <div class="ec-form-field">
+          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
+            ${calendarOptions}
+            <option value="__add_new__">+ Add new calendar</option>
+          </select>
+        </div>
+
         <div id="ec-frequency-row" class="ec-form-field ec-frequency-row">
           <select id="ec-frequency" class="blur-form-field ec-frequency-select" style="height:45px;text-align:center;">
             <option value="today" selected>One-time</option>
+            <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
@@ -465,13 +473,6 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
           </div>
 
-        </div>
-
-        <div class="ec-form-field">
-          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
-            ${calendarOptions}
-            <option value="__add_new__">+ Add new calendar</option>
-          </select>
         </div>
 
         <div class="ec-form-actions">
@@ -1089,9 +1090,17 @@ function displayMoonPhasev1({ date, container } = {}) {
         : null;
 
     const metrics = [];
-    if (fraction !== null) metrics.push(`${Math.round(fraction * 100)}% illuminated`);
+    if (fraction !== null) {
+        metrics.push({
+            text: `${Math.round(fraction * 100)}% illuminated`,
+            className: 'ec-moon-phase-metric--illumination'
+        });
+    }
     if (percentOfMax !== null && Number.isFinite(percentOfMax)) {
-        metrics.push(`${safeToFixed(percentOfMax, 0)}% max distance`);
+        metrics.push({
+            text: `${safeToFixed(percentOfMax, 0)}% max distance`,
+            className: 'ec-moon-phase-metric--distance'
+        });
     }
 
     const existing = host.querySelector('.ec-moon-phase');
@@ -1099,11 +1108,17 @@ function displayMoonPhasev1({ date, container } = {}) {
 
     const wrapper = document.createElement('div');
     wrapper.className = 'ec-moon-phase';
+    const metricsHtml = metrics.map(({ text, className }) => {
+        const classes = ['ec-moon-phase-metric'];
+        if (className) classes.push(className);
+        return `<div class="${classes.join(' ')}">${text}</div>`;
+    }).join('');
+
     wrapper.innerHTML = `
         <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
         <div class="ec-moon-phase-details">
             <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
-            ${metrics.length ? `<div class="ec-moon-phase-metrics">${metrics.map(text => `<div class="ec-moon-phase-metric">${text}</div>`).join('<br>|')}</div>` : ''}
+            ${metricsHtml}
         </div>
     `;
 

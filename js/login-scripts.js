@@ -692,7 +692,7 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdNumeric = Number(subscriptionIdValue);
                 const hasSubscriptionId = Number.isFinite(subscriptionIdNumeric) && subscriptionIdNumeric > 0;
                 const syncButtonHtml = hasSubscriptionId
-                    ? `<button type="button" class="cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" aria-label="Sync calendar" title="Sync calendar">🔄</button>`
+                    ? `<button type="button" class="cal-row-action cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" aria-label="Sync calendar" title="Sync calendar">🔃</button>`
                     : '';
 
                 return `
@@ -700,7 +700,6 @@ function renderCalendarSelectionForm(calendars, {
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="${providerIcon}" alt="${escapeHtml(providerAlt)}" width="24" height="24"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || providerName)}</span>
-                        ${syncButtonHtml}
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
                             <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
@@ -713,6 +712,7 @@ function renderCalendarSelectionForm(calendars, {
                         <div class="cal-row-actions">
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${editCalendarId})" aria-label="Edit calendar">✏️</button>
+                            ${syncButtonHtml}
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${deleteCalendarId}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
                         </div>
                     </div>
