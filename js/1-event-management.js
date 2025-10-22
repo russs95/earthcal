@@ -701,6 +701,7 @@ function toggleDateCycleView() {
     const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
     const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
     const eyeIcon = document.getElementById("eye-icon");
+    const eventToggleButton = document.getElementById("event-show-hide");
 
     if (!allPinnedDateCyclesDiv || !allCurrentDateCyclesDiv || !eyeIcon) return;
 
@@ -711,11 +712,19 @@ function toggleDateCycleView() {
         allPinnedDateCyclesDiv.style.display = "none";
         eyeIcon.classList.remove("eye-open");
         eyeIcon.classList.add("eye-closed");
+        if (eventToggleButton) {
+            eventToggleButton.classList.remove("eye-open");
+            eventToggleButton.classList.add("eye-closed");
+        }
     } else {
         allCurrentDateCyclesDiv.style.display = "block";
         allPinnedDateCyclesDiv.style.display = "block";
         eyeIcon.classList.remove("eye-closed");
         eyeIcon.classList.add("eye-open");
+        if (eventToggleButton) {
+            eventToggleButton.classList.remove("eye-closed");
+            eventToggleButton.classList.add("eye-open");
+        }
     }
 }
 
