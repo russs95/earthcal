@@ -621,7 +621,7 @@ function renderCalendarSelectionForm(calendars, {
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="${addRowLabel}">
                 <span class="cal-row-emoji" data-emoji="👥" aria-hidden="true"></span>
                 <span class="cal-row-name">${addRowLabel}</span>
-                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+                <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
         </div>
     `;
@@ -731,7 +731,7 @@ function renderCalendarSelectionForm(calendars, {
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Google Calendar">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/google-g.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">Add Google Calendar</span>
-                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+                <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
         </div>
     `;
@@ -741,7 +741,7 @@ function renderCalendarSelectionForm(calendars, {
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Apple Calendar">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/apple_logo.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">Add Apple Calendar</span>
-                <span class="cal-row-action-icon" aria-hidden="true">➕</span>
+                <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
         </div>
     `;
@@ -942,7 +942,7 @@ function renderCalendarSelectionForm(calendars, {
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="Browse public calendars">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/earthcal-app.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">Browse public calendars</span>
-                <span class="cal-row-action-icon" aria-hidden="true">+</span>
+                <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
         </div>
     `;

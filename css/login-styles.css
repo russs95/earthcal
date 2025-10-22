@@ -782,11 +782,24 @@ margin-right: auto;
 
 .cal-row-action-icon {
     margin-left: auto;
-    font-size: 1.4rem;
-    line-height: 1;
+    width: 28px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    background-color: transparent;
+    background-image: var(--cal-row-add-icon, url('../svgs/add-day.svg'));
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    transition: background-image 0.2s ease;
+}
+
+.cal-toggle-row:hover .cal-row-action-icon,
+.cal-row-summary:hover .cal-row-action-icon,
+.cal-row-summary:focus-visible .cal-row-action-icon {
+    background-image: var(--cal-row-add-icon-hover, url('../svgs/add-day-over.svg'));
 }
 
 .cal-row-toggle {
