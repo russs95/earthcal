@@ -55,8 +55,8 @@
     --button-2-2:#236d96;
     --button-2-2-over:#143952;
     --shadow: #8484846b;
-    --cal-row-add-icon: url(../svgs/add-night.svg);
-    --cal-row-add-icon-hover: url(../svgs/add-night-over.svg);
+    --cal-row-add-icon: url(../svgs/add-cal-dark.svg);
+    --cal-row-add-icon-hover: url(../svgs/add-cal-dark-over.svg);
     --night: #13162b;
 
     --footer-background: #111735ff;

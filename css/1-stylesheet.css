@@ -2780,6 +2780,7 @@ INFO MODAL
     flex-direction: column;
     gap: 4px;
     line-height: 1.25;
+    max-width: min(300px, 100%);
 }
 
 .ec-moon-phase-name {
@@ -2909,6 +2910,7 @@ INFO MODAL
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .ec-notes-toggle-track {
@@ -2982,10 +2984,10 @@ INFO MODAL
 }
 
 .ec-frequency-select {
-    flex: 0 1 130px;
-    max-width: 130px;
+    flex: 1 1 auto;
     width: 100%;
     margin: 0;
+    max-width: none;
 }
 
 .ec-frequency-row .blur-form-field {
@@ -2994,6 +2996,10 @@ INFO MODAL
 
 .ec-frequency-row .ec-inline-field {
     flex: 0 0 auto;
+}
+
+.ec-frequency-row .ec-inline-field.ec-emoji-field {
+    flex: 1 1 auto;
 }
 
 .ec-color-input {
@@ -3022,7 +3028,6 @@ INFO MODAL
     flex: 0 1 auto;
 }
 
-.ec-inline-field.ec-emoji-field,
 .ec-inline-field.ec-pin-field,
 .ec-inline-field.ec-color-field {
     flex: 0 0 auto;
@@ -3031,6 +3036,12 @@ INFO MODAL
 
 .ec-inline-field.ec-emoji-field {
     gap: 12px;
+    flex: 1 1 auto;
+    min-width: 120px;
+}
+
+.ec-inline-field.ec-emoji-field .ec-emoji-input {
+    flex-shrink: 0;
 }
 
 .ec-inline-label {

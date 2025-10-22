@@ -52,8 +52,8 @@
     --button-2-2:#008ad4;
     --button-2-2-over:#3498db;
     --shadow: rgba(57, 57, 57, 0.613);
-    --cal-row-add-icon: url(../svgs/add-day.svg);
-    --cal-row-add-icon-hover: url(../svgs/add-day-over.svg);
+    --cal-row-add-icon: url(../svgs/add-cal.svg);
+    --cal-row-add-icon-hover: url(../svgs/add-cal-over.svg);
     --login:rgb(244, 242, 242);
        --login-green: green;
     
