@@ -459,6 +459,10 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
+          
+          <div class="ec-inline-field ec-color-field">
+            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
+          </div>
 
           <div class="ec-inline-field ec-emoji-field">
             <div class="ec-emoji-input">
@@ -473,9 +477,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
               </span>
             </button>
           </div>
-          <div class="ec-inline-field ec-color-field">
-            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
-          </div>
+          
 
         </div>
 
