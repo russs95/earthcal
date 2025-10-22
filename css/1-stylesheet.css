@@ -2778,21 +2778,22 @@ INFO MODAL
 .ec-moon-phase-details {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    line-height: 1.25;
 }
 
 .ec-moon-phase-name {
     font-weight: 600;
-    font-size: 1.05em;
+    font-size: 0.9em;
 }
 
 .ec-moon-phase-metric {
-    font-size: 0.9em;
+    font-size: 0.76em;
     color: var(--subdued-text);
 }
 
 .ec-moon-phase-metric + .ec-moon-phase-metric {
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 #modal-content .add-date-form {
@@ -2807,10 +2808,11 @@ INFO MODAL
 }
 
 #modal-content .add-date-form .ec-moon-phase {
-    position: absolute;
+    position: fixed;
     top: 16px;
     left: 16px;
     margin: 0;
+    z-index: 75;
 }
 
 #modal-content .add-date-form .ec-moon-phase-details {
@@ -2906,6 +2908,7 @@ INFO MODAL
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .ec-notes-toggle-track {
@@ -2979,7 +2982,9 @@ INFO MODAL
 }
 
 .ec-frequency-select {
-    flex: 1 1 200px;
+    flex: 0 1 130px;
+    max-width: 130px;
+    width: 100%;
     margin: 0;
 }
 
@@ -3022,6 +3027,10 @@ INFO MODAL
 .ec-inline-field.ec-color-field {
     flex: 0 0 auto;
     min-width: 52px;
+}
+
+.ec-inline-field.ec-emoji-field {
+    gap: 12px;
 }
 
 .ec-inline-label {

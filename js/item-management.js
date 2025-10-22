@@ -194,10 +194,18 @@ async function openAddItem() {
         return new Date();
     })();
 
-    displayMoonPhasev1({
+    const moonPhaseInfo = displayMoonPhasev1({
         date: resolvedMoonDate,
         container: modalContent.querySelector('.add-date-form')
-    });
+    }) || null;
+
+    const presetMoonEmoji = sanitizeEmojiInput(moonPhaseInfo?.emoji || '') || '';
+    if (presetMoonEmoji) {
+        const emojiPreviewEl = document.getElementById('ec-emoji-preview');
+        const emojiInputEl = document.getElementById('ec-emoji');
+        if (emojiPreviewEl) emojiPreviewEl.textContent = presetMoonEmoji;
+        if (emojiInputEl) emojiInputEl.value = presetMoonEmoji;
+    }
 
     const titleInput = document.getElementById('ec-title');
     if (titleInput) {
@@ -286,11 +294,13 @@ async function openAddItem() {
         }
     }
 
+    const defaultEmojiForForm = presetMoonEmoji || '🙂';
+
     wireEmojiPicker({
         buttonId: 'ec-emoji-button',
         hiddenInputId: 'ec-emoji',
         previewId: 'ec-emoji-preview',
-        defaultEmoji: '🙂'
+        defaultEmoji: defaultEmojiForForm
     });
 
     // ============================================================
@@ -424,17 +434,6 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         
         <div class="ec-form-field ec-title-row">
           <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
-          <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">
-            <span class="ec-notes-toggle-track" aria-hidden="true">
-              <span class="ec-notes-toggle-thumb"></span>
-            </span>
-          </button>
-        </div>
-
-        <div class="ec-form-field ec-notes-field">
-          <div id="ec-notes-box" class="ec-notes-collapsible" aria-hidden="true">
-            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
-          </div>
         </div>
 
         <div class="ec-form-field">
@@ -468,11 +467,22 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
               </button>
               <input type="hidden" id="ec-emoji" value="">
             </div>
+            <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">
+              <span class="ec-notes-toggle-track" aria-hidden="true">
+                <span class="ec-notes-toggle-thumb"></span>
+              </span>
+            </button>
           </div>
           <div class="ec-inline-field ec-color-field">
             <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
           </div>
 
+        </div>
+
+        <div class="ec-form-field ec-notes-field">
+          <div id="ec-notes-box" class="ec-notes-collapsible" aria-hidden="true">
+            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
+          </div>
         </div>
 
         <div class="ec-form-actions">
@@ -636,8 +646,10 @@ function wireEmojiPicker({ buttonId, hiddenInputId, previewId, defaultEmoji = '�
 
     ensureGlobalEmojiPicker();
 
+    const fallbackEmoji = sanitizeEmojiInput(defaultEmoji) || '🙂';
+
     const applyEmoji = (emoji) => {
-        const sanitized = sanitizeEmojiInput(emoji) || defaultEmoji;
+        const sanitized = sanitizeEmojiInput(emoji) || fallbackEmoji;
         hiddenInput.value = sanitized;
         preview.textContent = sanitized;
     };
@@ -657,11 +669,12 @@ function wireEmojiPicker({ buttonId, hiddenInputId, previewId, defaultEmoji = '�
     button.addEventListener('click', handleButtonClick);
 
     if (hiddenInput.value) {
-        const sanitized = sanitizeEmojiInput(hiddenInput.value) || defaultEmoji;
+        const sanitized = sanitizeEmojiInput(hiddenInput.value) || fallbackEmoji;
         hiddenInput.value = sanitized;
         preview.textContent = sanitized;
     } else {
-        preview.textContent = defaultEmoji;
+        hiddenInput.value = fallbackEmoji;
+        preview.textContent = fallbackEmoji;
     }
 
     return () => {
@@ -1073,6 +1086,7 @@ function displayMoonPhasev1({ date, container } = {}) {
     const moonIllumination = SunCalc.getMoonIllumination(target);
     const phase = normalizePhase(moonIllumination?.phase);
     const fraction = Number.isFinite(moonIllumination?.fraction) ? moonIllumination.fraction : null;
+    const emoji = getMoonPhaseEmojiLocal(phase);
 
     let moonPosition;
     try {
@@ -1115,7 +1129,7 @@ function displayMoonPhasev1({ date, container } = {}) {
     }).join('');
 
     wrapper.innerHTML = `
-        <div class="ec-moon-phase-emoji" aria-hidden="true">${getMoonPhaseEmojiLocal(phase)}</div>
+        <div class="ec-moon-phase-emoji" aria-hidden="true">${emoji}</div>
         <div class="ec-moon-phase-details">
             <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
             ${metricsHtml}
@@ -1130,7 +1144,13 @@ function displayMoonPhasev1({ date, container } = {}) {
         host.prepend(wrapper);
     }
 
-    return wrapper;
+    return {
+        emoji,
+        phase,
+        fraction,
+        distance,
+        element: wrapper
+    };
 }
 
 
