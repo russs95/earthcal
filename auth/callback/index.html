@@ -252,6 +252,42 @@
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
+    const OIDC_FALLBACK_MAX_AGE = 10 * 60 * 1000; // 10 minutes
+
+    function readOidcFallback(key) {
+        try {
+            if (!window.name) return null;
+            const payload = JSON.parse(window.name);
+            const data = payload.__earthcal_oidc || payload;
+            if (!data || typeof data !== 'object') return null;
+            if (data.timestamp && Date.now() - data.timestamp > OIDC_FALLBACK_MAX_AGE) {
+                clearOidcFallback();
+                return null;
+            }
+            return data[key] ?? null;
+        } catch (error) {
+            console.warn('[OIDC] Unable to read fallback auth data:', error);
+            return null;
+        }
+    }
+
+    function clearOidcFallback() {
+        try {
+            if (!window.name) return;
+            const payload = JSON.parse(window.name);
+            if (payload.__earthcal_oidc) {
+                delete payload.__earthcal_oidc;
+            }
+            if (Object.keys(payload).length === 0) {
+                window.name = '';
+            } else {
+                window.name = JSON.stringify(payload);
+            }
+        } catch (error) {
+            window.name = '';
+        }
+    }
+
     (async function() {
         // 🛠️ Some providers incorrectly append query parameters using '?' instead of '&'.
         //    Normalize the query string so code and state can be parsed reliably.
@@ -275,13 +311,15 @@
         }
 
         const storedState = sessionStorage.getItem("oidc_state");
-        if (state !== storedState) {
+        const expectedState = storedState || readOidcFallback("oidc_state");
+        if (state !== expectedState) {
             console.error("State mismatch.");
             alert("Login failed: invalid state.");
             return;
         }
 
-        const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        const storedCodeVerifier = sessionStorage.getItem("pkce_code_verifier");
+        const codeVerifier = storedCodeVerifier || readOidcFallback("pkce_code_verifier");
         if (!codeVerifier) {
             console.error("Missing code_verifier");
             alert("Login failed: missing code_verifier.");
@@ -349,6 +387,7 @@
             sessionStorage.removeItem("pkce_code_verifier");
             sessionStorage.removeItem("oidc_state");
             sessionStorage.removeItem("oidc_nonce");
+            clearOidcFallback();
 
             window.history.replaceState({}, document.title, "/auth/callback");
 
