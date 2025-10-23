@@ -4,6 +4,41 @@
 // LOGIN CHECKING
 
 // ---------- helpers ----------
+function persistOidcFallback(values) {
+    try {
+        const existingName = window.name;
+        let existingPayload = {};
+
+        if (existingName) {
+            try {
+                existingPayload = JSON.parse(existingName);
+            } catch {
+                existingPayload = {};
+            }
+        }
+
+        const oidcData = {
+            ...(existingPayload.__earthcal_oidc || {}),
+            ...values,
+            timestamp: Date.now(),
+        };
+
+        window.name = JSON.stringify({
+            ...existingPayload,
+            __earthcal_oidc: oidcData,
+        });
+    } catch (error) {
+        console.warn('[OIDC] Unable to persist fallback auth data:', error);
+        try {
+            window.name = JSON.stringify({
+                __earthcal_oidc: { ...values, timestamp: Date.now() },
+            });
+        } catch (nestedError) {
+            console.warn('[OIDC] Unable to set window.name fallback:', nestedError);
+        }
+    }
+}
+
 function parseJwt(tkn) {
     try {
         const [, payload] = tkn.split('.');
@@ -1483,6 +1518,11 @@ async function createJWTloginURL() {
     const code_verifier = generateRandomString(64);
     const code_challenge = await generateCodeChallenge(code_verifier);
     sessionStorage.setItem("pkce_code_verifier", code_verifier);
+    persistOidcFallback({
+        oidc_state: state,
+        oidc_nonce: nonce,
+        pkce_code_verifier: code_verifier,
+    });
 
     // Build full authorize URL with PKCE parameters
     const url = new URL(buwanaAuthorizeURL);

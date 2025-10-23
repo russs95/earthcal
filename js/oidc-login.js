@@ -1,3 +1,37 @@
+function persistOidcFallback(values) {
+  try {
+    const existingName = window.name;
+    let existingPayload = {};
+    if (existingName) {
+      try {
+        existingPayload = JSON.parse(existingName);
+      } catch (err) {
+        existingPayload = {};
+      }
+    }
+
+    const oidcData = {
+      ...(existingPayload.__earthcal_oidc || {}),
+      ...values,
+      timestamp: Date.now(),
+    };
+
+    window.name = JSON.stringify({
+      ...existingPayload,
+      __earthcal_oidc: oidcData,
+    });
+  } catch (error) {
+    console.warn('[OIDC] Unable to persist fallback auth data:', error);
+    try {
+      window.name = JSON.stringify({
+        __earthcal_oidc: { ...values, timestamp: Date.now() },
+      });
+    } catch (nestedError) {
+      console.warn('[OIDC] Unable to set window.name fallback:', nestedError);
+    }
+  }
+}
+
 export async function generateRandomString(length) {
   const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -30,6 +64,11 @@ export async function redirectToBuwana() {
   const codeVerifier = await generateRandomString(64);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+  persistOidcFallback({
+    oidc_state: state,
+    oidc_nonce: nonce,
+    pkce_code_verifier: codeVerifier,
+  });
 
   const status = new URLSearchParams(window.location.search).get("status");
   const redirectUriObj = new URL(baseRedirectUri);
