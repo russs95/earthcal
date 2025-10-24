@@ -521,6 +521,8 @@ async function highlightDateCycles(targetDate) {
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
     const formattedTargetDateAnnual = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-`; // No year for annual events
 
+    const eventToggleButton = document.getElementById('event-show-hide');
+
     // Remove "date_event" class from previously highlighted elements.
     const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
     elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
@@ -543,6 +545,9 @@ async function highlightDateCycles(targetDate) {
     if (!Array.isArray(dateCycleEvents) || dateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         await updateDateCycleCount(0, 0); // No events, reset count display
+        if (eventToggleButton) {
+            eventToggleButton.style.display = 'none';
+        }
         return;
     }
 
@@ -576,6 +581,11 @@ async function highlightDateCycles(targetDate) {
     });
 
     console.log(`📌 Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
+
+    const totalMatching = matchingPinned.length + matchingCurrent.length;
+    if (eventToggleButton) {
+        eventToggleButton.style.display = totalMatching > 0 ? '' : 'none';
+    }
 
     // Get the container elements.
     const pinnedDiv = document.getElementById('pinned-datecycles');
@@ -1265,7 +1275,7 @@ function shareDateCycle(uniqueKey) {
     const sharer = (window.userProfile?.first_name || "An Earthcal user").trim();
     const encodedSharer = encodeURIComponent(sharer);
 
-    const url = `https://cycles.earthen.io/share.html?action=add-event&f=${frequency}&date=${date}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}&from=${encodedSharer}`;
+    const url = `https://earthcal.app/share.html?action=add-event&f=${frequency}&date=${date}&t=${title}&c=${color}&n=${note}&id=${uniqueKey}&from=${encodedSharer}`;
 
     navigator.clipboard.writeText(url).then(() => {
         alert("Shareable event link copied to clipboard!");
