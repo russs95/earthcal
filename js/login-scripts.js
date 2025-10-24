@@ -701,14 +701,20 @@ function renderCalendarSelectionForm(calendars, {
             ? webcalCalendars.map((cal, index) => {
                 const rawSourceType = (cal?.source_type || cal?.source || 'webcal').toString();
                 const sourceType = escapeHtml(rawSourceType.toLowerCase());
-                const providerNameRaw = (cal?.provider || '').toString().trim();
+                let providerNameRaw = (cal?.provider || '').toString().trim();
+                const urlLower = (cal?.url || '').toString().trim().toLowerCase();
+                if (!providerNameRaw && urlLower.includes('google.com')) {
+                    providerNameRaw = 'Google';
+                }
                 const providerName = providerNameRaw || 'Webcal';
                 const providerKey = providerName.toLowerCase();
+                const isGoogleProvider = providerKey.includes('google') || urlLower.includes('google.com');
+                const isAppleProvider = providerKey.includes('apple') || urlLower.includes('apple.com') || urlLower.includes('icloud.com');
                 const safeProvider = escapeHtml(providerName);
                 let providerIcon = 'assets/icons/earthcal-app.png';
-                if (providerKey === 'google') {
+                if (isGoogleProvider) {
                     providerIcon = 'assets/icons/google-g.png';
-                } else if (providerKey === 'apple') {
+                } else if (isAppleProvider) {
                     providerIcon = 'assets/icons/apple-touch-icon.png';
                 }
                 const providerAlt = `${providerName} icon`;
@@ -1336,9 +1342,14 @@ function openGoogleCalendarConnectModal() {
                 <label class="ec-visually-hidden" for="ec-google-calendar-url">Google Calendar URL</label>
                 <input id="ec-google-calendar-url" type="url" name="google_calendar_url" required
                        placeholder="https://calendar.google.com/calendar/..."
-                       class="blur-form-field" style="width:100%;text-align:left;">
+                       class="blur-form-field" style="text-align:left;">
                 <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Connect</button>
                 <p id="ec-google-calendar-feedback" aria-live="polite" style="margin:0;color:#d93025;font-size:0.9rem;min-height:1.2em;"></p>
+                <div id="ec-google-calendar-instructions" style="text-align:left;font-size:0.85rem;color:var(--subdued-text,#4b5563);">
+                    <p style="margin:0;">
+                        To find you google calendars ical URL, go to calendar.google.com and find the calendar that you want to sync on the left hand side column.  Hover over it.  You will see three dots.  Click.  Select "Setting and Sharing".  Navigate to the bottom of the page.  Find the "Public Address in iCal format".  Copy this URL and use in the field above.
+                    </p>
+                </div>
             </form>
         </div>
     `;
@@ -2131,9 +2142,12 @@ function normalizeV1ItemForStorage(item, calendar, buwanaId) {
     const calendarId = Number.isFinite(calendarIdNumber) ? calendarIdNumber : null;
     const calendarName = normalizedCalendar.name || item.calendar_name || 'My Calendar';
     const calendarColor = normalizedCalendar.color || normalizedCalendar.color_hex || '#3b82f6';
+    const providerLower = (normalizedCalendar.provider || '').toString().toLowerCase();
+    const calendarUrlLower = (normalizedCalendar.url || '').toString().toLowerCase();
+    const isGoogleCalendar = providerLower.includes('google') || calendarUrlLower.includes('google.com');
     const calendarEmoji = normalizedCalendar.emoji || normalizedCalendar.cal_emoji || '📅';
     const { date, timeLabel, components } = parseV1UtcDateParts(item.dtstart_utc);
-    const itemColor = item.item_color || calendarColor;
+    const itemColor = item.item_color || (isGoogleCalendar ? '#9ca3af' : calendarColor);
     const dateEmoji = item.item_emoji || calendarEmoji || '⬤';
     const description = item.description || '';
     const pinnedRaw = item.pinned;

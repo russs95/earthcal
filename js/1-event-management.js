@@ -147,7 +147,10 @@ function parseDateFromItem(dtstartUtc, tzid) {
 function normalizeV1Item(item, calendar, buwanaId) {
     const { date, timeLabel, components } = parseDateFromItem(item.dtstart_utc, item.tzid);
     const calendarColor = calendar.color || '#3b82f6';
-    const itemColor = item.item_color || calendarColor;
+    const providerLower = (calendar.provider || '').toString().toLowerCase();
+    const calendarUrlLower = (calendar.url || '').toString().toLowerCase();
+    const isGoogleCalendar = providerLower.includes('google') || calendarUrlLower.includes('google.com');
+    const itemColor = item.item_color || (isGoogleCalendar ? '#9ca3af' : calendarColor);
     const emoji = item.item_emoji || calendar.emoji || '⬤';
     const calEmoji = calendar.emoji || '📅';
     const description = item.description || '';

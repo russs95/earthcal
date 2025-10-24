@@ -183,7 +183,7 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
     const sizeKb = Number.isFinite(meta?.size_kb)
         ? Number(meta.size_kb)
         : null;
-    const defaultColor = sanitizeHexColor(meta?.default_color || '#d93025', '#d93025');
+    const defaultColor = sanitizeHexColor('#d93025', '#d93025');
     const normalizedUrl = sanitizeUrl(meta?.ical_url || icalUrl) || (meta?.ical_url || icalUrl || '');
     const safeTitle = escapeHTML(feedTitle);
     const safeDescription = escapeHTML(feedDescription);
@@ -282,6 +282,9 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
             <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
                 <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Add calendar</button>
             </div>
+            <p style="color:#d93025;margin:0;text-align:left;font-size:0.95rem;">
+                Google calendar sync on Earthcal is still in Beta!  We're still working on refining how it works and how items are imported.
+            </p>
         </form>
     `;
 
