@@ -536,16 +536,37 @@ function renderCalendarSelectionForm(calendars, {
 
     const overlayHost = getHost();
 
+    const getNormalizedSourceType = (cal) => {
+        if (!cal) return '';
+        const candidates = [
+            cal?.source_type,
+            cal?.source,
+            cal?.sourceType,
+            cal?.source_name,
+            cal?.sourceName,
+        ];
+
+        for (const candidate of candidates) {
+            if (candidate === null || candidate === undefined) continue;
+            const normalized = candidate.toString().trim().toLowerCase();
+            if (normalized) {
+                return normalized;
+            }
+        }
+
+        return '';
+    };
+
     const isWebcalSourceType = (cal) => {
         if (!cal) return false;
-        const sourceRaw = cal?.source_type ?? cal?.source;
-        const source = (sourceRaw || '').toString().toLowerCase();
+
+        const source = getNormalizedSourceType(cal);
         const webcalSources = ['webcal', 'google', 'ical', 'ics', 'gcal'];
-        if (webcalSources.includes(source)) {
+        if (source && webcalSources.includes(source)) {
             return true;
         }
 
-        const url = (cal?.url || '').toString().toLowerCase();
+        const url = (cal?.url || '').toString().trim().toLowerCase();
         if (url.startsWith('webcal://') || url.endsWith('.ics')) {
             return true;
         }
@@ -582,15 +603,9 @@ function renderCalendarSelectionForm(calendars, {
             if (isPublicSubscription(cal)) return false;
             if (isWebcalSourceType(cal)) return false;
 
-            const sourceRaw = cal?.source_type ?? cal?.source;
-            const source = (sourceRaw || '').toString().toLowerCase();
+            const source = getNormalizedSourceType(cal);
             const allowedPersonalSources = ['earthcal', 'personal'];
             if (!allowedPersonalSources.includes(source)) {
-                return false;
-            }
-
-            const providerName = (cal?.provider || '').toString().trim().toLowerCase();
-            if (providerName === 'google' || providerName === 'apple') {
                 return false;
             }
 
