@@ -2725,7 +2725,7 @@ INFO MODAL
   border: none;
   background: var(--form-field-background);
   color: var(--form-field-text);
-  margin: 10px auto 10px auto;
+  /*margin: 10px auto 10px auto;*/
   font-size: large;
   cursor: pointer;
 
@@ -2760,7 +2760,7 @@ INFO MODAL
 
 .ec-moon-phase {
     width: fit-content;
-    max-width: 100%;
+    max-width: 300px;
     margin: 0;
     padding: 12px 16px;
     border-radius: 18px;
@@ -2910,7 +2910,7 @@ INFO MODAL
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
-    margin-left: auto;
+
 }
 
 .ec-notes-toggle-track {
@@ -2980,7 +2980,7 @@ INFO MODAL
     flex-direction: row;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
 }
 
 .ec-frequency-select {
@@ -3031,13 +3031,13 @@ INFO MODAL
 .ec-inline-field.ec-pin-field,
 .ec-inline-field.ec-color-field {
     flex: 0 0 auto;
-    min-width: 52px;
+    /*min-width: 52px;*/
 }
 
 .ec-inline-field.ec-emoji-field {
     gap: 12px;
     flex: 1 1 auto;
-    min-width: 120px;
+
 }
 
 .ec-inline-field.ec-emoji-field .ec-emoji-input {

@@ -1,5 +1,5 @@
 name: earthcal
-version: '0.9.8'
+version: '1.0.0'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
@@ -38,4 +38,6 @@ parts:
       - libnspr4
       - libgtk-3-0
       - libcanberra-gtk3-module
+
+
 

@@ -433,7 +433,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         
         
         <div class="ec-form-field ec-title-row">
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;" aria-label="Title">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;margin-bottom: 5px;margin-top:10px;" aria-label="Title">
         </div>
 
         <div class="ec-form-field">

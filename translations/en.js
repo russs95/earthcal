@@ -65,15 +65,15 @@ export const translations = {
 
 //VERSION ANNOUNCEMENT
     versioning: {
-        title: "Welcome to EarthCal 0.9!",
-        subtitle: "EarthCal has been updated for June 2025! We're now at version 0.94.:",
+        title: "Introducing Earthcal v1.0.0!",
+        subtitle: "After 20 years of development, I am really excited to share the first production version of Earthcal.  For over two decades I've been trying to figure out how to do a calendar that truly captures and embodies Earthen cycles-- and was truly useful.  Version 1.0 incorporates a completely new database-- that is in full alignment with iCal specs.  This is the same database structure used by Google, Apple and Outlook.  That means that Earthcal now has all the potentially functionality of these platforms... and is fully compatible with them.  This means, corporate calendar users can now connect Earthcal to their legacy linear calendars and start using Earthcal to view their events within an cyclical frame.",
         features: [
-            "You can now login with a Buwana account to save and sync your events",
-            "Time zone support is now activated! Use the settings button to switch.",
-            "Language support upgrade!  Now up to 75% of the app is translated.",
-            "Public calendars are now available to add to your view (you must login first)",
-            "The migratory cycle of the black heron is synced with the calendar.",
-            "Minor and major bug fixes.",
+            "Get going with Earthcal using the Buwana authentication protocol",
+            "Connect your Google Calendar to Earthcal (Beta)",
+            "Add to-dos to Earthcal (using the ical protocol)",
+            "Create, manage and sync with private, public and Google calendars",
+            "Major interface upgrade.",
+
 
         ],
         gotIt: "👍 Let's Go!",
