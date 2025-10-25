@@ -259,10 +259,10 @@ try {
     $calInsert = $pdo->prepare(
         "INSERT INTO calendars_v1_tb
             (user_id, name, default_my_calendar, description, cal_emoji, color,
-             tzid, category, visibility, is_readonly, created_at, updated_at)
+             tzid, category, visibility, is_readonly, provider, created_at, updated_at)
          VALUES
             (:uid, :name, 0, :desc, :emoji, :color,
-             :tzid, :category, :visibility, 1, NOW(), NOW())"
+             :tzid, :category, :visibility, 1, :provider, NOW(), NOW())"
     );
     $calInsert->execute([
         'uid' => $buwanaId,
@@ -272,7 +272,8 @@ try {
         'color' => $color,
         'category' => $category,
         'visibility' => $visibility,
-        'tzid' => $userTz
+        'tzid' => $userTz,
+        'provider' => $provider
     ]);
     $calendarId = (int)$pdo->lastInsertId();
 
