@@ -103,7 +103,7 @@ async function fetchUserData(buwanaId = null) {
 
 
 async function loadTranslations(langCode) {
-    const translationVersion = '1.0';
+    const translationVersion = '1.1';
     try {
         const module = await import(`../translations/${langCode}.js?v=${translationVersion}`);
         return module.translations;

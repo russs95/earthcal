@@ -748,7 +748,7 @@ function guidedTour() {
   modal.style.display = "flex";
   document.getElementById("page-content").classList.add("blur");
 
-  const translationVersion = '1.0';
+  const translationVersion = '1.1';
 
   import(`../translations/${userLanguage}.js?v=${translationVersion}`).then(module => {
     const t = module.translations.tour;
