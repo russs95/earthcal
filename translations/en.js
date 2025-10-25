@@ -121,12 +121,13 @@ settings: {
 //LOG IN SCREEN
     loggedIn: {
         welcome: "Welcome",
-        syncingInfo: "You're managing these personal and public cals'...",
+        syncingInfo: "You are managing the following Earthcals...",
         publicCalendarsIntro: "You are subscribed to these public cals...",
         webcalHasSubscriptions: "You have the following iCal subscriptions...",
         webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
         noPersonal: "No personal calendars available.",
-        addPersonal: "Add new personal calendar",
+        addPersonal: "Add new Earthcal...",
+        browsePublic: "Browse and subscribe to public Earthcals...",
         noPublic: "No public calendars subscriptions.",
         noWebcal: "No webcals have been connected.",
         syncNow: "Sync Now",

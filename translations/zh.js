@@ -116,12 +116,13 @@ openDateSearch: {
 // LOG IN SCREEN
 loggedIn: {
   welcome: "欢迎",
-  syncingInfo: "您正在同步以下个人和公共日历：",
+  syncingInfo: "您正在管理以下 Earthcal...",
   publicCalendarsIntro: "You are subscribed to the following public calendars...",
   webcalHasSubscriptions: "You have the following iCal subscriptions...",
   webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "没有可用的个人日历。",
-  addPersonal: "Add new personal calendar",
+  addPersonal: "添加新的 Earthcal...",
+  browsePublic: "浏览并订阅公共 Earthcal...",
   noPublic: "没有可用的公共日历。",
   noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "立即同步",

@@ -116,12 +116,13 @@ openDateSearch: {
 // LOG IN SCREEN
 loggedIn: {
   welcome: "مرحبًا",
-  syncingInfo: "أنت تقوم بمزامنة التقاويم التالية الشخصية والعامة:",
+  syncingInfo: "أنت تدير Earthcals التالية...",
   publicCalendarsIntro: "You are subscribed to the following public calendars...",
   webcalHasSubscriptions: "You have the following iCal subscriptions...",
   webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "لا توجد تقاويم شخصية متاحة.",
-  addPersonal: "Add new personal calendar",
+  addPersonal: "أضف Earthcal جديدًا...",
+  browsePublic: "تصفح واشترك في Earthcals العامة...",
   noPublic: "لا توجد تقاويم عامة متاحة.",
   noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "مزامنة الآن",

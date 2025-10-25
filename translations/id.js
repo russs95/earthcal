@@ -117,12 +117,13 @@ openDateSearch: {
 // LOG IN SCREEN
 loggedIn: {
   welcome: "Selamat datang",
-  syncingInfo: "Anda sedang menyinkronkan kalender pribadi dan publik berikut:",
+  syncingInfo: "Anda mengelola Earthcal berikut...",
   publicCalendarsIntro: "You are subscribed to the following public calendars...",
   webcalHasSubscriptions: "You have the following iCal subscriptions...",
   webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "Tidak ada kalender pribadi yang tersedia.",
-  addPersonal: "Add new personal calendar",
+  addPersonal: "Tambahkan Earthcal baru...",
+  browsePublic: "Jelajahi dan berlangganan Earthcal publik...",
   noPublic: "Tidak ada kalender publik yang tersedia.",
   noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "Sinkronkan Sekarang",

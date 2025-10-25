@@ -118,12 +118,13 @@ openDateSearch: {
 // LOG IN SCREEN
 loggedIn: {
   welcome: "Bienvenido",
-  syncingInfo: "Estás sincronizando los siguientes calendarios personales y públicos:",
+  syncingInfo: "Estás gestionando los siguientes Earthcals...",
   publicCalendarsIntro: "You are subscribed to the following public calendars...",
   webcalHasSubscriptions: "You have the following iCal subscriptions...",
   webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
   noPersonal: "No hay calendarios personales disponibles.",
-  addPersonal: "Add new personal calendar",
+  addPersonal: "Agregar nuevo Earthcal...",
+  browsePublic: "Explora y suscríbete a Earthcals públicos...",
   noPublic: "No hay calendarios públicos disponibles.",
   noWebcal: "No iCal subscriptions connected yet.",
   syncNow: "Sincronizar ahora",
