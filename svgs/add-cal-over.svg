@@ -28,26 +28,26 @@
      inkscape:zoom="1.4237276"
      inkscape:cx="171.73228"
      inkscape:cy="171.73228"
-     inkscape:window-width="1366"
-     inkscape:window-height="697"
+     inkscape:window-width="1920"
+     inkscape:window-height="1129"
      inkscape:window-x="0"
      inkscape:window-y="32"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <path
-     d="M 45.42182,79.363031 V 9.5089686"
+     d="M 45.429662,76.177372 V 12.694627"
      fill="#1a1a1a"
      stroke="#333333"
      stroke-linecap="round"
      stroke-width="6.871"
      id="path1"
-     style="stroke-width:7.571;stroke-dasharray:none;stroke:#333333" />
+     style="stroke:#f2f2f2;stroke-width:7.48;stroke-dasharray:none;fill:#f2f2f2" />
   <path
-     d="M 10.580769,44.436 H 80.434831"
+     d="M 13.766428,44.436 H 77.249172"
      fill="#1a1a1a"
      stroke="#333333"
      stroke-linecap="round"
      stroke-width="6.871"
      id="path2"
-     style="stroke-width:7.571;stroke-dasharray:none;stroke:#333333" />
+     style="stroke:#f2f2f2;stroke-width:7.48;stroke-dasharray:none;fill:#f2f2f2" />
 </svg>

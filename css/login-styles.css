@@ -794,8 +794,8 @@ margin-right: auto;
     background-position: center;
     background-size: contain;
     transition: background-image 0.2s ease;
-    background-color: #fff6;
-    width: 60px;
+
+    width: 50px;
     border-radius: 20px;
     padding: 3px;
 }
@@ -803,7 +803,8 @@ margin-right: auto;
 .cal-toggle-row:hover .cal-row-action-icon,
 .cal-row-summary:hover .cal-row-action-icon,
 .cal-row-summary:focus-visible .cal-row-action-icon {
-    background-image: var(--cal-row-add-icon-hover, url('../svgs/add-cal-over.svg'));
+    background-image: var(--cal-row-add-icon-hover, url('../svgs/add-cal-over.svg?v=3'));
+    background-color: var(--toggle-bg);
 }
 
 .cal-row-toggle {
