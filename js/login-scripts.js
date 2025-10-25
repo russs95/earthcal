@@ -595,14 +595,13 @@ function renderCalendarSelectionForm(calendars, {
                 return false;
             }
 
-            const provider = (cal?.provider || '').toString().trim().toLowerCase();
-            if (provider !== 'earthcal') {
+            const visibility = (cal.visibility || '').toString().trim().toLowerCase();
+            if (visibility === 'public') {
                 return false;
             }
 
-            const source = getNormalizedSourceType(cal);
-            const allowedPersonalSources = ['earthcal', 'personal'];
-            if (!allowedPersonalSources.includes(source)) {
+            const provider = (cal?.provider || '').toString().trim().toLowerCase();
+            if (provider !== 'earthcal') {
                 return false;
             }
 
