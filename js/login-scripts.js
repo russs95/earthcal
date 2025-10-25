@@ -603,17 +603,14 @@ function renderCalendarSelectionForm(calendars, {
             if (isPublicSubscription(cal)) return false;
             if (isWebcalSourceType(cal)) return false;
 
-            const source = getNormalizedSourceType(cal);
-            const allowedPersonalSources = ['earthcal', 'personal'];
-            if (!allowedPersonalSources.includes(source)) {
+            const provider = (cal?.provider || '').toString().trim().toLowerCase();
+            if (provider !== 'earthcal') {
                 return false;
             }
 
-            const subscriptionRaw = cal?.subscription_id ?? cal?.subscriptionId ?? cal?.sub_id ?? null;
-            const subscriptionId = Number(subscriptionRaw);
-            const hasSubscription = Number.isFinite(subscriptionId) && subscriptionId > 0;
-
-            if (hasSubscription && source !== 'personal') {
+            const source = getNormalizedSourceType(cal);
+            const allowedPersonalSources = ['earthcal', 'personal'];
+            if (!allowedPersonalSources.includes(source)) {
                 return false;
             }
 
