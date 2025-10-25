@@ -592,6 +592,10 @@ function renderCalendarSelectionForm(calendars, {
             if (!cal) return false;
 
             const provider = (cal?.provider || '').toString().trim().toLowerCase();
+            if (provider === 'google') {
+                return false;
+            }
+
             if (provider && provider !== 'earthcal') {
                 return false;
             }
