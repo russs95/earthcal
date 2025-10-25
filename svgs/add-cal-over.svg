@@ -2,21 +2,21 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   id="svg59291"
    width="90.875mm"
    height="90.875mm"
    version="1.1"
    viewBox="0 0 90.875 90.875"
-   sodipodi:docname="add-day.svg"
+   id="svg2"
+   sodipodi:docname="add-cal.svg"
    inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs1" />
+     id="defs2" />
   <sodipodi:namedview
-     id="namedview1"
+     id="namedview2"
      pagecolor="#ffffff"
      bordercolor="#000000"
      borderopacity="0.25"
@@ -33,21 +33,21 @@
      inkscape:window-x="0"
      inkscape:window-y="32"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg59291" />
+     inkscape:current-layer="svg2" />
   <path
-     id="path386"
-     d="M 45.412602,82.946249 V 5.9257508"
-     fill="#808080"
-     stroke="#727272"
+     d="M 45.42182,79.363031 V 9.5089686"
+     fill="#1a1a1a"
+     stroke="#333333"
      stroke-linecap="round"
-     stroke-width="3.57091"
-     style="stroke-width:6.871;stroke-dasharray:none;fill:#1a1a1a;stroke:#00ffff" />
+     stroke-width="6.871"
+     id="path1"
+     style="stroke-width:7.571;stroke-dasharray:none;stroke:#333333" />
   <path
-     id="path1494"
-     d="M 6.9977508,44.436 H 84.018249"
-     fill="#808080"
-     stroke="#727272"
+     d="M 10.580769,44.436 H 80.434831"
+     fill="#1a1a1a"
+     stroke="#333333"
      stroke-linecap="round"
-     stroke-width="3.57091"
-     style="stroke-width:6.871;stroke-dasharray:none;fill:#1a1a1a;stroke:#00ffff" />
+     stroke-width="6.871"
+     id="path2"
+     style="stroke-width:7.571;stroke-dasharray:none;stroke:#333333" />
 </svg>
