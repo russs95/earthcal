@@ -595,6 +595,11 @@ function renderCalendarSelectionForm(calendars, {
                 return false;
             }
 
+            const visibility = (cal.visibility || '').toString().trim().toLowerCase();
+            if (visibility === 'public') {
+                return false;
+            }
+
             const provider = (cal?.provider || '').toString().trim().toLowerCase();
             if (provider !== 'earthcal') {
                 return false;
