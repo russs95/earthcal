@@ -513,11 +513,12 @@ function renderCalendarSelectionForm(calendars, {
     noPublicText,
     noWebcalText,
     addPersonalLabel,
+    browsePublicLabel,
     hostElement,
     webcalIntroHasText,
     webcalIntroEmptyText
 } = {}) {
-    const personalForm = container || document.getElementById('personal-calendar-selection-form');
+    const personalForm = container || document.getElementById('user-owned-calendars');
     const publicForm = publicContainer || document.getElementById('public-calendar-selection-form');
     const webcalForm = webcalContainer || document.getElementById('webcal-calendar-selection-form');
 
@@ -582,7 +583,7 @@ function renderCalendarSelectionForm(calendars, {
 
         const addLabel = typeof addPersonalLabel === 'string'
             ? addPersonalLabel
-            : (personalForm.dataset.addLabel || 'Add new personal calendar');
+            : (personalForm.dataset.addLabel || 'Add new Earthcal');
         personalForm.dataset.addLabel = addLabel;
 
         personalForm.__ecAddCalendarHost = overlayHost;
@@ -590,18 +591,13 @@ function renderCalendarSelectionForm(calendars, {
         const personalCalendars = list.filter((cal) => {
             if (!cal) return false;
 
-            const visibility = (cal.visibility || '').toString().trim().toLowerCase();
-            if (visibility === 'public') {
-                return false;
-            }
-
-            const visibility = (cal.visibility || '').toString().trim().toLowerCase();
-            if (visibility === 'public') {
-                return false;
-            }
-
             const provider = (cal?.provider || '').toString().trim().toLowerCase();
-            if (provider !== 'earthcal') {
+            if (provider && provider !== 'earthcal') {
+                return false;
+            }
+
+            const sourceType = getNormalizedSourceType(cal);
+            if (sourceType && sourceType !== 'personal') {
                 return false;
             }
 
@@ -657,7 +653,7 @@ function renderCalendarSelectionForm(calendars, {
         const addRowHtml = `
         <div class="cal-toggle-row cal-add-personal-row">
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="${addRowLabel}">
-                <span class="cal-row-emoji" data-emoji="👥" aria-hidden="true"></span>
+                <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/earthcal-app.png" alt="" width="24" height="24"></span>
                 <span class="cal-row-name">${addRowLabel}</span>
                 <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
@@ -921,6 +917,11 @@ function renderCalendarSelectionForm(calendars, {
             : (publicForm.dataset.noPublic || 'No subscribed public calendars yet.');
         publicForm.dataset.noPublic = emptyPublicText;
 
+        const browseLabel = typeof browsePublicLabel === 'string'
+            ? browsePublicLabel
+            : (publicForm.dataset.browseLabel || 'Browse and subscribe to public Earthcals...');
+        publicForm.dataset.browseLabel = browseLabel;
+
         publicForm.__ecBrowsePublicHost = overlayHost;
 
         const publicCalendars = list.filter((cal) => {
@@ -981,11 +982,12 @@ function renderCalendarSelectionForm(calendars, {
             }).join('')
             : `<p>${escapeHtml(emptyPublicText)}</p>`;
 
+        const safeBrowseLabel = escapeHtml(browseLabel);
         const browseRowHtml = `
         <div class="cal-toggle-row cal-browse-public-row">
-            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Browse public calendars">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="${safeBrowseLabel}">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/earthcal-app.png" alt="" width="24" height="24"></span>
-                <span class="cal-row-name">Browse public calendars</span>
+                <span class="cal-row-name">${safeBrowseLabel}</span>
                 <span class="cal-row-action-icon" aria-hidden="true"></span>
             </div>
         </div>
@@ -1025,7 +1027,7 @@ function refreshLoggedInCalendarLists(nextCalendars) {
         return;
     }
 
-    const personalForm = loggedInView.querySelector('#personal-calendar-selection-form');
+    const personalForm = loggedInView.querySelector('#user-owned-calendars');
     const webcalForm = loggedInView.querySelector('#webcal-calendar-selection-form');
     const publicForm = loggedInView.querySelector('#public-calendar-selection-form');
 
@@ -1219,7 +1221,9 @@ async function showLoggedInView(calendars = []) {
         welcome,
         syncingInfo,
         noPersonal,
-        addPersonal: addPersonalLabel = 'Add new personal calendar',
+        noPublic,
+        addPersonal: addPersonalLabel = 'Add new Earthcal',
+        browsePublic: browsePublicLabel = 'Browse and subscribe to public Earthcals...',
         publicCalendarsIntro = 'You are subscribed to the following public calendars...',
         webcalHasSubscriptions = 'You have the following iCal subscriptions...',
         webcalNoSubscriptions = "You don't yet have any webcal subscriptions.",
@@ -1279,7 +1283,7 @@ async function showLoggedInView(calendars = []) {
             </div>
 
 
-            <div id="personal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
+            <div id="user-owned-calendars" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <p style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</p>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <p id="webcal-intro-text" style="text-align:center; margin-bottom: 8px;"></p>
@@ -1299,11 +1303,13 @@ async function showLoggedInView(calendars = []) {
     `;
 
     renderCalendarSelectionForm(sortedCalendars, {
-        container: loggedInView.querySelector('#personal-calendar-selection-form'),
+        container: loggedInView.querySelector('#user-owned-calendars'),
         webcalContainer: loggedInView.querySelector('#webcal-calendar-selection-form'),
         publicContainer: loggedInView.querySelector('#public-calendar-selection-form'),
         noPersonalText: noPersonal,
+        noPublicText: noPublic,
         addPersonalLabel,
+        browsePublicLabel,
         hostElement: loggedInView,
         noWebcalText,
         webcalIntroHasText: webcalHasSubscriptions,
