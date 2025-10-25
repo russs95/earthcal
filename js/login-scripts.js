@@ -587,30 +587,16 @@ function renderCalendarSelectionForm(calendars, {
 
         personalForm.__ecAddCalendarHost = overlayHost;
 
-        const isPublicSubscription = (cal) => {
-            if (!cal) return false;
-            const visibility = (cal.visibility || '').toString().toLowerCase();
-            const source = (cal.source_type || '').toString().toLowerCase();
-            const subscriptionId = cal.subscription_id;
-            const normalizedSubscriptionId = subscriptionId === null || subscriptionId === undefined
-                ? NaN
-                : Number(subscriptionId);
-            const hasSubscription = Number.isFinite(normalizedSubscriptionId);
-            return visibility === 'public' && source !== 'personal' && hasSubscription;
-        };
-
         const personalCalendars = list.filter((cal) => {
-            if (isPublicSubscription(cal)) return false;
-            if (isWebcalSourceType(cal)) return false;
+            if (!cal) return false;
 
-            const provider = (cal?.provider || '').toString().trim().toLowerCase();
-            if (provider !== 'earthcal') {
+            const visibility = (cal.visibility || '').toString().trim().toLowerCase();
+            if (visibility === 'public') {
                 return false;
             }
 
-            const source = getNormalizedSourceType(cal);
-            const allowedPersonalSources = ['earthcal', 'personal'];
-            if (!allowedPersonalSources.includes(source)) {
+            const provider = (cal?.provider || '').toString().trim().toLowerCase();
+            if (provider !== 'earthcal') {
                 return false;
             }
 
