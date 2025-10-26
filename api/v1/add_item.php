@@ -61,6 +61,7 @@ $buwana_id   = isset($data['buwana_id']) ? (int)$data['buwana_id'] : 0;
 $title       = mb_substr(trim((string)($data['title'] ?? '')), 0, 255);
 $item_kind   = strtolower(trim((string)($data['item_kind'] ?? 'todo')));
 $start_local = trim((string)($data['start_local'] ?? ''));
+$end_local   = trim((string)($data['end_local'] ?? ''));
 $tzid        = trim((string)($data['tzid'] ?? 'Etc/UTC'));
 $calendar_id = isset($data['calendar_id']) && $data['calendar_id'] !== '' ? (int)$data['calendar_id'] : 0;
 
@@ -71,6 +72,10 @@ $color_hex   = trim((string)($data['color_hex'] ?? ($data['color'] ?? '')));
 $notes       = trim((string)($data['notes'] ?? ''));
 $duration_minutes = isset($data['duration_minutes']) && is_numeric($data['duration_minutes'])
     ? (int)$data['duration_minutes'] : null;
+$location    = mb_substr(trim((string)($data['location'] ?? '')), 0, 512);
+$url         = mb_substr(trim((string)($data['url'] ?? '')), 0, 1024);
+$extras_input = $data['extras'] ?? null;
+$categories_input = $data['categories'] ?? null;
 
 if (!$buwana_id || $title === '' || $start_local === '') {
     http_response_code(400);
@@ -156,19 +161,124 @@ try {
 if ($all_day) {
     $datePart = substr($start_local, 0, 10);
     $start_ts_utc = to_utc($datePart . ' 00:00:00', $tzid);
-    $end_ts_utc   = null;
+    if ($end_local !== '') {
+        $endDatePart = substr($end_local, 0, 10);
+        $end_ts_utc = to_utc($endDatePart . ' 00:00:00', $tzid);
+        if ((!$duration_minutes || $duration_minutes <= 0) && $end_ts_utc) {
+            try {
+                $start_local_dt = new DateTime($datePart . ' 00:00:00', new DateTimeZone($tzid ?: 'Etc/UTC'));
+                $end_local_dt = new DateTime($endDatePart . ' 00:00:00', new DateTimeZone($tzid ?: 'Etc/UTC'));
+                $diff_seconds = $end_local_dt->getTimestamp() - $start_local_dt->getTimestamp();
+                if ($diff_seconds > 0) {
+                    $duration_minutes = (int)round($diff_seconds / 60);
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+        }
+    } else {
+        $end_ts_utc = null;
+    }
 } else {
     $start_ts_utc = to_utc($start_local, $tzid);
-    $end_ts_utc   = null;
-    if ($duration_minutes && $duration_minutes > 0) {
-        $end_dt = new DateTime($start_ts_utc, new DateTimeZone('UTC'));
-        $end_dt->modify('+' . $duration_minutes . ' minutes');
-        $end_ts_utc = $end_dt->format('Y-m-d H:i:s');
+    if ($end_local !== '') {
+        $end_ts_utc = to_utc($end_local, $tzid);
+        if (!$duration_minutes || $duration_minutes <= 0) {
+            try {
+                $start_local_dt = new DateTime($start_local, new DateTimeZone($tzid ?: 'Etc/UTC'));
+                $end_local_dt = new DateTime($end_local, new DateTimeZone($tzid ?: 'Etc/UTC'));
+                $diff_seconds = $end_local_dt->getTimestamp() - $start_local_dt->getTimestamp();
+                if ($diff_seconds > 0) {
+                    $duration_minutes = (int)round($diff_seconds / 60);
+                }
+            } catch (Throwable $e) {
+                // ignore diff calculation errors
+            }
+        }
+    } else {
+        $end_ts_utc = null;
+        if ($duration_minutes && $duration_minutes > 0) {
+            $end_dt = new DateTime($start_ts_utc, new DateTimeZone('UTC'));
+            $end_dt->modify('+' . $duration_minutes . ' minutes');
+            $end_ts_utc = $end_dt->format('Y-m-d H:i:s');
+        }
     }
 }
 
 $component_type = in_array($item_kind, ['todo','event','journal'], true) ? $item_kind : 'todo';
 $due_ts_utc = ($component_type === 'todo') ? ($end_ts_utc ?: $start_ts_utc) : null;
+
+if ($all_day && $duration_minutes && $duration_minutes > 0) {
+    try {
+        $start_dt = new DateTime($start_ts_utc, new DateTimeZone('UTC'));
+        $start_dt->modify('+' . $duration_minutes . ' minutes');
+        $computed_end = $start_dt->format('Y-m-d H:i:s');
+        if (!$end_ts_utc || $computed_end > $end_ts_utc) {
+            $end_ts_utc = $computed_end;
+        }
+    } catch (Throwable $e) {
+        // ignore inability to compute end
+    }
+}
+
+$extras_json = null;
+if (is_array($extras_input)) {
+    $filtered = [];
+    foreach ($extras_input as $key => $value) {
+        if (!is_string($key) || $key === '') continue;
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        if ($value === '' || $value === null) continue;
+        $filtered[$key] = $value;
+    }
+    if (!empty($filtered)) {
+        $extras_json = json_encode($filtered, JSON_UNESCAPED_UNICODE);
+    }
+} elseif (is_string($extras_input) && trim($extras_input) !== '') {
+    $decoded = json_decode($extras_input, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $filtered = [];
+        foreach ($decoded as $key => $value) {
+            if (!is_string($key) || $key === '') continue;
+            if (is_string($value)) {
+                $value = trim($value);
+            }
+            if ($value === '' || $value === null) continue;
+            $filtered[$key] = $value;
+        }
+        if (!empty($filtered)) {
+            $extras_json = json_encode($filtered, JSON_UNESCAPED_UNICODE);
+        }
+    } else {
+        $extras_json = json_encode(['value' => trim($extras_input)], JSON_UNESCAPED_UNICODE);
+    }
+}
+
+$categories_json = null;
+if (is_array($categories_input)) {
+    $normalized = [];
+    foreach ($categories_input as $value) {
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        if ($value === '' || $value === null) continue;
+        $normalized[] = $value;
+    }
+    if (!empty($normalized)) {
+        $categories_json = json_encode(array_values($normalized), JSON_UNESCAPED_UNICODE);
+    }
+} elseif (is_string($categories_input) && trim($categories_input) !== '') {
+    $segments = array_map('trim', explode(',', $categories_input));
+    $normalized = [];
+    foreach ($segments as $val) {
+        if ($val === '') continue;
+        $normalized[] = $val;
+    }
+    if (!empty($normalized)) {
+        $categories_json = json_encode(array_values($normalized), JSON_UNESCAPED_UNICODE);
+    }
+}
 
 // -------------------------------------------------------------
 //  6️⃣ Insert item into items_v1_tb
@@ -182,12 +292,19 @@ try {
     }
 
     // Candidate field map
-    $candidate = [
+$sanitized_url = $url;
+if ($sanitized_url !== '' && !preg_match('/^[a-z][a-z0-9+\-.]*:\/\//i', $sanitized_url)) {
+    $sanitized_url = 'https://' . ltrim($sanitized_url, '/');
+}
+
+$candidate = [
         'calendar_id'      => $calendar_id,
         'uid'              => generate_uid(),
         'component_type'   => $component_type,
         'summary'          => $title ?: null,
         'description'      => $notes ?: null,
+        'location'         => $location !== '' ? $location : null,
+        'url'              => $sanitized_url !== '' ? $sanitized_url : null,
         'tzid'             => $tzid,
         'dtstart_utc'      => $start_ts_utc,
         'dtend_utc'        => $end_ts_utc,
@@ -198,6 +315,8 @@ try {
         'due_utc'          => $due_ts_utc,
         'percent_complete' => ($component_type === 'todo') ? 0 : null,
         'status'           => ($component_type === 'todo') ? 'NEEDS-ACTION' : null,
+        'extras'           => $extras_json,
+        'categories_json'  => $categories_json,
     ];
 
     // Add timestamps if columns exist
@@ -236,7 +355,13 @@ try {
         'tzid' => $tzid,
         'pinned' => (bool)$pinned,
         'emoji' => $emoji ?: null,
-        'color_hex' => $color_hex ?: null
+        'color_hex' => $color_hex ?: null,
+        'all_day' => (bool)$all_day,
+        'location' => $location !== '' ? $location : null,
+        'url' => $sanitized_url !== '' ? $sanitized_url : null,
+        'notes' => $notes ?: null,
+        'extras' => $extras_json ? json_decode($extras_json, true) : null,
+        'categories' => $categories_json ? json_decode($categories_json, true) : null
     ]);
 
 } catch (Throwable $e) {

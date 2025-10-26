@@ -2809,18 +2809,21 @@ INFO MODAL
     margin-top: 2px;
 }
 
-#modal-content .add-date-form {
+#modal-content .add-date-form,
+#modal-content .ec-add-form {
     position: relative;
     padding: 120px 24px 32px;
     margin: auto;
     box-sizing: border-box;
 }
 
-#modal-content .add-date-form .ec-form-title {
+#modal-content .add-date-form .ec-form-title,
+#modal-content .ec-add-form .ec-form-title {
     margin-top: 0;
 }
 
-#modal-content .add-date-form .ec-moon-phase {
+#modal-content .add-date-form .ec-moon-phase,
+#modal-content .ec-add-form .ec-moon-phase {
     position: fixed;
     top: 16px;
     left: 16px;
@@ -2829,7 +2832,8 @@ INFO MODAL
     max-width: 222px;
 }
 
-#modal-content .add-date-form .ec-moon-phase-details {
+#modal-content .add-date-form .ec-moon-phase-details,
+#modal-content .ec-add-form .ec-moon-phase-details {
     max-width: min(260px, 100%);
 }
 
@@ -2895,6 +2899,70 @@ INFO MODAL
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.ec-kind-fields {
+    width: 100%;
+}
+
+.ec-event-date-row,
+.ec-journal-timing-row,
+.ec-journal-mood-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ec-event-date-row .ec-inline-field,
+.ec-journal-timing-row .ec-inline-field,
+.ec-journal-mood-row .ec-inline-field {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.ec-datetime-inputs {
+    display: flex;
+    gap: 8px;
+}
+
+.ec-datetime-inputs input,
+.ec-event-date-row input,
+.ec-event-date-row select,
+.ec-journal-timing-row input,
+.ec-journal-mood-row select {
+    width: 100%;
+}
+
+.ec-event-options-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.ec-event-action-row,
+.ec-journal-action-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.ec-event-action-row .date-action-buttons,
+.ec-journal-action-row .date-action-buttons {
+    margin-left: auto;
+}
+
+.ec-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.ec-checkbox input {
+    width: 18px;
+    height: 18px;
 }
 
 .ec-title-row {
@@ -3221,11 +3289,13 @@ INFO MODAL
       min-width: 0;
   }
 
-  #modal-content .add-date-form {
+  #modal-content .add-date-form,
+  #modal-content .ec-add-form {
       padding: 140px 16px 24px;
   }
 
-  #modal-content .add-date-form .ec-moon-phase {
+  #modal-content .add-date-form .ec-moon-phase,
+  #modal-content .ec-add-form .ec-moon-phase {
       left: 16px;
       right: 16px;
       width: auto;
