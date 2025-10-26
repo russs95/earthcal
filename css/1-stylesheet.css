@@ -183,6 +183,17 @@ path[id*="week-"] {
     text-decoration: underline;
 }
 
+.date-time-add-box,
+.date-time-box {
+    pointer-events: none;
+}
+
+.date-time-add-box .add-event-button,
+.date-time-add-box #add-datecycle-button,
+.date-time-add-box #user-details {
+    pointer-events: auto;
+}
+
 
 
 /* END OF OLD INDEX INLINED CSS  */
@@ -781,6 +792,7 @@ border-color: #00a112 !important;
 #add-datecycle .x-button {
     top:20px;
     right: 20px;
+    z-index: 120;
     }
 
 #form-modal-message > .x-button {
@@ -2814,6 +2826,7 @@ INFO MODAL
     left: 16px;
     margin: 0;
     z-index: 75;
+    max-width: 222px;
 }
 
 #modal-content .add-date-form .ec-moon-phase-details {
@@ -2895,12 +2908,12 @@ INFO MODAL
 }
 
 .ec-notes-toggle-button {
-    width: 32px;
-    min-width: 32px;
-    height: 45px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
     padding: 0;
     border: 2px solid var(--button-2-1);
-    border-radius: 18px;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2980,11 +2993,10 @@ INFO MODAL
     flex-direction: row;
     align-items: center;
     gap: 12px;
-    /*flex-wrap: wrap;*/
 }
 
 .ec-frequency-select {
-    flex: 1 1 0%;
+    flex: 1 1 auto;
     width: auto;
     min-width: 0;
     margin: 0;
@@ -2995,21 +3007,31 @@ INFO MODAL
     margin: 0;
 }
 
+.date-action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 124px;
+    width: 124px;
+}
+
+.date-action-buttons .ec-inline-field,
 .ec-frequency-row .ec-inline-field {
     flex: 0 0 auto;
 }
 
 .ec-frequency-row .ec-inline-field.ec-emoji-field {
-    flex: 1 1 auto;
+    gap: 8px;
 }
 
 .ec-color-input {
-    width: 45px;
-    min-width: 45px;
-    height: 45px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
     padding: 0;
     cursor: pointer;
-    border-radius: 12px;
+    border-radius: 15px;
     margin: 0;
 }
 
@@ -3036,9 +3058,7 @@ INFO MODAL
 }
 
 .ec-inline-field.ec-emoji-field {
-    gap: 12px;
-    flex: 1 1 auto;
-
+    gap: 8px;
 }
 
 .ec-inline-field.ec-emoji-field .ec-emoji-input {
@@ -3057,8 +3077,10 @@ INFO MODAL
 
 .ec-emoji-input {
     position: relative;
-    width: 45px;
-    height: 45px;
+    width: 36px;
+    height: 36px;
+    border-radius: 15px;
+    overflow: hidden;
 }
 
 .ec-emoji-button {
@@ -3066,12 +3088,13 @@ INFO MODAL
     align-items: center;
     justify-content: center;
     gap: 12px;
-    width: 45px;
-    height: 45px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     margin: 0;
     cursor: pointer;
     font-size: 1rem;
+    border-radius: 15px;
 }
 
 .ec-emoji-button .ec-emoji-button-label {
