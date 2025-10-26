@@ -459,26 +459,26 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
-          
-          <div class="ec-inline-field ec-color-field">
-            <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
-          </div>
-
-          <div class="ec-inline-field ec-emoji-field">
-            <div class="ec-emoji-input">
-              <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
-                <span id="ec-emoji-preview" class="ec-emoji-preview">🙂</span>
-              </button>
-              <input type="hidden" id="ec-emoji" value="">
+          <div class="date-action-buttons">
+            <div class="ec-inline-field ec-color-field">
+              <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
             </div>
+
+            <div class="ec-inline-field ec-emoji-field">
+              <div class="ec-emoji-input">
+                <button type="button" id="ec-emoji-button" class="blur-form-field ec-emoji-button" aria-haspopup="true" aria-expanded="false" aria-label="Choose emoji">
+                  <span id="ec-emoji-preview" class="ec-emoji-preview">🙂</span>
+                </button>
+                <input type="hidden" id="ec-emoji" value="">
+              </div>
+            </div>
+
             <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">
               <span class="ec-notes-toggle-track" aria-hidden="true">
                 <span class="ec-notes-toggle-thumb"></span>
               </span>
             </button>
           </div>
-          
-
         </div>
 
         <div class="ec-form-field ec-notes-field">
