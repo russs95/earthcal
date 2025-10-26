@@ -518,6 +518,171 @@ function closeAddCycle() {
 }
 
 
+function parseBooleanishFlag(value) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        if (!Number.isFinite(value)) {
+            return null;
+        }
+        return value !== 0;
+    }
+
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (!normalized) {
+            return null;
+        }
+
+        if ([
+            '1', 'true', 'yes', 'y', 'on', 'active', 'enabled'
+        ].includes(normalized)) {
+            return true;
+        }
+
+        if ([
+            '0', 'false', 'no', 'n', 'off', 'inactive', 'disabled'
+        ].includes(normalized)) {
+            return false;
+        }
+
+        return null;
+    }
+
+    return null;
+}
+
+function buildCalendarActivityMap() {
+    const map = new Map();
+
+    if (typeof sessionStorage === 'undefined') {
+        return map;
+    }
+
+    const cache = sessionStorage.getItem('user_calendars_v1');
+    if (!cache) {
+        return map;
+    }
+
+    try {
+        const parsed = JSON.parse(cache);
+        const calendars = Array.isArray(parsed)
+            ? parsed
+            : Array.isArray(parsed?.calendars)
+                ? parsed.calendars
+                : [];
+
+        const activityKeys = [
+            'is_active',
+            'isActive',
+            'cal_active',
+            'calActive',
+            'display_enabled',
+            'displayEnabled',
+            'active',
+            'enabled',
+            'status'
+        ];
+
+        calendars.forEach(entry => {
+            if (!entry || typeof entry !== 'object') {
+                return;
+            }
+
+            const idCandidates = [
+                entry.calendar_id,
+                entry.cal_id,
+                entry.id,
+                entry.calendarId,
+                entry.calendarID
+            ];
+
+            let calId = null;
+            for (const candidate of idCandidates) {
+                const numeric = Number(candidate);
+                if (Number.isFinite(numeric)) {
+                    calId = numeric;
+                    break;
+                }
+            }
+
+            if (calId === null) {
+                return;
+            }
+
+            for (const key of activityKeys) {
+                if (!(key in entry)) {
+                    continue;
+                }
+
+                const parsedFlag = parseBooleanishFlag(entry[key]);
+                if (parsedFlag !== null) {
+                    map.set(calId, parsedFlag);
+                    return;
+                }
+            }
+        });
+    } catch (err) {
+        console.warn('highlightDateCycles: unable to parse calendar activity cache:', err);
+    }
+
+    return map;
+}
+
+function isDateCycleVisible(entry, calendarActivityMap) {
+    if (!entry || typeof entry !== 'object') {
+        return false;
+    }
+
+    const visibilityKeys = [
+        'is_active',
+        'isActive',
+        'cal_active',
+        'calActive',
+        'display_enabled',
+        'displayEnabled',
+        'active',
+        'enabled',
+        'status'
+    ];
+
+    for (const key of visibilityKeys) {
+        if (!(key in entry)) {
+            continue;
+        }
+
+        const parsedFlag = parseBooleanishFlag(entry[key]);
+        if (parsedFlag === false) {
+            return false;
+        }
+        if (parsedFlag === true) {
+            return true;
+        }
+    }
+
+    const idCandidates = [
+        entry.cal_id,
+        entry.calendar_id,
+        entry.calendarId,
+        entry.calId
+    ];
+
+    for (const candidate of idCandidates) {
+        const numeric = Number(candidate);
+        if (!Number.isFinite(numeric)) {
+            continue;
+        }
+
+        if (calendarActivityMap.has(numeric)) {
+            return calendarActivityMap.get(numeric) !== false;
+        }
+    }
+
+    return true;
+}
+
 async function highlightDateCycles(targetDate) {
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
@@ -542,10 +707,10 @@ async function highlightDateCycles(targetDate) {
     });
 
     // 🔹 Fetch all dateCycles from storage or API
-    const dateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
+    const rawDateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
 
     // 🔹 Ensure we have an array before proceeding
-    if (!Array.isArray(dateCycleEvents) || dateCycleEvents.length === 0) {
+    if (!Array.isArray(rawDateCycleEvents) || rawDateCycleEvents.length === 0) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         await updateDateCycleCount(0, 0); // No events, reset count display
         if (eventToggleButton) {
@@ -554,7 +719,19 @@ async function highlightDateCycles(targetDate) {
         return;
     }
 
-    console.log(`✅ Retrieved ${dateCycleEvents.length} dateCycles from storage.`);
+    const calendarActivityMap = buildCalendarActivityMap();
+    const dateCycleEvents = rawDateCycleEvents.filter(dc => isDateCycleVisible(dc, calendarActivityMap));
+
+    if (dateCycleEvents.length === 0) {
+        console.info('ℹ️ Highlighter: All dateCycles are from inactive calendars.');
+        await updateDateCycleCount(0, 0);
+        if (eventToggleButton) {
+            eventToggleButton.style.display = 'none';
+        }
+        return;
+    }
+
+    console.log(`✅ Retrieved ${rawDateCycleEvents.length} dateCycles from storage (${dateCycleEvents.length} active).`);
 
     // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
