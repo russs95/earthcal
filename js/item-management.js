@@ -170,8 +170,10 @@ async function openAddItem() {
     // - date/time: targetDate
     // ============================================================
     const modalContent = document.getElementById('modal-content');
+    const displayDateLabel = humanDate(dateStr);
+
     modalContent.innerHTML = buildAddItemFormHTML({
-        displayDate: humanDate(dateStr),
+        displayDate: displayDateLabel,
         dateStr,
         timeStr,
         calendarId,
@@ -179,6 +181,8 @@ async function openAddItem() {
         tzid: getUserTZ(),
         calendars
     });
+
+    const formRoot = modalContent.querySelector('#ec-add-form-root');
 
     const resolvedMoonDate = (() => {
         if (typeof targetDate !== 'undefined' && targetDate instanceof Date && !Number.isNaN(targetDate.getTime())) {
@@ -196,16 +200,20 @@ async function openAddItem() {
 
     const moonPhaseInfo = displayMoonPhasev1({
         date: resolvedMoonDate,
-        container: modalContent.querySelector('.add-date-form')
+        container: formRoot
     }) || null;
 
     const presetMoonEmoji = sanitizeEmojiInput(moonPhaseInfo?.emoji || '') || '';
-    if (presetMoonEmoji) {
-        const emojiPreviewEl = document.getElementById('ec-emoji-preview');
-        const emojiInputEl = document.getElementById('ec-emoji');
-        if (emojiPreviewEl) emojiPreviewEl.textContent = presetMoonEmoji;
-        if (emojiInputEl) emojiInputEl.value = presetMoonEmoji;
-    }
+
+    const kindStates = { todo: null, event: null, journal: null };
+    const kindContext = {
+        displayDate: displayDateLabel,
+        dateStr,
+        timeStr,
+        presetMoonEmoji
+    };
+
+    applyKindToForm('todo', kindContext, {});
 
     const titleInput = document.getElementById('ec-title');
     if (titleInput) {
@@ -213,23 +221,25 @@ async function openAddItem() {
         titleInput.select();
     }
 
-    // ============================================================
-    // 5. WIRE UI INTERACTIONS (KIND TOGGLING, NOTES TOGGLE, EMOJI)
-    // ------------------------------------------------------------
-    // For now, only To-Do is enabled. Event/Journal show an alert and
-    // revert to To-Do. Notes reveal/hide a textarea. Emoji is sanitized.
-    // ============================================================
     const kindSelect = document.getElementById('ec-item-kind');
-    kindSelect.addEventListener('change', (e) => {
-        if (e.target.value !== 'todo') {
-            alert('Sorry, this item type is still under development! Only To-Do items are working so far.');
-            e.target.value = 'todo';
-            toggleKindFields('todo');
-        } else {
-            toggleKindFields('todo');
-        }
-    });
-    toggleKindFields('todo'); // initial state
+    if (kindSelect) {
+        kindSelect.addEventListener('change', (e) => {
+            const nextKind = (e.target.value || 'todo').toLowerCase();
+            if (!Object.prototype.hasOwnProperty.call(ADD_ITEM_KIND_CONFIG, nextKind)) {
+                e.target.value = 'todo';
+                return;
+            }
+
+            const activeKind = formRoot?.dataset?.activeKind || 'todo';
+            if (Object.prototype.hasOwnProperty.call(ADD_ITEM_KIND_CONFIG, activeKind)) {
+                kindStates[activeKind] = captureKindFieldsState();
+            }
+
+            applyKindToForm(nextKind, kindContext, {
+                restoreState: kindStates[nextKind] || null
+            });
+        });
+    }
 
     const calendarSelect = document.getElementById('ec-calendar-select');
     if (calendarSelect) {
@@ -251,58 +261,6 @@ async function openAddItem() {
         });
     }
 
-    const notesToggle = document.getElementById('ec-notes-toggle');
-    const notesBox = document.getElementById('ec-notes-box');
-    if (notesToggle && notesBox) {
-        const notesField = notesBox.querySelector('textarea');
-        const updateMaxHeight = () => {
-            notesBox.style.maxHeight = `${notesBox.scrollHeight}px`;
-        };
-        const track = notesToggle.querySelector('.ec-notes-toggle-track');
-        const thumb = notesToggle.querySelector('.ec-notes-toggle-thumb');
-        const setNotesExpanded = (expanded) => {
-            notesToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            notesToggle.setAttribute('aria-label', expanded ? 'Hide notes' : 'Show notes');
-            notesToggle.title = expanded ? 'Hide notes' : 'Show notes';
-            notesToggle.classList.toggle('is-open', expanded);
-            if (track) track.classList.toggle('is-open', expanded);
-            if (thumb) thumb.classList.toggle('is-open', expanded);
-
-            notesBox.classList.toggle('is-open', expanded);
-            notesBox.setAttribute('aria-hidden', expanded ? 'false' : 'true');
-            if (expanded) {
-                updateMaxHeight();
-            } else {
-                notesBox.style.maxHeight = '0px';
-            }
-        };
-
-        setNotesExpanded(false);
-
-        notesToggle.addEventListener('click', (event) => {
-            event.preventDefault();
-            const currentlyExpanded = notesToggle.getAttribute('aria-expanded') === 'true';
-            setNotesExpanded(!currentlyExpanded);
-        });
-
-        if (notesField) {
-            notesField.addEventListener('input', () => {
-                if (notesToggle.getAttribute('aria-expanded') === 'true') {
-                    updateMaxHeight();
-                }
-            });
-        }
-    }
-
-    const defaultEmojiForForm = presetMoonEmoji || '🙂';
-
-    wireEmojiPicker({
-        buttonId: 'ec-emoji-button',
-        hiddenInputId: 'ec-emoji',
-        previewId: 'ec-emoji-preview',
-        defaultEmoji: defaultEmojiForForm
-    });
-
     // ============================================================
     // 6. SAVE HANDLER — CALL /api/v1/add_item.php (LIVE)
     // ------------------------------------------------------------
@@ -315,9 +273,15 @@ async function openAddItem() {
         if (event) event.preventDefault();
         if (!saveBtn) return;
         // Basic front-end validation
+        const kind = (document.getElementById('ec-item-kind')?.value || 'todo').toLowerCase();
         const titleVal = (document.getElementById('ec-title')?.value || '').trim();
         if (!titleVal) {
-            alert('Please enter a title for your to-do.');
+            const prompts = {
+                todo: 'Please enter a title for your to-do.',
+                event: 'Please enter a title for your event.',
+                journal: 'Please enter a title for your journal entry.'
+            };
+            alert(prompts[kind] || prompts.todo);
             document.getElementById('ec-title')?.focus();
             return;
         }
@@ -411,54 +375,32 @@ async function openAddItem() {
 
 // ===== Helpers =====
 
-function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid, calendars = [] }) {
-    const calendarOptions = Array.isArray(calendars) && calendars.length
-        ? calendars.map(cal => {
-            const idRaw = cal.calendar_id ?? cal.id ?? '';
-            const id = escapeAttr(idRaw);
-            const name = escapeHTML(cal.name ?? cal.calendar_name ?? 'Untitled calendar');
-            const selected = String(idRaw) === String(calendarId) ? ' selected' : '';
-            return `<option value="${id}"${selected}>${name}</option>`;
-        }).join('')
-        : `<option value="${escapeAttr(calendarId)}" selected>${escapeHTML(calendarName)}</option>`;
+const ADD_ITEM_KIND_CONFIG = {
+    todo: {
+        className: 'add-to-do-form',
+        heading: (displayDate) => `Add a to-do item for this ${displayDate}.`,
+        buttonLabel: 'Save To-Do',
+        titlePlaceholder: 'What needs doing?',
+        notesPlaceholder: 'Optional notes…'
+    },
+    event: {
+        className: 'add-event-form',
+        heading: (displayDate) => `Schedule an event for ${displayDate}.`,
+        buttonLabel: 'Save Event',
+        titlePlaceholder: 'What is happening?',
+        notesPlaceholder: 'Add event details, agenda, or notes…'
+    },
+    journal: {
+        className: 'add-journal-form',
+        heading: (displayDate) => `Journal your ${displayDate} reflections.`,
+        buttonLabel: 'Save Journal Entry',
+        titlePlaceholder: 'Give this entry a title…',
+        notesPlaceholder: 'Write your entry…'
+    }
+};
 
+function buildActionControls() {
     return `
-    <div class="add-date-form" style="margin:auto;">
-      <h3 class="ec-form-title">Add a to-do item for this ${displayDate}.</h3>
-
-      <form id="ec-add-item-form" autocomplete="off">
-        <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
-        <input id="ec-time" type="hidden" value="${escapeAttr(timeStr)}">
-        <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
-        
-        
-        <div class="ec-form-field ec-title-row">
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="What needs doing?" style="height:45px;width:100%;cursor:text;margin-bottom: 5px;margin-top:10px;" aria-label="Title">
-        </div>
-
-        <div class="ec-form-field">
-          <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Item type">
-            <option value="todo" selected>To-Do</option>
-            <option value="event">Event</option>
-            <option value="journal">Journal</option>
-          </select>
-        </div>
-
-        <div class="ec-form-field">
-          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
-            ${calendarOptions}
-            <option value="__add_new__">+ Add new calendar</option>
-          </select>
-        </div>
-
-        <div id="ec-frequency-row" class="ec-form-field ec-frequency-row">
-          <select id="ec-frequency" class="blur-form-field ec-frequency-select" style="height:45px;text-align:center;">
-            <option value="today" selected>One-time</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
-          </select>
           <div class="date-action-buttons">
             <div class="ec-inline-field ec-color-field">
               <input id="ec-color" type="color" value="#0ea5e9" class="blur-form-field ec-color-input" aria-label="Item color">
@@ -479,20 +421,383 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
               </span>
             </button>
           </div>
-        </div>
+    `;
+}
 
+function buildNotesSection({ placeholder }) {
+    return `
         <div class="ec-form-field ec-notes-field">
           <div id="ec-notes-box" class="ec-notes-collapsible" aria-hidden="true">
-            <textarea id="ec-notes" class="blur-form-field" placeholder="Optional notes…" style="width:100%;min-height:110px;cursor:text;"></textarea>
+            <textarea id="ec-notes" class="blur-form-field" placeholder="${placeholder}" style="width:100%;min-height:110px;cursor:text;"></textarea>
           </div>
+        </div>
+    `;
+}
+
+function buildTodoFields({ notesPlaceholder }) {
+    return `
+        <div class="ec-form-field ec-frequency-row" id="ec-frequency-row">
+          <select id="ec-frequency" class="blur-form-field ec-frequency-select" style="height:45px;text-align:center;">
+            <option value="today" selected>One-time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+          ${buildActionControls()}
+        </div>
+        ${buildNotesSection({ placeholder: notesPlaceholder })}
+    `;
+}
+
+function buildEventFields({ dateStr, timeStr, notesPlaceholder }) {
+    const defaultEnd = (() => {
+        if (!timeStr) return '01:00';
+        const [hourStr, minuteStr] = timeStr.split(':');
+        const startMinutes = (parseInt(hourStr, 10) || 0) * 60 + (parseInt(minuteStr, 10) || 0);
+        const endMinutes = startMinutes + 60;
+        const endHour = Math.floor((endMinutes % (24 * 60)) / 60);
+        const endMinute = endMinutes % 60;
+        return `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
+    })();
+
+    return `
+        <div class="ec-form-field ec-event-date-row">
+          <div class="ec-inline-field ec-event-datetime">
+            <label for="ec-event-start-date">Start</label>
+            <div class="ec-datetime-inputs">
+              <input type="date" id="ec-event-start-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
+              <input type="time" id="ec-event-start-time" class="blur-form-field" value="${escapeAttr(timeStr || '')}">
+            </div>
+          </div>
+          <div class="ec-inline-field ec-event-datetime">
+            <label for="ec-event-end-date">End</label>
+            <div class="ec-datetime-inputs">
+              <input type="date" id="ec-event-end-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
+              <input type="time" id="ec-event-end-time" class="blur-form-field" value="${escapeAttr(defaultEnd)}">
+            </div>
+          </div>
+        </div>
+        <div class="ec-form-field ec-event-options-row">
+          <label class="ec-checkbox">
+            <input type="checkbox" id="ec-event-all-day">
+            <span>All day</span>
+          </label>
+        </div>
+        <div class="ec-form-field">
+          <input type="text" id="ec-event-location" class="blur-form-field" placeholder="Where will this take place?" aria-label="Event location">
+        </div>
+        <div class="ec-form-field">
+          <input type="url" id="ec-event-url" class="blur-form-field" placeholder="Link to more details (optional)" aria-label="Event link">
+        </div>
+        <div class="ec-form-field ec-event-action-row">
+          ${buildActionControls()}
+        </div>
+        ${buildNotesSection({ placeholder: notesPlaceholder })}
+    `;
+}
+
+function buildJournalFields({ dateStr, timeStr, notesPlaceholder }) {
+    return `
+        <div class="ec-form-field ec-journal-timing-row">
+          <div class="ec-inline-field">
+            <label for="ec-journal-entry-date">Entry date</label>
+            <input type="date" id="ec-journal-entry-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
+          </div>
+          <div class="ec-inline-field">
+            <label for="ec-journal-entry-time">Entry time</label>
+            <input type="time" id="ec-journal-entry-time" class="blur-form-field" value="${escapeAttr(timeStr || '')}">
+          </div>
+        </div>
+        <div class="ec-form-field ec-journal-mood-row">
+          <div class="ec-inline-field">
+            <label for="ec-journal-mood">Mood</label>
+            <select id="ec-journal-mood" class="blur-form-field">
+              <option value="">Select mood…</option>
+              <option value="joyful">Joyful</option>
+              <option value="content">Content</option>
+              <option value="focused">Focused</option>
+              <option value="tired">Tired</option>
+              <option value="stressed">Stressed</option>
+              <option value="grateful">Grateful</option>
+              <option value="concerned">Concerned</option>
+            </select>
+          </div>
+          <div class="ec-inline-field">
+            <label for="ec-journal-energy">Energy</label>
+            <select id="ec-journal-energy" class="blur-form-field">
+              <option value="">Select energy…</option>
+              <option value="1">Very low</option>
+              <option value="2">Low</option>
+              <option value="3">Steady</option>
+              <option value="4">High</option>
+              <option value="5">Excited</option>
+            </select>
+          </div>
+        </div>
+        <div class="ec-form-field">
+          <input type="text" id="ec-journal-weather" class="blur-form-field" placeholder="Weather, environment, or setting" aria-label="Journal weather">
+        </div>
+        <div class="ec-form-field">
+          <input type="text" id="ec-journal-gratitude" class="blur-form-field" placeholder="What are you grateful for today?" aria-label="Journal gratitude">
+        </div>
+        <div class="ec-form-field">
+          <input type="text" id="ec-journal-tags" class="blur-form-field" placeholder="Tags (comma separated)" aria-label="Journal tags">
+        </div>
+        <div class="ec-form-field ec-journal-action-row">
+          ${buildActionControls()}
+        </div>
+        ${buildNotesSection({ placeholder: notesPlaceholder })}
+    `;
+}
+
+function buildKindSpecificFields(kind, { dateStr, timeStr }) {
+    const config = ADD_ITEM_KIND_CONFIG[kind] || ADD_ITEM_KIND_CONFIG.todo;
+    const notesPlaceholder = config.notesPlaceholder;
+    if (kind === 'event') {
+        return buildEventFields({ dateStr, timeStr, notesPlaceholder });
+    }
+    if (kind === 'journal') {
+        return buildJournalFields({ dateStr, timeStr, notesPlaceholder });
+    }
+    return buildTodoFields({ notesPlaceholder });
+}
+
+function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid, calendars = [] }) {
+    const calendarOptions = Array.isArray(calendars) && calendars.length
+        ? calendars.map(cal => {
+            const idRaw = cal.calendar_id ?? cal.id ?? '';
+            const id = escapeAttr(idRaw);
+            const name = escapeHTML(cal.name ?? cal.calendar_name ?? 'Untitled calendar');
+            const selected = String(idRaw) === String(calendarId) ? ' selected' : '';
+            return `<option value="${id}"${selected}>${name}</option>`;
+        }).join('')
+        : `<option value="${escapeAttr(calendarId)}" selected>${escapeHTML(calendarName)}</option>`;
+
+    return `
+    <div class="ec-add-form ${ADD_ITEM_KIND_CONFIG.todo.className}" id="ec-add-form-root" data-active-kind="todo" style="margin:auto;">
+      <h3 class="ec-form-title" id="ec-add-form-title">${ADD_ITEM_KIND_CONFIG.todo.heading(displayDate)}</h3>
+
+      <form id="ec-add-item-form" autocomplete="off">
+        <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
+        <input id="ec-time" type="hidden" value="${escapeAttr(timeStr)}">
+        <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
+
+        <div class="ec-form-field ec-title-row">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="${ADD_ITEM_KIND_CONFIG.todo.titlePlaceholder}" style="height:45px;width:100%;cursor:text;margin-bottom: 5px;margin-top:10px;" aria-label="Title">
+        </div>
+
+        <div class="ec-form-field">
+          <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Item type">
+            <option value="todo" selected>To-Do</option>
+            <option value="event">Event</option>
+            <option value="journal">Journal</option>
+          </select>
+        </div>
+
+        <div class="ec-form-field">
+          <select id="ec-calendar-select" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Calendar">
+            ${calendarOptions}
+            <option value="__add_new__">+ Add new calendar</option>
+          </select>
+        </div>
+
+        <div id="ec-kind-fields" class="ec-kind-fields">
+          ${buildKindSpecificFields('todo', { dateStr, timeStr })}
         </div>
 
         <div class="ec-form-actions">
-          <button type="submit" id="ec-save-item" class="stellar-submit" style="height:44px;">Save To-Do</button>
+          <button type="submit" id="ec-save-item" class="stellar-submit" style="height:44px;">${ADD_ITEM_KIND_CONFIG.todo.buttonLabel}</button>
         </div>
       </form>
     </div>
   `;
+}
+
+function captureKindFieldsState(container = document.getElementById('ec-kind-fields')) {
+    if (!container) return null;
+    const elements = container.querySelectorAll('input, select, textarea');
+    if (!elements.length) return null;
+    const state = {};
+    elements.forEach((el) => {
+        if (!el.id) return;
+        if (el.type === 'checkbox' || el.type === 'radio') {
+            state[el.id] = { checked: el.checked };
+        } else {
+            state[el.id] = { value: el.value };
+        }
+    });
+    return state;
+}
+
+function restoreKindFieldsState(container = document.getElementById('ec-kind-fields'), state) {
+    if (!container || !state) return;
+    Object.entries(state).forEach(([id, stored]) => {
+        const el = document.getElementById(id);
+        if (!el || !container.contains(el)) return;
+        if (stored && typeof stored === 'object') {
+            if (Object.prototype.hasOwnProperty.call(stored, 'checked')) {
+                el.checked = !!stored.checked;
+            }
+            if (Object.prototype.hasOwnProperty.call(stored, 'value')) {
+                el.value = stored.value;
+            }
+        }
+    });
+}
+
+function setupNotesToggle({ collapsedLabel = 'Show notes', expandedLabel = 'Hide notes' } = {}) {
+    const notesToggle = document.getElementById('ec-notes-toggle');
+    const notesBox = document.getElementById('ec-notes-box');
+    if (!notesToggle || !notesBox) return;
+
+    const notesField = notesBox.querySelector('textarea');
+    const track = notesToggle.querySelector('.ec-notes-toggle-track');
+    const thumb = notesToggle.querySelector('.ec-notes-toggle-thumb');
+
+    const updateMaxHeight = () => {
+        notesBox.style.maxHeight = `${notesBox.scrollHeight}px`;
+    };
+
+    const setNotesExpanded = (expanded) => {
+        notesToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        notesToggle.setAttribute('aria-label', expanded ? expandedLabel : collapsedLabel);
+        notesToggle.title = expanded ? expandedLabel : collapsedLabel;
+        notesToggle.classList.toggle('is-open', expanded);
+        if (track) track.classList.toggle('is-open', expanded);
+        if (thumb) thumb.classList.toggle('is-open', expanded);
+
+        notesBox.classList.toggle('is-open', expanded);
+        notesBox.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+        if (expanded) {
+            updateMaxHeight();
+        } else {
+            notesBox.style.maxHeight = '0px';
+        }
+    };
+
+    setNotesExpanded(false);
+
+    notesToggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        const currentlyExpanded = notesToggle.getAttribute('aria-expanded') === 'true';
+        setNotesExpanded(!currentlyExpanded);
+    });
+
+    if (notesField) {
+        notesField.addEventListener('input', () => {
+            if (notesToggle.getAttribute('aria-expanded') === 'true') {
+                updateMaxHeight();
+            }
+        });
+    }
+}
+
+function initializeEventFormInteractions() {
+    const allDayCheckbox = document.getElementById('ec-event-all-day');
+    const startTime = document.getElementById('ec-event-start-time');
+    const endTime = document.getElementById('ec-event-end-time');
+    const startDate = document.getElementById('ec-event-start-date');
+    const endDate = document.getElementById('ec-event-end-date');
+
+    if (allDayCheckbox) {
+        const applyAllDayState = () => {
+            const isAllDay = allDayCheckbox.checked;
+            if (startTime) {
+                startTime.disabled = isAllDay;
+                if (isAllDay && !startTime.value) {
+                    startTime.value = '00:00';
+                }
+            }
+            if (endTime) {
+                endTime.disabled = isAllDay;
+                if (isAllDay) {
+                    endTime.value = '';
+                }
+            }
+        };
+
+        applyAllDayState();
+        allDayCheckbox.addEventListener('change', applyAllDayState);
+    }
+
+    if (startDate && endDate) {
+        startDate.addEventListener('change', () => {
+            if (!endDate.value) {
+                endDate.value = startDate.value;
+            }
+        });
+    }
+}
+
+function applyKindToForm(kind, context = {}, { restoreState = null } = {}) {
+    const root = document.getElementById('ec-add-form-root');
+    const fieldsContainer = document.getElementById('ec-kind-fields');
+    if (!root || !fieldsContainer) return;
+
+    const config = ADD_ITEM_KIND_CONFIG[kind] || ADD_ITEM_KIND_CONFIG.todo;
+    const allClasses = Object.values(ADD_ITEM_KIND_CONFIG).map(cfg => cfg.className);
+    root.classList.remove(...allClasses);
+    root.classList.add(config.className);
+    root.dataset.activeKind = kind;
+
+    const heading = document.getElementById('ec-add-form-title');
+    if (heading) {
+        const headingText = typeof config.heading === 'function'
+            ? config.heading(context.displayDate || '')
+            : config.heading;
+        heading.textContent = headingText || '';
+    }
+
+    const titleInput = document.getElementById('ec-title');
+    if (titleInput && config.titlePlaceholder) {
+        titleInput.placeholder = config.titlePlaceholder;
+    }
+
+    const saveBtn = document.getElementById('ec-save-item');
+    if (saveBtn && config.buttonLabel) {
+        saveBtn.textContent = config.buttonLabel;
+    }
+
+    fieldsContainer.innerHTML = buildKindSpecificFields(kind, { dateStr: context.dateStr, timeStr: context.timeStr });
+
+    if (restoreState) {
+        restoreKindFieldsState(fieldsContainer, restoreState);
+    }
+
+    const notesLabels = {
+        todo: { collapsed: 'Show notes', expanded: 'Hide notes' },
+        event: { collapsed: 'Show details', expanded: 'Hide details' },
+        journal: { collapsed: 'Show entry', expanded: 'Hide entry' }
+    };
+    const labelSet = notesLabels[kind] || notesLabels.todo;
+    setupNotesToggle({ collapsedLabel: labelSet.collapsed, expandedLabel: labelSet.expanded });
+
+    const storedEmoji = restoreState ? restoreState['ec-emoji'] : null;
+    const emojiValue = sanitizeEmojiInput((storedEmoji && storedEmoji.value) || context.presetMoonEmoji || '🙂') || '🙂';
+    const emojiInput = document.getElementById('ec-emoji');
+    const emojiPreview = document.getElementById('ec-emoji-preview');
+    if (emojiInput) emojiInput.value = emojiValue;
+    if (emojiPreview) emojiPreview.textContent = emojiValue;
+
+    wireEmojiPicker({
+        buttonId: 'ec-emoji-button',
+        hiddenInputId: 'ec-emoji',
+        previewId: 'ec-emoji-preview',
+        defaultEmoji: emojiValue
+    });
+
+    const storedColor = restoreState ? restoreState['ec-color'] : null;
+    if (storedColor && typeof storedColor.value === 'string') {
+        const colorInput = document.getElementById('ec-color');
+        if (colorInput) {
+            colorInput.value = storedColor.value;
+        }
+    }
+
+    if (kind === 'event') {
+        initializeEventFormInteractions();
+    }
 }
 
 const FEATURED_EC_EMOJIS = [
@@ -686,14 +991,6 @@ function wireEmojiPicker({ buttonId, hiddenInputId, previewId, defaultEmoji = '�
         }
     };
 }
-
-function toggleKindFields(kind) {
-    // When you implement Event/Journal, you’ll show/hide extra blocks here.
-    const frequencyRow = document.getElementById('ec-frequency-row');
-    if (frequencyRow) frequencyRow.style.display = kind === 'todo' ? 'flex' : 'none';
-}
-
-
 
 /* ADD V1 CALENDAR  */
 
@@ -1040,7 +1337,13 @@ async function addNewCalendarV1(hostTarget) {
 }
 
 function displayMoonPhasev1({ date, container } = {}) {
-    const host = container instanceof HTMLElement ? container : document.querySelector('#modal-content .add-date-form');
+    let host = null;
+    if (container instanceof HTMLElement) {
+        host = container;
+    } else {
+        host = document.querySelector('#modal-content .ec-add-form')
+            || document.querySelector('#modal-content .add-date-form');
+    }
     if (!host) {
         console.warn('[displayMoonPhasev1] Unable to locate add item form container.');
         return null;
@@ -1584,7 +1887,7 @@ async function showPublicCalendars(hostTarget) {
 
 
 function collectAddItemFormData(user) {
-    const kind = valueOf('#ec-item-kind') || 'todo';
+    const kind = (valueOf('#ec-item-kind') || 'todo').toLowerCase();
     const calendarSelection = valueOf('#ec-calendar-select');
     const calendar_id = calendarSelection && calendarSelection !== '__add_new__' ? calendarSelection : null;
     const title = valueOf('#ec-title')?.trim() || '';
@@ -1592,31 +1895,110 @@ function collectAddItemFormData(user) {
     const rawEmoji = valueOf('#ec-emoji');
     const emoji = rawEmoji ? sanitizeEmojiInput(rawEmoji) : null;
     const color_hex = valueOf('#ec-color') || null;
-    const frequency = valueOf('#ec-frequency') || 'today';
     const tzid = valueOf('#ec-tzid') || getUserTZ();
-    const dateStr = valueOf('#ec-date');
-    const timeStr = valueOf('#ec-time');
+    const baseDate = valueOf('#ec-date');
+    const baseTime = valueOf('#ec-time');
     const notes = valueOf('#ec-notes') || null;
 
-    // Compose a local datetime string for backend conversion → UTC
-    const start_local = `${dateStr} ${timeStr || '00:00'}`.trim();
-
-    return {
-        // required for backend:
+    const payload = {
         buwana_id: user.buwana_id,
         calendar_id,
-        item_kind: kind,              // 'todo' | 'event' | 'journal' (todo for now)
+        item_kind: ['event', 'journal'].includes(kind) ? kind : 'todo',
         title,
         tzid,
-        start_local,                  // 'YYYY-MM-DD HH:mm' (backend will convert to UTC)
-        all_day: false,               // future: derive from empty time toggle
-        // earthcal UI extras:
         pinned,
         emoji,
         color_hex,
-        frequency,
         notes
     };
+
+    if (payload.item_kind === 'todo') {
+        const frequency = valueOf('#ec-frequency') || 'today';
+        const start_local = `${baseDate} ${baseTime || '00:00'}`.trim();
+        payload.start_local = start_local;
+        payload.all_day = false;
+        payload.frequency = frequency;
+    } else if (payload.item_kind === 'event') {
+        const startDate = valueOf('#ec-event-start-date') || baseDate;
+        const startTime = valueOf('#ec-event-start-time') || baseTime || '00:00';
+        const endDate = valueOf('#ec-event-end-date') || startDate;
+        const endTime = valueOf('#ec-event-end-time') || startTime;
+        const allDay = checked('#ec-event-all-day');
+        const location = valueOf('#ec-event-location') || null;
+        const url = valueOf('#ec-event-url') || null;
+
+        const startLocal = `${startDate} ${allDay ? '00:00' : (startTime || '00:00')}`.trim();
+        let endLocal = null;
+        let durationMinutes = null;
+
+        if (allDay) {
+            endLocal = `${endDate} 00:00`.trim();
+            const startDay = startDate ? new Date(`${startDate}T00:00:00`) : null;
+            const endDay = endDate ? new Date(`${endDate}T00:00:00`) : null;
+            const startValid = startDay instanceof Date && !Number.isNaN(startDay.getTime());
+            const endValid = endDay instanceof Date && !Number.isNaN(endDay.getTime());
+            if (startValid && endValid) {
+                const diffMs = endDay.getTime() - startDay.getTime();
+                if (Number.isFinite(diffMs) && diffMs > 0) {
+                    durationMinutes = Math.round(diffMs / 60000);
+                } else {
+                    durationMinutes = 24 * 60;
+                }
+            }
+        } else {
+            endLocal = `${endDate} ${endTime || startTime}`.trim();
+            const startDateTime = startDate ? new Date(`${startDate}T${(startTime || '00:00')}:00`) : null;
+            const endDateTime = endDate ? new Date(`${endDate}T${(endTime || startTime || '00:00')}:00`) : null;
+            const startValid = startDateTime instanceof Date && !Number.isNaN(startDateTime.getTime());
+            const endValid = endDateTime instanceof Date && !Number.isNaN(endDateTime.getTime());
+            if (startValid && endValid) {
+                const diffMs = endDateTime.getTime() - startDateTime.getTime();
+                if (Number.isFinite(diffMs) && diffMs > 0) {
+                    durationMinutes = Math.round(diffMs / 60000);
+                }
+            }
+        }
+
+        payload.start_local = startLocal;
+        payload.end_local = endLocal;
+        payload.all_day = allDay;
+        if (Number.isFinite(durationMinutes) && durationMinutes > 0) {
+            payload.duration_minutes = durationMinutes;
+        }
+        if (location) payload.location = location;
+        if (url) payload.url = url;
+    } else if (payload.item_kind === 'journal') {
+        const entryDate = valueOf('#ec-journal-entry-date') || baseDate;
+        const entryTime = valueOf('#ec-journal-entry-time') || baseTime || '00:00';
+        const mood = valueOf('#ec-journal-mood') || null;
+        const energy = valueOf('#ec-journal-energy') || null;
+        const weather = valueOf('#ec-journal-weather') || null;
+        const gratitude = valueOf('#ec-journal-gratitude') || null;
+        const tagsRaw = valueOf('#ec-journal-tags') || '';
+
+        payload.start_local = `${entryDate} ${entryTime || '00:00'}`.trim();
+        payload.all_day = false;
+
+        const extras = {};
+        if (mood) extras.mood = mood;
+        if (energy) extras.energy = Number(energy) || energy;
+        if (weather) extras.weather = weather;
+        if (gratitude) extras.gratitude = gratitude;
+
+        const categories = tagsRaw
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(Boolean);
+        if (categories.length) {
+            payload.categories = categories;
+        }
+
+        if (Object.keys(extras).length) {
+            payload.extras = extras;
+        }
+    }
+
+    return payload;
 }
 
 // ---- Small utilities ----
