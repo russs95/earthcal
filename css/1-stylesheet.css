@@ -183,6 +183,17 @@ path[id*="week-"] {
     text-decoration: underline;
 }
 
+.date-time-add-box,
+.date-time-box {
+    pointer-events: none;
+}
+
+.date-time-add-box .add-event-button,
+.date-time-add-box #add-datecycle-button,
+.date-time-add-box #user-details {
+    pointer-events: auto;
+}
+
 
 
 /* END OF OLD INDEX INLINED CSS  */
