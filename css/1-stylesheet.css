@@ -2905,7 +2905,12 @@ INFO MODAL
     width: 100%;
 }
 
-.ec-event-date-row,
+.ec-event-date-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
 .ec-journal-timing-row,
 .ec-journal-mood-row {
     flex-direction: row;
@@ -2914,7 +2919,6 @@ INFO MODAL
     flex-wrap: wrap;
 }
 
-.ec-event-date-row .ec-inline-field,
 .ec-journal-timing-row .ec-inline-field,
 .ec-journal-mood-row .ec-inline-field {
     flex: 1 1 160px;
@@ -2924,6 +2928,8 @@ INFO MODAL
 .ec-datetime-inputs {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .ec-datetime-inputs input,
@@ -2975,7 +2981,8 @@ INFO MODAL
     margin: 0;
 }
 
-.ec-notes-toggle-button {
+.ec-notes-toggle-button,
+.ec-url-toggle-button {
     width: 36px;
     min-width: 36px;
     height: 36px;
@@ -2987,7 +2994,7 @@ INFO MODAL
     justify-content: center;
     background: var(--general-background);
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
@@ -3037,6 +3044,27 @@ INFO MODAL
     background: var(--general-background);
 }
 
+.ec-url-toggle-button {
+    border-radius: 15px;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: inherit;
+}
+
+.ec-url-toggle-button.is-active {
+    background: var(--form-field-background);
+}
+
+.ec-url-toggle-button:hover {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.ec-url-toggle-button:focus-visible {
+    outline: 2px solid var(--button-2-1);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+
 .ec-notes-field {
     overflow: visible;
 }
@@ -3080,8 +3108,9 @@ INFO MODAL
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-    flex: 0 0 124px;
-    width: 124px;
+    flex: 0 0 auto;
+    width: auto;
+    flex-wrap: wrap;
 }
 
 .date-action-buttons .ec-inline-field,
@@ -3101,6 +3130,14 @@ INFO MODAL
     cursor: pointer;
     border-radius: 15px;
     margin: 0;
+}
+
+.ec-event-url-field {
+    display: none;
+}
+
+.ec-event-url-field.is-visible {
+    display: flex;
 }
 
 .ec-form-inline {
