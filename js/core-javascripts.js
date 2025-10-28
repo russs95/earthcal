@@ -256,6 +256,10 @@ async function openMainMenu() {
             <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
         </div>
 
+        <div class="menu-page-item" onclick="manageEarthcalUserSub();">
+            Upgrade to Pro
+        </div>
+
         <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
             <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
         </a>
@@ -308,10 +312,190 @@ function modalCloseCurtains(event) {
 
 document.addEventListener("keydown", modalCloseCurtains);
 
+async function manageEarthcalUserSub() {
+    closeMainMenu();
+
+    const modal = document.getElementById('form-modal-message');
+    const modalContent = document.getElementById('modal-content');
+
+    const showModal = () => {
+        if (!modal) {
+            return;
+        }
+        modal.classList.remove('modal-hidden');
+        modal.classList.add('modal-visible');
+        document.body.style.overflowY = 'hidden';
+    };
+
+    if (!modal || !modalContent) {
+        console.error('Subscription modal elements missing.');
+        return;
+    }
+
+    const buwanaIdRaw = localStorage.getItem('buwana_id');
+    if (!buwanaIdRaw) {
+        showModal();
+        modalContent.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h1>Select Moment Mastery</h1>
+                <p>You need to log in with your Buwana account to manage subscriptions.</p>
+                <button class="confirmation-blur-button" style="margin-top: 15px;" onclick="sendDownRegistration();">
+                    Open Login Panel
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    const buwanaId = parseInt(buwanaIdRaw, 10);
+    if (Number.isNaN(buwanaId)) {
+        showModal();
+        modalContent.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h1>Select Moment Mastery</h1>
+                <p>We could not determine your user account. Please try logging in again.</p>
+            </div>
+        `;
+        return;
+    }
+
+    showModal();
+    modalContent.innerHTML = `
+        <div style="padding: 30px; text-align: center;">
+            <p style="margin-bottom: 0; font-size: 1rem;">Checking your subscription&hellip;</p>
+        </div>
+    `;
+
+    const formatPrice = (plan) => {
+        const cents = typeof plan.price_cents === 'number' ? plan.price_cents : parseInt(plan.price_cents || '0', 10);
+        const currency = plan.currency || 'USD';
+        if (!cents) {
+            return 'Free';
+        }
+        try {
+            const formatter = new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return formatter.format(cents / 100);
+        } catch (err) {
+            console.warn('Currency formatting failed, falling back to plain text.', err);
+            return `${(cents / 100).toFixed(2)} ${currency}`;
+        }
+    };
+
+    try {
+        const response = await fetch('api/v1/check_user_sub.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ buwana_id: buwanaId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || data.ok === false) {
+            const reason = data?.error || 'unknown_error';
+            throw new Error(reason);
+        }
+
+        const plans = Array.isArray(data?.plans) ? data.plans : [];
+        const currentSubscription = data?.current_subscription || null;
+        const currentPlan = currentSubscription?.plan || null;
+        const currentPlanId = currentPlan?.plan_id ?? currentSubscription?.plan_id ?? null;
+        const currentPlanName = currentPlan?.name || data?.current_plan_name || 'Jedi - Base Earthcal';
+
+        if (!plans.length) {
+            modalContent.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h1>Select Moment Mastery</h1>
+                    <p>No subscription plans are currently available. Please try again later.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const rowsHtml = plans.map((plan) => {
+            const planId = plan.plan_id;
+            const isCurrent = currentPlanId !== null && Number(planId) === Number(currentPlanId);
+            const rowStyle = isCurrent
+                ? 'style="border: 2px solid #16a34a; background: rgba(22, 163, 74, 0.08);"'
+                : 'style="border: 1px solid rgba(255,255,255,0.1);"';
+            const badge = isCurrent
+                ? '<span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:9999px;background:#16a34a;color:#fff;font-size:0.75rem;">Current</span>'
+                : '';
+            const duration = plan.billing_interval === 'lifetime'
+                ? 'Lifetime access'
+                : plan.billing_interval === 'year'
+                    ? 'Billed yearly'
+                    : 'Billed monthly';
+            const durationDetails = plan.duration_days
+                ? `${duration} (${plan.duration_days} days)`
+                : duration;
+
+            return `
+                <tr ${rowStyle}>
+                    <td style="padding: 18px; text-align: left; vertical-align: top;">
+                        <div style="font-size: 1.1rem; font-weight: 600; display:flex; align-items:center; gap:4px;">
+                            <span>${plan.name}</span>${badge}
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.95rem; line-height: 1.4;">
+                            ${plan.description || 'No description provided.'}
+                        </div>
+                    </td>
+                    <td style="padding: 18px; text-align: center; vertical-align: top; font-size: 1rem; font-weight: 600; white-space: nowrap;">
+                        ${formatPrice(plan)}
+                    </td>
+                    <td style="padding: 18px; text-align: right; vertical-align: top; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8);">
+                        ${durationDetails}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        modalContent.innerHTML = `
+            <div style="padding: 20px;">
+                <h1 style="margin-bottom: 10px; text-align: center;">Select Moment Mastery</h1>
+                <p style="text-align: center;">You are currently using the ${currentPlanName} plan.</p>
+                <div style="margin-top: 20px; overflow-x:auto;">
+                    <table style="width:100%; border-collapse:separate; border-spacing:0 12px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Plan</th>
+                                <th style="text-align:center; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Price</th>
+                                <th style="text-align:right; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Billing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Failed to load subscription details:', error);
+        modalContent.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h1>Select Moment Mastery</h1>
+                <p>We could not load your subscription details (${error.message || 'unknown error'}).</p>
+                <p>Please try again in a moment.</p>
+            </div>
+        `;
+    }
+}
+
 
 /* ---------------------------
 
-Animate the planets into position 
+Animate the planets into position
 
 -------------------------------*/
 
