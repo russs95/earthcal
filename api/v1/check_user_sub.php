@@ -59,89 +59,106 @@ try {
     exit;
 }
 
+$normalizePlan = static function (array $row): array {
+    return [
+        'plan_id'          => isset($row['plan_id']) ? (int)$row['plan_id'] : null,
+        'name'             => $row['name'] ?? null,
+        'slug'             => $row['slug'] ?? null,
+        'description'      => $row['description'] ?? null,
+        'price_cents'      => isset($row['price_cents']) ? (int)$row['price_cents'] : 0,
+        'currency'         => $row['currency'] ?? 'USD',
+        'billing_interval' => $row['billing_interval'] ?? 'month',
+        'duration_days'    => isset($row['duration_days']) ? ($row['duration_days'] === null ? null : (int)$row['duration_days']) : null,
+        'is_active'        => isset($row['is_active']) ? ((int)$row['is_active'] === 1) : true,
+        'created_at'       => $row['created_at'] ?? null,
+        'updated_at'       => $row['updated_at'] ?? null,
+    ];
+};
+
 try {
-    $planStmt = $pdo->prepare(
-        'SELECT plan_id, name, slug, description, price_cents, currency, billing_interval, duration_days, is_active, created_at, updated_at
+    $plansStmt = $pdo->prepare(
+        "SELECT plan_id, name, slug, description, price_cents, currency, billing_interval, duration_days, is_active, created_at, updated_at
            FROM plans_tb
-       ORDER BY CASE WHEN price_cents = 0 THEN 0 ELSE 1 END, price_cents ASC, plan_id ASC'
+          WHERE is_active = 1
+       ORDER BY price_cents ASC, plan_id ASC"
     );
-    $planStmt->execute();
+    $plansStmt->execute();
+    $plans = array_map($normalizePlan, $plansStmt->fetchAll(PDO::FETCH_ASSOC));
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'error' => 'plan_lookup_failed', 'detail' => $e->getMessage()]);
+    exit;
+}
 
-    $plans = [];
-    while ($row = $planStmt->fetch(PDO::FETCH_ASSOC)) {
-        $plans[] = [
-            'plan_id'          => (int)$row['plan_id'],
-            'name'             => (string)$row['name'],
-            'slug'             => (string)$row['slug'],
-            'description'      => $row['description'],
-            'price_cents'      => (int)$row['price_cents'],
-            'currency'         => $row['currency'] !== null ? (string)$row['currency'] : 'USD',
-            'billing_interval' => $row['billing_interval'] !== null ? (string)$row['billing_interval'] : 'month',
-            'duration_days'    => $row['duration_days'] !== null ? (int)$row['duration_days'] : null,
-            'is_active'        => (bool)((int)$row['is_active'] ?? 0),
-            'created_at'       => $row['created_at'],
-            'updated_at'       => $row['updated_at'],
-        ];
-    }
+$currentSubscription = null;
 
-    $subStmt = $pdo->prepare(
-        "SELECT us.*, p.name AS plan_name, p.slug AS plan_slug, p.description AS plan_description,
-                p.price_cents, p.currency, p.billing_interval, p.duration_days
+try {
+    $subscriptionStmt = $pdo->prepare(
+        "SELECT us.subscription_id, us.user_id, us.plan_id, us.status, us.is_gift, us.coupon_code,
+                us.external_provider, us.external_subscription_id, us.start_at, us.current_period_end,
+                us.cancel_at, us.canceled_at, us.created_at, us.updated_at,
+                p.plan_id AS plan_plan_id, p.name AS plan_name, p.slug AS plan_slug, p.description AS plan_description,
+                p.price_cents AS plan_price_cents, p.currency AS plan_currency, p.billing_interval AS plan_billing_interval,
+                p.duration_days AS plan_duration_days, p.is_active AS plan_is_active, p.created_at AS plan_created_at,
+                p.updated_at AS plan_updated_at
            FROM user_subscriptions_tb AS us
            JOIN plans_tb AS p ON p.plan_id = us.plan_id
           WHERE us.user_id = :uid
-       ORDER BY CASE us.status
-                    WHEN 'active' THEN 1
-                    WHEN 'trial' THEN 2
-                    WHEN 'past_due' THEN 3
-                    WHEN 'canceled' THEN 4
-                    WHEN 'expired' THEN 5
-                    ELSE 6
-                END,
-                COALESCE(us.current_period_end, us.start_at) DESC,
-                us.subscription_id DESC
+       ORDER BY
+            CASE
+                WHEN us.status IN ('active', 'trial', 'past_due')
+                     AND (us.current_period_end IS NULL OR us.current_period_end >= NOW()) THEN 0
+                WHEN us.status = 'canceled'
+                     AND (us.cancel_at IS NULL OR us.cancel_at >= NOW()) THEN 1
+                ELSE 2
+            END,
+            us.updated_at DESC
           LIMIT 1"
     );
-    $subStmt->execute([':uid' => $buwanaId]);
-    $subscriptionRow = $subStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    $subscriptionStmt->execute(['uid' => $buwanaId]);
+    $row = $subscriptionStmt->fetch(PDO::FETCH_ASSOC);
 
-    $currentSubscription = null;
-    if ($subscriptionRow) {
+    if ($row) {
         $currentSubscription = [
-            'subscription_id'        => (int)$subscriptionRow['subscription_id'],
-            'user_id'                => (int)$subscriptionRow['user_id'],
-            'plan_id'                => (int)$subscriptionRow['plan_id'],
-            'plan_name'              => (string)$subscriptionRow['plan_name'],
-            'plan_slug'              => (string)$subscriptionRow['plan_slug'],
-            'status'                 => (string)$subscriptionRow['status'],
-            'is_gift'                => (bool)((int)$subscriptionRow['is_gift'] ?? 0),
-            'coupon_code'            => $subscriptionRow['coupon_code'] !== null ? (string)$subscriptionRow['coupon_code'] : null,
-            'external_provider'      => (string)$subscriptionRow['external_provider'],
-            'external_subscription_id' => $subscriptionRow['external_subscription_id'] !== null ? (string)$subscriptionRow['external_subscription_id'] : null,
-            'start_at'               => $subscriptionRow['start_at'],
-            'current_period_end'     => $subscriptionRow['current_period_end'],
-            'cancel_at'              => $subscriptionRow['cancel_at'],
-            'canceled_at'            => $subscriptionRow['canceled_at'],
-            'created_at'             => $subscriptionRow['created_at'],
-            'updated_at'             => $subscriptionRow['updated_at'],
-            'price_cents'            => (int)$subscriptionRow['price_cents'],
-            'currency'               => $subscriptionRow['currency'] !== null ? (string)$subscriptionRow['currency'] : 'USD',
-            'billing_interval'       => $subscriptionRow['billing_interval'] !== null ? (string)$subscriptionRow['billing_interval'] : 'month',
-            'duration_days'          => $subscriptionRow['duration_days'] !== null ? (int)$subscriptionRow['duration_days'] : null,
-            'plan_description'       => $subscriptionRow['plan_description'],
+            'subscription_id'       => (int)$row['subscription_id'],
+            'user_id'               => (int)$row['user_id'],
+            'plan_id'               => (int)$row['plan_id'],
+            'status'                => $row['status'] ?? 'active',
+            'is_gift'               => ((int)$row['is_gift']) === 1,
+            'coupon_code'           => $row['coupon_code'] ?? null,
+            'external_provider'     => $row['external_provider'] ?? 'none',
+            'external_subscription_id' => $row['external_subscription_id'] ?? null,
+            'start_at'              => $row['start_at'] ?? null,
+            'current_period_end'    => $row['current_period_end'] ?? null,
+            'cancel_at'             => $row['cancel_at'] ?? null,
+            'canceled_at'           => $row['canceled_at'] ?? null,
+            'created_at'            => $row['created_at'] ?? null,
+            'updated_at'            => $row['updated_at'] ?? null,
+            'plan'                  => $normalizePlan([
+                'plan_id'       => $row['plan_plan_id'],
+                'name'          => $row['plan_name'],
+                'slug'          => $row['plan_slug'],
+                'description'   => $row['plan_description'],
+                'price_cents'   => $row['plan_price_cents'],
+                'currency'      => $row['plan_currency'],
+                'billing_interval' => $row['plan_billing_interval'],
+                'duration_days' => $row['plan_duration_days'],
+                'is_active'     => $row['plan_is_active'],
+                'created_at'    => $row['plan_created_at'],
+                'updated_at'    => $row['plan_updated_at'],
+            ]),
         ];
     }
-
-    echo json_encode([
-        'ok' => true,
-        'plans' => $plans,
-        'current_subscription' => $currentSubscription,
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode([
-        'ok' => false,
-        'error' => 'query_failed',
-        'detail' => $e->getMessage(),
-    ]);
+    echo json_encode(['ok' => false, 'error' => 'subscription_lookup_failed', 'detail' => $e->getMessage()]);
+    exit;
 }
+
+echo json_encode([
+    'ok' => true,
+    'plans' => $plans,
+    'current_subscription' => $currentSubscription,
+    'current_plan_name' => $currentSubscription['plan']['name'] ?? null,
+]);
+
