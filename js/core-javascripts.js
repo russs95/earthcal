@@ -623,11 +623,52 @@ async function manageEarthcalUserSub() {
         return;
     }
 
-    const buwanaIdRaw = localStorage.getItem('buwana_id');
-    if (!buwanaIdRaw) {
-        showModal();
+    const escapeHtml = (value) => {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+    const resolveBuwanaId = () => {
+        if (typeof getCurrentUser === 'function') {
+            try {
+                const currentUser = getCurrentUser();
+                if (currentUser?.buwana_id !== undefined && currentUser?.buwana_id !== null) {
+                    return currentUser.buwana_id;
+                }
+            } catch (err) {
+                console.warn('Unable to resolve user from getCurrentUser()', err);
+            }
+        }
+
+        try {
+            const storedSession = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (storedSession?.buwana_id !== undefined && storedSession?.buwana_id !== null) {
+                return storedSession.buwana_id;
+            }
+        } catch (err) {
+            console.warn('Unable to read session storage buwana_user', err);
+        }
+
+        const localId = localStorage.getItem('buwana_id');
+        if (localId !== null && localId !== undefined && localId !== '') {
+            return localId;
+        }
+
+        return null;
+    };
+
+    const resolvedBuwanaId = resolveBuwanaId();
+
+    if (resolvedBuwanaId === null) {
         modalContent.innerHTML = `
-            <div style="padding: 20px; text-align: center;">
+            <div class="ec-subscription-modal">
                 <h1>Select Moment Mastery</h1>
                 <p>You need to log in with your Buwana account to manage subscriptions.</p>
                 <button class="confirmation-blur-button" style="margin-top: 15px;" onclick="sendDownRegistration();">
@@ -635,77 +676,108 @@ async function manageEarthcalUserSub() {
                 </button>
             </div>
         `;
+        showModal();
         return;
     }
 
-    const buwanaId = parseInt(buwanaIdRaw, 10);
-    if (Number.isNaN(buwanaId)) {
-        showModal();
+    const buwanaId = Number(resolvedBuwanaId);
+    if (!Number.isFinite(buwanaId)) {
         modalContent.innerHTML = `
-            <div style="padding: 20px; text-align: center;">
+            <div class="ec-subscription-modal">
                 <h1>Select Moment Mastery</h1>
                 <p>We could not determine your user account. Please try logging in again.</p>
             </div>
         `;
+        showModal();
         return;
     }
 
     showModal();
     modalContent.innerHTML = `
-        <div style="padding: 30px; text-align: center;">
-            <p style="margin-bottom: 0; font-size: 1rem;">Checking your subscription&hellip;</p>
+        <div class="ec-subscription-modal">
+            <h1>Select Moment Mastery</h1>
+            <p>Checking your subscription&hellip;</p>
         </div>
     `;
 
     const formatPrice = (plan) => {
-        const cents = typeof plan.price_cents === 'number' ? plan.price_cents : parseInt(plan.price_cents || '0', 10);
-        const currency = plan.currency || 'USD';
-        if (!cents) {
+        const centsRaw = plan?.price_cents;
+        const cents = typeof centsRaw === 'number' ? centsRaw : parseInt(centsRaw || '0', 10);
+        const currencyRaw = typeof plan?.currency === 'string' && plan.currency.trim().length ? plan.currency : 'USD';
+
+        if (!Number.isFinite(cents) || cents <= 0) {
             return 'Free';
         }
+
         try {
             const formatter = new Intl.NumberFormat(undefined, {
                 style: 'currency',
-                currency,
+                currency: currencyRaw,
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
             return formatter.format(cents / 100);
         } catch (err) {
-            console.warn('Currency formatting failed, falling back to plain text.', err);
-            return `${(cents / 100).toFixed(2)} ${currency}`;
+            console.warn('Currency formatting failed, falling back to simple text.', err);
+            return `${(cents / 100).toFixed(2)} ${currencyRaw}`;
+        }
+    };
+
+    const describeInterval = (plan) => {
+        switch ((plan?.billing_interval || '').toLowerCase()) {
+            case 'year':
+                return 'Billed yearly';
+            case 'lifetime':
+                return 'Lifetime access';
+            case 'month':
+            default:
+                return 'Billed monthly';
         }
     };
 
     try {
-        const response = await fetch('api/v1/check_user_sub.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ buwana_id: buwanaId })
-        });
+        const [subscriptionResponse, plansResponse] = await Promise.all([
+            fetch('api/v1/check_user_sub.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: buwanaId })
+            }),
+            fetch('api/v1/get_earthcal_plans.php', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+        ]);
 
-        if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
+        if (!subscriptionResponse.ok) {
+            throw new Error(`Subscription lookup failed with status ${subscriptionResponse.status}`);
         }
 
-        const data = await response.json();
+        if (!plansResponse.ok) {
+            throw new Error(`Plan lookup failed with status ${plansResponse.status}`);
+        }
 
-        if (!data || data.ok === false) {
-            const reason = data?.error || 'unknown_error';
+        const [subscriptionData, plansData] = await Promise.all([
+            subscriptionResponse.json(),
+            plansResponse.json()
+        ]);
+
+        if (!subscriptionData || subscriptionData.ok === false) {
+            const reason = subscriptionData?.error || 'subscription_lookup_failed';
             throw new Error(reason);
         }
 
-        const plans = Array.isArray(data?.plans) ? data.plans : [];
-        const currentSubscription = data?.current_subscription || null;
-        const currentPlan = currentSubscription?.plan || null;
-        const currentPlanId = currentPlan?.plan_id ?? currentSubscription?.plan_id ?? null;
-        const currentPlanName = currentPlan?.name || data?.current_plan_name || 'Jedi - Base Earthcal';
+        if (plansData && plansData.ok === false) {
+            const reason = plansData?.error || 'plan_lookup_failed';
+            throw new Error(reason);
+        }
+
+        const plans = Array.isArray(plansData?.plans)
+            ? plansData.plans
+            : (Array.isArray(subscriptionData?.plans) ? subscriptionData.plans : []);
 
         if (!plans.length) {
             modalContent.innerHTML = `
-                <div style="padding: 20px; text-align: center;">
+                <div class="ec-subscription-modal">
                     <h1>Select Moment Mastery</h1>
                     <p>No subscription plans are currently available. Please try again later.</p>
                 </div>
@@ -713,55 +785,51 @@ async function manageEarthcalUserSub() {
             return;
         }
 
+        const currentSubscription = subscriptionData?.current_subscription || null;
+        const currentPlan = currentSubscription?.plan || null;
+        const currentPlanIdRaw = currentPlan?.plan_id ?? currentSubscription?.plan_id ?? null;
+        const currentPlanId = currentPlanIdRaw !== null ? Number(currentPlanIdRaw) : null;
+        const currentPlanName = currentPlan?.name || subscriptionData?.current_plan_name || 'EarthCal Free';
+
         const rowsHtml = plans.map((plan) => {
-            const planId = plan.plan_id;
-            const isCurrent = currentPlanId !== null && Number(planId) === Number(currentPlanId);
-            const rowStyle = isCurrent
-                ? 'style="border: 2px solid #16a34a; background: rgba(22, 163, 74, 0.08);"'
-                : 'style="border: 1px solid rgba(255,255,255,0.1);"';
-            const badge = isCurrent
-                ? '<span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:9999px;background:#16a34a;color:#fff;font-size:0.75rem;">Current</span>'
-                : '';
-            const duration = plan.billing_interval === 'lifetime'
-                ? 'Lifetime access'
-                : plan.billing_interval === 'year'
-                    ? 'Billed yearly'
-                    : 'Billed monthly';
-            const durationDetails = plan.duration_days
-                ? `${duration} (${plan.duration_days} days)`
-                : duration;
+            const planId = Number(plan?.plan_id);
+            const isCurrent = currentPlanId !== null && Number.isFinite(planId) && planId === currentPlanId;
+            const planName = plan?.name ? escapeHtml(plan.name) : 'Untitled plan';
+            const description = plan?.description
+                ? escapeHtml(plan.description).replace(/\n/g, '<br>')
+                : 'No description provided.';
+            const priceText = escapeHtml(formatPrice(plan));
+            const intervalText = describeInterval(plan);
+            const intervalHtml = intervalText ? `<div class="ec-plan-interval">${escapeHtml(intervalText)}</div>` : '';
+            const badge = isCurrent ? '<span class="ec-plan-badge">Current Plan</span>' : '';
 
             return `
-                <tr ${rowStyle}>
-                    <td style="padding: 18px; text-align: left; vertical-align: top;">
-                        <div style="font-size: 1.1rem; font-weight: 600; display:flex; align-items:center; gap:4px;">
-                            <span>${plan.name}</span>${badge}
-                        </div>
-                        <div style="margin-top: 8px; font-size: 0.95rem; line-height: 1.4;">
-                            ${plan.description || 'No description provided.'}
-                        </div>
+                <tr class="${isCurrent ? 'current-plan' : ''}">
+                    <td>
+                        <div class="ec-plan-name">${planName}${badge}</div>
                     </td>
-                    <td style="padding: 18px; text-align: center; vertical-align: top; font-size: 1rem; font-weight: 600; white-space: nowrap;">
-                        ${formatPrice(plan)}
+                    <td>
+                        <div class="ec-plan-description">${description}</div>
                     </td>
-                    <td style="padding: 18px; text-align: right; vertical-align: top; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8);">
-                        ${durationDetails}
+                    <td>
+                        <div class="ec-plan-price">${priceText}</div>
+                        ${intervalHtml}
                     </td>
                 </tr>
             `;
         }).join('');
 
         modalContent.innerHTML = `
-            <div style="padding: 20px;">
-                <h1 style="margin-bottom: 10px; text-align: center;">Select Moment Mastery</h1>
-                <p style="text-align: center;">You are currently using the ${currentPlanName} plan.</p>
-                <div style="margin-top: 20px; overflow-x:auto;">
-                    <table style="width:100%; border-collapse:separate; border-spacing:0 12px;">
+            <div class="ec-subscription-modal">
+                <h1>Select Moment Mastery</h1>
+                <p>You are currently using the ${escapeHtml(currentPlanName)} plan.</p>
+                <div style="margin-top: 20px; overflow-x: auto;">
+                    <table class="ec-plan-table">
                         <thead>
                             <tr>
-                                <th style="text-align:left; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Plan</th>
-                                <th style="text-align:center; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Price</th>
-                                <th style="text-align:right; padding: 10px; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Billing</th>
+                                <th>Plan</th>
+                                <th>Description</th>
+                                <th>Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -774,15 +842,14 @@ async function manageEarthcalUserSub() {
     } catch (error) {
         console.error('Failed to load subscription details:', error);
         modalContent.innerHTML = `
-            <div style="padding: 20px; text-align: center;">
+            <div class="ec-subscription-modal">
                 <h1>Select Moment Mastery</h1>
-                <p>We could not load your subscription details (${error.message || 'unknown error'}).</p>
+                <p>We could not load your subscription details (${escapeHtml(error.message || 'unknown error')}).</p>
                 <p>Please try again in a moment.</p>
             </div>
         `;
     }
 }
-
 
 /* ---------------------------
 

@@ -59,31 +59,10 @@ try {
     exit;
 }
 
-$normalizePlan = static function (array $row): array {
-    return [
-        'plan_id'          => isset($row['plan_id']) ? (int)$row['plan_id'] : null,
-        'name'             => $row['name'] ?? null,
-        'slug'             => $row['slug'] ?? null,
-        'description'      => $row['description'] ?? null,
-        'price_cents'      => isset($row['price_cents']) ? (int)$row['price_cents'] : 0,
-        'currency'         => $row['currency'] ?? 'USD',
-        'billing_interval' => $row['billing_interval'] ?? 'month',
-        'duration_days'    => isset($row['duration_days']) ? ($row['duration_days'] === null ? null : (int)$row['duration_days']) : null,
-        'is_active'        => isset($row['is_active']) ? ((int)$row['is_active'] === 1) : true,
-        'created_at'       => $row['created_at'] ?? null,
-        'updated_at'       => $row['updated_at'] ?? null,
-    ];
-};
+require_once __DIR__ . '/../earthcal_plan_helpers.php';
 
 try {
-    $plansStmt = $pdo->prepare(
-        "SELECT plan_id, name, slug, description, price_cents, currency, billing_interval, duration_days, is_active, created_at, updated_at
-           FROM plans_tb
-          WHERE is_active = 1
-       ORDER BY price_cents ASC, plan_id ASC"
-    );
-    $plansStmt->execute();
-    $plans = array_map($normalizePlan, $plansStmt->fetchAll(PDO::FETCH_ASSOC));
+    $plans = earthcal_fetch_active_plans($pdo);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'error' => 'plan_lookup_failed', 'detail' => $e->getMessage()]);
@@ -134,7 +113,7 @@ try {
             'canceled_at'           => $row['canceled_at'] ?? null,
             'created_at'            => $row['created_at'] ?? null,
             'updated_at'            => $row['updated_at'] ?? null,
-            'plan'                  => $normalizePlan([
+            'plan'                  => earthcal_normalize_plan([
                 'plan_id'       => $row['plan_plan_id'],
                 'name'          => $row['plan_name'],
                 'slug'          => $row['plan_slug'],
