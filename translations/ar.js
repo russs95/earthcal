@@ -148,6 +148,7 @@ mainMenu: {
   title: "مزامنة مع دورات الأرض",
   featureTour: "جولة في الميزات",
   latestVersion: "معلومات الإصدار الأخير",
+  upgradeToPro: "Upgrade to Pro",
   newsletter: "النشرة الإخبارية لـ Earthen.io",
   guide: "دليل التقويم ↗",
   purchasePrint: "شراء النسخة المطبوعة ↗",
@@ -155,6 +156,27 @@ mainMenu: {
   darkModeToggle: "تبديل بين الوضع الليلي/النهاري",
   developedBy: "تم تطوير EarthCal بواسطة",
   authBy: "المصادقة بواسطة"
+},
+
+subscriptions: {
+  heading: "Select Moment Mastery",
+  currentPlan: "You are currently on the {planName} plan.",
+  currentStatus: "Status: {status}",
+  loginRequired: "Please sign in to manage your EarthCal subscription.",
+  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
+  noPlans: "No plans are available right now.",
+  tableHeaders: {
+    plan: "Plan",
+    description: "Description",
+    price: "Price"
+  },
+  priceFree: "Free",
+  billingSuffix: {
+    month: "/ month",
+    year: "/ year",
+    lifetime: "Lifetime access"
+  },
+  currentBadge: "Current plan"
 },
 
 // ADD DATECYCLE

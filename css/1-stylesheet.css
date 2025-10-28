@@ -2731,6 +2731,147 @@ INFO MODAL
 
      ......................................*/
 
+.ec-subscription-modal {
+  width: 100%;
+  padding: 10px 5%;
+  box-sizing: border-box;
+  color: var(--h1);
+}
+
+.ec-subscription-modal h1 {
+  font-size: clamp(1.8rem, 2.4vw, 2.4rem);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.ec-subscription-modal p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 auto 16px auto;
+  max-width: 720px;
+  text-align: center;
+}
+
+.ec-plan-status-line {
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  text-align: center;
+  color: var(--p);
+}
+
+.ec-plan-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 14px;
+}
+
+.ec-plan-table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: left;
+  padding: 0 20px;
+  color: var(--general-background-highlight);
+}
+
+.ec-plan-table tbody tr td {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+}
+
+.ec-plan-table tbody tr td:first-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.ec-plan-table tbody tr td:last-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.ec-plan-table tbody tr.current-plan td {
+  border-color: rgba(34, 197, 94, 0.75);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+}
+
+.ec-plan-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ec-plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(34, 197, 94, 0.15);
+  color: #34d399;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.ec-plan-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--p);
+}
+
+.ec-plan-price {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.ec-plan-interval {
+  font-size: 0.85rem;
+  color: var(--p);
+  margin-top: 4px;
+}
+
+@media screen and (max-width: 768px) {
+  .ec-subscription-modal {
+    padding: 10px;
+  }
+
+  .ec-plan-table thead {
+    display: none;
+  }
+
+  .ec-plan-table,
+  .ec-plan-table tbody,
+  .ec-plan-table tr,
+  .ec-plan-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .ec-plan-table tbody tr {
+    margin-bottom: 18px;
+  }
+
+  .ec-plan-table tbody tr td {
+    border-radius: 16px !important;
+  }
+
+  .ec-plan-table tbody tr td + td {
+    margin-top: 8px;
+  }
+
+  .ec-plan-name {
+    justify-content: space-between;
+  }
+}
+
 .blur-form-field {
   padding: 10px;
   border-radius: 10px;

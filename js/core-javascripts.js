@@ -248,6 +248,10 @@ async function openMainMenu() {
             ${mainMenu.latestVersion}
         </div>
 
+        <div class="menu-page-item" onclick="closeMainMenu(); manageEarthcalUserSub();">
+            ${mainMenu.upgradeToPro}
+        </div>
+
         <div class="menu-page-item">
             <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
         </div>
@@ -283,6 +287,293 @@ async function openMainMenu() {
     document.addEventListener("focus", focusMainMenuRestrict, true);
 }
 
+
+
+async function manageEarthcalUserSub() {
+    const modal = document.getElementById('form-modal-message');
+    const modalContent = document.getElementById('modal-content');
+    if (!modal || !modalContent) {
+        console.error('Subscription modal container is missing.');
+        return;
+    }
+
+    const lang = (userLanguage || 'en').toLowerCase();
+    const translations = await loadTranslations(lang);
+    const subsText = translations.subscriptions || {};
+
+    const fallbackText = (key, defaultValue) => {
+        const value = subsText?.[key];
+        return typeof value === 'string' && value.trim().length ? value : defaultValue;
+    };
+
+    const tableHeaders = subsText.tableHeaders || {};
+    const billingSuffix = subsText.billingSuffix || {};
+
+    const text = {
+        heading: fallbackText('heading', 'Select Moment Mastery'),
+        currentPlan: fallbackText('currentPlan', 'You are currently on the {planName} plan.'),
+        currentStatus: fallbackText('currentStatus', 'Status: {status}'),
+        loginRequired: fallbackText('loginRequired', 'Please sign in to manage your EarthCal subscription.'),
+        loadError: fallbackText('loadError', 'We were unable to load your subscription details. Please try again in a few moments.'),
+        priceFree: fallbackText('priceFree', 'Free'),
+        currentBadge: fallbackText('currentBadge', 'Current plan'),
+        noPlans: fallbackText('noPlans', 'No plans are available right now.'),
+        table: {
+            plan: typeof tableHeaders.plan === 'string' ? tableHeaders.plan : 'Plan',
+            description: typeof tableHeaders.description === 'string' ? tableHeaders.description : 'Description',
+            price: typeof tableHeaders.price === 'string' ? tableHeaders.price : 'Price'
+        },
+        billingSuffix: {
+            month: typeof billingSuffix.month === 'string' ? billingSuffix.month : '/ month',
+            year: typeof billingSuffix.year === 'string' ? billingSuffix.year : '/ year',
+            lifetime: typeof billingSuffix.lifetime === 'string' ? billingSuffix.lifetime : 'Lifetime access'
+        }
+    };
+
+    const escapeHtml = (value) => {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+    const resolveUser = () => {
+        if (typeof getCurrentUser === 'function') {
+            try {
+                const user = getCurrentUser();
+                if (user?.buwana_id) {
+                    return user;
+                }
+            } catch (err) {
+                console.warn('Unable to resolve user from getCurrentUser()', err);
+            }
+        }
+        try {
+            const sessionUser = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (sessionUser?.buwana_id) {
+                return sessionUser;
+            }
+        } catch {}
+        const storedId = localStorage.getItem('buwana_id');
+        if (storedId) {
+            const numericId = Number(storedId);
+            return { buwana_id: Number.isNaN(numericId) ? storedId : numericId };
+        }
+        return null;
+    };
+
+    const showModal = (html) => {
+        modalContent.innerHTML = html;
+
+        const contentBox = modal.querySelector('.modal-content-box');
+        if (contentBox) {
+            contentBox.id = 'modal-content-box';
+            contentBox.classList.add('dim-blur');
+            contentBox.style.backgroundColor = 'transparent';
+        }
+
+        modal.classList.remove('modal-hidden');
+        modal.classList.add('modal-visible', 'dim-blur');
+        document.body.style.overflowY = 'hidden';
+
+        modal.setAttribute('tabindex', '0');
+        modal.focus();
+        modalOpen = true;
+
+        document.addEventListener('focus', focusRestrict, true);
+    };
+
+    const user = resolveUser();
+    if (!user?.buwana_id) {
+        showModal(`
+            <div class="ec-subscription-modal">
+                <h1>${escapeHtml(text.heading)}</h1>
+                <p>${escapeHtml(text.loginRequired)}</p>
+            </div>
+        `);
+        return;
+    }
+
+    let responseData;
+    try {
+        const response = await fetch('api/v1/check_user_sub.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: user.buwana_id })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        responseData = await response.json();
+    } catch (error) {
+        console.error('Failed to load subscription details', error);
+        showModal(`
+            <div class="ec-subscription-modal">
+                <h1>${escapeHtml(text.heading)}</h1>
+                <p>${escapeHtml(text.loadError)}</p>
+            </div>
+        `);
+        return;
+    }
+
+    if (!responseData?.ok) {
+        console.warn('Subscription endpoint returned an error response', responseData);
+        showModal(`
+            <div class="ec-subscription-modal">
+                <h1>${escapeHtml(text.heading)}</h1>
+                <p>${escapeHtml(text.loadError)}</p>
+            </div>
+        `);
+        return;
+    }
+
+    const plans = Array.isArray(responseData.plans) ? responseData.plans : [];
+    const planLookup = new Map();
+    plans.forEach((plan) => {
+        if (plan && typeof plan.plan_id !== 'undefined') {
+            planLookup.set(Number(plan.plan_id), plan);
+        }
+    });
+
+    const currentSubscription = responseData.current_subscription || null;
+    let currentPlanId = currentSubscription?.plan_id ? Number(currentSubscription.plan_id) : null;
+
+    if (!currentPlanId) {
+        const basePlan = plans.find((plan) => (plan.slug || '').toLowerCase() === 'jedi');
+        if (basePlan) {
+            currentPlanId = Number(basePlan.plan_id);
+        } else if (plans.length) {
+            currentPlanId = Number(plans[0].plan_id);
+        }
+    }
+
+    const currentPlan = currentPlanId !== null ? planLookup.get(currentPlanId) : null;
+    const currentPlanName = currentSubscription?.plan_name || currentPlan?.name || 'Jedi - Base Earthcal';
+
+    const formatStatus = (status) => {
+        if (!status || typeof status !== 'string') {
+            return '';
+        }
+        return status
+            .split('_')
+            .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+            .join(' ');
+    };
+
+    const priceFormatterCache = new Map();
+    const formatPrice = (plan) => {
+        const cents = Number(plan?.price_cents) || 0;
+        if (cents === 0) {
+            return { price: text.priceFree, interval: plan?.billing_interval === 'lifetime' ? text.billingSuffix.lifetime : '' };
+        }
+
+        const currency = typeof plan?.currency === 'string' && plan.currency.trim().length
+            ? plan.currency.toUpperCase()
+            : 'USD';
+
+        const key = `${lang}-${currency}`;
+        if (!priceFormatterCache.has(key)) {
+            try {
+                priceFormatterCache.set(key, new Intl.NumberFormat(lang, {
+                    style: 'currency',
+                    currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+            } catch {
+                priceFormatterCache.set(key, new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+            }
+        }
+
+        const formatter = priceFormatterCache.get(key);
+        const amount = cents / 100;
+        const price = formatter.format(amount);
+
+        let interval = '';
+        if (plan?.billing_interval === 'lifetime') {
+            interval = text.billingSuffix.lifetime;
+        } else if (plan?.billing_interval === 'month') {
+            interval = text.billingSuffix.month;
+        } else if (plan?.billing_interval === 'year') {
+            interval = text.billingSuffix.year;
+        }
+
+        return { price, interval };
+    };
+
+    const tableRows = plans.map((plan) => {
+        const planId = Number(plan.plan_id);
+        const { price, interval } = formatPrice(plan);
+        const isCurrent = currentPlanId !== null && planId === currentPlanId;
+        const badge = isCurrent ? `<span class="ec-plan-badge">${escapeHtml(text.currentBadge)}</span>` : '';
+        const planNameText = plan?.name ? escapeHtml(plan.name) : 'Untitled plan';
+        const description = plan?.description
+            ? escapeHtml(plan.description).replace(/\n/g, '<br>')
+            : '';
+        const intervalLine = interval ? `<div class="ec-plan-interval">${escapeHtml(interval)}</div>` : '';
+
+        return `
+            <tr class="${isCurrent ? 'current-plan' : ''}">
+                <td>
+                    <div class="ec-plan-name">${planNameText}${badge}</div>
+                </td>
+                <td>
+                    <div class="ec-plan-description">${description}</div>
+                </td>
+                <td>
+                    <div class="ec-plan-price">${escapeHtml(price)}</div>
+                    ${intervalLine}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    const statusLine = currentSubscription?.status
+        ? text.currentStatus.replace('{status}', formatStatus(currentSubscription.status))
+        : '';
+
+    const currentPlanLine = text.currentPlan.replace('{planName}', currentPlanName);
+
+    const tableHtml = plans.length
+        ? `
+            <table class="ec-plan-table">
+                <thead>
+                    <tr>
+                        <th>${escapeHtml(text.table.plan)}</th>
+                        <th>${escapeHtml(text.table.description)}</th>
+                        <th>${escapeHtml(text.table.price)}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        `
+        : `<p style="text-align:center;">${escapeHtml(text.noPlans)}</p>`;
+
+    const modalHtml = `
+        <div class="ec-subscription-modal">
+            <h1>${escapeHtml(text.heading)}</h1>
+            <p>${escapeHtml(currentPlanLine)}</p>
+            ${statusLine ? `<div class="ec-plan-status-line">${escapeHtml(statusLine)}</div>` : ''}
+            ${tableHtml}
+        </div>
+    `;
+
+    showModal(modalHtml);
+}
 
 
 function focusMainMenuRestrict(event) {
