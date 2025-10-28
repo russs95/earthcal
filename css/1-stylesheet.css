@@ -2905,7 +2905,22 @@ INFO MODAL
     width: 100%;
 }
 
-.ec-event-date-row,
+.ec-event-date-row {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ec-event-date-row .ec-datetime-inputs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ec-event-date-row .ec-datetime-inputs > * {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
 .ec-journal-timing-row,
 .ec-journal-mood-row {
     flex-direction: row;
@@ -2914,7 +2929,6 @@ INFO MODAL
     flex-wrap: wrap;
 }
 
-.ec-event-date-row .ec-inline-field,
 .ec-journal-timing-row .ec-inline-field,
 .ec-journal-mood-row .ec-inline-field {
     flex: 1 1 160px;
@@ -2926,12 +2940,38 @@ INFO MODAL
     gap: 8px;
 }
 
+.ec-datetime-input-with-label {
+    position: relative;
+    width: 100%;
+}
+
+.ec-datetime-input-with-label label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--subdued-text, #64748b);
+    pointer-events: none;
+    background: var(--general-background);
+    padding-right: 8px;
+}
+
+.ec-datetime-input-with-label input {
+    width: 100%;
+    padding-left: 72px;
+}
+
 .ec-datetime-inputs input,
 .ec-event-date-row input,
 .ec-event-date-row select,
 .ec-journal-timing-row input,
 .ec-journal-mood-row select {
     width: 100%;
+}
+
+.ec-event-url-field.is-hidden {
+    display: none;
 }
 
 .ec-event-options-row {
@@ -3035,6 +3075,37 @@ INFO MODAL
 .ec-notes-toggle-button.is-open .ec-notes-toggle-track,
 .ec-notes-toggle-track.is-open {
     background: var(--general-background);
+}
+
+.ec-link-toggle-button {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 2px solid var(--button-2-1);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--general-background);
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.ec-link-toggle-button:hover {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.ec-link-toggle-button:focus-visible {
+    outline: 2px solid var(--button-2-1);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+
+.ec-link-toggle-button.is-active {
+    background: var(--form-field-background);
 }
 
 .ec-notes-field {
