@@ -148,6 +148,7 @@ mainMenu: {
   title: "与地球周期同步",
   featureTour: "功能导览",
   latestVersion: "最新版本信息",
+  upgradeToPro: "Upgrade to Pro",
   newsletter: "Earthen.io 通讯",
   guide: "日历指南 ↗",
   purchasePrint: "购买印刷版 ↗",
@@ -155,6 +156,27 @@ mainMenu: {
   darkModeToggle: "切换黑夜/日间模式",
   developedBy: "EarthCal 由以下机构开发",
   authBy: "身份验证由以下机构提供"
+},
+
+subscriptions: {
+  heading: "Select Moment Mastery",
+  currentPlan: "You are currently on the {planName} plan.",
+  currentStatus: "Status: {status}",
+  loginRequired: "Please sign in to manage your EarthCal subscription.",
+  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
+  noPlans: "No plans are available right now.",
+  tableHeaders: {
+    plan: "Plan",
+    description: "Description",
+    price: "Price"
+  },
+  priceFree: "Free",
+  billingSuffix: {
+    month: "/ month",
+    year: "/ year",
+    lifetime: "Lifetime access"
+  },
+  currentBadge: "Current plan"
 },
 
 // ADD DATECYCLE
