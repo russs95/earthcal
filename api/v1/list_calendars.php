@@ -70,8 +70,11 @@ try {
            AND s.calendar_id = c.calendar_id
            AND s.source_type = 'personal'
         WHERE c.user_id = :uid
+          AND c.provider = 'EarthCal'
         ORDER BY c.default_my_calendar DESC, c.name ASC
     ");
+    $stmt1->execute(['uid' => $buwana_id]);
+
     $stmt1->execute(['uid' => $buwana_id]);
     $personal = $stmt1->fetchAll();
 
