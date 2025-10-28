@@ -1205,6 +1205,7 @@ async function showLoggedInView(calendars = []) {
     }
 
     if (loggedInView) {
+        loggedInView.classList.remove('closing');
         loggedInView.style.display = 'block';
     }
 
@@ -1279,9 +1280,14 @@ async function showLoggedInView(calendars = []) {
 
     loggedInView.innerHTML = `
         <div class="add-date-form" style="padding:10px;">
-            <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
-                ${welcome} ${first_name}!
-            </h2>
+            <div class="logged-in-view-header">
+                <h2 style="font-family:'Mulish',sans-serif;" class="logged-in-message">
+                    ${welcome} ${first_name}!
+                </h2>
+                <button type="button" id="logged-in-close-button" class="logged-in-close-button" aria-label="Close calendar settings">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
              <div id="sync-status">
                 <p>${syncingInfo}</p>
             </div>
@@ -1332,6 +1338,45 @@ async function showLoggedInView(calendars = []) {
         }
     }
 
+    setupLoggedInViewClose(loggedInView);
+}
+
+function setupLoggedInViewClose(loggedInView) {
+    if (!(loggedInView instanceof HTMLElement)) {
+        return;
+    }
+
+    const closeButton = loggedInView.querySelector('#logged-in-close-button');
+    if (!(closeButton instanceof HTMLButtonElement)) {
+        return;
+    }
+
+    const handleClose = (event) => {
+        event.preventDefault();
+        if (closeButton.disabled) {
+            return;
+        }
+        closeButton.disabled = true;
+
+        if (typeof sendDownRegistration === 'function') {
+            Promise.resolve(sendDownRegistration()).catch((err) => {
+                console.warn('[logged-in-view] Unable to close registration container:', err);
+                if (loggedInView) {
+                    loggedInView.classList.remove('closing');
+                }
+                closeButton.disabled = false;
+            });
+        } else {
+            loggedInView.classList.add('closing');
+            window.setTimeout(() => {
+                loggedInView.style.display = 'none';
+                loggedInView.classList.remove('closing');
+                closeButton.disabled = false;
+            }, 300);
+        }
+    };
+
+    closeButton.addEventListener('click', handleClose);
 }
 
 function openGoogleCalendarConnectModal() {
@@ -2574,6 +2619,7 @@ async function sendDownRegistration() {
     const container    = document.getElementById("registration-container");
     const footer       = document.getElementById("registration-footer");
     const loggedOutView= document.getElementById("login-form-section");
+    const loggedInView = document.getElementById("logged-in-view");
     const upArrow      = document.getElementById("reg-up-button");
     const downArrow    = document.getElementById("reg-down-button");
 
@@ -2589,6 +2635,11 @@ async function sendDownRegistration() {
 
         if (loggedOutView) {
             loggedOutView.style.display = "none";
+        }
+
+        if (loggedInView) {
+            loggedInView.classList.remove('closing');
+            loggedInView.style.display = "none";
         }
 
         if (upArrow) {
@@ -2612,6 +2663,10 @@ async function sendDownRegistration() {
             console.warn("syncDatecycles failed after closing modal:", e);
         }
     };
+
+    if (loggedInView) {
+        loggedInView.classList.add('closing');
+    }
 
     if (container) {
         container.classList.remove("expanded");

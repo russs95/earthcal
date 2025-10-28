@@ -706,6 +706,65 @@ margin-right: auto;
   margin-left: auto;
 }
 
+#logged-in-view {
+    position: relative;
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#logged-in-view.closing {
+    transform: translateY(24px);
+    opacity: 0;
+}
+
+.logged-in-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.logged-in-view-header h2 {
+    margin: 0;
+    flex: 1 1 auto;
+}
+
+.logged-in-close-button {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    border: 2px solid var(--button-2-1, #6b7280);
+    background: var(--general-background, #ffffff);
+    color: var(--text-color, #111827);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.logged-in-close-button:hover {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.logged-in-close-button:focus-visible {
+    outline: 2px solid var(--button-2-1, #6b7280);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+
+.logged-in-close-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 #logged-in-view .cal-toggle-list {
     display: flex;
     flex-direction: column;
