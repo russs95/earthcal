@@ -148,6 +148,7 @@ mainMenu: {
   title: "Mit den Zyklen der Erde synchronisieren",
   featureTour: "Funktionen-Rundgang",
   latestVersion: "Neueste Version",
+  upgradeToPro: "Upgrade to Pro",
   newsletter: "Earthen.io Newsletter",
   guide: "Kalenderanleitung ↗",
   purchasePrint: "Gedruckte Version kaufen ↗",
@@ -155,6 +156,27 @@ mainMenu: {
   darkModeToggle: "Dunkel-/Tagmodus wechseln",
   developedBy: "EarthCal wird entwickelt von",
   authBy: "Authentifizierung durch"
+},
+
+subscriptions: {
+  heading: "Select Moment Mastery",
+  currentPlan: "You are currently on the {planName} plan.",
+  currentStatus: "Status: {status}",
+  loginRequired: "Please sign in to manage your EarthCal subscription.",
+  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
+  noPlans: "No plans are available right now.",
+  tableHeaders: {
+    plan: "Plan",
+    description: "Description",
+    price: "Price"
+  },
+  priceFree: "Free",
+  billingSuffix: {
+    month: "/ month",
+    year: "/ year",
+    lifetime: "Lifetime access"
+  },
+  currentBadge: "Current plan"
 },
 
 // ADD DATECYCLE
