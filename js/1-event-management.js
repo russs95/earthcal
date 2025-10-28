@@ -1990,6 +1990,45 @@ async function syncDatecycles() {
         const data = await callV1Api('get_user_items.php', { buwana_id });
         const calendars = Array.isArray(data.calendars) ? data.calendars : [];
 
+        const normalizeFlag = (value, defaultValue = true) => {
+            if (typeof value === 'boolean') {
+                return value;
+            }
+
+            if (typeof value === 'number') {
+                return Number.isFinite(value) ? value !== 0 : defaultValue;
+            }
+
+            if (typeof value === 'string') {
+                const normalized = value.trim().toLowerCase();
+                if (!normalized) {
+                    return defaultValue;
+                }
+                if ([
+                    '0',
+                    'false',
+                    'no',
+                    'off',
+                    'inactive',
+                    'disabled',
+                    'hidden',
+                    'none'
+                ].includes(normalized)) {
+                    return false;
+                }
+                if (['1', 'true', 'yes', 'on', 'active', 'visible'].includes(normalized)) {
+                    return true;
+                }
+                return defaultValue;
+            }
+
+            if (value === null || value === undefined) {
+                return defaultValue;
+            }
+
+            return Boolean(value);
+        };
+
         const keysToKeep = new Set();
         let totalItems = 0;
 
@@ -1999,8 +2038,8 @@ async function syncDatecycles() {
             }
 
             const storageKey = `calendar_${calendar.calendar_id}`;
-            const isActive = calendar.is_active !== false;
-            const isVisible = calendar.display_enabled !== false;
+            const isActive = normalizeFlag(calendar?.is_active, true);
+            const isVisible = normalizeFlag(calendar?.display_enabled, true);
 
             if (!isActive || !isVisible) {
                 localStorage.removeItem(storageKey);

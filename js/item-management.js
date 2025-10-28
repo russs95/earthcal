@@ -399,7 +399,7 @@ const ADD_ITEM_KIND_CONFIG = {
     }
 };
 
-function buildActionControls() {
+function buildActionControls({ includeUrlToggle = false } = {}) {
     return `
           <div class="date-action-buttons">
             <div class="ec-inline-field ec-color-field">
@@ -414,6 +414,19 @@ function buildActionControls() {
                 <input type="hidden" id="ec-emoji" value="">
               </div>
             </div>
+
+            ${includeUrlToggle ? `
+            <button
+              type="button"
+              id="ec-url-toggle"
+              class="ec-url-toggle-button"
+              aria-expanded="false"
+              aria-controls="ec-event-url-field"
+              aria-label="Add event link"
+              title="Add event link"
+              data-collapsed-label="Add event link"
+              data-expanded-label="Hide event link"
+            >🔗</button>` : ''}
 
             <button type="button" id="ec-notes-toggle" class="ec-notes-toggle-button" aria-expanded="false" aria-controls="ec-notes-box" aria-label="Show notes" title="Show notes">
               <span class="ec-notes-toggle-track" aria-hidden="true">
@@ -463,19 +476,17 @@ function buildEventFields({ dateStr, timeStr, notesPlaceholder }) {
 
     return `
         <div class="ec-form-field ec-event-date-row">
-          <div class="ec-inline-field ec-event-datetime">
-            <label for="ec-event-start-date">Start</label>
-            <div class="ec-datetime-inputs">
-              <input type="date" id="ec-event-start-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
-              <input type="time" id="ec-event-start-time" class="blur-form-field" value="${escapeAttr(timeStr || '')}">
-            </div>
+          <label for="ec-event-start-date">Start</label>
+          <div class="ec-datetime-inputs">
+            <input type="date" id="ec-event-start-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
+            <input type="time" id="ec-event-start-time" class="blur-form-field" value="${escapeAttr(timeStr || '')}">
           </div>
-          <div class="ec-inline-field ec-event-datetime">
-            <label for="ec-event-end-date">End</label>
-            <div class="ec-datetime-inputs">
-              <input type="date" id="ec-event-end-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
-              <input type="time" id="ec-event-end-time" class="blur-form-field" value="${escapeAttr(defaultEnd)}">
-            </div>
+        </div>
+        <div class="ec-form-field ec-event-date-row">
+          <label for="ec-event-end-date">End</label>
+          <div class="ec-datetime-inputs">
+            <input type="date" id="ec-event-end-date" class="blur-form-field" value="${escapeAttr(dateStr)}">
+            <input type="time" id="ec-event-end-time" class="blur-form-field" value="${escapeAttr(defaultEnd)}">
           </div>
         </div>
         <div class="ec-form-field ec-event-options-row">
@@ -487,11 +498,11 @@ function buildEventFields({ dateStr, timeStr, notesPlaceholder }) {
         <div class="ec-form-field">
           <input type="text" id="ec-event-location" class="blur-form-field" placeholder="Where will this take place?" aria-label="Event location">
         </div>
-        <div class="ec-form-field">
-          <input type="url" id="ec-event-url" class="blur-form-field" placeholder="Link to more details (optional)" aria-label="Event link">
+        <div class="ec-form-field ec-event-url-field" id="ec-event-url-field" aria-hidden="true">
+          <input type="url" id="ec-event-url" class="blur-form-field" placeholder="Event URL (i.e. Zoom or Jitsi link)." aria-label="Event URL (i.e. Zoom or Jitsi link).">
         </div>
         <div class="ec-form-field ec-event-action-row">
-          ${buildActionControls()}
+          ${buildActionControls({ includeUrlToggle: true })}
         </div>
         ${buildNotesSection({ placeholder: notesPlaceholder })}
     `;
@@ -699,6 +710,43 @@ function initializeEventFormInteractions() {
     const endTime = document.getElementById('ec-event-end-time');
     const startDate = document.getElementById('ec-event-start-date');
     const endDate = document.getElementById('ec-event-end-date');
+    const urlToggle = document.getElementById('ec-url-toggle');
+    const urlFieldWrapper = document.getElementById('ec-event-url-field');
+    const urlInput = document.getElementById('ec-event-url');
+
+    if (urlToggle && urlFieldWrapper) {
+        const collapsedLabel = urlToggle.getAttribute('data-collapsed-label') || 'Add event link';
+        const expandedLabel = urlToggle.getAttribute('data-expanded-label') || 'Hide event link';
+
+        const setUrlExpanded = (expanded) => {
+            const nextExpanded = !!expanded;
+            urlToggle.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
+            urlToggle.setAttribute('aria-label', nextExpanded ? expandedLabel : collapsedLabel);
+            urlToggle.title = nextExpanded ? expandedLabel : collapsedLabel;
+            urlToggle.classList.toggle('is-active', nextExpanded);
+            urlFieldWrapper.classList.toggle('is-visible', nextExpanded);
+            urlFieldWrapper.setAttribute('aria-hidden', nextExpanded ? 'false' : 'true');
+
+            if (nextExpanded && urlInput) {
+                urlInput.focus();
+                if (typeof urlInput.select === 'function') {
+                    urlInput.select();
+                }
+            }
+        };
+
+        const hasPresetValue = !!(urlInput && urlInput.value);
+        setUrlExpanded(hasPresetValue);
+
+        urlToggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            const currentlyExpanded = urlToggle.getAttribute('aria-expanded') === 'true';
+            setUrlExpanded(!currentlyExpanded);
+        });
+    } else if (urlFieldWrapper) {
+        urlFieldWrapper.classList.add('is-visible');
+        urlFieldWrapper.setAttribute('aria-hidden', 'false');
+    }
 
     if (allDayCheckbox) {
         const applyAllDayState = () => {
