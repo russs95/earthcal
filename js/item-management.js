@@ -1380,6 +1380,368 @@ async function addNewCalendarV1(hostTarget) {
     }
 }
 
+function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
+    if (!calendar || typeof calendar !== 'object') {
+        console.warn('[openEditCalendarOverlay] calendar details missing or invalid.', calendar);
+        return;
+    }
+
+    const hostElement = resolveOverlayHost(hostTarget);
+    if (!(hostElement instanceof HTMLElement)) {
+        console.warn('[openEditCalendarOverlay] overlay host not found.');
+        return;
+    }
+
+    removeOverlayById('ec-add-calendar-overlay');
+    removeOverlayById('ec-edit-calendar-overlay');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ec-edit-calendar-overlay';
+    overlay.className = 'ec-calendar-overlay';
+
+    const restoreHostPosition = prepareHostForOverlay(hostElement);
+
+    Object.assign(overlay.style, {
+        position: 'absolute',
+        inset: '0',
+        zIndex: '20',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '24px',
+        gap: '20px',
+        overflowY: 'auto',
+        borderRadius: '10px',
+        background: 'var(--general-background)'
+    });
+
+    overlay.innerHTML = `
+        <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
+            <h2 style="margin:0;font-size:1.5rem;">Edit Your Calendar</h2>
+            <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
+                Adjust the core information for your EarthCal calendar...
+            </p>
+        </div>
+        <form id="ec-edit-calendar-form" style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:100%;">
+            <div style="display:flex;flex-direction:column;width:100%;">
+                <label class="ec-visually-hidden" for="ec-edit-cal-name">Calendar name</label>
+                <input id="ec-edit-cal-name" name="calendar_name" type="text" placeholder="Name your calendar..." required
+                       aria-label="Calendar name"
+                       style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;" />
+            </div>
+            <div style="display:flex;flex-direction:column;width:100%;">
+                <label class="ec-visually-hidden" for="ec-edit-cal-description">Description</label>
+                <input id="ec-edit-cal-description" name="calendar_description" type="text"
+                       placeholder="Describe what this calendar is for"
+                       aria-label="Calendar description"
+                       style="padding:10px;border-radius:8px;border:1px solid grey;font-weight:400;background:var(--top-header);width:100%;box-sizing:border-box;" />
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%;">
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;min-width:min(200px,100%);">
+                    <label class="ec-visually-hidden" for="ec-edit-cal-category">Calendar category</label>
+                    <select id="ec-edit-cal-category" name="calendar_category"
+                            aria-label="Calendar category"
+                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;">
+                        <option value="" disabled>Select calendar category...</option>
+                        <option value="personal">Personal</option>
+                        <option value="holidays">Holidays</option>
+                        <option value="birthdays">Birthdays</option>
+                        <option value="astronomy">Astronomy</option>
+                        <option value="migration">Migration</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="ec-inline-field ec-emoji-field" style="width:auto;">
+                    <div class="ec-emoji-input">
+                        <button type="button" id="ec-edit-cal-emoji-button" class="blur-form-field ec-emoji-button"
+                                aria-haspopup="true" aria-expanded="false" aria-label="Choose calendar emoji"
+                                style="width:45px;height:45px;display:flex;align-items:center;justify-content:center;">
+                            <span id="ec-edit-cal-emoji-preview" class="ec-emoji-preview">🌍</span>
+                        </button>
+                        <input type="hidden" id="ec-edit-cal-emoji" name="calendar_emoji" value="🌍">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%;">
+                <div style="flex:1 1 200px;display:flex;flex-direction:column;min-width:min(200px,100%);">
+                    <label class="ec-visually-hidden" for="ec-edit-cal-visibility">Visibility</label>
+                    <select id="ec-edit-cal-visibility" name="calendar_visibility"
+                            aria-label="Calendar visibility"
+                            style="padding:10px;border-radius:8px;border:1px solid var(--subdued-text, #d1d5db);font-weight:400;width:100%;box-sizing:border-box;">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+                <div class="ec-inline-field ec-color-field" style="width:auto;display:flex;align-items:center;">
+                    <input id="ec-edit-cal-color" name="calendar_color" type="color" value="#ff6b6b"
+                           class="blur-form-field ec-color-input" aria-label="Calendar color"
+                           style="width:40px;height:40px;padding:0;">
+                </div>
+            </div>
+            <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
+                <button type="submit" class="stellar-submit">💾 Save Calendar</button>
+            </div>
+            <p id="ec-edit-calendar-feedback" aria-live="polite" style="margin:0;color:var(--subdued-text);min-height:1.2em;font-size:0.9rem;"></p>
+        </form>
+    `;
+
+    hostElement.appendChild(overlay);
+
+    const cleanupFns = [];
+
+    const normalizedCalendarId = Number.parseInt(calendar?.calendar_id ?? calendar?.id, 10);
+    const rawName = (calendar?.name ?? calendar?.calendar_name ?? '').toString();
+    const rawDescription = (calendar?.description ?? calendar?.calendar_description ?? '').toString();
+    const rawCategory = (calendar?.category ?? calendar?.calendar_category ?? '').toString();
+    const rawVisibility = (calendar?.visibility ?? (calendar?.calendar_public ? 'public' : 'private') ?? 'private').toString();
+    const rawEmoji = (calendar?.emoji ?? calendar?.cal_emoji ?? calendar?.calendar_emoji ?? '🌍').toString();
+    const rawColor = calendar?.color
+        ?? calendar?.cal_color
+        ?? calendar?.color_hex
+        ?? calendar?.calendar_color
+        ?? '#ff6b6b';
+
+    const sanitizedEmoji = sanitizeEmojiInput(rawEmoji) || '🌍';
+    const sanitizedColor = sanitizeHexColor(rawColor, '#ff6b6b');
+    const categoryLower = rawCategory.trim().toLowerCase();
+    const visibilityLower = rawVisibility.trim().toLowerCase() === 'public' ? 'public' : 'private';
+
+    const nameField = overlay.querySelector('#ec-edit-cal-name');
+    if (nameField) {
+        nameField.value = rawName.trim();
+    }
+
+    const descriptionField = overlay.querySelector('#ec-edit-cal-description');
+    if (descriptionField) {
+        descriptionField.value = rawDescription.trim();
+    }
+
+    const categorySelect = overlay.querySelector('#ec-edit-cal-category');
+    if (categorySelect instanceof HTMLSelectElement) {
+        let matched = false;
+        Array.from(categorySelect.options).forEach((option) => {
+            if (option.value === categoryLower) {
+                option.selected = true;
+                matched = true;
+            } else {
+                option.selected = false;
+            }
+        });
+
+        if (!matched && categoryLower) {
+            const customOption = new Option(rawCategory.trim(), categoryLower, true, true);
+            categorySelect.add(customOption);
+        }
+    }
+
+    const visibilitySelect = overlay.querySelector('#ec-edit-cal-visibility');
+    if (visibilitySelect instanceof HTMLSelectElement) {
+        Array.from(visibilitySelect.options).forEach((option) => {
+            option.selected = option.value === visibilityLower;
+        });
+    }
+
+    const colorField = overlay.querySelector('#ec-edit-cal-color');
+    if (colorField instanceof HTMLInputElement) {
+        colorField.value = sanitizedColor;
+    }
+
+    const emojiHidden = overlay.querySelector('#ec-edit-cal-emoji');
+    if (emojiHidden instanceof HTMLInputElement) {
+        emojiHidden.value = sanitizedEmoji;
+    }
+
+    const emojiPreview = overlay.querySelector('#ec-edit-cal-emoji-preview');
+    if (emojiPreview) {
+        emojiPreview.textContent = sanitizedEmoji;
+    }
+
+    const detachEmojiPicker = wireEmojiPicker({
+        buttonId: 'ec-edit-cal-emoji-button',
+        hiddenInputId: 'ec-edit-cal-emoji',
+        previewId: 'ec-edit-cal-emoji-preview',
+        defaultEmoji: sanitizedEmoji
+    });
+    cleanupFns.push(detachEmojiPicker);
+
+    let closed = false;
+    const teardownOverlay = () => {
+        if (closed) return;
+        closed = true;
+        while (cleanupFns.length) {
+            const fn = cleanupFns.shift();
+            try { fn && fn(); } catch (err) { console.debug('[openEditCalendarOverlay] cleanup failed:', err); }
+        }
+        if (overlay.parentElement) overlay.remove();
+        restoreHostPosition();
+        delete overlay.__ecTeardown;
+    };
+    overlay.__ecTeardown = teardownOverlay;
+
+    const detachCloseButton = hijackHostCloseButton(hostElement, teardownOverlay);
+    cleanupFns.push(detachCloseButton);
+
+    const feedbackEl = overlay.querySelector('#ec-edit-calendar-feedback');
+
+    const form = overlay.querySelector('#ec-edit-calendar-form');
+    if (form instanceof HTMLFormElement) {
+        const handleSubmit = (event) => {
+            event.preventDefault();
+
+            const nameValue = (nameField?.value || '').toString().trim();
+            const descriptionValue = (descriptionField?.value || '').toString().trim();
+            const categoryValue = categorySelect instanceof HTMLSelectElement
+                ? (categorySelect.value || '').toString().trim()
+                : '';
+            const visibilityValue = visibilitySelect instanceof HTMLSelectElement
+                ? (visibilitySelect.value || '').toString().trim().toLowerCase()
+                : 'private';
+            const colorValue = colorField instanceof HTMLInputElement ? colorField.value : '#ff6b6b';
+            const emojiValue = emojiHidden instanceof HTMLInputElement ? emojiHidden.value : sanitizedEmoji;
+
+            if (!nameValue) {
+                if (feedbackEl) {
+                    feedbackEl.textContent = 'Please provide a calendar name before saving.';
+                }
+                if (nameField) {
+                    nameField.focus();
+                }
+                return;
+            }
+
+            const normalizedVisibility = visibilityValue === 'public' ? 'public' : 'private';
+            const normalizedCategory = categoryValue.toLowerCase();
+            const sanitizedColorValue = sanitizeHexColor(colorValue, sanitizedColor);
+            const sanitizedEmojiValue = sanitizeEmojiInput(emojiValue) || sanitizedEmoji;
+
+            const detail = {
+                calendarId: normalizedCalendarId,
+                values: {
+                    name: nameValue,
+                    description: descriptionValue,
+                    category: normalizedCategory,
+                    visibility: normalizedVisibility,
+                    color: sanitizedColorValue,
+                    emoji: sanitizedEmojiValue
+                },
+                form,
+                calendar
+            };
+
+            const editEvent = new CustomEvent('earthcal:edit-calendar-submit', {
+                detail,
+                bubbles: false,
+                cancelable: true
+            });
+
+            const proceed = document.dispatchEvent(editEvent);
+
+            if (!proceed) {
+                return;
+            }
+
+            let storedCalendars = [];
+            let updated = false;
+            try {
+                const raw = sessionStorage.getItem('user_calendars_v1');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        storedCalendars = parsed;
+                    }
+                }
+            } catch (err) {
+                console.debug('[openEditCalendarOverlay] Unable to read cached calendars:', err);
+            }
+
+            const nowIso = new Date().toISOString();
+
+            const mapper = (entry) => {
+                const entryId = Number.parseInt(entry?.calendar_id ?? entry?.id, 10);
+                if (!Number.isFinite(entryId) || entryId !== normalizedCalendarId) {
+                    return entry;
+                }
+                updated = true;
+                return {
+                    ...entry,
+                    name: nameValue,
+                    calendar_name: nameValue,
+                    description: descriptionValue,
+                    calendar_description: descriptionValue,
+                    category: normalizedCategory,
+                    calendar_category: normalizedCategory,
+                    visibility: normalizedVisibility,
+                    calendar_public: normalizedVisibility === 'public' ? 1 : 0,
+                    emoji: sanitizedEmojiValue,
+                    cal_emoji: sanitizedEmojiValue,
+                    calendar_emoji: sanitizedEmojiValue,
+                    color: sanitizedColorValue,
+                    cal_color: sanitizedColorValue,
+                    color_hex: sanitizedColorValue,
+                    calendar_color: sanitizedColorValue,
+                    updated_at: nowIso,
+                    last_updated: nowIso
+                };
+            };
+
+            const nextCalendars = storedCalendars.map(mapper);
+
+            if (updated) {
+                try {
+                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(nextCalendars));
+                } catch (err) {
+                    console.debug('[openEditCalendarOverlay] Unable to update calendar cache:', err);
+                }
+
+                if (typeof buildLegacyCalendarCache === 'function') {
+                    try {
+                        const legacyCache = buildLegacyCalendarCache(nextCalendars);
+                        sessionStorage.setItem('user_calendars', JSON.stringify(legacyCache));
+                    } catch (err) {
+                        console.debug('[openEditCalendarOverlay] Unable to update legacy calendar cache:', err);
+                    }
+                }
+
+                if (typeof showLoggedInView === 'function') {
+                    try {
+                        showLoggedInView(nextCalendars);
+                    } catch (err) {
+                        console.debug('[openEditCalendarOverlay] Unable to refresh calendar view:', err);
+                    }
+                }
+
+                if (typeof setSyncStatus === 'function') {
+                    setSyncStatus('💾 Calendar details updated!', '', false, { temporary: true, duration: 3500 });
+                }
+
+                if (feedbackEl) {
+                    feedbackEl.textContent = 'Calendar updated!';
+                }
+
+                setTimeout(() => {
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '';
+                    }
+                    teardownOverlay();
+                }, 400);
+            } else {
+                if (feedbackEl) {
+                    feedbackEl.textContent = 'Unable to locate this calendar in your list.';
+                }
+            }
+        };
+
+        form.addEventListener('submit', handleSubmit);
+        cleanupFns.push(() => form.removeEventListener('submit', handleSubmit));
+    }
+
+    requestAnimationFrame(() => {
+        if (nameField instanceof HTMLInputElement) {
+            nameField.focus();
+            nameField.select();
+        }
+    });
+}
+
 function displayMoonPhasev1({ date, container } = {}) {
     let host = null;
     if (container instanceof HTMLElement) {
