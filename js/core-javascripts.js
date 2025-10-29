@@ -606,6 +606,11 @@ async function manageEarthcalUserSub() {
             return;
         }
 
+        const toggleCount = toggleButtons.length;
+        if (toggleCount > 0) {
+            planToggle.style.setProperty('--toggle-count', String(toggleCount));
+        }
+
         const updateJediPricing = (interval) => {
             const dataKeyPrice = `${interval}Price`;
             const dataKeyInterval = `${interval}Interval`;
@@ -624,16 +629,19 @@ async function manageEarthcalUserSub() {
         };
 
         const setActiveInterval = (interval) => {
-            const index = Math.max(0, intervalOrder.indexOf(interval));
-            planToggle.style.setProperty('--toggle-index', index);
+            const index = intervalOrder.indexOf(interval);
+            const clampedIndex = index >= 0 ? index : 0;
+            const activeInterval = intervalOrder[clampedIndex] || intervalOrder[0];
+            planToggle.style.setProperty('--toggle-index', String(clampedIndex));
+            planToggle.setAttribute('data-active-interval', activeInterval);
 
             toggleButtons.forEach((button) => {
-                const isActive = button.dataset.interval === interval;
+                const isActive = button.dataset.interval === activeInterval;
                 button.classList.toggle('active', isActive);
                 button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
             });
 
-            updateJediPricing(interval);
+            updateJediPricing(activeInterval);
         };
 
         toggleButtons.forEach((button) => {
