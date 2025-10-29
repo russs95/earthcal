@@ -1,6 +1,9 @@
 
 // LOGIN SCRIPTS V2
 
+// Global plan tracker shared across EarthCal modules
+window.user_plan = window.user_plan || "padwan";
+
 // LOGIN CHECKING
 
 // ---------- helpers ----------
@@ -191,6 +194,49 @@ async function getUserData() {
     };
 
     console.log("✅ Loaded userProfile:", userProfile);
+
+    try {
+        const response = await fetch('api/v1/check_user_sub.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Subscription lookup failed with status ${response.status}`);
+        }
+
+        const subscriptionData = await response.json();
+        let resolvedPlanId = null;
+
+        const extractPlanId = (source) => {
+            if (!source) return null;
+            const planId = source.plan_id ?? source.planId;
+            const numeric = Number(planId);
+            return Number.isFinite(numeric) ? numeric : null;
+        };
+
+        resolvedPlanId = extractPlanId(subscriptionData?.current_subscription) ??
+            extractPlanId(subscriptionData?.current_subscription?.plan);
+
+        if (!resolvedPlanId && Array.isArray(subscriptionData?.plans)) {
+            const activePlan = subscriptionData.plans.find((plan) => plan?.is_current || plan?.isCurrent);
+            resolvedPlanId = extractPlanId(activePlan);
+        }
+
+        const mapPlanIdToType = (planId) => {
+            if (planId === 1) return "padwan";
+            if ([2, 3, 4].includes(planId)) return "jedi";
+            return "padwan";
+        };
+
+        const userPlanType = mapPlanIdToType(resolvedPlanId ?? 1);
+        window.user_plan = userPlanType;
+        console.log(`🛰️ EarthCal user_plan set to "${userPlanType}" (plan_id: ${resolvedPlanId ?? 'unknown'})`);
+    } catch (error) {
+        window.user_plan = "padwan";
+        console.warn('⚠️ Unable to determine subscription plan, defaulting to "padwan".', error);
+    }
 
     updateSessionStatus(
         `🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`,
