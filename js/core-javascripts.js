@@ -236,8 +236,8 @@ async function openMainMenu() {
     const { mainMenu } = await loadTranslations(lang);
 
     content.innerHTML = `
-        <div class="earthcal-app-logo" style="margin-bottom: auto; margin-top: auto;">
-            <img src="svgs/earthcal-logo.svg" style="width:155px;" alt="EarthCal Logo" title="${mainMenu.title}">
+        <div class="earthcal-app-logo">
+            <img src="svgs/earthcal-logo.svg" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
@@ -247,11 +247,6 @@ async function openMainMenu() {
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
             ${mainMenu.latestVersion}
         </div>
-
-        <div class="menu-page-item" onclick="closeMainMenu(); manageEarthcalUserSub();">
-            ${mainMenu.upgradeToPro}
-        </div>
-
         <div class="menu-page-item">
             <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
         </div>
@@ -289,46 +284,20 @@ async function openMainMenu() {
 
 
 
+
+
+
+
 async function manageEarthcalUserSub() {
+    closeMainMenu();
+
     const modal = document.getElementById('form-modal-message');
     const modalContent = document.getElementById('modal-content');
+
     if (!modal || !modalContent) {
         console.error('Subscription modal container is missing.');
         return;
     }
-
-    const lang = (userLanguage || 'en').toLowerCase();
-    const translations = await loadTranslations(lang);
-    const subsText = translations.subscriptions || {};
-
-    const fallbackText = (key, defaultValue) => {
-        const value = subsText?.[key];
-        return typeof value === 'string' && value.trim().length ? value : defaultValue;
-    };
-
-    const tableHeaders = subsText.tableHeaders || {};
-    const billingSuffix = subsText.billingSuffix || {};
-
-    const text = {
-        heading: fallbackText('heading', 'Select Moment Mastery'),
-        currentPlan: fallbackText('currentPlan', 'You are currently on the {planName} plan.'),
-        currentStatus: fallbackText('currentStatus', 'Status: {status}'),
-        loginRequired: fallbackText('loginRequired', 'Please sign in to manage your EarthCal subscription.'),
-        loadError: fallbackText('loadError', 'We were unable to load your subscription details. Please try again in a few moments.'),
-        priceFree: fallbackText('priceFree', 'Free'),
-        currentBadge: fallbackText('currentBadge', 'Current plan'),
-        noPlans: fallbackText('noPlans', 'No plans are available right now.'),
-        table: {
-            plan: typeof tableHeaders.plan === 'string' ? tableHeaders.plan : 'Plan',
-            description: typeof tableHeaders.description === 'string' ? tableHeaders.description : 'Description',
-            price: typeof tableHeaders.price === 'string' ? tableHeaders.price : 'Price'
-        },
-        billingSuffix: {
-            month: typeof billingSuffix.month === 'string' ? billingSuffix.month : '/ month',
-            year: typeof billingSuffix.year === 'string' ? billingSuffix.year : '/ year',
-            lifetime: typeof billingSuffix.lifetime === 'string' ? billingSuffix.lifetime : 'Lifetime access'
-        }
-    };
 
     const escapeHtml = (value) => {
         if (value === null || value === undefined) {
@@ -342,34 +311,7 @@ async function manageEarthcalUserSub() {
             .replace(/'/g, '&#039;');
     };
 
-    const resolveUser = () => {
-        if (typeof getCurrentUser === 'function') {
-            try {
-                const user = getCurrentUser();
-                if (user?.buwana_id) {
-                    return user;
-                }
-            } catch (err) {
-                console.warn('Unable to resolve user from getCurrentUser()', err);
-            }
-        }
-        try {
-            const sessionUser = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
-            if (sessionUser?.buwana_id) {
-                return sessionUser;
-            }
-        } catch {}
-        const storedId = localStorage.getItem('buwana_id');
-        if (storedId) {
-            const numericId = Number(storedId);
-            return { buwana_id: Number.isNaN(numericId) ? storedId : numericId };
-        }
-        return null;
-    };
-
-    const showModal = (html) => {
-        modalContent.innerHTML = html;
-
+    const ensureModalReady = () => {
         const contentBox = modal.querySelector('.modal-content-box');
         if (contentBox) {
             contentBox.id = 'modal-content-box';
@@ -384,195 +326,333 @@ async function manageEarthcalUserSub() {
         modal.setAttribute('tabindex', '0');
         modal.focus();
         modalOpen = true;
-
         document.addEventListener('focus', focusRestrict, true);
+    };
+
+    const setModalHtml = (html) => {
+        modalContent.innerHTML = html;
+        ensureModalReady();
+    };
+
+    const resolveUser = () => {
+        if (typeof getCurrentUser === 'function') {
+            try {
+                const current = getCurrentUser();
+                if (current?.buwana_id) {
+                    return current;
+                }
+            } catch (error) {
+                console.warn('Unable to resolve user from getCurrentUser()', error);
+            }
+        }
+
+        try {
+            const sessionUser = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (sessionUser?.buwana_id) {
+                return sessionUser;
+            }
+        } catch (error) {
+            console.warn('Unable to read session storage buwana_user', error);
+        }
+
+        const storedId = localStorage.getItem('buwana_id');
+        if (storedId) {
+            const numericId = Number(storedId);
+            return { buwana_id: Number.isNaN(numericId) ? storedId : numericId };
+        }
+
+        return null;
     };
 
     const user = resolveUser();
     if (!user?.buwana_id) {
-        showModal(`
+        setModalHtml(`
             <div class="ec-subscription-modal">
-                <h1>${escapeHtml(text.heading)}</h1>
-                <p>${escapeHtml(text.loginRequired)}</p>
+                <h1>Select Moment Mastery</h1>
+                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                <p>Please sign in with your Buwana account to manage subscriptions.</p>
             </div>
         `);
         return;
     }
 
-    let responseData;
-    try {
-        const response = await fetch('api/v1/check_user_sub.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ buwana_id: user.buwana_id })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
-        }
-
-        responseData = await response.json();
-    } catch (error) {
-        console.error('Failed to load subscription details', error);
-        showModal(`
-            <div class="ec-subscription-modal">
-                <h1>${escapeHtml(text.heading)}</h1>
-                <p>${escapeHtml(text.loadError)}</p>
-            </div>
-        `);
-        return;
-    }
-
-    if (!responseData?.ok) {
-        console.warn('Subscription endpoint returned an error response', responseData);
-        showModal(`
-            <div class="ec-subscription-modal">
-                <h1>${escapeHtml(text.heading)}</h1>
-                <p>${escapeHtml(text.loadError)}</p>
-            </div>
-        `);
-        return;
-    }
-
-    const plans = Array.isArray(responseData.plans) ? responseData.plans : [];
-    const planLookup = new Map();
-    plans.forEach((plan) => {
-        if (plan && typeof plan.plan_id !== 'undefined') {
-            planLookup.set(Number(plan.plan_id), plan);
-        }
-    });
-
-    const currentSubscription = responseData.current_subscription || null;
-    let currentPlanId = currentSubscription?.plan_id ? Number(currentSubscription.plan_id) : null;
-
-    if (!currentPlanId) {
-        const basePlan = plans.find((plan) => (plan.slug || '').toLowerCase() === 'jedi');
-        if (basePlan) {
-            currentPlanId = Number(basePlan.plan_id);
-        } else if (plans.length) {
-            currentPlanId = Number(plans[0].plan_id);
-        }
-    }
-
-    const currentPlan = currentPlanId !== null ? planLookup.get(currentPlanId) : null;
-    const currentPlanName = currentSubscription?.plan_name || currentPlan?.name || 'Jedi - Base Earthcal';
-
-    const formatStatus = (status) => {
-        if (!status || typeof status !== 'string') {
-            return '';
-        }
-        return status
-            .split('_')
-            .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-            .join(' ');
-    };
-
-    const priceFormatterCache = new Map();
-    const formatPrice = (plan) => {
-        const cents = Number(plan?.price_cents) || 0;
-        if (cents === 0) {
-            return { price: text.priceFree, interval: plan?.billing_interval === 'lifetime' ? text.billingSuffix.lifetime : '' };
-        }
-
-        const currency = typeof plan?.currency === 'string' && plan.currency.trim().length
-            ? plan.currency.toUpperCase()
-            : 'USD';
-
-        const key = `${lang}-${currency}`;
-        if (!priceFormatterCache.has(key)) {
-            try {
-                priceFormatterCache.set(key, new Intl.NumberFormat(lang, {
-                    style: 'currency',
-                    currency,
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }));
-            } catch {
-                priceFormatterCache.set(key, new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }));
-            }
-        }
-
-        const formatter = priceFormatterCache.get(key);
-        const amount = cents / 100;
-        const price = formatter.format(amount);
-
-        let interval = '';
-        if (plan?.billing_interval === 'lifetime') {
-            interval = text.billingSuffix.lifetime;
-        } else if (plan?.billing_interval === 'month') {
-            interval = text.billingSuffix.month;
-        } else if (plan?.billing_interval === 'year') {
-            interval = text.billingSuffix.year;
-        }
-
-        return { price, interval };
-    };
-
-    const tableRows = plans.map((plan) => {
-        const planId = Number(plan.plan_id);
-        const { price, interval } = formatPrice(plan);
-        const isCurrent = currentPlanId !== null && planId === currentPlanId;
-        const badge = isCurrent ? `<span class="ec-plan-badge">${escapeHtml(text.currentBadge)}</span>` : '';
-        const planNameText = plan?.name ? escapeHtml(plan.name) : 'Untitled plan';
-        const description = plan?.description
-            ? escapeHtml(plan.description).replace(/\n/g, '<br>')
-            : '';
-        const intervalLine = interval ? `<div class="ec-plan-interval">${escapeHtml(interval)}</div>` : '';
-
-        return `
-            <tr class="${isCurrent ? 'current-plan' : ''}">
-                <td>
-                    <div class="ec-plan-name">${planNameText}${badge}</div>
-                </td>
-                <td>
-                    <div class="ec-plan-description">${description}</div>
-                </td>
-                <td>
-                    <div class="ec-plan-price">${escapeHtml(price)}</div>
-                    ${intervalLine}
-                </td>
-            </tr>
-        `;
-    }).join('');
-
-    const statusLine = currentSubscription?.status
-        ? text.currentStatus.replace('{status}', formatStatus(currentSubscription.status))
-        : '';
-
-    const currentPlanLine = text.currentPlan.replace('{planName}', currentPlanName);
-
-    const tableHtml = plans.length
-        ? `
-            <table class="ec-plan-table">
-                <thead>
-                    <tr>
-                        <th>${escapeHtml(text.table.plan)}</th>
-                        <th>${escapeHtml(text.table.description)}</th>
-                        <th>${escapeHtml(text.table.price)}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
-            </table>
-        `
-        : `<p style="text-align:center;">${escapeHtml(text.noPlans)}</p>`;
-
-    const modalHtml = `
+    modalContent.innerHTML = `
         <div class="ec-subscription-modal">
-            <h1>${escapeHtml(text.heading)}</h1>
-            <p>${escapeHtml(currentPlanLine)}</p>
-            ${statusLine ? `<div class="ec-plan-status-line">${escapeHtml(statusLine)}</div>` : ''}
-            ${tableHtml}
+            <h1>Select Moment Mastery</h1>
+            <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+            <p>Checking your subscription&hellip;</p>
         </div>
     `;
+    ensureModalReady();
 
-    showModal(modalHtml);
+    const formatPrice = (plan) => {
+        if (!plan) {
+            return { priceText: 'Coming soon', intervalText: '' };
+        }
+
+        const centsRaw = plan?.price_cents ?? plan?.priceCents;
+        const cents = Number.isFinite(centsRaw) ? centsRaw : Number.parseInt(centsRaw ?? '0', 10);
+        const currencyRaw = (plan?.currency || 'USD').toString().trim();
+        const currency = currencyRaw.length ? currencyRaw.toUpperCase() : 'USD';
+
+        if (!Number.isFinite(cents) || cents <= 0) {
+            const intervalText = (plan?.billing_interval || '').toLowerCase() === 'lifetime'
+                ? 'Lifetime access'
+                : '';
+            return { priceText: 'Free', intervalText };
+        }
+
+        let formatter;
+        try {
+            formatter = new Intl.NumberFormat((userLanguage || 'en').toLowerCase(), {
+                style: 'currency',
+                currency,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+        } catch (error) {
+            formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+        }
+
+        const priceText = formatter.format(cents / 100);
+        let intervalText = '';
+        switch ((plan?.billing_interval || '').toLowerCase()) {
+            case 'year':
+                intervalText = 'Billed yearly';
+                break;
+            case 'lifetime':
+                intervalText = 'Lifetime access';
+                break;
+            case 'month':
+            default:
+                intervalText = 'Billed monthly';
+                break;
+        }
+
+        return { priceText, intervalText };
+    };
+
+    const renderFeatures = (plan) => {
+        const description = plan?.description;
+        if (!description) {
+            return '';
+        }
+
+        const features = description
+            .split(/\r?\n/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        if (!features.length) {
+            return `<p class="ec-plan-description">${escapeHtml(description)}</p>`;
+        }
+
+        return `
+            <ul class="ec-plan-feature-list">
+                ${features.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+            </ul>
+        `;
+    };
+
+    try {
+        const [subscriptionResponse, plansResponse] = await Promise.all([
+            fetch('api/v1/check_user_sub.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buwana_id: user.buwana_id }),
+            }),
+            fetch('api/v1/get_earthcal_plans.php', {
+                method: 'GET',
+                headers: { Accept: 'application/json' },
+            }),
+        ]);
+
+        if (!subscriptionResponse.ok) {
+            throw new Error(`Subscription lookup failed with status ${subscriptionResponse.status}`);
+        }
+
+        if (!plansResponse.ok) {
+            throw new Error(`Plan lookup failed with status ${plansResponse.status}`);
+        }
+
+        const [subscriptionData, plansData] = await Promise.all([
+            subscriptionResponse.json(),
+            plansResponse.json(),
+        ]);
+
+        if (!subscriptionData || subscriptionData.ok === false) {
+            const reason = subscriptionData?.error || 'subscription_lookup_failed';
+            throw new Error(reason);
+        }
+
+        if (plansData && plansData.ok === false) {
+            const reason = plansData?.error || 'plan_lookup_failed';
+            throw new Error(reason);
+        }
+
+        const plans = Array.isArray(plansData?.plans)
+            ? plansData.plans
+            : (Array.isArray(subscriptionData?.plans) ? subscriptionData.plans : []);
+
+        const padwanPlanFromApi = plans.find((plan) => Number(plan?.plan_id) === 1) || null;
+        const padwanPlan = padwanPlanFromApi || {
+            name: 'Padwan Plan',
+            price_cents: 0,
+            billing_interval: 'lifetime',
+            description: 'Explore the essential EarthCal experience and daily moment tracking for free.',
+        };
+
+        const jediPlans = plans.filter((plan) => [2, 3, 4].includes(Number(plan?.plan_id)));
+
+        const jediByInterval = jediPlans.reduce((acc, plan) => {
+            const interval = (plan?.billing_interval || '').toLowerCase();
+            if (interval && !acc[interval]) {
+                acc[interval] = plan;
+            }
+            return acc;
+        }, {});
+
+        const jediFeatureSource = jediPlans.find((plan) => plan?.description)
+            || jediPlans[0]
+            || {
+                name: 'Jedi Plan',
+                description: 'Harness advanced EarthCal powers, automation and deeper cosmic insights designed for masters of time.',
+            };
+
+        const jediPriceData = {
+            month: formatPrice(jediByInterval.month),
+            year: formatPrice(jediByInterval.year),
+            lifetime: formatPrice(jediByInterval.lifetime),
+        };
+
+        const padwanPriceData = formatPrice(padwanPlan);
+
+        const currentSubscription = subscriptionData?.current_subscription || null;
+        const currentPlanName = currentSubscription?.plan?.name
+            || currentSubscription?.plan_name
+            || subscriptionData?.current_plan_name
+            || (window.user_plan === 'jedi' ? 'Jedi Plan' : 'Padwan Plan');
+
+        const planMessage = currentPlanName
+            ? `You are currently using the ${escapeHtml(currentPlanName)} plan.`
+            : '';
+
+        const intervalOrder = ['month', 'year', 'lifetime'];
+        const firstAvailableInterval = intervalOrder.find((interval) => jediByInterval[interval]) || 'month';
+
+        const jediPriceAttr = (interval, key) => escapeHtml(jediPriceData[interval]?.[key] || 'Coming soon');
+
+        const userPlanType = window.user_plan === 'jedi' ? 'jedi' : 'padwan';
+        const upgradeButtonHtml = userPlanType === 'padwan'
+            ? `
+                <div class="ec-plan-actions">
+                    <button type="button" class="confirmation-blur-button" onclick="upgradeUserPlan()">Upgrade</button>
+                </div>
+            `
+            : '';
+
+        modalContent.innerHTML = `
+            <div class="ec-subscription-modal">
+                <h1>Select Moment Mastery</h1>
+                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                ${planMessage ? `<div class="ec-plan-current-label">${planMessage}</div>` : ''}
+                <div class="ec-plan-toggle" role="group" aria-label="Choose billing interval">
+                    <span class="ec-toggle-indicator"></span>
+                    <button type="button" class="ec-toggle-option" data-interval="month" aria-pressed="false">Monthly</button>
+                    <button type="button" class="ec-toggle-option" data-interval="year" aria-pressed="false">Yearly</button>
+                    <button type="button" class="ec-toggle-option" data-interval="lifetime" aria-pressed="false">Lifetime</button>
+                </div>
+                <div class="ec-plan-columns">
+                    <div class="ec-plan-card${userPlanType === 'padwan' ? ' current-plan' : ''}">
+                        <h2>${escapeHtml(padwanPlan?.name || 'Padwan Plan')}</h2>
+                        <div class="ec-plan-price">${escapeHtml(padwanPriceData.priceText)}</div>
+                        ${padwanPriceData.intervalText ? `<div class="ec-plan-interval">${escapeHtml(padwanPriceData.intervalText)}</div>` : ''}
+                        ${renderFeatures(padwanPlan)}
+                    </div>
+                    <div class="ec-plan-card${userPlanType === 'jedi' ? ' current-plan' : ''}">
+                        <h2>${escapeHtml(jediFeatureSource?.name || 'Jedi Plan')}</h2>
+                        <div class="ec-plan-price" data-role="jedi-price"
+                            data-month-price="${jediPriceAttr('month', 'priceText')}"
+                            data-month-interval="${jediPriceAttr('month', 'intervalText')}"
+                            data-year-price="${jediPriceAttr('year', 'priceText')}"
+                            data-year-interval="${jediPriceAttr('year', 'intervalText')}"
+                            data-lifetime-price="${jediPriceAttr('lifetime', 'priceText')}"
+                            data-lifetime-interval="${jediPriceAttr('lifetime', 'intervalText')}">
+                            ${escapeHtml(jediPriceData[firstAvailableInterval]?.priceText || 'Coming soon')}
+                        </div>
+                        <div class="ec-plan-interval" data-role="jedi-interval">
+                            ${escapeHtml(jediPriceData[firstAvailableInterval]?.intervalText || '')}
+                        </div>
+                        ${renderFeatures(jediFeatureSource)}
+                    </div>
+                </div>
+                ${upgradeButtonHtml}
+            </div>
+        `;
+
+        ensureModalReady();
+
+        const planToggle = modalContent.querySelector('.ec-plan-toggle');
+        const toggleButtons = modalContent.querySelectorAll('.ec-toggle-option');
+        const jediPriceEl = modalContent.querySelector('[data-role="jedi-price"]');
+        const jediIntervalEl = modalContent.querySelector('[data-role="jedi-interval"]');
+
+        if (!planToggle || !jediPriceEl || !jediIntervalEl) {
+            return;
+        }
+
+        const updateJediPricing = (interval) => {
+            const dataKeyPrice = `${interval}Price`;
+            const dataKeyInterval = `${interval}Interval`;
+            const priceValue = jediPriceEl.dataset[dataKeyPrice] || 'Coming soon';
+            const intervalValue = jediPriceEl.dataset[dataKeyInterval] || '';
+
+            jediPriceEl.textContent = priceValue;
+
+            if (intervalValue) {
+                jediIntervalEl.textContent = intervalValue;
+                jediIntervalEl.style.display = '';
+            } else {
+                jediIntervalEl.textContent = '';
+                jediIntervalEl.style.display = 'none';
+            }
+        };
+
+        const setActiveInterval = (interval) => {
+            const index = Math.max(0, intervalOrder.indexOf(interval));
+            planToggle.style.setProperty('--toggle-index', index);
+
+            toggleButtons.forEach((button) => {
+                const isActive = button.dataset.interval === interval;
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            updateJediPricing(interval);
+        };
+
+        toggleButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                setActiveInterval(button.dataset.interval);
+            });
+        });
+
+        setActiveInterval(firstAvailableInterval);
+    } catch (error) {
+        console.error('Failed to load subscription details:', error);
+        setModalHtml(`
+            <div class="ec-subscription-modal">
+                <h1>Select Moment Mastery</h1>
+                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                <p>We could not load your subscription details (${escapeHtml(error.message || 'unknown error')}). Please try again in a moment.</p>
+            </div>
+        `);
+    }
 }
 
 
@@ -603,252 +683,10 @@ function modalCloseCurtains(event) {
 
 document.addEventListener("keydown", modalCloseCurtains);
 
-async function manageEarthcalUserSub() {
-    closeMainMenu();
 
-    const modal = document.getElementById('form-modal-message');
-    const modalContent = document.getElementById('modal-content');
 
-    const showModal = () => {
-        if (!modal) {
-            return;
-        }
-        modal.classList.remove('modal-hidden');
-        modal.classList.add('modal-visible');
-        document.body.style.overflowY = 'hidden';
-    };
-
-    if (!modal || !modalContent) {
-        console.error('Subscription modal elements missing.');
-        return;
-    }
-
-    const escapeHtml = (value) => {
-        if (value === null || value === undefined) {
-            return '';
-        }
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    };
-
-    const resolveBuwanaId = () => {
-        if (typeof getCurrentUser === 'function') {
-            try {
-                const currentUser = getCurrentUser();
-                if (currentUser?.buwana_id !== undefined && currentUser?.buwana_id !== null) {
-                    return currentUser.buwana_id;
-                }
-            } catch (err) {
-                console.warn('Unable to resolve user from getCurrentUser()', err);
-            }
-        }
-
-        try {
-            const storedSession = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
-            if (storedSession?.buwana_id !== undefined && storedSession?.buwana_id !== null) {
-                return storedSession.buwana_id;
-            }
-        } catch (err) {
-            console.warn('Unable to read session storage buwana_user', err);
-        }
-
-        const localId = localStorage.getItem('buwana_id');
-        if (localId !== null && localId !== undefined && localId !== '') {
-            return localId;
-        }
-
-        return null;
-    };
-
-    const resolvedBuwanaId = resolveBuwanaId();
-
-    if (resolvedBuwanaId === null) {
-        modalContent.innerHTML = `
-            <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p>You need to log in with your Buwana account to manage subscriptions.</p>
-                <button class="confirmation-blur-button" style="margin-top: 15px;" onclick="sendDownRegistration();">
-                    Open Login Panel
-                </button>
-            </div>
-        `;
-        showModal();
-        return;
-    }
-
-    const buwanaId = Number(resolvedBuwanaId);
-    if (!Number.isFinite(buwanaId)) {
-        modalContent.innerHTML = `
-            <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p>We could not determine your user account. Please try logging in again.</p>
-            </div>
-        `;
-        showModal();
-        return;
-    }
-
-    showModal();
-    modalContent.innerHTML = `
-        <div class="ec-subscription-modal">
-            <h1>Select Moment Mastery</h1>
-            <p>Checking your subscription&hellip;</p>
-        </div>
-    `;
-
-    const formatPrice = (plan) => {
-        const centsRaw = plan?.price_cents;
-        const cents = typeof centsRaw === 'number' ? centsRaw : parseInt(centsRaw || '0', 10);
-        const currencyRaw = typeof plan?.currency === 'string' && plan.currency.trim().length ? plan.currency : 'USD';
-
-        if (!Number.isFinite(cents) || cents <= 0) {
-            return 'Free';
-        }
-
-        try {
-            const formatter = new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: currencyRaw,
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            return formatter.format(cents / 100);
-        } catch (err) {
-            console.warn('Currency formatting failed, falling back to simple text.', err);
-            return `${(cents / 100).toFixed(2)} ${currencyRaw}`;
-        }
-    };
-
-    const describeInterval = (plan) => {
-        switch ((plan?.billing_interval || '').toLowerCase()) {
-            case 'year':
-                return 'Billed yearly';
-            case 'lifetime':
-                return 'Lifetime access';
-            case 'month':
-            default:
-                return 'Billed monthly';
-        }
-    };
-
-    try {
-        const [subscriptionResponse, plansResponse] = await Promise.all([
-            fetch('api/v1/check_user_sub.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ buwana_id: buwanaId })
-            }),
-            fetch('api/v1/get_earthcal_plans.php', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            })
-        ]);
-
-        if (!subscriptionResponse.ok) {
-            throw new Error(`Subscription lookup failed with status ${subscriptionResponse.status}`);
-        }
-
-        if (!plansResponse.ok) {
-            throw new Error(`Plan lookup failed with status ${plansResponse.status}`);
-        }
-
-        const [subscriptionData, plansData] = await Promise.all([
-            subscriptionResponse.json(),
-            plansResponse.json()
-        ]);
-
-        if (!subscriptionData || subscriptionData.ok === false) {
-            const reason = subscriptionData?.error || 'subscription_lookup_failed';
-            throw new Error(reason);
-        }
-
-        if (plansData && plansData.ok === false) {
-            const reason = plansData?.error || 'plan_lookup_failed';
-            throw new Error(reason);
-        }
-
-        const plans = Array.isArray(plansData?.plans)
-            ? plansData.plans
-            : (Array.isArray(subscriptionData?.plans) ? subscriptionData.plans : []);
-
-        if (!plans.length) {
-            modalContent.innerHTML = `
-                <div class="ec-subscription-modal">
-                    <h1>Select Moment Mastery</h1>
-                    <p>No subscription plans are currently available. Please try again later.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const currentSubscription = subscriptionData?.current_subscription || null;
-        const currentPlan = currentSubscription?.plan || null;
-        const currentPlanIdRaw = currentPlan?.plan_id ?? currentSubscription?.plan_id ?? null;
-        const currentPlanId = currentPlanIdRaw !== null ? Number(currentPlanIdRaw) : null;
-        const currentPlanName = currentPlan?.name || subscriptionData?.current_plan_name || 'EarthCal Free';
-
-        const rowsHtml = plans.map((plan) => {
-            const planId = Number(plan?.plan_id);
-            const isCurrent = currentPlanId !== null && Number.isFinite(planId) && planId === currentPlanId;
-            const planName = plan?.name ? escapeHtml(plan.name) : 'Untitled plan';
-            const description = plan?.description
-                ? escapeHtml(plan.description).replace(/\n/g, '<br>')
-                : 'No description provided.';
-            const priceText = escapeHtml(formatPrice(plan));
-            const intervalText = describeInterval(plan);
-            const intervalHtml = intervalText ? `<div class="ec-plan-interval">${escapeHtml(intervalText)}</div>` : '';
-            const badge = isCurrent ? '<span class="ec-plan-badge">Current Plan</span>' : '';
-
-            return `
-                <tr class="${isCurrent ? 'current-plan' : ''}">
-                    <td>
-                        <div class="ec-plan-name">${planName}${badge}</div>
-                    </td>
-                    <td>
-                        <div class="ec-plan-description">${description}</div>
-                    </td>
-                    <td>
-                        <div class="ec-plan-price">${priceText}</div>
-                        ${intervalHtml}
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        modalContent.innerHTML = `
-            <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p>You are currently using the ${escapeHtml(currentPlanName)} plan.</p>
-                <div style="margin-top: 20px; overflow-x: auto;">
-                    <table class="ec-plan-table">
-                        <thead>
-                            <tr>
-                                <th>Plan</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    } catch (error) {
-        console.error('Failed to load subscription details:', error);
-        modalContent.innerHTML = `
-            <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p>We could not load your subscription details (${escapeHtml(error.message || 'unknown error')}).</p>
-                <p>Please try again in a moment.</p>
-            </div>
-        `;
-    }
+function upgradeUserPlan() {
+    alert("We're still working on plan upgrading!  Don't worry, while we develop this, all user's have full access to Earthcal features.  Enjoy.");
 }
 
 /* ---------------------------
