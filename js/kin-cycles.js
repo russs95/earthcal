@@ -384,29 +384,45 @@ function animateStorkCycle() {
 
 
 
-function animateWhaleCycle() {
-  let whaleMarkerElement = document.getElementById("whale-marker");
-  let whalePathElement = document.getElementById("whale-year-cycle");
-  let yearStart = new Date(2025, 0, 1);
-  let startOffpoint = startDate - yearStart;
-  let daysToTargetDate = targetDate - startDate;
-  let totalDays = startOffpoint + daysToTargetDate;
-  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
+function animateWhaleCycle(date) {
+  const whaleMarkerElement = document.getElementById("whale-marker");
+  const whalePathElement = document.getElementById("whale-year-cycle");
 
-  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
-  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
-  // Determine the duration based on daysToTargetDate
+  if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
+    return;
+  }
+
+  const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
+  if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
+    return;
+  }
+
+  const yearStart = new Date(target.getFullYear(), 0, 1);
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+  const hasValidStartDate = startDate instanceof Date && !Number.isNaN(startDate.getTime());
+  const animationStartDate = (hasValidStartDate && startDate.getTime() !== target.getTime())
+    ? startDate
+    : yearStart;
+
+  const startOffpoint = animationStartDate - yearStart;
+  const daysToTargetDate = target - animationStartDate;
+  const totalDays = startOffpoint + daysToTargetDate;
+  const realDaysToTargetDate = Math.abs(daysToTargetDate) / millisecondsPerDay;
+
+  const targetAngle = (startOffpoint) / (millisecondsPerDay * 365) * 360;
+  const targetAngle2 = (totalDays) / (millisecondsPerDay * 365) * 360;
+
   let duration;
-  if (RealdaysToTargetDate < 30) {
+  if (realDaysToTargetDate < 30) {
     duration = 1;
-  } else if (RealdaysToTargetDate < 60) {
+  } else if (realDaysToTargetDate < 60) {
     duration = 2;
-  } else if (RealdaysToTargetDate < 120) {
+  } else if (realDaysToTargetDate < 120) {
     duration = 3;
-  } else if (RealdaysToTargetDate < 180) {
+  } else if (realDaysToTargetDate < 180) {
     duration = 4;
-  // ... Add more conditions as needed
-  } else if (RealdaysToTargetDate <= 366) {
+  } else if (realDaysToTargetDate <= 366) {
     duration = 5; // Example: set a default for the max range
   } else {
     duration = 6; // Default duration if daysToTargetDate is out of expected range
