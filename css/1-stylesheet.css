@@ -2873,10 +2873,11 @@ INFO MODAL
 }
 
 .ec-plan-toggle {
+  --toggle-count: 3;
   --toggle-index: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(var(--toggle-count), minmax(0, 1fr));
   position: relative;
-  justify-content: space-between;
   padding: 4px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
@@ -2888,18 +2889,18 @@ INFO MODAL
 .ec-plan-toggle .ec-toggle-indicator {
   position: absolute;
   top: 4px;
+  bottom: 4px;
   left: 4px;
-  width: calc((100% - 8px) / 3);
-  height: calc(100% - 8px);
+  width: calc((100% - 8px) / var(--toggle-count));
   border-radius: 999px;
   background: var(--general-background-highlight);
-  transform: translateX(calc(var(--toggle-index) * ((100% - 8px) / 3)));
+  transform: translateX(calc(var(--toggle-index) * 100%));
   transition: transform 0.3s ease;
+  will-change: transform;
 }
 
 .ec-toggle-option {
   position: relative;
-  flex: 1;
   border: none;
   background: transparent;
   color: var(--h1);

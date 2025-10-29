@@ -299,8 +299,8 @@ async function getUserData() {
         return;
     }
 
-    // 🌟 Show logged-in panel and trigger sync
-    showLoggedInView(calendars);
+    // 🌟 Prepare logged-in panel but keep it hidden until the user opens it
+    showLoggedInView(calendars, { autoExpand: false });
     await syncDatecycles();  // 🔄 Begin sync with latest calendar state
 }
 
@@ -983,7 +983,11 @@ function renderCalendarSelectionForm(calendars, {
                 ? NaN
                 : Number(subscriptionId);
             const isExcludedSource = source === 'personal' || source === 'webcal';
-            return visibility === 'public' && !isExcludedSource && Number.isFinite(normalizedSubscriptionId);
+            const isActive = normalizeCalendarActiveValue(cal?.is_active);
+            return visibility === 'public'
+                && !isExcludedSource
+                && Number.isFinite(normalizedSubscriptionId)
+                && isActive;
         });
 
         const publicRowsHtml = publicCalendars.length > 0
@@ -1226,7 +1230,7 @@ function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceTyp
     }
 }
 
-async function showLoggedInView(calendars = []) {
+async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     const loggedInView = document.getElementById("logged-in-view");
     const registrationContainer = document.getElementById('registration-container');
     const footer = document.getElementById('registration-footer');
@@ -1241,23 +1245,36 @@ async function showLoggedInView(calendars = []) {
         return;
     }
 
-    if (registrationContainer) {
-        registrationContainer.classList.add('expanded');
-        registrationContainer.classList.remove('collapsing');
-    }
+    const isContainerExpanded = registrationContainer?.classList.contains('expanded');
+    const shouldShowPanel = autoExpand || isContainerExpanded;
 
-    if (loggedOutView) {
-        loggedOutView.style.display = 'none';
-    }
+    if (shouldShowPanel) {
+        if (registrationContainer) {
+            registrationContainer.classList.add('expanded');
+            registrationContainer.classList.remove('collapsing');
+        }
 
-    if (loggedInView) {
-        loggedInView.style.display = 'block';
-    }
+        if (loggedOutView) {
+            loggedOutView.style.display = 'none';
+        }
 
-    setRegistrationFooterBackground('logged-in');
+        if (loggedInView) {
+            loggedInView.style.display = 'block';
+        }
 
-    if (footer && upArrow && downArrow) {
-        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        setRegistrationFooterBackground('logged-in');
+
+        if (footer && upArrow && downArrow) {
+            updateFooterAndArrowUI(footer, upArrow, downArrow);
+        }
+    } else {
+        if (registrationContainer) {
+            registrationContainer.classList.remove('collapsing');
+        }
+
+        if (loggedInView) {
+            loggedInView.style.display = 'none';
+        }
     }
 
     const first_name = payload.given_name || "Earthling";
