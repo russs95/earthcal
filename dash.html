@@ -94,7 +94,7 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=15.2"></script>
+    <script src="js/earthcal-init.js?v=16"></script>
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v=7.1" as="style" onload="this.rel='stylesheet'">
@@ -136,15 +136,17 @@
             const dayLinesDiv = document.getElementById('days-of-year-lines');
             const allDaymarkers = document.getElementById('all-daymarkers');
             const whiteBack = document.getElementById('white-back-for-day');
+            const header = document.getElementById('header');
             const rayLine = document.getElementById('ray_lines');
             // ANIMATED DISPLAY of the Calendar Interface
             setTimeout(() => {
                 dayLinesDiv.style.opacity = '1';
-                whiteBack.style.opacity = '1';
+                // whiteBack.style.opacity = '1';
                 rayLine.style.opacity = '1';
             }, 2000);
             setTimeout(() => {
                 allDaymarkers.style.opacity = '1'; // Show allDaymarkers
+                header.style.opacity = '1'; // Show header with current date and time
             }, 4000);
             updateBackgroundColor();   //Updates colors for night and day themese
             updateHighlightColor(); //Updates colors for night and day themese
@@ -428,7 +430,7 @@
         <div id="eye-icon"></div>
     </div>
 
-    <div id="header" class="top-menu" title="Earthcal v1.0.2">  <!-- Why 140px?-->
+    <div id="header" class="top-menu" title="Earthcal v1.0.2" style="opacity:0">  <!-- Why 140px?-->
         <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10;min-width:550px;">
             <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
                 <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
