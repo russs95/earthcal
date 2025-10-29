@@ -2015,8 +2015,73 @@ async function toggleV1CalVisibility(toggleInput) {
     }
 }
 
-function editV1cal(calendarId) {
-    console.log(`[placeholder] editV1cal → calendarId: ${calendarId}`);
+async function editV1cal(calendarId) {
+    const normalizedId = Number.parseInt(calendarId, 10);
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+        console.warn('[editV1cal] Invalid calendar id provided.', calendarId);
+        return;
+    }
+
+    const personalContainer = document.getElementById('user-owned-calendars');
+    const hostTarget = personalContainer?.__ecAddCalendarHost
+        || personalContainer
+        || document.getElementById('logged-in-view')
+        || document.getElementById('modal-content')
+        || document.body;
+
+    const tryFindCalendar = (list) => {
+        if (!Array.isArray(list)) return null;
+        return list.find((entry) => {
+            const entryId = Number.parseInt(entry?.calendar_id ?? entry?.id, 10);
+            return Number.isFinite(entryId) && entryId === normalizedId;
+        }) || null;
+    };
+
+    let calendar = null;
+
+    if (typeof readCalendarsFromCache === 'function') {
+        try {
+            const cached = readCalendarsFromCache(Infinity);
+            calendar = tryFindCalendar(cached);
+        } catch (err) {
+            console.debug('[editV1cal] Unable to read cached calendars via helper:', err);
+        }
+    }
+
+    if (!calendar) {
+        try {
+            const raw = sessionStorage.getItem('user_calendars_v1');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                calendar = tryFindCalendar(parsed);
+            }
+        } catch (err) {
+            console.debug('[editV1cal] Unable to read calendar cache from sessionStorage:', err);
+        }
+    }
+
+    if (!calendar && typeof getCurrentUser === 'function' && typeof loadUserCalendars === 'function') {
+        try {
+            const currentUser = getCurrentUser();
+            if (currentUser?.buwana_id) {
+                const latest = await loadUserCalendars(currentUser.buwana_id, { force: true });
+                calendar = tryFindCalendar(latest);
+            }
+        } catch (err) {
+            console.debug('[editV1cal] Unable to load calendars from API:', err);
+        }
+    }
+
+    if (!calendar) {
+        alert('We could not load that calendar for editing. Please refresh and try again.');
+        return;
+    }
+
+    if (typeof openEditCalendarOverlay === 'function') {
+        openEditCalendarOverlay({ calendar, hostTarget });
+    } else {
+        console.warn('[editV1cal] openEditCalendarOverlay is not available.');
+    }
 }
 
 async function deleteV1cal(calendarId, isDefault = false) {
