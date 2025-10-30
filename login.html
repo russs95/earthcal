@@ -3,12 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="0;url=index.html">
   <script>
-    window.location.replace('index.html');
+    (function () {
+      function hasStoredToken() {
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            const sessionPayload = sessionStorage.getItem('buwana_user');
+            if (sessionPayload) {
+              return true;
+            }
+          }
+        } catch (error) {
+          console.warn('[login] Unable to read sessionStorage:', error);
+        }
+
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const tokenKeys = ['user_profile', 'id_token', 'access_token'];
+            for (let i = 0; i < tokenKeys.length; i += 1) {
+              const value = localStorage.getItem(tokenKeys[i]);
+              if (value) {
+                return true;
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('[login] Unable to read localStorage:', error);
+        }
+
+        return false;
+      }
+
+      function redirect() {
+        const target = hasStoredToken() ? 'auth/callback/' : 'dash.html';
+        window.location.replace(target);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', redirect, { once: true });
+      } else {
+        redirect();
+      }
+    })();
   </script>
 </head>
 <body>
   <h3>Redirecting to Earthcal...</h3>
+  <noscript>
+    <p>JavaScript is required to redirect automatically. <a href="dash.html">Continue to Earthcal</a>.</p>
+  </noscript>
 </body>
 </html>
