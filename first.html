@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EarthCal | Setting up your account</title>
+    <link rel="icon" href="assets/icons/favicon.ico" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-color: #0d1a26;
+            color: #f7f9fb;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+        p {
+            margin-top: 0;
+            max-width: 420px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to EarthCal.</h1>
+    <p id="status-message">Give us a moment while we setup your account...</p>
+
+    <script src="js/login-scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusMessage = document.getElementById('status-message');
+            try {
+                const loginURL = await createJWTloginURL();
+                if (loginURL) {
+                    window.location.href = loginURL;
+                } else {
+                    throw new Error('No login URL generated.');
+                }
+            } catch (error) {
+                console.error('Unable to complete onboarding redirect.', error);
+                if (statusMessage) {
+                    statusMessage.textContent = 'We ran into a hiccup preparing your account. Please refresh the page to try again.';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

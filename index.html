@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <title>Earthcal |  Loading..</title>
     <link rel="icon" href="assets/icons/favicon.ico" />
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get("status") === "firsttime") {
+                    window.location.replace("first.html");
+                }
+            } catch (error) {
+                console.error("Unable to process onboarding redirect.", error);
+            }
+        })();
+    </script>
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources ttt-->
     <link rel="preload" href="js/earthcal-init.js?v=2.1" as="script">
