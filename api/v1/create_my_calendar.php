@@ -30,6 +30,7 @@ try {
     exit;
   }
 
+  $checkOnly  = !empty($in['check_only']);
   $name       = trim((string)($in['name'] ?? 'My Calendar'));
   $tzid_in    = trim((string)($in['tzid'] ?? ''));
   $color      = trim((string)($in['color'] ?? '#3b82f6'));
@@ -57,6 +58,19 @@ try {
   }
 
   $tzid = $tzid_in ?: ($userRow['time_zone'] ?: 'Etc/UTC');
+
+  if ($checkOnly) {
+    $pdo->commit();
+    echo json_encode([
+      'ok' => true,
+      'exists' => true,
+      'user' => [
+        'buwana_id' => (int)$userRow['buwana_id'],
+        'time_zone' => $userRow['time_zone'] ?? null,
+      ],
+    ]);
+    exit;
+  }
 
   // 2️⃣ Return existing default if present
   $chk = $pdo->prepare("SELECT calendar_id, name, default_my_calendar, description,
