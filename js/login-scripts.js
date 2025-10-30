@@ -964,7 +964,7 @@ function renderCalendarSelectionForm(calendars, {
     if (publicForm) {
         const emptyPublicText = typeof noPublicText === 'string'
             ? noPublicText
-            : (publicForm.dataset.noPublic || 'No subscribed public calendars yet.');
+            : (publicForm.dataset.noPublic || "You don't yet have any public calendars subscriptions.");
         publicForm.dataset.noPublic = emptyPublicText;
 
         const browseLabel = typeof browsePublicLabel === 'string'
@@ -976,18 +976,21 @@ function renderCalendarSelectionForm(calendars, {
 
         const publicCalendars = list.filter((cal) => {
             if (!cal) return false;
-            const visibility = (cal.visibility || '').toString().toLowerCase();
-            const source = (cal.source_type || '').toString().toLowerCase();
-            const subscriptionId = cal.subscription_id;
+
+            const sourceType = getNormalizedSourceType(cal);
+            if (sourceType !== 'earthcal') {
+                return false;
+            }
+
+            const subscriptionId = cal?.subscription_id;
             const normalizedSubscriptionId = subscriptionId === null || subscriptionId === undefined
                 ? NaN
                 : Number(subscriptionId);
-            const isExcludedSource = source === 'personal' || source === 'webcal';
-            const isActive = normalizeCalendarActiveValue(cal?.is_active);
-            return visibility === 'public'
-                && !isExcludedSource
-                && Number.isFinite(normalizedSubscriptionId)
-                && isActive;
+
+            const visibility = (cal.visibility || '').toString().toLowerCase();
+            const isPublicVisibility = visibility === 'public' || visibility === 'unlisted';
+
+            return Number.isFinite(normalizedSubscriptionId) && isPublicVisibility;
         });
 
         const publicRowsHtml = publicCalendars.length > 0
@@ -1001,7 +1004,7 @@ function renderCalendarSelectionForm(calendars, {
                 const isActive = normalizeCalendarActiveValue(cal?.is_active);
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
-                const calColor = (cal?.cal_color || '').toString().trim();
+                const calColor = (cal?.color || cal?.cal_color || '').toString().trim();
                 const safeCalColor = escapeHtml(calColor);
                 const toggleActiveColor = escapeHtml(calColor || '#2ecc71');
                 const toggleStyle = isActive ? ` style="--toggle-bg-active: ${toggleActiveColor};"` : '';
@@ -1034,7 +1037,7 @@ function renderCalendarSelectionForm(calendars, {
                 </div>
             `;
             }).join('')
-            : `<p>${escapeHtml(emptyPublicText)}</p>`;
+            : '';
 
         const safeBrowseLabel = escapeHtml(browseLabel);
         const browseRowHtml = `
@@ -1048,6 +1051,13 @@ function renderCalendarSelectionForm(calendars, {
     `;
 
         publicForm.innerHTML = `${publicRowsHtml}${browseRowHtml}`;
+
+        const publicMessageEl = document.getElementById('public-cal-message');
+        if (publicMessageEl) {
+            publicMessageEl.textContent = publicCalendars.length > 0
+                ? 'Your public calendar subscriptions..'
+                : "You don't yet have any public calendars subscriptions.";
+        }
 
         const browseSummary = publicForm.querySelector('.cal-browse-public-row .cal-row-summary');
         if (browseSummary) {
@@ -1351,7 +1361,7 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
 
 
             <div id="user-owned-calendars" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
-            <p style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</p>
+            <p id="public-cal-message" style="text-align:center; margin-bottom: 8px;">${publicCalendarsIntro}</p>
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <p id="webcal-intro-text" style="text-align:center; margin-bottom: 8px;"></p>
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
@@ -2449,12 +2459,13 @@ function setSyncStatus(text, emoji = '', spinning = false, options = {}) {
     }
 }
 
-async function toggleSubscription(calendarId, subscribe) {
+async function toggleSubscription(calendarId, subscribe, subscriptionId = null) {
     const desiredActive = !!subscribe;
     const numericCalendarId = Number(calendarId);
+    const providedSubscriptionId = Number(subscriptionId);
     const summary = {
         calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : null,
-        subscription_id: null,
+        subscription_id: Number.isFinite(providedSubscriptionId) ? providedSubscriptionId : null,
         source_type: null,
         desiredActive,
         is_active: null,
@@ -2484,16 +2495,15 @@ async function toggleSubscription(calendarId, subscribe) {
             setSyncStatus("Removing calendar subscription...", "🔴", true);
         }
 
-        const endpoint = subscribe
-            ? '/api/v1/add_pub_subscription.php'
-            : '/api/v1/delete_pub_subscription.php';
+        const endpoint = '/api/v1/toggle_pub_subscriptions.php';
 
         const requestBody = {
             buwana_id: buwanaId,
-            calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : calendarId
+            calendar_id: Number.isFinite(numericCalendarId) ? numericCalendarId : calendarId,
+            subscribe: desiredActive
         };
 
-        if (!subscribe && Number.isFinite(summary.subscription_id)) {
+        if (Number.isFinite(summary.subscription_id)) {
             requestBody.subscription_id = summary.subscription_id;
         }
 

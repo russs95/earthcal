@@ -2088,6 +2088,7 @@ async function showPublicCalendars(hostTarget) {
         subscribeCheckbox.addEventListener('click', (event) => event.stopPropagation());
 
         const subscribeText = document.createElement('span');
+        subscribeText.style.fontSize = '0.8em';
 
         const updateSubscribeState = () => {
             const isChecked = !!subscribeCheckbox.checked;
@@ -2097,7 +2098,7 @@ async function showPublicCalendars(hostTarget) {
                 isChecked ? 'Unsubscribe from this calendar' : 'Subscribe to this calendar'
             );
             subscribeLabel.title = isChecked ? 'Unsubscribe from this calendar' : 'Subscribe to this calendar';
-            subscribeText.textContent = isChecked ? 'Subscribed' : 'Subscribe';
+            subscribeText.textContent = isChecked ? 'Subscribed' : 'Not subscribed';
         };
 
         updateSubscribeState();
@@ -2130,7 +2131,7 @@ async function showPublicCalendars(hostTarget) {
             subscribeText.textContent = desired ? 'Subscribing…' : 'Removing…';
 
             try {
-                const result = await toggleSubscription(calendarNumericId, desired);
+                const result = await toggleSubscription(calendarNumericId, desired, cal?.subscription_id);
                 if (!result?.success) {
                     event.target.checked = previous;
                     updateSubscribeState();
@@ -2690,10 +2691,8 @@ function getSubscribedPublicCalendarMap() {
         if (!Number.isFinite(subscriptionId)) continue;
         const calendarId = Number(entry.calendar_id ?? entry.id);
         if (!Number.isFinite(calendarId)) continue;
-        const visibility = (entry.visibility || '').toString().toLowerCase();
         const source = (entry.source_type || '').toString().toLowerCase();
-        const qualifies = visibility === 'public' || visibility === 'unlisted' || source === 'earthcal';
-        if (!qualifies) continue;
+        if (source !== 'earthcal') continue;
 
         const isActive = typeof entry.is_active === 'boolean' ? entry.is_active : toBool(entry.is_active ?? true);
         const displayFlag = entry.display_enabled;
