@@ -1641,6 +1641,8 @@ async function createJWTloginURL() {
     if (loginButton) {
         loginButton.onclick = () => window.location.href = url.toString();
     }
+
+    return url.toString();
 }
 
 async function sendUpRegistration() {
