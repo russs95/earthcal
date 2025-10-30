@@ -26,27 +26,175 @@
             max-width: 420px;
             line-height: 1.5;
         }
+        #status-message {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: left;
+        }
+        #earthcal-spinner {
+            display: inline-flex;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 192, 203, 0.35);
+            border-top-color: #ff6fb5;
+            animation: spin 0.85s linear infinite;
+        }
+        #earthcal-spinner.spinner-complete {
+            animation: none;
+            border: none;
+            width: auto;
+            height: auto;
+            font-size: 1.25rem;
+        }
+        .status-text {
+            flex: 1;
+        }
+        #get-started-button {
+            margin-top: 2rem;
+            padding: 0.75rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0d1a26;
+            background-color: #f7f9fb;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        #get-started-button[aria-disabled="true"],
+        #get-started-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #get-started-button:not([aria-disabled="true"]):not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <h1>Welcome to EarthCal.</h1>
-    <p id="status-message">Give us a moment while we setup your account...</p>
+    <h1 id="greeting">Welcome to EarthCal.</h1>
+    <p id="status-message">
+        <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
+        <span class="status-text">Creating your personal My Calendar where you can start saving events, to-dos, journals and more...</span>
+    </p>
+
+    <button id="get-started-button" type="button" aria-disabled="true" disabled>Get Started</button>
 
     <script src="js/login-scripts.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            const greetingEl = document.getElementById('greeting');
             const statusMessage = document.getElementById('status-message');
+            const spinner = document.getElementById('earthcal-spinner');
+            const statusText = statusMessage?.querySelector('.status-text');
+            const getStartedButton = document.getElementById('get-started-button');
+
+            const authState = typeof window.isLoggedIn === 'function'
+                ? window.isLoggedIn({ returnPayload: true })
+                : { isLoggedIn: false, payload: null };
+
+            const payload = authState.payload;
+            const firstName = payload?.given_name || payload?.first_name || 'Earthling';
+            const buwanaId = payload?.buwana_id;
+
+            if (greetingEl) {
+                greetingEl.textContent = `Welcome to EarthCal, ${firstName}!`;
+            }
+
+            if (!buwanaId) {
+                console.error('Unable to locate buwana_id in the current session payload.');
+                if (statusText) {
+                    statusText.textContent = 'We could not confirm your EarthCal account. Please refresh the page to try again.';
+                }
+                if (spinner) {
+                    spinner.classList.add('spinner-complete');
+                    spinner.textContent = '⚠️';
+                }
+                return;
+            }
+
             try {
                 const loginURL = await createJWTloginURL();
-                if (loginURL) {
-                    window.location.href = loginURL;
-                } else {
-                    throw new Error('No login URL generated.');
+                if (loginURL && getStartedButton) {
+                    getStartedButton.setAttribute('aria-disabled', 'false');
+                    getStartedButton.disabled = false;
+                    getStartedButton.addEventListener('click', () => {
+                        window.location.href = loginURL;
+                    }, { once: true });
                 }
             } catch (error) {
-                console.error('Unable to complete onboarding redirect.', error);
-                if (statusMessage) {
-                    statusMessage.textContent = 'We ran into a hiccup preparing your account. Please refresh the page to try again.';
+                console.error('Unable to generate login URL.', error);
+            }
+
+            const spinnerStart = performance.now();
+
+            try {
+                const checkResponse = await fetch('api/v1/create_my_calendar.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ buwana_id: buwanaId, check_only: true })
+                });
+
+                if (!checkResponse.ok) {
+                    throw new Error(`User confirmation failed with status ${checkResponse.status}`);
+                }
+
+                const checkJson = await checkResponse.json();
+                if (!checkJson?.ok || !checkJson?.exists) {
+                    throw new Error('User not located in users_tb.');
+                }
+                console.log(`✅ Confirmed EarthCal account in users_tb for buwana_id ${buwanaId}.`, checkJson.user ?? {});
+
+                const createResponse = await fetch('api/v1/create_my_calendar.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ buwana_id: buwanaId })
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`Calendar creation failed with status ${createResponse.status}`);
+                }
+
+                const createJson = await createResponse.json();
+                if (!createJson?.ok) {
+                    throw new Error(createJson?.error || 'Unknown error while creating My Calendar');
+                }
+
+                console.log('📅 My Calendar status:', createJson);
+
+                const elapsed = performance.now() - spinnerStart;
+                if (elapsed < 1000) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
+                }
+
+                if (spinner) {
+                    spinner.classList.add('spinner-complete');
+                    spinner.textContent = '✅';
+                }
+
+                if (statusText) {
+                    statusText.textContent = createJson.created
+                        ? 'Your My Calendar is ready! Click below to get started.'
+                        : 'Your My Calendar is ready and waiting. Click below to get started.';
+                }
+            } catch (error) {
+                console.error('Unable to complete onboarding steps.', error);
+                if (statusText) {
+                    statusText.textContent = 'We ran into a hiccup preparing your account. Please refresh the page to try again.';
+                }
+                if (spinner) {
+                    spinner.classList.add('spinner-complete');
+                    spinner.textContent = '⚠️';
                 }
             }
         });
