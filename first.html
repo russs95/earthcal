@@ -308,7 +308,8 @@
                 || payload?.['buwana:earthlingEmoji']
                 || '🌎';
 
-            const buwanaId = toInt(profile?.buwana_id ?? payload?.buwana_id);
+            const searchParams = new URLSearchParams(window.location.search);
+            const buwanaId = toInt(searchParams.get('id'));
 
             const tokenTimeZone = normalizeTimeZone(
                 profile?.time_zone
@@ -337,7 +338,7 @@
             }
 
             if (!buwanaId) {
-                console.error('Unable to locate buwana_id in the current session payload.');
+                console.error('Unable to locate id in the current URL parameters.');
                 if (statusIntro) {
                     statusIntro.textContent = 'We could not confirm your EarthCal account. Please refresh the page to try again.';
                 }
