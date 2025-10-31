@@ -97,13 +97,25 @@
             const statusText = statusMessage?.querySelector('.status-text');
             const getStartedButton = document.getElementById('get-started-button');
 
+            const params = new URLSearchParams(window.location.search);
+            const toInt = (value) => {
+                if (value === null || value === undefined) {
+                    return null;
+                }
+                const parsed = Number.parseInt(String(value), 10);
+                return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+            };
+
+            const urlBuwanaId = toInt(params.get('buwana_id') ?? params.get('id'));
+
             const authState = typeof window.isLoggedIn === 'function'
                 ? window.isLoggedIn({ returnPayload: true })
                 : { isLoggedIn: false, payload: null };
 
             const payload = authState.payload;
             const firstName = payload?.given_name || payload?.first_name || 'Earthling';
-            const buwanaId = payload?.buwana_id;
+            const sessionBuwanaId = toInt(payload?.buwana_id);
+            const buwanaId = urlBuwanaId ?? sessionBuwanaId;
 
             if (greetingEl) {
                 greetingEl.textContent = `Welcome to EarthCal, ${firstName}!`;
@@ -172,6 +184,28 @@
 
                 console.log('📅 My Calendar status:', createJson);
 
+                try {
+                    const subscriptionResponse = await fetch('api/v1/setup_user_subscription.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ buwana_id: buwanaId, plan_slug: 'padwan' })
+                    });
+
+                    if (!subscriptionResponse.ok) {
+                        throw new Error(`Subscription provisioning failed with status ${subscriptionResponse.status}`);
+                    }
+
+                    const subscriptionJson = await subscriptionResponse.json();
+                    if (!subscriptionJson?.ok) {
+                        throw new Error(subscriptionJson?.error || 'Unknown error while setting up subscription');
+                    }
+
+                    console.log('🪐 Padwan subscription status:', subscriptionJson);
+                } catch (subscriptionError) {
+                    console.error('Unable to provision Padwan subscription.', subscriptionError);
+                }
+
                 const elapsed = performance.now() - spinnerStart;
                 if (elapsed < 1000) {
                     await new Promise((resolve) => setTimeout(resolve, 1000 - elapsed));
@@ -185,7 +219,7 @@
                 if (statusText) {
                     statusText.textContent = createJson.created
                         ? 'Your My Calendar is ready! Click below to get started.'
-                        : 'Your My Calendar is ready and waiting. Click below to get started.';
+                        : 'Looks like you already have a My Calendar. Click below to get started.';
                 }
             } catch (error) {
                 console.error('Unable to complete onboarding steps.', error);

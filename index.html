@@ -9,7 +9,15 @@
             try {
                 const params = new URLSearchParams(window.location.search);
                 if (params.get("status") === "firsttime") {
-                    window.location.replace("first.html");
+                    const buwanaId = params.get("buwana_id") || params.get("id");
+                    const redirectParams = new URLSearchParams();
+                    if (buwanaId) {
+                        redirectParams.set("buwana_id", buwanaId);
+                    }
+
+                    const search = redirectParams.toString();
+                    const redirectUrl = "first.html" + (search ? `?${search}` : "");
+                    window.location.replace(redirectUrl);
                 }
             } catch (error) {
                 console.error("Unable to process onboarding redirect.", error);
