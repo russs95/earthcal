@@ -30,13 +30,19 @@ try {
     exit;
   }
 
-  $checkOnly  = !empty($in['check_only']);
-  $name       = trim((string)($in['name'] ?? 'My Calendar'));
-  $tzid_in    = trim((string)($in['tzid'] ?? ''));
-  $color      = trim((string)($in['color'] ?? '#3b82f6'));
-  $emoji      = trim((string)($in['emoji'] ?? '📅'));
-  $category   = trim((string)($in['category'] ?? 'personal'));
-  $visibility = trim((string)($in['visibility'] ?? 'private'));
+  $checkOnly        = !empty($in['check_only']);
+  $name             = trim((string)($in['name'] ?? 'My Calendar'));
+  $tzidProvided     = array_key_exists('tzid', $in);
+  $tzid_in          = $tzidProvided ? trim((string)($in['tzid'] ?? '')) : '';
+  $color            = trim((string)($in['color'] ?? '#3b82f6'));
+  $emojiProvided    = array_key_exists('emoji', $in);
+  $emojiInput       = $emojiProvided ? trim((string)($in['emoji'] ?? '')) : '📅';
+  $emoji            = $emojiInput !== '' ? $emojiInput : '📅';
+  $descriptionProvided = array_key_exists('description', $in);
+  $descriptionRaw   = $descriptionProvided ? trim((string)($in['description'] ?? '')) : '';
+  $description      = $descriptionProvided ? ($descriptionRaw === '' ? null : $descriptionRaw) : null;
+  $category         = trim((string)($in['category'] ?? 'personal'));
+  $visibility       = trim((string)($in['visibility'] ?? 'private'));
 
   // ---------------------------------------------------------
   //  DATABASE CONNECTION (updated credentials)
@@ -81,6 +87,44 @@ try {
                         LIMIT 1");
   $chk->execute([$buwana_id]);
   if ($existing = $chk->fetch()) {
+    $updates = [];
+    $params  = [];
+
+    if ($emojiProvided && $emoji !== ($existing['cal_emoji'] ?? '')) {
+      $updates[] = 'cal_emoji = ?';
+      $params[] = $emoji;
+      $existing['cal_emoji'] = $emoji;
+    }
+
+    if ($tzidProvided && $tzid_in !== '' && $tzid_in !== ($existing['tzid'] ?? '')) {
+      $updates[] = 'tzid = ?';
+      $params[] = $tzid_in;
+      $existing['tzid'] = $tzid_in;
+    }
+
+    if ($descriptionProvided && $description !== ($existing['description'] ?? null)) {
+      $updates[] = 'description = ?';
+      $params[] = $description;
+      $existing['description'] = $description;
+    }
+
+    if ($updates) {
+      $params[] = $existing['calendar_id'];
+      $sql = 'UPDATE calendars_v1_tb SET ' . implode(', ', $updates) . ', updated_at = NOW() WHERE calendar_id = ?';
+      $pdo->prepare($sql)->execute($params);
+
+      $refetch = $pdo->prepare("SELECT calendar_id, name, default_my_calendar, description,
+                               cal_emoji, color, tzid, category, visibility, is_readonly,
+                               created_at, updated_at
+                        FROM calendars_v1_tb
+                        WHERE calendar_id = ?
+                        LIMIT 1");
+      $refetch->execute([$existing['calendar_id']]);
+      if ($fresh = $refetch->fetch()) {
+        $existing = $fresh;
+      }
+    }
+
     $pdo->commit();
     echo json_encode([
       'ok' => true,
@@ -99,9 +143,9 @@ try {
       (user_id, name, default_my_calendar, description, cal_emoji, color, tzid,
        category, visibility, is_readonly, share_slug, feed_token, created_at, updated_at)
     VALUES
-      (?, ?, 1, NULL, ?, ?, ?, ?, ?, 0, ?, ?, NOW(), NOW())
+      (?, ?, 1, ?, ?, ?, ?, ?, ?, 0, ?, ?, NOW(), NOW())
   ");
-  $ins->execute([$buwana_id, $name, $emoji, $color, $tzid, $category, $visibility, $share_slug, $feed_token]);
+  $ins->execute([$buwana_id, $name, $description, $emoji, $color, $tzid, $category, $visibility, $share_slug, $feed_token]);
   $newId = (int)$pdo->lastInsertId();
 
   // Mark other calendars as non-default (safety)

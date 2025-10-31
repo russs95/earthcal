@@ -270,7 +270,14 @@
                 spinner.setAttribute('aria-label', ariaLabel);
             };
 
-            const params = new URLSearchParams(window.location.search);
+            const normalizeTimeZone = (value) => {
+                if (typeof value !== 'string') {
+                    return null;
+                }
+                const trimmed = value.trim();
+                return trimmed.length > 0 ? trimmed : null;
+            };
+
             const toInt = (value) => {
                 if (value === null || value === undefined) {
                     return null;
@@ -279,16 +286,51 @@
                 return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
             };
 
-            const urlBuwanaId = toInt(params.get('buwana_id') ?? params.get('id'));
+            try {
+                await getUserData();
+            } catch (error) {
+                console.warn('Unable to pre-load user data via getUserData.', error);
+            }
 
             const authState = typeof window.isLoggedIn === 'function'
                 ? window.isLoggedIn({ returnPayload: true })
                 : { isLoggedIn: false, payload: null };
 
-            const payload = authState.payload;
-            const firstName = payload?.given_name || payload?.first_name || 'Earthling';
-            const sessionBuwanaId = toInt(payload?.buwana_id);
-            const buwanaId = urlBuwanaId ?? sessionBuwanaId;
+            const payload = authState.payload ?? null;
+            const profile = window.userProfile ?? null;
+
+            const firstName = profile?.first_name
+                || payload?.given_name
+                || payload?.first_name
+                || 'Earthling';
+
+            const earthlingEmoji = profile?.earthling_emoji
+                || payload?.['buwana:earthlingEmoji']
+                || '🌎';
+
+            const buwanaId = toInt(profile?.buwana_id ?? payload?.buwana_id);
+
+            const tokenTimeZone = normalizeTimeZone(
+                profile?.time_zone
+                || payload?.['buwana:timeZone']
+                || payload?.zoneinfo
+                || payload?.tzid
+                || payload?.time_zone
+            );
+
+            const resolvedTimeZone = tokenTimeZone
+                || normalizeTimeZone(window.userTimeZone)
+                || (() => {
+                    try {
+                        return normalizeTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    } catch (error) {
+                        console.warn('Unable to resolve browser timezone.', error);
+                        return null;
+                    }
+                })()
+                || 'Etc/UTC';
+
+            const defaultCalendarDescription = 'Your default, all-purpose personal calendar for general events, to-dos and journals.';
 
             if (greetingEl) {
                 greetingEl.textContent = `Welcome to EarthCal, ${firstName}!`;
@@ -345,7 +387,7 @@
             };
 
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-            const MIN_TASK_DURATION_MS = 1000;
+            const MIN_TASK_DURATION_MS = 4000;
 
             const runTask = async (label, action) => {
                 const list = taskLog;
@@ -439,10 +481,11 @@
                     statusIntro.textContent = 'We are setting up your personalized calendars...';
                 }
 
-                let userTimeZone = 'Etc/UTC';
+                let userTimeZone = resolvedTimeZone;
                 let calendarId = null;
                 let myCalendarCreated = false;
-                let calendarTimeZone = null;
+                let calendarTimeZone = resolvedTimeZone;
+                const hasTokenTimeZone = Boolean(tokenTimeZone);
 
                 await runTask('Confirming your EarthCal account', async () => {
                     const checkResponse = await fetch('api/v1/create_my_calendar.php', {
@@ -461,7 +504,7 @@
                         throw new Error('User not located in users_tb.');
                     }
                     console.log(`✅ Confirmed EarthCal account in users_tb for buwana_id ${buwanaId}.`, checkJson.user ?? {});
-                    if (checkJson?.user?.time_zone) {
+                    if (!hasTokenTimeZone && checkJson?.user?.time_zone) {
                         userTimeZone = checkJson.user.time_zone;
                     }
                 });
@@ -471,7 +514,12 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'same-origin',
-                        body: JSON.stringify({ buwana_id: buwanaId })
+                        body: JSON.stringify({
+                            buwana_id: buwanaId,
+                            emoji: earthlingEmoji,
+                            tzid: userTimeZone,
+                            description: defaultCalendarDescription
+                        })
                     });
 
                     if (!createResponse.ok) {
@@ -493,7 +541,7 @@
                         calendarId = parsedId;
                     }
                     myCalendarCreated = Boolean(createJson.created);
-                    calendarTimeZone = calendar?.tzid || userTimeZone || 'Etc/UTC';
+                    calendarTimeZone = calendar?.tzid || userTimeZone || resolvedTimeZone || 'Etc/UTC';
                 });
 
                 await runTask('Subscribing to the 2025 and 2026 Astrological Events calendars', async () => {
