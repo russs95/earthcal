@@ -315,7 +315,7 @@ async function manageEarthcalUserSub() {
         const contentBox = modal.querySelector('.modal-content-box');
         if (contentBox) {
             contentBox.id = 'modal-content-box';
-            contentBox.classList.add('dim-blur');
+            contentBox.classList.add('dim-blur', 'subscription-modal-background');
             contentBox.style.backgroundColor = 'transparent';
         }
 

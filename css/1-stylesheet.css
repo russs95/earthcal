@@ -2757,15 +2757,18 @@ INFO MODAL
 
      ......................................*/
 
+#modal-content-box.subscription-modal-background {
+  background-image: url(../webp/earthen-subscription-background-dark.webp);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top center;
+}
+
 .ec-subscription-modal {
   width: 100%;
   padding: 10px 5%;
   box-sizing: border-box;
   color: var(--h1);
-  background-image: url(../webp/earthen-subscription-background-dark.webp);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: top center;
 }
 
 .ec-subscription-modal h1 {

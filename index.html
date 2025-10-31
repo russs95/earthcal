@@ -13,6 +13,7 @@
                     const redirectParams = new URLSearchParams();
                     if (buwanaId) {
                         redirectParams.set("buwana_id", buwanaId);
+                        redirectParams.set("id", buwanaId);
                     }
 
                     const search = redirectParams.toString();

@@ -297,6 +297,7 @@ function closeTheModal() {
     const box = document.getElementById('modal-content-box');
     if (box) {
         box.classList.remove('dim-blur');
+        box.classList.remove('subscription-modal-background');
         box.style.backgroundColor = '';
     }
 
