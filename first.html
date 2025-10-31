@@ -52,6 +52,10 @@
             font-display: swap;
         }
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -76,6 +80,8 @@
             gap: 1.75rem;
             text-align: center;
             backdrop-filter: blur(18px);
+            max-height: min(100vh, 100dvh);
+            overflow: auto;
         }
 
         h1 {
@@ -265,7 +271,7 @@
 </head>
 <body>
     <main class="onboarding-card" role="main">
-        <h1 id="greeting">Welcome to EarthCal.</h1>
+        <h1 id="greeting">Welcome Earthling</h1>
         <div id="status-message">
             <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
             <div class="status-text" aria-live="polite">
@@ -330,7 +336,7 @@
             const payload = authState.payload ?? null;
             const profile = window.userProfile ?? null;
 
-            const firstName = profile?.first_name
+            let firstName = profile?.first_name
                 || payload?.given_name
                 || payload?.first_name
                 || 'Earthling';
@@ -364,9 +370,17 @@
 
             const defaultCalendarDescription = 'Your default, all-purpose personal calendar for general events, to-dos and journals.';
 
-            if (greetingEl) {
-                greetingEl.textContent = `Welcome to EarthCal, ${firstName}!`;
-            }
+            const updateGreeting = (name) => {
+                if (!greetingEl) {
+                    return;
+                }
+                const safeName = typeof name === 'string' && name.trim().length > 0
+                    ? name.trim()
+                    : 'Earthling';
+                greetingEl.textContent = `Welcome ${safeName}`;
+            };
+
+            updateGreeting(firstName);
 
             if (!buwanaId) {
                 console.error('Unable to locate id in the current URL parameters.');
@@ -538,6 +552,13 @@
                     console.log(`✅ Confirmed EarthCal account in users_tb for buwana_id ${buwanaId}.`, checkJson.user ?? {});
                     if (!hasTokenTimeZone && checkJson?.user?.time_zone) {
                         userTimeZone = checkJson.user.time_zone;
+                    }
+                    const fetchedFirstName = checkJson?.user?.first_name
+                        || checkJson?.user?.firstName
+                        || checkJson?.user?.given_name;
+                    if (fetchedFirstName) {
+                        firstName = fetchedFirstName;
+                        updateGreeting(firstName);
                     }
                 });
 
