@@ -136,7 +136,7 @@ login: {
   emailPlaceholder: "Email Anda...",
   passwordPlaceholder: "Kata sandi Anda...",
   statusFirstTime: (emoji) => `🎉 Akun Buwana Anda telah dibuat! ${emoji}`,
-  statusReturning: (emoji, name) => `${emoji} Selamat datang kembali, ${name}`,
+  statusReturning: (emoji, name) => `Selamat datang ${name}.  Masuk dengan akun Buwana untuk menggunakan fitur kalender dan manajemen acara EarthCal yang canggih.`,
   credentialLabel: "Masuk dengan kredensial akun Buwana Anda.",
   forgotPassword: "Lupa kata sandi Anda?",
   resetLink: "Setel ulang.",
