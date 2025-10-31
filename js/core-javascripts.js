@@ -370,9 +370,36 @@ async function manageEarthcalUserSub() {
             <div class="ec-subscription-modal">
                 <h1>Upgrade EarthCal</h1>
                 <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
-                <p>Please sign in with your Buwana account to manage subscriptions.</p>
+                <p>Please sign in with your Buwana account to upgrade.</p>
+                <div id="modal-login-buttons" style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                    <button id="modal-auth-login-button" class="login-button">Login with Buwana</button>
+                    <button id="modal-auth-signup-button" class="signup-button">Sign Up to Earthcal</button>
+                </div>
             </div>
         `);
+
+        const modalSignupButton = document.getElementById('modal-auth-signup-button');
+        if (modalSignupButton) {
+            modalSignupButton.onclick = () => {
+                window.location.href = 'https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58';
+            };
+        }
+
+        const modalLoginButton = document.getElementById('modal-auth-login-button');
+        if (modalLoginButton && typeof createJWTloginURL === 'function') {
+            createJWTloginURL()
+                .then((url) => {
+                    if (url) {
+                        modalLoginButton.onclick = () => {
+                            window.location.href = url;
+                        };
+                    }
+                })
+                .catch((error) => {
+                    console.error('Unable to prepare modal login button', error);
+                });
+        }
+
         return;
     }
 
@@ -1186,7 +1213,7 @@ function guidedTour() {
   modal.style.display = "flex";
   document.getElementById("page-content").classList.add("blur");
 
-  const translationVersion = '1.1';
+  const translationVersion = '1.2';
 
   import(`../translations/${userLanguage}.js?v=${translationVersion}`).then(module => {
     const t = module.translations.tour;

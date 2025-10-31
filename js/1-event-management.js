@@ -985,7 +985,7 @@ async function loadTranslationsWithFallback(langCode) {
     if (typeof loadTranslations === "function") {
         return await loadTranslations(langCode);
     }
-    const translationVersion = '1.1';
+    const translationVersion = '1.2';
     try {
         const module = await import(`../translations/${langCode}.js?v=${translationVersion}`);
         return module.translations;

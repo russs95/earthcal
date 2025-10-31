@@ -135,7 +135,7 @@ login: {
   emailPlaceholder: "您的电子邮件...",
   passwordPlaceholder: "您的密码...",
   statusFirstTime: (emoji) => `🎉 您的 Buwana 账户已创建！${emoji}`,
-  statusReturning: (emoji, name) => `${emoji} 欢迎回来，${name}`,
+  statusReturning: (emoji, name) => `欢迎 ${name}。  请使用 Buwana 帐户登录，以充分利用 EarthCal 强大的日历和事件管理功能。`,
   credentialLabel: "使用您的 Buwana 账户凭据登录。",
   forgotPassword: "忘记密码？",
   resetLink: "重置密码。",

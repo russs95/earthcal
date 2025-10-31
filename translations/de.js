@@ -135,7 +135,7 @@ login: {
   emailPlaceholder: "Deine E-Mail...",
   passwordPlaceholder: "Dein Passwort...",
   statusFirstTime: (emoji) => `🎉 Dein Buwana-Konto wurde erstellt! ${emoji}`,
-  statusReturning: (emoji, name) => `${emoji} Willkommen zurück, ${name}`,
+  statusReturning: (emoji, name) => `Willkommen ${name}.  Melde dich mit einem Buwana-Konto an, um die leistungsstarken Kalender- und Veranstaltungsfunktionen von EarthCal zu nutzen.`,
   credentialLabel: "Melde dich mit deinen Buwana-Zugangsdaten an.",
   forgotPassword: "Passwort vergessen?",
   resetLink: "Zurücksetzen.",
