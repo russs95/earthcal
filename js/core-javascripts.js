@@ -368,8 +368,8 @@ async function manageEarthcalUserSub() {
     if (!user?.buwana_id) {
         setModalHtml(`
             <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                <h1>Upgrade EarthCal</h1>
+                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 <p>Please sign in with your Buwana account to manage subscriptions.</p>
             </div>
         `);
@@ -378,8 +378,8 @@ async function manageEarthcalUserSub() {
 
     modalContent.innerHTML = `
         <div class="ec-subscription-modal">
-            <h1>Select Moment Mastery</h1>
-            <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+            <h1>Upgrade EarthCal</h1>
+            <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
             <p>Checking your subscription&hellip;</p>
         </div>
     `;
@@ -437,7 +437,47 @@ async function manageEarthcalUserSub() {
         return { priceText, intervalText };
     };
 
+    const padwanFeatureList = [
+        'Create events, to-dos and journals.',
+        'Visualize your date-items over real-time Earthen cycles.',
+        'Create and manage various personal calendars.',
+        'Create or subscribe to public calendars.',
+        'View the planet positions and orbits for any date.',
+        'View detailed lunar information for any date.',
+        'View detailed orbital stats for the inner planets for any date.',
+        'View migrations of great creatures for any date.',
+        'Search by date for future and past planetary positions.',
+        'Sync with Ubuntu desktop app',
+    ];
+
+    const jediFeatureList = [
+        'Subscribe to Google calendars',
+        'Subscribe to Apple calendars (coming soon)',
+        'Subscribe to Outlook calendars (coming soon)',
+        'Subscribe to public iCal feeds',
+        'Toggle between Day and Night modes',
+        'Access Mac desktop app (coming soon)',
+        'Support the development of EarthCal into an even more awesome tool!',
+    ];
+
     const renderFeatures = (plan) => {
+        const explicitFeatures = Array.isArray(plan?.featureList)
+            ? plan.featureList.map((item) => item && item.toString().trim()).filter(Boolean)
+            : [];
+
+        if (explicitFeatures.length) {
+            const classes = ['ec-plan-feature-list'];
+            if ((plan?.featureVariant || '').toLowerCase() === 'checks') {
+                classes.push('ec-plan-feature-list--checks');
+            }
+
+            return `
+                <ul class="${classes.join(' ')}">
+                    ${explicitFeatures.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+                </ul>
+            `;
+        }
+
         const description = plan?.description;
         if (!description) {
             return '';
@@ -500,11 +540,14 @@ async function manageEarthcalUserSub() {
             : (Array.isArray(subscriptionData?.plans) ? subscriptionData.plans : []);
 
         const padwanPlanFromApi = plans.find((plan) => Number(plan?.plan_id) === 1) || null;
-        const padwanPlan = padwanPlanFromApi || {
-            name: 'Padwan Plan',
-            price_cents: 0,
-            billing_interval: 'lifetime',
-            description: 'Explore the essential EarthCal experience and daily moment tracking for free.',
+        const padwanPlan = {
+            ...(padwanPlanFromApi || {}),
+            name: padwanPlanFromApi?.name || 'Padwan Plan',
+            price_cents: padwanPlanFromApi?.price_cents ?? padwanPlanFromApi?.priceCents ?? 0,
+            billing_interval: padwanPlanFromApi?.billing_interval || 'lifetime',
+            description: padwanPlanFromApi?.description || '',
+            featureList: padwanFeatureList,
+            featureVariant: 'bullets',
         };
 
         const jediPlans = plans.filter((plan) => [2, 3, 4].includes(Number(plan?.plan_id)));
@@ -517,12 +560,19 @@ async function manageEarthcalUserSub() {
             return acc;
         }, {});
 
-        const jediFeatureSource = jediPlans.find((plan) => plan?.description)
+        const jediFeatureSourceBase = jediPlans.find((plan) => plan?.description)
             || jediPlans[0]
             || {
                 name: 'Jedi Plan',
                 description: 'Harness advanced EarthCal powers, automation and deeper cosmic insights designed for masters of time.',
             };
+        const jediDisplayPlan = {
+            ...(jediFeatureSourceBase || {}),
+            name: jediFeatureSourceBase?.name || 'Jedi Plan',
+            description: jediFeatureSourceBase?.description || '',
+            featureList: jediFeatureList,
+            featureVariant: 'checks',
+        };
 
         const jediPriceData = {
             month: formatPrice(jediByInterval.month),
@@ -558,8 +608,8 @@ async function manageEarthcalUserSub() {
 
         modalContent.innerHTML = `
             <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                <h1>Upgrade EarthCal</h1>
+                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 ${planMessage ? `<div class="ec-plan-current-label">${planMessage}</div>` : ''}
                 <div class="ec-plan-toggle" role="group" aria-label="Choose billing interval">
                     <span class="ec-toggle-indicator"></span>
@@ -575,7 +625,7 @@ async function manageEarthcalUserSub() {
                         ${renderFeatures(padwanPlan)}
                     </div>
                     <div class="ec-plan-card${userPlanType === 'jedi' ? ' current-plan' : ''}">
-                        <h2>${escapeHtml(jediFeatureSource?.name || 'Jedi Plan')}</h2>
+                        <h2>${escapeHtml(jediDisplayPlan?.name || 'Jedi Plan')}</h2>
                         <div class="ec-plan-price" data-role="jedi-price"
                             data-month-price="${jediPriceAttr('month', 'priceText')}"
                             data-month-interval="${jediPriceAttr('month', 'intervalText')}"
@@ -588,7 +638,7 @@ async function manageEarthcalUserSub() {
                         <div class="ec-plan-interval" data-role="jedi-interval">
                             ${escapeHtml(jediPriceData[firstAvailableInterval]?.intervalText || '')}
                         </div>
-                        ${renderFeatures(jediFeatureSource)}
+                        ${renderFeatures(jediDisplayPlan)}
                     </div>
                 </div>
                 ${upgradeButtonHtml}
@@ -655,8 +705,8 @@ async function manageEarthcalUserSub() {
         console.error('Failed to load subscription details:', error);
         setModalHtml(`
             <div class="ec-subscription-modal">
-                <h1>Select Moment Mastery</h1>
-                <p id="sales-pitch">EarthCal is powerful tool in the Art of Time as we make the most of our moments here on planet Earth. Support EarthCal development and get access to Jedi features by upgrading.</p>
+                <h1>Upgrade EarthCal</h1>
+                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 <p>We could not load your subscription details (${escapeHtml(error.message || 'unknown error')}). Please try again in a moment.</p>
             </div>
         `);

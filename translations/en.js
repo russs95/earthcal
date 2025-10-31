@@ -166,7 +166,7 @@ settings: {
     },
 
     subscriptions: {
-        heading: "Select Moment Mastery",
+        heading: "Upgrade EarthCal",
         currentPlan: "You are currently on the {planName} plan.",
         currentStatus: "Status: {status}",
         loginRequired: "Please sign in to manage your EarthCal subscription.",

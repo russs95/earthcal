@@ -647,20 +647,20 @@ flex-direction: row;
 }
 
 .earthcal-app-logo img {
-  width: 250px;
+  width: 177px;
   max-width: 100%;
   height: auto;
 }
 
 @media screen and (max-width: 1199px) {
   .earthcal-app-logo img {
-    width: 150px;
+    width: 155px;
   }
 }
 
 @media screen and (max-width: 767px) {
   .earthcal-app-logo img {
-    width: 100px;
+    width: 111px;
   }
 }
 
@@ -2884,6 +2884,7 @@ INFO MODAL
   width: min(360px, 90%);
   margin: 24px auto 32px auto;
   backdrop-filter: blur(6px);
+  font-family: "Mulish", sans-serif;
 }
 
 .ec-plan-toggle .ec-toggle-indicator {
@@ -2911,6 +2912,10 @@ INFO MODAL
   cursor: pointer;
   transition: color 0.2s ease;
   z-index: 1;
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-transform: none;
+  appearance: none;
 }
 
 .ec-toggle-option.active {
@@ -2973,6 +2978,26 @@ INFO MODAL
 .ec-plan-feature-list li {
   margin-bottom: 8px;
   line-height: 1.5;
+}
+
+.ec-plan-feature-list--checks {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ec-plan-feature-list--checks li {
+  position: relative;
+  padding-left: 28px;
+}
+
+.ec-plan-feature-list--checks li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  color: #34d399;
+  font-size: 0.9em;
+  line-height: 1;
 }
 
 .ec-plan-actions {
