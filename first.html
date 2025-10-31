@@ -245,7 +245,7 @@
         <button id="get-started-button" type="button" aria-disabled="true" disabled>Get Started</button>
     </main>
 
-    <script src="js/login-scripts.js"></script>
+    <script src="js/first-onboarding.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const greetingEl = document.getElementById('greeting');
@@ -287,9 +287,9 @@
             };
 
             try {
-                await getUserData();
+                await firstGetUserData();
             } catch (error) {
-                console.warn('Unable to pre-load user data via getUserData.', error);
+                console.warn('Unable to pre-load user data via firstGetUserData.', error);
             }
 
             const authState = typeof window.isLoggedIn === 'function'
