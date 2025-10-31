@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Allow calls from our known front-end origins.
 $allowedOrigins = [
     'https://ecobricks.org',
     'https://earthcal.app',
@@ -25,18 +26,21 @@ if ($origin !== '' && $origin !== null) {
     header('Access-Control-Allow-Origin: *');
 }
 
+// Respond to CORS preflight requests without executing any business logic.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     exit(0);
 }
 
+// Only POST requests are permitted for this endpoint.
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'invalid_method']);
     exit;
 }
 
+// Decode the JSON payload (or fall back to form data) and collect user intent.
 $raw = file_get_contents('php://input');
 $input = json_decode($raw ?: '[]', true);
 if (!is_array($input)) {
@@ -71,6 +75,7 @@ $subscribe = $boolFilter($input['subscribe'] ?? null);
 $color = isset($input['color']) && is_string($input['color']) ? trim($input['color']) : null;
 $emoji = isset($input['emoji']) && is_string($input['emoji']) ? trim($input['emoji']) : null;
 
+// Validate required inputs before touching the database.
 if (!$buwanaId) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'buwana_id_required']);
@@ -89,6 +94,7 @@ if ($subscribe === null) {
     exit;
 }
 
+// Attempt a database connection and surface a predictable error if it fails.
 try {
     require_once __DIR__ . '/../pdo_connect.php';
     $pdo = earthcal_get_pdo();
@@ -104,6 +110,8 @@ try {
 }
 
 try {
+    // Confirm the user exists and the requested calendar is public before
+    // modifying subscription state.
     $pdo->beginTransaction();
 
     $userStmt = $pdo->prepare('SELECT buwana_id FROM users_tb WHERE buwana_id = ? LIMIT 1');
@@ -155,6 +163,8 @@ try {
     $defaultEmoji = $calendarRow['cal_emoji'] ?? '📅';
 
     if ($subscribe) {
+        // Subscribe (or reactivate) the calendar, preserving any existing color
+        // and emoji choices unless overrides were supplied in the request.
         $colorToUse = $color !== null && $color !== '' ? $color : ($existing['color'] ?? $defaultColor);
         $emojiToUse = $emoji !== null && $emoji !== '' ? $emoji : ($existing['emoji'] ?? $defaultEmoji);
 
@@ -207,6 +217,8 @@ try {
         exit;
     }
 
+    // When unsubscribing, deactivate an existing subscription so the user can
+    // re-enable it later without losing their preferences.
     if ($existing) {
         $deactivateStmt = $pdo->prepare(
             'UPDATE subscriptions_v1_tb

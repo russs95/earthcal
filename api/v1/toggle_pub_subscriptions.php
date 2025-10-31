@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+// Configure the CORS policy so trusted surfaces (web app, beta app, local dev)
+// can call this endpoint directly from the browser.
 $allowedOrigins = [
     'https://ecobricks.org',
     'https://earthcal.app',
@@ -25,18 +27,22 @@ if ($origin !== '' && $origin !== null) {
     header('Access-Control-Allow-Origin: *');
 }
 
+// Exit early for preflight requests; the actual request will follow.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     exit(0);
 }
 
+// The endpoint only accepts POST payloads.
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'invalid_method']);
     exit;
 }
 
+// Normalise the request body (JSON body preferred, but fall back to form-data
+// for backwards compatibility) and collect optional customisation values.
 $raw = file_get_contents('php://input');
 $input = json_decode($raw ?: '[]', true);
 if (!is_array($input)) {
@@ -82,6 +88,7 @@ if ($subscribeCandidate !== null) {
     }
 }
 
+// Require the user identifier and, when subscribing, the target calendar.
 if (!$buwanaId) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'success' => false, 'error' => 'buwana_id_required']);
@@ -94,6 +101,8 @@ if ($subscribeFlag && !$calendarId) {
     exit;
 }
 
+// Connect to the EarthCal database and surface a consistent error response if
+// that fails for any reason.
 try {
     require_once __DIR__ . '/../pdo_connect.php';
     $pdo = earthcal_get_pdo();
@@ -109,6 +118,8 @@ try {
 }
 
 try {
+    // Ensure the calling user exists before attempting to change their
+    // subscriptions to avoid orphan records.
     $pdo->beginTransaction();
 
     $userStmt = $pdo->prepare('SELECT buwana_id FROM users_tb WHERE buwana_id = ? LIMIT 1');
@@ -121,6 +132,9 @@ try {
     }
 
     if ($subscribeFlag) {
+        // Subscribe (or re-activate) flow: verify the calendar is public, then
+        // either update the existing subscription row or create a new one with
+        // the requested overrides.
         $calendarStmt = $pdo->prepare(
             'SELECT calendar_id, visibility, cal_emoji, color, name FROM calendars_v1_tb WHERE calendar_id = ? LIMIT 1'
         );
@@ -212,7 +226,8 @@ try {
         exit;
     }
 
-    // Unsubscribe flow
+    // Unsubscribe flow: look up an existing subscription by either explicit
+    // subscription ID or calendar ID and remove it if present.
     $calendarRow = null;
     if ($calendarId) {
         $calendarStmt = $pdo->prepare(
