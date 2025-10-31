@@ -8,17 +8,27 @@
         (function () {
             try {
                 const params = new URLSearchParams(window.location.search);
-                if (params.get("status") === "firsttime") {
-                    const buwanaId = params.get("buwana_id") || params.get("id");
-                    const redirectParams = new URLSearchParams();
-                    if (buwanaId) {
-                        redirectParams.set("buwana_id", buwanaId);
-                        redirectParams.set("id", buwanaId);
+                const buwanaId = params.get("buwana_id") || params.get("id");
+                if (buwanaId) {
+                    try {
+                        localStorage.setItem("buwana_id", buwanaId);
+                    } catch (storageError) {
+                        console.warn("Unable to store buwana_id in localStorage.", storageError);
                     }
+                }
 
-                    const search = redirectParams.toString();
-                    const redirectUrl = "first.html" + (search ? `?${search}` : "");
-                    window.location.replace(redirectUrl);
+                const hasFirstTimeFlag = params.has("firsttime") || params.get("status") === "firsttime";
+                if (hasFirstTimeFlag) {
+                    window.addEventListener("load", () => {
+                        const redirectParams = new URLSearchParams();
+                        if (buwanaId) {
+                            redirectParams.set("id", buwanaId);
+                        }
+
+                        const search = redirectParams.toString();
+                        const redirectUrl = "first.html" + (search ? `?${search}` : "");
+                        window.location.replace(redirectUrl);
+                    });
                 }
             } catch (error) {
                 console.error("Unable to process onboarding redirect.", error);
