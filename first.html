@@ -4,89 +4,212 @@
     <meta charset="UTF-8">
     <title>EarthCal | Setting up your account</title>
     <link rel="icon" href="assets/icons/favicon.ico" />
+    <link rel="preload" href="assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <style>
+        :root {
+            color-scheme: light dark;
+            --background-color: #f5f5f5;
+            --card-background: rgba(255, 255, 255, 0.92);
+            --text-color: #0d1a26;
+            --muted-text: #334155;
+            --button-background: #0d1a26;
+            --button-text: #f7f9fb;
+            --button-hover: #14293a;
+            --spinner-track: rgba(13, 26, 38, 0.15);
+            --spinner-active: #6c5ce7;
+            --shadow-color: rgba(15, 23, 42, 0.12);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #0d0f1a;
+                --card-background: rgba(13, 18, 32, 0.85);
+                --text-color: #f7f9fb;
+                --muted-text: #cbd5f5;
+                --button-background: #f7f9fb;
+                --button-text: #0d1a26;
+                --button-hover: #e1e7ef;
+                --spinner-track: rgba(247, 249, 251, 0.2);
+                --spinner-active: #8ab4ff;
+                --shadow-color: rgba(0, 0, 0, 0.35);
+            }
+        }
+
+        @font-face {
+            font-family: 'Mulish';
+            src: url('assets/fonts/Mulish-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Mulish';
+            src: url('assets/fonts/Mulish-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
         body {
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--background-color);
+            font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .onboarding-card {
+            width: min(92vw, 640px);
+            padding: clamp(1.5rem, 4vw, 2.75rem);
+            border-radius: 28px;
+            background: var(--card-background);
+            box-shadow: 0 18px 40px var(--shadow-color);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Arial', sans-serif;
-            background-color: #0d1a26;
-            color: #f7f9fb;
+            gap: 1.75rem;
             text-align: center;
+            backdrop-filter: blur(18px);
         }
+
         h1 {
-            margin-bottom: 0.5rem;
+            margin: 0;
+            font-size: clamp(1.6rem, 5vw, 2.4rem);
+            font-weight: 500;
+            letter-spacing: -0.015em;
         }
-        p {
-            margin-top: 0;
-            max-width: 420px;
-            line-height: 1.5;
-        }
+
         #status-message {
+            margin: 0;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            line-height: 1.6;
             text-align: left;
+            color: var(--muted-text);
         }
+
         #earthcal-spinner {
             display: inline-flex;
-            width: 1.25rem;
-            height: 1.25rem;
+            flex-shrink: 0;
+            width: 1.75rem;
+            height: 1.75rem;
             border-radius: 50%;
-            border: 3px solid rgba(255, 192, 203, 0.35);
-            border-top-color: #ff6fb5;
+            border: 3px solid var(--spinner-track);
+            border-top-color: var(--spinner-active);
             animation: spin 0.85s linear infinite;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
         }
+
         #earthcal-spinner.spinner-complete {
             animation: none;
             border: none;
+            background: transparent;
             width: auto;
             height: auto;
-            font-size: 1.25rem;
         }
+
         .status-text {
             flex: 1;
         }
+
         #get-started-button {
-            margin-top: 2rem;
-            padding: 0.75rem 1.75rem;
+            align-self: center;
+            margin-top: 0.5rem;
+            padding: 0.85rem 2.75rem;
             font-size: 1rem;
-            font-weight: 600;
-            color: #0d1a26;
-            background-color: #f7f9fb;
+            font-weight: 500;
+            color: var(--button-text);
+            background-color: var(--button-background);
             border: none;
             border-radius: 999px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
         }
+
         #get-started-button[aria-disabled="true"],
         #get-started-button:disabled {
-            opacity: 0.6;
+            opacity: 0.55;
             cursor: not-allowed;
             box-shadow: none;
         }
+
         #get-started-button:not([aria-disabled="true"]):not(:disabled):hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.22);
+            background-color: var(--button-hover);
+            color: var(--button-text);
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 1.5rem 0.75rem;
+            }
+
+            .onboarding-card {
+                width: 100%;
+                box-shadow: none;
+                border-radius: 20px;
+                padding: 1.75rem;
+            }
+
+            #status-message {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .status-text {
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            body {
+                padding: 2rem;
+            }
+
+            .onboarding-card {
+                width: min(85vw, 720px);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            body {
+                padding: 3rem;
+            }
+
+            .onboarding-card {
+                width: 640px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1 id="greeting">Welcome to EarthCal.</h1>
-    <p id="status-message">
-        <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
-        <span class="status-text">Creating your personal My Calendar where you can start saving events, to-dos, journals and more...</span>
-    </p>
-
-    <button id="get-started-button" type="button" aria-disabled="true" disabled>Get Started</button>
+    <main class="onboarding-card" role="main">
+        <h1 id="greeting">Welcome to EarthCal.</h1>
+        <p id="status-message">
+            <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
+            <span class="status-text">Subscribing you to the 2025 and 2026 Astrological Events Public calendar.   Public calendars are a great way to enrich your Earthcal.  Later you turn these calendars on or off.</span>
+        </p>
+        <button id="get-started-button" type="button" aria-disabled="true" disabled>Get Started</button>
+    </main>
 
     <script src="js/login-scripts.js"></script>
     <script>
@@ -96,6 +219,22 @@
             const spinner = document.getElementById('earthcal-spinner');
             const statusText = statusMessage?.querySelector('.status-text');
             const getStartedButton = document.getElementById('get-started-button');
+
+            const setSpinnerActive = () => {
+                if (!spinner) return;
+                spinner.classList.remove('spinner-complete');
+                spinner.textContent = '';
+                spinner.setAttribute('role', 'status');
+                spinner.setAttribute('aria-label', 'Loading');
+            };
+
+            const setSpinnerComplete = (symbol, ariaLabel) => {
+                if (!spinner) return;
+                spinner.classList.add('spinner-complete');
+                spinner.textContent = symbol;
+                spinner.setAttribute('role', 'img');
+                spinner.setAttribute('aria-label', ariaLabel);
+            };
 
             const params = new URLSearchParams(window.location.search);
             const toInt = (value) => {
@@ -127,8 +266,7 @@
                     statusText.textContent = 'We could not confirm your EarthCal account. Please refresh the page to try again.';
                 }
                 if (spinner) {
-                    spinner.classList.add('spinner-complete');
-                    spinner.textContent = '⚠️';
+                    setSpinnerComplete('⚠️', 'Unable to confirm account');
                 }
                 return;
             }
@@ -146,9 +284,37 @@
                 console.error('Unable to generate login URL.', error);
             }
 
+            const subscribeToPublicCalendars = async (userId) => {
+                const calendarIds = [52, 53];
+                const subscriptionEndpoint = 'api/v1/update_pub_cal_subs.php';
+                for (const calendarId of calendarIds) {
+                    const response = await fetch(subscriptionEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            buwana_id: userId,
+                            calendar_id: calendarId,
+                            subscribe: true
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Subscription request failed with status ${response.status} for calendar ${calendarId}`);
+                    }
+
+                    const json = await response.json();
+                    if (!json?.ok) {
+                        throw new Error(json?.error || `Unable to subscribe to calendar ${calendarId}`);
+                    }
+                }
+            };
+
             const spinnerStart = performance.now();
 
             try {
+                setSpinnerActive();
+
                 const checkResponse = await fetch('api/v1/create_my_calendar.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -184,27 +350,11 @@
 
                 console.log('📅 My Calendar status:', createJson);
 
-                try {
-                    const subscriptionResponse = await fetch('api/v1/setup_user_subscription.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({ buwana_id: buwanaId, plan_slug: 'padwan' })
-                    });
-
-                    if (!subscriptionResponse.ok) {
-                        throw new Error(`Subscription provisioning failed with status ${subscriptionResponse.status}`);
-                    }
-
-                    const subscriptionJson = await subscriptionResponse.json();
-                    if (!subscriptionJson?.ok) {
-                        throw new Error(subscriptionJson?.error || 'Unknown error while setting up subscription');
-                    }
-
-                    console.log('🪐 Padwan subscription status:', subscriptionJson);
-                } catch (subscriptionError) {
-                    console.error('Unable to provision Padwan subscription.', subscriptionError);
+                if (statusText) {
+                    statusText.textContent = 'Subscribing you to the 2025 and 2026 Astrological Events Public calendar.   Public calendars are a great way to enrich your Earthcal.  Later you turn these calendars on or off.';
                 }
+
+                await subscribeToPublicCalendars(buwanaId);
 
                 const elapsed = performance.now() - spinnerStart;
                 if (elapsed < 1000) {
@@ -212,14 +362,13 @@
                 }
 
                 if (spinner) {
-                    spinner.classList.add('spinner-complete');
-                    spinner.textContent = '✅';
+                    setSpinnerComplete('✅', 'Public calendar subscriptions confirmed');
                 }
 
                 if (statusText) {
                     statusText.textContent = createJson.created
-                        ? 'Your My Calendar is ready! Click below to get started.'
-                        : 'Looks like you already have a My Calendar. Click below to get started.';
+                        ? 'Your My Calendar is ready and the Astrological Events calendars are now part of your EarthCal. Click below to get started.'
+                        : 'Your My Calendar was already waiting for you. The Astrological Events calendars are enabled—click below to explore!';
                 }
             } catch (error) {
                 console.error('Unable to complete onboarding steps.', error);
@@ -227,8 +376,7 @@
                     statusText.textContent = 'We ran into a hiccup preparing your account. Please refresh the page to try again.';
                 }
                 if (spinner) {
-                    spinner.classList.add('spinner-complete');
-                    spinner.textContent = '⚠️';
+                    setSpinnerComplete('⚠️', 'An error occurred');
                 }
             }
         });
