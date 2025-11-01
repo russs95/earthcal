@@ -22,8 +22,10 @@
                     window.__EARTHCAL_FIRST_NAME__ = firstName;
                 }
 
-                const hasFirstTimeFlag = params.has("firsttime") || params.get("status") === "firsttime";
+                const statusParam = params.get("status");
+                const hasFirstTimeFlag = statusParam === "firsttime";
                 window.__EARTHCAL_HAS_FIRST_TIME__ = hasFirstTimeFlag;
+                window.__EARTHCAL_STATUS_PARAM__ = statusParam;
                 window.__EARTHCAL_BUWANA_ID__ = buwanaId;
             } catch (error) {
                 console.error("Unable to process onboarding redirect.", error);
@@ -80,9 +82,6 @@
             justify-content: flex-start;
             overflow: auto;
         }
-        body.first-time-ready #progress-container {
-            display: none;
-        }
         body.first-time-ready #onboarding-section {
             display: flex;
         }
@@ -108,28 +107,19 @@
             box-sizing: border-box;
             gap: 18px;
         }
-        #progress-container {
-            width: 100px;
-            height: 10px;
-            background-color: #333;
-            margin-top: 10px;
-            border-radius: 10px;
-            overflow: hidden;
-            border: none;
+        #earthcal-spinner-logo {
+            width: 111px;
+            max-width: 100%;
+            height: auto;
         }
-        #load-progress {
-            width: 0%;
-            height: 100%;
-            background-color: #ccc;
-            transition: width 0.3s ease;
-            border-radius: 10px;
-        }
-        @media (prefers-color-scheme: dark) {
-            #progress-container {
-                background-color: #ccc;
+        @media screen and (min-width: 769px) and (max-width: 1200px) {
+            #earthcal-spinner-logo {
+                width: 155px;
             }
-            #load-progress {
-                background-color: #333;
+        }
+        @media screen and (min-width: 1201px) {
+            #earthcal-spinner-logo {
+                width: 177px;
             }
         }
         #footer {
@@ -148,10 +138,6 @@
             body.first-time-ready {
                 align-items: stretch;
                 justify-content: flex-start;
-            }
-            #progress-container {
-                width: 150px;
-                height: 15px;
             }
             #footer {
                 font-size: 1em;
@@ -183,7 +169,7 @@
             }
         }
         #onboarding-time {
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             width: 100%;
@@ -291,7 +277,7 @@
             padding: 0.85rem 2.75rem;
             font-size: 1rem;
             font-weight: 500;
-            color: var(--emblem-green-over, #f7f9fb);
+            color: #f7f9fb;
             background-color: var(--emblem-green, #0d1a26);
             border: none;
             border-radius: 999px;
@@ -309,7 +295,7 @@
             transform: translateY(-2px);
             box-shadow: 0 16px 30px rgba(15, 23, 42, 0.22);
             background-color: var(--emblem-green-over, #14293a);
-            color: var(--emblem-green, #0d1a26);
+            color: #f7f9fb;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -344,7 +330,6 @@
                 </g>
             </svg>
         </div>
-        <div id="load-progress"></div>
         <div id="footer" style="text-align: center">
             <img src="svgs/earthen-icon.svg" style="width:50px;height:50px;">
             <p>EarthCal v1.0.0 by Earthen</p>
@@ -396,23 +381,15 @@
         "svgs/up-reg-arrow-light-active-hover.svg",
     ];
 
+    const BETA_MIN_HOLD_MS = 20000; // TODO(beta): shorten/remove this hold once beta testing completes.
+    const EARTHCAL_ANNIVERSARY_TITLE = "EarthCal Anniversary";
+
     const preloadAssets = async () => {
-        const bar = document.getElementById("load-progress");
-        if (!bar) {
-            return;
-        }
-        let loaded = 0;
-        const update = () => {
-            bar.style.width = `${(loaded / assets.length) * 100}%`;
-        };
         await Promise.all(
             assets.map((asset) =>
-                fetch(asset)
-                    .catch((err) => console.warn("Failed to load", asset, err))
-                    .finally(() => {
-                        loaded++;
-                        update();
-                    })
+                fetch(asset).catch((err) => {
+                    console.warn("Failed to load", asset, err);
+                })
             )
         );
     };
@@ -456,7 +433,6 @@
 
     const handleDefaultFlow = async () => {
         const redirectTarget = "dash.html";
-        const MAX_WAIT = 5000;
 
         ensureSessionProfile();
 
@@ -464,11 +440,12 @@
             console.warn("⚠️ Offline. Preloading may fail.");
         }
 
-        const preloadPromise = preloadAssets();
-        await Promise.race([
-            preloadPromise,
-            delay(MAX_WAIT),
-        ]);
+        const holdStartedAt = performance.now();
+        await preloadAssets();
+        const elapsed = performance.now() - holdStartedAt;
+        if (elapsed < BETA_MIN_HOLD_MS) {
+            await delay(BETA_MIN_HOLD_MS - elapsed);
+        }
 
         window.location.href = redirectTarget;
     };
@@ -477,21 +454,19 @@
         document.body.classList.add("first-time");
         const initialLoad = document.getElementById("initial-load");
         const onboardingWrapper = document.getElementById("onboarding-time");
-        const bar = document.getElementById("load-progress");
-        if (bar) {
-            bar.style.transition = "width 2s ease";
-            requestAnimationFrame(() => {
-                bar.style.width = "100%";
-            });
+        const holdStartedAt = performance.now();
+        await preloadAssets();
+        const elapsed = performance.now() - holdStartedAt;
+        if (elapsed < BETA_MIN_HOLD_MS) {
+            await delay(BETA_MIN_HOLD_MS - elapsed);
         }
 
-        await delay(2000);
-
         if (initialLoad) {
-            initialLoad.setAttribute("hidden", "");
+            initialLoad.style.display = "none";
         }
         if (onboardingWrapper) {
             onboardingWrapper.removeAttribute("hidden");
+            onboardingWrapper.style.display = "flex";
         }
         document.body.classList.add("first-time-ready");
 
@@ -500,6 +475,7 @@
         const statusMessages = document.getElementById("status-messages");
         if (onboardingSection) {
             onboardingSection.removeAttribute("hidden");
+            onboardingSection.style.display = "flex";
         }
         if (genericWelcome) {
             genericWelcome.removeAttribute("hidden");
@@ -519,6 +495,7 @@
         const taskLog = document.getElementById("task-log");
         const getStartedButton = document.getElementById("get-started-button");
         let onboardingFailed = false;
+        let startButtonHref = null;
 
         const setSpinnerActive = () => {
             if (!spinner) return;
@@ -630,15 +607,10 @@
         }
 
         try {
-            if (typeof window.createJWTloginURL === "function" && getStartedButton) {
+            if (typeof window.createJWTloginURL === "function") {
                 const loginURL = await window.createJWTloginURL();
                 if (loginURL) {
-                    getStartedButton.setAttribute("aria-disabled", "false");
-                    getStartedButton.disabled = false;
-                    getStartedButton.removeAttribute("hidden");
-                    getStartedButton.addEventListener("click", () => {
-                        window.location.href = loginURL;
-                    }, { once: true });
+                    startButtonHref = loginURL;
                 }
             }
         } catch (error) {
@@ -731,9 +703,69 @@
             }
         };
 
+        const hasExistingAnniversaryEvent = async ({ userId, calendarId }) => {
+            if (!userId || !calendarId) {
+                return false;
+            }
+
+            const numericCalendarId = Number(calendarId);
+            if (!Number.isFinite(numericCalendarId)) {
+                return false;
+            }
+
+            try {
+                const response = await fetch("api/v1/get_user_items.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: userId,
+                        include_public: false,
+                        only_active: true,
+                    }),
+                });
+
+                if (!response.ok) {
+                    console.warn(`Unable to confirm existing anniversary events (status ${response.status}).`);
+                    return false;
+                }
+
+                const json = await response.json();
+                if (!json?.ok || !Array.isArray(json?.calendars)) {
+                    return false;
+                }
+
+                const normalizedTarget = EARTHCAL_ANNIVERSARY_TITLE.toLowerCase();
+                const targetCalendar = json.calendars.find((calendar) => {
+                    const calendarIdentifier = Number(calendar?.calendar_id ?? calendar?.calendarId ?? calendar?.id);
+                    return Number.isFinite(calendarIdentifier) && calendarIdentifier === numericCalendarId;
+                });
+
+                if (!targetCalendar || !Array.isArray(targetCalendar.items)) {
+                    return false;
+                }
+
+                return targetCalendar.items.some((item) => {
+                    if (!item) {
+                        return false;
+                    }
+                    const summary = typeof item.summary === "string" ? item.summary.trim().toLowerCase() : "";
+                    return summary === normalizedTarget;
+                });
+            } catch (error) {
+                console.warn("Unable to verify existing EarthCal Anniversary event.", error);
+                return false;
+            }
+        };
+
         const addAnniversaryEvent = async ({ userId, calendarId, tzid }) => {
             if (!userId || !calendarId) {
                 throw new Error("Missing calendar context for the anniversary event.");
+            }
+
+            const alreadyScheduled = await hasExistingAnniversaryEvent({ userId, calendarId });
+            if (alreadyScheduled) {
+                return { alreadyExists: true };
             }
 
             const safeTzid = tzid || "Etc/UTC";
@@ -756,7 +788,7 @@
                 buwana_id: userId,
                 calendar_id: calendarId,
                 item_kind: "event",
-                title: "EarthCal Anniversary",
+                title: EARTHCAL_ANNIVERSARY_TITLE,
                 notes: "You joined Earthcal on this day! Celebrating your transition from linear-time to cycle-time.",
                 start_local: `${todayInTz} 00:00:00`,
                 tzid: safeTzid,
@@ -965,6 +997,10 @@
                 getStartedButton.removeAttribute("hidden");
                 getStartedButton.disabled = false;
                 getStartedButton.setAttribute("aria-disabled", "false");
+                const destination = startButtonHref || "dash.html";
+                getStartedButton.addEventListener("click", () => {
+                    window.location.href = destination;
+                }, { once: true });
             }
         }
     };
