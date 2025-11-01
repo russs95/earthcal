@@ -18,18 +18,8 @@
                 }
 
                 const hasFirstTimeFlag = params.has("firsttime") || params.get("status") === "firsttime";
-                if (hasFirstTimeFlag) {
-                    window.addEventListener("load", () => {
-                        const redirectParams = new URLSearchParams();
-                        if (buwanaId) {
-                            redirectParams.set("id", buwanaId);
-                        }
-
-                        const search = redirectParams.toString();
-                        const redirectUrl = "first.html" + (search ? `?${search}` : "");
-                        window.location.replace(redirectUrl);
-                    });
-                }
+                window.__EARTHCAL_HAS_FIRST_TIME__ = hasFirstTimeFlag;
+                window.__EARTHCAL_BUWANA_ID__ = buwanaId;
             } catch (error) {
                 console.error("Unable to process onboarding redirect.", error);
             }
@@ -69,6 +59,21 @@
             color: black;
             transition: all 0.3s ease;
             position: relative;
+        }
+        body.first-time {
+            padding: 20px 16px 60px;
+        }
+        body.first-time-ready {
+            justify-content: flex-start;
+        }
+        body.first-time-ready .earthcal-app-logo {
+            margin-top: 12px;
+        }
+        body.first-time-ready #progress-container {
+            display: none;
+        }
+        body.first-time-ready #onboarding-section {
+            display: flex;
         }
         @media (prefers-color-scheme: dark) {
             :root {
@@ -130,6 +135,140 @@
                 width: 40px;
                 height: 40px;
             }
+        }
+        #onboarding-section {
+            display: none;
+            width: min(92vw, 640px);
+            max-width: 640px;
+            margin-top: 24px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 24px;
+            padding: clamp(1.5rem, 5vw, 2.5rem);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(1rem, 4vw, 1.75rem);
+            text-align: center;
+            color: inherit;
+            backdrop-filter: blur(12px);
+        }
+        @media (prefers-color-scheme: dark) {
+            #onboarding-section {
+                background: rgba(13, 18, 32, 0.85);
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+            }
+        }
+        #welcome-message {
+            margin: 0;
+            font-size: clamp(1.6rem, 5vw, 2.3rem);
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        #generic-welcome {
+            margin: 0;
+            color: rgba(15, 23, 42, 0.75);
+            font-size: clamp(1rem, 3.2vw, 1.1rem);
+            line-height: 1.6;
+        }
+        @media (prefers-color-scheme: dark) {
+            #generic-welcome {
+                color: rgba(226, 232, 240, 0.85);
+            }
+        }
+        #status-messages {
+            width: 100%;
+        }
+        #status-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            text-align: left;
+        }
+        #earthcal-spinner {
+            display: inline-flex;
+            flex-shrink: 0;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            border: 3px solid rgba(15, 23, 42, 0.15);
+            border-top-color: #6c5ce7;
+            animation: spin 0.85s linear infinite;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        @media (prefers-color-scheme: dark) {
+            #earthcal-spinner {
+                border-color: rgba(226, 232, 240, 0.25);
+                border-top-color: #8ab4ff;
+            }
+        }
+        #earthcal-spinner.spinner-complete {
+            animation: none;
+            border: none;
+            background: transparent;
+            width: auto;
+            height: auto;
+        }
+        .status-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            color: rgba(15, 23, 42, 0.75);
+        }
+        .status-text p {
+            margin: 0;
+        }
+        @media (prefers-color-scheme: dark) {
+            .status-text {
+                color: rgba(226, 232, 240, 0.85);
+            }
+        }
+        #task-log {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        #task-log li {
+            margin: 0;
+        }
+        #task-log li.task-log-error {
+            color: #b91c1c;
+        }
+        #get-started-button {
+            align-self: center;
+            margin-top: 0.5rem;
+            padding: 0.85rem 2.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #f7f9fb;
+            background-color: #0d1a26;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
+        }
+        #get-started-button[aria-disabled="true"],
+        #get-started-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #get-started-button:not([aria-disabled="true"]):not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.22);
+            background-color: #14293a;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -245,28 +384,31 @@
 </div>
 
 
+<main id="onboarding-section" role="main" hidden>
+    <h1 id="welcome-message">Welcome Earthling</h1>
+    <p id="generic-welcome" hidden>Looks like this could be your first time logging in to EarthCal! Let's get your account setup.</p>
+    <div id="status-messages" hidden>
+        <div id="status-message">
+            <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
+            <div class="status-text" aria-live="polite">
+                <p id="status-intro">We're preparing your personalized EarthCal experience...</p>
+                <ul id="task-log" role="log" aria-live="polite" aria-busy="true"></ul>
+            </div>
+        </div>
+    </div>
+    <button id="get-started-button" type="button" aria-disabled="true" disabled hidden>Get Started</button>
+</main>
+
+
 <div id="footer" style="text-align: center">
     <img src="svgs/earthen-icon.svg" style="width:30px;height:30px;">
     <p>by Earthen Labs | v0.9</p>
 </div>
 
 <script src="js/earthcal-config.js"></script>
+<script src="js/first-onboarding.js"></script>
 <script type="module">
-    const parseJwt = (tkn) => {
-        try {
-            const [, payload] = tkn.split(".");
-            return JSON.parse(atob(payload));
-        } catch {
-            return null;
-        }
-    };
-
-    const isLoggedIn = () => {
-        const token = localStorage.getItem("access_token") || localStorage.getItem("id_token");
-        if (!token) return false;
-        const payload = parseJwt(token);
-        return payload && (!payload.exp || payload.exp > Math.floor(Date.now() / 1000));
-    };
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const assets = [
         "js/earthcal-init.js?v=2.1",
@@ -288,6 +430,9 @@
 
     const preloadAssets = async () => {
         const bar = document.getElementById("load-progress");
+        if (!bar) {
+            return;
+        }
         let loaded = 0;
         const update = () => {
             bar.style.width = `${(loaded / assets.length) * 100}%`;
@@ -304,37 +449,472 @@
         );
     };
 
-    (async function initApp() {
+    const parseJwt = (tkn) => {
+        try {
+            const [, payload] = tkn.split(".");
+            return JSON.parse(atob(payload));
+        } catch {
+            return null;
+        }
+    };
+
+    const ensureSessionProfile = () => {
+        const defaultProfile = {
+            first_name: "Earthling",
+            earthling_emoji: "🐸",
+            email: null,
+            buwana_id: null,
+            status: "new",
+        };
+
+        const token = localStorage.getItem("access_token") || localStorage.getItem("id_token");
+        if (!token) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            return;
+        }
+
+        const payload = parseJwt(token);
+        const isValid = payload && (!payload.exp || payload.exp > Math.floor(Date.now() / 1000));
+        if (!isValid) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            return;
+        }
+
+        const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
+        if (profile) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
+        }
+    };
+
+    const handleDefaultFlow = async () => {
         const redirectTarget = "dash.html";
         const MIN_WAIT = 2000;
+        const MAX_WAIT = 4000;
         const startTime = Date.now();
 
-        if (!isLoggedIn()) {
-            const defaultProfile = {
-                first_name: "Earthling",
-                earthling_emoji: "🐸",
-                email: null,
-                buwana_id: null,
-                status: "new",
-            };
-            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
-        } else {
-            const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
-            if (profile) {
-                sessionStorage.setItem("buwana_user", JSON.stringify(profile));
-            }
-        }
+        ensureSessionProfile();
 
         if (!navigator.onLine) {
             console.warn("⚠️ Offline. Preloading may fail.");
         }
 
-        await preloadAssets();
-        const elapsed = Date.now() - startTime;
-        if (elapsed < MIN_WAIT) {
-            await new Promise((resolve) => setTimeout(resolve, MIN_WAIT - elapsed));
+        let timedOut = false;
+        await Promise.race([
+            preloadAssets(),
+            delay(MAX_WAIT).then(() => {
+                timedOut = true;
+            }),
+        ]);
+
+        if (!timedOut) {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < MIN_WAIT) {
+                await delay(MIN_WAIT - elapsed);
+            }
+        } else {
+            const elapsed = Date.now() - startTime;
+            if (elapsed < MIN_WAIT) {
+                await delay(MIN_WAIT - elapsed);
+            }
         }
+
         window.location.href = redirectTarget;
+    };
+
+    const handleFirstTimeFlow = async () => {
+        document.body.classList.add("first-time");
+        const bar = document.getElementById("load-progress");
+        if (bar) {
+            bar.style.transition = "width 2s ease";
+            requestAnimationFrame(() => {
+                bar.style.width = "100%";
+            });
+        }
+
+        await delay(2000);
+
+        document.body.classList.add("first-time-ready");
+
+        const onboardingSection = document.getElementById("onboarding-section");
+        const genericWelcome = document.getElementById("generic-welcome");
+        const statusMessages = document.getElementById("status-messages");
+        if (onboardingSection) {
+            onboardingSection.removeAttribute("hidden");
+        }
+        if (genericWelcome) {
+            genericWelcome.removeAttribute("hidden");
+        }
+        if (statusMessages) {
+            statusMessages.removeAttribute("hidden");
+        }
+
+        await runFirstTimeOnboarding();
+    };
+
+    const runFirstTimeOnboarding = async () => {
+        const greetingEl = document.getElementById("welcome-message");
+        const spinner = document.getElementById("earthcal-spinner");
+        const statusIntro = document.getElementById("status-intro");
+        const taskLog = document.getElementById("task-log");
+        const getStartedButton = document.getElementById("get-started-button");
+
+        const setSpinnerActive = () => {
+            if (!spinner) return;
+            spinner.classList.remove("spinner-complete");
+            spinner.textContent = "";
+            spinner.setAttribute("role", "status");
+            spinner.setAttribute("aria-label", "Loading");
+        };
+
+        const setSpinnerComplete = (symbol, ariaLabel) => {
+            if (!spinner) return;
+            spinner.classList.add("spinner-complete");
+            spinner.textContent = symbol;
+            spinner.setAttribute("role", "img");
+            spinner.setAttribute("aria-label", ariaLabel);
+        };
+
+        const normalizeTimeZone = (value) => {
+            if (typeof value !== "string") {
+                return null;
+            }
+            const trimmed = value.trim();
+            return trimmed.length > 0 ? trimmed : null;
+        };
+
+        const toInt = (value) => {
+            if (value === null || value === undefined) {
+                return null;
+            }
+            const parsed = Number.parseInt(String(value), 10);
+            return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        };
+
+        try {
+            if (typeof window.firstGetUserData === "function") {
+                await window.firstGetUserData();
+            }
+        } catch (error) {
+            console.warn("Unable to pre-load user data via firstGetUserData.", error);
+        }
+
+        const authState = typeof window.isLoggedIn === "function"
+            ? window.isLoggedIn({ returnPayload: true })
+            : { isLoggedIn: false, payload: null };
+
+        const payload = authState.payload ?? null;
+        const profile = window.userProfile ?? null;
+
+        let firstName = profile?.first_name
+            || payload?.given_name
+            || payload?.first_name
+            || "Earthling";
+
+        const earthlingEmoji = profile?.earthling_emoji
+            || payload?.["buwana:earthlingEmoji"]
+            || "🌎";
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const buwanaIdValue = window.__EARTHCAL_BUWANA_ID__ || searchParams.get("id") || searchParams.get("buwana_id");
+        const buwanaId = toInt(buwanaIdValue);
+
+        const tokenTimeZone = normalizeTimeZone(
+            profile?.time_zone
+            || payload?.["buwana:timeZone"]
+            || payload?.zoneinfo
+            || payload?.tzid
+            || payload?.time_zone
+        );
+
+        const resolvedTimeZone = tokenTimeZone
+            || normalizeTimeZone(window.userTimeZone)
+            || (() => {
+                try {
+                    return normalizeTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                } catch (error) {
+                    console.warn("Unable to resolve browser timezone.", error);
+                    return null;
+                }
+            })()
+            || "Etc/UTC";
+
+        const defaultCalendarDescription = "Your default, all-purpose personal calendar for general events, to-dos and journals.";
+
+        const updateGreeting = (name) => {
+            if (!greetingEl) {
+                return;
+            }
+            const safeName = typeof name === "string" && name.trim().length > 0
+                ? name.trim()
+                : "Earthling";
+            greetingEl.textContent = `Welcome ${safeName}`;
+        };
+
+        updateGreeting(firstName);
+
+        if (!buwanaId) {
+            console.error("Unable to locate id in the current URL parameters.");
+            if (statusIntro) {
+                statusIntro.textContent = "We could not confirm your EarthCal account. Please refresh the page to try again.";
+            }
+            if (spinner) {
+                setSpinnerComplete("⚠️", "Unable to confirm account");
+            }
+            return;
+        }
+
+        try {
+            if (typeof window.createJWTloginURL === "function" && getStartedButton) {
+                const loginURL = await window.createJWTloginURL();
+                if (loginURL) {
+                    getStartedButton.setAttribute("aria-disabled", "false");
+                    getStartedButton.disabled = false;
+                    getStartedButton.removeAttribute("hidden");
+                    getStartedButton.addEventListener("click", () => {
+                        window.location.href = loginURL;
+                    }, { once: true });
+                }
+            }
+        } catch (error) {
+            console.error("Unable to generate login URL.", error);
+        }
+
+        const subscribeToPublicCalendars = async (userId) => {
+            const calendarIds = [52, 53];
+            const subscriptionEndpoint = "api/v1/update_pub_cal_subs.php";
+            for (const calendarId of calendarIds) {
+                const response = await fetch(subscriptionEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: userId,
+                        calendar_id: calendarId,
+                        subscribe: true,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Subscription request failed with status ${response.status} for calendar ${calendarId}`);
+                }
+
+                const json = await response.json();
+                if (!json?.ok) {
+                    throw new Error(json?.error || `Unable to subscribe to calendar ${calendarId}`);
+                }
+            }
+        };
+
+        const MIN_TASK_DURATION_MS = 4000;
+
+        const runTask = async (label, action) => {
+            const list = taskLog;
+            let listItem = null;
+            const started = performance.now();
+            if (list) {
+                listItem = document.createElement("li");
+                listItem.textContent = `⏳ ${label}`;
+                list.appendChild(listItem);
+            }
+
+            try {
+                const result = await action();
+                const elapsed = performance.now() - started;
+                if (elapsed < MIN_TASK_DURATION_MS) {
+                    await delay(MIN_TASK_DURATION_MS - elapsed);
+                }
+                if (listItem) {
+                    listItem.textContent = `✅ ${label}`;
+                }
+                return result;
+            } catch (taskError) {
+                const elapsed = performance.now() - started;
+                if (elapsed < MIN_TASK_DURATION_MS) {
+                    await delay(MIN_TASK_DURATION_MS - elapsed);
+                }
+                if (listItem) {
+                    listItem.textContent = `⚠️ ${label}`;
+                }
+                throw taskError;
+            }
+        };
+
+        const addAnniversaryEvent = async ({ userId, calendarId, tzid }) => {
+            if (!userId || !calendarId) {
+                throw new Error("Missing calendar context for the anniversary event.");
+            }
+
+            const safeTzid = tzid || "Etc/UTC";
+            const todayInTz = (() => {
+                try {
+                    const formatter = new Intl.DateTimeFormat("en-CA", {
+                        timeZone: safeTzid,
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                    });
+                    return formatter.format(new Date());
+                } catch (error) {
+                    console.warn("Falling back to UTC for anniversary event formatting.", error);
+                    return new Date().toISOString().slice(0, 10);
+                }
+            })();
+
+            const payload = {
+                buwana_id: userId,
+                calendar_id: calendarId,
+                item_kind: "event",
+                title: "EarthCal Anniversary",
+                notes: "You joined Earthcal on this day! Celebrating your transition from linear-time to cycle-time.",
+                start_local: `${todayInTz} 00:00:00`,
+                tzid: safeTzid,
+                all_day: true,
+                emoji: "🎉",
+            };
+
+            const response = await fetch("api/v1/add_item.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Anniversary event creation failed with status ${response.status}`);
+            }
+
+            const json = await response.json();
+            if (!json?.ok) {
+                throw new Error(json?.error || "Unable to add the anniversary event.");
+            }
+        };
+
+        try {
+            setSpinnerActive();
+            if (statusIntro) {
+                statusIntro.textContent = "We are setting up your personalized calendars...";
+            }
+
+            let userTimeZone = resolvedTimeZone;
+            let calendarId = null;
+            let myCalendarCreated = false;
+            let calendarTimeZone = resolvedTimeZone;
+            const hasTokenTimeZone = Boolean(tokenTimeZone);
+
+            await runTask("Confirming your EarthCal account", async () => {
+                const checkResponse = await fetch("api/v1/create_my_calendar.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({ buwana_id: buwanaId, check_only: true }),
+                });
+
+                if (!checkResponse.ok) {
+                    throw new Error(`User confirmation failed with status ${checkResponse.status}`);
+                }
+
+                const checkJson = await checkResponse.json();
+                if (!checkJson?.ok || !checkJson?.exists) {
+                    throw new Error("User not located in users_tb.");
+                }
+                console.log(`✅ Confirmed EarthCal account in users_tb for buwana_id ${buwanaId}.`, checkJson.user ?? {});
+                if (!hasTokenTimeZone && checkJson?.user?.time_zone) {
+                    userTimeZone = checkJson.user.time_zone;
+                }
+                const fetchedFirstName = checkJson?.user?.first_name
+                    || checkJson?.user?.firstName
+                    || checkJson?.user?.given_name;
+                if (fetchedFirstName) {
+                    firstName = fetchedFirstName;
+                    updateGreeting(firstName);
+                }
+            });
+
+            await runTask("Setting up your My Calendar", async () => {
+                const createResponse = await fetch("api/v1/create_my_calendar.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: buwanaId,
+                        emoji: earthlingEmoji,
+                        tzid: userTimeZone,
+                        description: defaultCalendarDescription,
+                    }),
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`Calendar creation failed with status ${createResponse.status}`);
+                }
+
+                const createJson = await createResponse.json();
+                if (!createJson?.ok) {
+                    throw new Error(createJson?.error || "Unknown error while creating My Calendar");
+                }
+
+                console.log("📅 My Calendar status:", createJson);
+                const calendar = createJson.calendar ?? null;
+                const potentialId = calendar?.calendar_id ?? calendar?.calendarId ?? calendar?.id;
+                const parsedId = typeof potentialId === "string" || typeof potentialId === "number"
+                    ? Number(potentialId)
+                    : null;
+                if (Number.isFinite(parsedId)) {
+                    calendarId = parsedId;
+                }
+                myCalendarCreated = Boolean(createJson.created);
+                calendarTimeZone = calendar?.tzid || userTimeZone || resolvedTimeZone || "Etc/UTC";
+            });
+
+            await runTask("Subscribing to the 2025 and 2026 Astrological Events calendars", async () => {
+                await subscribeToPublicCalendars(buwanaId);
+            });
+
+            await runTask("Adding your 🎉 EarthCal Anniversary celebration", async () => {
+                await addAnniversaryEvent({
+                    userId: buwanaId,
+                    calendarId,
+                    tzid: calendarTimeZone || userTimeZone,
+                });
+            });
+
+            if (spinner) {
+                setSpinnerComplete("✅", "Onboarding complete");
+            }
+
+            if (taskLog) {
+                taskLog.setAttribute("aria-busy", "false");
+            }
+
+            if (statusIntro) {
+                statusIntro.textContent = myCalendarCreated
+                    ? "Your My Calendar is ready, the Astrological Events calendars are enabled, and your EarthCal Anniversary celebration is on the books. Click below to get started."
+                    : "Your My Calendar was already waiting for you. We enabled the Astrological Events calendars and added your EarthCal Anniversary celebration—click below to explore!";
+            }
+        } catch (error) {
+            console.error("Unable to complete onboarding steps.", error);
+            if (statusIntro) {
+                statusIntro.textContent = "We ran into a hiccup preparing your account. Please refresh the page to try again.";
+            }
+            if (spinner) {
+                setSpinnerComplete("⚠️", "An error occurred");
+            }
+            if (taskLog) {
+                taskLog.setAttribute("aria-busy", "false");
+                const errorItem = document.createElement("li");
+                errorItem.textContent = error instanceof Error ? `Details: ${error.message}` : "An unexpected error occurred.";
+                errorItem.classList.add("task-log-error");
+                taskLog.appendChild(errorItem);
+            }
+        }
+    };
+
+    (async function initApp() {
+        const hasFirstTimeFlag = Boolean(window.__EARTHCAL_HAS_FIRST_TIME__);
+        if (hasFirstTimeFlag) {
+            await handleFirstTimeFlow();
+        } else {
+            await handleDefaultFlow();
+        }
     })();
 </script>
 </body>
