@@ -51,6 +51,8 @@
     <style>
         :root {
             --general-background: rgb(245, 245, 245);
+            --emblem-green: #008000;
+            --emblem-green-over: #0ca70c;
         }
         html,
         body {
@@ -87,6 +89,8 @@
         @media (prefers-color-scheme: dark) {
             :root {
                 --general-background: rgb(13, 15, 26);
+                --emblem-green: #2b6d27;
+                --emblem-green-over: #41a43c;
             }
             body {
                 color: white;
@@ -206,6 +210,8 @@
                 background: rgba(13, 18, 32, 0.85);
                 box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
             }
+
+
         }
         #welcome-message {
             margin: 0;
@@ -315,6 +321,31 @@
 <div id="initial-load">
 
     <div id="progress-container" aria-hidden="true">
+        <div id="earthcal-spinner-logo">
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!-- Created with Inkscape (http://www.inkscape.org/) -->
+            <svg width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <clipPath id="clipPath1">
+                        <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
+                    </clipPath>
+                </defs>
+                <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
+                    <path id="december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".5" stroke-width=".9342"/>
+                    <path id="november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".5"/>
+                    <path id="october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".5"/>
+                    <path id="september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".5"/>
+                    <path id="august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".5"/>
+                    <path transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".5"/>
+                    <path id="june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".5"/>
+                    <path id="july" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".5"/>
+                    <path id="april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".5"/>
+                    <path id="march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".5"/>
+                    <path id="february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".5"/>
+                    <path id="january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".5"/>
+                </g>
+            </svg>
+        </div>
         <div id="load-progress"></div>
     </div>
 
