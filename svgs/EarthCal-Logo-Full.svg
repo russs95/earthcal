@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="103.23279mm"
+   height="103.58669mm"
+   version="1.1"
+   viewBox="0 0 103.23278 103.58668"
+   id="svg5"
+   sodipodi:docname="EarthCal-Logo-Full.svg"
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview5"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.0395666"
+     inkscape:cx="284.25307"
+     inkscape:cy="404.49549"
+     inkscape:window-width="1920"
+     inkscape:window-height="1129"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g2" />
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1">
+      <path
+         d="M 0.2606535,-89.507889 A 90.493155,90.493155 0 0 0 -90.232502,0.98352462 90.493155,90.493155 0 0 0 0.2606535,91.47668 90.493155,90.493155 0 0 0 90.753804,0.98352462 90.493155,90.493155 0 0 0 0.2606535,-89.507889 Z M -1.5783358,-51.22854 A 52.213802,52.213802 0 0 1 50.635471,0.98352462 52.213802,52.213802 0 0 1 -1.5783358,53.197331 52.213802,52.213802 0 0 1 -53.792139,0.98352462 52.213802,52.213802 0 0 1 -1.5783358,-51.22854 Z"
+         fill="#00ffff"
+         stroke-width="0"
+         id="path3" />
+    </clipPath>
+  </defs>
+  <g
+     transform="matrix(0.57548,0,0,0.57548,51.927,51.30604)"
+     stroke-width="0.92194"
+     id="g2"
+     style="opacity:1"
+     clip-path="url(#clipPath1)"
+     inkscape:label="earthcal-spinner">
+    <path
+       id="12-december"
+       d="m 43.78,-77.057 a 91.197,91.197 0 0 1 33.353,33.408 L -1.884,1.882 Z"
+       fill="#4343ff"
+       stroke-width="0.9342"
+       inkscape:label="12-december"
+       style="opacity:0.33" />
+    <path
+       id="11-november"
+       d="m -0.77143,-89.153 a 90,90 0 0 1 44.989,12.095 l -45.065,77.904 z"
+       fill="#0cacf5"
+       inkscape:label="11-november"
+       style="opacity:0.33" />
+    <path
+       id="10-october"
+       d="m -45.782,-77.133 a 90,90 0 0 1 45.225,-12.02 l -0.29047,90 z"
+       fill="#00e6a7"
+       inkscape:label="10-october"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)" />
+    <path
+       id="09-september"
+       d="m -78.752,-44.219 a 90,90 0 0 1 32.97,-32.915 l 44.934,77.98 z"
+       fill="#00e513"
+       inkscape:label="09-september"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)" />
+    <path
+       id="08-august"
+       d="m -90.848,0.77143 a 90,90 0 0 1 12.095,-44.989 l 77.904,45.065 z"
+       fill="#beee00"
+       inkscape:label="08-august"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)" />
+    <path
+       d="m -78.827,45.782 a 90,90 0 0 1 -12.02,-45.01 l 90,0.075889 z"
+       fill="#fbfb00"
+       id="07-july"
+       inkscape:label="7-july"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)" />
+    <path
+       id="06-june"
+       d="M -45.914,78.752 A 90,90 0 0 1 -78.829,45.782 L -0.849,0.848 Z"
+       fill="#ffd119"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)"
+       inkscape:label="6-june" />
+    <path
+       id="05-may"
+       d="m -0.92271,90.847 a 90,90 0 0 1 -44.989,-12.095 l 45.065,-77.904 z"
+       fill="#ff8201"
+       inkscape:label="5-may"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)" />
+    <path
+       id="04-april"
+       d="m 44.087,78.827 a 90,90 0 0 1 -45.01,12.02 l 0.075889,-90 z"
+       fill="#ff6303"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)"
+       inkscape:label="4-april" />
+    <path
+       id="03-march"
+       d="M 77.057,45.913 A 90,90 0 0 1 44.087,78.828 L -0.847,0.848 Z"
+       fill="#fb0000"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)"
+       inkscape:label="3-march" />
+    <path
+       id="02-february"
+       d="m 89.152,0.92271 a 90,90 0 0 1 -12.095,44.989 L -0.847,0.84671 Z"
+       fill="#ff11ce"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)"
+       inkscape:label="2-february" />
+    <path
+       id="01-january"
+       d="m 77.309,-43.817 c 7.8877,13.688 11.857,28.941 11.844,44.74 l -90,-0.075889 z"
+       fill="#7f2aff"
+       style="opacity:0.33"
+       transform="translate(1.1222516e-6)"
+       inkscape:label="1-january" />
+  </g>
+</svg>
