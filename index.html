@@ -188,33 +188,6 @@
             gap: 1rem;
             text-align: left;
         }
-        #earthcal-spinner {
-            display: inline-flex;
-            flex-shrink: 0;
-            width: 2.25rem;
-            height: 2.25rem;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            position: relative;
-            background-image: url("svgs/earthcal-spinner.svg");
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center;
-        }
-        #earthcal-spinner .spinner-symbol {
-            display: none;
-            font-size: 1.75rem;
-        }
-        #earthcal-spinner.spinner-complete {
-            background-image: url("assets/icons/green-check.png");
-        }
-        #earthcal-spinner.spinner-has-symbol {
-            background-image: none;
-        }
-        #earthcal-spinner.spinner-has-symbol .spinner-symbol {
-            display: inline;
-        }
         .status-text {
             flex: 1;
             display: flex;
@@ -232,7 +205,7 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            gap: 0.4rem;
+            gap: 0.52rem;
         }
         #task-log li {
             margin: 0;
@@ -247,26 +220,20 @@
             flex: 0 0 20px;
             width: 20px;
             height: 20px;
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 1rem;
             line-height: 1;
         }
-        .task-log-icon[aria-hidden="true"] {
-            font-size: 0;
-        }
-        .task-log-icon--spinner {
-            background-image: url("svgs/earthcal-spinner.svg");
-        }
-        .task-log-icon--success {
-            background-image: url("assets/icons/green-check.png");
+        .task-log-icon__image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
         .task-log-icon--warning {
-            background-image: none;
+            color: #b91c1c;
         }
         .task-log-label {
             flex: 1;
@@ -374,11 +341,6 @@
             #status-message {
                 gap: clamp(1.25rem, 5vw, 1.75rem);
             }
-            #earthcal-spinner {
-                height: clamp(2.75rem, 10vw, 3.25rem);
-                margin-right: -12px;
-                margin-left: 17px;
-            }
             .status-text {
                 font-size: clamp(1.05rem, 4.5vw, 1.2rem);
                 padding-right: 20px;
@@ -468,9 +430,6 @@
         <p id="generic-welcome" class="modal-description" hidden>Looks like this is your first time logging into EarthCal! Let's get your account setup.</p>
         <div id="status-messages" hidden>
             <div id="status-message">
-                <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading">
-                    <span class="spinner-symbol" aria-hidden="true"></span>
-                </span>
                 <div class="status-text" aria-live="polite">
                     <p id="status-intro">We're preparing your personalized EarthCal experience...</p>
                     <ul id="task-log" role="log" aria-live="polite" aria-busy="true"></ul>
@@ -701,43 +660,12 @@
 
     const runFirstTimeOnboarding = async () => {
         const greetingEl = document.getElementById("welcome-message");
-        const spinner = document.getElementById("earthcal-spinner");
         const statusIntro = document.getElementById("status-intro");
         const genericWelcome = document.getElementById("generic-welcome");
         const taskLog = document.getElementById("task-log");
         const getStartedButton = document.getElementById("get-started-button");
         let onboardingFailed = false;
         let startButtonHref = null;
-
-        const setSpinnerActive = () => {
-            if (!spinner) return;
-            const spinnerSymbol = spinner.querySelector(".spinner-symbol");
-            spinner.classList.remove("spinner-complete");
-            spinner.classList.remove("spinner-has-symbol");
-            if (spinnerSymbol) {
-                spinnerSymbol.textContent = "";
-            }
-            spinner.setAttribute("role", "status");
-            spinner.setAttribute("aria-label", "Loading");
-            spinner.removeAttribute("hidden");
-        };
-
-        const setSpinnerComplete = (symbol, ariaLabel) => {
-            if (!spinner) return;
-            const spinnerSymbol = spinner.querySelector(".spinner-symbol");
-            spinner.classList.add("spinner-complete");
-            const hasSymbol = typeof symbol === "string" && symbol.trim().length > 0;
-            if (hasSymbol) {
-                spinner.classList.add("spinner-has-symbol");
-            } else {
-                spinner.classList.remove("spinner-has-symbol");
-            }
-            if (spinnerSymbol) {
-                spinnerSymbol.textContent = hasSymbol ? symbol : "";
-            }
-            spinner.setAttribute("role", "img");
-            spinner.setAttribute("aria-label", ariaLabel);
-        };
 
         const normalizeTimeZone = (value) => {
             if (typeof value !== "string") {
@@ -825,9 +753,6 @@
             if (statusIntro) {
                 statusIntro.textContent = "We could not confirm your EarthCal account. Please refresh the page to try again.";
             }
-            if (spinner) {
-                setSpinnerComplete("⚠️", "Unable to confirm account");
-            }
             return;
         }
 
@@ -899,20 +824,27 @@
         const runTask = async (label, action) => {
             const list = taskLog;
             let listItem = null;
-            let iconSpan = null;
+            let iconWrapper = null;
+            let iconImage = null;
             let labelSpan = null;
             const started = performance.now();
             if (list) {
                 listItem = document.createElement("li");
-                iconSpan = document.createElement("span");
-                iconSpan.className = "task-log-icon task-log-icon--spinner";
-                iconSpan.setAttribute("aria-hidden", "true");
+                iconWrapper = document.createElement("span");
+                iconWrapper.className = "task-log-icon task-log-icon--spinner";
+                iconWrapper.setAttribute("aria-hidden", "true");
+
+                iconImage = document.createElement("img");
+                iconImage.className = "task-log-icon__image";
+                iconImage.src = "svgs/earthcal-spinner.svg";
+                iconImage.alt = "";
+                iconWrapper.appendChild(iconImage);
 
                 labelSpan = document.createElement("span");
                 labelSpan.className = "task-log-label";
                 labelSpan.textContent = label;
 
-                listItem.append(iconSpan, labelSpan);
+                listItem.append(iconWrapper, labelSpan);
                 list.appendChild(listItem);
             }
 
@@ -923,9 +855,21 @@
                     await delay(MIN_TASK_DURATION_MS - elapsed);
                 }
                 if (listItem) {
-                    if (iconSpan) {
-                        iconSpan.classList.remove("task-log-icon--spinner");
-                        iconSpan.classList.add("task-log-icon--success");
+                    if (iconWrapper) {
+                        iconWrapper.classList.remove("task-log-icon--spinner");
+                        iconWrapper.classList.add("task-log-icon--success");
+                        iconWrapper.setAttribute("aria-hidden", "true");
+                        if (iconImage) {
+                            iconImage.src = "assets/icons/green-check.png";
+                        } else {
+                            const successImage = document.createElement("img");
+                            successImage.className = "task-log-icon__image";
+                            successImage.src = "assets/icons/green-check.png";
+                            successImage.alt = "";
+                            iconWrapper.textContent = "";
+                            iconWrapper.appendChild(successImage);
+                            iconImage = successImage;
+                        }
                     }
                     if (labelSpan) {
                         labelSpan.textContent = label;
@@ -940,11 +884,15 @@
                     await delay(MIN_TASK_DURATION_MS - elapsed);
                 }
                 if (listItem) {
-                    if (iconSpan) {
-                        iconSpan.classList.remove("task-log-icon--spinner");
-                        iconSpan.classList.add("task-log-icon--warning");
-                        iconSpan.textContent = "⚠️";
-                        iconSpan.removeAttribute("aria-hidden");
+                    if (iconWrapper) {
+                        iconWrapper.classList.remove("task-log-icon--spinner");
+                        iconWrapper.classList.add("task-log-icon--warning");
+                        if (iconImage && iconImage.parentElement === iconWrapper) {
+                            iconWrapper.removeChild(iconImage);
+                        }
+                        iconImage = null;
+                        iconWrapper.textContent = "⚠️";
+                        iconWrapper.removeAttribute("aria-hidden");
                     }
                     if (labelSpan) {
                         labelSpan.textContent = label;
@@ -1085,7 +1033,6 @@
         };
 
         try {
-            setSpinnerActive();
             if (statusIntro) {
                 statusIntro.textContent = "We are setting up your personalized calendars...";
             }
@@ -1213,13 +1160,6 @@
                 ? "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we added an event for today to celebrate your first login to EarthCal 🎉. Click below to get started."
                 : "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions and celebration event—everything is ready to explore!";
 
-            if (spinner) {
-                setSpinnerComplete("", "Onboarding complete");
-                spinner.removeAttribute("aria-label");
-                spinner.removeAttribute("role");
-                spinner.setAttribute("hidden", "");
-            }
-
             if (statusIntro) {
                 statusIntro.textContent = "";
                 statusIntro.setAttribute("hidden", "");
@@ -1233,9 +1173,6 @@
             console.error("Unable to complete onboarding steps.", error);
             if (statusIntro) {
                 statusIntro.textContent = "We ran into a hiccup preparing your account. Please refresh the page to try again.";
-            }
-            if (spinner) {
-                setSpinnerComplete("⚠️", "An error occurred");
             }
             if (taskLog) {
                 taskLog.setAttribute("aria-busy", "false");
