@@ -76,7 +76,7 @@
             overflow: hidden;
         }
         body.first-time {
-            padding: 20px 16px 60px;
+            /*padding: 20px 16px 60px;*/
         }
         body.first-time-ready {
             justify-content: flex-start;
@@ -153,7 +153,7 @@
                 border-radius: 0;
                 box-shadow: none;
                 backdrop-filter: none;
-                min-height: 100vh;
+                /*min-height: 100vh;*/
                 padding: 32px 20px 40px;
                 justify-content: flex-start;
                 gap: 1.5rem;
@@ -173,6 +173,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+            margin: auto;
         }
         #onboarding-section {
             display: none;
@@ -305,33 +306,33 @@
 </head>
 <body>
     <div id="initial-load" aria-hidden="true">
-        <div id="earthcal-spinner-logo">
+
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Created with Inkscape (http://www.inkscape.org/) -->
-            <svg width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
+            <svg id="earthcal-spinner-logo" width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <clipPath id="clipPath1">
                         <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
                     </clipPath>
                 </defs>
                 <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-                    <path id="december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".5" stroke-width=".9342"/>
-                    <path id="november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".5"/>
-                    <path id="october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".5"/>
-                    <path id="september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".5"/>
-                    <path id="august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".5"/>
-                    <path transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".5"/>
-                    <path id="june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".5"/>
-                    <path id="july" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".5"/>
-                    <path id="april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".5"/>
-                    <path id="march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".5"/>
-                    <path id="february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".5"/>
-                    <path id="january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".5"/>
+                    <path id="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
+                    <path id="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
+                    <path id="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
+                    <path id="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
+                    <path id="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
+                    <path id="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
+                    <path id="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
+                    <path id="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
+                    <path id="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
+                    <path id="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
+                    <path id="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
+                    <path id="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
                 </g>
             </svg>
-        </div>
+
         <div id="footer" style="text-align: center">
-            <img src="svgs/earthen-icon.svg" style="width:50px;height:50px;">
+            <img id="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
             <p>EarthCal v1.0.0 by Earthen</p>
         </div>
     </div>
