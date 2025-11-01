@@ -625,10 +625,12 @@ async function manageEarthcalUserSub() {
         const jediPriceAttr = (interval, key) => escapeHtml(jediPriceData[interval]?.[key] || 'Coming soon');
 
         const userPlanType = window.user_plan === 'jedi' ? 'jedi' : 'padwan';
+        const padwanCardClass = '';
+        const jediCardClass = ' current-plan';
         const upgradeButtonHtml = userPlanType === 'padwan'
             ? `
                 <div class="ec-plan-actions">
-                    <button type="button" class="confirmation-blur-button" onclick="upgradeUserPlan()">Upgrade</button>
+                    <button type="button" class="confirmation-blur-button greenback" onclick="upgradeUserPlan()">Upgrade</button>
                 </div>
             `
             : '';
@@ -645,13 +647,13 @@ async function manageEarthcalUserSub() {
                     <button type="button" class="ec-toggle-option" data-interval="lifetime" aria-pressed="false">Lifetime</button>
                 </div>
                 <div class="ec-plan-columns">
-                    <div class="ec-plan-card${userPlanType === 'padwan' ? ' current-plan' : ''}">
+                    <div class="ec-plan-card${padwanCardClass}">
                         <h2>${escapeHtml(padwanPlan?.name || 'Padwan Plan')}</h2>
                         <div class="ec-plan-price">${escapeHtml(padwanPriceData.priceText)}</div>
                         ${padwanPriceData.intervalText ? `<div class="ec-plan-interval">${escapeHtml(padwanPriceData.intervalText)}</div>` : ''}
                         ${renderFeatures(padwanPlan)}
                     </div>
-                    <div class="ec-plan-card${userPlanType === 'jedi' ? ' current-plan' : ''}">
+                    <div class="ec-plan-card${jediCardClass}">
                         <h2>${escapeHtml(jediDisplayPlan?.name || 'Jedi Plan')}</h2>
                         <div class="ec-plan-price" data-role="jedi-price"
                             data-month-price="${jediPriceAttr('month', 'priceText')}"
