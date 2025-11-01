@@ -70,6 +70,10 @@
             min-height: 100vh;
             font-family: 'Mulish', sans-serif;
             background-color: var(--general-background);
+            background-image: url('webp/earthen-subscription-background-dark.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: black;
             transition: all 0.3s ease;
             position: relative;
@@ -107,10 +111,18 @@
             box-sizing: border-box;
             gap: 18px;
         }
-        #earthcal-spinner-logo {
+        .earthcal-logo-spinner {
             width: 111px;
             max-width: 100%;
             height: auto;
+            display: block;
+        }
+        .earthcal-logo-spinner--mini {
+            width: 100%;
+        }
+        .earthcal-logo-spinner path {
+            opacity: 0.1;
+            transition: opacity 0.2s ease-in-out;
         }
         #loading-progress {
             width: min(280px, 70vw);
@@ -128,16 +140,16 @@
             transition: width 0.2s ease;
         }
         @media screen and (min-width: 769px) and (max-width: 1200px) {
-            #earthcal-spinner-logo {
+            .earthcal-logo-spinner:not(.earthcal-logo-spinner--mini) {
                 width: 155px;
             }
         }
         @media screen and (min-width: 1201px) {
-            #earthcal-spinner-logo {
+            .earthcal-logo-spinner:not(.earthcal-logo-spinner--mini) {
                 width: 177px;
             }
         }
-        #footer {
+        .footer {
             position: absolute;
             bottom: 10px;
             font-size: 0.8em;
@@ -154,10 +166,10 @@
                 align-items: stretch;
                 justify-content: flex-start;
             }
-            #footer {
+            .footer {
                 font-size: 1em;
             }
-            #footer img {
+            .footer img {
                 width: 40px;
                 height: 40px;
             }
@@ -236,29 +248,26 @@
         #earthcal-spinner {
             display: inline-flex;
             flex-shrink: 0;
-            width: 1.75rem;
-            height: 1.75rem;
-            border-radius: 50%;
-            border: 3px solid rgba(15, 23, 42, 0.15);
-            border-top-color: #6c5ce7;
-            animation: spin 0.85s linear infinite;
+            width: 2.25rem;
+            height: 2.25rem;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
             transition: all 0.3s ease;
+            position: relative;
         }
-        @media (prefers-color-scheme: dark) {
-            #earthcal-spinner {
-                border-color: rgba(226, 232, 240, 0.25);
-                border-top-color: #8ab4ff;
-            }
-        }
-        #earthcal-spinner.spinner-complete {
-            animation: none;
-            border: none;
-            background: transparent;
-            width: auto;
+        #earthcal-spinner .earthcal-logo-spinner {
+            width: 100%;
             height: auto;
+        }
+        #earthcal-spinner .spinner-symbol {
+            display: none;
+            font-size: 1.75rem;
+        }
+        #earthcal-spinner.spinner-complete .earthcal-logo-spinner {
+            display: none;
+        }
+        #earthcal-spinner.spinner-complete .spinner-symbol {
+            display: inline;
         }
         .status-text {
             flex: 1;
@@ -316,10 +325,6 @@
             background-color: var(--emblem-green-over, #14293a);
             color: #f7f9fb;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -327,25 +332,25 @@
 
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Created with Inkscape (http://www.inkscape.org/) -->
-            <svg id="earthcal-spinner-logo" width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
+            <svg class="earthcal-logo-spinner" width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
                     <clipPath id="clipPath1">
                         <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
                     </clipPath>
                 </defs>
                 <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-                    <path id="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
-                    <path id="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
-                    <path id="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
-                    <path id="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
-                    <path id="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
-                    <path id="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
-                    <path id="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
-                    <path id="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
-                    <path id="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
-                    <path id="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
-                    <path id="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
-                    <path id="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
+                    <path data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
+                    <path data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
+                    <path data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
+                    <path data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
+                    <path data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
+                    <path data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
+                    <path data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
+                    <path data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
+                    <path data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
+                    <path data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
+                    <path data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
+                    <path data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
                 </g>
             </svg>
 
@@ -353,9 +358,9 @@
             <div id="loading-progress-bar"></div>
         </div>
 
-        <div id="footer" style="text-align: center">
+        <div class="footer" style="text-align: center">
             <a href="https://earthen.io" target="_blank" rel="noopener" aria-label="Visit Earthen">
-                <img id="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
+                <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
             </a>
             <p>EarthCal v1.0.0 by Earthen</p>
         </div>
@@ -369,7 +374,32 @@
         <p id="generic-welcome" class="modal-description" hidden>Looks like this is your first time logging into EarthCal! Let's get your account setup.</p>
         <div id="status-messages" hidden>
             <div id="status-message">
-                <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
+                <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading">
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <!-- Created with Inkscape (http://www.inkscape.org/) -->
+                    <svg class="earthcal-logo-spinner earthcal-logo-spinner--mini" width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <clipPath id="clipPath-onboard">
+                                <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
+                            </clipPath>
+                        </defs>
+                        <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath-onboard)" stroke-width=".92194">
+                            <path data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
+                            <path data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
+                            <path data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.2904790z" fill="#00e6a7" opacity=".33"/>
+                            <path data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
+                            <path data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
+                            <path data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
+                            <path data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
+                            <path data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
+                            <path data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
+                            <path data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
+                            <path data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
+                            <path data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
+                        </g>
+                    </svg>
+                    <span class="spinner-symbol" aria-hidden="true"></span>
+                </span>
                 <div class="status-text" aria-live="polite">
                     <p id="status-intro">We're preparing your personalized EarthCal experience...</p>
                     <ul id="task-log" role="log" aria-live="polite" aria-busy="true"></ul>
@@ -378,6 +408,12 @@
         </div>
         <button id="get-started-button" type="button" aria-disabled="true" disabled hidden>Get Started</button>
     </main>
+    <div class="footer" style="text-align: center">
+        <a href="https://earthen.io" target="_blank" rel="noopener" aria-label="Visit Earthen">
+            <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
+        </a>
+        <p>EarthCal v1.0.0 by Earthen</p>
+    </div>
 </div>
 
 
@@ -441,50 +477,45 @@
     };
 
     const spinEarthcalLogo = () => {
-        const monthIds = [
-            "01-january",
-            "02-february",
-            "03-march",
-            "04-april",
-            "05-may",
-            "06-june",
-            "07-july",
-            "08-august",
-            "09-september",
-            "10-october",
-            "11-november",
-            "12-december",
-        ];
+        const STEP_DELAY_MS = 200;
+        const INACTIVE_OPACITY = 0.1;
+        const ACTIVE_OPACITY = 1;
+        const spinners = Array.from(document.querySelectorAll('.earthcal-logo-spinner'));
 
-        const monthElements = monthIds
-            .map((id) => document.getElementById(id))
-            .filter((el) => el);
-
-        if (monthElements.length !== monthIds.length) {
+        if (spinners.length === 0) {
             return;
         }
 
-        let index = 0;
-        let increasing = true;
-
-        const step = () => {
-            const element = monthElements[index];
-            if (!element) {
+        spinners.forEach((spinnerEl, spinnerIndex) => {
+            const paths = Array.from(spinnerEl.querySelectorAll('[data-month]'));
+            if (paths.length === 0) {
                 return;
             }
 
-            element.style.opacity = increasing ? "1" : "0.33";
+            paths.forEach((path) => {
+                path.style.opacity = String(INACTIVE_OPACITY);
+            });
 
-            index += 1;
-            if (index >= monthElements.length) {
-                index = 0;
-                increasing = !increasing;
-            }
+            let index = 0;
 
-            setTimeout(step, 100);
-        };
+            const tick = () => {
+                const current = paths[index];
+                const previous = paths[(index - 1 + paths.length) % paths.length];
 
-        step();
+                if (previous) {
+                    previous.style.opacity = String(INACTIVE_OPACITY);
+                }
+
+                if (current) {
+                    current.style.opacity = String(ACTIVE_OPACITY);
+                }
+
+                index = (index + 1) % paths.length;
+                setTimeout(tick, STEP_DELAY_MS);
+            };
+
+            setTimeout(tick, spinnerIndex * (STEP_DELAY_MS / 2));
+        });
     };
 
     const parseJwt = (tkn) => {
@@ -593,8 +624,11 @@
 
         const setSpinnerActive = () => {
             if (!spinner) return;
+            const spinnerSymbol = spinner.querySelector(".spinner-symbol");
             spinner.classList.remove("spinner-complete");
-            spinner.textContent = "";
+            if (spinnerSymbol) {
+                spinnerSymbol.textContent = "";
+            }
             spinner.setAttribute("role", "status");
             spinner.setAttribute("aria-label", "Loading");
             spinner.removeAttribute("hidden");
@@ -602,8 +636,11 @@
 
         const setSpinnerComplete = (symbol, ariaLabel) => {
             if (!spinner) return;
+            const spinnerSymbol = spinner.querySelector(".spinner-symbol");
             spinner.classList.add("spinner-complete");
-            spinner.textContent = symbol;
+            if (spinnerSymbol) {
+                spinnerSymbol.textContent = symbol;
+            }
             spinner.setAttribute("role", "img");
             spinner.setAttribute("aria-label", ariaLabel);
         };
