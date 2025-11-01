@@ -36,6 +36,7 @@
     <link rel="preload" href="css/light.css?v7" as="style">
     <link rel="preload" href="css/dark.css?v7" as="style">
     <link rel="preload" href="css/1-stylesheet.css" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.3">
     <link rel="preload" href="assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Arvo-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
@@ -59,7 +60,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Mulish', sans-serif;
             background-color: var(--general-background);
             color: black;
             transition: all 0.3s ease;
@@ -124,6 +125,16 @@
             height: 120px;
         }
         @media screen and (max-width: 768px) {
+            body {
+                height: 100vh;
+            }
+            body.first-time {
+                padding: 0;
+            }
+            body.first-time-ready {
+                align-items: stretch;
+                justify-content: flex-start;
+            }
             .earthcal-app-logo,
             .earthcal-app-logo svg {
                 width: 180px;
@@ -139,6 +150,27 @@
             #footer img {
                 width: 40px;
                 height: 40px;
+            }
+            #onboarding-section {
+                width: 100vw;
+                max-width: none;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                backdrop-filter: none;
+                min-height: 100vh;
+                padding: 32px 20px 40px;
+                justify-content: flex-start;
+                gap: 1.5rem;
+            }
+            #status-messages {
+                flex: 1;
+                width: 100%;
+            }
+        }
+        @media screen and (min-width: 769px) and (max-width: 1200px) {
+            #onboarding-section {
+                width: min(82vw, 640px);
             }
         }
         #onboarding-section {
@@ -156,6 +188,7 @@
             text-align: center;
             color: inherit;
             backdrop-filter: blur(12px);
+            overflow-y: auto;
         }
         @media (prefers-color-scheme: dark) {
             #onboarding-section {
@@ -165,20 +198,9 @@
         }
         #welcome-message {
             margin: 0;
-            font-size: clamp(1.6rem, 5vw, 2.3rem);
-            font-weight: 500;
-            letter-spacing: -0.01em;
         }
         #generic-welcome {
             margin: 0;
-            color: rgba(15, 23, 42, 0.75);
-            font-size: clamp(1rem, 3.2vw, 1.1rem);
-            line-height: 1.6;
-        }
-        @media (prefers-color-scheme: dark) {
-            #generic-welcome {
-                color: rgba(226, 232, 240, 0.85);
-            }
         }
         #status-messages {
             width: 100%;
@@ -390,8 +412,8 @@
 
 
 <main id="onboarding-section" role="main" hidden>
-    <h1 id="welcome-message">Welcome Earthling</h1>
-    <p id="generic-welcome" hidden>Looks like this could be your first time logging in to EarthCal! Let's get your account setup.</p>
+    <h1 id="welcome-message" class="modal-header">Welcome Earthling</h1>
+    <p id="generic-welcome" class="modal-description" hidden>Looks like this could be your first time logging in to EarthCal! Let's get your account setup.</p>
     <div id="status-messages" hidden>
         <div id="status-message">
             <span id="earthcal-spinner" role="status" aria-live="polite" aria-label="Loading"></span>
@@ -560,6 +582,7 @@
         const greetingEl = document.getElementById("welcome-message");
         const spinner = document.getElementById("earthcal-spinner");
         const statusIntro = document.getElementById("status-intro");
+        const genericWelcome = document.getElementById("generic-welcome");
         const taskLog = document.getElementById("task-log");
         const getStartedButton = document.getElementById("get-started-button");
 
@@ -569,6 +592,7 @@
             spinner.textContent = "";
             spinner.setAttribute("role", "status");
             spinner.setAttribute("aria-label", "Loading");
+            spinner.removeAttribute("hidden");
         };
 
         const setSpinnerComplete = (symbol, ariaLabel) => {
@@ -962,18 +986,28 @@
                     : "✅ Added your EarthCal Anniversary celebration";
             }
 
-            if (spinner) {
-                setSpinnerComplete("✅", "Onboarding complete");
-            }
-
             if (taskLog) {
                 taskLog.setAttribute("aria-busy", "false");
             }
 
+            const completionMessage = myCalendarCreated
+                ? "Your My Calendar is ready, the Astrological Events calendars are enabled, and your EarthCal Anniversary celebration is on the books for our beta checks. Click below to get started."
+                : "Your My Calendar was already waiting for you, so we re-confirmed your Astrological Events calendars and Anniversary celebration for beta testing—everything is ready to explore!";
+
+            if (spinner) {
+                setSpinnerComplete("", "Onboarding complete");
+                spinner.removeAttribute("aria-label");
+                spinner.removeAttribute("role");
+                spinner.setAttribute("hidden", "");
+            }
+
             if (statusIntro) {
-                statusIntro.textContent = myCalendarCreated
-                    ? "Your My Calendar is ready, the Astrological Events calendars are enabled, and your EarthCal Anniversary celebration is on the books for our beta checks. Click below to get started."
-                    : "Your My Calendar was already waiting for you, so we re-confirmed your Astrological Events calendars and Anniversary celebration for beta testing—everything is ready to explore!";
+                statusIntro.textContent = "";
+                statusIntro.setAttribute("hidden", "");
+            }
+
+            if (genericWelcome) {
+                genericWelcome.textContent = completionMessage;
             }
         } catch (error) {
             console.error("Unable to complete onboarding steps.", error);
