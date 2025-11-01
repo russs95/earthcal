@@ -2,9 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Earthcal |  Loading..</title>
+    <title>EarthCal | Sync with Earth's cycles</title>
     <link rel="icon" href="assets/icons/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="https://earthcal.app/">
+    <meta name="description" content="Welcome to EarthCal, the Earthen cycles calendar that helps you sync your moments with Earth's rhythms.">
+    <meta name="keywords" content="EarthCal, circular calendar, Earthen cycles, astronomical events, lunar calendar, solar system">
+    <meta name="author" content="Earthen.io">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://earthcal.app/">
+    <meta property="og:title" content="EarthCal | Sync your moments with Earth's cycles">
+    <meta property="og:description" content="Get started with EarthCal and prepare a calendar that follows the rhythms of our planet, moon, and stars.">
+    <meta property="og:image" content="https://earthcal.app/assets/images/cal-banner.png">
+    <meta property="og:image:alt" content="A vibrant circular calendar highlighting Earth's annual orbit and celestial cycles.">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="753">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EarthCal | Sync your moments with Earth's cycles">
+    <meta name="twitter:description" content="Join EarthCal to organise your events around Earth's living cycles and celestial rhythms.">
+    <meta name="twitter:image" content="https://earthcal.app/assets/images/cal-banner.png">
+
+    <script src="translations/index-en.js"></script>
+    <script src="js/index-i18n-loader.js"></script>
 
     <script>
         (function () {
@@ -415,10 +435,10 @@
         </div>
 
         <div class="footer" style="text-align: center">
-            <a href="https://earthen.io" target="_blank" rel="noopener" aria-label="Visit Earthen">
+            <a href="https://earthen.io" target="_blank" rel="noopener" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
             </a>
-            <p id="logo-text" style="font-size: smaller;">EarthCal v1.0.0 by Earthen</p>
+            <p id="logo-text" class="footer-text" data-i18n="footer.tagline" style="font-size: smaller;">EarthCal v1.0.0 by Earthen</p>
         </div>
     </div>
 
@@ -439,10 +459,10 @@
         <button id="get-started-button" type="button" aria-disabled="true" disabled hidden>Get Started</button>
     </main>
     <div class="footer" style="text-align: center">
-        <a href="https://earthen.io" target="_blank" rel="noopener" aria-label="Visit Earthen">
+        <a href="https://earthen.io" target="_blank" rel="noopener" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
             <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
         </a>
-        <p>EarthCal v1.0.0 by Earthen</p>
+        <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.0.0 by Earthen</p>
     </div>
 </div>
 
@@ -453,6 +473,170 @@
 <script src="js/first-onboarding.js"></script>
 <script type="module">
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const fallbackTranslations = window.EARTHCAL_INDEX_TRANSLATIONS || {};
+    const fallbackLanguage = window.EARTHCAL_INDEX_LANGUAGE || "en";
+
+    const translationState = await (window.__earthcalIndexI18nPromise ?? Promise.resolve({
+        translations: fallbackTranslations,
+        fallback: fallbackTranslations,
+        lang: fallbackLanguage,
+    }));
+
+    const getValue = (source, path) => {
+        if (!source || typeof source !== "object") {
+            return undefined;
+        }
+        return path.split(".").reduce((acc, segment) => {
+            if (acc && typeof acc === "object" && Object.prototype.hasOwnProperty.call(acc, segment)) {
+                return acc[segment];
+            }
+            return undefined;
+        }, source);
+    };
+
+    const createTranslator = (primary, fallback) => (key, params = {}, fallbackValue = "") => {
+        const raw = getValue(primary, key);
+        const fallbackRaw = raw === undefined ? getValue(fallback, key) : undefined;
+        const template = raw !== undefined ? raw : fallbackRaw;
+
+        if (template === undefined || template === null) {
+            return fallbackValue;
+        }
+
+        if (typeof template === "string") {
+            return template.replace(/%\{(.*?)\}/g, (match, token) => {
+                if (Object.prototype.hasOwnProperty.call(params, token)) {
+                    const value = params[token];
+                    return value === undefined || value === null ? "" : String(value);
+                }
+                return "";
+            });
+        }
+
+        if (typeof template === "function") {
+            try {
+                return template(params);
+            } catch (error) {
+                console.warn("EarthCal index: unable to format translation for", key, error);
+                return fallbackValue;
+            }
+        }
+
+        return template;
+    };
+
+    const translations = translationState?.translations || fallbackTranslations;
+    const translationFallback = translationState?.fallback || fallbackTranslations;
+    const translate = createTranslator(translations, translationFallback);
+    const activeLanguage = (translationState?.lang || fallbackLanguage || "en").toLowerCase();
+
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+        htmlElement.lang = activeLanguage;
+        if (activeLanguage === "ar") {
+            htmlElement.dir = "rtl";
+        } else {
+            htmlElement.removeAttribute("dir");
+        }
+    }
+
+    const bodyElement = document.body;
+    if (bodyElement) {
+        if (activeLanguage === "ar") {
+            bodyElement.dir = "rtl";
+        } else {
+            bodyElement.removeAttribute("dir");
+        }
+    }
+
+    const updateMetaContent = () => {
+        const title = translate("meta.title", {}, document.title);
+        if (title) {
+            document.title = title;
+        }
+
+        const metaSelectors = [
+            { selector: 'meta[name="description"]', key: "meta.description" },
+            { selector: 'meta[name="keywords"]', key: "meta.keywords" },
+            { selector: 'meta[property="og:title"]', key: "meta.ogTitle" },
+            { selector: 'meta[property="og:description"]', key: "meta.ogDescription" },
+            { selector: 'meta[name="twitter:title"]', key: "meta.twitterTitle" },
+            { selector: 'meta[name="twitter:description"]', key: "meta.twitterDescription" },
+            { selector: 'meta[property="og:image:alt"]', key: "meta.imageAlt" },
+        ];
+
+        metaSelectors.forEach(({ selector, key }) => {
+            const element = document.querySelector(selector);
+            if (!element) {
+                return;
+            }
+            const value = translate(key, {}, element.getAttribute("content") || "");
+            if (value) {
+                element.setAttribute("content", value);
+            }
+        });
+    };
+
+    const updateStaticText = () => {
+        document.querySelectorAll(".footer-text").forEach((el) => {
+            const fallbackValue = el.textContent || translate("footer.tagline", {}, "");
+            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.0.0 by Earthen");
+        });
+
+        document.querySelectorAll('[data-i18n][data-i18n-attr]').forEach((el) => {
+            const key = el.getAttribute("data-i18n");
+            const attr = el.getAttribute("data-i18n-attr");
+            if (!key || !attr) {
+                return;
+            }
+            const fallbackValue = el.getAttribute(attr) || "";
+            const value = translate(key, {}, fallbackValue);
+            if (value) {
+                el.setAttribute(attr, value);
+            }
+        });
+    };
+
+    updateMetaContent();
+    updateStaticText();
+
+    const defaultName = translate("onboarding.defaultName", {}, "Earthling");
+
+    const welcomeEl = document.getElementById("welcome-message");
+    if (welcomeEl) {
+        welcomeEl.textContent = translate("onboarding.welcomeMessage", { name: defaultName }, `Welcome ${defaultName}`);
+    }
+
+    const genericWelcomeEl = document.getElementById("generic-welcome");
+    if (genericWelcomeEl) {
+        genericWelcomeEl.textContent = translate(
+            "onboarding.firstTimeIntro",
+            {},
+            "Looks like this is your first time logging into EarthCal! Let's get your account setup."
+        );
+    }
+
+    const statusIntroEl = document.getElementById("status-intro");
+    if (statusIntroEl) {
+        statusIntroEl.textContent = translate(
+            "onboarding.preparingExperience",
+            {},
+            "We're preparing your personalized EarthCal experience..."
+        );
+    }
+
+    const buttonLabels = {
+        getStarted: translate("buttons.getStarted", {}, "Get Started"),
+        continue: translate("buttons.continue", {}, "Continue"),
+    };
+
+    const getStartedButtonEl = document.getElementById("get-started-button");
+    if (getStartedButtonEl) {
+        getStartedButtonEl.textContent = buttonLabels.getStarted;
+    }
+
+    const MINIMUM_REDIRECT_DELAY_MS = 3000;
 
     const collectPreloadAssets = () => {
         const selectors = [
@@ -481,7 +665,12 @@
         return assets;
     };
 
-    const EARTHCAL_ANNIVERSARY_TITLE = "EarthCal Anniversary";
+    const EARTHCAL_ANNIVERSARY_TITLE = translate("events.anniversaryTitle", {}, "EarthCal Anniversary");
+    const EARTHCAL_ANNIVERSARY_NOTES = translate(
+        "events.anniversaryNotes",
+        {},
+        "You joined EarthCal on this day! Celebrating your transition from linear-time to cycle-time."
+    );
 
     const loadingProgressBar = document.getElementById("loading-progress-bar");
 
@@ -585,7 +774,7 @@
 
     const ensureSessionProfile = () => {
         const defaultProfile = {
-            first_name: "Earthling",
+            first_name: defaultName,
             earthling_emoji: "🐸",
             email: null,
             buwana_id: null,
@@ -620,7 +809,12 @@
             console.warn("⚠️ Offline. Preloading may fail.");
         }
 
+        const startTime = performance.now();
         await preloadAssets();
+        const elapsed = performance.now() - startTime;
+        if (elapsed < MINIMUM_REDIRECT_DELAY_MS) {
+            await delay(MINIMUM_REDIRECT_DELAY_MS - elapsed);
+        }
 
         setLoadingProgress(100);
         window.location.href = redirectTarget;
@@ -667,6 +861,88 @@
         let onboardingFailed = false;
         let startButtonHref = null;
 
+        const onboardingText = {
+            statusSettingUp: translate("onboarding.settingUp", {}, "We are setting up your personalized calendars..."),
+            accountError: translate(
+                "onboarding.accountError",
+                {},
+                "We could not confirm your EarthCal account. Please refresh the page to try again."
+            ),
+            onboardingError: translate(
+                "onboarding.onboardingError",
+                {},
+                "We ran into a hiccup preparing your account. Please refresh the page to try again."
+            ),
+            completionNew: translate(
+                "onboarding.completion.newCalendar",
+                {},
+                "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we added an event for today to celebrate your first login to EarthCal 🎉. Click below to get started."
+            ),
+            completionExisting: translate(
+                "onboarding.completion.existingCalendar",
+                {},
+                "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions and celebration event—everything is ready to explore!"
+            ),
+            tasks: {
+                verifyingAccount: translate("onboarding.tasks.verifyingAccount", {}, "Confirming your EarthCal account"),
+                verifyingAccountExisting: translate(
+                    "onboarding.tasks.verifyingAccountCompleteExisting",
+                    {},
+                    "Confirmed your EarthCal account details"
+                ),
+                verifyingAccountCreated: translate(
+                    "onboarding.tasks.verifyingAccountCompleteNew",
+                    {},
+                    "Created your EarthCal account details"
+                ),
+                creatingCalendar: translate(
+                    "onboarding.tasks.creatingCalendar",
+                    {},
+                    "Setting up a default My Calendar for your events, to-dos, and journals."
+                ),
+                calendarCreated: translate("onboarding.tasks.calendarCreated", {}, "Created your My Calendar"),
+                calendarExisting: translate(
+                    "onboarding.tasks.calendarExisting",
+                    {},
+                    "Your My Calendar was already set up"
+                ),
+                subscribingCalendars: translate(
+                    "onboarding.tasks.subscribingCalendars",
+                    {},
+                    "Subscribing you to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                subscriptionsExisting: translate(
+                    "onboarding.tasks.subscriptionsExisting",
+                    {},
+                    "You were already subscribed to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                subscriptionsCreated: translate(
+                    "onboarding.tasks.subscriptionsCreated",
+                    {},
+                    "Subscribed you to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                schedulingAnniversary: translate(
+                    "onboarding.tasks.schedulingAnniversary",
+                    {},
+                    "Ensuring your 🎉 EarthCal Anniversary celebration is scheduled"
+                ),
+                anniversaryExisting: translate(
+                    "onboarding.tasks.anniversaryExisting",
+                    {},
+                    "Your celebration event for today was already on the calendar"
+                ),
+                anniversaryCreated: translate(
+                    "onboarding.tasks.anniversaryCreated",
+                    {},
+                    "Added an event for today to celebrate your first login to EarthCal 🎉"
+                ),
+            },
+            errors: {
+                unexpected: translate("errors.unexpected", {}, "An unexpected error occurred."),
+                details: (message) => translate("errors.details", { message }, `Details: ${message}`),
+            },
+        };
+
         const normalizeTimeZone = (value) => {
             if (typeof value !== "string") {
                 return null;
@@ -705,7 +981,7 @@
 
         const sanitizedUrlFirstName = sanitizeName(urlFirstName);
 
-        let firstName = sanitizedUrlFirstName || "Earthling";
+        let firstName = sanitizedUrlFirstName || defaultName;
 
         const earthlingEmoji = profile?.earthling_emoji
             || payload?.["buwana:earthlingEmoji"]
@@ -734,7 +1010,11 @@
             })()
             || "Etc/UTC";
 
-        const defaultCalendarDescription = "Your default, all-purpose personal calendar for general events, to-dos and journals.";
+        const defaultCalendarDescription = translate(
+            "onboarding.defaultCalendarDescription",
+            {},
+            "Your default, all-purpose personal calendar for general events, to-dos and journals."
+        );
 
         const updateGreeting = (name) => {
             if (!greetingEl) {
@@ -742,8 +1022,12 @@
             }
             const safeName = typeof name === "string" && name.trim().length > 0
                 ? name.trim()
-                : "Earthling";
-            greetingEl.textContent = `Welcome ${safeName}`;
+                : defaultName;
+            greetingEl.textContent = translate(
+                "onboarding.welcomeMessage",
+                { name: safeName },
+                `Welcome ${safeName}`
+            );
         };
 
         updateGreeting(firstName);
@@ -751,7 +1035,7 @@
         if (!buwanaId) {
             console.error("Unable to locate id in the current URL parameters.");
             if (statusIntro) {
-                statusIntro.textContent = "We could not confirm your EarthCal account. Please refresh the page to try again.";
+                statusIntro.textContent = onboardingText.accountError;
             }
             return;
         }
@@ -1011,7 +1295,7 @@
                 calendar_id: calendarId,
                 item_kind: "event",
                 title: EARTHCAL_ANNIVERSARY_TITLE,
-                notes: "You joined Earthcal on this day! Celebrating your transition from linear-time to cycle-time.",
+                notes: EARTHCAL_ANNIVERSARY_NOTES,
                 start_local: `${todayInTz} 00:00:00`,
                 tzid: safeTzid,
                 all_day: true,
@@ -1055,7 +1339,7 @@
 
         try {
             if (statusIntro) {
-                statusIntro.textContent = "We are setting up your personalized calendars...";
+                statusIntro.textContent = onboardingText.statusSettingUp;
             }
 
             let userTimeZone = resolvedTimeZone;
@@ -1064,7 +1348,7 @@
             let calendarTimeZone = resolvedTimeZone;
             const hasTokenTimeZone = Boolean(tokenTimeZone);
 
-            const { result: accountCheckJson, listItem: confirmTaskItem } = await runTask("Confirming your EarthCal account", async () => {
+            const { result: accountCheckJson, listItem: confirmTaskItem } = await runTask(onboardingText.tasks.verifyingAccount, async () => {
                 const checkResponse = await fetch("api/v1/create_my_calendar.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -1099,11 +1383,11 @@
             updateTaskLabel(
                 confirmTaskItem,
                 alreadyExisting
-                    ? "Confirmed your EarthCal account details"
-                    : "Created your EarthCal account details"
+                    ? onboardingText.tasks.verifyingAccountExisting
+                    : onboardingText.tasks.verifyingAccountCreated
             );
 
-            const { listItem: calendarTaskItem } = await runTask("Setting up a default My Calendar for your events, to-dos, and journals.", async () => {
+            const { listItem: calendarTaskItem } = await runTask(onboardingText.tasks.creatingCalendar, async () => {
                 const createResponse = await fetch("api/v1/create_my_calendar.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -1142,12 +1426,12 @@
             updateTaskLabel(
                 calendarTaskItem,
                 myCalendarCreated
-                    ? "Created your My Calendar"
-                    : "Your My Calendar was already set up"
+                    ? onboardingText.tasks.calendarCreated
+                    : onboardingText.tasks.calendarExisting
             );
 
             const { result: subscriptionResults, listItem: subscriptionTaskItem } = await runTask(
-                "Subscribing you to the public 2025 and 2026 Astronomical Events Calendars",
+                onboardingText.tasks.subscribingCalendars,
                 async () => subscribeToPublicCalendars(buwanaId)
             );
 
@@ -1157,12 +1441,12 @@
             updateTaskLabel(
                 subscriptionTaskItem,
                 alreadyEnabled
-                    ? "You were already subscribed to the public 2025 and 2026 Astronomical Events Calendars"
-                    : "Subscribed you to the public 2025 and 2026 Astronomical Events Calendars"
+                    ? onboardingText.tasks.subscriptionsExisting
+                    : onboardingText.tasks.subscriptionsCreated
             );
 
             const { result: anniversaryResult, listItem: anniversaryTaskItem } = await runTask(
-                "Ensuring your 🎉 EarthCal Anniversary celebration is scheduled",
+                onboardingText.tasks.schedulingAnniversary,
                 async () => addAnniversaryEvent({
                     userId: buwanaId,
                     calendarId,
@@ -1173,8 +1457,8 @@
             updateTaskLabel(
                 anniversaryTaskItem,
                 anniversaryResult?.alreadyExists
-                    ? "Your celebration event for today was already on the calendar"
-                    : "Added an event for today to celebrate your first login to EarthCal 🎉"
+                    ? onboardingText.tasks.anniversaryExisting
+                    : onboardingText.tasks.anniversaryCreated
             );
 
             if (taskLog) {
@@ -1182,8 +1466,8 @@
             }
 
             const completionMessage = myCalendarCreated
-                ? "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we added an event for today to celebrate your first login to EarthCal 🎉. Click below to get started."
-                : "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions and celebration event—everything is ready to explore!";
+                ? onboardingText.completionNew
+                : onboardingText.completionExisting;
 
             if (statusIntro) {
                 statusIntro.textContent = "";
@@ -1197,18 +1481,22 @@
             onboardingFailed = true;
             console.error("Unable to complete onboarding steps.", error);
             if (statusIntro) {
-                statusIntro.textContent = "We ran into a hiccup preparing your account. Please refresh the page to try again.";
+                statusIntro.textContent = onboardingText.onboardingError;
             }
             if (taskLog) {
                 taskLog.setAttribute("aria-busy", "false");
                 const errorItem = document.createElement("li");
-                errorItem.textContent = error instanceof Error ? `Details: ${error.message}` : "An unexpected error occurred.";
+                errorItem.textContent = error instanceof Error
+                    ? onboardingText.errors.details(error.message)
+                    : onboardingText.errors.unexpected;
                 errorItem.classList.add("task-log-error");
                 taskLog.appendChild(errorItem);
             }
         } finally {
             if (getStartedButton) {
-                getStartedButton.textContent = onboardingFailed ? "Continue" : "Get Started";
+                getStartedButton.textContent = onboardingFailed
+                    ? buttonLabels.continue
+                    : buttonLabels.getStarted;
                 getStartedButton.removeAttribute("hidden");
                 getStartedButton.disabled = false;
                 getStartedButton.setAttribute("aria-disabled", "false");
