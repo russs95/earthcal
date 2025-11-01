@@ -236,9 +236,40 @@
         }
         #task-log li {
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
         #task-log li.task-log-error {
             color: #b91c1c;
+        }
+        .task-log-icon {
+            flex: 0 0 20px;
+            width: 20px;
+            height: 20px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .task-log-icon[aria-hidden="true"] {
+            font-size: 0;
+        }
+        .task-log-icon--spinner {
+            background-image: url("svgs/earthcal-spinner.svg");
+        }
+        .task-log-icon--success {
+            background-image: url("assets/icons/green-check.png");
+        }
+        .task-log-icon--warning {
+            background-image: none;
+        }
+        .task-log-label {
+            flex: 1;
         }
         #get-started-button {
             align-self: center;
@@ -879,15 +910,25 @@
             return outcomes;
         };
 
-        const MIN_TASK_DURATION_MS = 4000;
+        const MIN_TASK_DURATION_MS = 3600;
 
         const runTask = async (label, action) => {
             const list = taskLog;
             let listItem = null;
+            let iconSpan = null;
+            let labelSpan = null;
             const started = performance.now();
             if (list) {
                 listItem = document.createElement("li");
-                listItem.textContent = `⏳ ${label}`;
+                iconSpan = document.createElement("span");
+                iconSpan.className = "task-log-icon task-log-icon--spinner";
+                iconSpan.setAttribute("aria-hidden", "true");
+
+                labelSpan = document.createElement("span");
+                labelSpan.className = "task-log-label";
+                labelSpan.textContent = label;
+
+                listItem.append(iconSpan, labelSpan);
                 list.appendChild(listItem);
             }
 
@@ -898,7 +939,15 @@
                     await delay(MIN_TASK_DURATION_MS - elapsed);
                 }
                 if (listItem) {
-                    listItem.textContent = `✅ ${label}`;
+                    if (iconSpan) {
+                        iconSpan.classList.remove("task-log-icon--spinner");
+                        iconSpan.classList.add("task-log-icon--success");
+                    }
+                    if (labelSpan) {
+                        labelSpan.textContent = label;
+                    } else {
+                        listItem.append(label);
+                    }
                 }
                 return { result, listItem };
             } catch (taskError) {
@@ -907,7 +956,17 @@
                     await delay(MIN_TASK_DURATION_MS - elapsed);
                 }
                 if (listItem) {
-                    listItem.textContent = `⚠️ ${label}`;
+                    if (iconSpan) {
+                        iconSpan.classList.remove("task-log-icon--spinner");
+                        iconSpan.classList.add("task-log-icon--warning");
+                        iconSpan.textContent = "⚠️";
+                        iconSpan.removeAttribute("aria-hidden");
+                    }
+                    if (labelSpan) {
+                        labelSpan.textContent = label;
+                    } else {
+                        listItem.append(label);
+                    }
                 }
                 throw taskError;
             }

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
+ <style>
+  path {
+   transition: opacity 0.15s ease-in-out;
+  }
+ </style>
  <defs>
   <clipPath id="clipPath1">
    <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
@@ -20,4 +25,62 @@
   <path id="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
   <path id="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
  </g>
+ <script type="application/ecmascript"><![CDATA[
+ (function () {
+  const svgRoot = document.currentScript?.ownerDocument?.documentElement;
+  if (!svgRoot) {
+   return;
+  }
+
+  const MONTH_IDS = [
+   "01-january",
+   "02-february",
+   "03-march",
+   "04-april",
+   "05-may",
+   "06-june",
+   "07-july",
+   "08-august",
+   "09-september",
+   "10-october",
+   "11-november",
+   "12-december"
+  ];
+
+  const segments = MONTH_IDS.map((id) => svgRoot.getElementById(id)).filter(Boolean);
+  if (segments.length === 0) {
+   return;
+  }
+
+  const DEFAULT_OPACITY = 0.33;
+  const ACTIVE_OPACITY = 1;
+  const STEP_INTERVAL_MS = 150;
+
+  segments.forEach((segment) => segment.setAttribute("opacity", String(DEFAULT_OPACITY)));
+
+  let index = 0;
+  let brightening = true;
+
+  const advance = () => {
+   const segment = segments[index];
+   if (!segment) {
+    index = 0;
+    brightening = !brightening;
+    return;
+   }
+
+   const targetOpacity = brightening ? ACTIVE_OPACITY : DEFAULT_OPACITY;
+   segment.setAttribute("opacity", String(targetOpacity));
+
+   index += 1;
+   if (index >= segments.length) {
+    index = 0;
+    brightening = !brightening;
+   }
+  };
+
+  advance();
+  setInterval(advance, STEP_INTERVAL_MS);
+ })();
+ ]]></script>
 </svg>
