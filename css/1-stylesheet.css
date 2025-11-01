@@ -2887,11 +2887,17 @@ INFO MODAL
   position: relative;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.08);
   width: min(360px, 90%);
   margin: 24px auto 32px auto;
   backdrop-filter: blur(6px);
   font-family: "Mulish", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ec-plan-toggle {
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .ec-plan-toggle .ec-toggle-indicator {
@@ -2956,7 +2962,7 @@ INFO MODAL
 }
 
 .ec-plan-card.current-plan {
-  border-color: rgba(34, 197, 94, 0.85);
+  border-color: var(--emblem-green, rgba(34, 197, 94, 0.85));
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4);
 }
 
@@ -3081,6 +3087,15 @@ INFO MODAL
   .confirmation-blur-button:hover {
   background-color: var(--form-conf-background-over);
   }
+
+.confirmation-blur-button.greenback {
+  background-color: var(--emblem-green);
+  color: #f7f9fb;
+}
+
+.confirmation-blur-button.greenback:hover {
+  background-color: var(--emblem-green-over);
+}
 
 
 .ec-form-title {
