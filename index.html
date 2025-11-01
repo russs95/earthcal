@@ -121,11 +121,11 @@
             width: 100%;
         }
         .earthcal-logo-spinner path {
-            opacity: 0.1;
-            transition: opacity 0.2s ease-in-out;
+            opacity: 0.33;
+            transition: opacity 0.15s ease-in-out;
         }
         #loading-progress {
-            width: min(280px, 70vw);
+            width: min(140px, 35vw);
             height: 6px;
             border-radius: 999px;
             background: rgba(0, 0, 0, 0.08);
@@ -136,7 +136,7 @@
         #loading-progress-bar {
             height: 100%;
             width: 0%;
-            background: var(--emblem-green);
+            background: #808080;
             transition: width 0.2s ease;
         }
         @media screen and (min-width: 769px) and (max-width: 1200px) {
@@ -339,18 +339,18 @@
                     </clipPath>
                 </defs>
                 <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-                    <path data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
-                    <path data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
-                    <path data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
-                    <path data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
-                    <path data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
-                    <path data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
-                    <path data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
-                    <path data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
-                    <path data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
-                    <path data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
-                    <path data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
-                    <path data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
+                    <path id="12-december" data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
+                    <path id="11-november" data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
+                    <path id="10-october" data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
+                    <path id="09-september" data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
+                    <path id="08-august" data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
+                    <path id="07-july" data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
+                    <path id="06-june" data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
+                    <path id="05-may" data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
+                    <path id="04-april" data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
+                    <path id="03-march" data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
+                    <path id="02-february" data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
+                    <path id="01-january" data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
                 </g>
             </svg>
 
@@ -384,18 +384,18 @@
                             </clipPath>
                         </defs>
                         <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath-onboard)" stroke-width=".92194">
-                            <path data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
-                            <path data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
-                            <path data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.2904790z" fill="#00e6a7" opacity=".33"/>
-                            <path data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
-                            <path data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
-                            <path data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
-                            <path data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
-                            <path data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
-                            <path data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
-                            <path data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
-                            <path data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
-                            <path data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
+                            <path id="mini-12-december" data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
+                            <path id="mini-11-november" data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
+                            <path id="mini-10-october" data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.2904790z" fill="#00e6a7" opacity=".33"/>
+                            <path id="mini-09-september" data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
+                            <path id="mini-08-august" data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
+                            <path id="mini-07-july" data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
+                            <path id="mini-06-june" data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
+                            <path id="mini-05-may" data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
+                            <path id="mini-04-april" data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
+                            <path id="mini-03-march" data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
+                            <path id="mini-02-february" data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
+                            <path id="mini-01-january" data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
                         </g>
                     </svg>
                     <span class="spinner-symbol" aria-hidden="true"></span>
@@ -424,23 +424,32 @@
 <script type="module">
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const assets = [
-        "js/earthcal-init.js?v=2.1",
-        "css/light.css?v7",
-        "css/dark.css?v7",
-        "css/1-stylesheet.css",
-        "fonts/Mulish-Light.ttf",
-        "fonts/Mulish-Medium.ttf",
-        "fonts/Arvo-Regular.ttf",
-        "svgs/up-reg-arrow-dark.svg",
-        "svgs/up-reg-arrow-dark-over.svg",
-        "svgs/up-reg-arrow-dark-active.svg",
-        "svgs/up-reg-arrow-dark-active-hover.svg",
-        "svgs/up-reg-arrow-light.svg",
-        "svgs/up-reg-arrow-light-over.svg",
-        "svgs/up-reg-arrow-light-active.svg",
-        "svgs/up-reg-arrow-light-active-hover.svg",
-    ];
+    const collectPreloadAssets = () => {
+        const selectors = [
+            'link[rel="preload"][href]'
+        ];
+        const seen = new Set();
+        const assets = [];
+
+        selectors.forEach((selector) => {
+            document.querySelectorAll(selector).forEach((linkEl) => {
+                const href = linkEl.getAttribute('href');
+                if (!href) {
+                    return;
+                }
+
+                const resolved = new URL(href, window.location.href).toString();
+                if (seen.has(resolved)) {
+                    return;
+                }
+
+                seen.add(resolved);
+                assets.push(resolved);
+            });
+        });
+
+        return assets;
+    };
 
     const BETA_MIN_HOLD_MS = 20000; // TODO(beta): shorten/remove this hold once beta testing completes.
     const EARTHCAL_ANNIVERSARY_TITLE = "EarthCal Anniversary";
@@ -454,6 +463,7 @@
     };
 
     const preloadAssets = async () => {
+        const assets = collectPreloadAssets();
         const total = assets.length;
         if (total === 0) {
             setLoadingProgress(100);
@@ -477,9 +487,23 @@
     };
 
     const spinEarthcalLogo = () => {
-        const STEP_DELAY_MS = 200;
-        const INACTIVE_OPACITY = 0.1;
+        const STEP_DELAY_MS = 150;
+        const INACTIVE_OPACITY = 0.33;
         const ACTIVE_OPACITY = 1;
+        const MONTH_SEQUENCE = [
+            "01-january",
+            "02-february",
+            "03-march",
+            "04-april",
+            "05-may",
+            "06-june",
+            "07-july",
+            "08-august",
+            "09-september",
+            "10-october",
+            "11-november",
+            "12-december",
+        ];
         const spinners = Array.from(document.querySelectorAll('.earthcal-logo-spinner'));
 
         if (spinners.length === 0) {
@@ -487,7 +511,9 @@
         }
 
         spinners.forEach((spinnerEl, spinnerIndex) => {
-            const paths = Array.from(spinnerEl.querySelectorAll('[data-month]'));
+            const paths = MONTH_SEQUENCE
+                .map((monthId) => spinnerEl.querySelector(`[data-month="${monthId}"]`))
+                .filter(Boolean);
             if (paths.length === 0) {
                 return;
             }
@@ -497,24 +523,25 @@
             });
 
             let index = 0;
+            let increasing = true;
 
             const tick = () => {
                 const current = paths[index];
-                const previous = paths[(index - 1 + paths.length) % paths.length];
-
-                if (previous) {
-                    previous.style.opacity = String(INACTIVE_OPACITY);
-                }
 
                 if (current) {
-                    current.style.opacity = String(ACTIVE_OPACITY);
+                    current.style.opacity = String(increasing ? ACTIVE_OPACITY : INACTIVE_OPACITY);
                 }
 
-                index = (index + 1) % paths.length;
+                index += 1;
+                if (index >= paths.length) {
+                    index = 0;
+                    increasing = !increasing;
+                }
+
                 setTimeout(tick, STEP_DELAY_MS);
             };
 
-            setTimeout(tick, spinnerIndex * (STEP_DELAY_MS / 2));
+            setTimeout(tick, spinnerIndex * STEP_DELAY_MS);
         });
     };
 
