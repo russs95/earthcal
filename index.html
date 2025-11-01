@@ -909,6 +909,22 @@
             }
         };
 
+        const updateTaskLabel = (listItem, text) => {
+            if (!listItem) {
+                return;
+            }
+
+            const labelEl = listItem.querySelector(".task-log-label");
+            const newText = typeof text === "string" ? text : "";
+
+            if (labelEl) {
+                labelEl.textContent = newText;
+                return;
+            }
+
+            listItem.textContent = newText;
+        };
+
         const hasExistingAnniversaryEvent = async ({ userId, calendarId }) => {
             if (!userId || !calendarId) {
                 return false;
@@ -1079,12 +1095,13 @@
                 return checkJson;
             });
 
-            if (confirmTaskItem) {
-                const alreadyExisting = Boolean(accountCheckJson?.exists);
-                confirmTaskItem.textContent = alreadyExisting
+            const alreadyExisting = Boolean(accountCheckJson?.exists);
+            updateTaskLabel(
+                confirmTaskItem,
+                alreadyExisting
                     ? "Confirmed your EarthCal account details"
-                    : "Created your EarthCal account details";
-            }
+                    : "Created your EarthCal account details"
+            );
 
             const { listItem: calendarTaskItem } = await runTask("Setting up a default My Calendar for your events, to-dos, and journals.", async () => {
                 const createResponse = await fetch("api/v1/create_my_calendar.php", {
@@ -1122,25 +1139,27 @@
                 return createJson;
             });
 
-            if (calendarTaskItem) {
-                calendarTaskItem.textContent = myCalendarCreated
+            updateTaskLabel(
+                calendarTaskItem,
+                myCalendarCreated
                     ? "Created your My Calendar"
-                    : "Your My Calendar was already set up";
-            }
+                    : "Your My Calendar was already set up"
+            );
 
             const { result: subscriptionResults, listItem: subscriptionTaskItem } = await runTask(
                 "Subscribing you to the public 2025 and 2026 Astronomical Events Calendars",
                 async () => subscribeToPublicCalendars(buwanaId)
             );
 
-            if (subscriptionTaskItem) {
-                const alreadyEnabled = Array.isArray(subscriptionResults)
-                    && subscriptionResults.length > 0
-                    && subscriptionResults.every((entry) => entry?.alreadySubscribed);
-                subscriptionTaskItem.textContent = alreadyEnabled
+            const alreadyEnabled = Array.isArray(subscriptionResults)
+                && subscriptionResults.length > 0
+                && subscriptionResults.every((entry) => entry?.alreadySubscribed);
+            updateTaskLabel(
+                subscriptionTaskItem,
+                alreadyEnabled
                     ? "You were already subscribed to the public 2025 and 2026 Astronomical Events Calendars"
-                    : "Subscribed you to the public 2025 and 2026 Astronomical Events Calendars";
-            }
+                    : "Subscribed you to the public 2025 and 2026 Astronomical Events Calendars"
+            );
 
             const { result: anniversaryResult, listItem: anniversaryTaskItem } = await runTask(
                 "Ensuring your 🎉 EarthCal Anniversary celebration is scheduled",
@@ -1151,11 +1170,12 @@
                 })
             );
 
-            if (anniversaryTaskItem) {
-                anniversaryTaskItem.textContent = anniversaryResult?.alreadyExists
+            updateTaskLabel(
+                anniversaryTaskItem,
+                anniversaryResult?.alreadyExists
                     ? "Your celebration event for today was already on the calendar"
-                    : "Added an event for today to celebrate your first login to EarthCal 🎉";
-            }
+                    : "Added an event for today to celebrate your first login to EarthCal 🎉"
+            );
 
             if (taskLog) {
                 taskLog.setAttribute("aria-busy", "false");
