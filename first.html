@@ -562,7 +562,7 @@
                     }
                 });
 
-                await runTask('Setting up your My Calendar', async () => {
+                await runTask('Setting up a default My Calendar for your events, to-dos, and journals.', async () => {
                     const createResponse = await fetch('api/v1/create_my_calendar.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
