@@ -861,14 +861,18 @@
                         iconWrapper.classList.add("task-log-icon--success");
                         iconWrapper.setAttribute("aria-hidden", "true");
                         if (!iconElement || iconElement.tagName.toLowerCase() !== "img") {
+                            if (iconElement && iconElement.parentElement === iconWrapper) {
+                                iconWrapper.removeChild(iconElement);
+                            }
                             const successImage = document.createElement("img");
                             successImage.className = "task-log-icon__image";
                             successImage.src = "assets/icons/green-check.png";
                             successImage.alt = "";
-                            iconWrapper.textContent = "";
                             iconWrapper.appendChild(successImage);
                             iconElement = successImage;
                         } else {
+                            iconElement.removeAttribute("data");
+                            iconElement.removeAttribute("type");
                             iconElement.src = "assets/icons/green-check.png";
                         }
                     }
