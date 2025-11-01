@@ -52,6 +52,10 @@
         :root {
             --general-background: rgb(245, 245, 245);
         }
+        html,
+        body {
+            height: 100%;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -59,21 +63,20 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             font-family: 'Mulish', sans-serif;
             background-color: var(--general-background);
             color: black;
             transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
         }
         body.first-time {
             padding: 20px 16px 60px;
         }
         body.first-time-ready {
             justify-content: flex-start;
-        }
-        body.first-time-ready .earthcal-app-logo {
-            margin-top: 12px;
+            overflow: auto;
         }
         body.first-time-ready #progress-container {
             display: none;
@@ -88,6 +91,18 @@
             body {
                 color: white;
             }
+        }
+        #initial-load {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 24px 16px 60px;
+            box-sizing: border-box;
+            gap: 18px;
         }
         #progress-container {
             width: 100px;
@@ -119,11 +134,6 @@
             font-size: 0.8em;
             color: grey;
         }
-        .earthcal-app-logo,
-        .earthcal-app-logo svg {
-            width: 120px;
-            height: 120px;
-        }
         @media screen and (max-width: 768px) {
             body {
                 height: 100vh;
@@ -134,11 +144,6 @@
             body.first-time-ready {
                 align-items: stretch;
                 justify-content: flex-start;
-            }
-            .earthcal-app-logo,
-            .earthcal-app-logo svg {
-                width: 180px;
-                height: 180px;
             }
             #progress-container {
                 width: 150px;
@@ -172,6 +177,12 @@
             #onboarding-section {
                 width: min(82vw, 640px);
             }
+        }
+        #onboarding-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
         #onboarding-section {
             display: none;
@@ -274,8 +285,8 @@
             padding: 0.85rem 2.75rem;
             font-size: 1rem;
             font-weight: 500;
-            color: #f7f9fb;
-            background-color: #0d1a26;
+            color: var(--emblem-green-over, #f7f9fb);
+            background-color: var(--emblem-green, #0d1a26);
             border: none;
             border-radius: 999px;
             cursor: pointer;
@@ -291,7 +302,8 @@
         #get-started-button:not([aria-disabled="true"]):not(:disabled):hover {
             transform: translateY(-2px);
             box-shadow: 0 16px 30px rgba(15, 23, 42, 0.22);
-            background-color: #14293a;
+            background-color: var(--emblem-green-over, #14293a);
+            color: var(--emblem-green, #0d1a26);
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -300,35 +312,9 @@
     </style>
 </head>
 <body>
-<div id="initial-load" style="display:block;">
+<div id="initial-load">
 
-    <div class="earthcal-app-logo" style="margin-bottom: 20px;text-align: center;">
-
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!-- Created with Inkscape (http://www.inkscape.org/) -->
-        <svg width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <clipPath id="clipPath1">
-                    <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
-                </clipPath>
-            </defs>
-            <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-                <path id="december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".5" stroke-width=".9342"/>
-                <path id="november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".5"/>
-                <path id="october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".5"/>
-                <path id="september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".5"/>
-                <path id="august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".5"/>
-                <path transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".5"/>
-                <path id="june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".5"/>
-                <path id="july" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".5"/>
-                <path id="april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".5"/>
-                <path id="march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".5"/>
-                <path id="february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".5"/>
-                <path id="january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".5"/>
-            </g>
-        </svg>
-    </div>
-    <div id="progress-container">
+    <div id="progress-container" aria-hidden="true">
         <div id="load-progress"></div>
     </div>
 
@@ -338,7 +324,7 @@
     </div>
 </div>
 
-<div id="onboarding-time" style="display:none;">
+<div id="onboarding-time" hidden>
 
     <main id="onboarding-section" role="main" hidden>
         <h1 id="welcome-message" class="modal-header">Welcome Earthling</h1>
@@ -442,9 +428,7 @@
 
     const handleDefaultFlow = async () => {
         const redirectTarget = "dash.html";
-        const MIN_WAIT = 10000;
-        const MAX_WAIT = 4000;
-        const startTime = Date.now();
+        const MAX_WAIT = 5000;
 
         ensureSessionProfile();
 
@@ -452,31 +436,19 @@
             console.warn("⚠️ Offline. Preloading may fail.");
         }
 
-        let timedOut = false;
+        const preloadPromise = preloadAssets();
         await Promise.race([
-            preloadAssets(),
-            delay(MAX_WAIT).then(() => {
-                timedOut = true;
-            }),
+            preloadPromise,
+            delay(MAX_WAIT),
         ]);
-
-        if (!timedOut) {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < MIN_WAIT) {
-                await delay(MIN_WAIT - elapsed);
-            }
-        } else {
-            const elapsed = Date.now() - startTime;
-            if (elapsed < MIN_WAIT) {
-                await delay(MIN_WAIT - elapsed);
-            }
-        }
 
         window.location.href = redirectTarget;
     };
 
     const handleFirstTimeFlow = async () => {
         document.body.classList.add("first-time");
+        const initialLoad = document.getElementById("initial-load");
+        const onboardingWrapper = document.getElementById("onboarding-time");
         const bar = document.getElementById("load-progress");
         if (bar) {
             bar.style.transition = "width 2s ease";
@@ -487,6 +459,12 @@
 
         await delay(2000);
 
+        if (initialLoad) {
+            initialLoad.setAttribute("hidden", "");
+        }
+        if (onboardingWrapper) {
+            onboardingWrapper.removeAttribute("hidden");
+        }
         document.body.classList.add("first-time-ready");
 
         const onboardingSection = document.getElementById("onboarding-section");
@@ -512,6 +490,7 @@
         const genericWelcome = document.getElementById("generic-welcome");
         const taskLog = document.getElementById("task-log");
         const getStartedButton = document.getElementById("get-started-button");
+        let onboardingFailed = false;
 
         const setSpinnerActive = () => {
             if (!spinner) return;
@@ -885,7 +864,7 @@
             }
 
             const { result: subscriptionResults, listItem: subscriptionTaskItem } = await runTask(
-                "Ensuring the 2025 and 2026 Astrological Events calendars are enabled",
+                "Subscribing you to the public 2025 and 2026 Astronomical Events Calendars",
                 async () => subscribeToPublicCalendars(buwanaId)
             );
 
@@ -894,8 +873,8 @@
                     && subscriptionResults.length > 0
                     && subscriptionResults.every((entry) => entry?.alreadySubscribed);
                 subscriptionTaskItem.textContent = alreadyEnabled
-                    ? "✅ Astrological Events calendars were already enabled"
-                    : "✅ Enabled the 2025 and 2026 Astrological Events calendars";
+                    ? "✅ You were already subscribed to the public 2025 and 2026 Astronomical Events Calendars"
+                    : "✅ Subscribed you to the public 2025 and 2026 Astronomical Events Calendars";
             }
 
             const { result: anniversaryResult, listItem: anniversaryTaskItem } = await runTask(
@@ -909,8 +888,8 @@
 
             if (anniversaryTaskItem) {
                 anniversaryTaskItem.textContent = anniversaryResult?.alreadyExists
-                    ? "✅ Your EarthCal Anniversary celebration was already scheduled"
-                    : "✅ Added your EarthCal Anniversary celebration";
+                    ? "✅ Your celebration event for today was already on the calendar"
+                    : "✅ Added an event for today to celebrate your first login to EarthCal 🎉";
             }
 
             if (taskLog) {
@@ -918,8 +897,8 @@
             }
 
             const completionMessage = myCalendarCreated
-                ? "Your My Calendar is ready, the Astrological Events calendars are enabled, and your EarthCal Anniversary celebration is on the books for our beta checks. Click below to get started."
-                : "Your My Calendar was already waiting for you, so we re-confirmed your Astrological Events calendars and Anniversary celebration for beta testing—everything is ready to explore!";
+                ? "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we added an event for today to celebrate your first login to EarthCal 🎉. Click below to get started."
+                : "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions and celebration event—everything is ready to explore!";
 
             if (spinner) {
                 setSpinnerComplete("", "Onboarding complete");
@@ -937,6 +916,7 @@
                 genericWelcome.textContent = completionMessage;
             }
         } catch (error) {
+            onboardingFailed = true;
             console.error("Unable to complete onboarding steps.", error);
             if (statusIntro) {
                 statusIntro.textContent = "We ran into a hiccup preparing your account. Please refresh the page to try again.";
@@ -950,6 +930,13 @@
                 errorItem.textContent = error instanceof Error ? `Details: ${error.message}` : "An unexpected error occurred.";
                 errorItem.classList.add("task-log-error");
                 taskLog.appendChild(errorItem);
+            }
+        } finally {
+            if (getStartedButton) {
+                getStartedButton.textContent = onboardingFailed ? "Continue" : "Get Started";
+                getStartedButton.removeAttribute("hidden");
+                getStartedButton.disabled = false;
+                getStartedButton.setAttribute("aria-disabled", "false");
             }
         }
     };
