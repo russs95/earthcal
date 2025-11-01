@@ -825,7 +825,7 @@
             const list = taskLog;
             let listItem = null;
             let iconWrapper = null;
-            let iconImage = null;
+            let iconElement = null;
             let labelSpan = null;
             const started = performance.now();
             if (list) {
@@ -834,11 +834,12 @@
                 iconWrapper.className = "task-log-icon task-log-icon--spinner";
                 iconWrapper.setAttribute("aria-hidden", "true");
 
-                iconImage = document.createElement("img");
-                iconImage.className = "task-log-icon__image";
-                iconImage.src = "svgs/earthcal-spinner.svg";
-                iconImage.alt = "";
-                iconWrapper.appendChild(iconImage);
+                iconElement = document.createElement("object");
+                iconElement.className = "task-log-icon__image";
+                iconElement.setAttribute("type", "image/svg+xml");
+                iconElement.setAttribute("data", "svgs/earthcal-spinner.svg");
+                iconElement.setAttribute("aria-hidden", "true");
+                iconWrapper.appendChild(iconElement);
 
                 labelSpan = document.createElement("span");
                 labelSpan.className = "task-log-label";
@@ -859,16 +860,16 @@
                         iconWrapper.classList.remove("task-log-icon--spinner");
                         iconWrapper.classList.add("task-log-icon--success");
                         iconWrapper.setAttribute("aria-hidden", "true");
-                        if (iconImage) {
-                            iconImage.src = "assets/icons/green-check.png";
-                        } else {
+                        if (!iconElement || iconElement.tagName.toLowerCase() !== "img") {
                             const successImage = document.createElement("img");
                             successImage.className = "task-log-icon__image";
                             successImage.src = "assets/icons/green-check.png";
                             successImage.alt = "";
                             iconWrapper.textContent = "";
                             iconWrapper.appendChild(successImage);
-                            iconImage = successImage;
+                            iconElement = successImage;
+                        } else {
+                            iconElement.src = "assets/icons/green-check.png";
                         }
                     }
                     if (labelSpan) {
@@ -887,10 +888,10 @@
                     if (iconWrapper) {
                         iconWrapper.classList.remove("task-log-icon--spinner");
                         iconWrapper.classList.add("task-log-icon--warning");
-                        if (iconImage && iconImage.parentElement === iconWrapper) {
-                            iconWrapper.removeChild(iconImage);
+                        if (iconElement && iconElement.parentElement === iconWrapper) {
+                            iconWrapper.removeChild(iconElement);
                         }
-                        iconImage = null;
+                        iconElement = null;
                         iconWrapper.textContent = "⚠️";
                         iconWrapper.removeAttribute("aria-hidden");
                     }
