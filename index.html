@@ -112,6 +112,21 @@
             max-width: 100%;
             height: auto;
         }
+        #loading-progress {
+            width: min(280px, 70vw);
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            margin-top: 18px;
+        }
+        #loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--emblem-green);
+            transition: width 0.2s ease;
+        }
         @media screen and (min-width: 769px) and (max-width: 1200px) {
             #earthcal-spinner-logo {
                 width: 155px;
@@ -196,6 +211,9 @@
             #onboarding-section {
                 background: rgba(13, 18, 32, 0.85);
                 box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+            }
+            #loading-progress {
+                background: rgba(255, 255, 255, 0.12);
             }
 
 
@@ -331,8 +349,14 @@
                 </g>
             </svg>
 
+        <div id="loading-progress" role="presentation" aria-hidden="true">
+            <div id="loading-progress-bar"></div>
+        </div>
+
         <div id="footer" style="text-align: center">
-            <img id="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
+            <a href="https://earthen.io" target="_blank" rel="noopener" aria-label="Visit Earthen">
+                <img id="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
+            </a>
             <p>EarthCal v1.0.0 by Earthen</p>
         </div>
     </div>
@@ -385,14 +409,82 @@
     const BETA_MIN_HOLD_MS = 20000; // TODO(beta): shorten/remove this hold once beta testing completes.
     const EARTHCAL_ANNIVERSARY_TITLE = "EarthCal Anniversary";
 
+    const loadingProgressBar = document.getElementById("loading-progress-bar");
+
+    const setLoadingProgress = (value) => {
+        if (!loadingProgressBar) return;
+        const clamped = Math.max(0, Math.min(100, value));
+        loadingProgressBar.style.width = `${clamped}%`;
+    };
+
     const preloadAssets = async () => {
+        const total = assets.length;
+        if (total === 0) {
+            setLoadingProgress(100);
+            return;
+        }
+        let loaded = 0;
+        setLoadingProgress(0);
+
         await Promise.all(
-            assets.map((asset) =>
-                fetch(asset).catch((err) => {
+            assets.map(async (asset) => {
+                try {
+                    await fetch(asset);
+                } catch (err) {
                     console.warn("Failed to load", asset, err);
-                })
-            )
+                } finally {
+                    loaded += 1;
+                    setLoadingProgress((loaded / total) * 100);
+                }
+            })
         );
+    };
+
+    const spinEarthcalLogo = () => {
+        const monthIds = [
+            "01-january",
+            "02-february",
+            "03-march",
+            "04-april",
+            "05-may",
+            "06-june",
+            "07-july",
+            "08-august",
+            "09-september",
+            "10-october",
+            "11-november",
+            "12-december",
+        ];
+
+        const monthElements = monthIds
+            .map((id) => document.getElementById(id))
+            .filter((el) => el);
+
+        if (monthElements.length !== monthIds.length) {
+            return;
+        }
+
+        let index = 0;
+        let increasing = true;
+
+        const step = () => {
+            const element = monthElements[index];
+            if (!element) {
+                return;
+            }
+
+            element.style.opacity = increasing ? "1" : "0.33";
+
+            index += 1;
+            if (index >= monthElements.length) {
+                index = 0;
+                increasing = !increasing;
+            }
+
+            setTimeout(step, 100);
+        };
+
+        step();
     };
 
     const parseJwt = (tkn) => {
@@ -448,6 +540,7 @@
             await delay(BETA_MIN_HOLD_MS - elapsed);
         }
 
+        setLoadingProgress(100);
         window.location.href = redirectTarget;
     };
 
@@ -1007,6 +1100,7 @@
     };
 
     (async function initApp() {
+        spinEarthcalLogo();
         const hasFirstTimeFlag = Boolean(window.__EARTHCAL_HAS_FIRST_TIME__);
         if (hasFirstTimeFlag) {
             await handleFirstTimeFlow();
