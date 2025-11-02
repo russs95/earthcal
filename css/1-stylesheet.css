@@ -133,7 +133,7 @@ path[id*="week-"] {
     text-align:left;
     z-index: 37;
     position: fixed;
-    bottom: 80px;
+    bottom: 55px;
     left: 20px;
 }
 
