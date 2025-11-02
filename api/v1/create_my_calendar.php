@@ -36,8 +36,8 @@ try {
   $tzid_in          = $tzidProvided ? trim((string)($in['tzid'] ?? '')) : '';
   $color            = trim((string)($in['color'] ?? '#3b82f6'));
   $emojiProvided    = array_key_exists('emoji', $in);
-  $emojiInput       = $emojiProvided ? trim((string)($in['emoji'] ?? '')) : '📅';
-  $emoji            = $emojiInput !== '' ? $emojiInput : '📅';
+  $emojiInput       = $emojiProvided ? trim((string)($in['emoji'] ?? '')) : '📆';
+  $emoji            = $emojiInput !== '' ? $emojiInput : '📆';
   $descriptionProvided = array_key_exists('description', $in);
   $descriptionRaw   = $descriptionProvided ? trim((string)($in['description'] ?? '')) : '';
   $description      = $descriptionProvided ? ($descriptionRaw === '' ? null : $descriptionRaw) : null;
