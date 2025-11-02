@@ -93,7 +93,7 @@
             min-height: 100vh;
             font-family: 'Mulish', sans-serif;
             background-color: var(--general-background);
-            background-image: url('webp/earthen-subscription-background-dark.webp');
+            background-image: url('webp/earthen-subscription-background-light.webp');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -124,15 +124,11 @@
             box-sizing: border-box;
             gap: 18px;
         }
-        .earthcal-logo-spinner {
-            width: 77px;
+        .earthcal-logo {
+            width: 120px;
             max-width: 100%;
             height: auto;
             display: block;
-        }
-        .earthcal-logo-spinner path {
-            opacity: 0.33;
-            transition: opacity 0.15s ease-in-out;
         }
         #loading-progress {
             width: min(140px, 35vw);
@@ -165,6 +161,7 @@
             bottom: 10px;
             font-size: 0.8em;
             color: grey;
+            z-index: 1;
         }
         #onboarding-time {
             display: none;
@@ -192,6 +189,8 @@
             backdrop-filter: blur(12px);
             overflow-y: auto;
             width: 100%;
+            position: relative;
+            z-index: 2;
         }
         #welcome-message {
             margin: 0;
@@ -295,6 +294,7 @@
             }
             body {
                 color: white;
+                background-image: url('webp/earthen-subscription-background-dark.webp');
             }
             #loading-progress {
                 background: rgba(255, 255, 255, 0.12);
@@ -321,12 +321,15 @@
                 padding: 0;
             }
             body.first-time-ready {
-                align-items: stretch;
-                justify-content: flex-start;
+                align-items: center;
+                justify-content: center;
+                padding: 32px 16px 56px;
             }
             .footer {
                 font-size: 1em;
-                display: none;
+                display: block;
+                position: static;
+                margin-top: 24px;
             }
             .footer img {
                 width: 40px;
@@ -334,23 +337,23 @@
             }
 
             #onboarding-section {
-
                 border-radius: 24px;
                 box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
                 backdrop-filter: blur(12px);
-
                 justify-content: flex-start;
-                padding: 10px;
-                height: 100vh;
-                /*padding: clamp(2rem, 6vw, 2.75rem) clamp(1.5rem, 6vw, 2.25rem) clamp(2.5rem, 8vw, 3rem);*/
-                /*max-width: 100hw;*/
-                /*gap: clamp(1.25rem, 6vw, 2rem);*/
+                padding: clamp(1.75rem, 6vw, 2.25rem);
+                gap: clamp(1rem, 5vw, 1.75rem);
+                width: min(90vw, 420px);
+                max-height: calc(100vh - 96px);
                 overflow-x: hidden;
-
+                overflow-y: auto;
+            }
+            #onboarding-time {
+                justify-content: center;
             }
             #welcome-message {
                 font-size: clamp(2rem, 7vw, 2.6rem);
-                margin-top: 30px;
+                margin-top: 0;
             }
             #generic-welcome,
             #status-intro,
@@ -363,7 +366,7 @@
             }
             .status-text {
                 font-size: clamp(1.05rem, 4.5vw, 1.2rem);
-                padding-right: 20px;
+                padding-right: 0;
             }
             #task-log li {
                 line-height: 1.55;
@@ -372,17 +375,15 @@
                 font-size: clamp(1.1rem, 4.2vw, 1.25rem);
                 padding: clamp(1rem, 4.5vw, 1.2rem) clamp(2.5rem, 8vw, 3.1rem);
                 margin-top: auto;
-                margin-bottom: 50px;
             }
             #status-messages {
-                /*flex: 1;*/
                 width: 100%;
             }
         }
 
         /* Tablet styles */
         @media screen and (min-width: 769px) and (max-width: 1200px) {
-            #initial-load .earthcal-logo-spinner {
+            #initial-load .earthcal-logo {
                 width: 155px;
             }
             #onboarding-section {
@@ -393,7 +394,7 @@
 
         /* Desktop styles */
         @media screen and (min-width: 1201px) {
-            #initial-load .earthcal-logo-spinner {
+            #initial-load .earthcal-logo {
                 width: 177px;
             }
             #onboarding-section {
@@ -406,29 +407,7 @@
 <body>
     <div id="initial-load" aria-hidden="true">
 
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!-- Created with Inkscape (http://www.inkscape.org/) -->
-            <svg class="earthcal-logo-spinner" width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <defs>
-                    <clipPath id="clipPath1">
-                        <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
-                    </clipPath>
-                </defs>
-                <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-                    <path id="12-december" data-month="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" opacity=".33" stroke-width=".9342"/>
-                    <path id="11-november" data-month="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5" opacity=".33"/>
-                    <path id="10-october" data-month="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7" opacity=".33"/>
-                    <path id="09-september" data-month="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513" opacity=".33"/>
-                    <path id="08-august" data-month="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00" opacity=".33"/>
-                    <path id="07-july" data-month="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00" opacity=".33"/>
-                    <path id="06-june" data-month="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119" opacity=".33"/>
-                    <path id="05-may" data-month="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201" opacity=".33"/>
-                    <path id="04-april" data-month="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303" opacity=".33"/>
-                    <path id="03-march" data-month="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000" opacity=".33"/>
-                    <path id="02-february" data-month="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce" opacity=".33"/>
-                    <path id="01-january" data-month="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff" opacity=".33"/>
-                </g>
-            </svg>
+        <img class="earthcal-logo" src="svgs/earthcal-logo.svg" alt="EarthCal logo" aria-hidden="true">
 
         <div id="loading-progress" role="presentation" aria-hidden="true">
             <div id="loading-progress-bar"></div>
@@ -640,19 +619,29 @@
 
     const collectPreloadAssets = () => {
         const selectors = [
-            'link[rel="preload"][href]'
+            { selector: 'link[rel="preload"][href]', attr: 'href' },
+            { selector: 'link[rel="stylesheet"][href]', attr: 'href' },
+            { selector: 'script[src]', attr: 'src' },
+            { selector: 'img[src]', attr: 'src' },
         ];
         const seen = new Set();
         const assets = [];
 
-        selectors.forEach((selector) => {
-            document.querySelectorAll(selector).forEach((linkEl) => {
-                const href = linkEl.getAttribute('href');
-                if (!href) {
+        selectors.forEach(({ selector, attr }) => {
+            document.querySelectorAll(selector).forEach((element) => {
+                const value = element.getAttribute(attr);
+                if (!value || value.startsWith('data:')) {
                     return;
                 }
 
-                const resolved = new URL(href, window.location.href).toString();
+                let resolved;
+                try {
+                    resolved = new URL(value, window.location.href).toString();
+                } catch (error) {
+                    console.warn('Unable to resolve asset URL for progress tracking.', value, error);
+                    return;
+                }
+
                 if (seen.has(resolved)) {
                     return;
                 }
@@ -693,7 +682,7 @@
         await Promise.all(
             assets.map(async (asset) => {
                 try {
-                    await fetch(asset);
+                    await fetch(asset, { cache: 'force-cache' });
                 } catch (err) {
                     console.warn("Failed to load", asset, err);
                 } finally {
@@ -702,65 +691,7 @@
                 }
             })
         );
-    };
-
-    const spinEarthcalLogo = () => {
-        const STEP_DELAY_MS = 150;
-        const INACTIVE_OPACITY = 0.33;
-        const ACTIVE_OPACITY = 1;
-        const MONTH_SEQUENCE = [
-            "01-january",
-            "02-february",
-            "03-march",
-            "04-april",
-            "05-may",
-            "06-june",
-            "07-july",
-            "08-august",
-            "09-september",
-            "10-october",
-            "11-november",
-            "12-december",
-        ];
-        const spinners = Array.from(document.querySelectorAll('.earthcal-logo-spinner'));
-
-        if (spinners.length === 0) {
-            return;
-        }
-
-        spinners.forEach((spinnerEl, spinnerIndex) => {
-            const paths = MONTH_SEQUENCE
-                .map((monthId) => spinnerEl.querySelector(`[data-month="${monthId}"]`))
-                .filter(Boolean);
-            if (paths.length === 0) {
-                return;
-            }
-
-            paths.forEach((path) => {
-                path.style.opacity = String(INACTIVE_OPACITY);
-            });
-
-            let index = 0;
-            let increasing = true;
-
-            const tick = () => {
-                const current = paths[index];
-
-                if (current) {
-                    current.style.opacity = String(increasing ? ACTIVE_OPACITY : INACTIVE_OPACITY);
-                }
-
-                index += 1;
-                if (index >= paths.length) {
-                    index = 0;
-                    increasing = !increasing;
-                }
-
-                setTimeout(tick, STEP_DELAY_MS);
-            };
-
-            setTimeout(tick, spinnerIndex * STEP_DELAY_MS);
-        });
+        setLoadingProgress(100);
     };
 
     const parseJwt = (tkn) => {
@@ -876,12 +807,12 @@
             completionNew: translate(
                 "onboarding.completion.newCalendar",
                 {},
-                "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we added an event for today to celebrate your first login to EarthCal 🎉. Click below to get started."
+                "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we've added today's celebration plus practice items so you can try EarthCal's features 🎉. Click below to get started."
             ),
             completionExisting: translate(
                 "onboarding.completion.existingCalendar",
                 {},
-                "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions and celebration event—everything is ready to explore!"
+                "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions, refreshed today's celebration, and made sure your practice items are ready to explore!"
             ),
             tasks: {
                 verifyingAccount: translate("onboarding.tasks.verifyingAccount", {}, "Confirming your EarthCal account"),
@@ -935,6 +866,21 @@
                     "onboarding.tasks.anniversaryCreated",
                     {},
                     "Added an event for today to celebrate your first login to EarthCal."
+                ),
+                practiceEvents: translate(
+                    "onboarding.tasks.practiceEvents",
+                    {},
+                    "Setting up sample events on your My Calendar for feature practice"
+                ),
+                practiceEventsCreated: translate(
+                    "onboarding.tasks.practiceEventsCreated",
+                    {},
+                    "Added feature-practice items to your My Calendar"
+                ),
+                practiceEventsExisting: translate(
+                    "onboarding.tasks.practiceEventsExisting",
+                    {},
+                    "Your feature-practice items were already waiting on your My Calendar"
                 ),
             },
             errors: {
@@ -1264,6 +1210,57 @@
             }
         };
 
+        const resolveEventTimeZone = (value) => normalizeTimeZone(value) || "Etc/UTC";
+
+        const formatTodayForTimeZone = (tzid) => {
+            const safeTzid = resolveEventTimeZone(tzid);
+            try {
+                const formatter = new Intl.DateTimeFormat("en-CA", {
+                    timeZone: safeTzid,
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                });
+                return { date: formatter.format(new Date()), tzid: safeTzid };
+            } catch (error) {
+                console.warn("Falling back to UTC for date formatting.", error);
+                return { date: new Date().toISOString().slice(0, 10), tzid: safeTzid };
+            }
+        };
+
+        const PRACTICE_EVENT_DEFINITIONS = [
+            {
+                item_kind: "event",
+                title: "Delete me!",
+                notes: "Hit the X in the right hand corner to delete an event.",
+                color_hex: "#ef4444",
+            },
+            {
+                item_kind: "todo",
+                title: "Check me!",
+                notes: "Click the ✔️ on the right side to mark an item completed.",
+                color_hex: "#22c55e",
+            },
+            {
+                item_kind: "todo",
+                title: "Pin me!",
+                notes: "Hit the 🟠 circle in the top left to pin this item.",
+                color_hex: "#f97316",
+            },
+            {
+                item_kind: "todo",
+                title: "Edit me!",
+                notes: "Click this text to edit and share this event.",
+                color_hex: "#3b82f6",
+            },
+            {
+                item_kind: "todo",
+                title: "Push me!",
+                notes: "So this won't actually work til tomorrow. Hit the right arrow ➡️ to the right and an event will be pushed to Today. Yeah... if you hit it now, it just appears again! However, tomorrow this will be very handy when going through incomplete items from the day before to get your day setup.",
+                color_hex: "#2563eb",
+            },
+        ];
+
         const addAnniversaryEvent = async ({ userId, calendarId, tzid }) => {
             if (!userId || !calendarId) {
                 throw new Error("Missing calendar context for the anniversary event.");
@@ -1274,21 +1271,7 @@
                 return { alreadyExists: true };
             }
 
-            const safeTzid = tzid || "Etc/UTC";
-            const todayInTz = (() => {
-                try {
-                    const formatter = new Intl.DateTimeFormat("en-CA", {
-                        timeZone: safeTzid,
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                    });
-                    return formatter.format(new Date());
-                } catch (error) {
-                    console.warn("Falling back to UTC for anniversary event formatting.", error);
-                    return new Date().toISOString().slice(0, 10);
-                }
-            })();
+            const { date: todayInTz, tzid: safeTzid } = formatTodayForTimeZone(tzid);
 
             const payload = {
                 buwana_id: userId,
@@ -1334,6 +1317,74 @@
             return {
                 alreadyExists,
                 created: Boolean(json?.created ?? json?.ok),
+            };
+        };
+
+        const addPracticeEvents = async ({ userId, calendarId, tzid }) => {
+            if (!userId || !calendarId) {
+                throw new Error("Missing calendar context for practice events.");
+            }
+
+            const { date: todayInTz, tzid: safeTzid } = formatTodayForTimeZone(tzid);
+            let createdCount = 0;
+            let alreadyExistsCount = 0;
+
+            for (const definition of PRACTICE_EVENT_DEFINITIONS) {
+                const payload = {
+                    buwana_id: userId,
+                    calendar_id: calendarId,
+                    item_kind: definition.item_kind,
+                    title: definition.title,
+                    notes: definition.notes,
+                    start_local: `${todayInTz} 00:00:00`,
+                    tzid: safeTzid,
+                    all_day: true,
+                    emoji: "🧪",
+                    color_hex: definition.color_hex,
+                };
+
+                const response = await fetch("api/v1/add_item.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 409) {
+                        alreadyExistsCount += 1;
+                        continue;
+                    }
+                    throw new Error(`Practice event creation failed with status ${response.status} for ${definition.title}`);
+                }
+
+                const json = await response.json();
+                if (!json?.ok) {
+                    const errorMessage = typeof json?.error === "string" ? json.error.toLowerCase() : "";
+                    if (errorMessage.includes("already")) {
+                        alreadyExistsCount += 1;
+                        continue;
+                    }
+                    throw new Error(json?.error || `Unable to add the practice event "${definition.title}".`);
+                }
+
+                const alreadyExists = Boolean(
+                    json?.alreadyExists
+                    || json?.already_exists
+                    || json?.status === "existing"
+                );
+
+                if (alreadyExists) {
+                    alreadyExistsCount += 1;
+                } else {
+                    createdCount += 1;
+                }
+            }
+
+            return {
+                created: createdCount,
+                alreadyExists: alreadyExistsCount,
+                total: PRACTICE_EVENT_DEFINITIONS.length,
             };
         };
 
@@ -1461,6 +1512,23 @@
                     : onboardingText.tasks.anniversaryCreated
             );
 
+            const { result: practiceResult, listItem: practiceTaskItem } = await runTask(
+                onboardingText.tasks.practiceEvents,
+                async () => addPracticeEvents({
+                    userId: buwanaId,
+                    calendarId,
+                    tzid: calendarTimeZone || userTimeZone,
+                })
+            );
+
+            const createdPracticeItems = Number(practiceResult?.created ?? 0);
+            updateTaskLabel(
+                practiceTaskItem,
+                createdPracticeItems > 0
+                    ? onboardingText.tasks.practiceEventsCreated
+                    : onboardingText.tasks.practiceEventsExisting
+            );
+
             if (taskLog) {
                 taskLog.setAttribute("aria-busy", "false");
             }
@@ -1509,7 +1577,6 @@
     };
 
     (async function initApp() {
-        spinEarthcalLogo();
         const hasFirstTimeFlag = Boolean(window.__EARTHCAL_HAS_FIRST_TIME__);
         if (hasFirstTimeFlag) {
             await handleFirstTimeFlow();
