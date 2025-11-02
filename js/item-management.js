@@ -66,6 +66,17 @@ async function openAddItem() {
 // ============================================================
     console.log('[openAddItem] checking for existing My Calendar…');
 
+    const normalizeOwnedCalendars = (list) => {
+        if (!Array.isArray(list)) return [];
+        const validCalendars = list.filter((c) => {
+            const validId = Number.isInteger(c?.calendar_id) && c.calendar_id > 0;
+            const validName = typeof c?.name === 'string' && c.name.trim() !== '';
+            const isV1 = c?.tzid || c?.category || c?.visibility;
+            return validId && validName && isV1;
+        });
+        return validCalendars.filter((c) => (c?.source_type || '').toLowerCase() === 'personal');
+    };
+
     let calendars = [];
     try {
         calendars = await loadUserCalendars(user.buwana_id, { force: true });
@@ -75,21 +86,16 @@ async function openAddItem() {
         calendars = [];
     }
 
-// 🧠 Filter out any legacy or invalid calendar entries
-    calendars = calendars.filter(c => {
-        const validId = Number.isInteger(c.calendar_id) && c.calendar_id > 0;
-        const validName = typeof c.name === 'string' && c.name.trim() !== '';
-        const isV1 = c?.tzid || c?.category || c?.visibility; // new v1 fields
-        return validId && validName && isV1;
-    });
+    let ownedCalendars = normalizeOwnedCalendars(calendars);
 
-    console.log('[openAddItem] filtered calendars (valid only):', calendars);
+    console.log('[openAddItem] owned calendars (valid only):', ownedCalendars);
 
     let defaultCal = null;
-    if (Array.isArray(calendars) && calendars.length > 0) {
+    if (ownedCalendars.length > 0) {
         defaultCal =
-            calendars.find(c => c.is_default) ||
-            calendars.find(c => /my\s*calendar/i.test(c.name || ''));
+            ownedCalendars.find(c => c.is_default) ||
+            ownedCalendars.find(c => /my\s*calendar/i.test(c.name || '')) ||
+            ownedCalendars[0];
     }
 
     console.log('[openAddItem] defaultCal initial:', defaultCal);
@@ -123,11 +129,14 @@ async function openAddItem() {
 
             // 🔄 Re-fetch updated calendar list
             calendars = await loadUserCalendars(user.buwana_id, { force: true }).catch(() => []);
+            ownedCalendars = normalizeOwnedCalendars(calendars);
             console.log('[openAddItem] calendars after creation:', calendars);
+            console.log('[openAddItem] owned calendars after creation:', ownedCalendars);
 
             defaultCal =
-                calendars.find(c => c.is_default) ||
-                calendars.find(c => /my\s*calendar/i.test(c.name || ''));
+                ownedCalendars.find(c => c.is_default) ||
+                ownedCalendars.find(c => /my\s*calendar/i.test(c.name || '')) ||
+                ownedCalendars[0] || null;
 
             console.log('[openAddItem] defaultCal after creation:', defaultCal);
 
@@ -136,6 +145,11 @@ async function openAddItem() {
             alert('Could not reach the server to create your calendar.');
             return;
         }
+    }
+
+    if (!defaultCal && ownedCalendars.length === 0) {
+        ownedCalendars = [fallbackMyCalendar()];
+        defaultCal = ownedCalendars[0];
     }
 
     const calendarId = defaultCal?.calendar_id ?? null;
@@ -179,7 +193,7 @@ async function openAddItem() {
         calendarId,
         calendarName,
         tzid: getUserTZ(),
-        calendars
+        calendars: ownedCalendars
     });
 
     const formRoot = modalContent.querySelector('#ec-add-form-root');

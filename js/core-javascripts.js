@@ -234,6 +234,7 @@ async function openMainMenu() {
 
     const lang = userLanguage?.toLowerCase() || 'en';
     const { mainMenu } = await loadTranslations(lang);
+    const feedbackUrl = `https://buwana.ecobricks.org/${lang}/feedback.php`;
 
     content.innerHTML = `
         <div class="earthcal-app-logo">
@@ -259,12 +260,16 @@ async function openMainMenu() {
             Upgrade to Pro
         </div>
 
+        <div class="menu-page-item">
+            <a href="${feedbackUrl}" target="_blank" rel="noopener noreferrer">Feedback &amp; Bugs</a>
+        </div>
+
         <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
             <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
         </a>
 
         <p style="font-size:small; margin-bottom: 2px;">
-            ${mainMenu.developedBy} <a href="https://earthen.io/earthcal" target="_blank">Earthen.io</a>
+            ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a>
         </p>
         <p style="font-size:small; margin-top: 2px; margin-bottom: auto;">
             ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
