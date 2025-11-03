@@ -632,15 +632,39 @@ flex-direction: row;
   text-align: center; /* Centered text/links */
   font-family: "Mulish", sans-serif;
   display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 auto;
+  padding: 30px 0;
+  box-sizing: border-box;
+}
+
+#main-menu-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1 1 auto;
+}
+
+#main-menu-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  flex-flow: column;
-  height:100%;
-  margin: auto;
+  width: 100%;
+}
+
+#main-menu-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 
 .earthcal-app-logo {
-  margin: auto 0;
+  margin: 0 auto 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -650,8 +674,6 @@ flex-direction: row;
   width: 177px;
   max-width: 100%;
   height: auto;
-    margin-bottom: 30px;
-    margin-top: auto;
 }
 
 @media screen and (max-width: 1199px) {
@@ -849,10 +871,11 @@ border-color: #00a112 !important;
 
 .menu-plan-status {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin: 12px auto 24px;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px auto 0;
   text-align: center;
 }
 
@@ -863,38 +886,39 @@ border-color: #00a112 !important;
   padding: 6px 16px;
   border-radius: 999px;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: capitalize;
-  color: #ffffff;
-  background: #2f855a;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: var(--text-color);
+  background: transparent;
+  border: 1px solid var(--subdued-text);
 }
 
 .menu-plan-pill-padwan {
-  background: linear-gradient(135deg, #3ca370, #2f855a);
+  border-color: var(--subdued-text);
 }
 
 .menu-plan-pill-jedi {
-  background: linear-gradient(135deg, #0d9488, #0f766e);
+  border-color: var(--subdued-text);
 }
 
-.menu-plan-upgrade {
+.menu-plan-action {
   font-family: 'Mulish', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 2px solid var(--general-background-highlight, #2f855a);
-  background: transparent;
-  color: var(--general-background-highlight, #2f855a);
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--general-background-highlight, var(--header-accent));
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  border-radius: 6px;
+  transition: color 0.2s ease;
 }
 
-.menu-plan-upgrade:hover,
-.menu-plan-upgrade:focus {
-  background: var(--general-background-highlight, #2f855a);
-  color: #ffffff;
+.menu-plan-action:hover,
+.menu-plan-action:focus {
+  color: var(--header-accent);
+  text-decoration: underline;
+  outline: none;
 }
 
 .menu-feedback-link {
