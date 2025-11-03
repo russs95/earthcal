@@ -19,6 +19,7 @@ function connectGcal(calendarUrl, options = {}) {
     }
 
     feedbackElement.textContent = message || '';
+    feedbackElement.style.display = message ? 'block' : 'none';
     if (!message) {
       feedbackElement.style.color = '#d93025';
       return;
