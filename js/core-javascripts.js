@@ -293,13 +293,10 @@ async function openMainMenu() {
 
     content.innerHTML = `
         <div class="earthcal-app-logo">
-            <img src="svgs/earthcal-logo.svg" alt="EarthCal Logo" title="${mainMenu.title}">
+            <img src="svgs/earthcal-icon.svg" alt="EarthCal Logo" title="${mainMenu.title}">
         </div>
 
-        <div class="menu-plan-status">
-            <span class="menu-plan-pill ${planClass}">${planName} Plan</span>
-            ${userPlan === 'padwan' ? `<button type="button" class="menu-plan-upgrade" onclick="manageEarthcalUserSub();">Upgrade for Time Jedi features</button>` : ''}
-        </div>
+       
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
             ${mainMenu.featureTour}
@@ -326,9 +323,14 @@ async function openMainMenu() {
                 Feedback &amp; Bugs
             </div>
         </div>
+        
+         <div class="menu-plan-status">
+            <span class="menu-plan-pill ${planClass}">${planName} Plan</span>
+            ${userPlan === 'padwan' ? `<button type="button" class="menu-plan-upgrade" onclick="manageEarthcalUserSub();">Upgrade for Time Jedi features</button>` : ''}
+        </div>
 
         <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
-            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:155px;width:100%;height:auto;" />
+            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
         </a>
 
         <p style="font-size:small; margin-bottom: 2px;">
