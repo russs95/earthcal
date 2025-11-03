@@ -680,16 +680,19 @@ async function manageEarthcalUserSub() {
             || subscriptionData?.current_plan_name
             || (window.user_plan === 'jedi' ? 'Jedi Plan' : 'Padwan Plan');
 
-        const planMessage = currentPlanName
-            ? `You are currently using the ${escapeHtml(currentPlanName)} plan.`
-            : '';
+        const userPlanType = window.user_plan === 'jedi' ? 'jedi' : 'padwan';
+
+        let planMessage = '';
+        if (userPlanType === 'padwan') {
+            planMessage = "You're using EarthCal | Padwan.  Upgrade to Jedi for full time powers.";
+        } else if (currentPlanName) {
+            planMessage = `You're currently on the ${escapeHtml(currentPlanName)} plan.`;
+        }
 
         const intervalOrder = ['month', 'year', 'lifetime'];
         const firstAvailableInterval = intervalOrder.find((interval) => jediByInterval[interval]) || 'month';
 
         const jediPriceAttr = (interval, key) => escapeHtml(jediPriceData[interval]?.[key] || 'Coming soon');
-
-        const userPlanType = window.user_plan === 'jedi' ? 'jedi' : 'padwan';
         const padwanCardClass = '';
         const jediCardClass = ' current-plan';
         const upgradeButtonHtml = userPlanType === 'padwan'
@@ -697,14 +700,23 @@ async function manageEarthcalUserSub() {
                 <div class="ec-plan-actions">
                     <button type="button" class="confirmation-blur-button greenback" onclick="upgradeUserPlan()">Upgrade</button>
                 </div>
+                <div class="ec-coupon-area">
+                    <button type="button" class="ec-coupon-toggle" aria-expanded="false" aria-controls="ec-coupon-form">Apply Coupon</button>
+                    <form id="ec-coupon-form" class="ec-coupon-form" hidden>
+                        <label class="ec-coupon-label" for="ec-coupon-input">Coupon Code</label>
+                        <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />
+                        <button type="submit" class="ec-coupon-submit">Apply Coupon</button>
+                        <div class="ec-coupon-feedback" role="status" aria-live="polite"></div>
+                    </form>
+                </div>
             `
             : '';
 
         modalContent.innerHTML = `
             <div class="ec-subscription-modal">
                 <h1>Upgrade EarthCal</h1>
-                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 ${planMessage ? `<div class="ec-plan-current-label">${planMessage}</div>` : ''}
+                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 <div class="ec-plan-toggle" role="group" aria-label="Choose billing interval">
                     <span class="ec-toggle-indicator"></span>
                     <button type="button" class="ec-toggle-option" data-interval="month" aria-pressed="false">Monthly</button>
@@ -795,6 +807,115 @@ async function manageEarthcalUserSub() {
         });
 
         setActiveInterval(firstAvailableInterval);
+
+        const couponToggleButton = modalContent.querySelector('.ec-coupon-toggle');
+        const couponForm = modalContent.querySelector('.ec-coupon-form');
+        const couponInput = modalContent.querySelector('.ec-coupon-input');
+        const couponSubmit = modalContent.querySelector('.ec-coupon-submit');
+        const couponFeedback = modalContent.querySelector('.ec-coupon-feedback');
+        let couponRequestPending = false;
+
+        if (couponInput) {
+            couponInput.addEventListener('input', () => {
+                const sanitized = couponInput.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '')
+                    .slice(0, 7);
+                if (couponInput.value !== sanitized) {
+                    couponInput.value = sanitized;
+                }
+            });
+        }
+
+        if (couponToggleButton && couponForm) {
+            couponToggleButton.addEventListener('click', () => {
+                const willShow = couponForm.hidden;
+                couponForm.hidden = !willShow;
+                couponToggleButton.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+                if (willShow && couponInput) {
+                    couponInput.focus();
+                }
+                if (!willShow && couponFeedback) {
+                    couponFeedback.textContent = '';
+                }
+            });
+        }
+
+        if (couponForm) {
+            couponForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (couponRequestPending) {
+                    return;
+                }
+
+                const code = (couponInput?.value || '').trim().toUpperCase();
+                if (!/^[A-Z0-9]{7}$/.test(code)) {
+                    if (couponFeedback) {
+                        couponFeedback.textContent = 'Enter a valid 7-character coupon code.';
+                    }
+                    couponInput?.focus();
+                    return;
+                }
+
+                couponRequestPending = true;
+                couponInput?.setAttribute('aria-busy', 'true');
+                couponSubmit?.setAttribute('aria-busy', 'true');
+                if (couponFeedback) {
+                    couponFeedback.textContent = 'Checking coupon…';
+                }
+                couponInput?.setAttribute('disabled', 'true');
+                couponSubmit?.setAttribute('disabled', 'true');
+
+                let restoreUi = true;
+
+                try {
+                    const response = await fetch('api/v1/check_coupon.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            buwana_id: user.buwana_id,
+                            coupon_code: code,
+                        }),
+                    });
+
+                    const result = await response.json().catch(() => null);
+
+                    if (!response.ok || !result || result.ok === false) {
+                        const errorMessage = result?.error_message
+                            || result?.error
+                            || `Coupon check failed (${response.status})`;
+                        if (couponFeedback) {
+                            couponFeedback.textContent = String(errorMessage);
+                        }
+                        return;
+                    }
+
+                    restoreUi = false;
+                    if (couponFeedback) {
+                        couponFeedback.textContent = 'Coupon applied! Updating your subscription…';
+                    }
+
+                    setTimeout(() => {
+                        manageEarthcalUserSub();
+                    }, 700);
+                } catch (couponError) {
+                    console.error('Coupon validation failed:', couponError);
+                    if (couponFeedback) {
+                        couponFeedback.textContent = 'We could not apply that coupon. Please try again.';
+                    }
+                } finally {
+                    couponRequestPending = false;
+                    couponInput?.removeAttribute('aria-busy');
+                    couponSubmit?.removeAttribute('aria-busy');
+
+                    if (restoreUi) {
+                        couponInput?.removeAttribute('disabled');
+                        couponSubmit?.removeAttribute('disabled');
+                        couponInput?.focus();
+                    }
+                }
+            });
+        }
     } catch (error) {
         console.error('Failed to load subscription details:', error);
         setModalHtml(`
