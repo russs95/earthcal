@@ -767,6 +767,7 @@ function renderCalendarSelectionForm(calendars, {
                     providerIcon = 'assets/icons/apple-touch-icon.png';
                 }
                 const providerAlt = `${providerName} icon`;
+                const providerIconSize = 24;
                 const calendarIdValue = cal?.calendar_id != null ? String(cal.calendar_id).trim() : '';
                 const calendarIdNum = Number(cal?.calendar_id);
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
@@ -793,7 +794,7 @@ function renderCalendarSelectionForm(calendars, {
                 return `
                 <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
-                        <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="${providerIcon}" alt="${escapeHtml(providerAlt)}" width="24" height="24"></span>
+                        <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="${providerIcon}" alt="${escapeHtml(providerAlt)}" width="${providerIconSize}" height="${providerIconSize}"></span>
                         <span class="cal-row-name">${escapeHtml(cal?.name || providerName)}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
                             <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
@@ -1422,7 +1423,7 @@ function openGoogleCalendarConnectModal() {
 
     modalContent.innerHTML = `
         <div class="add-date-form" style="margin:auto;text-align:center;">
-            <img src="assets/icons/google-g.png" alt="" width="48" height="48" aria-hidden="true" style="display:block;margin:0 auto 12px;">
+            <img src="assets/icons/google-g.png" alt="" width="75" height="75" aria-hidden="true" style="display:block;margin:0 auto 12px;">
             <h3 class="ec-form-title">Please add the URL of a public Google Calendar to sync it with your Earthcal.</h3>
             <form id="ec-google-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:10px;">
                 <label class="ec-visually-hidden" for="ec-google-calendar-url">Google Calendar URL</label>
@@ -1430,7 +1431,7 @@ function openGoogleCalendarConnectModal() {
                        placeholder="https://calendar.google.com/calendar/..."
                        class="blur-form-field" style="text-align:left;">
                 <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Connect</button>
-                <p id="ec-google-calendar-feedback" aria-live="polite" style="margin:0;color:#d93025;font-size:0.9rem;min-height:1.2em;"></p>
+                <p id="ec-google-calendar-feedback" aria-live="polite" style="margin:0;color:#d93025;font-size:0.9rem;min-height:1.2em;display:none;"></p>
                 <div id="ec-google-calendar-instructions" style="text-align:left;font-size:0.85rem;color:var(--subdued-text,#4b5563);">
                     <p style="margin:0;">
                         To find you google calendars ical URL, go to calendar.google.com and find the calendar that you want to sync on the left hand side column.  Hover over it.  You will see three dots.  Click.  Select "Setting and Sharing".  Navigate to the bottom of the page.  Find the "Public Address in iCal format".  Copy this URL and use in the field above.
@@ -1444,6 +1445,7 @@ function openGoogleCalendarConnectModal() {
     const feedbackEl = document.getElementById('ec-google-calendar-feedback');
     if (feedbackEl) {
         feedbackEl.textContent = '';
+        feedbackEl.style.display = 'none';
     }
     if (form) {
         const submitButton = form.querySelector('button[type="submit"]');
@@ -1469,8 +1471,75 @@ function openGoogleCalendarConnectModal() {
     }
 }
 
+function openAppleCalendarConnectModal() {
+    const modal = document.getElementById('form-modal-message');
+    const modalContent = document.getElementById('modal-content');
+
+    if (!modal || !modalContent) {
+        console.warn('[AppleCalendar] Modal container not available.');
+        return;
+    }
+
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    document.body.style.overflowY = 'hidden';
+
+    modalContent.innerHTML = `
+        <div class="add-date-form" style="margin:auto;text-align:center;">
+            <img src="assets/icons/apple_logo.png" alt="" width="48" height="48" aria-hidden="true" style="display:block;margin:0 auto 12px;">
+            <h3 class="ec-form-title">Paste the public link for the Apple Calendar you want to sync to Earthcal.</h3>
+            <form id="ec-apple-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:10px;">
+                <label class="ec-visually-hidden" for="ec-apple-calendar-url">Apple Calendar URL</label>
+                <input id="ec-apple-calendar-url" type="url" name="apple_calendar_url" required
+                       placeholder="https://pXX-caldav.icloud.com/.../public.ics"
+                       class="blur-form-field" style="text-align:left;">
+                <button type="submit" class="stellar-submit" style="background-color:#0a84ff;color:#fff;">Connect</button>
+                <p id="ec-apple-calendar-feedback" aria-live="polite" style="margin:0;color:#0a84ff;font-size:0.9rem;min-height:1.2em;"></p>
+                <div id="ec-apple-calendar-instructions" style="text-align:left;font-size:0.85rem;color:var(--subdued-text,#4b5563);">
+                    <p style="margin:0 0 8px;">
+                        On your Mac, open the Calendar app and Control-click the calendar you want to share. Choose
+                        <strong>Share Calendar…</strong>, then turn on <strong>Public Calendar</strong>. Copy the link that appears and paste it above.
+                    </p>
+                    <p style="margin:0;">
+                        From iCloud.com, open <strong>Calendar</strong>, click the wireless share icon next to the calendar name, enable
+                        <strong>Public Calendar</strong>, and use the <strong>Copy Link</strong> option to grab the <code>.ics</code> address.
+                    </p>
+                </div>
+            </form>
+        </div>
+    `;
+
+    const form = document.getElementById('ec-apple-calendar-form');
+    const feedbackEl = document.getElementById('ec-apple-calendar-feedback');
+    if (feedbackEl) {
+        feedbackEl.textContent = '';
+    }
+    if (form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById('ec-apple-calendar-url');
+            const calendarUrl = urlInput ? urlInput.value.trim() : '';
+
+            if (typeof connectAppleCal === 'function') {
+                connectAppleCal(calendarUrl, { form, submitButton, feedbackElement: feedbackEl });
+            } else {
+                console.warn('[AppleCalendar] connectAppleCal is not defined.');
+            }
+        });
+    }
+
+    const urlField = document.getElementById('ec-apple-calendar-url');
+    if (urlField) {
+        urlField.focus();
+        if (typeof urlField.select === 'function') {
+            urlField.select();
+        }
+    }
+}
+
 function connectAppleCalendar() {
-    alert("Sorry, we're still working on adding Apple iCals to Earthcal.  Hold on tight!  Coming soon.");
+    openAppleCalendarConnectModal();
 }
 
 if (typeof window !== 'undefined') {

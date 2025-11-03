@@ -394,3 +394,21 @@
 .cal-row-action-icon {
     background-color: #ffffff7a;
 }
+
+.ec-plan-toggle {
+  background: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.ec-plan-toggle .ec-toggle-indicator {
+  background: #0b1120;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.ec-plan-toggle .ec-toggle-option {
+  color: var(--text-color);
+}
+
+.ec-plan-toggle .ec-toggle-option.active {
+  color: #ffffff;
+}
