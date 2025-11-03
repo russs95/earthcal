@@ -234,11 +234,71 @@ async function openMainMenu() {
 
     const lang = userLanguage?.toLowerCase() || 'en';
     const { mainMenu } = await loadTranslations(lang);
-    const feedbackUrl = `https://buwana.ecobricks.org/${lang}/feedback.php`;
+
+    const safeJsonParse = (value) => {
+        if (!value) return null;
+        try {
+            return JSON.parse(value);
+        } catch (error) {
+            console.warn('openMainMenu: unable to parse JSON value', error);
+            return null;
+        }
+    };
+
+    const resolveAuthPayload = () => {
+        if (typeof isLoggedIn === 'function') {
+            try {
+                const loginState = isLoggedIn({ returnPayload: true }) || {};
+                if (loginState?.payload?.buwana_id) {
+                    return loginState.payload;
+                }
+            } catch (error) {
+                console.warn('openMainMenu: unable to read login state', error);
+            }
+        }
+
+        const sessionPayload = safeJsonParse(sessionStorage.getItem('buwana_user'));
+        if (sessionPayload?.buwana_id) return sessionPayload;
+
+        const localProfile = safeJsonParse(localStorage.getItem('user_profile'));
+        if (localProfile?.buwana_id) return localProfile;
+
+        return null;
+    };
+
+    const payload = resolveAuthPayload();
+    const resolvedBuwanaId = payload?.buwana_id || (() => {
+        const storedId = localStorage.getItem('buwana_id');
+        if (!storedId) return null;
+        const numericId = Number(storedId);
+        return Number.isNaN(numericId) ? storedId : numericId;
+    })();
+
+    const appClientId = payload?.aud || payload?.client_id || 'unknown';
+    const feedbackUrl = resolvedBuwanaId
+        ? `https://buwana.ecobricks.org/${lang}/feedback.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(appClientId)}`
+        : `https://buwana.ecobricks.org/${lang}/feedback.php`;
+
+    const userPlan = (window.user_plan || '').toLowerCase();
+    const planName = userPlan === 'jedi'
+        ? 'Time Jedi'
+        : userPlan === 'padwan'
+            ? 'Padwan'
+            : (window.user_plan ? String(window.user_plan) : 'Padwan');
+    const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
+    const upgradeMenuText = userPlan === 'padwan'
+        ? 'Upgrade for Time Jedi features'
+        : 'Manage Subscription';
+    const showSubscriptionLink = Boolean(window.user_plan);
 
     content.innerHTML = `
         <div class="earthcal-app-logo">
             <img src="svgs/earthcal-logo.svg" alt="EarthCal Logo" title="${mainMenu.title}">
+        </div>
+
+        <div class="menu-plan-status">
+            <span class="menu-plan-pill ${planClass}">${planName} Plan</span>
+            ${userPlan === 'padwan' ? `<button type="button" class="menu-plan-upgrade" onclick="manageEarthcalUserSub();">Upgrade for Time Jedi features</button>` : ''}
         </div>
 
         <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
@@ -256,16 +316,19 @@ async function openMainMenu() {
             <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
         </div>
 
+        ${showSubscriptionLink && userPlan !== 'padwan' ? `
         <div class="menu-page-item" onclick="manageEarthcalUserSub();">
-            Upgrade to Pro
-        </div>
+            ${upgradeMenuText}
+        </div>` : ''}
 
         <div class="menu-page-item">
-            <a href="${feedbackUrl}" target="_blank" rel="noopener noreferrer">Feedback &amp; Bugs</a>
+            <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
+                Feedback &amp; Bugs
+            </div>
         </div>
 
         <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
-            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:155px;width:100%;height:auto;" />
         </a>
 
         <p style="font-size:small; margin-bottom: 2px;">
