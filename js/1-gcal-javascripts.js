@@ -95,7 +95,7 @@ function connectGcal(calendarUrl, options = {}) {
       const meta = {
         ...data,
         ical_url: data.ical_url || trimmedUrl,
-        provider: 'Google'
+        provider: 'google'
       };
 
       console.log('[connectGcal] Received feed metadata:', meta);
@@ -126,8 +126,128 @@ function connectGcal(calendarUrl, options = {}) {
     .finally(handleDone);
 }
 
+function connectAppleCal(calendarUrl, options = {}) {
+  const { submitButton, feedbackElement } = options || {};
+  const trimmedUrl = (calendarUrl || '').trim();
+
+  const applyFeedback = (message, tone = 'neutral') => {
+    if (!feedbackElement) {
+      if (message) {
+        console.info('[connectAppleCal]', message);
+      }
+      return;
+    }
+
+    feedbackElement.textContent = message || '';
+    if (!message) {
+      feedbackElement.style.color = '#d93025';
+      return;
+    }
+
+    switch (tone) {
+      case 'success':
+        feedbackElement.style.color = '#137333';
+        break;
+      case 'info':
+        feedbackElement.style.color = '#0a84ff';
+        break;
+      default:
+        feedbackElement.style.color = '#d93025';
+    }
+  };
+
+  if (!trimmedUrl) {
+    applyFeedback('Please paste a public Apple Calendar link.', 'error');
+    return;
+  }
+
+  if (submitButton) {
+    submitButton.dataset.originalText = submitButton.dataset.originalText || submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Checking…';
+  }
+
+  const form = options.form;
+  if (form) {
+    form.classList.add('is-loading');
+  }
+
+  const handleDone = () => {
+    if (submitButton) {
+      const original = submitButton.dataset.originalText || 'Connect';
+      submitButton.disabled = false;
+      submitButton.textContent = original;
+    }
+    if (form) {
+      form.classList.remove('is-loading');
+    }
+  };
+
+  const errorMessages = {
+    ical_url_required: 'Please paste a calendar link before connecting.',
+    fetch_failed: 'We could not reach that calendar. Double-check the URL and try again.',
+    not_ical: 'This link does not appear to be a valid calendar feed.',
+    invalid_method: 'Server rejected the request. Please try again.',
+    cors_denied: 'This calendar source is not allowed.',
+  };
+
+  fetch('/api/v1/grab_ical_basics.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ ical_url: trimmedUrl })
+  })
+    .then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data?.ok) {
+        const errorKey = data?.error;
+        const detail = typeof data?.detail === 'string' ? data.detail : '';
+        const baseMessage = errorMessages[errorKey] || 'Unable to verify that calendar feed.';
+        const combinedMessage = detail ? `${baseMessage} (${detail})` : baseMessage;
+        applyFeedback(combinedMessage, 'error');
+        return;
+      }
+
+      applyFeedback('Feed verified! Preparing your calendar…', 'success');
+
+      const meta = {
+        ...data,
+        ical_url: data.ical_url || trimmedUrl,
+        provider: 'apple'
+      };
+
+      console.log('[connectAppleCal] Received feed metadata:', meta);
+
+      if (typeof closeTheModal === 'function') {
+        try {
+          closeTheModal();
+        } catch (err) {
+          console.debug('[connectAppleCal] closeTheModal failed:', err);
+        }
+      }
+
+      const hostElement = document.getElementById('logged-in-view') || document.body;
+      if (typeof addNewiCal === 'function') {
+        try {
+          addNewiCal({ hostTarget: hostElement, meta, icalUrl: meta.ical_url });
+        } catch (err) {
+          console.error('[connectAppleCal] addNewiCal failed:', err);
+        }
+      } else {
+        console.warn('[connectAppleCal] addNewiCal is not defined.');
+      }
+    })
+    .catch((err) => {
+      console.error('[connectAppleCal] Network error:', err);
+      applyFeedback('Network error — unable to reach the calendar server.', 'error');
+    })
+    .finally(handleDone);
+}
+
 if (typeof window !== 'undefined') {
   window.connectGcal = connectGcal;
+  window.connectAppleCal = connectAppleCal;
 }
 
 
@@ -172,9 +292,16 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
     });
 
     const providerHintRaw = (meta?.provider || '').toString().trim();
+    const normalizeProviderLabel = (raw, fallback = '') => {
+        const str = (raw || '').toString().trim();
+        if (!str) return fallback;
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+    const providerLabel = normalizeProviderLabel(providerHintRaw, 'Google');
+    const providerKey = providerLabel.toLowerCase();
     const feedTitle = typeof meta?.feed_title === 'string' && meta.feed_title.trim()
         ? meta.feed_title.trim()
-        : 'Google Calendar';
+        : `${providerLabel} Calendar`;
     const feedDescription = typeof meta?.description === 'string'
         ? meta.description.trim()
         : '';
@@ -184,7 +311,12 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
     const sizeKb = Number.isFinite(meta?.size_kb)
         ? Number(meta.size_kb)
         : null;
-    const defaultColor = sanitizeHexColor('#d93025', '#d93025');
+    const providerAccent = providerKey === 'apple'
+        ? '#0a84ff'
+        : providerKey === 'google'
+            ? '#d93025'
+            : '#3b82f6';
+    const defaultColor = sanitizeHexColor(providerAccent, providerAccent);
     const normalizedUrl = sanitizeUrl(meta?.ical_url || icalUrl) || (meta?.ical_url || icalUrl || '');
     const safeTitle = escapeHTML(feedTitle);
     const safeDescription = escapeHTML(feedDescription);
@@ -221,7 +353,7 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
 
     overlay.innerHTML = `
         <div class="ec-add-calendar-header" style="display:flex;flex-direction:column;gap:8px;">
-            <h2 style="margin:0;font-size:1.5rem;">Add Google Calendar</h2>
+            <h2 style="margin:0;font-size:1.5rem;">Add ${escapeHTML(providerLabel)} Calendar</h2>
             <p style="margin:0;color:var(--subdued-text);font-size:0.95rem;">
                 Customize how <strong>${safeTitle}</strong> should appear in your Earthcal.
             </p>
@@ -281,10 +413,10 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                 </div>
             </div>
             <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">
-                <button type="submit" class="stellar-submit" style="background-color:#d93025;color:#fff;">Add calendar</button>
+                <button type="submit" class="stellar-submit" style="background-color:${escapeAttr(providerAccent)};color:#fff;">Add calendar</button>
             </div>
-            <p style="color:#d93025;margin:0;text-align:left;font-size:0.95rem;">
-                Google calendar sync on Earthcal is still in Beta!  We're still working on refining how it works and how items are imported.
+            <p style="color:${escapeAttr(providerAccent)};margin:0;text-align:left;font-size:0.95rem;">
+                ${escapeHTML(providerLabel)} calendar sync on Earthcal is still in Beta!  We're still working on refining how it works and how items are imported.
             </p>
         </form>
     `;
@@ -397,6 +529,7 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                                 ? syncData.provider
                                 : providerHintRaw;
                             const providerFromSync = providerFromSyncRaw.toString().trim().toLowerCase();
+                            const providerFromSyncLabel = normalizeProviderLabel(providerFromSync, providerLabel);
 
                             if (providerFromSync === 'google') {
                                 const previewItems = importedItems ? importedItems.slice(0, 10) : [];
@@ -405,6 +538,14 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                                     console.log(`[addNewiCal] Preview of first ${previewItems.length} Google webcal items (of ${totalItems} total):`, previewItems);
                                 } else {
                                     console.log('[addNewiCal] Google webcal sync returned no preview items.');
+                                }
+                            } else if (providerFromSync === 'apple') {
+                                const previewItems = importedItems ? importedItems.slice(0, 10) : [];
+                                const totalItems = Number(syncData?.items_total) || (importedItems ? importedItems.length : 0);
+                                if (previewItems.length > 0) {
+                                    console.log(`[addNewiCal] Preview of first ${previewItems.length} Apple webcal items (of ${totalItems} total):`, previewItems);
+                                } else {
+                                    console.log('[addNewiCal] Apple webcal sync returned no preview items.');
                                 }
                             } else if (importedItems) {
                                 const previewItems = importedItems.slice(0, 10);
@@ -425,7 +566,8 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                                 if (inserted > 0) parts.push(`${inserted} new events`);
                                 if (updated > 0) parts.push(`${updated} updates`);
                                 const summary = parts.length ? parts.join(' and ') : 'events';
-                                syncNotice = `✅ Imported ${summary} from Google.`;
+                                const summaryProvider = providerFromSyncLabel || providerLabel || 'the feed';
+                                syncNotice = `✅ Imported ${summary} from ${summaryProvider}.`;
                             }
                             console.log('[addNewiCal] Imported items saved to calendar.', {
                                 calendarId,
