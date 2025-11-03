@@ -865,6 +865,8 @@ border-color: #00a112 !important;
   color:var(--text-color);
   border-bottom:1px solid var(--subdued-text);
   cursor: pointer;
+    width: 100%;
+
 
 }
 

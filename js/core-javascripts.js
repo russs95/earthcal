@@ -320,8 +320,8 @@ async function openMainMenu() {
             </div>
 
             <div class="menu-plan-status">
-                <span class="menu-plan-pill ${planClass}">${planName} Plan</span>
-                ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                <div class="menu-plan-pill ${planClass}">${planName} Plan  
+                ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}</div>
             </div>
         </div>
         
@@ -331,7 +331,7 @@ async function openMainMenu() {
             </a>
     
             <p style="font-size:small; margin-bottom: 2px;">
-                ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a>  ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
+                ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a> | ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
             </p>
         </div>
     `;
