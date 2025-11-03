@@ -2966,10 +2966,10 @@ INFO MODAL
 
 .ec-plan-current-label {
   font-size: 1rem;
-  margin: 0 auto 18px auto;
+  margin: 8px auto 18px auto;
   max-width: 720px;
   text-align: center;
-  color: var(--p);
+  color: #22c55e;
 }
 
 .ec-plan-toggle {
@@ -3000,7 +3000,7 @@ INFO MODAL
   left: 4px;
   width: calc((100% - 8px) / var(--toggle-count));
   border-radius: 999px;
-  background: var(--general-background-highlight);
+  background: #9ca3af;
   transform: translateX(calc(var(--toggle-index) * 100%));
   transition: transform 0.3s ease;
   will-change: transform;
@@ -3097,13 +3097,16 @@ INFO MODAL
 }
 
 .ec-plan-feature-list--checks li::before {
-  content: "\2713";
+  content: "";
   position: absolute;
   left: 0;
   top: 0.15em;
-  color: #34d399;
-  font-size: 0.9em;
-  line-height: 1;
+  width: 20px;
+  height: 20px;
+  background-image: url("../assets/icons/green-check.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }
 
 .ec-plan-actions {
@@ -3114,6 +3117,89 @@ INFO MODAL
 
 .ec-plan-actions .confirmation-blur-button {
   min-width: 180px;
+}
+
+.ec-coupon-area {
+  margin: 16px auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+}
+
+.ec-coupon-toggle,
+.ec-coupon-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background-color: #4b5563;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-family: "Mulish", sans-serif;
+}
+
+.ec-coupon-toggle:hover,
+.ec-coupon-submit:hover {
+  background-color: #374151;
+}
+
+.ec-coupon-toggle:disabled,
+.ec-coupon-submit:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ec-coupon-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ec-coupon-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p);
+}
+
+.ec-coupon-input {
+  width: 100%;
+  max-width: 220px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(15, 23, 42, 0.25);
+  color: var(--h1);
+  text-align: center;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+}
+
+.ec-coupon-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.ec-coupon-input:focus {
+  outline: 2px solid #4b5563;
+  outline-offset: 2px;
+}
+
+.ec-coupon-feedback {
+  min-height: 1.2rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--p);
 }
 
 @media screen and (max-width: 768px) {
