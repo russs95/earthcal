@@ -292,53 +292,48 @@ async function openMainMenu() {
     const showSubscriptionLink = Boolean(window.user_plan);
 
     content.innerHTML = `
-        <div class="earthcal-app-logo">
-            <img src="svgs/earthcal-icon.svg" alt="EarthCal Logo" title="${mainMenu.title}">
-        </div>
+        <div id="main-menu-box">
+            <div class="earthcal-app-logo">
+                <img src="svgs/earthcal-icon.svg" alt="EarthCal Logo" title="${mainMenu.title}">
+            </div>
 
        
-
-        <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
-            ${mainMenu.featureTour}
-        </div>
-
-        <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
-            ${mainMenu.latestVersion}
-        </div>
-        <div class="menu-page-item">
-            <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
-        </div>
-
-        <div class="menu-page-item">
-            <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
-        </div>
-
-        ${showSubscriptionLink && userPlan !== 'padwan' ? `
-        <div class="menu-page-item" onclick="manageEarthcalUserSub();">
-            ${upgradeMenuText}
-        </div>` : ''}
-
-        <div class="menu-page-item">
-            <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
-                Feedback &amp; Bugs
+        <div id="all-the-main-menu-items"></div>
+            <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
+                ${mainMenu.featureTour}
             </div>
-        </div>
-        
-         <div class="menu-plan-status">
+    
+            <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
+                ${mainMenu.latestVersion}
+            </div>
+            <div class="menu-page-item">
+                <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
+            </div>
+    
+            <div class="menu-page-item">
+                <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
+            </div>
+     
+            <div class="menu-page-item">
+                <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
+                    Feedback &amp; Bugs
+                </div>
+            </div>
+                     <div class="menu-plan-status">
             <span class="menu-plan-pill ${planClass}">${planName} Plan</span>
             ${userPlan === 'padwan' ? `<button type="button" class="menu-plan-upgrade" onclick="manageEarthcalUserSub();">Upgrade for Time Jedi features</button>` : ''}
         </div>
-
-        <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
-            <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
-        </a>
-
-        <p style="font-size:small; margin-bottom: 2px;">
-            ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a>
-        </p>
-        <p style="font-size:small; margin-top: 2px; margin-bottom: auto;">
-            ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
-        </p>
+        </div>
+        
+        <div id="main-menu-footer">
+            <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
+                <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
+            </a>
+    
+            <p style="font-size:small; margin-bottom: 2px;">
+                ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a>  ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
+            </p>
+        </div>
     `;
 
     modal.style.width = "100%";

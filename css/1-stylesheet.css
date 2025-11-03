@@ -650,17 +650,19 @@ flex-direction: row;
   width: 177px;
   max-width: 100%;
   height: auto;
+    margin-bottom: 30px;
+    margin-top: auto;
 }
 
 @media screen and (max-width: 1199px) {
   .earthcal-app-logo img {
-    width: 155px;
+    width: 111px;
   }
 }
 
 @media screen and (max-width: 767px) {
   .earthcal-app-logo img {
-    width: 111px;
+    width: 88px;
   }
 }
 
