@@ -169,6 +169,15 @@
     background-size: contain;
 }
 
+#comet-button {
+    background: url(../svgs/comet-night.svg) no-repeat;
+    background-size: contain;
+}
+
+#comet-button:hover {
+    background: url(../svgs/comet-night-over.svg) no-repeat;
+    background-size: contain;
+}
 
 #solarsystem-button {
   background: url(../svgs/cycles-night.svg) no-repeat;

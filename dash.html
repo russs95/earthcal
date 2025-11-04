@@ -94,7 +94,7 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=18.4"></script>
+    <script src="js/earthcal-init.js?v=18.6"></script>
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v=7.2" as="style" onload="this.rel='stylesheet'">
@@ -105,8 +105,8 @@
     <link rel="stylesheet" href="css/slider.css?v=1.2">
 
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=11.4">
-    <link rel="stylesheet" href="css/login-styles.css?v=8.6">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=11.6">
+    <link rel="stylesheet" href="css/login-styles.css?v=8.7">
     <link rel="stylesheet" href="css/mini-mode.css?v=1">
 
     <!-- Inline styles current being experimented with-->
@@ -616,6 +616,8 @@
 
     <!-- PALETTE MAIN BUTTONS -->
     <div id="bottom-left-buttons" class="icon-button-columns">
+        <button id="comet-button" class="cycle-toggle" data-show="comet-show" data-hide="planet-buttons kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
+
         <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
         <button id="whale-earthbutton" class="cycle-toggle" data-show="kin-buttons" data-hide="planet-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate ecological cycles" data-role="palette-root"></button>
         <button id="moon-button" class="cycle-toggle" data-show="moon-cycle moon-phase themoonphases" data-hide="planet-buttons kin-buttons americas-map euro-map" data-function="calculateHijriMonthNames" title="Activate lunar tracking" data-role="palette-root"></button>
