@@ -100,7 +100,8 @@
             color: black;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: hidden;
         }
         body.first-time {
             /*padding: 20px 16px 60px;*/
@@ -184,10 +185,14 @@
             align-items: center;
             justify-content: flex-start;
             width: 100%;
+            max-width: min(960px, 100vw);
             height: 100%;
             min-height: 100vh;
             max-height: 100vh;
-            margin: 0;
+            margin: 0 auto;
+            padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2.5rem);
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
         #onboarding-section {
             display: none;
@@ -204,6 +209,10 @@
             backdrop-filter: blur(12px);
             overflow-y: auto;
             width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            overflow-x: hidden;
             position: relative;
             z-index: 2;
         }
@@ -356,6 +365,8 @@
                 padding: clamp(1.75rem, 6vw, 2.25rem);
                 gap: clamp(1rem, 5vw, 1.75rem);
                 width: min(90vw, 420px);
+                box-sizing: border-box;
+                margin: 0 auto;
                 max-height: calc(100vh - 96px);
                 overflow-x: hidden;
                 overflow-y: auto;
@@ -676,6 +687,7 @@
     const loadingProgressBar = document.getElementById("loading-progress-bar");
     const PROGRESS_ANIMATION_MIN_DURATION_MS = 200;
     const PROGRESS_ANIMATION_MAX_DURATION_MS = 650;
+    const MINIMUM_PROGRESS_DURATION_MS = 2000;
 
     const progressAnimationState = {
         from: 0,
@@ -684,6 +696,11 @@
         duration: 0,
         raf: null,
         current: 0,
+    };
+
+    const progressTiming = {
+        startedAt: null,
+        completionTimeout: null,
     };
 
     const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
@@ -730,9 +747,44 @@
         progressAnimationState.raf = requestAnimationFrame(animateProgressFrame);
     };
 
-    const setLoadingProgress = (value) => {
+    const setLoadingProgress = (value, options = {}) => {
         if (!loadingProgressBar) return;
+        const { force = false } = options;
         const clamped = Math.max(0, Math.min(100, value));
+
+        const clearCompletionTimeout = () => {
+            if (progressTiming.completionTimeout) {
+                clearTimeout(progressTiming.completionTimeout);
+                progressTiming.completionTimeout = null;
+            }
+        };
+
+        if (clamped <= 0) {
+            progressTiming.startedAt = performance.now();
+            clearCompletionTimeout();
+        } else if (progressTiming.startedAt === null) {
+            progressTiming.startedAt = performance.now();
+        }
+
+        if (clamped >= 100) {
+            if (!force) {
+                const startTime = progressTiming.startedAt;
+                const elapsed = startTime === null ? Infinity : performance.now() - startTime;
+                if (elapsed < MINIMUM_PROGRESS_DURATION_MS) {
+                    const remaining = MINIMUM_PROGRESS_DURATION_MS - elapsed;
+                    clearCompletionTimeout();
+                    progressTiming.completionTimeout = window.setTimeout(() => {
+                        progressTiming.completionTimeout = null;
+                        setLoadingProgress(100, { force: true });
+                    }, remaining);
+                    return;
+                }
+            }
+            clearCompletionTimeout();
+            progressTiming.startedAt = null;
+        } else if (progressTiming.completionTimeout && clamped < 100) {
+            clearCompletionTimeout();
+        }
 
         if (!Number.isFinite(progressAnimationState.current)) {
             progressAnimationState.current = 0;
@@ -751,6 +803,7 @@
         const assets = collectPreloadAssets();
         const total = assets.length;
         if (total === 0) {
+            setLoadingProgress(0);
             setLoadingProgress(100);
             return;
         }

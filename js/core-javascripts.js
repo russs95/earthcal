@@ -728,7 +728,9 @@ async function manageEarthcalUserSub() {
                 <div class="ec-coupon-area">
                     <form id="ec-coupon-form" class="ec-coupon-form" hidden>
                         <label class="ec-coupon-label" for="ec-coupon-input">Coupon Code</label>
-                        <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />
+                        <div class="ec-coupon-input-wrapper">
+                            <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />
+                        </div>
                         <div class="ec-coupon-actions">
                             <button type="submit" class="ec-coupon-submit">Redeem Coupon</button>
                             <button type="button" class="ec-coupon-cancel">Cancel</button>
@@ -839,10 +841,13 @@ async function manageEarthcalUserSub() {
         const couponToggleButton = modalContent.querySelector('.ec-coupon-toggle');
         const couponForm = modalContent.querySelector('.ec-coupon-form');
         const couponInput = modalContent.querySelector('.ec-coupon-input');
+        const couponInputWrapper = modalContent.querySelector('.ec-coupon-input-wrapper');
         const couponSubmit = modalContent.querySelector('.ec-coupon-submit');
         const couponFeedback = modalContent.querySelector('.ec-coupon-feedback');
         const couponCancelButton = modalContent.querySelector('.ec-coupon-cancel');
         let couponRequestPending = false;
+        const COUPON_CELEBRATION_DURATION_MS = 500;
+        const COUPON_REFRESH_DELAY_MS = 3000;
 
         if (couponInput) {
             couponInput.addEventListener('input', () => {
@@ -962,9 +967,20 @@ async function manageEarthcalUserSub() {
                         couponFeedback.textContent = 'Coupon applied! Updating your subscription…';
                     }
 
-                    setTimeout(() => {
-                        manageEarthcalUserSub();
-                    }, 700);
+                    if (couponInputWrapper) {
+                        couponInputWrapper.classList.remove('celebrate-animation');
+                        // Force reflow so the animation can be retriggered reliably.
+                        void couponInputWrapper.offsetWidth;
+                        couponInputWrapper.classList.add('celebrate-animation');
+                        window.setTimeout(() => {
+                            couponInputWrapper.classList.remove('celebrate-animation');
+                        }, COUPON_CELEBRATION_DURATION_MS + 100);
+                    }
+
+                    window.setTimeout(() => {
+                        closeMainMenu();
+                        window.location.reload();
+                    }, COUPON_REFRESH_DELAY_MS);
                 } catch (couponError) {
                     console.error('Coupon validation failed:', couponError);
                     if (couponFeedback) {
@@ -1029,8 +1045,84 @@ function upgradeUserPlan() {
     alert("We're still working on plan upgrading!  Don't worry, while we develop this, all user's have full access to Earthcal features.  Enjoy.");
 }
 
-function downgradeToPadwanPlan() {
-    alert("Downgrading is coming soon. In the meantime, please reach out to support@earthcal.app for assistance.");
+let downgradeRequestPending = false;
+
+async function downgradeToPadwanPlan(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    if (downgradeRequestPending) {
+        return false;
+    }
+
+    const resolveDowngradeUser = () => {
+        if (typeof getCurrentUser === 'function') {
+            try {
+                const current = getCurrentUser();
+                if (current?.buwana_id) {
+                    return current;
+                }
+            } catch (error) {
+                console.warn('Unable to resolve user from getCurrentUser()', error);
+            }
+        }
+
+        try {
+            const sessionUser = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (sessionUser?.buwana_id) {
+                return sessionUser;
+            }
+        } catch (error) {
+            console.warn('Unable to read session storage buwana_user', error);
+        }
+
+        const storedId = localStorage.getItem('buwana_id');
+        if (storedId) {
+            const numericId = Number(storedId);
+            return { buwana_id: Number.isNaN(numericId) ? storedId : numericId };
+        }
+
+        return null;
+    };
+
+    const user = resolveDowngradeUser();
+    const rawId = user?.buwana_id ?? null;
+    const buwanaId = typeof rawId === 'string' ? Number.parseInt(rawId, 10) : Number(rawId);
+
+    if (!Number.isInteger(buwanaId) || buwanaId <= 0) {
+        alert('We could not find your EarthCal account. Please sign in and try again.');
+        return false;
+    }
+
+    downgradeRequestPending = true;
+
+    try {
+        const response = await fetch('api/v1/downgrade_plan.api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ buwana_id: buwanaId }),
+        });
+
+        const result = await response.json().catch(() => null);
+
+        if (!response.ok || !result || result.ok === false) {
+            const message = result?.error_message
+                || result?.error
+                || `Downgrade failed (${response.status})`;
+            throw new Error(String(message));
+        }
+
+        alert('Your subscription has been downgraded to the Padwan Plan.');
+        closeMainMenu();
+        window.location.reload();
+    } catch (error) {
+        console.error('Downgrade request failed:', error);
+        alert(`We could not downgrade your subscription. ${error?.message || error}`);
+    } finally {
+        downgradeRequestPending = false;
+    }
+
     return false;
 }
 
