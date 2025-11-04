@@ -723,9 +723,9 @@ async function manageEarthcalUserSub() {
             ? `
                 <div class="ec-plan-actions">
                     <button type="button" class="confirmation-blur-button greenback" onclick="upgradeUserPlan()">Upgrade</button>
+                    <button type="button" class="ec-coupon-toggle" aria-expanded="false" aria-controls="ec-coupon-form">Apply Coupon</button>
                 </div>
                 <div class="ec-coupon-area">
-                    <button type="button" class="ec-coupon-toggle" aria-expanded="false" aria-controls="ec-coupon-form">Apply Coupon</button>
                     <form id="ec-coupon-form" class="ec-coupon-form" hidden>
                         <label class="ec-coupon-label" for="ec-coupon-input">Coupon Code</label>
                         <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />

@@ -2102,7 +2102,7 @@ async function showPublicCalendars(hostTarget) {
         subscribeCheckbox.addEventListener('click', (event) => event.stopPropagation());
 
         const subscribeText = document.createElement('span');
-        subscribeText.style.fontSize = '0.8em';
+        subscribeText.style.fontSize = '0.65em';
 
         const updateSubscribeState = () => {
             const isChecked = !!subscribeCheckbox.checked;
@@ -2702,11 +2702,11 @@ function getSubscribedPublicCalendarMap() {
     for (const entry of cached) {
         if (!entry) continue;
         const subscriptionId = Number(entry.subscription_id ?? entry.sub_id ?? entry.subscriptionId);
-        if (!Number.isFinite(subscriptionId)) continue;
+        if (!Number.isFinite(subscriptionId) || subscriptionId <= 0) continue;
         const calendarId = Number(entry.calendar_id ?? entry.id);
-        if (!Number.isFinite(calendarId)) continue;
+        if (!Number.isFinite(calendarId) || calendarId <= 0) continue;
         const source = (entry.source_type || '').toString().toLowerCase();
-        if (source !== 'earthcal') continue;
+        if (source !== 'earthcal' && source !== 'public') continue;
 
         const isActive = typeof entry.is_active === 'boolean' ? entry.is_active : toBool(entry.is_active ?? true);
         const displayFlag = entry.display_enabled;
@@ -2752,6 +2752,11 @@ function mergePublicCalendarSubscriptions(list) {
             }
             if (state.display_enabled !== undefined) {
                 merged.display_enabled = state.display_enabled;
+            }
+        } else {
+            merged.is_subscribed = false;
+            if (!map.has(calendarId)) {
+                merged.subscription_id = null;
             }
         }
         return merged;
@@ -2844,13 +2849,14 @@ function normalizePublicCalendarShape(c) {
     const eventCount = Number(c.event_count);
     const rawSubscriptionId = c.subscription_id ?? c.sub_id ?? c.subscriptionId ?? c.follow_id ?? null;
     const subscriptionId = Number(rawSubscriptionId);
-    const normalizedSubscriptionId = Number.isFinite(subscriptionId) ? subscriptionId : null;
+    const normalizedSubscriptionId = Number.isFinite(subscriptionId) && subscriptionId > 0 ? subscriptionId : null;
     const displayFlag = c.display_enabled ?? c.display ?? null;
     const normalizedDisplay = displayFlag === null || displayFlag === undefined
         ? undefined
         : (typeof displayFlag === 'boolean' ? displayFlag : toBool(displayFlag));
-    const subscribedFallback = normalizedSubscriptionId !== null ? 1 : 0;
-    const isSubscribed = toBool(c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following ?? subscribedFallback);
+    const rawSubscribed = c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following;
+    const hasExplicitSubscribed = rawSubscribed !== undefined && rawSubscribed !== null;
+    const isSubscribed = hasExplicitSubscribed ? toBool(rawSubscribed) : false;
     const isActive = typeof c.is_active === 'boolean'
         ? c.is_active
         : toBool(c.is_active ?? (normalizedDisplay !== undefined ? normalizedDisplay : isSubscribed));
@@ -2882,13 +2888,14 @@ function normalizeLegacyPublicCalendarShape(c) {
     const eventCount = Number(c.event_count ?? c.total_events);
     const rawSubscriptionId = c.subscription_id ?? c.sub_id ?? c.subscriptionId ?? c.follow_id ?? null;
     const subscriptionId = Number(rawSubscriptionId);
-    const normalizedSubscriptionId = Number.isFinite(subscriptionId) ? subscriptionId : null;
+    const normalizedSubscriptionId = Number.isFinite(subscriptionId) && subscriptionId > 0 ? subscriptionId : null;
     const displayFlag = c.display_enabled ?? c.display ?? null;
     const normalizedDisplay = displayFlag === null || displayFlag === undefined
         ? undefined
         : (typeof displayFlag === 'boolean' ? displayFlag : toBool(displayFlag));
-    const subscribedFallback = normalizedSubscriptionId !== null ? 1 : 0;
-    const isSubscribed = toBool(c.subscribed ?? c.is_subscribed ?? c.following ?? c.is_following ?? subscribedFallback);
+    const rawSubscribed = c.is_subscribed ?? c.subscribed ?? c.following ?? c.is_following;
+    const hasExplicitSubscribed = rawSubscribed !== undefined && rawSubscribed !== null;
+    const isSubscribed = hasExplicitSubscribed ? toBool(rawSubscribed) : false;
     const isActive = typeof c.is_active === 'boolean'
         ? c.is_active
         : toBool(c.is_active ?? (normalizedDisplay !== undefined ? normalizedDisplay : isSubscribed));
