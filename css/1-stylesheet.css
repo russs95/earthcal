@@ -2997,10 +2997,8 @@ INFO MODAL
   max-width: 720px;
   text-align: center;
   color: #16a34a;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  display: block;
+  width: fit-content;
   padding: 8px 18px;
   border-radius: 999px;
   background: rgba(22, 163, 74, 0.1);
@@ -3160,68 +3158,54 @@ INFO MODAL
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  max-width: 320px;
+  width: 100%;
+  max-width: 360px;
 }
 
-.ec-downgrade-link {
-  display: inline-block;
-  font-size: 0.9rem;
-  color: #15803d;
-  text-decoration: none;
-}
-
-.ec-downgrade-link:hover,
-.ec-downgrade-link:focus {
-  color: #16a34a;
-  text-decoration: underline;
-  outline: none;
-}
-
-.ec-coupon-toggle,
-.ec-coupon-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: none;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  background-color: #4b5563;
-  color: #ffffff;
+  .ec-coupon-toggle {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 2px solid var(--emblem-green);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background-color: transparent;
+  color: var(--emblem-green);
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   font-family: "Mulish", sans-serif;
-}
+  }
 
-.ec-coupon-toggle:hover,
-.ec-coupon-submit:hover {
-  background-color: #374151;
-}
+  .ec-coupon-toggle:hover,
+  .ec-coupon-toggle:focus {
+  background-color: rgba(22, 163, 74, 0.15);
+  color: #064e3b;
+  outline: none;
+  }
 
-.ec-coupon-toggle:disabled,
-.ec-coupon-submit:disabled {
-  background-color: #6b7280;
+  .ec-coupon-toggle:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-}
+  }
 
-.ec-coupon-form {
+  .ec-coupon-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-}
+  }
 
-.ec-coupon-label {
+  .ec-coupon-label {
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--p);
-}
+  }
 
-.ec-coupon-input {
+  .ec-coupon-input {
   width: 100%;
   max-width: 220px;
   padding: 10px 14px;
@@ -3233,23 +3217,92 @@ INFO MODAL
   font-size: 1.05rem;
   text-transform: uppercase;
   letter-spacing: 0.24em;
-}
+  }
 
-.ec-coupon-input::placeholder {
+  .ec-coupon-input::placeholder {
   color: rgba(255, 255, 255, 0.45);
-}
+  }
 
-.ec-coupon-input:focus {
+  .ec-coupon-input:focus {
   outline: 2px solid #4b5563;
   outline-offset: 2px;
-}
+  }
 
-.ec-coupon-feedback {
+  .ec-coupon-actions {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  }
+
+  .ec-coupon-submit,
+  .ec-coupon-cancel {
+  flex: 1 1 140px;
+  min-width: 140px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-family: "Mulish", sans-serif;
+  }
+
+  .ec-coupon-submit {
+  background-color: #4b5563;
+  color: #ffffff;
+  }
+
+  .ec-coupon-submit:hover,
+  .ec-coupon-submit:focus {
+  background-color: #374151;
+  outline: none;
+  }
+
+  .ec-coupon-submit:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+  }
+
+  .ec-coupon-cancel {
+  background-color: rgba(148, 163, 184, 0.2);
+  color: var(--p);
+  }
+
+  .ec-coupon-cancel:hover,
+  .ec-coupon-cancel:focus {
+  background-color: rgba(148, 163, 184, 0.35);
+  outline: none;
+  }
+
+  .ec-coupon-feedback {
   min-height: 1.2rem;
   font-size: 0.85rem;
   text-align: center;
   color: var(--p);
-}
+  }
+
+  .ec-downgrade-footer {
+  margin: 32px auto 0 auto;
+  text-align: center;
+  }
+
+  .ec-downgrade-link {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #15803d;
+  text-decoration: none;
+  }
+
+  .ec-downgrade-link:hover,
+  .ec-downgrade-link:focus {
+    color: #16a34a;
+    text-decoration: underline;
+    outline: none;
+  }
 
 @media screen and (max-width: 768px) {
   .ec-subscription-modal {

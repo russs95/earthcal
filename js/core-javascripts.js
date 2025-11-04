@@ -293,6 +293,16 @@ async function openMainMenu() {
         : 'Upgrade EarthCal';
     const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
 
+    const feedbackItemHtml = isAuthenticated
+        ? `
+            <div class="menu-page-item">
+                <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
+                    Feedback &amp; Bugs
+                </div>
+            </div>
+        `
+        : '';
+
     const planStatusHtml = isAuthenticated
         ? `
             <div class="menu-plan-status">
@@ -327,11 +337,7 @@ async function openMainMenu() {
                 <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
             </div>
 
-            <div class="menu-page-item">
-                <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
-                    Feedback &amp; Bugs
-                </div>
-            </div>
+            ${feedbackItemHtml}
 
             ${planStatusHtml}
         </div>
@@ -720,14 +726,17 @@ async function manageEarthcalUserSub() {
                 </div>
                 <div class="ec-coupon-area">
                     <button type="button" class="ec-coupon-toggle" aria-expanded="false" aria-controls="ec-coupon-form">Apply Coupon</button>
-                    ${downgradeLinkHtml}
                     <form id="ec-coupon-form" class="ec-coupon-form" hidden>
                         <label class="ec-coupon-label" for="ec-coupon-input">Coupon Code</label>
                         <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />
-                        <button type="submit" class="ec-coupon-submit">Redeem Coupon</button>
+                        <div class="ec-coupon-actions">
+                            <button type="submit" class="ec-coupon-submit">Redeem Coupon</button>
+                            <button type="button" class="ec-coupon-cancel">Cancel</button>
+                        </div>
                         <div class="ec-coupon-feedback" role="status" aria-live="polite"></div>
                     </form>
                 </div>
+                ${downgradeLinkHtml ? `<div class="ec-downgrade-footer">${downgradeLinkHtml}</div>` : ''}
             `
             : '';
 
@@ -832,6 +841,7 @@ async function manageEarthcalUserSub() {
         const couponInput = modalContent.querySelector('.ec-coupon-input');
         const couponSubmit = modalContent.querySelector('.ec-coupon-submit');
         const couponFeedback = modalContent.querySelector('.ec-coupon-feedback');
+        const couponCancelButton = modalContent.querySelector('.ec-coupon-cancel');
         let couponRequestPending = false;
 
         if (couponInput) {
@@ -846,17 +856,55 @@ async function manageEarthcalUserSub() {
             });
         }
 
+        const resetCouponUi = ({ resetFields = false } = {}) => {
+            couponRequestPending = false;
+            if (resetFields) {
+                couponForm?.reset();
+            }
+            couponInput?.removeAttribute('aria-busy');
+            couponSubmit?.removeAttribute('aria-busy');
+            couponInput?.removeAttribute('disabled');
+            couponSubmit?.removeAttribute('disabled');
+            if (couponFeedback) {
+                couponFeedback.textContent = '';
+            }
+        };
+
+        const hideCouponForm = ({ resetFields = false } = {}) => {
+            if (couponForm && couponToggleButton) {
+                couponForm.hidden = true;
+                couponToggleButton.hidden = false;
+                couponToggleButton.setAttribute('aria-expanded', 'false');
+            }
+            resetCouponUi({ resetFields });
+        };
+
+        const showCouponForm = () => {
+            if (!couponForm || !couponToggleButton) {
+                return;
+            }
+            couponForm.hidden = false;
+            couponToggleButton.hidden = true;
+            couponToggleButton.setAttribute('aria-expanded', 'true');
+            resetCouponUi({ resetFields: false });
+            if (couponInput) {
+                couponInput.focus();
+            }
+        };
+
         if (couponToggleButton && couponForm) {
+            hideCouponForm({ resetFields: true });
             couponToggleButton.addEventListener('click', () => {
-                const willShow = couponForm.hidden;
-                couponForm.hidden = !willShow;
-                couponToggleButton.setAttribute('aria-expanded', willShow ? 'true' : 'false');
-                if (willShow && couponInput) {
-                    couponInput.focus();
-                }
-                if (!willShow && couponFeedback) {
-                    couponFeedback.textContent = '';
-                }
+                showCouponForm();
+            });
+        } else {
+            resetCouponUi({ resetFields: true });
+        }
+
+        if (couponCancelButton) {
+            couponCancelButton.addEventListener('click', () => {
+                hideCouponForm({ resetFields: true });
+                couponToggleButton?.focus();
             });
         }
 
