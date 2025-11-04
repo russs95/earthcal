@@ -3145,15 +3145,21 @@ INFO MODAL
 .ec-plan-actions {
   margin: 32px auto 0 auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
 }
 
-.ec-plan-actions .confirmation-blur-button {
+.ec-plan-actions .confirmation-blur-button,
+.ec-plan-actions .ec-coupon-toggle {
+  width: 100%;
   min-width: 180px;
 }
 
 .ec-coupon-area {
-  margin: 16px auto 0 auto;
+  margin: 4px auto 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3162,7 +3168,7 @@ INFO MODAL
   max-width: 360px;
 }
 
-  .ec-coupon-toggle {
+.ec-coupon-toggle {
   width: 100%;
   padding: 12px 20px;
   border-radius: 10px;
@@ -3175,28 +3181,32 @@ INFO MODAL
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   font-family: "Mulish", sans-serif;
-  }
+}
 
-  .ec-coupon-toggle:hover,
-  .ec-coupon-toggle:focus {
+.ec-coupon-toggle:hover,
+.ec-coupon-toggle:focus {
   background-color: rgba(22, 163, 74, 0.15);
   color: #064e3b;
   outline: none;
-  }
+}
 
-  .ec-coupon-toggle:disabled {
+.ec-coupon-toggle:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  }
+}
 
-  .ec-coupon-form {
+.ec-coupon-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  }
+}
+
+.ec-coupon-form[hidden] {
+  display: none !important;
+}
 
   .ec-coupon-label {
   font-size: 0.85rem;
@@ -3470,6 +3480,14 @@ INFO MODAL
     background: var(--general-background);
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
     overflow-y: auto;
+}
+
+#ec-public-cal-overlay .cal-row-name {
+    text-align: left;
+}
+
+#ec-public-cal-overlay .ec-public-cal-checkbox span {
+    font-size: 0.65em;
 }
 
 #ec-public-cal-overlay .ec-public-cal-list {

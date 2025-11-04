@@ -23,6 +23,12 @@
     <style>
         :root {
             --general-background: rgb(245, 245, 245);
+            --emblem-green: #008000;
+            --emblem-green-over: #0ca70c;
+        }
+        html,
+        body {
+            height: 100%;
         }
         body {
             margin: 0;
@@ -31,48 +37,42 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            font-family: 'Mulish', sans-serif;
             background-color: var(--general-background);
+            background-image: url('/webp/earthen-subscription-background-light.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: black;
             transition: all 0.3s ease;
             position: relative;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --general-background: rgb(13, 15, 26);
-            }
-            body {
-                color: white;
-            }
-        }
-        #progress-container {
-            width: 400px;
-            height: 14px;
-            margin-top: 10px;
-            border-radius: 10px;
             overflow: hidden;
-            border: none;
+        }
+        #initial-load {
+            width: 100%;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: transparent;
+            overflow: hidden;
+            padding: 24px 16px 60px;
+            box-sizing: border-box;
+            gap: 18px;
         }
-        #load-progress {
-            display: none;
+        .earthcal-logo {
+            width: 120px;
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
         #authenticating-text {
-            height: 100%;
-            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.2rem;
-            font-size: 0.65rem;
-            line-height: 10px;
-            letter-spacing: 0.05em;
-
-            color: inherit;
+            gap: 0.35rem;
+            font-size: clamp(0.9rem, 3vw, 1.05rem);
+            letter-spacing: 0.04em;
         }
         #authenticating-text span {
             white-space: nowrap;
@@ -82,86 +82,54 @@
             min-width: 0.9em;
             text-align: left;
         }
-        @media (prefers-color-scheme: dark) {
-            #progress-container {
-                background-color: transparent;
-            }
-        }
-        #footer {
-            position: absolute;
-            bottom: 10px;
+        .footer {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 0.8em;
             color: grey;
+            z-index: 1;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
         }
-        .earthcal-app-logo,
-        .earthcal-app-logo svg {
-            width: 120px;
-            height: 120px;
+        .footer > * {
+            pointer-events: auto;
         }
-        @media screen and (max-width: 768px) {
-            .earthcal-app-logo,
-            .earthcal-app-logo svg {
-                width: 180px;
-                height: 180px;
+        .earthen-logo {
+            width: 33px;
+            height: 33px;
+        }
+        @media screen and (min-width: 769px) and (max-width: 1200px) {
+            .earthcal-logo {
+                width: 155px;
             }
-            #progress-container {
-                width: 150px;
-                height: 15px;
-            }
-            #authenticating-text {
-                font-size: 0.8rem;
-                line-height: 15px;
-            }
-            #footer {
-                font-size: 1em;
-            }
-            #footer img {
-                width: 40px;
-                height: 40px;
+        }
+        @media screen and (min-width: 1201px) {
+            .earthcal-logo {
+                width: 177px;
             }
         }
     </style>
 </head>
 <body>
-<div class="earthcal-app-logo" style="margin-bottom: 20px;text-align: center;">
-
-    <svg width="103.23mm" height="103.59mm" version="1.1" viewBox="0 0 103.23 103.59" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <clipPath id="clipPath1">
-                <path d="m0.26065-89.508a90.493 90.493 0 0 0-90.493 90.491 90.493 90.493 0 0 0 90.493 90.493 90.493 90.493 0 0 0 90.493-90.493 90.493 90.493 0 0 0-90.493-90.491zm-1.839 38.279a52.214 52.214 0 0 1 52.214 52.212 52.214 52.214 0 0 1-52.214 52.214 52.214 52.214 0 0 1-52.214-52.214 52.214 52.214 0 0 1 52.214-52.212z" fill="#0ff" stroke-width="0"/>
-            </clipPath>
-        </defs>
-        <g transform="matrix(.57548 0 0 .57548 51.927 51.306)" clip-path="url(#clipPath1)" stroke-width=".92194">
-            <path id="12-december" d="m43.78-77.057a91.197 91.197 0 0 1 33.353 33.408l-79.017 45.531z" fill="#4343ff" stroke-width=".9342"/>
-            <path id="11-november" d="m-0.77143-89.153a90 90 0 0 1 44.989 12.095l-45.065 77.904z" fill="#0cacf5"/>
-            <path id="10-october" transform="translate(1.1223e-6)" d="m-45.782-77.133a90 90 0 0 1 45.225-12.02l-0.29047 90z" fill="#00e6a7"/>
-            <path id="09-september" transform="translate(1.1223e-6)" d="m-78.752-44.219a90 90 0 0 1 32.97-32.915l44.934 77.98z" fill="#00e513"/>
-            <path id="08-august" transform="translate(1.1223e-6)" d="m-90.848 0.77143a90 90 0 0 1 12.095-44.989l77.904 45.065z" fill="#beee00"/>
-            <path id="07-july" transform="translate(1.1223e-6)" d="m-78.827 45.782a90 90 0 0 1-12.02-45.01l90 0.075889z" fill="#fbfb00"/>
-            <path id="06-june" transform="translate(1.1223e-6)" d="m-45.914 78.752a90 90 0 0 1-32.915-32.97l77.98-44.934z" fill="#ffd119"/>
-            <path id="05-may" transform="translate(1.1223e-6)" d="m-0.92271 90.847a90 90 0 0 1-44.989-12.095l45.065-77.904z" fill="#ff8201"/>
-            <path id="04-april" transform="translate(1.1223e-6)" d="m44.087 78.827a90 90 0 0 1-45.01 12.02l0.075889-90z" fill="#ff6303"/>
-            <path id="03-march" transform="translate(1.1223e-6)" d="m77.057 45.913a90 90 0 0 1-32.97 32.915l-44.934-77.98z" fill="#fb0000"/>
-            <path id="02-february" transform="translate(1.1223e-6)" d="m89.152 0.92271a90 90 0 0 1-12.095 44.989l-77.904-45.065z" fill="#ff11ce"/>
-            <path id="01-january" transform="translate(1.1223e-6)" d="m77.309-43.817c7.8877 13.688 11.857 28.941 11.844 44.74l-90-0.075889z" fill="#7f2aff"/>
-        </g>
-    </svg>
-
-
-</div>
-<div id="progress-container">
-    <div id="load-progress"></div>
-    <div id="authenticating-text" role="status" aria-live="polite">
-        <span>Authenticating with Buwana</span>
-        <span id="dots">...</span>
+    <div id="initial-load" aria-hidden="true">
+        <img class="earthcal-logo" src="/svgs/earthcal-icon.svg" alt="EarthCal logo" aria-hidden="true">
+        <div id="authenticating-text" role="status" aria-live="polite">
+            <span>Authenticating with Buwana</span>
+            <span id="dots">...</span>
+        </div>
+        <div class="footer" style="text-align: center">
+            <span class="earthen-logo-wrapper" aria-label="Visit Earthen">
+                <img class="earthen-logo" src="/svgs/earthen-icon.svg" alt="Earthen logo">
+            </span>
+            <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.0.0 by Earthen</p>
+        </div>
     </div>
-</div>
-
-<div id="footer">
-    <img src="/svgs/earthen-icon.svg" style="width:30px;height:30px;" alt="Earthen Labs logo">
-    <p>by Earthen Labs | v0.9</p>
-</div>
 
 <script>
     // Animate dots

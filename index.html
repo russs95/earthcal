@@ -1308,32 +1308,26 @@
 
         const PRACTICE_EVENT_DEFINITIONS = [
             {
-                item_kind: "event",
-                title: "Delete me!",
-                notes: "Hit the X in the right hand corner to delete an event.",
-                color_hex: "#ef4444",
-            },
-            {
                 item_kind: "todo",
-                title: "Check me!",
-                notes: "Click the ✔️ on the right side to mark an item completed.",
+                title: "Check Me",
+                notes: "Tap the ✔️ on the right side to mark an item completed.",
                 color_hex: "#22c55e",
             },
             {
                 item_kind: "todo",
-                title: "Pin me!",
+                title: "Pin Me",
                 notes: "Hit the 🟠 circle in the top left to pin this item.",
                 color_hex: "#f97316",
             },
             {
                 item_kind: "todo",
-                title: "Edit me!",
+                title: "Edit Me",
                 notes: "Click this text to edit and share this event.",
                 color_hex: "#3b82f6",
             },
             {
                 item_kind: "todo",
-                title: "Push me!",
+                title: "Push Me",
                 notes: "So this won't actually work til tomorrow. Hit the right arrow ➡️ to the right and an event will be pushed to Today. Yeah... if you hit it now, it just appears again! However, tomorrow this will be very handy when going through incomplete items from the day before to get your day setup.",
                 color_hex: "#2563eb",
             },
@@ -1523,7 +1517,7 @@
                     credentials: "same-origin",
                     body: JSON.stringify({
                         buwana_id: buwanaId,
-                        emoji: earthlingEmoji,
+                        emoji: "📆",
                         tzid: userTimeZone,
                         description: defaultCalendarDescription,
                     }),
