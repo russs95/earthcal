@@ -274,6 +274,8 @@ async function openMainMenu() {
         return Number.isNaN(numericId) ? storedId : numericId;
     })();
 
+    const isAuthenticated = Boolean(payload?.buwana_id || resolvedBuwanaId);
+
     const appClientId = payload?.aud || payload?.client_id || 'unknown';
     const feedbackUrl = resolvedBuwanaId
         ? `https://buwana.ecobricks.org/${lang}/feedback.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(appClientId)}`
@@ -281,15 +283,27 @@ async function openMainMenu() {
 
     const userPlan = (window.user_plan || '').toLowerCase();
     const planName = userPlan === 'jedi'
-        ? 'Time Jedi'
+        ? 'EarthCal Jedi'
         : userPlan === 'padwan'
-            ? 'Padwan'
-            : (window.user_plan ? String(window.user_plan) : 'Padwan');
+            ? 'EarthCal Padwan'
+            : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
     const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
     const planActionText = userPlan === 'jedi'
         ? 'Manage Subscription'
         : 'Upgrade EarthCal';
-    const showSubscriptionLink = userPlan === 'padwan' || userPlan === 'jedi';
+    const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
+
+    const planStatusHtml = isAuthenticated
+        ? `
+            <div class="menu-plan-status">
+                <div class="menu-plan-pill ${planClass}">
+                    <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
+                    <span class="menu-plan-pill-text">${planName}</span>
+                    ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                </div>
+            </div>
+        `
+        : '';
 
     content.innerHTML = `
         <div id="main-menu-box">
@@ -319,10 +333,7 @@ async function openMainMenu() {
                 </div>
             </div>
 
-            <div class="menu-plan-status">
-                <div class="menu-plan-pill ${planClass}">${planName} Plan  
-                ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}</div>
-            </div>
+            ${planStatusHtml}
         </div>
         
         <div id="main-menu-footer">
@@ -472,7 +483,10 @@ async function manageEarthcalUserSub() {
         <div class="ec-subscription-modal">
             <h1>Upgrade EarthCal</h1>
             <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
-            <p>Checking your subscription&hellip;</p>
+            <div class="ec-loading-row">
+                <object class="ec-loading-spinner" data="svgs/earthcal-spinner.svg" type="image/svg+xml" aria-hidden="true"></object>
+                <span>Checking your subscription&hellip;</span>
+            </div>
         </div>
     `;
     ensureModalReady();
@@ -695,17 +709,22 @@ async function manageEarthcalUserSub() {
         const jediPriceAttr = (interval, key) => escapeHtml(jediPriceData[interval]?.[key] || 'Coming soon');
         const padwanCardClass = '';
         const jediCardClass = ' current-plan';
-        const upgradeButtonHtml = userPlanType === 'padwan'
+        const showUpgradeControls = userPlanType === 'padwan' || userPlanType === 'jedi';
+        const downgradeLinkHtml = userPlanType === 'jedi'
+            ? `<a class="ec-downgrade-link" href="#" onclick="return downgradeToPadwanPlan();">Downgrade to Padwan Plan (for beta testers)</a>`
+            : '';
+        const upgradeButtonHtml = showUpgradeControls
             ? `
                 <div class="ec-plan-actions">
                     <button type="button" class="confirmation-blur-button greenback" onclick="upgradeUserPlan()">Upgrade</button>
                 </div>
                 <div class="ec-coupon-area">
                     <button type="button" class="ec-coupon-toggle" aria-expanded="false" aria-controls="ec-coupon-form">Apply Coupon</button>
+                    ${downgradeLinkHtml}
                     <form id="ec-coupon-form" class="ec-coupon-form" hidden>
                         <label class="ec-coupon-label" for="ec-coupon-input">Coupon Code</label>
                         <input id="ec-coupon-input" class="ec-coupon-input" type="text" name="coupon_code" inputmode="text" autocomplete="off" maxlength="7" pattern="[A-Za-z0-9]{7}" placeholder="XXXXXXX" required />
-                        <button type="submit" class="ec-coupon-submit">Apply Coupon</button>
+                        <button type="submit" class="ec-coupon-submit">Redeem Coupon</button>
                         <div class="ec-coupon-feedback" role="status" aria-live="polite"></div>
                     </form>
                 </div>
@@ -960,6 +979,11 @@ document.addEventListener("keydown", modalCloseCurtains);
 
 function upgradeUserPlan() {
     alert("We're still working on plan upgrading!  Don't worry, while we develop this, all user's have full access to Earthcal features.  Enjoy.");
+}
+
+function downgradeToPadwanPlan() {
+    alert("Downgrading is coming soon. In the meantime, please reach out to support@earthcal.app for assistance.");
+    return false;
 }
 
 /* ---------------------------
