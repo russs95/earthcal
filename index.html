@@ -143,7 +143,6 @@
             height: 100%;
             width: 0%;
             background: #b5b4b4b4;
-            transition: width 0.2s ease;
         }
         #get-started-button::after {
             content: "";
@@ -157,11 +156,27 @@
             transform: translateX(2px);
         }
         .footer {
-            position: absolute;
-            bottom: 10px;
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 0.8em;
             color: grey;
             z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+        .footer > * {
+            pointer-events: auto;
+        }
+        .earthen-logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         #onboarding-time {
             display: none;
@@ -327,9 +342,6 @@
             }
             .footer {
                 font-size: 1em;
-                display: block;
-                position: static;
-                margin-top: 24px;
             }
             .footer img {
                 width: 40px;
@@ -414,9 +426,9 @@
         </div>
 
         <div class="footer" style="text-align: center">
-            <a href="https://earthen.io" target="_blank" rel="noopener" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
-                <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:33px;height:33px;">
-            </a>
+            <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
+                <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:33px;height:33px;">
+            </span>
             <p id="logo-text" class="footer-text" data-i18n="footer.tagline" style="font-size: smaller;">EarthCal v1.0.0 by Earthen</p>
         </div>
     </div>
@@ -438,9 +450,9 @@
         <button id="get-started-button" type="button" aria-disabled="true" disabled hidden>Get Started</button>
     </main>
     <div class="footer" style="text-align: center">
-        <a href="https://earthen.io" target="_blank" rel="noopener" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
-            <img class="earthen-logo" src="svgs/earthen-icon.svg" style="width:44px;height:44px;">
-        </a>
+        <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
+            <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:44px;height:44px;">
+        </span>
         <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.0.0 by Earthen</p>
     </div>
 </div>
@@ -615,7 +627,7 @@
         getStartedButtonEl.textContent = buttonLabels.getStarted;
     }
 
-    const MINIMUM_REDIRECT_DELAY_MS = 3000;
+    const MINIMUM_REDIRECT_DELAY_MS = 20000;
 
     const collectPreloadAssets = () => {
         const selectors = [
@@ -662,11 +674,77 @@
     );
 
     const loadingProgressBar = document.getElementById("loading-progress-bar");
+    const PROGRESS_ANIMATION_MIN_DURATION_MS = 200;
+    const PROGRESS_ANIMATION_MAX_DURATION_MS = 650;
+
+    const progressAnimationState = {
+        from: 0,
+        to: 0,
+        start: 0,
+        duration: 0,
+        raf: null,
+        current: 0,
+    };
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animateProgressFrame = (timestamp) => {
+        const { start, duration, from, to } = progressAnimationState;
+        const elapsed = timestamp - start;
+        const progress = duration <= 0 ? 1 : Math.min(1, elapsed / duration);
+        const eased = easeOutCubic(progress);
+        const value = from + (to - from) * eased;
+
+        progressAnimationState.current = value;
+        if (loadingProgressBar) {
+            loadingProgressBar.style.width = `${value}%`;
+        }
+
+        if (progress < 1) {
+            progressAnimationState.raf = requestAnimationFrame(animateProgressFrame);
+            return;
+        }
+
+        progressAnimationState.raf = null;
+        progressAnimationState.current = to;
+        if (loadingProgressBar) {
+            loadingProgressBar.style.width = `${to}%`;
+        }
+    };
+
+    const scheduleProgressAnimation = (target) => {
+        const now = performance.now();
+        const from = progressAnimationState.current;
+        const diff = Math.abs(target - from);
+        const durationRange = PROGRESS_ANIMATION_MAX_DURATION_MS - PROGRESS_ANIMATION_MIN_DURATION_MS;
+        const duration = PROGRESS_ANIMATION_MIN_DURATION_MS + (durationRange * Math.min(diff, 100)) / 100;
+
+        progressAnimationState.from = from;
+        progressAnimationState.to = target;
+        progressAnimationState.start = now;
+        progressAnimationState.duration = duration;
+
+        if (progressAnimationState.raf) {
+            cancelAnimationFrame(progressAnimationState.raf);
+        }
+        progressAnimationState.raf = requestAnimationFrame(animateProgressFrame);
+    };
 
     const setLoadingProgress = (value) => {
         if (!loadingProgressBar) return;
         const clamped = Math.max(0, Math.min(100, value));
-        loadingProgressBar.style.width = `${clamped}%`;
+
+        if (!Number.isFinite(progressAnimationState.current)) {
+            progressAnimationState.current = 0;
+        }
+
+        if (Math.abs(clamped - progressAnimationState.current) < 0.1) {
+            progressAnimationState.current = clamped;
+            loadingProgressBar.style.width = `${clamped}%`;
+            return;
+        }
+
+        scheduleProgressAnimation(clamped);
     };
 
     const preloadAssets = async () => {
