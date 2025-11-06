@@ -38,22 +38,16 @@
      id="g1"
      transform="translate(-92.172398,5.3278843)">
     <circle
-       style="fill:#000000;stroke:#00ffff;stroke-width:4.1;stroke-dasharray:none;stroke-opacity:1;fill-opacity:0"
+       style="fill:none;stroke:#808080;stroke-width:4.1;stroke-dasharray:none;stroke-opacity:1"
        id="path4"
        cx="115.51039"
        cy="60.191292"
        r="14.781947"
        transform="rotate(-2.0875455)" />
     <path
-       style="fill:none;stroke:#00ffff;stroke-width:4.201;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#808080;stroke-width:4.201;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="M 176.6413,0.39303106 135.03362,26.198863 147.28836,9.3780687 c -18.84935,10.1113323 -38.90543,21.6088043 -45.4596,27.9306893 -9.216866,9.004188 -9.669948,24.906786 -0.63516,34.165697 7.85847,8.053411 20.90497,10.748869 33.19901,2.180437 9.35696,-7.468664 28.43818,-37.988373 37.26511,-52.835805 l -24.86321,15.500314 z"
        id="path5"
        sodipodi:nodetypes="ccccscccc" />
-    <circle
-       style="fill:none;stroke:#a0c0d2;stroke-width:3.794;stroke-dasharray:none;stroke-opacity:1"
-       id="path4-9"
-       cx="169.80299"
-       cy="119.24275"
-       r="14.483801" />
   </g>
 </svg>

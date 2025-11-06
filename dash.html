@@ -94,19 +94,19 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=18.6"></script>
+    <script src="js/earthcal-init.js?v=22"></script>
 
     <!--Default Light Styles to load first-->
-    <link rel="preload" href="css/light.css?v=7.2" as="style" onload="this.rel='stylesheet'">
+    <link rel="preload" href="css/light.css?v=7.5" as="style" onload="this.rel='stylesheet'">
 
     <!--Stylesheets for light and dark mode.  They need to be called here-->
-    <link rel="stylesheet" href="css/light.css?v=7.36" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
-    <link rel="stylesheet" href="css/dark.css?v=7.35" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="css/light.css?v=7.6" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
+    <link rel="stylesheet" href="css/dark.css?v=7.7" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="css/slider.css?v=1.2">
 
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=11.6">
-    <link rel="stylesheet" href="css/login-styles.css?v=8.7">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=12.2">
+    <link rel="stylesheet" href="css/login-styles.css?v=8.71">
     <link rel="stylesheet" href="css/mini-mode.css?v=1">
 
     <!-- Inline styles current being experimented with-->
@@ -247,6 +247,8 @@
             displayDayInfo(targetDate, userLanguage, userTimeZone);
             if (userClock) openClock(userTimeZone);
         }
+
+
 
     </script>
 </HEAD>
@@ -430,7 +432,7 @@
         <div id="eye-icon"></div>
     </div>
 
-    <div id="header" class="top-menu" title="Earthcal v1.0.3" style="opacity:0">  <!-- Why 140px?-->
+    <div id="header" class="top-menu" title="Earthcal v1.0.4" style="opacity:0">  <!-- Why 140px?-->
         <div class="target-date-info" style="display: flex; flex-flow: column;max-width:95%;position:absolute;right:0;margin-top:10px;z-index:10;min-width:550px;pointer-events:none;">
             <div class="date-time-add-box" style="display:flex;flex-flow:row;margin-right:10px;height:77px;">
                 <div class="date-time-box" style="display:flex;flex-flow:column;text-align:right;margin:auto;margin-right: 5px; /*margin-top: 16px;">
@@ -616,7 +618,15 @@
 
     <!-- PALETTE MAIN BUTTONS -->
     <div id="bottom-left-buttons" class="icon-button-columns">
-        <button id="comet-button" class="cycle-toggle" data-show="comet-show" data-hide="planet-buttons kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
+        <button
+                id="comet-button"
+                class="cycle-toggle"
+                data-show="comet-show"
+                data-hide="planet-buttons kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase"
+                title="Activate 3I-Atlas Journey"
+                data-role="palette-root"
+                onclick="handleCometClick()">
+        </button>
 
         <button id="solarsystem-button" class="cycle-toggle" data-show="planet-buttons" data-hide="kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate Planet Cycles" data-role="palette-root"></button>
         <button id="whale-earthbutton" class="cycle-toggle" data-show="kin-buttons" data-hide="planet-buttons themoonphases americas-map euro-map moon-cycle moon-phase" title="Activate ecological cycles" data-role="palette-root"></button>
@@ -836,11 +846,43 @@
     });
 </script>
 
+<script>
+    function handleCometClick() {
+        const cometSystem = document.getElementById("comet_system");
+        if (!cometSystem) return;
+
+        // Make visible + prepare fade
+        cometSystem.style.display = "block";
+        cometSystem.style.opacity = "1";
+        cometSystem.style.transition = "opacity 1s ease";
+
+        // --- STEP 1: Wait 1 second visible ---
+        setTimeout(() => {
+            // --- STEP 2: Show alert ---
+            alert(
+                "Tracking the Interstellar Comet 3I-Atlas is available to Jedi EarthCal accounts.  The ability to upgrade your Padwan plan and follow the comet is coming soon to EarthCal.  Hold tight!"
+            );
+
+            // --- STEP 3: After 1s from alert dismissal, fade away ---
+            setTimeout(() => {
+                cometSystem.style.opacity = "0";
+
+                // After transition, hide
+                setTimeout(() => {
+                    cometSystem.style.display = "none";
+                }, 1000); // fade duration
+            }, 1000); // wait after alert
+        }, 1000); // initial visible time
+    }
+
+
+
+</script>
 
 <!-- FINAL LOADED SCRIPTS -->
 
 <script src="js/1-event-management.js?v=3.3"></script>
-<script src="js/kin-cycles.js?v=1"></script>
+<script src="js/kin-cycles.js?v=3"></script>
 
 
 

@@ -158,7 +158,7 @@ settings: {
         newsletter: "Earthen.io Newsletter",
         guide: "Calendar Guide ↗",
         purchasePrint: "Purchase Print ↗",
-        about: "About the Project ↗",
+        about: "Why EarthCal? ↗",
         darkModeToggle: "Switch Dark/Day themes",
         developedBy: "EarthCal is developed by",
         authBy: "Authentication by"

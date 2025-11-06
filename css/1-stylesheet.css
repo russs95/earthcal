@@ -2255,6 +2255,19 @@ margin: auto;
   display: none;
 }
 
+
+
+#comet-button  {
+    border: none;
+    margin:0 10px 20px 10px;
+    cursor:pointer;
+    height:30px;
+    width:30px;
+    padding: 8px;
+    z-index:30;
+    padding-bottom: 25px;
+}
+
 #solarsystem-button  {
   border: none; 
   margin:0 10px 15px 10px;

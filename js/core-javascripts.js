@@ -334,7 +334,7 @@ async function openMainMenu() {
             </div>
 
             <div class="menu-page-item">
-                <a href="https://guide.earthen.io/about" target="_blank">${mainMenu.about}</a>
+                <a href="https://earthen.io/cycles" target="_blank">${mainMenu.about}</a>
             </div>
 
             ${feedbackItemHtml}
@@ -563,8 +563,9 @@ async function manageEarthcalUserSub() {
     ];
 
     const jediFeatureList = [
+        'Track the interstellar comet 3I-Atlas',
         'Subscribe to Google calendars',
-        'Subscribe to Apple calendars (coming soon)',
+        'Subscribe to Apple calendars',
         'Subscribe to Outlook calendars (coming soon)',
         'Subscribe to public iCal feeds',
         'Toggle between Day and Night modes',
@@ -1623,3 +1624,37 @@ function guidedTour() {
   document.getElementById("back-5").onclick = () => showInfo(3);
   document.getElementById("back-6").onclick = () => showInfo(4);
 }
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const cometButton = document.getElementById("comet-button");
+    const cometSystem = document.getElementById("comet_system");
+
+    function showCometSystem() {
+        if (!cometSystem) return;
+
+        // ✅ Show the comet system layer
+        cometSystem.style.display = "block";
+
+        // ✅ Alert the user
+        alert(
+            "Tracking the Interstellar Comet 3I-Atlas is available to Jedi EarthCal accounts.  The ability to upgrade your Padwan plan and follow the comet is coming soon to EarthCal.  Hold tight!"
+        );
+
+        // ✅ Hide it again
+        cometSystem.style.display = "none";
+
+        // ✅ After 1s → send user to subscription manager
+        setTimeout(() => {
+            if (typeof manageEarthcalUserSub === "function") {
+                manageEarthcalUserSub();
+            }
+        }, 1000);
+    }
+
+    if (cometButton) {
+        cometButton.addEventListener("click", showCometSystem);
+    }
+});
