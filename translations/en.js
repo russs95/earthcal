@@ -65,8 +65,8 @@ export const translations = {
 
 //VERSION ANNOUNCEMENT
     versioning: {
-        title: "Introducing Earthcal v1.0.0!",
-        subtitle: "After 20 years of development, I am really excited to share the first production version of Earthcal.  For over two decades I've been trying to figure out how to do a calendar that truly captures and embodies Earthen cycles-- and was truly useful.  Version 1.0 incorporates a completely new database-- that is in full alignment with iCal specs.  This is the same database structure used by Google, Apple and Outlook.  That means that Earthcal now has all the potentially functionality of these platforms... and is fully compatible with them.  This means, corporate calendar users can now connect Earthcal to their legacy linear calendars and start using Earthcal to view their events within an cyclical frame.",
+        title: "Introducing Earthcal v1.0!",
+        subtitle: "After 10 years of development, I am really excited to share the first production version of Earthcal.  For over two decades I've been trying to figure out how to do a calendar that truly captures and embodies Earthen cycles-- and was truly useful.  Version 1.0 incorporates a completely new database-- that is in full alignment with iCal specs.  This is the same database structure used by Google, Apple and Outlook.  That means that Earthcal now has all the potentially functionality of these platforms... and is fully compatible with them.  This means, corporate calendar users can now connect Earthcal to their legacy linear calendars and start using Earthcal to view their events within an cyclical frame.",
         features: [
             "Get going with Earthcal using the Buwana authentication protocol",
             "Connect your Google Calendar to Earthcal (Beta)",

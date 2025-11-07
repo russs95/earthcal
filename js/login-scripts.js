@@ -835,6 +835,13 @@ function renderCalendarSelectionForm(calendars, {
                 <span class="cal-row-action-icon" aria-hidden="true"  style="background-image: var(--cal-row-add-icon-hover) !important;"></span>
             </div>
         </div>
+        <div class="cal-toggle-row cal-connect-outlook-row">
+            <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Outlook Calendar">
+                <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/outlook_logo" alt="" width="24" height="24"></span>
+                <span class="cal-row-name">Add Outlook Calendar</span>
+                <span class="cal-row-action-icon" aria-hidden="true"  style="background-image: var(--cal-row-add-icon-hover) !important;"></span>
+            </div>
+        </div>
     `;
 
         webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}${connectAppleRowHtml}`;

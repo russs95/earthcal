@@ -451,7 +451,7 @@ async function manageEarthcalUserSub() {
         setModalHtml(`
             <div class="ec-subscription-modal">
                 <h1>Upgrade EarthCal</h1>
-                <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
+                <p id="sales-pitch">The way we perceive and track our time determines our time on planet Earth. EarthCal enables a transition from the Imperial Roman paradigm of linear time, to the circular thinking of great cyclocentric civilizations. Our free EarthCal padwan plan gives you all you need to get going with EarthCal.  Upgrade to Jedi to support EarthCal and get access to bonus features.</p>
                 <p>Please sign in with your Buwana account to upgrade.</p>
                 <div id="modal-login-buttons" style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
                     <button id="modal-auth-login-button" class="login-button">Login with Buwana</button>
@@ -1013,6 +1013,63 @@ async function manageEarthcalUserSub() {
 }
 
 
+
+async function upgradeUserPlan() {
+    try {
+        // Determine which interval (month / year / lifetime) the user has selected
+        const activeInterval = document
+            .querySelector('.ec-plan-toggle')
+            ?.getAttribute('data-active-interval') || 'month';
+
+        const response = await fetch('../api/v1/create_checkout_session.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                buwana_id: getCurrentUser()?.buwana_id,
+                interval: activeInterval,     // "month" | "year" | "lifetime"
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data?.url) {
+            alert(data?.error || "Failed to start checkout.");
+            return;
+        }
+
+        // Redirect user to Stripe Checkout
+        window.location.href = data.url;
+
+    } catch (err) {
+        console.error(err);
+        alert("Could not start checkout — please try again.");
+    }
+}
+
+
+async function manageBilling() {
+    const user = getCurrentUser();
+    if (!user?.buwana_id) {
+        alert("Please log in first.");
+        return;
+    }
+
+    const res = await fetch('/api/v1/create_portal_session.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buwana_id: user.buwana_id })
+    });
+
+    const data = await res.json();
+
+    if (data?.url) {
+        window.location.href = data.url;
+    } else {
+        alert(data?.error || "Unable to open billing portal.");
+    }
+}
+
+
 function focusMainMenuRestrict(event) {
     const modal = document.getElementById("main-menu-overlay");
     if (modalOpen && !modal.contains(event.target)) {
@@ -1042,9 +1099,7 @@ document.addEventListener("keydown", modalCloseCurtains);
 
 
 
-function upgradeUserPlan() {
-    alert("We're still working on plan upgrading!  Don't worry, while we develop this, all user's have full access to Earthcal features.  Enjoy.");
-}
+
 
 let downgradeRequestPending = false;
 

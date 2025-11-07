@@ -6,7 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Configure the CORS policy so trusted surfaces (web app, beta app, local dev)
 // can call this endpoint directly from the browser.
 $allowedOrigins = [
-    'https://ecobricks.org',
+
     'https://earthcal.app',
     'https://beta.earthcal.app',
     'http://localhost',

@@ -296,7 +296,6 @@ function updateStorkCycle(targetDate) {
 
 // Declare the global variable startPercentage
 let startPercentage = 0;
-alert('Whale Animation should run!');
 // Function to animate the stork cycle
 function animateStorkCycle(journeyPercentage) {
   let storkMarkerElement = document.getElementById("stork-marker");
@@ -383,64 +382,176 @@ function animateStorkCycle(journeyPercentage) {
 
 
 
+//
+// function animateWhaleCycle(date) {
+//   const whaleMarkerElement = document.getElementById("whale-marker");
+//   const whalePathElement = document.getElementById("whale-year-cycle");
+//     // alert('Whale Animation should run!');
+//   if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
+//     return;
+//   }
+//
+//   const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
+//   if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
+//     return;
+//   }
+//
+//   const yearStart = new Date(target.getFullYear(), 0, 1);
+//   const millisecondsPerDay = 1000 * 60 * 60 * 24;
+//
+//   const hasValidStartDate = startDate instanceof Date && !Number.isNaN(startDate.getTime());
+//   const animationStartDate = (hasValidStartDate && startDate.getTime() !== target.getTime())
+//     ? startDate
+//     : yearStart;
+//
+//   const startOffpoint = animationStartDate - yearStart;
+//   const daysToTargetDate = target - animationStartDate;
+//   const totalDays = startOffpoint + daysToTargetDate;
+//   const realDaysToTargetDate = Math.abs(daysToTargetDate) / millisecondsPerDay;
+//
+//   const targetAngle = (startOffpoint) / (millisecondsPerDay * 365) * 360;
+//   const targetAngle2 = (totalDays) / (millisecondsPerDay * 365) * 360;
+//
+//   let duration;
+//   if (realDaysToTargetDate < 30) {
+//     duration = 1;
+//   } else if (realDaysToTargetDate < 60) {
+//     duration = 2;
+//   } else if (realDaysToTargetDate < 120) {
+//     duration = 3;
+//   } else if (realDaysToTargetDate < 180) {
+//     duration = 4;
+//   } else if (realDaysToTargetDate <= 366) {
+//     duration = 5; // Example: set a default for the max range
+//   } else {
+//     duration = 6; // Default duration if daysToTargetDate is out of expected range
+//   }
+//
+//   gsap.to(whaleMarkerElement, {
+//     motionPath: {
+//       path: whalePathElement,
+//       align: whalePathElement,
+//       start: targetAngle / 360,
+//       end: targetAngle2 / 360,
+//       alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the whale-marker
+//       autoRotate: true, // Enable auto-rotation along the path
+//     },
+//     duration: duration, // Use the calculated duration
+//     ease: "linear",
+//   });
+// }
 
 function animateWhaleCycle(date) {
-  const whaleMarkerElement = document.getElementById("whale-marker");
-  const whalePathElement = document.getElementById("whale-year-cycle");
-    alert('Whale Animation should run!');
-  if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
-    return;
-  }
+    console.log("▶️ animateWhaleCycle() called with:", date);
 
-  const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
-  if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
-    return;
-  }
+    const whaleMarkerElement = document.getElementById("whale-marker");
+    const whalePathElement = document.getElementById("whale-year-cycle");
 
-  const yearStart = new Date(target.getFullYear(), 0, 1);
-  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    // Check GSAP
+    if (typeof gsap === "undefined") {
+        console.warn("❌ GSAP is NOT loaded!");
+    } else {
+        console.log("✅ GSAP loaded");
+    }
 
-  const hasValidStartDate = startDate instanceof Date && !Number.isNaN(startDate.getTime());
-  const animationStartDate = (hasValidStartDate && startDate.getTime() !== target.getTime())
-    ? startDate
-    : yearStart;
+    // Validate SVG elements
+    if (!whaleMarkerElement) {
+        console.warn("❌ whaleMarkerElement (#whale-marker) not found!");
+    } else {
+        console.log("✅ Found whale-marker element");
+    }
 
-  const startOffpoint = animationStartDate - yearStart;
-  const daysToTargetDate = target - animationStartDate;
-  const totalDays = startOffpoint + daysToTargetDate;
-  const realDaysToTargetDate = Math.abs(daysToTargetDate) / millisecondsPerDay;
+    if (!whalePathElement) {
+        console.warn("❌ whalePathElement (#whale-year-cycle) not found!");
+    } else {
+        console.log("✅ Found whale-year-cycle element");
+    }
 
-  const targetAngle = (startOffpoint) / (millisecondsPerDay * 365) * 360;
-  const targetAngle2 = (totalDays) / (millisecondsPerDay * 365) * 360;
+    if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
+        console.warn("⚠️ Exiting: missing dependencies");
+        return;
+    }
 
-  let duration;
-  if (realDaysToTargetDate < 30) {
-    duration = 1;
-  } else if (realDaysToTargetDate < 60) {
-    duration = 2;
-  } else if (realDaysToTargetDate < 120) {
-    duration = 3;
-  } else if (realDaysToTargetDate < 180) {
-    duration = 4;
-  } else if (realDaysToTargetDate <= 366) {
-    duration = 5; // Example: set a default for the max range
-  } else {
-    duration = 6; // Default duration if daysToTargetDate is out of expected range
-  }
+    // Validate date
+    const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
+    console.log("🕒 Computed target date:", target);
 
-  gsap.to(whaleMarkerElement, {
-    motionPath: {
-      path: whalePathElement,
-      align: whalePathElement,
-      start: targetAngle / 360,
-      end: targetAngle2 / 360,
-      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the whale-marker
-      autoRotate: true, // Enable auto-rotation along the path
-    },
-    duration: duration, // Use the calculated duration
-    ease: "linear",
-  });
+    if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
+        console.warn("❌ Invalid target date:", target);
+        return;
+    }
+
+    // Compute positions
+    const yearStart = new Date(target.getFullYear(), 0, 1);
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+    const hasValidStartDate =
+        startDate instanceof Date && !Number.isNaN(startDate.getTime());
+
+    const animationStartDate =
+        (hasValidStartDate && startDate.getTime() !== target.getTime())
+            ? startDate
+            : yearStart;
+
+    console.log("📅 yearStart:", yearStart);
+    console.log("📅 animationStartDate:", animationStartDate);
+
+    const startOffpoint = animationStartDate - yearStart;
+    const daysToTargetDate = target - animationStartDate;
+    const totalDays = startOffpoint + daysToTargetDate;
+    const realDaysToTargetDate = Math.abs(daysToTargetDate) / millisecondsPerDay;
+
+    console.log("🔢 startOffpoint (ms):", startOffpoint);
+    console.log("🔢 daysToTargetDate (ms):", daysToTargetDate);
+    console.log("🔢 totalDays (ms):", totalDays);
+    console.log("🔢 realDaysToTargetDate (days):", realDaysToTargetDate);
+
+    // Angles
+    const targetAngle = (startOffpoint) / (millisecondsPerDay * 365) * 360;
+    const targetAngle2 = (totalDays) / (millisecondsPerDay * 365) * 360;
+
+    console.log("🎯 targetAngle:", targetAngle);
+    console.log("🎯 targetAngle2:", targetAngle2);
+    console.log("➡️ normalized start:", targetAngle / 360);
+    console.log("➡️ normalized end:", targetAngle2 / 360);
+
+    // Duration logic
+    let duration;
+    if (realDaysToTargetDate < 30) {
+        duration = 1;
+    } else if (realDaysToTargetDate < 60) {
+        duration = 2;
+    } else if (realDaysToTargetDate < 120) {
+        duration = 3;
+    } else if (realDaysToTargetDate < 180) {
+        duration = 4;
+    } else if (realDaysToTargetDate <= 366) {
+        duration = 5;
+    } else {
+        duration = 6;
+    }
+
+    console.log("⏱ duration chosen:", duration);
+
+    // Animation
+    console.log("🚀 Starting GSAP motion tween…");
+    gsap.to(whaleMarkerElement, {
+        motionPath: {
+            path: whalePathElement,
+            align: whalePathElement,
+            start: targetAngle / 360,
+            end: targetAngle2 / 360,
+            alignOrigin: [0.5, 0.5],
+            autoRotate: true,
+        },
+        duration,
+        ease: "linear",
+        onStart: () => console.log("✅ GSAP: animation started"),
+        onUpdate: () => console.log("🔄 GSAP: updating…"),
+        onComplete: () => console.log("🏁 GSAP: animation complete"),
+    });
 }
+
 
 
 //show the planet info when their orbit is clicked
