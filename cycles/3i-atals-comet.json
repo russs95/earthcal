@@ -1,0 +1,108 @@
+[
+    {
+        "date": "01-01-2025",
+        "dist_to_earth": "11.616 AU",
+        "event_title": "Approaching Jupiter's orbit",
+        "event_description": "3I-Atlas entering inner solar system",
+        "event_url": "",
+        "event_img": "",
+        "event_emoji": "🪐"
+    },
+
+    [
+        {
+            "date": "2025-05-07",
+            "dist_to_earth": "≈6.35 AU",
+            "event_title": "Precovery Images Identified",
+            "event_description": "Archival data from TESS show 3I/ATLAS was present and possibly active before its official discovery. :contentReference[oaicite:1]{index=1}",
+            "event_url": "https://www.universetoday.com/articles/tess-spotted-3iatlas-two-months-before-it-was-discovered-it-was-even-active-then/",
+            "event_img": "",
+            "event_emoji": "🗃️"
+        },
+        {
+            "date": "2025-07-01",
+            "dist_to_earth": "≈4.5 AU",
+            "event_title": "Discovery by ATLAS",
+            "event_description": "The ATLAS survey in Chile first reported the interstellar comet. :contentReference[oaicite:2]{index=2}",
+            "event_url": "https://science.nasa.gov/blogs/planetary-defense/2025/07/02/nasa-discovers-interstellar-comet-moving-through-solar-system/",
+            "event_img": "",
+            "event_emoji": "🔭"
+        },
+        {
+            "date": "2025-07-21",
+            "dist_to_earth": "≈4.2 AU",
+            "event_title": "First Hubble Imaging",
+            "event_description": "Hubble Space Telescope captured sharp images permitting nucleus size constraints. :contentReference[oaicite:3]{index=3}",
+            "event_url": "https://science.nasa.gov/missions/hubble/as-nasa-missions-study-interstellar-comet-hubble-makes-size-estimate/",
+            "event_img": "",
+            "event_emoji": "🛰️"
+        },
+        {
+            "date": "2025-08-02",
+            "dist_to_earth": "≈3.8 AU",
+            "event_title": "Sun-Facing Jet Detected",
+            "event_description": "Ground-based imagery shows a prominent jet pointing toward the Sun, indicating strong outgassing. :contentReference[oaicite:4]{index=4}",
+            "event_url": "https://www.livescience.com/space/comets/new-images-of-interstellar-object-3i-atlas-show-giant-jet-shooting-toward-the-sun/",
+            "event_img": "",
+            "event_emoji": "💨"
+        },
+        {
+            "date": "2025-08-27",
+            "dist_to_earth": "≈3.1 AU",
+            "event_title": "Gemini Deep Imaging",
+            "event_description": "Gemini South Observatory obtains deep exposures of the tail and coma structure. :contentReference[oaicite:5]{index=5}",
+            "event_url": "https://www.nsf.gov/news/interstellar-comet-3iatlas-observed-nsf-funded-gemini-north",
+            "event_img": "",
+            "event_emoji": "🌠"
+        },
+        {
+            "date": "2025-09-08",
+            "dist_to_earth": "≈2.6 AU",
+            "event_title": "Comet Activity Increases",
+            "event_description": "Brightness and tail length increase significantly as the comet approaches the Sun. :contentReference[oaicite:6]{index=6}",
+            "event_url": "https://arxiv.org/abs/2510.18769",
+            "event_img": "",
+            "event_emoji": "📈"
+        },
+        {
+            "date": "2025-10-03",
+            "dist_to_earth": "≈1.9 AU",
+            "event_title": "Closest to Mars (~0.19 AU)",
+            "event_description": "3I/ATLAS makes its closest pass to Mars, providing excellent observational geometry. :contentReference[oaicite:7]{index=7}",
+            "event_url": "https://apnews.com/article/b9df6568efee22c02b722a87377d30db",
+            "event_img": "",
+            "event_emoji": "👀"
+        },
+        {
+            "date": "2025-10-29",
+            "dist_to_earth": "≈1.4 AU",
+            "event_title": "Perihelion (~1.36–1.40 AU)",
+            "event_description": "Comet reaches its closest approach to the Sun; inner solar system max activity. :contentReference[oaicite:8]{index=8}",
+            "event_url": "https://www.space.com/astronomy/comets/you-wont-see-interstellar-comet-3i-atlas-zoom-closest-to-the-sun-on-oct-30-but-these-spacecraft-will",
+            "event_img": "",
+            "event_emoji": "☀️"
+        },
+        {
+            "date": "2025-12-19",
+            "dist_to_earth": "≈1.8 AU",
+            "event_title": "Closest to Earth (~1.8 AU)",
+            "event_description": "Safest/closest approach to Earth; large-aperture instruments are active. :contentReference[oaicite:9]{index=9}",
+            "event_url": "https://science.nasa.gov/solar-system/comets/3i-atlas/",
+            "event_img": "",
+            "event_emoji": "🌍"
+        },
+        {
+            "date": "2025-12-28",
+            "dist_to_earth": "≈1.0 AU (estimated outbound)",
+            "event_title": "Earth Orbit Crossing (Outbound)",
+            "event_description": "Estimated outward crossing of Earth’s ~1 AU orbital distance as the comet leaves the inner solar system.",
+            "event_url": "",
+            "event_img": "",
+            "event_emoji": "🌏"
+        }
+    ]
+
+
+
+
+]

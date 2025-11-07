@@ -296,7 +296,7 @@ function updateStorkCycle(targetDate) {
 
 // Declare the global variable startPercentage
 let startPercentage = 0;
-
+alert('Whale Animation should run!');
 // Function to animate the stork cycle
 function animateStorkCycle(journeyPercentage) {
   let storkMarkerElement = document.getElementById("stork-marker");
@@ -324,61 +324,61 @@ function animateStorkCycle(journeyPercentage) {
     }
   });
 }
-
-function animateStorkCycle() {
-  // Get the HTML element for the stork marker and the path element
-  let storkMarkerElement = document.getElementById("stork-marker");
-  let storkPathElement = document.getElementById("stork-year-cycle");
-  // Define the start of the year for reference
-  let yearStart = new Date(2025, 0, 1);
-
-  // Calculate the offset from the start date to the year start
-  let startOffpoint = startDate - yearStart;
-
-  // Calculate the difference in days to the target date
-  let daysToTargetDate = targetDate - startDate;
-
-  // Total days from the year start to the target date
-  let totalDays = startOffpoint + daysToTargetDate;
-
-  // Calculate the absolute difference in days for the target date
-  let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
-
-  // Calculate the target angle for the stork marker's motion path
-  let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
-  let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
-
-  // Determine the animation duration based on the real days to the target date
-  let duration;
-  if (RealdaysToTargetDate < 30) {
-    duration = 1;
-  } else if (RealdaysToTargetDate < 60) {
-    duration = 2;
-  } else if (RealdaysToTargetDate < 120) {
-    duration = 3;
-  } else if (RealdaysToTargetDate < 180) {
-    duration = 4;
-  // Add more conditions as needed
-  } else if (RealdaysToTargetDate <= 366) {
-    duration = 5; // Example: set a default for the max range
-  } else {
-    duration = 6; // Default duration if daysToTargetDate is out of expected range
-  }
-
-  // Use GSAP to animate the stork marker along the path
-  gsap.to(storkMarkerElement, {
-    motionPath: {
-      path: storkPathElement,
-      align: storkPathElement,
-      start: targetAngle / 360,
-      end: targetAngle2 / 360,
-      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
-      autoRotate: true, // Enable auto-rotation along the path
-    },
-    duration: duration, // Use the calculated duration
-    ease: "linear", // Use linear easing for smooth animation
-  });
-}
+//
+// function animateStorkCycle() {
+//   // Get the HTML element for the stork marker and the path element
+//   let storkMarkerElement = document.getElementById("stork-marker");
+//   let storkPathElement = document.getElementById("stork-year-cycle");
+//   // Define the start of the year for reference
+//   let yearStart = new Date(2025, 0, 1);
+//
+//   // Calculate the offset from the start date to the year start
+//   let startOffpoint = startDate - yearStart;
+//
+//   // Calculate the difference in days to the target date
+//   let daysToTargetDate = targetDate - startDate;
+//
+//   // Total days from the year start to the target date
+//   let totalDays = startOffpoint + daysToTargetDate;
+//
+//   // Calculate the absolute difference in days for the target date
+//   let RealdaysToTargetDate = Math.abs(targetDate - startDate) / (1000 * 60 * 60 * 24);
+//
+//   // Calculate the target angle for the stork marker's motion path
+//   let targetAngle = (startOffpoint) / (1000 * 60 * 60 * 24 * 365) * 360;
+//   let targetAngle2 = (totalDays) / (1000 * 60 * 60 * 24 * 365) * 360;
+//
+//   // Determine the animation duration based on the real days to the target date
+//   let duration;
+//   if (RealdaysToTargetDate < 30) {
+//     duration = 1;
+//   } else if (RealdaysToTargetDate < 60) {
+//     duration = 2;
+//   } else if (RealdaysToTargetDate < 120) {
+//     duration = 3;
+//   } else if (RealdaysToTargetDate < 180) {
+//     duration = 4;
+//   // Add more conditions as needed
+//   } else if (RealdaysToTargetDate <= 366) {
+//     duration = 5; // Example: set a default for the max range
+//   } else {
+//     duration = 6; // Default duration if daysToTargetDate is out of expected range
+//   }
+//
+//   // Use GSAP to animate the stork marker along the path
+//   gsap.to(storkMarkerElement, {
+//     motionPath: {
+//       path: storkPathElement,
+//       align: storkPathElement,
+//       start: targetAngle / 360,
+//       end: targetAngle2 / 360,
+//       alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
+//       autoRotate: true, // Enable auto-rotation along the path
+//     },
+//     duration: duration, // Use the calculated duration
+//     ease: "linear", // Use linear easing for smooth animation
+//   });
+// }
 
 
 
@@ -387,7 +387,7 @@ function animateStorkCycle() {
 function animateWhaleCycle(date) {
   const whaleMarkerElement = document.getElementById("whale-marker");
   const whalePathElement = document.getElementById("whale-year-cycle");
-
+    alert('Whale Animation should run!');
   if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
     return;
   }
