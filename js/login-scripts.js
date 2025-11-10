@@ -664,6 +664,7 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+                const safeCalendarName = escapeHtml(cal?.name || 'Untitled Calendar');
                 const isActive = normalizeCalendarActiveValue(cal?.is_active);
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
@@ -675,10 +676,10 @@ function renderCalendarSelectionForm(calendars, {
                 const rowId = `cal-row-${rowKey}`;
 
                 return `
-                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}">
+                <div class="cal-toggle-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" data-calendar-name="${safeCalendarName}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji" data-emoji="${escapeHtml(emoji)}" aria-hidden="true"></span>
-                        <span class="cal-row-name">${escapeHtml(cal?.name || 'Untitled Calendar')}</span>
+                        <span class="cal-row-name">${safeCalendarName}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
                             <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
@@ -691,6 +692,7 @@ function renderCalendarSelectionForm(calendars, {
                         <div class="cal-row-actions">
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${cal.calendar_id})" aria-label="Edit calendar">✏️</button>
+                            <button type="button" class="cal-row-action" onclick="event.stopPropagation(); exportUserCalendar2ICS(${cal.calendar_id}, this)" aria-label="Download calendar as ICS" title="Download calendar as ICS">💾</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${cal.calendar_id}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
                         </div>
                     </div>
@@ -773,6 +775,7 @@ function renderCalendarSelectionForm(calendars, {
                 const subscriptionIdValue = cal?.subscription_id != null ? String(cal.subscription_id) : '';
                 const safeCalendarId = escapeHtml(calendarIdValue);
                 const safeSubscriptionId = escapeHtml(subscriptionIdValue);
+                const safeCalendarName = escapeHtml(cal?.name || providerName);
                 const isActive = normalizeCalendarActiveValue(cal?.is_active);
                 const checkedAttr = isActive ? 'checked' : '';
                 const activeState = isActive ? 'true' : 'false';
@@ -791,11 +794,16 @@ function renderCalendarSelectionForm(calendars, {
                     ? `<button type="button" class="cal-row-action cal-row-sync-button" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" aria-label="Sync calendar" title="Sync calendar">🔃</button>`
                     : '';
 
+                const canExport = Number.isFinite(calendarIdNum) && calendarIdNum > 0;
+                const exportButtonHtml = canExport
+                    ? `<button type="button" class="cal-row-action" onclick="event.stopPropagation(); exportUserCalendar2ICS(${calendarIdNum}, this)" aria-label="Download calendar as ICS" title="Download calendar as ICS">💾</button>`
+                    : '';
+
                 return `
-                <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}">
+                <div class="cal-toggle-row cal-webcal-row" id="${rowId}" data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-provider="${safeProvider}" data-calendar-name="${safeCalendarName}">
                     <div class="cal-row-summary" onclick="toggleCalDetails('${rowId}')">
                         <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="${providerIcon}" alt="${escapeHtml(providerAlt)}" width="${providerIconSize}" height="${providerIconSize}"></span>
-                        <span class="cal-row-name">${escapeHtml(cal?.name || providerName)}</span>
+                        <span class="cal-row-name">${safeCalendarName}</span>
                         <label class="toggle-switch cal-row-toggle" onclick="event.stopPropagation();"${toggleStyle}>
                             <input type="checkbox" aria-label="Toggle calendar visibility" ${checkedAttr} data-calendar-id="${safeCalendarId}" data-source-type="${sourceType}" data-subscription-id="${safeSubscriptionId}" data-active="${activeState}" data-cal-color="${safeCalColor}" data-provider="${safeProvider}" onchange="toggleV1CalVisibility(this)">
                             <span class="toggle-slider"></span>
@@ -809,6 +817,7 @@ function renderCalendarSelectionForm(calendars, {
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); collapseCalDetails('${rowId}')" aria-label="Collapse calendar details">⬆️</button>
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); editV1cal(${editCalendarId})" aria-label="Edit calendar">✏️</button>
                             ${syncButtonHtml}
+                            ${exportButtonHtml}
                             <button type="button" class="cal-row-action" onclick="event.stopPropagation(); deleteV1cal(${deleteCalendarId}, ${cal.is_default ? 'true' : 'false'})" aria-label="Delete calendar" title="Delete calendar">🗑️</button>
                         </div>
                     </div>
@@ -835,6 +844,9 @@ function renderCalendarSelectionForm(calendars, {
                 <span class="cal-row-action-icon" aria-hidden="true"  style="background-image: var(--cal-row-add-icon-hover) !important;"></span>
             </div>
         </div>
+    `;
+
+        const connectOutlookRowHtml = `
         <div class="cal-toggle-row cal-connect-outlook-row">
             <div class="cal-row-summary" role="button" tabindex="0" aria-label="Add Outlook Calendar">
                 <span class="cal-row-emoji cal-row-icon" aria-hidden="true"><img src="assets/icons/outlook_logo.png" alt="" width="24" height="24"></span>
@@ -844,7 +856,7 @@ function renderCalendarSelectionForm(calendars, {
         </div>
     `;
 
-        webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}${connectAppleRowHtml}`;
+        webcalForm.innerHTML = `${webcalRowsHtml}${connectGoogleRowHtml}${connectAppleRowHtml}${connectOutlookRowHtml}`;
 
         const webcalIntroEl = document.getElementById('webcal-intro-text');
         if (webcalIntroEl) {
@@ -885,6 +897,24 @@ function renderCalendarSelectionForm(calendars, {
             appleSummary.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
                     handleAppleConnect(event);
+                }
+            });
+        }
+
+        const outlookSummary = webcalForm.querySelector('.cal-connect-outlook-row .cal-row-summary');
+        if (outlookSummary) {
+            const handleOutlookConnect = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof connectOutlookCalendar === 'function') {
+                    connectOutlookCalendar();
+                }
+            };
+
+            outlookSummary.addEventListener('click', handleOutlookConnect);
+            outlookSummary.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space') {
+                    handleOutlookConnect(event);
                 }
             });
         }
@@ -1551,6 +1581,80 @@ function connectAppleCalendar() {
 
 if (typeof window !== 'undefined') {
     window.connectAppleCalendar = connectAppleCalendar;
+}
+
+function openOutlookCalendarConnectModal() {
+    const modal = document.getElementById('form-modal-message');
+    const modalContent = document.getElementById('modal-content');
+
+    if (!modal || !modalContent) {
+        console.warn('[OutlookCalendar] Modal container not available.');
+        return;
+    }
+
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    document.body.style.overflowY = 'hidden';
+
+    modalContent.innerHTML = `
+        <div class="add-date-form" style="margin:auto;text-align:center;">
+            <img src="assets/icons/outlook_logo.png" alt="" width="52" height="52" aria-hidden="true" style="display:block;margin:0 auto 12px;">
+            <h3 class="ec-form-title">Paste the Outlook calendar ICS link you want to sync with Earthcal.</h3>
+            <form id="ec-outlook-calendar-form" autocomplete="off" style="display:flex;flex-direction:column;gap:10px;">
+                <label class="ec-visually-hidden" for="ec-outlook-calendar-url">Outlook Calendar URL</label>
+                <input id="ec-outlook-calendar-url" type="url" name="outlook_calendar_url" required
+                       placeholder="https://outlook.office365.com/.../calendar.ics"
+                       class="blur-form-field" style="text-align:left;">
+                <button type="submit" class="stellar-submit" style="background-color:#0078d4;color:#fff;">Connect</button>
+                <p id="ec-outlook-calendar-feedback" aria-live="polite" style="margin:0;color:#0078d4;font-size:0.9rem;min-height:1.2em;"></p>
+                <div id="ec-outlook-calendar-instructions" style="text-align:left;font-size:0.85rem;color:var(--subdued-text,#4b5563);">
+                    <p style="margin:0 0 8px;">
+                        In Outlook on the web, open <strong>Settings</strong> → <strong>View all Outlook settings</strong> → <strong>Calendar</strong> → <strong>Shared calendars</strong>.
+                        Under <strong>Publish a calendar</strong>, choose your calendar, select <em>Can view all details</em>, publish it, and copy the <strong>ICS link</strong> shown.
+                    </p>
+                    <p style="margin:0;">
+                        From the Outlook desktop app you can go to <strong>File → Save Calendar</strong> and choose <code>.ics</code> to export. Upload that file to a public location and paste its link above to keep it in sync.
+                    </p>
+                </div>
+            </form>
+        </div>
+    `;
+
+    const form = document.getElementById('ec-outlook-calendar-form');
+    const feedbackEl = document.getElementById('ec-outlook-calendar-feedback');
+    if (feedbackEl) {
+        feedbackEl.textContent = '';
+    }
+    if (form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const urlInput = document.getElementById('ec-outlook-calendar-url');
+            const calendarUrl = urlInput ? urlInput.value.trim() : '';
+
+            if (typeof connectOutlookCal === 'function') {
+                connectOutlookCal(calendarUrl, { form, submitButton, feedbackElement: feedbackEl });
+            } else {
+                console.warn('[OutlookCalendar] connectOutlookCal is not defined.');
+            }
+        });
+    }
+
+    const urlField = document.getElementById('ec-outlook-calendar-url');
+    if (urlField) {
+        urlField.focus();
+        if (typeof urlField.select === 'function') {
+            urlField.select();
+        }
+    }
+}
+
+function connectOutlookCalendar() {
+    openOutlookCalendarConnectModal();
+}
+
+if (typeof window !== 'undefined') {
+    window.connectOutlookCalendar = connectOutlookCalendar;
 }
 
 
@@ -2272,6 +2376,114 @@ async function deleteV1cal(calendarId, isDefault = false) {
         alert('Something went wrong while deleting the calendar. Please try again.');
         setSyncStatus("⚠️ Calendar deletion failed.");
     }
+}
+
+async function exportUserCalendar2ICS(calendarId, triggerButton = null) {
+    const normalizedId = Number.parseInt(calendarId, 10);
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+        console.warn('[exportUserCalendar2ICS] Invalid calendar id', calendarId);
+        return;
+    }
+
+    const confirmMessage = 'Would you like to download this calendar as an ICS file? It can then be used with other calendar programs.';
+    const confirmed = window.confirm(confirmMessage);
+    if (!confirmed) {
+        return;
+    }
+
+    const { isLoggedIn: isUserLoggedIn, payload } = isLoggedIn({ returnPayload: true });
+    if (!isUserLoggedIn || !payload?.buwana_id) {
+        alert('You must be logged in to export your calendar.');
+        return;
+    }
+
+    const button = triggerButton instanceof HTMLElement ? triggerButton : null;
+    const originalButtonText = button?.textContent;
+    if (button) {
+        button.disabled = true;
+        button.textContent = '…';
+    }
+
+    const escapeSelector = (value) => {
+        const stringValue = (value || '').toString();
+        if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+            return CSS.escape(stringValue);
+        }
+        return stringValue.replace(/"/g, '\\"');
+    };
+
+    const findRow = () => {
+        if (button) {
+            const row = button.closest('.cal-toggle-row');
+            if (row) return row;
+        }
+        return document.querySelector(`.cal-toggle-row[data-calendar-id="${escapeSelector(String(normalizedId))}"]`);
+    };
+
+    const rowElement = findRow();
+    const rawName = rowElement?.dataset?.calendarName || rowElement?.querySelector('.cal-row-name')?.textContent || 'EarthCal Calendar';
+    const slugify = (value) => {
+        const safe = (value || '').toString().trim().toLowerCase();
+        if (!safe) return 'earthcal-calendar';
+        return safe
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            || 'earthcal-calendar';
+    };
+
+    if (typeof setSyncStatus === 'function') {
+        setSyncStatus('Preparing your ICS download…', '💾', true, { temporary: true, duration: 5000 });
+    }
+
+    try {
+        const response = await fetch('/api/v1/export_user_ics.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                buwana_id: payload.buwana_id,
+                calendar_id: normalizedId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const headerName = response.headers.get('X-Calendar-Filename');
+        const suggestedName = headerName || `${slugify(rawName)}-${normalizedId}.ics`;
+
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+
+        if (typeof setSyncStatus === 'function') {
+            setSyncStatus('💾 Calendar export ready!', '', false, { temporary: true, duration: 3500 });
+        }
+    } catch (error) {
+        console.error('[exportUserCalendar2ICS] Failed to export calendar', error);
+        alert('We could not export your calendar right now. Please try again later.');
+        if (typeof setSyncStatus === 'function') {
+            setSyncStatus('⚠️ Failed to export calendar.', '', false, { temporary: true, duration: 4000 });
+        }
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = originalButtonText || '💾';
+        }
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.exportUserCalendar2ICS = exportUserCalendar2ICS;
 }
 
 
