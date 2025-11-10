@@ -245,9 +245,129 @@ function connectAppleCal(calendarUrl, options = {}) {
     .finally(handleDone);
 }
 
+function connectOutlookCal(calendarUrl, options = {}) {
+  const { submitButton, feedbackElement } = options || {};
+  const trimmedUrl = (calendarUrl || '').trim();
+
+  const applyFeedback = (message, tone = 'neutral') => {
+    if (!feedbackElement) {
+      if (message) {
+        console.info('[connectOutlookCal]', message);
+      }
+      return;
+    }
+
+    feedbackElement.textContent = message || '';
+    if (!message) {
+      feedbackElement.style.color = '#0078d4';
+      return;
+    }
+
+    switch (tone) {
+      case 'success':
+        feedbackElement.style.color = '#0b7bcc';
+        break;
+      case 'info':
+        feedbackElement.style.color = '#0078d4';
+        break;
+      default:
+        feedbackElement.style.color = '#b3261e';
+    }
+  };
+
+  if (!trimmedUrl) {
+    applyFeedback('Please paste a public Outlook calendar link.', 'error');
+    return;
+  }
+
+  if (submitButton) {
+    submitButton.dataset.originalText = submitButton.dataset.originalText || submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Checking…';
+  }
+
+  const form = options.form;
+  if (form) {
+    form.classList.add('is-loading');
+  }
+
+  const handleDone = () => {
+    if (submitButton) {
+      const original = submitButton.dataset.originalText || 'Connect';
+      submitButton.disabled = false;
+      submitButton.textContent = original;
+    }
+    if (form) {
+      form.classList.remove('is-loading');
+    }
+  };
+
+  const errorMessages = {
+    ical_url_required: 'Please paste a calendar link before connecting.',
+    fetch_failed: 'We could not reach that calendar. Double-check the URL and try again.',
+    not_ical: 'This link does not appear to be a valid calendar feed.',
+    invalid_method: 'Server rejected the request. Please try again.',
+    cors_denied: 'This calendar source is not allowed.',
+  };
+
+  fetch('/api/v1/grab_ical_basics.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ ical_url: trimmedUrl })
+  })
+    .then(async (res) => {
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data?.ok) {
+        const errorKey = data?.error;
+        const detail = typeof data?.detail === 'string' ? data.detail : '';
+        const baseMessage = errorMessages[errorKey] || 'Unable to verify that calendar feed.';
+        const combinedMessage = detail ? `${baseMessage} (${detail})` : baseMessage;
+        applyFeedback(combinedMessage, 'error');
+        return;
+      }
+
+      applyFeedback('Feed verified! Preparing your calendar…', 'success');
+
+      const meta = {
+        ...data,
+        ical_url: data.ical_url || trimmedUrl,
+        provider: 'outlook'
+      };
+
+      console.log('[connectOutlookCal] Received feed metadata:', meta);
+
+      if (typeof closeTheModal === 'function') {
+        try {
+          closeTheModal();
+        } catch (err) {
+          console.debug('[connectOutlookCal] closeTheModal failed:', err);
+        }
+      }
+
+      const hostElement = document.getElementById('logged-in-view') || document.body;
+      if (typeof addNewiCal === 'function') {
+        try {
+          addNewiCal({ hostTarget: hostElement, meta, icalUrl: meta.ical_url });
+        } catch (err) {
+          console.error('[connectOutlookCal] addNewiCal failed:', err);
+        }
+      } else {
+        console.warn('[connectOutlookCal] addNewiCal is not defined.');
+      }
+    })
+    .catch((err) => {
+      console.error('[connectOutlookCal] Network error:', err);
+      applyFeedback('Network error — unable to reach the calendar server.', 'error');
+    })
+    .finally(handleDone);
+}
+
 if (typeof window !== 'undefined') {
   window.connectGcal = connectGcal;
   window.connectAppleCal = connectAppleCal;
+  window.connectOutlookCal = connectOutlookCal;
 }
 
 
@@ -315,7 +435,9 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
         ? '#0a84ff'
         : providerKey === 'google'
             ? '#d93025'
-            : '#3b82f6';
+            : providerKey === 'outlook'
+                ? '#0078d4'
+                : '#3b82f6';
     const defaultColor = sanitizeHexColor(providerAccent, providerAccent);
     const normalizedUrl = sanitizeUrl(meta?.ical_url || icalUrl) || (meta?.ical_url || icalUrl || '');
     const safeTitle = escapeHTML(feedTitle);
