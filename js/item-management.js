@@ -1598,7 +1598,7 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
 
     const form = overlay.querySelector('#ec-edit-calendar-form');
     if (form instanceof HTMLFormElement) {
-        const handleSubmit = (event) => {
+        const handleSubmit = async (event) => {
             event.preventDefault();
 
             const nameValue = (nameField?.value || '').toString().trim();
@@ -1650,6 +1650,70 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
             const proceed = document.dispatchEvent(editEvent);
 
             if (!proceed) {
+                return;
+            }
+
+            if (!Number.isFinite(normalizedCalendarId) || normalizedCalendarId <= 0) {
+                if (feedbackEl) {
+                    feedbackEl.textContent = 'We could not determine which calendar to update.';
+                }
+                return;
+            }
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton?.textContent || '💾 Save Calendar';
+            const setButtonState = (disabled, label) => {
+                if (!(submitButton instanceof HTMLButtonElement)) return;
+                submitButton.disabled = disabled;
+                if (typeof label === 'string') {
+                    submitButton.textContent = label;
+                }
+            };
+
+            setButtonState(true, 'Saving…');
+
+            const { isLoggedIn: isUserLoggedIn, payload } = typeof isLoggedIn === 'function'
+                ? isLoggedIn({ returnPayload: true })
+                : { isLoggedIn: false, payload: null };
+
+            if (!isUserLoggedIn || !payload?.buwana_id) {
+                alert('You must be logged in to save changes to your calendar.');
+                setButtonState(false, originalButtonText);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/save_user_calendar.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        buwana_id: payload.buwana_id,
+                        calendar_id: normalizedCalendarId,
+                        name: nameValue,
+                        description: descriptionValue,
+                        category: normalizedCategory,
+                        visibility: normalizedVisibility,
+                        color: sanitizedColorValue,
+                        emoji: sanitizedEmojiValue
+                    })
+                });
+
+                const result = await response.json().catch(() => null);
+
+                if (!response.ok || !result?.ok) {
+                    const errorKey = result?.error || `HTTP_${response.status}`;
+                    throw new Error(errorKey);
+                }
+            } catch (error) {
+                console.error('[openEditCalendarOverlay] Failed to save calendar via API', error);
+                if (feedbackEl) {
+                    feedbackEl.textContent = 'We could not save your calendar. Please try again.';
+                }
+                if (typeof setSyncStatus === 'function') {
+                    setSyncStatus('⚠️ Unable to save calendar changes.', '', false, { temporary: true, duration: 4000 });
+                }
+                setButtonState(false, originalButtonText);
                 return;
             }
 
@@ -1731,6 +1795,8 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
                     feedbackEl.textContent = 'Calendar updated!';
                 }
 
+                setButtonState(false, originalButtonText);
+
                 setTimeout(() => {
                     if (feedbackEl) {
                         feedbackEl.textContent = '';
@@ -1741,6 +1807,7 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
                 if (feedbackEl) {
                     feedbackEl.textContent = 'Unable to locate this calendar in your list.';
                 }
+                setButtonState(false, originalButtonText);
             }
         };
 
