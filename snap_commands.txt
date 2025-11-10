@@ -1,7 +1,7 @@
- npx electron-packager . earthcal --platform=linux --arch=x64 --out=. --overwrite --prune=true
+npx electron-packager . earthcal --platform=linux --arch=x64 --out=. --overwrite --prune=true
 snapcraft pack
 snapcraft login
-snapcraft upload earthcal_0.9.8_amd64.snap --release=edge
+snapcraft upload earthcal_1.0.0_amd64.snap
 
 snapcraft status earthcal
 sudo snap refresh earthcal --edge

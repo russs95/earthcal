@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>EarthCal – Upgrade Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, sans-serif;
+            background: #0b1521;
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 60px;
+            font-size: 1.9rem;
+            text-align: center;
+        }
+
+        p {
+            max-width: 480px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .spinner {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: 8px solid rgba(255,255,255,0.2);
+            border-top-color: #4ade80;
+            animation: spin 0.85s linear infinite;
+            margin-top: 25px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .try-again {
+            display: none;
+            margin-top: 25px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            background: #0369a1;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #debug-area {
+            font-size: 0.85rem;
+            margin-top: 25px;
+            max-width: 480px;
+            color: #94a3b8;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Welcome, Time Traveler! 🌍</h1>
+<p>
+    Your transaction completed successfully.<br>
+    We’re just waiting for the Intergalactic Web Council<br/>
+    (a.k.a. Stripe Webhooks) to finalize your Jedi powers.
+</p>
+
+<div class="spinner"></div>
+
+<p id="status-text">Finalizing your Jedi subscription…</p>
+
+<button class="try-again" id="retry-button">Try Again</button>
+
+<!-- OPTIONAL: Debug section for development -->
+<div id="debug-area"></div>
+
+<script>
+    //
+    // ✅ Extract checkout session_id (optional – in case we want to validate later)
+    //
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session_id") || null;
+
+    //
+    // ✅ Helper – safely write debug text
+    //
+    function debug(msg) {
+        const area = document.getElementById("debug-area");
+        if (area) {
+            area.textContent += msg + "\n";
+        }
+    }
+
+    //
+    // ✅ Poll the server for updated plan
+    //
+    async function checkSubscription() {
+
+        // Make sure your global EarthCal login function works
+        if (typeof getCurrentUser !== "function") {
+            debug("getCurrentUser() unavailable — cannot check subscription!");
+            document.getElementById("status-text").textContent =
+                "Unable to confirm your subscription status.";
+            return;
+        }
+
+        const user = getCurrentUser();
+        if (!user?.buwana_id) {
+            debug("No buwana_id available — user must login first.");
+            document.getElementById("status-text").textContent =
+                "Please log in to see your updated Jedi status.";
+            return;
+        }
+
+        debug("Checking subscription for buwana_id: " + user.buwana_id);
+
+        try {
+            const res = await fetch("/api/v1/check_user_sub.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ buwana_id: user.buwana_id })
+            });
+
+            const data = await res.json();
+            debug("Response:\n" + JSON.stringify(data, null, 2));
+
+            // When Jedi is active → redirect
+            if (data?.current_subscription?.plan_slug === "jedi") {
+                debug("JEDI ACTIVE → Redirecting to index…");
+                document.getElementById("status-text").textContent =
+                    "Jedi subscription active. Redirecting…";
+
+                setTimeout(() => {
+                    window.location.href = "/index.html";
+                }, 900);
+
+                return;
+            }
+
+            // If subscription isn’t active yet, retry
+            debug("Not Jedi yet → Next poll in 2.5s…");
+            setTimeout(checkSubscription, 2500);
+
+        } catch (err) {
+            debug("ERROR: " + err.message);
+
+            document.getElementById("status-text").textContent =
+                "There was an error confirming your subscription.";
+
+            document.getElementById("retry-button").style.display = "inline-block";
+        }
+    }
+
+
+    //
+    // ✅ Manual retry button
+    //
+    document.getElementById("retry-button").onclick = () => {
+        document.getElementById("status-text").textContent =
+            "Trying again…";
+        document.getElementById("retry-button").style.display = "none";
+        checkSubscription();
+    };
+
+    //
+    // ✅ Start polling immediately
+    //
+    checkSubscription();
+
+
+    function getCurrentUser() {
+        try {
+            const s = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (s && s.buwana_id) return s;
+        } catch {}
+        const id = localStorage.getItem('buwana_id');
+        if (id) return { buwana_id: Number(id) || id };
+        return null;
+    }
+</script>
+<script src="js/item-management.js?v=23"></script>
+
+</body>
+</html>

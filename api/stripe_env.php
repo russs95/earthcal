@@ -31,11 +31,15 @@ if (file_exists($composerAutoload)) {
 //    (recommended for staging/production).
 // ----------------------------------------------------
 
-$STRIPE_SECRET_KEY     = getenv('STRIPE_SECRET_KEY')     ?: 'sk_live_xxxxxx';
-$STRIPE_WEBHOOK_SECRET = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_xxxxxx';
+// LIVE KEYS
+// $STRIPE_SECRET_KEY     = getenv('STRIPE_SECRET_KEY')     ?: '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';
+// $STRIPE_WEBHOOK_SECRET = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_PUt3EwMXzqrJxW7qVO5BT0Ormwxojw5W';
+// $STRIPE_PUBLIC_KEY     = getenv('STRIPE_PUBLIC_KEY')     ?: 'pk_live_51JlVgkAf11vVEZWPFnrayNSHFit7kFcHCYPSFtmYfRS5XNx1UPTjrmKv58uyvuF6jAiriCKMRqm9VmzxRoMHTTEF00S8yRI8Eh';
 
-// OPTIONAL — public key if needed for server→client handoff
-$STRIPE_PUBLIC_KEY     = getenv('STRIPE_PUBLIC_KEY')     ?: 'pk_live_xxxxxx';
+//TEST KEYS
+$STRIPE_SECRET_KEY     = getenv('STRIPE_SECRET_KEY')     ?: 'sk_test_51SR3NGPEdw1leNTahdQR42k7NB74lN8lkk7W4xHZ5cPWPmQcUPRMmknh8TfmeEW7yAa7eKobM9BCxkS5CYjYnd1a00ktUoAtJS';
+$STRIPE_WEBHOOK_SECRET = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_B8aEyIE5EmR7JNjpzy79YOLR0bIQvSe2';
+$STRIPE_PUBLIC_KEY     = getenv('STRIPE_PUBLIC_KEY')     ?: 'pk_test_51SR3NGPEdw1leNTalg4CIE5UQVy0dl7BpJX8jHSh9aL3EOpN2UfznZHbCti40b76XupEvDObpdlzyCasegTN45ip00uytBKGs6';
 
 if (!$STRIPE_SECRET_KEY) {
     error_log("stripe_env.php: Stripe secret key missing");

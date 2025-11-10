@@ -65,7 +65,7 @@ async function initCalendar() {
 
     try {
         try {
-            const response = await fetch("cals/earthcal-v1-0-3.svg?v=2");
+            const response = await fetch("cals/earthcal-v1-0-3.svg?v=3");
             const svg = await response.text();
             const calContainer = document.getElementById("the-cal");
             if (calContainer) {

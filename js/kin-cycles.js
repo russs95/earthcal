@@ -442,6 +442,16 @@ function animateStorkCycle(journeyPercentage) {
 // }
 
 function animateWhaleCycle(date) {
+
+    if (typeof MotionPathPlugin !== "undefined") {
+        gsap.registerPlugin(MotionPathPlugin);
+        console.log("✅ MotionPathPlugin registered");
+    } else {
+        console.warn("❌ MotionPathPlugin NOT found!");
+    }
+
+
+
     console.log("▶️ animateWhaleCycle() called with:", date);
 
     const whaleMarkerElement = document.getElementById("whale-marker");
@@ -549,7 +559,9 @@ function animateWhaleCycle(date) {
         onStart: () => console.log("✅ GSAP: animation started"),
         onUpdate: () => console.log("🔄 GSAP: updating…"),
         onComplete: () => console.log("🏁 GSAP: animation complete"),
+
     });
+
 }
 
 
