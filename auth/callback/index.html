@@ -42,6 +42,20 @@
             position: relative;
             overflow: hidden;
         }
+        body.theme-dark {
+            --general-background: rgb(13, 15, 26);
+            --emblem-green: #2b6d27;
+            --emblem-green-over: #41a43c;
+            color: #f8fafc;
+            background-color: var(--general-background);
+            background-image: url('/webp/earthen-subscription-background-dark.webp');
+        }
+        body.theme-dark .footer {
+            color: rgba(226, 232, 240, 0.75);
+        }
+        body.theme-dark #authenticating-text {
+            color: #e2e8f0;
+        }
         #initial-load {
             width: 100%;
             height: 100vh;
@@ -125,6 +139,74 @@
     </div>
 
 <script>
+    function readStoredThemePreference() {
+        try {
+            const stored = localStorage.getItem('user_dark_mode')
+                || localStorage.getItem('dark-mode-toggle');
+
+            if (!stored) return null;
+
+            const normalized = String(stored).toLowerCase();
+            if (normalized === 'dark' || normalized === 'light') {
+                return normalized;
+            }
+
+            if (normalized === 'true') return 'dark';
+            if (normalized === 'false') return 'light';
+
+            return null;
+        } catch (error) {
+            console.warn('[Theme] Unable to read stored preference', error);
+            return null;
+        }
+    }
+
+    function detectPreferredTheme() {
+        const stored = readStoredThemePreference();
+        if (stored) {
+            return stored;
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+
+        return 'light';
+    }
+
+    function applyPreferredTheme(theme) {
+        const body = document.body;
+        if (!body) return;
+
+        body.classList.remove('theme-dark', 'theme-light');
+        body.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
+    }
+
+    const initialTheme = detectPreferredTheme();
+    applyPreferredTheme(initialTheme);
+
+    if (window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleMediaChange = () => {
+            const stored = readStoredThemePreference();
+            if (!stored) {
+                applyPreferredTheme(mediaQuery.matches ? 'dark' : 'light');
+            }
+        };
+
+        if (typeof mediaQuery.addEventListener === 'function') {
+            mediaQuery.addEventListener('change', handleMediaChange);
+        } else if (typeof mediaQuery.addListener === 'function') {
+            mediaQuery.addListener(handleMediaChange);
+        }
+    }
+
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'user_dark_mode' || event.key === 'dark-mode-toggle') {
+            applyPreferredTheme(detectPreferredTheme());
+        }
+    });
+
     // Animate dots
     let dotPhase = 0;
     const dotElem = document.getElementById("dots");
