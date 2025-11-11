@@ -98,9 +98,191 @@ function map_price_lookup_to_plan_id(PDO $pdo, string $lookup_key): ?int {
         WHERE lookup_key = ?
         LIMIT 1
     ");
-    $stmt->execute([$lookup_key]);
+
+    try {
+        $stmt->execute([$lookup_key]);
+    } catch (PDOException $e) {
+        // Some databases may not yet have the lookup_key column deployed.
+        error_log('stripe_webhook.php: plan lookup by lookup_key failed - ' . $e->getMessage());
+        return null;
+    }
+
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row ? (int)$row['plan_id'] : null;
+}
+
+/**
+ * Find plan_id from slug in plans_tb
+ */
+function map_plan_slug_to_plan_id(PDO $pdo, string $slug): ?int {
+    $stmt = $pdo->prepare("
+        SELECT plan_id
+        FROM plans_tb
+        WHERE slug = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$slug]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? (int)$row['plan_id'] : null;
+}
+
+function normalize_stripe_value($source, string $key)
+{
+    if (is_array($source)) {
+        return $source[$key] ?? null;
+    }
+
+    if (is_object($source)) {
+        return $source->$key ?? null;
+    }
+
+    return null;
+}
+
+function stripe_object_to_array($value): array
+{
+    if (is_array($value)) {
+        return $value;
+    }
+
+    if (is_object($value)) {
+        if (method_exists($value, 'toArray')) {
+            return $value->toArray();
+        }
+
+        return (array)$value;
+    }
+
+    return [];
+}
+
+function slugify(string $value): string
+{
+    $value = strtolower(trim($value));
+    $value = preg_replace('/[^a-z0-9]+/i', '_', $value);
+    return trim($value, '_');
+}
+
+function format_stripe_timestamp($timestamp): ?string
+{
+    if ($timestamp === null || $timestamp === '') {
+        return null;
+    }
+
+    if (is_string($timestamp) && ctype_digit($timestamp)) {
+        $timestamp = (int)$timestamp;
+    }
+
+    if (!is_int($timestamp)) {
+        return null;
+    }
+
+    try {
+        return (new \DateTimeImmutable('@' . $timestamp))
+            ->setTimezone(new \DateTimeZone('UTC'))
+            ->format('Y-m-d H:i:s');
+    } catch (\Throwable $e) {
+        error_log('stripe_webhook.php: unable to format timestamp ' . $timestamp . ' - ' . $e->getMessage());
+        return null;
+    }
+}
+
+function resolve_plan_id_from_price(PDO $pdo, $price): ?int
+{
+    $candidates = [];
+
+    $lookupKey = normalize_stripe_value($price, 'lookup_key');
+    if (is_string($lookupKey) && $lookupKey !== '') {
+        $candidates[] = $lookupKey;
+    }
+
+    $metadata = stripe_object_to_array(normalize_stripe_value($price, 'metadata'));
+    if (!empty($metadata)) {
+        if (isset($metadata['plan_id']) && is_numeric($metadata['plan_id'])) {
+            return (int)$metadata['plan_id'];
+        }
+
+        foreach (['plan_slug', 'slug', 'plan', 'lookup_key'] as $metaKey) {
+            if (!empty($metadata[$metaKey]) && is_string($metadata[$metaKey])) {
+                $candidates[] = $metadata[$metaKey];
+            }
+        }
+    }
+
+    $product = normalize_stripe_value($price, 'product');
+
+    if (is_string($product) && $product !== '') {
+        try {
+            $product = \Stripe\Product::retrieve($product);
+        } catch (\Throwable $e) {
+            error_log('stripe_webhook.php: unable to load Stripe product ' . $product . ' - ' . $e->getMessage());
+            $product = null;
+        }
+    }
+
+    if ($product && !is_string($product)) {
+        $productMetadata = stripe_object_to_array(normalize_stripe_value($product, 'metadata'));
+        if (!empty($productMetadata)) {
+            if (isset($productMetadata['plan_id']) && is_numeric($productMetadata['plan_id'])) {
+                return (int)$productMetadata['plan_id'];
+            }
+
+            foreach (['plan_slug', 'slug', 'plan'] as $metaKey) {
+                if (!empty($productMetadata[$metaKey]) && is_string($productMetadata[$metaKey])) {
+                    $candidates[] = $productMetadata[$metaKey];
+                }
+            }
+        }
+    }
+
+    $nickname = normalize_stripe_value($price, 'nickname');
+    if (is_string($nickname) && $nickname !== '') {
+        $candidates[] = $nickname;
+    }
+
+    $finalCandidates = [];
+    foreach ($candidates as $candidate) {
+        if (!is_string($candidate) || $candidate === '') {
+            continue;
+        }
+
+        $finalCandidates[] = $candidate;
+
+        $slugCandidate = slugify($candidate);
+        if ($slugCandidate !== $candidate) {
+            $finalCandidates[] = $slugCandidate;
+        }
+
+        $segments = preg_split('/[_\-]/', $slugCandidate);
+        if (!empty($segments)) {
+            $finalCandidates = array_merge($finalCandidates, $segments);
+        }
+    }
+
+    $finalCandidates = array_values(array_unique(array_filter($finalCandidates)));
+
+    foreach ($finalCandidates as $candidate) {
+        $planId = map_price_lookup_to_plan_id($pdo, $candidate);
+        if ($planId) {
+            return $planId;
+        }
+
+        $planId = map_plan_slug_to_plan_id($pdo, $candidate);
+        if ($planId) {
+            return $planId;
+        }
+    }
+
+    $priceId = normalize_stripe_value($price, 'id');
+    $lookupDebug = $lookupKey ?: 'none';
+    error_log(sprintf(
+        'stripe_webhook.php: Unable to resolve plan for price %s (lookup_key=%s, candidates=%s)',
+        $priceId ?: 'unknown',
+        $lookupDebug,
+        json_encode($finalCandidates)
+    ));
+
+    return null;
 }
 
 /**
@@ -182,7 +364,9 @@ function find_or_create_subscription(
 $type = $event['type'] ?? '';
 $data = $event['data']['object'] ?? [];
 
-switch ($type) {
+try {
+
+    switch ($type) {
 
     // ==================================================
     // checkout.session.completed
@@ -221,27 +405,44 @@ switch ($type) {
         // Subscription exists?
         if ($subscription) {
 
-            $subObj = \Stripe\Subscription::retrieve([
-                'id'     => $subscription,
-                'expand' => ['items.data.price']
-            ]);
+            try {
+                $subObj = \Stripe\Subscription::retrieve([
+                    'id'     => $subscription,
+                    'expand' => ['items.data.price', 'items.data.price.product']
+                ]);
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                error_log('stripe_webhook.php: unable to retrieve subscription ' . $subscription . ' - ' . $e->getMessage() . ' (check test vs live API keys)');
+                break;
+            } catch (\Throwable $e) {
+                error_log('stripe_webhook.php: unexpected error retrieving subscription ' . $subscription . ' - ' . $e->getMessage());
+                break;
+            }
 
-            $price       = $subObj->items->data[0]->price;
-            $lookup_key  = $price->lookup_key ?? null;
-            $period_end  = $subObj->current_period_end ?? null;
-            $coupon_code = $subObj->discount->coupon->name ?? null;
+            $price = $subObj->items->data[0]->price ?? null;
 
-            if ($lookup_key) {
-                $plan_id = map_price_lookup_to_plan_id($pdo, $lookup_key);
+            if ($price) {
+                $plan_id = resolve_plan_id_from_price($pdo, $price);
+
                 if ($plan_id) {
+                    $coupon_code = null;
+                    if (isset($subObj->discount) && $subObj->discount) {
+                        $coupon = $subObj->discount->coupon ?? null;
+                        if ($coupon && isset($coupon->name)) {
+                            $coupon_code = $coupon->name;
+                        }
+                    }
+
+                    $start_at = format_stripe_timestamp($subObj->start_date ?? null);
+                    $period_end = format_stripe_timestamp($subObj->current_period_end ?? null);
+
                     find_or_create_subscription(
                         $pdo,
                         $buwana_id,
                         $plan_id,
                         $subscription,
                         $coupon_code,
-                        date('Y-m-d H:i:s', $subObj->start_date),
-                        $period_end ? date('Y-m-d H:i:s', $period_end) : null
+                        $start_at,
+                        $period_end
                     );
                 }
             }
@@ -264,24 +465,27 @@ switch ($type) {
 
         $buwana_id = (int)$user['buwana_id'];
 
-        $price = $subObj['items']['data'][0]['price'];
-        $lookup_key = $price['lookup_key'] ?? null;
-        $coupon_code = $subObj['discount']['coupon']['name'] ?? null;
-        $period_end  = $subObj['current_period_end'] ?? null;
+        $price = $subObj['items']['data'][0]['price'] ?? null;
+        $plan_id = $price ? resolve_plan_id_from_price($pdo, $price) : null;
 
-        if ($lookup_key) {
-            $plan_id = map_price_lookup_to_plan_id($pdo, $lookup_key);
-            if ($plan_id) {
-                find_or_create_subscription(
-                    $pdo,
-                    $buwana_id,
-                    $plan_id,
-                    $stripe_subscription_id,
-                    $coupon_code,
-                    date('Y-m-d H:i:s', $subObj['start_date']),
-                    $period_end ? date('Y-m-d H:i:s', $period_end) : null
-                );
-            }
+        $coupon_code = null;
+        if (!empty($subObj['discount']['coupon']['name'])) {
+            $coupon_code = $subObj['discount']['coupon']['name'];
+        }
+
+        $start_at = format_stripe_timestamp($subObj['start_date'] ?? null);
+        $period_end  = format_stripe_timestamp($subObj['current_period_end'] ?? null);
+
+        if ($plan_id) {
+            find_or_create_subscription(
+                $pdo,
+                $buwana_id,
+                $plan_id,
+                $stripe_subscription_id,
+                $coupon_code,
+                $start_at,
+                $period_end
+            );
         }
 
         // Cancellation at period end
@@ -295,7 +499,7 @@ switch ($type) {
                 AND external_subscription_id = :sid
             ");
             $stmt->execute([
-                'cancel_at' => $period_end ? date('Y-m-d H:i:s', $period_end) : null,
+                'cancel_at' => $period_end,
                 'uid'       => $buwana_id,
                 'sid'       => $stripe_subscription_id,
             ]);
@@ -332,6 +536,13 @@ switch ($type) {
         ]);
 
         break;
+    }
+
+} catch (\Throwable $e) {
+    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'internal handler error']);
+    exit;
 }
 
 
