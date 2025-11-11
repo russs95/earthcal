@@ -60,10 +60,12 @@ try {
         $STRIPE_WEBHOOK_SECRET
     );
 } catch (\UnexpectedValueException $e) {
+    error_log('stripe_webhook.php: Invalid payload - ' . $e->getMessage());
     http_response_code(400);
     echo "Invalid payload";
     exit;
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
+    error_log('stripe_webhook.php: Invalid signature - ' . $e->getMessage());
     http_response_code(400);
     echo "Invalid signature";
     exit;
@@ -523,6 +525,8 @@ function find_or_create_subscription(
 $type = $event['type'] ?? '';
 $data = $event['data']['object'] ?? [];
 
+error_log(sprintf('stripe_webhook.php: Received event type=%s id=%s', $type ?: 'unknown', $event['id'] ?? 'n/a'));
+
 try {
 
     switch ($type) {
@@ -536,7 +540,10 @@ try {
         $subscription = $data['subscription'] ?? null;
         $metadata     = $data['metadata']     ?? [];
 
-        if (!$customer) break;
+        if (!$customer) {
+            error_log('stripe_webhook.php: checkout.session.completed missing customer id');
+            break;
+        }
 
         // Assign user
         $user = find_user_by_stripe_customer($pdo, $customer);
@@ -554,7 +561,9 @@ try {
                     'cid' => $customer,
                     'bid' => $buwana_id,
                 ]);
+                error_log(sprintf('stripe_webhook.php: Associated Stripe customer %s with user %d via checkout metadata', $customer, $buwana_id));
             } else {
+                error_log('stripe_webhook.php: checkout.session.completed missing buwana_id metadata for new customer ' . $customer);
                 break;
             }
         } else {
@@ -564,10 +573,15 @@ try {
         // Subscription exists?
         if ($subscription) {
 
-            $subObj = \Stripe\Subscription::retrieve([
-                'id'     => $subscription,
-                'expand' => ['items.data.price', 'items.data.price.product']
-            ]);
+            try {
+                $subObj = \Stripe\Subscription::retrieve([
+                    'id'     => $subscription,
+                    'expand' => ['items.data.price', 'items.data.price.product']
+                ]);
+            } catch (\Throwable $e) {
+                error_log('stripe_webhook.php: Failed to retrieve subscription ' . $subscription . ' - ' . $e->getMessage());
+                break;
+            }
 
             $price = $subObj->items->data[0]->price ?? null;
 
@@ -595,8 +609,15 @@ try {
                         $start_at,
                         $period_end
                     );
+                    error_log(sprintf('stripe_webhook.php: checkout.session.completed ensured subscription for user %d plan %d (sub %s)', $buwana_id, $plan_id, $subscription));
+                } else {
+                    error_log(sprintf('stripe_webhook.php: checkout.session.completed unable to resolve plan for subscription %s customer %s', $subscription, $customer));
                 }
+            } else {
+                error_log(sprintf('stripe_webhook.php: checkout.session.completed missing price information for subscription %s', $subscription));
             }
+        } else {
+            error_log(sprintf('stripe_webhook.php: checkout.session.completed missing subscription id for customer %s', $customer));
         }
 
         break;
@@ -612,7 +633,10 @@ try {
         $customer               = $subObj['customer'];
 
         $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) break;
+        if (!$user) {
+            error_log(sprintf('stripe_webhook.php: subscription.updated customer %s not linked to a user', $customer));
+            break;
+        }
 
         $buwana_id = (int)$user['buwana_id'];
 
@@ -637,6 +661,9 @@ try {
                 $start_at,
                 $period_end
             );
+            error_log(sprintf('stripe_webhook.php: subscription.updated synced user %d plan %d (sub %s)', $buwana_id, $plan_id, $stripe_subscription_id));
+        } else {
+            error_log(sprintf('stripe_webhook.php: subscription.updated unable to resolve plan for subscription %s customer %s', $stripe_subscription_id, $customer));
         }
 
         // Cancellation at period end
@@ -654,6 +681,7 @@ try {
                 'uid'       => $buwana_id,
                 'sid'       => $stripe_subscription_id,
             ]);
+            error_log(sprintf('stripe_webhook.php: subscription.updated marked cancel_at_period_end for user %d (sub %s)', $buwana_id, $stripe_subscription_id));
         }
 
         break;
@@ -669,7 +697,10 @@ try {
         $customer               = $subObj['customer'];
 
         $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) break;
+        if (!$user) {
+            error_log(sprintf('stripe_webhook.php: subscription.deleted customer %s not linked to a user', $customer));
+            break;
+        }
 
         $buwana_id = (int)$user['buwana_id'];
 
@@ -686,11 +717,14 @@ try {
             'sid' => $stripe_subscription_id,
         ]);
 
+        error_log(sprintf('stripe_webhook.php: subscription.deleted canceled user %d subscription %s', $buwana_id, $stripe_subscription_id));
+
         break;
     }
 
 } catch (\Throwable $e) {
-    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage());
+    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    error_log('stripe_webhook.php: stack trace - ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode(['error' => 'internal handler error']);
     exit;
