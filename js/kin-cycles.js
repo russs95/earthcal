@@ -300,10 +300,25 @@ let startPercentage = 0;
 function animateStorkCycle(journeyPercentage) {
   let storkMarkerElement = document.getElementById("stork-marker");
   let storkPathElement = document.getElementById("stork-year-cycle");
+  const storkCycleContainer = document.getElementById("stork-cycler");
+
+  if (!storkMarkerElement || !storkPathElement || typeof gsap === "undefined") {
+    console.warn("⚠️ Stork animation skipped – missing dependencies");
+    return;
+  }
+
+  if (storkCycleContainer && !isElementVisible(storkCycleContainer)) {
+    console.warn("⚠️ Stork cycle container hidden – skipping animation");
+    return;
+  }
+
   // Convert journeyPercentage to a fraction of 1
   let journeyFraction = journeyPercentage / 100;
   // Ensure any previous animations are killed
   gsap.killTweensOf(storkMarkerElement);
+
+  const restoreMarkerVisibility = ensureSvgVisibility(storkMarkerElement);
+  const restorePathVisibility = ensureSvgVisibility(storkPathElement);
 
   // Use GSAP to animate the stork marker along the path
   gsap.to(storkMarkerElement, {
@@ -320,6 +335,8 @@ function animateStorkCycle(journeyPercentage) {
     onComplete: function() {
       // Set startPercentage to the value of journeyPercentage for the next use
       startPercentage = journeyFraction;
+      restoreMarkerVisibility();
+      restorePathVisibility();
     }
   });
 }
@@ -441,21 +458,65 @@ function animateStorkCycle(journeyPercentage) {
 //   });
 // }
 
-function animateWhaleCycle(date) {
+function ensureSvgVisibility(element, fallbackDisplay = "inline") {
+  if (!element) {
+    return () => {};
+  }
 
-    if (typeof MotionPathPlugin !== "undefined") {
-        gsap.registerPlugin(MotionPathPlugin);
-        console.log("✅ MotionPathPlugin registered");
-    } else {
-        console.warn("❌ MotionPathPlugin NOT found!");
+  const computed = window.getComputedStyle(element);
+  const previousStyles = {};
+  let needsChange = false;
+
+  if (computed.display === "none") {
+    previousStyles.display = element.style.display;
+    element.style.display = fallbackDisplay;
+    needsChange = true;
+  }
+
+  if (computed.visibility === "hidden") {
+    previousStyles.visibility = element.style.visibility;
+    element.style.visibility = "visible";
+    needsChange = true;
+  }
+
+  if (!needsChange) {
+    return () => {};
+  }
+
+  return () => {
+    if (Object.prototype.hasOwnProperty.call(previousStyles, "display")) {
+      if (previousStyles.display) {
+        element.style.display = previousStyles.display;
+      } else {
+        element.style.removeProperty("display");
+      }
     }
 
+    if (Object.prototype.hasOwnProperty.call(previousStyles, "visibility")) {
+      if (previousStyles.visibility) {
+        element.style.visibility = previousStyles.visibility;
+      } else {
+        element.style.removeProperty("visibility");
+      }
+    }
+  };
+}
 
+function isElementVisible(element) {
+  if (!element) {
+    return false;
+  }
 
+  const computed = window.getComputedStyle(element);
+  return computed.display !== "none" && computed.visibility !== "hidden";
+}
+
+function animateWhaleCycle(date) {
     console.log("▶️ animateWhaleCycle() called with:", date);
 
     const whaleMarkerElement = document.getElementById("whale-marker");
     const whalePathElement = document.getElementById("whale-year-cycle");
+    const whaleCycleContainer = document.getElementById("whale-cycler");
 
     // Check GSAP
     if (typeof gsap === "undefined") {
@@ -479,6 +540,11 @@ function animateWhaleCycle(date) {
 
     if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
         console.warn("⚠️ Exiting: missing dependencies");
+        return;
+    }
+
+    if (whaleCycleContainer && !isElementVisible(whaleCycleContainer)) {
+        console.warn("⚠️ Whale cycle container hidden – skipping animation");
         return;
     }
 
@@ -545,6 +611,8 @@ function animateWhaleCycle(date) {
 
     // Animation
     console.log("🚀 Starting GSAP motion tween…");
+    const restoreMarkerVisibility = ensureSvgVisibility(whaleMarkerElement);
+    const restorePathVisibility = ensureSvgVisibility(whalePathElement);
     gsap.to(whaleMarkerElement, {
         motionPath: {
             path: whalePathElement,
@@ -558,10 +626,12 @@ function animateWhaleCycle(date) {
         ease: "linear",
         onStart: () => console.log("✅ GSAP: animation started"),
         onUpdate: () => console.log("🔄 GSAP: updating…"),
-        onComplete: () => console.log("🏁 GSAP: animation complete"),
-
+        onComplete: () => {
+            console.log("🏁 GSAP: animation complete");
+            restoreMarkerVisibility();
+            restorePathVisibility();
+        },
     });
-
 }
 
 
