@@ -60,10 +60,12 @@ try {
         $STRIPE_WEBHOOK_SECRET
     );
 } catch (\UnexpectedValueException $e) {
+    error_log('stripe_webhook.php: Invalid payload - ' . $e->getMessage());
     http_response_code(400);
     echo "Invalid payload";
     exit;
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
+    error_log('stripe_webhook.php: Invalid signature - ' . $e->getMessage());
     http_response_code(400);
     echo "Invalid signature";
     exit;
@@ -285,165 +287,6 @@ function map_plan_slug_to_plan_id(PDO $pdo, string $slug): ?int {
     return $row ? (int)$row['plan_id'] : null;
 }
 
-function normalize_stripe_value($source, string $key)
-{
-    if (is_array($source)) {
-        return $source[$key] ?? null;
-    }
-
-    if (is_object($source)) {
-        return $source->$key ?? null;
-    }
-
-    return null;
-}
-
-function stripe_object_to_array($value): array
-{
-    if (is_array($value)) {
-        return $value;
-    }
-
-    if (is_object($value)) {
-        if (method_exists($value, 'toArray')) {
-            return $value->toArray();
-        }
-
-        return (array)$value;
-    }
-
-    return [];
-}
-
-function slugify(string $value): string
-{
-    $value = strtolower(trim($value));
-    $value = preg_replace('/[^a-z0-9]+/i', '_', $value);
-    return trim($value, '_');
-}
-
-function format_stripe_timestamp($timestamp): ?string
-{
-    if ($timestamp === null || $timestamp === '') {
-        return null;
-    }
-
-    if (is_string($timestamp) && ctype_digit($timestamp)) {
-        $timestamp = (int)$timestamp;
-    }
-
-    if (!is_int($timestamp)) {
-        return null;
-    }
-
-    try {
-        return (new \DateTimeImmutable('@' . $timestamp))
-            ->setTimezone(new \DateTimeZone('UTC'))
-            ->format('Y-m-d H:i:s');
-    } catch (\Throwable $e) {
-        error_log('stripe_webhook.php: unable to format timestamp ' . $timestamp . ' - ' . $e->getMessage());
-        return null;
-    }
-}
-
-function resolve_plan_id_from_price(PDO $pdo, $price): ?int
-{
-    $candidates = [];
-
-    $lookupKey = normalize_stripe_value($price, 'lookup_key');
-    if (is_string($lookupKey) && $lookupKey !== '') {
-        $candidates[] = $lookupKey;
-    }
-
-    $metadata = stripe_object_to_array(normalize_stripe_value($price, 'metadata'));
-    if (!empty($metadata)) {
-        if (isset($metadata['plan_id']) && is_numeric($metadata['plan_id'])) {
-            return (int)$metadata['plan_id'];
-        }
-
-        foreach (['plan_slug', 'slug', 'plan', 'lookup_key'] as $metaKey) {
-            if (!empty($metadata[$metaKey]) && is_string($metadata[$metaKey])) {
-                $candidates[] = $metadata[$metaKey];
-            }
-        }
-    }
-
-    $product = normalize_stripe_value($price, 'product');
-
-    if (is_string($product) && $product !== '') {
-        try {
-            $product = \Stripe\Product::retrieve($product);
-        } catch (\Throwable $e) {
-            error_log('stripe_webhook.php: unable to load Stripe product ' . $product . ' - ' . $e->getMessage());
-            $product = null;
-        }
-    }
-
-    if ($product && !is_string($product)) {
-        $productMetadata = stripe_object_to_array(normalize_stripe_value($product, 'metadata'));
-        if (!empty($productMetadata)) {
-            if (isset($productMetadata['plan_id']) && is_numeric($productMetadata['plan_id'])) {
-                return (int)$productMetadata['plan_id'];
-            }
-
-            foreach (['plan_slug', 'slug', 'plan'] as $metaKey) {
-                if (!empty($productMetadata[$metaKey]) && is_string($productMetadata[$metaKey])) {
-                    $candidates[] = $productMetadata[$metaKey];
-                }
-            }
-        }
-    }
-
-    $nickname = normalize_stripe_value($price, 'nickname');
-    if (is_string($nickname) && $nickname !== '') {
-        $candidates[] = $nickname;
-    }
-
-    $finalCandidates = [];
-    foreach ($candidates as $candidate) {
-        if (!is_string($candidate) || $candidate === '') {
-            continue;
-        }
-
-        $finalCandidates[] = $candidate;
-
-        $slugCandidate = slugify($candidate);
-        if ($slugCandidate !== $candidate) {
-            $finalCandidates[] = $slugCandidate;
-        }
-
-        $segments = preg_split('/[_\-]/', $slugCandidate);
-        if (!empty($segments)) {
-            $finalCandidates = array_merge($finalCandidates, $segments);
-        }
-    }
-
-    $finalCandidates = array_values(array_unique(array_filter($finalCandidates)));
-
-    foreach ($finalCandidates as $candidate) {
-        $planId = map_price_lookup_to_plan_id($pdo, $candidate);
-        if ($planId) {
-            return $planId;
-        }
-
-        $planId = map_plan_slug_to_plan_id($pdo, $candidate);
-        if ($planId) {
-            return $planId;
-        }
-    }
-
-    $priceId = normalize_stripe_value($price, 'id');
-    $lookupDebug = $lookupKey ?: 'none';
-    error_log(sprintf(
-        'stripe_webhook.php: Unable to resolve plan for price %s (lookup_key=%s, candidates=%s)',
-        $priceId ?: 'unknown',
-        $lookupDebug,
-        json_encode($finalCandidates)
-    ));
-
-    return null;
-}
-
 /**
  * Upsert subscription → user_subscriptions_tb
  */
@@ -523,6 +366,8 @@ function find_or_create_subscription(
 $type = $event['type'] ?? '';
 $data = $event['data']['object'] ?? [];
 
+error_log(sprintf('stripe_webhook.php: Received event type=%s id=%s', $type ?: 'unknown', $event['id'] ?? 'n/a'));
+
 try {
 
     switch ($type) {
@@ -536,7 +381,10 @@ try {
         $subscription = $data['subscription'] ?? null;
         $metadata     = $data['metadata']     ?? [];
 
-        if (!$customer) break;
+        if (!$customer) {
+            error_log('stripe_webhook.php: checkout.session.completed missing customer id');
+            break;
+        }
 
         // Assign user
         $user = find_user_by_stripe_customer($pdo, $customer);
@@ -554,7 +402,9 @@ try {
                     'cid' => $customer,
                     'bid' => $buwana_id,
                 ]);
+                error_log(sprintf('stripe_webhook.php: Associated Stripe customer %s with user %d via checkout metadata', $customer, $buwana_id));
             } else {
+                error_log('stripe_webhook.php: checkout.session.completed missing buwana_id metadata for new customer ' . $customer);
                 break;
             }
         } else {
@@ -564,10 +414,15 @@ try {
         // Subscription exists?
         if ($subscription) {
 
-            $subObj = \Stripe\Subscription::retrieve([
-                'id'     => $subscription,
-                'expand' => ['items.data.price', 'items.data.price.product']
-            ]);
+            try {
+                $subObj = \Stripe\Subscription::retrieve([
+                    'id'     => $subscription,
+                    'expand' => ['items.data.price', 'items.data.price.product']
+                ]);
+            } catch (\Throwable $e) {
+                error_log('stripe_webhook.php: Failed to retrieve subscription ' . $subscription . ' - ' . $e->getMessage());
+                break;
+            }
 
             $price = $subObj->items->data[0]->price ?? null;
 
@@ -595,8 +450,15 @@ try {
                         $start_at,
                         $period_end
                     );
+                    error_log(sprintf('stripe_webhook.php: checkout.session.completed ensured subscription for user %d plan %d (sub %s)', $buwana_id, $plan_id, $subscription));
+                } else {
+                    error_log(sprintf('stripe_webhook.php: checkout.session.completed unable to resolve plan for subscription %s customer %s', $subscription, $customer));
                 }
+            } else {
+                error_log(sprintf('stripe_webhook.php: checkout.session.completed missing price information for subscription %s', $subscription));
             }
+        } else {
+            error_log(sprintf('stripe_webhook.php: checkout.session.completed missing subscription id for customer %s', $customer));
         }
 
         break;
@@ -612,7 +474,10 @@ try {
         $customer               = $subObj['customer'];
 
         $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) break;
+        if (!$user) {
+            error_log(sprintf('stripe_webhook.php: subscription.updated customer %s not linked to a user', $customer));
+            break;
+        }
 
         $buwana_id = (int)$user['buwana_id'];
 
@@ -637,6 +502,9 @@ try {
                 $start_at,
                 $period_end
             );
+            error_log(sprintf('stripe_webhook.php: subscription.updated synced user %d plan %d (sub %s)', $buwana_id, $plan_id, $stripe_subscription_id));
+        } else {
+            error_log(sprintf('stripe_webhook.php: subscription.updated unable to resolve plan for subscription %s customer %s', $stripe_subscription_id, $customer));
         }
 
         // Cancellation at period end
@@ -654,6 +522,7 @@ try {
                 'uid'       => $buwana_id,
                 'sid'       => $stripe_subscription_id,
             ]);
+            error_log(sprintf('stripe_webhook.php: subscription.updated marked cancel_at_period_end for user %d (sub %s)', $buwana_id, $stripe_subscription_id));
         }
 
         break;
@@ -669,7 +538,10 @@ try {
         $customer               = $subObj['customer'];
 
         $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) break;
+        if (!$user) {
+            error_log(sprintf('stripe_webhook.php: subscription.deleted customer %s not linked to a user', $customer));
+            break;
+        }
 
         $buwana_id = (int)$user['buwana_id'];
 
@@ -686,11 +558,14 @@ try {
             'sid' => $stripe_subscription_id,
         ]);
 
+        error_log(sprintf('stripe_webhook.php: subscription.deleted canceled user %d subscription %s', $buwana_id, $stripe_subscription_id));
+
         break;
     }
 
 } catch (\Throwable $e) {
-    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage());
+    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    error_log('stripe_webhook.php: stack trace - ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode(['error' => 'internal handler error']);
     exit;
