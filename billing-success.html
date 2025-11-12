@@ -2,191 +2,226 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>EarthCal – Upgrade Success</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <title>EarthCal | Billing Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="assets/icons/favicon.ico" />
+    <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
+    <link rel="preload" href="css/light.css?v7" as="style">
+    <link rel="preload" href="css/dark.css?v7" as="style">
+    <link rel="preload" href="css/1-stylesheet.css" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.3">
     <style>
+        :root {
+            --page-max-width: min(520px, 92vw);
+            --card-background: rgba(255, 255, 255, 0.92);
+            --card-text: #0f172a;
+            --accent-green: #1f8a3d;
+            --accent-green-strong: #0ca70c;
+            --muted: rgba(15, 23, 42, 0.72);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --card-background: rgba(11, 15, 28, 0.86);
+                --card-text: #f8fafc;
+                --accent-green: #4ade80;
+                --accent-green-strong: #86efac;
+                --muted: rgba(226, 232, 240, 0.85);
+            }
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            font-family: system-ui, sans-serif;
-            background: #0b1521;
-            color: #f1f5f9;
+            padding: clamp(24px, 4vw, 60px) 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Mulish', sans-serif;
+            background-color: rgb(245, 245, 245);
+            background-image: url('webp/earthen-subscription-background-light.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: var(--card-text);
+            position: relative;
+            overflow: hidden;
+            transition: background-image 0.4s ease, color 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: rgb(13, 15, 26);
+                background-image: url('webp/earthen-subscription-background-dark.webp');
+            }
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            max-width: var(--page-max-width);
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: clamp(14px, 2vw, 22px);
+            padding: clamp(28px, 4vw, 48px);
+            border-radius: clamp(18px, 3vw, 28px);
+            background: var(--card-background);
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.26);
+            backdrop-filter: blur(16px);
+        }
+
+        .celebrate-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(34, 197, 94, 0.55), rgba(59, 130, 246, 0.35), rgba(99, 102, 241, 0.28), rgba(15, 23, 42, 0.2));
+            opacity: 0;
+            transform: scale(0.85);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .celebrate-overlay.is-active {
+            animation: celebrateOverlay 0.5s ease-out forwards;
+        }
+
+        @keyframes celebrateOverlay {
+            0% {
+                opacity: 0;
+                transform: scale(0.75);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            width: clamp(78px, 18vw, 110px);
+            height: auto;
+        }
+
+        h1,
+        h3 {
+            margin: 0;
+            text-align: center;
         }
 
         h1 {
-            margin-top: 60px;
-            font-size: 1.9rem;
+            font-size: clamp(2rem, 5vw, 2.6rem);
+            letter-spacing: 0.02em;
+        }
+
+        h3 {
+            font-weight: 500;
+            font-size: clamp(1.05rem, 3vw, 1.35rem);
+            color: var(--muted);
+        }
+
+        .status-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
             text-align: center;
         }
 
-        p {
-            max-width: 480px;
-            text-align: center;
-            line-height: 1.4;
+        .status-spinner {
+            width: 150px;
+            height: 150px;
         }
 
-        .spinner {
-            width: 68px;
-            height: 68px;
-            border-radius: 50%;
-            border: 8px solid rgba(255,255,255,0.2);
-            border-top-color: #4ade80;
-            animation: spin 0.85s linear infinite;
-            margin-top: 25px;
+        .status-message {
+            font-size: 1.05rem;
+            color: var(--muted);
+            line-height: 1.5;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .status-message strong {
+            color: var(--accent-green);
         }
 
-        .try-again {
-            display: none;
-            margin-top: 25px;
-            padding: 12px 20px;
-            border-radius: 6px;
-            background: #0369a1;
-            border: 0;
-            color: #fff;
-            cursor: pointer;
+        .status-log {
+            margin: 0;
+            font-size: 0.92rem;
+            color: rgba(15, 23, 42, 0.58);
+            max-height: 140px;
+            overflow-y: auto;
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.6);
         }
 
-        #debug-area {
-            font-size: 0.85rem;
-            margin-top: 25px;
-            max-width: 480px;
-            color: #94a3b8;
+        .status-log code {
+            font-family: 'Mulish', 'Courier New', Courier, monospace;
             white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .status-log {
+                background: rgba(15, 23, 42, 0.6);
+                color: rgba(226, 232, 240, 0.9);
+            }
+        }
+
+        .action-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .action-row a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: var(--accent-green);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .action-row a:hover,
+        .action-row a:focus-visible {
+            transform: translateY(-1px);
+            background: var(--accent-green-strong);
+        }
+
+        .action-row small {
+            color: var(--muted);
         }
     </style>
 </head>
-
 <body>
-
-<h1>Welcome, Time Traveler! 🌍</h1>
-<p>
-    Your transaction completed successfully.<br>
-    We’re just waiting for the Intergalactic Web Council<br/>
-    (a.k.a. Stripe Webhooks) to finalize your Jedi powers.
-</p>
-
-<div class="spinner"></div>
-
-<p id="status-text">Finalizing your Jedi subscription…</p>
-
-<button class="try-again" id="retry-button">Try Again</button>
-
-<!-- OPTIONAL: Debug section for development -->
-<div id="debug-area"></div>
-
-<script>
-    //
-    // ✅ Extract checkout session_id (optional – in case we want to validate later)
-    //
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get("session_id") || null;
-
-    //
-    // ✅ Helper – safely write debug text
-    //
-    function debug(msg) {
-        const area = document.getElementById("debug-area");
-        if (area) {
-            area.textContent += msg + "\n";
-        }
-    }
-
-    //
-    // ✅ Poll the server for updated plan
-    //
-    async function checkSubscription() {
-
-        // Make sure your global EarthCal login function works
-        if (typeof getCurrentUser !== "function") {
-            debug("getCurrentUser() unavailable — cannot check subscription!");
-            document.getElementById("status-text").textContent =
-                "Unable to confirm your subscription status.";
-            return;
-        }
-
-        const user = getCurrentUser();
-        if (!user?.buwana_id) {
-            debug("No buwana_id available — user must login first.");
-            document.getElementById("status-text").textContent =
-                "Please log in to see your updated Jedi status.";
-            return;
-        }
-
-        debug("Checking subscription for buwana_id: " + user.buwana_id);
-
-        try {
-            const res = await fetch("/api/v1/check_user_sub.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ buwana_id: user.buwana_id })
-            });
-
-            const data = await res.json();
-            debug("Response:\n" + JSON.stringify(data, null, 2));
-
-            // When Jedi is active → redirect
-            if (data?.current_subscription?.plan_slug === "jedi") {
-                debug("JEDI ACTIVE → Redirecting to index…");
-                document.getElementById("status-text").textContent =
-                    "Jedi subscription active. Redirecting…";
-
-                setTimeout(() => {
-                    window.location.href = "/index.html";
-                }, 900);
-
-                return;
-            }
-
-            // If subscription isn’t active yet, retry
-            debug("Not Jedi yet → Next poll in 2.5s…");
-            setTimeout(checkSubscription, 2500);
-
-        } catch (err) {
-            debug("ERROR: " + err.message);
-
-            document.getElementById("status-text").textContent =
-                "There was an error confirming your subscription.";
-
-            document.getElementById("retry-button").style.display = "inline-block";
-        }
-    }
-
-
-    //
-    // ✅ Manual retry button
-    //
-    document.getElementById("retry-button").onclick = () => {
-        document.getElementById("status-text").textContent =
-            "Trying again…";
-        document.getElementById("retry-button").style.display = "none";
-        checkSubscription();
-    };
-
-    //
-    // ✅ Start polling immediately
-    //
-    checkSubscription();
-
-
-    function getCurrentUser() {
-        try {
-            const s = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
-            if (s && s.buwana_id) return s;
-        } catch {}
-        const id = localStorage.getItem('buwana_id');
-        if (id) return { buwana_id: Number(id) || id };
-        return null;
-    }
-</script>
-<script src="js/item-management.js?v=23"></script>
-
+    <div id="celebrate-overlay" class="celebrate-overlay" aria-hidden="true"></div>
+    <main>
+        <img class="checkmark" src="assets/icons/green-check.png" alt="EarthCal Jedi upgrade confirmed" />
+        <h1>Congrats Jedi!</h1>
+        <h3>You've been upgraded to the full powered EarthCal.</h3>
+        <section class="status-area">
+            <img id="status-spinner" class="status-spinner" src="svgs/earthcal-spinner.svg" alt="Retrieving subscription status" />
+            <p id="status-message" class="status-message">Retrieving your subscription details…</p>
+            <pre id="status-log" class="status-log" aria-live="polite"><code>Waiting for confirmation…</code></pre>
+        </section>
+        <div class="action-row">
+            <a href="dash.html">Go to your EarthCal dashboard</a>
+            <small>We'll redirect you automatically once everything is ready.</small>
+        </div>
+    </main>
+    <script src="js/billing-success.js" type="module"></script>
 </body>
 </html>
