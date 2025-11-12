@@ -7,6 +7,7 @@ const statusLogEl = document.getElementById('status-log');
 const statusIndicatorEl = document.getElementById('status-indicator');
 const successBenefitsEl = document.getElementById('success-benefits');
 const celebrateOverlayEl = document.getElementById('celebrate-overlay');
+const MANUAL_COUPON_SESSION_ID = 'manual_coupon_redemption';
 
 const createLogEntry = (() => {
     const entries = [];
@@ -221,6 +222,16 @@ const init = async () => {
         updateStatus('Missing checkout session details. Please return to the app and try again.');
         createLogEntry('❌ No session_id present in the URL.');
         spinnerEl?.setAttribute('hidden', 'hidden');
+        return;
+    }
+
+    if (sessionId === MANUAL_COUPON_SESSION_ID) {
+        updateStatus('Coupon applied successfully! Welcome to the Jedi plan!', { highlight: true });
+        createLogEntry('🎉 Manual coupon redemption detected. Skipping remote verification.');
+        showCelebration();
+        displaySuccessBenefits();
+        safeStorageSet(sessionStorage, 'earthcal_plan', 'jedi');
+        safeStorageSet(localStorage, 'earthcal_plan', 'jedi');
         return;
     }
 

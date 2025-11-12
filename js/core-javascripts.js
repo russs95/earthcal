@@ -1003,7 +1003,7 @@ async function manageEarthcalUserSub() {
 
                         window.setTimeout(() => {
                             closeMainMenu();
-                            window.location.href = 'billing-success.html';
+                            window.location.href = 'billing-success.html?session_id=manual_coupon_redemption';
                         }, COUPON_CELEBRATION_DURATION_MS + COUPON_REDIRECT_BUFFER_MS);
                     }, COUPON_SUCCESS_HOLD_MS);
                 } catch (couponError) {
