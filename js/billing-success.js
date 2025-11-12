@@ -240,8 +240,7 @@ const init = async () => {
     try {
         const buwanaId = await fetchBuwanaIdForSession(sessionId);
         createLogEntry(`✅ Session linked to buwana_id ${buwanaId}.`);
-        safeStorageSet(sessionStorage, 'buwana_id', String(buwanaId));
-        safeStorageSet(localStorage, 'buwana_id', String(buwanaId));
+        persistBuwanaId(buwanaId);
         pollSubscription(buwanaId);
     } catch (error) {
         updateStatus('We could not confirm your account. Please contact support so we can help.');
