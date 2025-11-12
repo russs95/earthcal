@@ -841,14 +841,17 @@ async function manageEarthcalUserSub() {
 
         const couponToggleButton = modalContent.querySelector('.ec-coupon-toggle');
         const couponForm = modalContent.querySelector('.ec-coupon-form');
+        const couponArea = modalContent.querySelector('.ec-coupon-area');
         const couponInput = modalContent.querySelector('.ec-coupon-input');
         const couponInputWrapper = modalContent.querySelector('.ec-coupon-input-wrapper');
         const couponSubmit = modalContent.querySelector('.ec-coupon-submit');
         const couponFeedback = modalContent.querySelector('.ec-coupon-feedback');
         const couponCancelButton = modalContent.querySelector('.ec-coupon-cancel');
+        const upgradeButton = modalContent.querySelector('.confirmation-blur-button.greenback');
         let couponRequestPending = false;
         const COUPON_CELEBRATION_DURATION_MS = 500;
-        const COUPON_REFRESH_DELAY_MS = 3000;
+        const COUPON_SUCCESS_HOLD_MS = 1000;
+        const COUPON_REDIRECT_BUFFER_MS = 400;
 
         if (couponInput) {
             couponInput.addEventListener('input', () => {
@@ -861,6 +864,17 @@ async function manageEarthcalUserSub() {
                 }
             });
         }
+
+        const setUpgradeVisibility = (isVisible) => {
+            if (!upgradeButton) {
+                return;
+            }
+            if (isVisible) {
+                upgradeButton.hidden = false;
+            } else {
+                upgradeButton.hidden = true;
+            }
+        };
 
         const resetCouponUi = ({ resetFields = false } = {}) => {
             couponRequestPending = false;
@@ -883,6 +897,7 @@ async function manageEarthcalUserSub() {
                 couponToggleButton.setAttribute('aria-expanded', 'false');
             }
             resetCouponUi({ resetFields });
+            setUpgradeVisibility(true);
         };
 
         const showCouponForm = () => {
@@ -896,6 +911,7 @@ async function manageEarthcalUserSub() {
             if (couponInput) {
                 couponInput.focus();
             }
+            setUpgradeVisibility(false);
         };
 
         if (couponToggleButton && couponForm) {
@@ -964,24 +980,32 @@ async function manageEarthcalUserSub() {
                     }
 
                     restoreUi = false;
-                    if (couponFeedback) {
-                        couponFeedback.textContent = 'Coupon applied! Updating your subscription…';
+                    let successWrapper = null;
+                    if (couponArea && couponForm) {
+                        successWrapper = document.createElement('div');
+                        successWrapper.className = 'ec-coupon-success';
+                        successWrapper.textContent = 'Coupon Valid 👍';
+                        couponForm.replaceWith(successWrapper);
                     }
 
-                    if (couponInputWrapper) {
-                        couponInputWrapper.classList.remove('celebrate-animation');
-                        // Force reflow so the animation can be retriggered reliably.
-                        void couponInputWrapper.offsetWidth;
-                        couponInputWrapper.classList.add('celebrate-animation');
-                        window.setTimeout(() => {
-                            couponInputWrapper.classList.remove('celebrate-animation');
-                        }, COUPON_CELEBRATION_DURATION_MS + 100);
+                    if (couponToggleButton) {
+                        couponToggleButton.hidden = true;
                     }
 
                     window.setTimeout(() => {
-                        closeMainMenu();
-                        window.location.reload();
-                    }, COUPON_REFRESH_DELAY_MS);
+                        if (successWrapper) {
+                            successWrapper.classList.add('celebrate-animation');
+                        } else if (couponInputWrapper) {
+                            couponInputWrapper.classList.remove('celebrate-animation');
+                            void couponInputWrapper.offsetWidth;
+                            couponInputWrapper.classList.add('celebrate-animation');
+                        }
+
+                        window.setTimeout(() => {
+                            closeMainMenu();
+                            window.location.href = 'billing-success.html?session_id=manual_coupon_redemption';
+                        }, COUPON_CELEBRATION_DURATION_MS + COUPON_REDIRECT_BUFFER_MS);
+                    }, COUPON_SUCCESS_HOLD_MS);
                 } catch (couponError) {
                     console.error('Coupon validation failed:', couponError);
                     if (couponFeedback) {

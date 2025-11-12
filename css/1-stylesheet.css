@@ -3256,6 +3256,47 @@ INFO MODAL
   animation: couponCelebrate 0.5s ease-out forwards;
   }
 
+  .ec-coupon-success {
+  width: 100%;
+  max-width: 220px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: var(--h1);
+  background-color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+  }
+
+  .ec-coupon-success::after {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: 20px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.55) 0%, rgba(250, 204, 21, 0.5) 35%, rgba(96, 165, 250, 0.45) 65%, rgba(34, 197, 94, 0.4) 80%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transform: scale(0.35);
+  transform-origin: center;
+  pointer-events: none;
+  z-index: -1;
+  }
+
+  .ec-coupon-success.celebrate-animation::after {
+  animation: couponCelebrate 0.5s ease-out forwards;
+  }
+
+@media (prefers-color-scheme: dark) {
+  .ec-coupon-success {
+    color: var(--h1);
+    background-color: rgba(15, 23, 42, 0.65);
+  }
+}
+
   .ec-coupon-input {
   width: 100%;
   max-width: 100%;
