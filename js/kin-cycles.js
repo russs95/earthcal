@@ -302,6 +302,11 @@ function animateStorkCycle(journeyPercentage) {
   let storkPathElement = document.getElementById("stork-year-cycle");
   const storkCycleContainer = document.getElementById("stork-cycler");
 
+  if (!ensureMotionPathPlugin()) {
+    console.warn("⚠️ MotionPathPlugin missing – skipping stork animation");
+    return;
+  }
+
   if (!storkMarkerElement || !storkPathElement || typeof gsap === "undefined") {
     console.warn("⚠️ Stork animation skipped – missing dependencies");
     return;
@@ -458,6 +463,25 @@ function animateStorkCycle(journeyPercentage) {
 //   });
 // }
 
+function ensureMotionPathPlugin() {
+  if (typeof gsap === "undefined") {
+    return false;
+  }
+
+  const plugins = gsap.plugins || {};
+  if (plugins.motionPath || plugins.MotionPathPlugin) {
+    return true;
+  }
+
+  if (typeof MotionPathPlugin !== "undefined") {
+    gsap.registerPlugin(MotionPathPlugin);
+    return true;
+  }
+
+  console.warn("⚠️ MotionPathPlugin is not available");
+  return false;
+}
+
 function ensureSvgVisibility(element, fallbackDisplay = "inline") {
   if (!element) {
     return () => {};
@@ -523,6 +547,11 @@ function animateWhaleCycle(date) {
         console.warn("❌ GSAP is NOT loaded!");
     } else {
         console.log("✅ GSAP loaded");
+    }
+
+    if (!ensureMotionPathPlugin()) {
+        console.warn("⚠️ MotionPathPlugin missing – skipping whale animation");
+        return;
     }
 
     // Validate SVG elements
