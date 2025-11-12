@@ -23,3 +23,4 @@ api/.htaccess
 api/buwanaconn_env.php
 api/calconn_env.php
 
+/vendor/

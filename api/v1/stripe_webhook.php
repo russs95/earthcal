@@ -2,56 +2,62 @@
 declare(strict_types=1);
 
 /**
- * Stripe Webhook Handler
+ * Stripe Webhook — EarthCal
  *
- * Handles subscription lifecycle + checkout completion.
- * Uses lookup_key on Stripe Price to map → plan_id in plans_tb.
+ * Handles:
+ *   ✅ checkout.session.completed
+ *   ✅ customer.subscription.updated
+ *   ✅ customer.subscription.deleted
+ *
+ * Key Assumptions:
+ *   - plans_tb contains lookup_key that matches Stripe Price lookup_key
+ *   - users_tb has stripe_customer_id
+ *   - user_subscriptions_tb tracks plan + provider
  */
 
-header('Content-Type: application/json; charset=utf-8');
+header("Content-Type: application/json; charset=utf-8");
 
-// ======================================================
-// LOAD STRIPE + ENV
-// ======================================================
+/* -------------------------------------------------------
+   LOAD STRIPE + ENV
+------------------------------------------------------- */
 
 $env = require __DIR__ . "/../stripe_env.php";
-/**
- * $env = [
- *   'STRIPE_SECRET_KEY'     => "...",
- *   'STRIPE_WEBHOOK_SECRET' => "...",
- *   'STRIPE_PUBLIC_KEY'     => "..."
- * ]
- */
 
-$STRIPE_WEBHOOK_SECRET = $env['STRIPE_WEBHOOK_SECRET'] ?? null;
-
+$STRIPE_WEBHOOK_SECRET = $env["STRIPE_WEBHOOK_SECRET"] ?? null;
 if (!$STRIPE_WEBHOOK_SECRET) {
     error_log("stripe_webhook.php: Missing STRIPE_WEBHOOK_SECRET");
     http_response_code(500);
-    echo json_encode(['error' => 'Webhook secret not configured']);
-    exit;
+    exit("Webhook secret not configured");
 }
 
-// ======================================================
-// CONNECT DB
-// ======================================================
-require_once __DIR__ . '/../pdo_connect.php';
+// ✅ Load Composer autoloader
+$autoload = __DIR__ . "/../../vendor/autoload.php";
+if (!file_exists($autoload)) {
+    error_log("stripe_webhook.php: vendor/autoload.php missing!");
+    http_response_code(500);
+    exit("Stripe SDK missing");
+}
+require_once $autoload;
+
+/* -------------------------------------------------------
+   DB
+------------------------------------------------------- */
+require_once __DIR__ . "/../pdo_connect.php";
 
 try {
     $pdo = earthcal_get_pdo();
 } catch (Throwable $e) {
-    error_log("stripe_webhook.php: DB connect failed - " . $e->getMessage());
+    error_log("stripe_webhook.php: DB connect failed: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'DB connect failed']);
-    exit;
+    exit("DB connect failed");
 }
 
-// ======================================================
-// READ + VERIFY STRIPE EVENT
-// NOTE: Must use raw body for signature verification
-// ======================================================
-$payload = @file_get_contents('php://input');
-$sig     = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+/* -------------------------------------------------------
+   STRIPE VERIFY
+------------------------------------------------------- */
+
+$payload    = @file_get_contents("php://input");
+$sig        = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? "";
 
 try {
     $event = \Stripe\Webhook::constructEvent(
@@ -59,521 +65,203 @@ try {
         $sig,
         $STRIPE_WEBHOOK_SECRET
     );
-} catch (\UnexpectedValueException $e) {
-    error_log('stripe_webhook.php: Invalid payload - ' . $e->getMessage());
-    http_response_code(400);
-    echo "Invalid payload";
-    exit;
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
-    error_log('stripe_webhook.php: Invalid signature - ' . $e->getMessage());
+    error_log("stripe_webhook.php: Invalid signature");
     http_response_code(400);
-    echo "Invalid signature";
-    exit;
+    exit("Invalid signature");
+} catch (Exception $e) {
+    error_log("stripe_webhook.php: Invalid payload — " . $e->getMessage());
+    http_response_code(400);
+    exit("Invalid payload");
 }
 
-// ======================================================
-// HELPERS
-// ======================================================
+$type = $event["type"] ?? "unknown";
+$data = $event["data"]["object"] ?? [];
+error_log("stripe_webhook.php: Received event {$type}");
 
-/**
- * Look up user by stripe_customer_id
- */
-function find_user_by_stripe_customer(PDO $pdo, string $stripe_customer_id): ?array {
+
+/* -------------------------------------------------------
+   HELPERS
+------------------------------------------------------- */
+
+function find_user_by_customer(PDO $pdo, string $customer): ?int {
     $stmt = $pdo->prepare("
         SELECT buwana_id
         FROM users_tb
         WHERE stripe_customer_id = ?
         LIMIT 1
     ");
-    $stmt->execute([$stripe_customer_id]);
+    $stmt->execute([$customer]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row ?: null;
+    return $row ? (int)$row["buwana_id"] : null;
 }
 
-/**
- * Find plan_id from lookup_key in plans_tb
- */
-function map_price_lookup_to_plan_id(PDO $pdo, string $lookup_key): ?int {
+function lookup_plan_id(PDO $pdo, string $lookup): ?int {
     $stmt = $pdo->prepare("
         SELECT plan_id
         FROM plans_tb
         WHERE lookup_key = ?
         LIMIT 1
     ");
-
-    try {
-        $stmt->execute([$lookup_key]);
-    } catch (PDOException $e) {
-        // Some databases may not yet have the lookup_key column deployed.
-        error_log('stripe_webhook.php: plan lookup by lookup_key failed - ' . $e->getMessage());
-        return null;
-    }
-
+    $stmt->execute([$lookup]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row ? (int)$row['plan_id'] : null;
+    return $row ? (int)$row["plan_id"] : null;
 }
 
-function normalize_stripe_value($source, string $key)
-{
-    if (is_array($source)) {
-        return $source[$key] ?? null;
-    }
-
-    if (is_object($source)) {
-        return $source->$key ?? null;
-    }
-
-    return null;
-}
-
-function stripe_object_to_array($value): array
-{
-    if (is_array($value)) {
-        return $value;
-    }
-
-    if (is_object($value)) {
-        if (method_exists($value, 'toArray')) {
-            return $value->toArray();
-        }
-
-        return (array)$value;
-    }
-
-    return [];
-}
-
-function slugify(string $value): string
-{
-    $value = strtolower(trim($value));
-    $value = preg_replace('/[^a-z0-9]+/i', '_', $value);
-    return trim($value, '_');
-}
-
-function format_stripe_timestamp($timestamp): ?string
-{
-    if ($timestamp === null || $timestamp === '') {
-        return null;
-    }
-
-    if (is_string($timestamp) && ctype_digit($timestamp)) {
-        $timestamp = (int)$timestamp;
-    }
-
-    if (!is_int($timestamp)) {
-        return null;
-    }
-
-    try {
-        return (new \DateTimeImmutable('@' . $timestamp))
-            ->setTimezone(new \DateTimeZone('UTC'))
-            ->format('Y-m-d H:i:s');
-    } catch (\Throwable $e) {
-        error_log('stripe_webhook.php: unable to format timestamp ' . $timestamp . ' - ' . $e->getMessage());
-        return null;
-    }
-}
-
-function resolve_plan_id_from_price(PDO $pdo, $price): ?int
-{
-    $candidates = [];
-
-    $lookupKey = normalize_stripe_value($price, 'lookup_key');
-    if (is_string($lookupKey) && $lookupKey !== '') {
-        $candidates[] = $lookupKey;
-    }
-
-    $metadata = stripe_object_to_array(normalize_stripe_value($price, 'metadata'));
-    if (!empty($metadata)) {
-        if (isset($metadata['plan_id']) && is_numeric($metadata['plan_id'])) {
-            return (int)$metadata['plan_id'];
-        }
-
-        foreach (['plan_slug', 'slug', 'plan', 'lookup_key'] as $metaKey) {
-            if (!empty($metadata[$metaKey]) && is_string($metadata[$metaKey])) {
-                $candidates[] = $metadata[$metaKey];
-            }
-        }
-    }
-
-    $product = normalize_stripe_value($price, 'product');
-
-    if (is_string($product) && $product !== '') {
-        try {
-            $product = \Stripe\Product::retrieve($product);
-        } catch (\Throwable $e) {
-            error_log('stripe_webhook.php: unable to load Stripe product ' . $product . ' - ' . $e->getMessage());
-            $product = null;
-        }
-    }
-
-    if ($product && !is_string($product)) {
-        $productMetadata = stripe_object_to_array(normalize_stripe_value($product, 'metadata'));
-        if (!empty($productMetadata)) {
-            if (isset($productMetadata['plan_id']) && is_numeric($productMetadata['plan_id'])) {
-                return (int)$productMetadata['plan_id'];
-            }
-
-            foreach (['plan_slug', 'slug', 'plan'] as $metaKey) {
-                if (!empty($productMetadata[$metaKey]) && is_string($productMetadata[$metaKey])) {
-                    $candidates[] = $productMetadata[$metaKey];
-                }
-            }
-        }
-    }
-
-    $nickname = normalize_stripe_value($price, 'nickname');
-    if (is_string($nickname) && $nickname !== '') {
-        $candidates[] = $nickname;
-    }
-
-    $finalCandidates = [];
-    foreach ($candidates as $candidate) {
-        if (!is_string($candidate) || $candidate === '') {
-            continue;
-        }
-
-        $finalCandidates[] = $candidate;
-
-        $slugCandidate = slugify($candidate);
-        if ($slugCandidate !== $candidate) {
-            $finalCandidates[] = $slugCandidate;
-        }
-
-        $segments = preg_split('/[_\-]/', $slugCandidate);
-        if (!empty($segments)) {
-            $finalCandidates = array_merge($finalCandidates, $segments);
-        }
-    }
-
-    $finalCandidates = array_values(array_unique(array_filter($finalCandidates)));
-
-    foreach ($finalCandidates as $candidate) {
-        $planId = map_price_lookup_to_plan_id($pdo, $candidate);
-        if ($planId) {
-            return $planId;
-        }
-
-        $planId = map_plan_slug_to_plan_id($pdo, $candidate);
-        if ($planId) {
-            return $planId;
-        }
-    }
-
-    $priceId = normalize_stripe_value($price, 'id');
-    $lookupDebug = $lookupKey ?: 'none';
-    error_log(sprintf(
-        'stripe_webhook.php: Unable to resolve plan for price %s (lookup_key=%s, candidates=%s)',
-        $priceId ?: 'unknown',
-        $lookupDebug,
-        json_encode($finalCandidates)
-    ));
-
-    return null;
-}
-
-/**
- * Find plan_id from slug in plans_tb
- */
-function map_plan_slug_to_plan_id(PDO $pdo, string $slug): ?int {
-    $stmt = $pdo->prepare("
-        SELECT plan_id
-        FROM plans_tb
-        WHERE slug = ?
-        LIMIT 1
-    ");
-    $stmt->execute([$slug]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row ? (int)$row['plan_id'] : null;
-}
-
-/**
- * Upsert subscription → user_subscriptions_tb
- */
-function find_or_create_subscription(
+function upsert_subscription(
     PDO $pdo,
     int $buwana_id,
     int $plan_id,
     string $stripe_subscription_id,
-    ?string $coupon_code,
-    ?string $start_at,
-    ?string $current_period_end
-): int {
+    ?int $current_period_end
+): void {
 
-    // Existing?
-    $check = $pdo->prepare("
+    // UPDATE
+    $stmt = $pdo->prepare("
         SELECT subscription_id
         FROM user_subscriptions_tb
-        WHERE user_id = :uid
-        AND external_subscription_id = :ext
+        WHERE external_subscription_id = ?
+        AND user_id = ?
         LIMIT 1
     ");
-    $check->execute([
-        'uid' => $buwana_id,
-        'ext' => $stripe_subscription_id,
-    ]);
-
-    $existing = $check->fetch(PDO::FETCH_ASSOC);
+    $stmt->execute([$stripe_subscription_id, $buwana_id]);
+    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($existing) {
-        $subscription_id = (int)$existing['subscription_id'];
         $update = $pdo->prepare("
             UPDATE user_subscriptions_tb
             SET plan_id = :plan,
                 status = 'active',
-                coupon_code = :coupon,
-                start_at = :startat,
-                current_period_end = :cpe,
+                current_period_end = :end_at,
                 updated_at = NOW()
             WHERE subscription_id = :sid
         ");
         $update->execute([
-            'plan'     => $plan_id,
-            'coupon'   => $coupon_code,
-            'startat'  => $start_at,
-            'cpe'      => $current_period_end,
-            'sid'      => $subscription_id
+            "plan"   => $plan_id,
+            "end_at" => $current_period_end ? date("Y-m-d H:i:s", $current_period_end) : null,
+            "sid"    => $existing["subscription_id"]
         ]);
-        return $subscription_id;
+        return;
     }
 
-    // New
+    // INSERT
     $insert = $pdo->prepare("
         INSERT INTO user_subscriptions_tb
-        (user_id, plan_id, status, is_gift, coupon_code, external_provider,
-         external_subscription_id, start_at, current_period_end, created_at, updated_at)
+        (user_id, plan_id, status, external_provider, external_subscription_id,
+         current_period_end, created_at, updated_at)
         VALUES
-        (:uid, :plan, 'active', 0, :coupon, 'stripe', :ext,
-         :startat, :cpe, NOW(), NOW())
+        (:uid, :plan, 'active', 'stripe', :subid, :end_at, NOW(), NOW())
     ");
     $insert->execute([
-        'uid'     => $buwana_id,
-        'plan'    => $plan_id,
-        'coupon'  => $coupon_code,
-        'ext'     => $stripe_subscription_id,
-        'startat' => $start_at,
-        'cpe'     => $current_period_end,
+        "uid"   => $buwana_id,
+        "plan"  => $plan_id,
+        "subid" => $stripe_subscription_id,
+        "end_at"=> $current_period_end ? date("Y-m-d H:i:s", $current_period_end) : null
     ]);
-
-    return (int)$pdo->lastInsertId();
 }
 
 
-// ======================================================
-// PROCESS EVENT
-// ======================================================
+/* -------------------------------------------------------
+   EVENT HANDLING
+------------------------------------------------------- */
 
-$type = $event['type'] ?? '';
-$data = $event['data']['object'] ?? [];
-
-error_log(sprintf('stripe_webhook.php: Received event type=%s id=%s', $type ?: 'unknown', $event['id'] ?? 'n/a'));
-
-try {
-
-    switch ($type) {
-
-    // ==================================================
-    // checkout.session.completed
-    // ==================================================
-    case 'checkout.session.completed':
-
-        $customer     = $data['customer']     ?? null;
-        $subscription = $data['subscription'] ?? null;
-        $metadata     = $data['metadata']     ?? [];
-
-        if (!$customer) {
-            error_log('stripe_webhook.php: checkout.session.completed missing customer id');
-            break;
-        }
-
-        // Assign user
-        $user = find_user_by_stripe_customer($pdo, $customer);
-
-        if (!$user) {
-            // First-time checkout — metadata must include buwana_id
-            if (!empty($metadata['buwana_id'])) {
-                $buwana_id = (int)$metadata['buwana_id'];
-                $stmt = $pdo->prepare("
-                    UPDATE users_tb
-                    SET stripe_customer_id = :cid
-                    WHERE buwana_id = :bid
-                ");
-                $stmt->execute([
-                    'cid' => $customer,
-                    'bid' => $buwana_id,
-                ]);
-                error_log(sprintf('stripe_webhook.php: Associated Stripe customer %s with user %d via checkout metadata', $customer, $buwana_id));
-            } else {
-                error_log('stripe_webhook.php: checkout.session.completed missing buwana_id metadata for new customer ' . $customer);
-                break;
-            }
-        } else {
-            $buwana_id = (int)$user['buwana_id'];
-        }
-
-        // Subscription exists?
-        if ($subscription) {
-
-            try {
-                $subObj = \Stripe\Subscription::retrieve([
-                    'id'     => $subscription,
-                    'expand' => ['items.data.price', 'items.data.price.product']
-                ]);
-            } catch (\Throwable $e) {
-                error_log('stripe_webhook.php: Failed to retrieve subscription ' . $subscription . ' - ' . $e->getMessage());
-                break;
-            }
-
-            $price = $subObj->items->data[0]->price ?? null;
-
-            if ($price) {
-                $plan_id = resolve_plan_id_from_price($pdo, $price);
-
-                if ($plan_id) {
-                    $coupon_code = null;
-                    if (isset($subObj->discount) && $subObj->discount) {
-                        $coupon = $subObj->discount->coupon ?? null;
-                        if ($coupon && isset($coupon->name)) {
-                            $coupon_code = $coupon->name;
-                        }
-                    }
-
-                    $start_at = format_stripe_timestamp($subObj->start_date ?? null);
-                    $period_end = format_stripe_timestamp($subObj->current_period_end ?? null);
-
-                    find_or_create_subscription(
-                        $pdo,
-                        $buwana_id,
-                        $plan_id,
-                        $subscription,
-                        $coupon_code,
-                        $start_at,
-                        $period_end
-                    );
-                    error_log(sprintf('stripe_webhook.php: checkout.session.completed ensured subscription for user %d plan %d (sub %s)', $buwana_id, $plan_id, $subscription));
-                } else {
-                    error_log(sprintf('stripe_webhook.php: checkout.session.completed unable to resolve plan for subscription %s customer %s', $subscription, $customer));
-                }
-            } else {
-                error_log(sprintf('stripe_webhook.php: checkout.session.completed missing price information for subscription %s', $subscription));
-            }
-        } else {
-            error_log(sprintf('stripe_webhook.php: checkout.session.completed missing subscription id for customer %s', $customer));
-        }
-
-        break;
+switch ($type) {
 
 
-    // ==================================================
-    // customer.subscription.updated
-    // ==================================================
-    case 'customer.subscription.updated':
-        $subObj = $data;
+/* ✅ 1. Checkout Completed → Establish subscription */
+case "checkout.session.completed":
+    $customer     = $data["customer"]     ?? null;
+    $subscription = $data["subscription"] ?? null;
+    $metadata     = $data["metadata"]     ?? [];
 
-        $stripe_subscription_id = $subObj['id'];
-        $customer               = $subObj['customer'];
-
-        $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) {
-            error_log(sprintf('stripe_webhook.php: subscription.updated customer %s not linked to a user', $customer));
-            break;
-        }
-
-        $buwana_id = (int)$user['buwana_id'];
-
-        $price = $subObj['items']['data'][0]['price'] ?? null;
-        $plan_id = $price ? resolve_plan_id_from_price($pdo, $price) : null;
-
-        $coupon_code = null;
-        if (!empty($subObj['discount']['coupon']['name'])) {
-            $coupon_code = $subObj['discount']['coupon']['name'];
-        }
-
-        $start_at = format_stripe_timestamp($subObj['start_date'] ?? null);
-        $period_end  = format_stripe_timestamp($subObj['current_period_end'] ?? null);
-
-        if ($plan_id) {
-            find_or_create_subscription(
-                $pdo,
-                $buwana_id,
-                $plan_id,
-                $stripe_subscription_id,
-                $coupon_code,
-                $start_at,
-                $period_end
-            );
-            error_log(sprintf('stripe_webhook.php: subscription.updated synced user %d plan %d (sub %s)', $buwana_id, $plan_id, $stripe_subscription_id));
-        } else {
-            error_log(sprintf('stripe_webhook.php: subscription.updated unable to resolve plan for subscription %s customer %s', $stripe_subscription_id, $customer));
-        }
-
-        // Cancellation at period end
-        if (!empty($subObj['cancel_at_period_end'])) {
-            $stmt = $pdo->prepare("
-                UPDATE user_subscriptions_tb
-                SET status='canceled',
-                    cancel_at = :cancel_at,
-                    updated_at = NOW()
-                WHERE user_id = :uid
-                AND external_subscription_id = :sid
-            ");
-            $stmt->execute([
-                'cancel_at' => $period_end,
-                'uid'       => $buwana_id,
-                'sid'       => $stripe_subscription_id,
-            ]);
-            error_log(sprintf('stripe_webhook.php: subscription.updated marked cancel_at_period_end for user %d (sub %s)', $buwana_id, $stripe_subscription_id));
-        }
-
-        break;
-
-
-    // ==================================================
-    // customer.subscription.deleted
-    // ==================================================
-    case 'customer.subscription.deleted':
-        $subObj = $data;
-
-        $stripe_subscription_id = $subObj['id'];
-        $customer               = $subObj['customer'];
-
-        $user = find_user_by_stripe_customer($pdo, $customer);
-        if (!$user) {
-            error_log(sprintf('stripe_webhook.php: subscription.deleted customer %s not linked to a user', $customer));
-            break;
-        }
-
-        $buwana_id = (int)$user['buwana_id'];
-
-        $stmt = $pdo->prepare("
-            UPDATE user_subscriptions_tb
-            SET status='canceled',
-                canceled_at = NOW(),
-                updated_at = NOW()
-            WHERE user_id = :uid
-            AND external_subscription_id = :sid
-        ");
-        $stmt->execute([
-            'uid' => $buwana_id,
-            'sid' => $stripe_subscription_id,
-        ]);
-
-        error_log(sprintf('stripe_webhook.php: subscription.deleted canceled user %d subscription %s', $buwana_id, $stripe_subscription_id));
-
+    if (!$customer) {
+        error_log("checkout.session.completed: missing customer");
         break;
     }
 
-} catch (\Throwable $e) {
-    error_log('stripe_webhook.php: fatal handler error - ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-    error_log('stripe_webhook.php: stack trace - ' . $e->getTraceAsString());
-    http_response_code(500);
-    echo json_encode(['error' => 'internal handler error']);
-    exit;
+    // First purchase may not yet have stripe_customer_id mapped
+    $buwana_id = find_user_by_customer($pdo, $customer);
+    if (!$buwana_id && !empty($metadata["buwana_id"])) {
+        $buwana_id = (int)$metadata["buwana_id"];
+
+        $stmt = $pdo->prepare("
+            UPDATE users_tb SET stripe_customer_id = :cid
+            WHERE buwana_id = :bid
+        ");
+        $stmt->execute(["cid" => $customer, "bid" => $buwana_id]);
+
+        error_log("Associated customer {$customer} → user {$buwana_id}");
+    }
+
+    if (!$subscription || !$buwana_id) break;
+
+    $sub = \Stripe\Subscription::retrieve([
+        "id"     => $subscription,
+        "expand" => ["items.data.price"]
+    ]);
+
+    $price      = $sub->items->data[0]->price ?? null;
+    $lookup_key = $price->lookup_key ?? null;
+    $period_end = $sub->current_period_end ?? null;
+
+    if (!$lookup_key) {
+        error_log("checkout.session.completed: No lookup_key on price");
+        break;
+    }
+
+    $plan_id = lookup_plan_id($pdo, $lookup_key);
+    if (!$plan_id) {
+        error_log("checkout.session.completed: No plan match for {$lookup_key}");
+        break;
+    }
+
+    upsert_subscription($pdo, $buwana_id, $plan_id, $subscription, $period_end);
+    break;
+
+
+/* ✅ 2. Subscription Updated (renewed, plan changed, etc.) */
+case "customer.subscription.updated":
+    $sub             = $data;
+    $subscription_id = $sub["id"];
+    $customer        = $sub["customer"];
+
+    $buwana_id = find_user_by_customer($pdo, $customer);
+    if (!$buwana_id) break;
+
+    $price      = $sub["items"]["data"][0]["price"] ?? null;
+    $lookup_key = $price["lookup_key"] ?? null;
+    $period_end = $sub["current_period_end"] ?? null;
+
+    if (!$lookup_key) break;
+
+    $plan_id = lookup_plan_id($pdo, $lookup_key);
+    if (!$plan_id) break;
+
+    upsert_subscription($pdo, $buwana_id, $plan_id, $subscription_id, $period_end);
+    break;
+
+
+/* ✅ 3. Subscription Canceled */
+case "customer.subscription.deleted":
+    $sub             = $data;
+    $subscription_id = $sub["id"];
+    $customer        = $sub["customer"];
+
+    $buwana_id = find_user_by_customer($pdo, $customer);
+    if (!$buwana_id) break;
+
+    $stmt = $pdo->prepare("
+        UPDATE user_subscriptions_tb
+        SET status='canceled', canceled_at = NOW(), updated_at=NOW()
+        WHERE user_id = :uid AND external_subscription_id = :sid
+    ");
+    $stmt->execute([
+        "uid" => $buwana_id,
+        "sid" => $subscription_id
+    ]);
+    break;
 }
 
 
-// ======================================================
-// SUCCESS
-// ======================================================
 http_response_code(200);
-echo json_encode(['received' => true]);
+echo json_encode(["received" => true]);
