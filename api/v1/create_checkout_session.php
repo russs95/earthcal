@@ -177,7 +177,7 @@ try {
         'metadata' => [
             'buwana_id' => $buwana_id,
         ],
-        'success_url' => 'https://earthcal.app/billing-success?session_id={CHECKOUT_SESSION_ID}',
+        'success_url' => 'https://earthcal.app/billing-success.html?session_id={CHECKOUT_SESSION_ID}',
         'cancel_url'  => 'https://earthcal.app/billing-cancel',
     ]);
 

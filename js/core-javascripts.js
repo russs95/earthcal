@@ -566,7 +566,7 @@ async function manageEarthcalUserSub() {
         'Track the interstellar comet 3I-Atlas',
         'Subscribe to Google calendars',
         'Subscribe to Apple calendars',
-        'Subscribe to Outlook calendars (coming soon)',
+        'Subscribe to Outlook calendars',
         'Subscribe to public iCal feeds',
         'Toggle between Day and Night modes',
         'Access Mac desktop app (coming soon)',
@@ -1003,13 +1003,7 @@ async function manageEarthcalUserSub() {
 
                         window.setTimeout(() => {
                             closeMainMenu();
-                            const manualSuccessParams = new URLSearchParams({
-                                session_id: 'manual_coupon_redemption',
-                            });
-                            if (user?.buwana_id) {
-                                manualSuccessParams.set('buwana_id', String(user.buwana_id));
-                            }
-                            window.location.href = `billing-success.html?${manualSuccessParams.toString()}`;
+                            window.location.href = 'billing-success.html?session_id=manual_coupon_redemption';
                         }, COUPON_CELEBRATION_DURATION_MS + COUPON_REDIRECT_BUFFER_MS);
                     }, COUPON_SUCCESS_HOLD_MS);
                 } catch (couponError) {

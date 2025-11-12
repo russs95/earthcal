@@ -1,0 +1,17 @@
+{
+    "name": "ubuntusitubondo/earthcal",
+    "autoload": {
+        "psr-4": {
+            "Ubuntusitubondo\\Earthcal\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ubuntusitubondo",
+            "email": "russ@earthen.io"
+        }
+    ],
+    "require": {
+        "stripe/stripe-php": "^18.2"
+    }
+}

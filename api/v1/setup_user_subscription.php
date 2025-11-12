@@ -3,24 +3,38 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+//
+// ✅ 1) CORS / Preflight handling
+//
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Methods: POST, OPTIONS');
     header('Access-Control-Allow-Headers: Content-Type, Authorization');
     exit(0);
 }
 
+//
+// ✅ 2) Require POST
+//
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'error' => 'invalid_method']);
     exit;
 }
 
+//
+// ✅ 3) Parse incoming JSON payload
+//
 $raw = file_get_contents('php://input');
 $payload = json_decode($raw ?: '[]', true);
 if (!is_array($payload)) {
     $payload = $_POST;
 }
 
+//
+// ✅ 4) Extract user + plan slug
+//    (For Stripe workflow, plan_slug should be the plan to activate: e.g. "jedi_month")
+//    buwana_id comes from metadata or session
+//
 $buwanaId = filter_var($payload['buwana_id'] ?? null, FILTER_VALIDATE_INT);
 if (!$buwanaId) {
     http_response_code(400);
@@ -33,6 +47,9 @@ if ($planSlug === '') {
     $planSlug = 'padwan';
 }
 
+//
+// ✅ 5) Open DB
+//
 try {
     require_once __DIR__ . '/../pdo_connect.php';
     $pdo = earthcal_get_pdo();
@@ -43,6 +60,9 @@ try {
 }
 
 try {
+    //
+    // ✅ 6) Look up target plan
+    //
     $pdo->beginTransaction();
 
     $planStmt = $pdo->prepare('SELECT plan_id FROM plans_tb WHERE slug = ? LIMIT 1');
@@ -56,6 +76,9 @@ try {
         exit;
     }
 
+    //
+    // ✅ 7) Confirm user exists
+    //
     $userStmt = $pdo->prepare('SELECT buwana_id FROM users_tb WHERE buwana_id = ? LIMIT 1');
     $userStmt->execute([$buwanaId]);
     if (!$userStmt->fetchColumn()) {
@@ -65,13 +88,16 @@ try {
         exit;
     }
 
+    //
+    // ✅ 8) Check if user already has subscription for this plan
+    //
     $subscriptionStmt = $pdo->prepare(
         'SELECT subscription_id, user_id, plan_id, status, is_gift, coupon_code, external_provider,
                 external_subscription_id, start_at, current_period_end, cancel_at, canceled_at,
                 created_at, updated_at
-           FROM user_subscriptions_tb
-          WHERE user_id = ? AND plan_id = ?
-          LIMIT 1'
+         FROM user_subscriptions_tb
+         WHERE user_id = ? AND plan_id = ?
+         LIMIT 1'
     );
     $subscriptionStmt->execute([$buwanaId, $planId]);
     $existingSubscription = $subscriptionStmt->fetch(PDO::FETCH_ASSOC);
@@ -79,7 +105,12 @@ try {
     $created = false;
     $updated = false;
 
+    //
+    // ✅ 9) Update existing active subscription
+    //     (If user already had the plan, just reactivate)
+    //
     if ($existingSubscription) {
+
         $updateStmt = $pdo->prepare(
             "UPDATE user_subscriptions_tb
                 SET status = 'active', updated_at = NOW()
@@ -87,6 +118,10 @@ try {
         );
         $updateStmt->execute([$existingSubscription['subscription_id']]);
         $updated = true;
+
+    //
+    // ✅ 10) Otherwise insert new subscription record
+    //
     } else {
         $insertStmt = $pdo->prepare(
             "INSERT INTO user_subscriptions_tb
@@ -99,6 +134,9 @@ try {
         $updated = true;
     }
 
+    //
+    // ✅ 11) Fetch subscription record so we can return it
+    //
     $subscriptionStmt->execute([$buwanaId, $planId]);
     $subscriptionRow = $subscriptionStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -113,6 +151,9 @@ try {
         exit;
     }
 
+    //
+    // ✅ 12) Build response
+    //
     $subscription = [
         'subscription_id' => isset($subscriptionRow['subscription_id'])
             ? (int)$subscriptionRow['subscription_id']
@@ -145,7 +186,12 @@ try {
         'plan_slug' => $planSlug,
         'subscription' => $subscription,
     ]);
-} catch (Throwable $e) {
+}
+catch (Throwable $e) {
+
+    //
+    // ✅ 13) Rollback on error and respond
+    //
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();
     }
