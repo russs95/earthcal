@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>EarthCal | Billing Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="assets/icons/favicon.ico" />
+    <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
+    <link rel="preload" href="css/light.css?v7" as="style">
+    <link rel="preload" href="css/dark.css?v7" as="style">
+    <link rel="preload" href="css/1-stylesheet.css" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.3">
+    <style>
+        :root {
+            --page-max-width: min(520px, 92vw);
+            --card-background: rgba(255, 255, 255, 0.92);
+            --card-text: #0f172a;
+            --accent-green: #1f8a3d;
+            --accent-green-strong: #0ca70c;
+            --muted: rgba(15, 23, 42, 0.72);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --card-background: rgba(11, 15, 28, 0.86);
+                --card-text: #f8fafc;
+                --accent-green: #4ade80;
+                --accent-green-strong: #86efac;
+                --muted: rgba(226, 232, 240, 0.85);
+            }
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: clamp(24px, 4vw, 60px) 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Mulish', sans-serif;
+            background-color: rgb(245, 245, 245);
+            background-image: url('webp/earthen-subscription-background-light.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: var(--card-text);
+            position: relative;
+            overflow: hidden;
+            transition: background-image 0.4s ease, color 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: rgb(13, 15, 26);
+                background-image: url('webp/earthen-subscription-background-dark.webp');
+            }
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+            max-width: var(--page-max-width);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(14px, 2vw, 22px);
+            padding: clamp(28px, 4vw, 48px);
+            border-radius: clamp(18px, 3vw, 28px);
+            background: var(--card-background);
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.26);
+            backdrop-filter: blur(16px);
+        }
+
+        .celebrate-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(34, 197, 94, 0.55), rgba(59, 130, 246, 0.35), rgba(99, 102, 241, 0.28), rgba(15, 23, 42, 0.2));
+            opacity: 0;
+            transform: scale(0.85);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .celebrate-overlay.is-active {
+            animation: celebrateOverlay 0.5s ease-out forwards;
+        }
+
+        @keyframes celebrateOverlay {
+            0% {
+                opacity: 0;
+                transform: scale(0.75);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            width: clamp(78px, 18vw, 110px);
+            height: auto;
+        }
+
+        h1,
+        h3 {
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 2.6rem);
+            letter-spacing: 0.02em;
+        }
+
+        h3 {
+            font-weight: 500;
+            font-size: clamp(1.05rem, 3vw, 1.35rem);
+            color: var(--muted);
+        }
+
+        .status-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .status-spinner {
+            width: 150px;
+            height: 150px;
+        }
+
+        .status-message {
+            font-size: 1.05rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .status-message strong {
+            color: var(--accent-green);
+        }
+
+        .status-log {
+            margin: 0;
+            font-size: 0.92rem;
+            color: rgba(15, 23, 42, 0.58);
+            max-height: 140px;
+            overflow-y: auto;
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .status-log code {
+            font-family: 'Mulish', 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .status-log {
+                background: rgba(15, 23, 42, 0.6);
+                color: rgba(226, 232, 240, 0.9);
+            }
+        }
+
+        .action-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .action-row a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: var(--accent-green);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .action-row a:hover,
+        .action-row a:focus-visible {
+            transform: translateY(-1px);
+            background: var(--accent-green-strong);
+        }
+
+        .action-row small {
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div id="celebrate-overlay" class="celebrate-overlay" aria-hidden="true"></div>
+    <main>
+        <img class="checkmark" src="assets/icons/green-check.png" alt="EarthCal Jedi upgrade confirmed" />
+        <h1>Congrats Jedi!</h1>
+        <h3>You've been upgraded to the full powered EarthCal.</h3>
+        <section class="status-area">
+            <img id="status-spinner" class="status-spinner" src="svgs/earthcal-spinner.svg" alt="Retrieving subscription status" />
+            <p id="status-message" class="status-message">Retrieving your subscription details…</p>
+            <pre id="status-log" class="status-log" aria-live="polite"><code>Waiting for confirmation…</code></pre>
+        </section>
+        <div class="action-row">
+            <a href="dash.html">Go to your EarthCal dashboard</a>
+            <small>We'll redirect you automatically once everything is ready.</small>
+        </div>
+    </main>
+    <script src="js/billing-success.js" type="module"></script>
+</body>
+</html>
