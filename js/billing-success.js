@@ -50,6 +50,91 @@ const safeJsonParse = (value, context) => {
     }
 };
 
+const normalizeBuwanaId = (input) => {
+    if (input === null || input === undefined) {
+        return null;
+    }
+
+    if (typeof input === 'number') {
+        return Number.isFinite(input) && input > 0 ? input : null;
+    }
+
+    if (typeof input === 'bigint') {
+        const numeric = Number(input);
+        return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+    }
+
+    const stringValue = String(input).trim();
+    if (!stringValue) {
+        return null;
+    }
+
+    const directNumeric = Number(stringValue);
+    if (Number.isFinite(directNumeric) && directNumeric > 0) {
+        return directNumeric;
+    }
+
+    const match = stringValue.match(/(\d{3,})/);
+    if (match) {
+        const numericFromMatch = Number(match[1]);
+        if (Number.isFinite(numericFromMatch) && numericFromMatch > 0) {
+            return numericFromMatch;
+        }
+    }
+
+    return null;
+};
+
+const decodeJwtPayload = (token) => {
+    if (typeof token !== 'string' || !token.includes('.')) {
+        return null;
+    }
+
+    try {
+        const [, base64Payload] = token.split('.');
+        if (!base64Payload) {
+            return null;
+        }
+
+        const normalized = base64Payload.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+        const decoded = atob(padded);
+        return JSON.parse(decoded);
+    } catch (error) {
+        console.warn('Unable to decode JWT payload for buwana_id lookup.', error);
+        return null;
+    }
+};
+
+const extractBuwanaIdFromPayload = (payload) => {
+    if (!payload || typeof payload !== 'object') {
+        return null;
+    }
+
+    const directCandidates = [
+        payload.buwana_id,
+        payload.buwanaId,
+        payload['buwana:id'],
+        payload.user_buwana_id,
+        payload?.user?.buwana_id,
+        payload?.profile?.buwana_id,
+    ];
+
+    for (const candidate of directCandidates) {
+        const normalized = normalizeBuwanaId(candidate);
+        if (normalized) {
+            return normalized;
+        }
+    }
+
+    const subCandidate = normalizeBuwanaId(payload.sub);
+    if (subCandidate) {
+        return subCandidate;
+    }
+
+    return null;
+};
+
 const parseBuwanaId = () => {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -68,9 +153,33 @@ const parseBuwanaId = () => {
             safeStorageGet(localStorage, 'buwana_user'),
             'localStorage.buwana_user',
         );
+        const sessionProfile = safeJsonParse(
+            safeStorageGet(sessionStorage, 'user_profile'),
+            'sessionStorage.user_profile',
+        );
+        const localProfile = safeJsonParse(
+            safeStorageGet(localStorage, 'user_profile'),
+            'localStorage.user_profile',
+        );
 
-        const fromSessionProfile = sessionUser?.buwana_id;
-        const fromLocalProfile = localUser?.buwana_id;
+        const windowUserProfile = typeof window !== 'undefined' ? window.userProfile || null : null;
+        const loginStatePayload = (() => {
+            if (typeof window === 'undefined' || typeof window.isLoggedIn !== 'function') {
+                return null;
+            }
+            try {
+                const state = window.isLoggedIn({ returnPayload: true });
+                return state?.payload || null;
+            } catch (error) {
+                console.warn('Unable to read active login state for buwana_id lookup.', error);
+                return null;
+            }
+        })();
+
+        const sessionIdToken = decodeJwtPayload(safeStorageGet(sessionStorage, 'id_token'));
+        const sessionAccessToken = decodeJwtPayload(safeStorageGet(sessionStorage, 'access_token'));
+        const localIdToken = decodeJwtPayload(safeStorageGet(localStorage, 'id_token'));
+        const localAccessToken = decodeJwtPayload(safeStorageGet(localStorage, 'access_token'));
 
         let fromCookie = null;
         if (typeof document !== 'undefined' && typeof document.cookie === 'string') {
@@ -80,18 +189,31 @@ const parseBuwanaId = () => {
             }
         }
 
+        const payloadCandidates = [
+            sessionUser,
+            localUser,
+            sessionProfile,
+            localProfile,
+            windowUserProfile,
+            loginStatePayload,
+            sessionIdToken,
+            sessionAccessToken,
+            localIdToken,
+            localAccessToken,
+        ];
+
         const candidates = [
             fromQuery,
             fromSession,
             fromLocal,
             fromGlobal,
-            fromSessionProfile,
-            fromLocalProfile,
             fromCookie,
+            ...payloadCandidates.map(extractBuwanaIdFromPayload),
         ].filter((candidate) => candidate !== null && candidate !== undefined);
+
         for (const candidate of candidates) {
-            const value = Number(candidate);
-            if (Number.isFinite(value) && value > 0) {
+            const value = normalizeBuwanaId(candidate);
+            if (value) {
                 return value;
             }
         }
