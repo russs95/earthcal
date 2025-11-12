@@ -298,52 +298,29 @@ function updateStorkCycle(targetDate) {
 let startPercentage = 0;
 // Function to animate the stork cycle
 function animateStorkCycle(journeyPercentage) {
-  let storkMarkerElement = document.getElementById("stork-marker");
-  let storkPathElement = document.getElementById("stork-year-cycle");
+  const storkMarkerElement = document.getElementById("stork-marker");
+  const storkPathElement = document.getElementById("stork-year-cycle");
   const storkCycleContainer = document.getElementById("stork-cycler");
 
-  if (!ensureMotionPathPlugin()) {
-    console.warn("⚠️ MotionPathPlugin missing – skipping stork animation");
-    return;
-  }
-
-  if (!storkMarkerElement || !storkPathElement || typeof gsap === "undefined") {
-    console.warn("⚠️ Stork animation skipped – missing dependencies");
+  if (!storkMarkerElement || !storkPathElement) {
+    console.warn("⚠️ Stork animation skipped – missing SVG elements");
     return;
   }
 
   if (storkCycleContainer && !isElementVisible(storkCycleContainer)) {
-    console.warn("⚠️ Stork cycle container hidden – skipping animation");
     return;
   }
 
-  // Convert journeyPercentage to a fraction of 1
-  let journeyFraction = journeyPercentage / 100;
-  // Ensure any previous animations are killed
-  gsap.killTweensOf(storkMarkerElement);
+  const journeyFraction = clampProgress(Number.parseFloat(journeyPercentage) / 100);
+  const previousProgress = Number.parseFloat(storkMarkerElement.dataset.migrationProgress);
+  const initialRatio = Number.isFinite(startPercentage) ? startPercentage : previousProgress;
+  const startRatio = clampProgress(Number.isFinite(initialRatio) ? initialRatio : previousProgress);
+  const endRatio = clampProgress(Number.isFinite(journeyFraction) ? journeyFraction : startRatio);
 
-  const restoreMarkerVisibility = ensureSvgVisibility(storkMarkerElement);
-  const restorePathVisibility = ensureSvgVisibility(storkPathElement);
+  const durationMs = 3000; // 3 seconds, matching the previous GSAP duration
+  animateMarkerAlongPath(storkMarkerElement, storkPathElement, startRatio, endRatio, durationMs);
 
-  // Use GSAP to animate the stork marker along the path
-  gsap.to(storkMarkerElement, {
-    motionPath: {
-      path: storkPathElement,
-      align: storkPathElement,
-      start: startPercentage, // Use the global variable startPercentage
-      end: journeyFraction, // Set the end to the journeyFraction
-      alignOrigin: [0.5, 0.5], // Set the alignment origin to the center of the marker
-      autoRotate: true, // Enable auto-rotation along the path
-    },
-    duration: 3, // Use the fixed duration
-    ease: "linear",
-    onComplete: function() {
-      // Set startPercentage to the value of journeyPercentage for the next use
-      startPercentage = journeyFraction;
-      restoreMarkerVisibility();
-      restorePathVisibility();
-    }
-  });
+  startPercentage = endRatio;
 }
 //
 // function animateStorkCycle() {
@@ -463,23 +440,143 @@ function animateStorkCycle(journeyPercentage) {
 //   });
 // }
 
-function ensureMotionPathPlugin() {
-  if (typeof gsap === "undefined") {
+function clampProgress(value) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  if (value < 0) {
+    return 0;
+  }
+
+  if (value > 1) {
+    return 1;
+  }
+
+  return value;
+}
+
+function getMarkerBasePosition(marker) {
+  if (!marker) {
+    return null;
+  }
+
+  if (marker.__baseCenter) {
+    return marker.__baseCenter;
+  }
+
+  const geometryElement = marker.querySelector("circle, ellipse");
+  if (geometryElement) {
+    const cx = Number.parseFloat(geometryElement.getAttribute("cx"));
+    const cy = Number.parseFloat(geometryElement.getAttribute("cy"));
+
+    if (Number.isFinite(cx) && Number.isFinite(cy)) {
+      marker.__baseCenter = { x: cx, y: cy };
+      return marker.__baseCenter;
+    }
+  }
+
+  if (typeof marker.getBBox === "function") {
+    try {
+      const bbox = marker.getBBox();
+      const center = {
+        x: bbox.x + (bbox.width / 2),
+        y: bbox.y + (bbox.height / 2)
+      };
+      marker.__baseCenter = center;
+      return center;
+    } catch (error) {
+      // Element might be hidden; fall through to return null.
+    }
+  }
+
+  return null;
+}
+
+function buildMarkerTranslate(point, base) {
+  const dx = point.x - base.x;
+  const dy = point.y - base.y;
+  return `translate(${dx.toFixed(3)} ${dy.toFixed(3)})`;
+}
+
+function animateMarkerAlongPath(marker, path, startRatio, endRatio, durationMs) {
+  if (!marker || !path) {
     return false;
   }
 
-  const plugins = gsap.plugins || {};
-  if (plugins.motionPath || plugins.MotionPathPlugin) {
+  let pathLength;
+  try {
+    pathLength = path.getTotalLength();
+  } catch (error) {
+    console.error("❌ Unable to measure path length for marker animation:", error);
+    return false;
+  }
+
+  if (!Number.isFinite(pathLength) || pathLength <= 0) {
+    console.warn("⚠️ Marker animation skipped – invalid path length");
+    return false;
+  }
+
+  const baseCenter = getMarkerBasePosition(marker);
+  if (!baseCenter) {
+    console.warn("⚠️ Marker animation skipped – unable to determine marker base position");
+    return false;
+  }
+
+  const start = clampProgress(startRatio);
+  const end = clampProgress(endRatio);
+
+  let startPoint;
+  let endPoint;
+
+  try {
+    startPoint = path.getPointAtLength(pathLength * start);
+    endPoint = path.getPointAtLength(pathLength * end);
+  } catch (error) {
+    console.error("❌ Unable to sample path point for marker animation:", error);
+    return false;
+  }
+
+  const startTransform = buildMarkerTranslate(startPoint, baseCenter);
+  const endTransform = buildMarkerTranslate(endPoint, baseCenter);
+
+  if (marker.__cycleAnimation instanceof Animation) {
+    marker.__cycleAnimation.cancel();
+  }
+
+  marker.setAttribute("transform", startTransform);
+
+  if (Math.abs(end - start) < 0.0001 || !Number.isFinite(durationMs) || durationMs <= 0) {
+    marker.setAttribute("transform", endTransform);
+    marker.dataset.migrationProgress = end.toFixed(4);
+    marker.__cycleAnimation = null;
     return true;
   }
 
-  if (typeof MotionPathPlugin !== "undefined") {
-    gsap.registerPlugin(MotionPathPlugin);
-    return true;
-  }
+  const animation = marker.animate(
+    [
+      { transform: startTransform },
+      { transform: endTransform }
+    ],
+    {
+      duration: durationMs,
+      easing: "linear",
+      fill: "forwards"
+    }
+  );
 
-  console.warn("⚠️ MotionPathPlugin is not available");
-  return false;
+  animation.onfinish = () => {
+    marker.setAttribute("transform", endTransform);
+    marker.dataset.migrationProgress = end.toFixed(4);
+    marker.__cycleAnimation = null;
+  };
+
+  animation.oncancel = () => {
+    marker.__cycleAnimation = null;
+  };
+
+  marker.__cycleAnimation = animation;
+  return true;
 }
 
 function ensureSvgVisibility(element, fallbackDisplay = "inline") {
@@ -536,131 +633,59 @@ function isElementVisible(element) {
 }
 
 function animateWhaleCycle(date) {
-    console.log("▶️ animateWhaleCycle() called with:", date);
+  const whaleMarkerElement = document.getElementById("whale-marker");
+  const whalePathElement = document.getElementById("whale-year-cycle");
+  const whaleCycleContainer = document.getElementById("whale-cycler");
 
-    const whaleMarkerElement = document.getElementById("whale-marker");
-    const whalePathElement = document.getElementById("whale-year-cycle");
-    const whaleCycleContainer = document.getElementById("whale-cycler");
+  if (!whaleMarkerElement || !whalePathElement) {
+    console.warn("⚠️ Whale animation skipped – missing SVG elements");
+    return;
+  }
 
-    // Check GSAP
-    if (typeof gsap === "undefined") {
-        console.warn("❌ GSAP is NOT loaded!");
-    } else {
-        console.log("✅ GSAP loaded");
-    }
+  if (whaleCycleContainer && !isElementVisible(whaleCycleContainer)) {
+    return;
+  }
 
-    if (!ensureMotionPathPlugin()) {
-        console.warn("⚠️ MotionPathPlugin missing – skipping whale animation");
-        return;
-    }
+  const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
 
-    // Validate SVG elements
-    if (!whaleMarkerElement) {
-        console.warn("❌ whaleMarkerElement (#whale-marker) not found!");
-    } else {
-        console.log("✅ Found whale-marker element");
-    }
+  if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
+    console.warn("⚠️ Whale animation skipped – invalid target date");
+    return;
+  }
 
-    if (!whalePathElement) {
-        console.warn("❌ whalePathElement (#whale-year-cycle) not found!");
-    } else {
-        console.log("✅ Found whale-year-cycle element");
-    }
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const yearStart = new Date(target.getFullYear(), 0, 1);
+  const daysInYear = (typeof isLeapYear === "function" && isLeapYear(target.getFullYear())) ? 366 : 365;
 
-    if (!whaleMarkerElement || !whalePathElement || typeof gsap === "undefined") {
-        console.warn("⚠️ Exiting: missing dependencies");
-        return;
-    }
+  const hasValidStartDate = startDate instanceof Date && !Number.isNaN(startDate.getTime());
+  const animationStartDate = (hasValidStartDate && startDate.getTime() !== target.getTime()) ? startDate : yearStart;
 
-    if (whaleCycleContainer && !isElementVisible(whaleCycleContainer)) {
-        console.warn("⚠️ Whale cycle container hidden – skipping animation");
-        return;
-    }
+  const startOffsetDays = (animationStartDate - yearStart) / millisecondsPerDay;
+  const targetOffsetDays = (target - yearStart) / millisecondsPerDay;
+  const realDaysToTargetDate = Math.abs(target - animationStartDate) / millisecondsPerDay;
 
-    // Validate date
-    const target = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
-    console.log("🕒 Computed target date:", target);
+  const calculatedStartRatio = clampProgress(startOffsetDays / daysInYear);
+  const endRatio = clampProgress(targetOffsetDays / daysInYear);
+  const previousProgress = Number.parseFloat(whaleMarkerElement.dataset.migrationProgress);
+  const startRatio = Number.isFinite(previousProgress) ? clampProgress(previousProgress) : calculatedStartRatio;
 
-    if (!(target instanceof Date) || Number.isNaN(target.getTime())) {
-        console.warn("❌ Invalid target date:", target);
-        return;
-    }
+  let durationSeconds;
+  if (realDaysToTargetDate < 30) {
+    durationSeconds = 1;
+  } else if (realDaysToTargetDate < 60) {
+    durationSeconds = 2;
+  } else if (realDaysToTargetDate < 120) {
+    durationSeconds = 3;
+  } else if (realDaysToTargetDate < 180) {
+    durationSeconds = 4;
+  } else if (realDaysToTargetDate <= 366) {
+    durationSeconds = 5;
+  } else {
+    durationSeconds = 6;
+  }
 
-    // Compute positions
-    const yearStart = new Date(target.getFullYear(), 0, 1);
-    const millisecondsPerDay = 1000 * 60 * 60 * 24;
-
-    const hasValidStartDate =
-        startDate instanceof Date && !Number.isNaN(startDate.getTime());
-
-    const animationStartDate =
-        (hasValidStartDate && startDate.getTime() !== target.getTime())
-            ? startDate
-            : yearStart;
-
-    console.log("📅 yearStart:", yearStart);
-    console.log("📅 animationStartDate:", animationStartDate);
-
-    const startOffpoint = animationStartDate - yearStart;
-    const daysToTargetDate = target - animationStartDate;
-    const totalDays = startOffpoint + daysToTargetDate;
-    const realDaysToTargetDate = Math.abs(daysToTargetDate) / millisecondsPerDay;
-
-    console.log("🔢 startOffpoint (ms):", startOffpoint);
-    console.log("🔢 daysToTargetDate (ms):", daysToTargetDate);
-    console.log("🔢 totalDays (ms):", totalDays);
-    console.log("🔢 realDaysToTargetDate (days):", realDaysToTargetDate);
-
-    // Angles
-    const targetAngle = (startOffpoint) / (millisecondsPerDay * 365) * 360;
-    const targetAngle2 = (totalDays) / (millisecondsPerDay * 365) * 360;
-
-    console.log("🎯 targetAngle:", targetAngle);
-    console.log("🎯 targetAngle2:", targetAngle2);
-    console.log("➡️ normalized start:", targetAngle / 360);
-    console.log("➡️ normalized end:", targetAngle2 / 360);
-
-    // Duration logic
-    let duration;
-    if (realDaysToTargetDate < 30) {
-        duration = 1;
-    } else if (realDaysToTargetDate < 60) {
-        duration = 2;
-    } else if (realDaysToTargetDate < 120) {
-        duration = 3;
-    } else if (realDaysToTargetDate < 180) {
-        duration = 4;
-    } else if (realDaysToTargetDate <= 366) {
-        duration = 5;
-    } else {
-        duration = 6;
-    }
-
-    console.log("⏱ duration chosen:", duration);
-
-    // Animation
-    console.log("🚀 Starting GSAP motion tween…");
-    const restoreMarkerVisibility = ensureSvgVisibility(whaleMarkerElement);
-    const restorePathVisibility = ensureSvgVisibility(whalePathElement);
-    gsap.to(whaleMarkerElement, {
-        motionPath: {
-            path: whalePathElement,
-            align: whalePathElement,
-            start: targetAngle / 360,
-            end: targetAngle2 / 360,
-            alignOrigin: [0.5, 0.5],
-            autoRotate: true,
-        },
-        duration,
-        ease: "linear",
-        onStart: () => console.log("✅ GSAP: animation started"),
-        onUpdate: () => console.log("🔄 GSAP: updating…"),
-        onComplete: () => {
-            console.log("🏁 GSAP: animation complete");
-            restoreMarkerVisibility();
-            restorePathVisibility();
-        },
-    });
+  const durationMs = durationSeconds * 1000;
+  animateMarkerAlongPath(whaleMarkerElement, whalePathElement, startRatio, endRatio, durationMs);
 }
 
 
