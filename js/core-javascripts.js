@@ -566,7 +566,7 @@ async function manageEarthcalUserSub() {
         'Track the interstellar comet 3I-Atlas',
         'Subscribe to Google calendars',
         'Subscribe to Apple calendars',
-        'Subscribe to Outlook calendars (coming soon)',
+        'Subscribe to Outlook calendars',
         'Subscribe to public iCal feeds',
         'Toggle between Day and Night modes',
         'Access Mac desktop app (coming soon)',

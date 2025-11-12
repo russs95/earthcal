@@ -22,5 +22,6 @@ experiments
 api/.htaccess
 api/buwanaconn_env.php
 api/calconn_env.php
+api/stripe_env.php
 
 /vendor/
