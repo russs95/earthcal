@@ -867,12 +867,38 @@ function renderCalendarSelectionForm(calendars, {
             webcalIntroEl.textContent = introText;
         }
 
+        const ensureJediPlanAccess = (onAllowed) => {
+            const plan = (window.user_plan || '').toString().trim().toLowerCase();
+            if (plan === 'jedi') {
+                if (typeof onAllowed === 'function') {
+                    onAllowed();
+                }
+                return true;
+            }
+
+            alert('Sorry, these advanced EarthCal features require a Jedi account.  Upgrade your account to support EarthCal development and access.');
+
+            if (typeof manageEarthcalUserSub === 'function') {
+                try {
+                    manageEarthcalUserSub();
+                } catch (error) {
+                    console.error('Unable to open subscription modal after Jedi alert.', error);
+                }
+            }
+
+            return false;
+        };
+
         const connectSummary = webcalForm.querySelector('.cal-connect-google-row .cal-row-summary');
         if (connectSummary) {
             const handleConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                openGoogleCalendarConnectModal();
+                ensureJediPlanAccess(() => {
+                    if (typeof openGoogleCalendarConnectModal === 'function') {
+                        openGoogleCalendarConnectModal();
+                    }
+                });
             };
 
             connectSummary.addEventListener('click', handleConnect);
@@ -888,9 +914,11 @@ function renderCalendarSelectionForm(calendars, {
             const handleAppleConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (typeof connectAppleCalendar === 'function') {
-                    connectAppleCalendar();
-                }
+                ensureJediPlanAccess(() => {
+                    if (typeof connectAppleCalendar === 'function') {
+                        connectAppleCalendar();
+                    }
+                });
             };
 
             appleSummary.addEventListener('click', handleAppleConnect);
@@ -906,9 +934,11 @@ function renderCalendarSelectionForm(calendars, {
             const handleOutlookConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (typeof connectOutlookCalendar === 'function') {
-                    connectOutlookCalendar();
-                }
+                ensureJediPlanAccess(() => {
+                    if (typeof connectOutlookCalendar === 'function') {
+                        connectOutlookCalendar();
+                    }
+                });
             };
 
             outlookSummary.addEventListener('click', handleOutlookConnect);
