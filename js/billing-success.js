@@ -4,7 +4,10 @@ const MAX_ATTEMPTS = 24; // ~1 minute
 const spinnerEl = document.getElementById('status-spinner');
 const statusMessageEl = document.getElementById('status-message');
 const statusLogEl = document.getElementById('status-log');
+const statusIndicatorEl = document.getElementById('status-indicator');
+const successBenefitsEl = document.getElementById('success-benefits');
 const celebrateOverlayEl = document.getElementById('celebrate-overlay');
+const MANUAL_COUPON_SESSION_ID = 'manual_coupon_redemption';
 
 const createLogEntry = (() => {
     const entries = [];
@@ -14,7 +17,9 @@ const createLogEntry = (() => {
         if (entries.length > 200) {
             entries.splice(0, entries.length - 200);
         }
-        statusLogEl.innerHTML = `<code>${entries.join('\n')}</code>`;
+        if (statusLogEl && !statusLogEl.hasAttribute('hidden')) {
+            statusLogEl.innerHTML = `<code>${entries.join('\n')}</code>`;
+        }
     };
 })();
 
@@ -138,6 +143,19 @@ const showCelebration = () => {
     celebrateOverlayEl?.classList.add('is-active');
 };
 
+const displaySuccessBenefits = () => {
+    if (statusLogEl) {
+        statusLogEl.setAttribute('hidden', 'hidden');
+        statusLogEl.setAttribute('aria-hidden', 'true');
+    }
+    if (statusIndicatorEl) {
+        statusIndicatorEl.classList.add('status-indicator--success');
+    }
+    if (successBenefitsEl) {
+        successBenefitsEl.removeAttribute('hidden');
+    }
+};
+
 const pollSubscription = async (buwanaId) => {
     if (!Number.isFinite(buwanaId)) {
         updateStatus('Missing account details. Please contact support so we can activate your powers.');
@@ -174,11 +192,9 @@ const pollSubscription = async (buwanaId) => {
                 updateStatus(`Recognition confirmed. Welcome to the ${planName} plan!`, { highlight: true });
                 createLogEntry(`🟢 Jedi subscription detected on attempt ${attempt}.`);
                 showCelebration();
+                displaySuccessBenefits();
                 safeStorageSet(sessionStorage, 'earthcal_plan', 'jedi');
                 safeStorageSet(localStorage, 'earthcal_plan', 'jedi');
-                setTimeout(() => {
-                    window.location.assign('dash.html');
-                }, 3500);
                 return;
             }
 
@@ -206,6 +222,16 @@ const init = async () => {
         updateStatus('Missing checkout session details. Please return to the app and try again.');
         createLogEntry('❌ No session_id present in the URL.');
         spinnerEl?.setAttribute('hidden', 'hidden');
+        return;
+    }
+
+    if (sessionId === MANUAL_COUPON_SESSION_ID) {
+        updateStatus('Coupon applied successfully! Welcome to the Jedi plan!', { highlight: true });
+        createLogEntry('🎉 Manual coupon redemption detected. Skipping remote verification.');
+        showCelebration();
+        displaySuccessBenefits();
+        safeStorageSet(sessionStorage, 'earthcal_plan', 'jedi');
+        safeStorageSet(localStorage, 'earthcal_plan', 'jedi');
         return;
     }
 

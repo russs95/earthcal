@@ -15,28 +15,28 @@
             --page-max-width: min(520px, 92vw);
             --card-background: rgba(255, 255, 255, 0.92);
             --card-text: #0f172a;
-            --accent-green: #1f8a3d;
-            --accent-green-strong: #0ca70c;
-            --muted: rgba(15, 23, 42, 0.72);
+            --muted: rgba(15, 23, 42, 0.75);
             --form-conf-background: rgba(255, 255, 255, 0.75);
             --form-conf-background-over: rgba(255, 255, 255, 0.95);
             --form-conf-text: #0f172a;
-            --emblem-green: #1f8a3d;
+            --emblem-green: #008000;
             --emblem-green-over: #0ca70c;
+            --accent-green: var(--emblem-green);
+            --accent-green-strong: #0ca70c;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
                 --card-background: rgba(11, 15, 28, 0.86);
                 --card-text: #f8fafc;
-                --accent-green: #4ade80;
-                --accent-green-strong: #86efac;
                 --muted: rgba(226, 232, 240, 0.85);
                 --form-conf-background: rgba(30, 41, 59, 0.72);
                 --form-conf-background-over: rgba(51, 65, 85, 0.88);
                 --form-conf-text: #f8fafc;
                 --emblem-green: #4ade80;
                 --emblem-green-over: #22c55e;
+                --accent-green: var(--emblem-green);
+                --accent-green-strong: #86efac;
             }
         }
 
@@ -83,7 +83,7 @@
             padding: clamp(28px, 4vw, 48px);
             border-radius: clamp(18px, 3vw, 28px);
             background: var(--card-background);
-            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.26);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
             backdrop-filter: blur(16px);
         }
 
@@ -138,9 +138,8 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             gap: 16px;
-            text-align: center;
         }
 
         .status-indicator {
@@ -148,6 +147,13 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            text-align: left;
+        }
+
+        .status-indicator--success {
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .status-spinner {
@@ -185,6 +191,39 @@
             word-break: break-word;
         }
 
+        .success-benefits {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .success-benefits[hidden] {
+            display: none !important;
+        }
+
+        .success-benefits li {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            color: rgba(15, 23, 42, 0.8);
+        }
+
+        .success-benefits img {
+            width: 22px;
+            height: 22px;
+            display: block;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .success-benefits li {
+                color: rgba(226, 232, 240, 0.9);
+            }
+        }
+
         @media (prefers-color-scheme: dark) {
             .status-log {
                 background: rgba(15, 23, 42, 0.6);
@@ -199,10 +238,6 @@
             gap: 12px;
             text-align: center;
             width: 100%;
-        }
-
-        .action-row small {
-            color: var(--muted);
         }
 
         #get-started-button {
@@ -257,15 +292,19 @@
         <h1>Congrats Jedi!</h1>
         <h3>You've been upgraded to the full powered EarthCal.</h3>
         <section class="status-area">
-            <div class="status-indicator">
+            <div id="status-indicator" class="status-indicator">
                 <img id="status-spinner" class="status-spinner" src="svgs/earthcal-spinner.svg" alt="Retrieving subscription status" />
                 <p id="status-message" class="status-message">Retrieving your subscription details…</p>
             </div>
             <pre id="status-log" class="status-log" aria-live="polite"><code>Waiting for confirmation…</code></pre>
+            <ul id="success-benefits" class="success-benefits" hidden>
+                <li><img src="assets/icons/green-check.png" alt="" /> <span>Now you can track the interstellar comet 3I-Atlas during 2025.</span></li>
+                <li><img src="assets/icons/green-check.png" alt="" /> <span>Now you can sync your Google, Apple or Outlook calendars.</span></li>
+                <li><img src="assets/icons/green-check.png" alt="" /> <span>Now you have full toggling between Day and Night modes.</span></li>
+            </ul>
         </section>
         <div class="action-row">
             <a id="get-started-button" href="dash.html">Go to Dashboard</a>
-            <small>We'll redirect you automatically once everything is ready.</small>
         </div>
     </main>
     <script src="js/billing-success.js" type="module"></script>
