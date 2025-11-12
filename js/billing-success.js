@@ -4,7 +4,41 @@ const MAX_ATTEMPTS = 24; // ~1 minute
 const spinnerEl = document.getElementById('status-spinner');
 const statusMessageEl = document.getElementById('status-message');
 const statusLogEl = document.getElementById('status-log');
+const statusIndicatorEl = document.getElementById('status-indicator');
+const successBenefitsEl = document.getElementById('success-benefits');
 const celebrateOverlayEl = document.getElementById('celebrate-overlay');
+const MANUAL_COUPON_SESSION_ID = 'manual_coupon_redemption';
+
+const getBuwanaIdFromLocation = () => {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const raw = params.get('buwana_id');
+        if (typeof raw !== 'string') {
+            return null;
+        }
+
+        const trimmed = raw.trim();
+        if (!trimmed) {
+            return null;
+        }
+
+        const numeric = Number(trimmed);
+        return Number.isFinite(numeric) ? numeric : trimmed;
+    } catch (error) {
+        console.warn('Unable to read buwana_id from location.', error);
+        return null;
+    }
+};
+
+const persistBuwanaId = (value) => {
+    if (value === null || value === undefined) {
+        return;
+    }
+
+    const serialized = String(value);
+    safeStorageSet(sessionStorage, 'buwana_id', serialized);
+    safeStorageSet(localStorage, 'buwana_id', serialized);
+};
 
 const createLogEntry = (() => {
     const entries = [];
@@ -14,7 +48,9 @@ const createLogEntry = (() => {
         if (entries.length > 200) {
             entries.splice(0, entries.length - 200);
         }
-        statusLogEl.innerHTML = `<code>${entries.join('\n')}</code>`;
+        if (statusLogEl && !statusLogEl.hasAttribute('hidden')) {
+            statusLogEl.innerHTML = `<code>${entries.join('\n')}</code>`;
+        }
     };
 })();
 
@@ -138,6 +174,19 @@ const showCelebration = () => {
     celebrateOverlayEl?.classList.add('is-active');
 };
 
+const displaySuccessBenefits = () => {
+    if (statusLogEl) {
+        statusLogEl.setAttribute('hidden', 'hidden');
+        statusLogEl.setAttribute('aria-hidden', 'true');
+    }
+    if (statusIndicatorEl) {
+        statusIndicatorEl.classList.add('status-indicator--success');
+    }
+    if (successBenefitsEl) {
+        successBenefitsEl.removeAttribute('hidden');
+    }
+};
+
 const pollSubscription = async (buwanaId) => {
     if (!Number.isFinite(buwanaId)) {
         updateStatus('Missing account details. Please contact support so we can activate your powers.');
@@ -174,11 +223,9 @@ const pollSubscription = async (buwanaId) => {
                 updateStatus(`Recognition confirmed. Welcome to the ${planName} plan!`, { highlight: true });
                 createLogEntry(`🟢 Jedi subscription detected on attempt ${attempt}.`);
                 showCelebration();
+                displaySuccessBenefits();
                 safeStorageSet(sessionStorage, 'earthcal_plan', 'jedi');
                 safeStorageSet(localStorage, 'earthcal_plan', 'jedi');
-                setTimeout(() => {
-                    window.location.assign('dash.html');
-                }, 3500);
                 return;
             }
 
@@ -209,13 +256,28 @@ const init = async () => {
         return;
     }
 
+    if (sessionId === MANUAL_COUPON_SESSION_ID) {
+        updateStatus('Coupon applied successfully! Welcome to the Jedi plan!', { highlight: true });
+        const manualBuwanaId = getBuwanaIdFromLocation();
+        if (manualBuwanaId !== null) {
+            createLogEntry(`🎉 Manual coupon redemption for buwana_id ${manualBuwanaId}. Skipping remote verification.`);
+            persistBuwanaId(manualBuwanaId);
+        } else {
+            createLogEntry('🎉 Manual coupon redemption detected. Skipping remote verification.');
+        }
+        showCelebration();
+        displaySuccessBenefits();
+        safeStorageSet(sessionStorage, 'earthcal_plan', 'jedi');
+        safeStorageSet(localStorage, 'earthcal_plan', 'jedi');
+        return;
+    }
+
     createLogEntry(`🛰️ Resolving checkout session ${sessionId}…`);
 
     try {
         const buwanaId = await fetchBuwanaIdForSession(sessionId);
         createLogEntry(`✅ Session linked to buwana_id ${buwanaId}.`);
-        safeStorageSet(sessionStorage, 'buwana_id', String(buwanaId));
-        safeStorageSet(localStorage, 'buwana_id', String(buwanaId));
+        persistBuwanaId(buwanaId);
         pollSubscription(buwanaId);
     } catch (error) {
         updateStatus('We could not confirm your account. Please contact support so we can help.');
