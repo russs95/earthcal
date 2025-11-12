@@ -1306,6 +1306,10 @@ function getTheDayOfYear(targetDate) {
       );
     }
 
+    if (typeof animateCometTrajectory === "function") {
+      animateCometTrajectory(targetDate);
+    }
+
     animateWhaleCycle(targetDate);
     UpdateWhaleCycle(targetDate);
        updateStorkCycle(targetDate);
