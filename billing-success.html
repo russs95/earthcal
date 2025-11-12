@@ -18,6 +18,11 @@
             --accent-green: #1f8a3d;
             --accent-green-strong: #0ca70c;
             --muted: rgba(15, 23, 42, 0.72);
+            --form-conf-background: rgba(255, 255, 255, 0.75);
+            --form-conf-background-over: rgba(255, 255, 255, 0.95);
+            --form-conf-text: #0f172a;
+            --emblem-green: #1f8a3d;
+            --emblem-green-over: #0ca70c;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -27,6 +32,11 @@
                 --accent-green: #4ade80;
                 --accent-green-strong: #86efac;
                 --muted: rgba(226, 232, 240, 0.85);
+                --form-conf-background: rgba(30, 41, 59, 0.72);
+                --form-conf-background-over: rgba(51, 65, 85, 0.88);
+                --form-conf-text: #f8fafc;
+                --emblem-green: #4ade80;
+                --emblem-green-over: #22c55e;
             }
         }
 
@@ -185,32 +195,73 @@
         .action-row {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            align-items: stretch;
+            gap: 12px;
             text-align: center;
+            width: 100%;
         }
 
         .action-row a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 22px;
-            border-radius: 999px;
-            background: var(--accent-green);
-            color: white;
             text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-
-        .action-row a:hover,
-        .action-row a:focus-visible {
-            transform: translateY(-1px);
-            background: var(--accent-green-strong);
         }
 
         .action-row small {
             color: var(--muted);
+        }
+
+        .confirmation-blur-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 999px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            background: var(--form-conf-background);
+            color: var(--form-conf-text);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(14px);
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .confirmation-blur-button:hover,
+        .confirmation-blur-button:focus-visible {
+            transform: translateY(-1px);
+            background: var(--form-conf-background-over);
+            color: var(--form-conf-text);
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.22);
+        }
+
+        .confirmation-blur-button:focus-visible {
+            outline: 3px solid rgba(15, 118, 110, 0.45);
+            outline-offset: 2px;
+        }
+
+        .confirmation-blur-button.greenback {
+            background: var(--emblem-green);
+            color: #f7f9fb;
+            box-shadow: 0 20px 44px rgba(16, 185, 129, 0.28);
+        }
+
+        .confirmation-blur-button.greenback:hover,
+        .confirmation-blur-button.greenback:focus-visible {
+            background: var(--emblem-green-over);
+            color: #f1f5f9;
+            box-shadow: 0 24px 54px rgba(34, 197, 94, 0.34);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .confirmation-blur-button,
+            .confirmation-blur-button:hover,
+            .confirmation-blur-button:focus-visible {
+                transition: none;
+                transform: none;
+            }
         }
     </style>
 </head>
