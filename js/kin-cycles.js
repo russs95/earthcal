@@ -664,6 +664,120 @@ function animateWhaleCycle(date) {
 }
 
 
+function animateCometTrajectory(date) {
+  const cometElement = document.getElementById("comet-start");
+  const cometPathElement = document.getElementById("comit-orbit");
+
+  if (!cometElement || !cometPathElement) {
+    console.warn("⚠️ Cannot animate comet trajectory: missing SVG elements.");
+    return;
+  }
+
+  const resolvedDate = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
+
+  if (!(resolvedDate instanceof Date) || Number.isNaN(resolvedDate.getTime())) {
+    console.warn("⚠️ animateCometTrajectory skipped: invalid date provided.");
+    return;
+  }
+
+  const journeyStart = new Date(2025, 0, 1);
+  const journeyEnd = new Date(2025, 11, 25);
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  const clampedTime = Math.min(
+    Math.max(resolvedDate.getTime(), journeyStart.getTime()),
+    journeyEnd.getTime()
+  );
+
+  let progress;
+  if (clampedTime >= journeyEnd.getTime()) {
+    progress = 1;
+  } else {
+    const elapsedDays = Math.floor((clampedTime - journeyStart.getTime()) / dayMs);
+    progress = Math.max(0, Math.min(elapsedDays / 365, 1));
+  }
+
+  if (!Number.isFinite(progress)) {
+    console.warn("⚠️ animateCometTrajectory skipped: computed progress was not finite.");
+    return;
+  }
+
+  const restorePathVisibility = ensureSvgVisibility(cometPathElement);
+  const restoreCometVisibility = ensureSvgVisibility(cometElement, "inline");
+
+  let targetPoint = null;
+  let measurementFailed = false;
+
+  try {
+    const pathLength = cometPathElement.getTotalLength();
+    if (!Number.isFinite(pathLength) || pathLength <= 0) {
+      console.warn("⚠️ animateCometTrajectory skipped: comet path length is invalid.");
+      measurementFailed = true;
+    } else {
+      targetPoint = cometPathElement.getPointAtLength(pathLength * progress);
+    }
+  } catch (error) {
+    console.error("❌ animateCometTrajectory failed while reading path geometry:", error);
+    measurementFailed = true;
+  } finally {
+    restorePathVisibility();
+    restoreCometVisibility();
+  }
+
+  if (measurementFailed || !targetPoint || !Number.isFinite(targetPoint.x) || !Number.isFinite(targetPoint.y)) {
+    return;
+  }
+
+  const currentX = Number.parseFloat(cometElement.getAttribute("cx"));
+  const currentY = Number.parseFloat(cometElement.getAttribute("cy"));
+  const startX = Number.isFinite(currentX) ? currentX : targetPoint.x;
+  const startY = Number.isFinite(currentY) ? currentY : targetPoint.y;
+
+  const deltaX = targetPoint.x - startX;
+  const deltaY = targetPoint.y - startY;
+  const distance = Math.hypot(deltaX, deltaY);
+
+  if (cometElement.__trajectoryAnimation instanceof Animation) {
+    cometElement.__trajectoryAnimation.cancel();
+  }
+
+  if (distance < 0.01) {
+    cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
+    cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
+    cometElement.dataset.cometProgress = progress.toFixed(4);
+    return;
+  }
+
+  const duration = Math.min(Math.max(distance * 18, 250), 2000);
+
+  const animation = cometElement.animate(
+    [
+      { cx: startX, cy: startY },
+      { cx: targetPoint.x, cy: targetPoint.y }
+    ],
+    {
+      duration,
+      easing: "linear",
+      fill: "forwards"
+    }
+  );
+
+  animation.onfinish = () => {
+    cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
+    cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
+    cometElement.dataset.cometProgress = progress.toFixed(4);
+    cometElement.__trajectoryAnimation = null;
+  };
+
+  animation.oncancel = () => {
+    cometElement.__trajectoryAnimation = null;
+  };
+
+  cometElement.__trajectoryAnimation = animation;
+  cometElement.dataset.cometProgress = progress.toFixed(4);
+}
+
+
 
 //show the planet info when their orbit is clicked
 
