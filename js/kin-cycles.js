@@ -493,10 +493,14 @@ function getMarkerBasePosition(marker) {
   return null;
 }
 
-function buildMarkerTranslate(point, base) {
+function buildMarkerTransforms(point, base) {
   const dx = point.x - base.x;
   const dy = point.y - base.y;
-  return `translate(${dx.toFixed(3)} ${dy.toFixed(3)})`;
+
+  return {
+    attribute: `translate(${dx.toFixed(3)} ${dy.toFixed(3)})`,
+    css: `translate(${dx.toFixed(3)}px, ${dy.toFixed(3)}px)`
+  };
 }
 
 function animateMarkerAlongPath(marker, path, startRatio, endRatio, durationMs) {
@@ -537,45 +541,78 @@ function animateMarkerAlongPath(marker, path, startRatio, endRatio, durationMs) 
     return false;
   }
 
-  const startTransform = buildMarkerTranslate(startPoint, baseCenter);
-  const endTransform = buildMarkerTranslate(endPoint, baseCenter);
+  const startTransforms = buildMarkerTransforms(startPoint, baseCenter);
+  const endTransforms = buildMarkerTransforms(endPoint, baseCenter);
 
-  if (marker.__cycleAnimation instanceof Animation) {
-    marker.__cycleAnimation.cancel();
+  const previousAnimation = marker.__cycleAnimation;
+  if (previousAnimation instanceof Animation) {
+    previousAnimation.cancel();
+  } else if (previousAnimation && typeof previousAnimation.cancel === "function") {
+    previousAnimation.cancel();
+  } else if (Number.isFinite(previousAnimation)) {
+    cancelAnimationFrame(previousAnimation);
   }
 
-  marker.setAttribute("transform", startTransform);
+  marker.setAttribute("transform", startTransforms.attribute);
+  marker.style.transform = startTransforms.css;
+  marker.style.transformBox = "fill-box";
+  marker.style.transformOrigin = "center";
+  marker.dataset.migrationProgress = start.toFixed(4);
 
   if (Math.abs(end - start) < 0.0001 || !Number.isFinite(durationMs) || durationMs <= 0) {
-    marker.setAttribute("transform", endTransform);
+    marker.setAttribute("transform", endTransforms.attribute);
+    marker.style.removeProperty("transform");
     marker.dataset.migrationProgress = end.toFixed(4);
     marker.__cycleAnimation = null;
     return true;
   }
 
-  const animation = marker.animate(
-    [
-      { transform: startTransform },
-      { transform: endTransform }
-    ],
-    {
-      duration: durationMs,
-      easing: "linear",
-      fill: "forwards"
+  const startTime = performance.now();
+  const deltaRatio = end - start;
+
+  const animationState = {
+    frameId: null,
+    cancel() {
+      if (Number.isFinite(this.frameId)) {
+        cancelAnimationFrame(this.frameId);
+        this.frameId = null;
+      }
     }
-  );
-
-  animation.onfinish = () => {
-    marker.setAttribute("transform", endTransform);
-    marker.dataset.migrationProgress = end.toFixed(4);
-    marker.__cycleAnimation = null;
   };
 
-  animation.oncancel = () => {
-    marker.__cycleAnimation = null;
+  const step = (timestamp) => {
+    const elapsed = timestamp - startTime;
+    const linearProgress = durationMs > 0 ? Math.min(elapsed / durationMs, 1) : 1;
+    const currentRatio = start + (deltaRatio * linearProgress);
+
+    let currentPoint;
+    try {
+      currentPoint = path.getPointAtLength(pathLength * currentRatio);
+    } catch (error) {
+      console.error("❌ Unable to sample path point during marker animation:", error);
+      animationState.cancel();
+      marker.__cycleAnimation = null;
+      marker.style.removeProperty("transform");
+      return;
+    }
+
+    const currentTransforms = buildMarkerTransforms(currentPoint, baseCenter);
+    marker.setAttribute("transform", currentTransforms.attribute);
+    marker.style.transform = currentTransforms.css;
+    marker.dataset.migrationProgress = currentRatio.toFixed(4);
+
+    if (linearProgress < 1) {
+      animationState.frameId = requestAnimationFrame(step);
+    } else {
+      marker.setAttribute("transform", endTransforms.attribute);
+      marker.style.removeProperty("transform");
+      marker.dataset.migrationProgress = end.toFixed(4);
+      marker.__cycleAnimation = null;
+    }
   };
 
-  marker.__cycleAnimation = animation;
+  animationState.frameId = requestAnimationFrame(step);
+  marker.__cycleAnimation = animationState;
   return true;
 }
 
@@ -762,44 +799,74 @@ function animateCometTrajectory(date) {
   const deltaY = targetPoint.y - startY;
   const distance = Math.hypot(deltaX, deltaY);
 
-  if (cometElement.__trajectoryAnimation instanceof Animation) {
-    cometElement.__trajectoryAnimation.cancel();
+  const previousAnimation = cometElement.__trajectoryAnimation;
+  if (previousAnimation instanceof Animation) {
+    previousAnimation.cancel();
+  } else if (previousAnimation && typeof previousAnimation.cancel === "function") {
+    previousAnimation.cancel();
+  } else if (Number.isFinite(previousAnimation)) {
+    cancelAnimationFrame(previousAnimation);
   }
 
-  if (distance < 0.01) {
+  const previousProgress = Number.parseFloat(cometElement.dataset.cometProgress);
+  const startProgress = Number.isFinite(previousProgress) ? clampProgress(previousProgress) : progress;
+  cometElement.dataset.cometProgress = startProgress.toFixed(4);
+
+  if (!Number.isFinite(distance) || distance < 0.01) {
     cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
     cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
     cometElement.dataset.cometProgress = progress.toFixed(4);
+    cometElement.__trajectoryAnimation = null;
     return;
   }
 
   const duration = Math.min(Math.max(distance * 18, 250), 2000);
 
-  const animation = cometElement.animate(
-    [
-      { cx: startX, cy: startY },
-      { cx: targetPoint.x, cy: targetPoint.y }
-    ],
-    {
-      duration,
-      easing: "linear",
-      fill: "forwards"
-    }
-  );
-
-  animation.onfinish = () => {
+  if (!Number.isFinite(duration) || duration <= 0) {
     cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
     cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
     cometElement.dataset.cometProgress = progress.toFixed(4);
     cometElement.__trajectoryAnimation = null;
+    return;
+  }
+
+  const animationState = {
+    frameId: null,
+    cancel() {
+      if (Number.isFinite(this.frameId)) {
+        cancelAnimationFrame(this.frameId);
+        this.frameId = null;
+      }
+    }
   };
 
-  animation.oncancel = () => {
-    cometElement.__trajectoryAnimation = null;
+  const startTime = performance.now();
+  const progressDelta = progress - startProgress;
+
+  const step = (timestamp) => {
+    const elapsed = timestamp - startTime;
+    const linearProgress = Math.min(elapsed / duration, 1);
+
+    const currentX = startX + (deltaX * linearProgress);
+    const currentY = startY + (deltaY * linearProgress);
+    const currentProgress = startProgress + (progressDelta * linearProgress);
+
+    cometElement.setAttribute("cx", currentX.toFixed(3));
+    cometElement.setAttribute("cy", currentY.toFixed(3));
+    cometElement.dataset.cometProgress = clampProgress(currentProgress).toFixed(4);
+
+    if (linearProgress < 1) {
+      animationState.frameId = requestAnimationFrame(step);
+    } else {
+      cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
+      cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
+      cometElement.dataset.cometProgress = progress.toFixed(4);
+      cometElement.__trajectoryAnimation = null;
+    }
   };
 
-  cometElement.__trajectoryAnimation = animation;
-  cometElement.dataset.cometProgress = progress.toFixed(4);
+  animationState.frameId = requestAnimationFrame(step);
+  cometElement.__trajectoryAnimation = animationState;
 }
 
 
