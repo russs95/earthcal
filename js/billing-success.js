@@ -18,15 +18,6 @@ const createLogEntry = (() => {
     };
 })();
 
-const safeStorageGet = (storage, key) => {
-    try {
-        return storage.getItem(key);
-    } catch (error) {
-        console.warn(`Unable to read ${key} from storage.`, error);
-        return null;
-    }
-};
-
 const safeStorageSet = (storage, key, value) => {
     try {
         storage.setItem(key, value);
@@ -35,192 +26,45 @@ const safeStorageSet = (storage, key, value) => {
     }
 };
 
-const safeJsonParse = (value, context) => {
-    if (typeof value !== 'string' || !value.length) {
-        return null;
-    }
-
+const getSessionIdFromLocation = () => {
     try {
-        return JSON.parse(value);
-    } catch (error) {
-        if (context) {
-            console.warn(`Unable to parse ${context} as JSON.`, error);
-        }
-        return null;
-    }
-};
-
-const normalizeBuwanaId = (input) => {
-    if (input === null || input === undefined) {
-        return null;
-    }
-
-    if (typeof input === 'number') {
-        return Number.isFinite(input) && input > 0 ? input : null;
-    }
-
-    if (typeof input === 'bigint') {
-        const numeric = Number(input);
-        return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
-    }
-
-    const stringValue = String(input).trim();
-    if (!stringValue) {
-        return null;
-    }
-
-    const directNumeric = Number(stringValue);
-    if (Number.isFinite(directNumeric) && directNumeric > 0) {
-        return directNumeric;
-    }
-
-    const match = stringValue.match(/(\d{3,})/);
-    if (match) {
-        const numericFromMatch = Number(match[1]);
-        if (Number.isFinite(numericFromMatch) && numericFromMatch > 0) {
-            return numericFromMatch;
-        }
-    }
-
-    return null;
-};
-
-const decodeJwtPayload = (token) => {
-    if (typeof token !== 'string' || !token.includes('.')) {
-        return null;
-    }
-
-    try {
-        const [, base64Payload] = token.split('.');
-        if (!base64Payload) {
+        const params = new URLSearchParams(window.location.search);
+        const raw = params.get('session_id') || params.get('session') || params.get('id');
+        if (!raw) {
             return null;
         }
 
-        const normalized = base64Payload.replace(/-/g, '+').replace(/_/g, '/');
-        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
-        const decoded = atob(padded);
-        return JSON.parse(decoded);
+        const trimmed = raw.trim();
+        return trimmed.length > 0 ? trimmed : null;
     } catch (error) {
-        console.warn('Unable to decode JWT payload for buwana_id lookup.', error);
+        console.warn('Unable to read session_id from location.', error);
         return null;
     }
 };
 
-const extractBuwanaIdFromPayload = (payload) => {
-    if (!payload || typeof payload !== 'object') {
-        return null;
+const fetchBuwanaIdForSession = async (sessionId) => {
+    const url = new URL('api/v1/stripe_webhook.php', window.location.href);
+    url.searchParams.set('session_id', sessionId);
+
+    const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`session_lookup_failed_${response.status}`);
     }
 
-    const directCandidates = [
-        payload.buwana_id,
-        payload.buwanaId,
-        payload['buwana:id'],
-        payload.user_buwana_id,
-        payload?.user?.buwana_id,
-        payload?.profile?.buwana_id,
-    ];
+    const payload = await response.json();
+    const buwanaId = Number(payload?.buwana_id ?? payload?.buwanaId);
 
-    for (const candidate of directCandidates) {
-        const normalized = normalizeBuwanaId(candidate);
-        if (normalized) {
-            return normalized;
-        }
+    if (payload?.ok && Number.isFinite(buwanaId) && buwanaId > 0) {
+        return buwanaId;
     }
 
-    const subCandidate = normalizeBuwanaId(payload.sub);
-    if (subCandidate) {
-        return subCandidate;
-    }
-
-    return null;
-};
-
-const parseBuwanaId = () => {
-    try {
-        const params = new URLSearchParams(window.location.search);
-        const fromQuery = params.get('buwana_id') || params.get('id');
-        const fromSession = safeStorageGet(sessionStorage, 'buwana_id');
-        const fromLocal = safeStorageGet(localStorage, 'buwana_id');
-        const fromGlobal = typeof window !== 'undefined'
-            ? window.__EARTHCAL_BUWANA_ID__ || null
-            : null;
-
-        const sessionUser = safeJsonParse(
-            safeStorageGet(sessionStorage, 'buwana_user'),
-            'sessionStorage.buwana_user',
-        );
-        const localUser = safeJsonParse(
-            safeStorageGet(localStorage, 'buwana_user'),
-            'localStorage.buwana_user',
-        );
-        const sessionProfile = safeJsonParse(
-            safeStorageGet(sessionStorage, 'user_profile'),
-            'sessionStorage.user_profile',
-        );
-        const localProfile = safeJsonParse(
-            safeStorageGet(localStorage, 'user_profile'),
-            'localStorage.user_profile',
-        );
-
-        const windowUserProfile = typeof window !== 'undefined' ? window.userProfile || null : null;
-        const loginStatePayload = (() => {
-            if (typeof window === 'undefined' || typeof window.isLoggedIn !== 'function') {
-                return null;
-            }
-            try {
-                const state = window.isLoggedIn({ returnPayload: true });
-                return state?.payload || null;
-            } catch (error) {
-                console.warn('Unable to read active login state for buwana_id lookup.', error);
-                return null;
-            }
-        })();
-
-        const sessionIdToken = decodeJwtPayload(safeStorageGet(sessionStorage, 'id_token'));
-        const sessionAccessToken = decodeJwtPayload(safeStorageGet(sessionStorage, 'access_token'));
-        const localIdToken = decodeJwtPayload(safeStorageGet(localStorage, 'id_token'));
-        const localAccessToken = decodeJwtPayload(safeStorageGet(localStorage, 'access_token'));
-
-        let fromCookie = null;
-        if (typeof document !== 'undefined' && typeof document.cookie === 'string') {
-            const cookieMatch = document.cookie.match(/(?:^|;\s*)buwana_id=(\d+)/);
-            if (cookieMatch) {
-                fromCookie = cookieMatch[1];
-            }
-        }
-
-        const payloadCandidates = [
-            sessionUser,
-            localUser,
-            sessionProfile,
-            localProfile,
-            windowUserProfile,
-            loginStatePayload,
-            sessionIdToken,
-            sessionAccessToken,
-            localIdToken,
-            localAccessToken,
-        ];
-
-        const candidates = [
-            fromQuery,
-            fromSession,
-            fromLocal,
-            fromGlobal,
-            fromCookie,
-            ...payloadCandidates.map(extractBuwanaIdFromPayload),
-        ].filter((candidate) => candidate !== null && candidate !== undefined);
-
-        for (const candidate of candidates) {
-            const value = normalizeBuwanaId(candidate);
-            if (value) {
-                return value;
-            }
-        }
-    } catch (error) {
-        console.warn('Unable to parse buwana_id from storage.', error);
-    }
-    return null;
+    throw new Error(payload?.error || 'buwana_id_not_found');
 };
 
 const determinePlanId = (subscriptionData) => {
@@ -355,14 +199,36 @@ const pollSubscription = async (buwanaId) => {
     spinnerEl?.setAttribute('hidden', 'hidden');
 };
 
-const init = () => {
-    const buwanaId = parseBuwanaId();
-    if (Number.isFinite(buwanaId)) {
-        safeStorageSet(sessionStorage, 'buwana_id', String(buwanaId));
-        safeStorageSet(localStorage, 'buwana_id', String(buwanaId));
+const init = async () => {
+    const sessionId = getSessionIdFromLocation();
+
+    if (!sessionId) {
+        updateStatus('Missing checkout session details. Please return to the app and try again.');
+        createLogEntry('❌ No session_id present in the URL.');
+        spinnerEl?.setAttribute('hidden', 'hidden');
+        return;
     }
 
-    pollSubscription(buwanaId);
+    createLogEntry(`🛰️ Resolving checkout session ${sessionId}…`);
+
+    try {
+        const buwanaId = await fetchBuwanaIdForSession(sessionId);
+        createLogEntry(`✅ Session linked to buwana_id ${buwanaId}.`);
+        safeStorageSet(sessionStorage, 'buwana_id', String(buwanaId));
+        safeStorageSet(localStorage, 'buwana_id', String(buwanaId));
+        pollSubscription(buwanaId);
+    } catch (error) {
+        updateStatus('We could not confirm your account. Please contact support so we can help.');
+        createLogEntry(`❌ Unable to resolve buwana_id from session: ${error instanceof Error ? error.message : error}`);
+        spinnerEl?.setAttribute('hidden', 'hidden');
+    }
 };
 
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener('DOMContentLoaded', () => {
+    init().catch((error) => {
+        console.error('Billing success init failed.', error);
+        updateStatus('Unexpected error occurred. Please contact support.');
+        createLogEntry(`❌ Initialization error: ${error instanceof Error ? error.message : error}`);
+        spinnerEl?.setAttribute('hidden', 'hidden');
+    });
+});

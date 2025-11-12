@@ -201,67 +201,52 @@
             width: 100%;
         }
 
-        .action-row a {
-            text-decoration: none;
-        }
-
         .action-row small {
             color: var(--muted);
         }
 
-        .confirmation-blur-button {
+        #get-started-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            padding: 0.85rem 2.75rem;
             width: 100%;
-            min-height: 48px;
-            padding: 12px 24px;
-            border: none;
             border-radius: 999px;
             font-size: 1.05rem;
             font-weight: 600;
-            letter-spacing: 0.01em;
-            background: var(--form-conf-background);
-            color: var(--form-conf-text);
+            color: #f7f9fb;
+            background-color: var(--emblem-green, #0d1a26);
+            text-decoration: none;
             box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
-            backdrop-filter: blur(14px);
-            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
         }
 
-        .confirmation-blur-button:hover,
-        .confirmation-blur-button:focus-visible {
+        #get-started-button::after {
+            content: "";
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+        }
+
+        #get-started-button:hover::after,
+        #get-started-button:focus-visible::after {
+            content: "→";
+            margin-left: 0.25rem;
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        #get-started-button:hover,
+        #get-started-button:focus-visible {
             transform: translateY(-1px);
-            background: var(--form-conf-background-over);
-            color: var(--form-conf-text);
             box-shadow: 0 22px 48px rgba(15, 23, 42, 0.22);
+            background-color: var(--emblem-green-over, #14293a);
+            color: #f7f9fb;
         }
 
-        .confirmation-blur-button:focus-visible {
+        #get-started-button:focus-visible {
             outline: 3px solid rgba(15, 118, 110, 0.45);
             outline-offset: 2px;
-        }
-
-        .confirmation-blur-button.greenback {
-            background: var(--emblem-green);
-            color: #f7f9fb;
-            box-shadow: 0 20px 44px rgba(16, 185, 129, 0.28);
-        }
-
-        .confirmation-blur-button.greenback:hover,
-        .confirmation-blur-button.greenback:focus-visible {
-            background: var(--emblem-green-over);
-            color: #f1f5f9;
-            box-shadow: 0 24px 54px rgba(34, 197, 94, 0.34);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .confirmation-blur-button,
-            .confirmation-blur-button:hover,
-            .confirmation-blur-button:focus-visible {
-                transition: none;
-                transform: none;
-            }
         }
     </style>
 </head>
@@ -279,7 +264,7 @@
             <pre id="status-log" class="status-log" aria-live="polite"><code>Waiting for confirmation…</code></pre>
         </section>
         <div class="action-row">
-            <a class="confirmation-blur-button greenback" href="dash.html">EarthCal Dashboard</a>
+            <a id="get-started-button" href="dash.html">Go to Dashboard</a>
             <small>We'll redirect you automatically once everything is ready.</small>
         </div>
     </main>
