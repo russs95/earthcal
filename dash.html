@@ -853,28 +853,52 @@
         const cometSystem = document.getElementById("comet_system");
         if (!cometSystem) return;
 
-        // Make visible + prepare fade
         cometSystem.style.display = "block";
         cometSystem.style.opacity = "1";
         cometSystem.style.transition = "opacity 1s ease";
 
-        // --- STEP 1: Wait 1 second visible ---
+        if (typeof animateCometTrajectory === "function") {
+            try {
+                animateCometTrajectory();
+            } catch (error) {
+                console.error("Unable to animate comet trajectory.", error);
+            }
+        }
+
         setTimeout(() => {
-            // --- STEP 2: Show alert ---
-            alert(
-                "Tracking the Interstellar Comet 3I-Atlas is available to Jedi EarthCal accounts.  The ability to upgrade your Padwan plan and follow the comet is coming soon to EarthCal.  Hold tight!"
-            );
+            if (typeof ensureJediPlanAccess !== "function") {
+                console.warn("⚠️ ensureJediPlanAccess is not available to validate the user's subscription.");
+                return;
+            }
 
-            // --- STEP 3: After 1s from alert dismissal, fade away ---
+            const hasAccess = ensureJediPlanAccess(() => {});
+            if (hasAccess) {
+                return;
+            }
+
+            cometSystem.style.opacity = "0";
+
             setTimeout(() => {
-                cometSystem.style.opacity = "0";
+                cometSystem.style.display = "none";
+            }, 1000);
 
-                // After transition, hide
-                setTimeout(() => {
-                    cometSystem.style.display = "none";
-                }, 1000); // fade duration
-            }, 1000); // wait after alert
-        }, 1000); // initial visible time
+            const modalContainer = document.getElementById("form-modal-message");
+            const modalAlreadyVisible = modalContainer && modalContainer.classList.contains("modal-visible");
+
+            if (!modalAlreadyVisible && typeof manageEarthcalUserSub === "function") {
+                try {
+                    manageEarthcalUserSub();
+                    return;
+                } catch (error) {
+                    console.error("Unable to open subscription modal after ensuring Jedi access.", error);
+                }
+            }
+
+            if (modalContainer) {
+                modalContainer.classList.remove("modal-hidden");
+                modalContainer.classList.add("modal-visible");
+            }
+        }, 1000);
     }
 
 
