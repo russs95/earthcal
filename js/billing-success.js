@@ -35,6 +35,21 @@ const safeStorageSet = (storage, key, value) => {
     }
 };
 
+const safeJsonParse = (value, context) => {
+    if (typeof value !== 'string' || !value.length) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(value);
+    } catch (error) {
+        if (context) {
+            console.warn(`Unable to parse ${context} as JSON.`, error);
+        }
+        return null;
+    }
+};
+
 const parseBuwanaId = () => {
     try {
         const params = new URLSearchParams(window.location.search);
@@ -45,7 +60,35 @@ const parseBuwanaId = () => {
             ? window.__EARTHCAL_BUWANA_ID__ || null
             : null;
 
-        const candidates = [fromQuery, fromSession, fromLocal, fromGlobal].filter(Boolean);
+        const sessionUser = safeJsonParse(
+            safeStorageGet(sessionStorage, 'buwana_user'),
+            'sessionStorage.buwana_user',
+        );
+        const localUser = safeJsonParse(
+            safeStorageGet(localStorage, 'buwana_user'),
+            'localStorage.buwana_user',
+        );
+
+        const fromSessionProfile = sessionUser?.buwana_id;
+        const fromLocalProfile = localUser?.buwana_id;
+
+        let fromCookie = null;
+        if (typeof document !== 'undefined' && typeof document.cookie === 'string') {
+            const cookieMatch = document.cookie.match(/(?:^|;\s*)buwana_id=(\d+)/);
+            if (cookieMatch) {
+                fromCookie = cookieMatch[1];
+            }
+        }
+
+        const candidates = [
+            fromQuery,
+            fromSession,
+            fromLocal,
+            fromGlobal,
+            fromSessionProfile,
+            fromLocalProfile,
+            fromCookie,
+        ].filter((candidate) => candidate !== null && candidate !== undefined);
         for (const candidate of candidates) {
             const value = Number(candidate);
             if (Number.isFinite(value) && value > 0) {

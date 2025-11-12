@@ -133,15 +133,23 @@
             text-align: center;
         }
 
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
         .status-spinner {
-            width: 150px;
-            height: 150px;
+            width: 30px;
+            height: 30px;
         }
 
         .status-message {
             font-size: 1.05rem;
             color: var(--muted);
             line-height: 1.5;
+            margin: 0;
         }
 
         .status-message strong {
@@ -213,12 +221,14 @@
         <h1>Congrats Jedi!</h1>
         <h3>You've been upgraded to the full powered EarthCal.</h3>
         <section class="status-area">
-            <img id="status-spinner" class="status-spinner" src="svgs/earthcal-spinner.svg" alt="Retrieving subscription status" />
-            <p id="status-message" class="status-message">Retrieving your subscription details…</p>
+            <div class="status-indicator">
+                <img id="status-spinner" class="status-spinner" src="svgs/earthcal-spinner.svg" alt="Retrieving subscription status" />
+                <p id="status-message" class="status-message">Retrieving your subscription details…</p>
+            </div>
             <pre id="status-log" class="status-log" aria-live="polite"><code>Waiting for confirmation…</code></pre>
         </section>
         <div class="action-row">
-            <a href="dash.html">Go to your EarthCal dashboard</a>
+            <a class="confirmation-blur-button greenback" href="dash.html">EarthCal Dashboard</a>
             <small>We'll redirect you automatically once everything is ready.</small>
         </div>
     </main>
