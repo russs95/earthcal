@@ -47,6 +47,87 @@ try {
 }
 
 // ======================================================
+// OPTIONAL: Checkout session lookup for success page
+// ======================================================
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($method === 'GET') {
+    $sessionId = $_GET['session_id'] ?? $_GET['id'] ?? null;
+
+    if (!$sessionId || !is_string($sessionId)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'session_id_required']);
+        exit;
+    }
+
+    $sessionId = trim($sessionId);
+
+    try {
+        $session = \Stripe\Checkout\Session::retrieve([
+            'id'     => $sessionId,
+            'expand' => ['customer']
+        ]);
+    } catch (\Throwable $e) {
+        error_log('stripe_webhook.php: unable to load checkout session ' . $sessionId . ' - ' . $e->getMessage());
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'session_not_found']);
+        exit;
+    }
+
+    $buwanaId = null;
+
+    if (isset($session->metadata) && isset($session->metadata->buwana_id)) {
+        $maybeId = (string)$session->metadata->buwana_id;
+        if (ctype_digit($maybeId)) {
+            $buwanaId = (int)$maybeId;
+        }
+    }
+
+    if (!$buwanaId && !empty($session->client_reference_id) && ctype_digit((string)$session->client_reference_id)) {
+        $buwanaId = (int)$session->client_reference_id;
+    }
+
+    if (!$buwanaId) {
+        $customerId = null;
+        if (isset($session->customer)) {
+            if (is_string($session->customer)) {
+                $customerId = $session->customer;
+            } elseif (is_object($session->customer) && isset($session->customer->id)) {
+                $customerId = $session->customer->id;
+            }
+        }
+
+        if ($customerId) {
+            $stmt = $pdo->prepare("SELECT buwana_id FROM users_tb WHERE stripe_customer_id = ? LIMIT 1");
+            $stmt->execute([$customerId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row && isset($row['buwana_id']) && ctype_digit((string)$row['buwana_id'])) {
+                $buwanaId = (int)$row['buwana_id'];
+            }
+        }
+    }
+
+    if (!$buwanaId) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'error' => 'buwana_id_not_found']);
+        exit;
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'buwana_id' => $buwanaId,
+    ]);
+    exit;
+}
+
+if ($method !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'method_not_allowed']);
+    exit;
+}
+
+// ======================================================
 // READ + VERIFY STRIPE EVENT
 // NOTE: Must use raw body for signature verification
 // ======================================================
