@@ -849,60 +849,20 @@
 </script>
 
 <script>
-    function handleCometClick() {
-        const cometSystem = document.getElementById("comet_system");
-        if (!cometSystem) return;
-
-        cometSystem.style.display = "block";
-        cometSystem.style.opacity = "1";
-        cometSystem.style.transition = "opacity 1s ease";
-
-        if (typeof animateCometTrajectory === "function") {
-            try {
-                animateCometTrajectory();
-            } catch (error) {
-                console.error("Unable to animate comet trajectory.", error);
-            }
+    window.handleCometClick = function handleCometClick(event) {
+        if (typeof window.toggleCometSystem === "function") {
+            return window.toggleCometSystem(event);
         }
 
-        setTimeout(() => {
-            if (typeof ensureJediPlanAccess !== "function") {
-                console.warn("⚠️ ensureJediPlanAccess is not available to validate the user's subscription.");
-                return;
-            }
+        const cometSystem = document.getElementById("comet_system");
+        if (!cometSystem) {
+            return false;
+        }
 
-            const hasAccess = ensureJediPlanAccess(() => {});
-            if (hasAccess) {
-                return;
-            }
-
-            cometSystem.style.opacity = "0";
-
-            setTimeout(() => {
-                cometSystem.style.display = "none";
-            }, 1000);
-
-            const modalContainer = document.getElementById("form-modal-message");
-            const modalAlreadyVisible = modalContainer && modalContainer.classList.contains("modal-visible");
-
-            if (!modalAlreadyVisible && typeof manageEarthcalUserSub === "function") {
-                try {
-                    manageEarthcalUserSub();
-                    return;
-                } catch (error) {
-                    console.error("Unable to open subscription modal after ensuring Jedi access.", error);
-                }
-            }
-
-            if (modalContainer) {
-                modalContainer.classList.remove("modal-hidden");
-                modalContainer.classList.add("modal-visible");
-            }
-        }, 1000);
-    }
-
-
-
+        const isVisible = window.getComputedStyle(cometSystem).display !== "none";
+        cometSystem.style.display = isVisible ? "none" : "block";
+        return false;
+    };
 </script>
 
 <!-- FINAL LOADED SCRIPTS -->
