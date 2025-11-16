@@ -1882,6 +1882,34 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 0);
     };
 
+    const userHasJediPlanForComet = () => {
+        const plan = (window.user_plan || "").toString().trim().toLowerCase();
+        return plan === "jedi";
+    };
+
+    const openManageSubscriptionPanel = () => {
+        if (typeof manageEarthcalUserSub === "function") {
+            try {
+                manageEarthcalUserSub();
+                return true;
+            } catch (error) {
+                console.error(
+                    "Unable to open manage subscription panel for comet interactions.",
+                    error,
+                );
+            }
+        }
+
+        return openSubscriptionModal();
+    };
+
+    const promptJediPlanRequirement = () => {
+        window.alert(
+            "You need an EarthCal Jedi level plan to use the comet functionality. Upgrade to continue.",
+        );
+        openManageSubscriptionPanel();
+    };
+
     const openSubscriptionModal = () => {
         const modalContainer = document.getElementById("form-modal-message");
         const modalAlreadyVisible =
@@ -1973,6 +2001,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
+        if (!userHasJediPlanForComet()) {
+            promptJediPlanRequirement();
+            return false;
+        }
+
+        animateCometIfPossible();
         return toggleCometSystem();
     };
 
