@@ -2019,9 +2019,44 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 0);
     };
 
-    const userHasJediPlanForComet = () => {
-        const plan = (window.user_plan || "").toString().trim().toLowerCase();
-        return plan === "jedi";
+    const getCometAccessSnapshot = () => {
+        const fallbackLoggedIn = isUserLoggedInForComet();
+        const fallbackPlan = (window.user_plan || "").toString().trim().toLowerCase();
+
+        const sharedState = window.cometAccessState;
+        if (sharedState && typeof sharedState === "object") {
+            const normalizedPlan =
+                sharedState.plan ??
+                sharedState.planType ??
+                sharedState.subscription ??
+                fallbackPlan;
+
+            return {
+                loggedIn: Boolean(
+                    sharedState.loggedIn ??
+                        sharedState.isLoggedIn ??
+                        sharedState.authenticated ??
+                        fallbackLoggedIn,
+                ),
+                plan: (normalizedPlan || "").toString().trim().toLowerCase(),
+                planId: sharedState.planId ?? sharedState.plan_id ?? null,
+                lastUpdated: sharedState.lastUpdated ?? sharedState.updatedAt ?? null,
+                source: sharedState.source || "cometAccessState",
+            };
+        }
+
+        return {
+            loggedIn: Boolean(fallbackLoggedIn),
+            plan: fallbackPlan,
+            planId: null,
+            lastUpdated: null,
+            source: "fallback",
+        };
+    };
+
+    const userHasJediPlanForComet = (accessSnapshot = null) => {
+        const snapshot = accessSnapshot || getCometAccessSnapshot();
+        return snapshot.plan === "jedi";
     };
 
     const openManageSubscriptionPanel = () => {
@@ -2119,7 +2154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return false;
     };
 
-    const handleCometInteraction = (event) => {
+    const handleCometClick = (event) => {
         if (event?.preventDefault) {
             event.preventDefault();
         }
@@ -2127,9 +2162,14 @@ document.addEventListener("DOMContentLoaded", () => {
             event.stopPropagation();
         }
 
-        const userLoggedIn = isUserLoggedInForComet();
+        const accessSnapshot = getCometAccessSnapshot();
+        const userLoggedIn = Boolean(accessSnapshot.loggedIn);
         console.info("🛰️ handleCometClick invoked", {
             loggedIn: userLoggedIn,
+            plan: accessSnapshot.plan || "unknown",
+            planId: accessSnapshot.planId ?? "unknown",
+            lastUpdated: accessSnapshot.lastUpdated ?? "n/a",
+            source: accessSnapshot.source,
             timestamp: new Date().toISOString(),
         });
 
@@ -2138,7 +2178,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        if (!userHasJediPlanForComet()) {
+        if (!userHasJediPlanForComet(accessSnapshot)) {
             promptJediPlanRequirement();
             return false;
         }
@@ -2148,10 +2188,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (cometButton && !cometButton.hasAttribute("onclick")) {
-        cometButton.addEventListener("click", handleCometInteraction);
+        cometButton.addEventListener("click", handleCometClick);
     }
 
     window.toggleCometSystem = toggleCometSystem;
-    window.handleCometClick = handleCometInteraction;
+    window.handleCometClick = handleCometClick;
     window.hideCometSystem = hideCometSystem;
 });

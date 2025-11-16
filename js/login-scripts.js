@@ -171,6 +171,14 @@ async function getUserData() {
         sessionStorage.removeItem("user_calendars_v1");
         useDefaultUser();
         updateSessionStatus("⚪ Not logged in", false);
+        window.user_plan = "padwan";
+        window.cometAccessState = {
+            loggedIn: false,
+            plan: null,
+            planId: null,
+            lastUpdated: new Date().toISOString(),
+            source: "getUserData",
+        };
         return;
     }
 
@@ -195,6 +203,9 @@ async function getUserData() {
 
     console.log("✅ Loaded userProfile:", userProfile);
 
+    let resolvedPlanId = null;
+    let userPlanType = "padwan";
+
     try {
         const response = await fetch('api/v1/check_user_sub.php', {
             method: 'POST',
@@ -207,7 +218,6 @@ async function getUserData() {
         }
 
         const subscriptionData = await response.json();
-        let resolvedPlanId = null;
 
         const extractPlanId = (source) => {
             if (!source) return null;
@@ -230,13 +240,21 @@ async function getUserData() {
             return "padwan";
         };
 
-        const userPlanType = mapPlanIdToType(resolvedPlanId ?? 1);
+        userPlanType = mapPlanIdToType(resolvedPlanId ?? 1);
         window.user_plan = userPlanType;
         console.log(`🛰️ EarthCal user_plan set to "${userPlanType}" (plan_id: ${resolvedPlanId ?? 'unknown'})`);
     } catch (error) {
         window.user_plan = "padwan";
         console.warn('⚠️ Unable to determine subscription plan, defaulting to "padwan".', error);
     }
+
+    window.cometAccessState = {
+        loggedIn: true,
+        plan: userPlanType,
+        planId: resolvedPlanId,
+        lastUpdated: new Date().toISOString(),
+        source: "getUserData",
+    };
 
     updateSessionStatus(
         `🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`,
