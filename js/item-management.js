@@ -3039,3 +3039,144 @@ async function getDefaultCalendarForUser(buwana_id) {
     return def ? { id: def.calendar_id, name: def.name } : { id: null, name: 'My Calendar' };
 }
 
+/**
+ * 🐢 Launch Turtle modal helper
+ *
+ * The dashboard's "Launch Turtle" modal renders both the mission form and the
+ * "Turtle launched" completion panel in the DOM.  On mobile the completion
+ * panel stays hidden because of the stacked layout, but on larger breakpoints
+ * both sections become visible at the same time.  This helper keeps the
+ * completion panel hidden until the form is actually collapsed/hidden – the
+ * same state change that happens once the launch flow finishes.
+ */
+(function bootstrapLaunchTurtleModalVisibility() {
+    const MODAL_SELECTOR = [
+        '[data-launch-modal="turtle"]',
+        '[data-modal="launch-turtle"]',
+        '[data-ec-modal="launch-turtle"]',
+        '[data-ec-launch="turtle"]',
+        '#launch-turtle-modal',
+        '#launch-turtle-mission'
+    ].join(',');
+
+    const COMPLETION_SELECTOR = [
+        '[data-launch-state="complete"]',
+        '[data-launch-panel="complete"]',
+        '[data-launch-view="success"]',
+        '.launch-turtle__completion',
+        '.mission-complete-panel'
+    ].join(',');
+
+    function findLaunchModalRoot() {
+        const modalByAttr = document.querySelector(MODAL_SELECTOR);
+        if (modalByAttr) return modalByAttr;
+
+        const heading = Array.from(document.querySelectorAll('h1, h2, h3, [data-modal-title], [aria-label]'))
+            .find(node => /launch\s+turtle/i.test((node.textContent || node.getAttribute('aria-label') || '').trim()));
+        if (!heading) return null;
+
+        return heading.closest('[role="dialog"], dialog, .modal, section, article, div');
+    }
+
+    function findCompletionPanel(modal) {
+        let panel = modal.querySelector(COMPLETION_SELECTOR);
+        if (panel) return panel;
+
+        return Array.from(modal.querySelectorAll('div, section, article, p'))
+            .find(node => /turtle\s+launched!/i.test((node.textContent || '').trim()));
+    }
+
+    function findLaunchForm(modal) {
+        return modal.querySelector('[data-launch-form], form');
+    }
+
+    function isElementVisible(el) {
+        if (!el || el.hidden) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
+        return el.getClientRects().length > 0;
+    }
+
+    function hidePanel(panel) {
+        if (!panel) return;
+        if (!panel.dataset.ecLaunchDefaultDisplay) {
+            const computed = window.getComputedStyle(panel).display;
+            panel.dataset.ecLaunchDefaultDisplay = computed && computed !== 'none' ? computed : 'block';
+        }
+        panel.style.display = 'none';
+        panel.setAttribute('aria-hidden', 'true');
+    }
+
+    function showPanel(panel) {
+        if (!panel) return;
+        const display = panel.dataset.ecLaunchDefaultDisplay || 'block';
+        panel.style.display = display;
+        panel.setAttribute('aria-hidden', 'false');
+    }
+
+    function wireLaunchModal(modal, form, completion) {
+        if (modal.dataset.ecLaunchTurtleWired === 'true') return true;
+        modal.dataset.ecLaunchTurtleWired = 'true';
+
+        const syncVisibility = () => {
+            if (isElementVisible(form)) {
+                hidePanel(completion);
+            } else {
+                showPanel(completion);
+            }
+        };
+
+        syncVisibility();
+
+        const formObserver = new MutationObserver(syncVisibility);
+        formObserver.observe(form, { attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-hidden'] });
+
+        const modalObserver = new MutationObserver(syncVisibility);
+        modalObserver.observe(modal, { attributes: true, attributeFilter: ['class', 'hidden', 'aria-hidden'] });
+
+        const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(syncVisibility) : null;
+        if (resizeObserver) resizeObserver.observe(form);
+
+        const cleanup = () => {
+            formObserver.disconnect();
+            modalObserver.disconnect();
+            if (resizeObserver) resizeObserver.disconnect();
+            delete modal.dataset.ecLaunchTurtleWired;
+        };
+
+        window.addEventListener('pagehide', cleanup, { once: true });
+        return true;
+    }
+
+    function tryWireModal() {
+        const modal = findLaunchModalRoot();
+        if (!modal) return false;
+
+        const form = findLaunchForm(modal);
+        const completion = findCompletionPanel(modal);
+        if (!form || !completion) return false;
+
+        return wireLaunchModal(modal, form, completion);
+    }
+
+    function initLaunchModalWatcher() {
+        if (tryWireModal()) return;
+
+        const observer = new MutationObserver(() => {
+            if (tryWireModal()) {
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLaunchModalWatcher, { once: true });
+        } else {
+            initLaunchModalWatcher();
+        }
+    }
+})();
+
