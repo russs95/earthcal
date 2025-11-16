@@ -1787,6 +1787,69 @@ document.addEventListener("DOMContentLoaded", () => {
         animateCometIfPossible();
     };
 
+    const isUserLoggedInForComet = () => {
+        if (typeof isLoggedIn !== "function") {
+            console.warn(
+                "⚠️ isLoggedIn is unavailable; defaulting comet access check to logged-out.",
+            );
+            return false;
+        }
+
+        try {
+            const loginState = isLoggedIn({ returnPayload: true });
+
+            if (typeof loginState === "boolean") {
+                return loginState;
+            }
+
+            if (loginState && typeof loginState === "object") {
+                if (typeof loginState.isLoggedIn === "boolean") {
+                    return loginState.isLoggedIn;
+                }
+
+                if (loginState.payload?.buwana_id) {
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.warn(
+                "⚠️ Unable to determine login status before showing the comet system.",
+                error,
+            );
+            return false;
+        }
+
+        return false;
+    };
+
+    const promptLoginForCometAccess = () => {
+        const message =
+            "Sorry, to use the comet functionality you must first login with your Jedi level Buwana account.";
+
+        showCometSystem();
+
+        const finalizePrompt = () => {
+            if (typeof sendUpRegistration === "function") {
+                try {
+                    sendUpRegistration();
+                } catch (error) {
+                    console.error("Unable to open the login view after comet alert.", error);
+                }
+            } else {
+                console.warn(
+                    "⚠️ sendUpRegistration is not available; unable to display the login view after comet alert.",
+                );
+            }
+
+            hideCometSystem({ immediate: true });
+        };
+
+        window.setTimeout(() => {
+            window.alert(message);
+            finalizePrompt();
+        }, 0);
+    };
+
     const openSubscriptionModal = () => {
         const modalContainer = document.getElementById("form-modal-message");
         const modalAlreadyVisible =
@@ -1865,6 +1928,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (event?.stopPropagation) {
             event.stopPropagation();
+        }
+
+        if (!isUserLoggedInForComet()) {
+            promptLoginForCometAccess();
+            return false;
         }
 
         return toggleCometSystem();
