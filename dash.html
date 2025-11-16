@@ -848,23 +848,6 @@
     });
 </script>
 
-<script>
-    window.handleCometClick = function handleCometClick(event) {
-        if (typeof window.toggleCometSystem === "function") {
-            return window.toggleCometSystem(event);
-        }
-
-        const cometSystem = document.getElementById("comet_system");
-        if (!cometSystem) {
-            return false;
-        }
-
-        const isVisible = window.getComputedStyle(cometSystem).display !== "none";
-        cometSystem.style.display = isVisible ? "none" : "block";
-        return false;
-    };
-</script>
-
 <!-- FINAL LOADED SCRIPTS -->
 
 <script src="js/1-event-management.js?v=3.4"></script>

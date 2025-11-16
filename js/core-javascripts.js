@@ -1927,7 +1927,13 @@ document.addEventListener("DOMContentLoaded", () => {
             event.stopPropagation();
         }
 
-        if (!isUserLoggedInForComet()) {
+        const userLoggedIn = isUserLoggedInForComet();
+        console.info("🛰️ handleCometClick invoked", {
+            loggedIn: userLoggedIn,
+            timestamp: new Date().toISOString(),
+        });
+
+        if (!userLoggedIn) {
             promptLoginForCometAccess();
             return false;
         }
