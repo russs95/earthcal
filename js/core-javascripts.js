@@ -1,6 +1,41 @@
 
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 
+// Ensure the comet button click handler always exists so visitors without the
+// fully initialized dashboard (for example, logged-out users) don't encounter a
+// ReferenceError when they tap the button. The DOMContentLoaded handler later in
+// this file will replace this fallback with the fully featured implementation
+// once the comet system is ready.
+if (typeof window !== "undefined" && typeof window.handleCometClick !== "function") {
+  window.handleCometClick = (event) => {
+    if (event?.preventDefault) {
+      event.preventDefault();
+    }
+    if (event?.stopPropagation) {
+      event.stopPropagation();
+    }
+
+    const message =
+      "The comet experience is available after login. Please sign in to access this feature.";
+
+    if (typeof window.alert === "function") {
+      window.alert(message);
+    } else {
+      console.warn(message);
+    }
+
+    if (typeof window.sendUpRegistration === "function") {
+      try {
+        window.sendUpRegistration();
+      } catch (error) {
+        console.error("Unable to open the login view after comet button click.", error);
+      }
+    }
+
+    return false;
+  };
+}
+
 /* Declare variables */
 
 let startCoords = { cx: 0, cy: 0 };
