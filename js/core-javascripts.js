@@ -1715,29 +1715,166 @@ document.addEventListener("DOMContentLoaded", () => {
     const cometButton = document.getElementById("comet-button");
     const cometSystem = document.getElementById("comet_system");
 
-    function showCometSystem() {
-        if (!cometSystem) return;
+    if (!cometSystem) {
+        if (typeof window.handleCometClick !== "function") {
+            window.handleCometClick = () => false;
+        }
+        return;
+    }
 
-        // ✅ Show the comet system layer
-        cometSystem.style.display = "block";
+    const computedDisplay = window.getComputedStyle(cometSystem).display;
+    cometSystem.dataset.cometVisible = computedDisplay !== "none" ? "true" : "false";
 
-        // ✅ Alert the user
-        alert(
-            "Tracking the Interstellar Comet 3I-Atlas is available to Jedi EarthCal accounts.  The ability to upgrade your Padwan plan and follow the comet is coming soon to EarthCal.  Hold tight!"
-        );
+    if (!cometSystem.style.transition) {
+        cometSystem.style.transition = "opacity 0.6s ease";
+    }
 
-        // ✅ Hide it again
-        cometSystem.style.display = "none";
+    let accessCheckTimeoutId = null;
+    let hideTimeoutId = null;
 
-        // ✅ After 1s → send user to subscription manager
-        setTimeout(() => {
-            if (typeof manageEarthcalUserSub === "function") {
-                manageEarthcalUserSub();
+    const hideCometSystem = (options = {}) => {
+        if (accessCheckTimeoutId !== null) {
+            window.clearTimeout(accessCheckTimeoutId);
+            accessCheckTimeoutId = null;
+        }
+
+        cometSystem.dataset.cometVisible = "false";
+        cometSystem.style.opacity = "0";
+
+        if (hideTimeoutId !== null) {
+            window.clearTimeout(hideTimeoutId);
+            hideTimeoutId = null;
+        }
+
+        const finalizeHide = () => {
+            if (cometSystem.dataset.cometVisible === "true") {
+                return;
             }
-        }, 1000);
+            cometSystem.style.display = "none";
+        };
+
+        if (options.immediate) {
+            finalizeHide();
+        } else {
+            hideTimeoutId = window.setTimeout(finalizeHide, 300);
+        }
+    };
+
+    const animateCometIfPossible = () => {
+        if (typeof animateCometTrajectory !== "function") {
+            return;
+        }
+
+        try {
+            animateCometTrajectory();
+        } catch (error) {
+            console.error("Unable to animate comet trajectory.", error);
+        }
+    };
+
+    const showCometSystem = () => {
+        if (hideTimeoutId !== null) {
+            window.clearTimeout(hideTimeoutId);
+            hideTimeoutId = null;
+        }
+
+        cometSystem.style.display = "block";
+        // Force reflow so opacity transition animates reliably
+        void cometSystem.offsetWidth;
+        cometSystem.style.opacity = "1";
+        cometSystem.dataset.cometVisible = "true";
+
+        animateCometIfPossible();
+    };
+
+    const openSubscriptionModal = () => {
+        const modalContainer = document.getElementById("form-modal-message");
+        const modalAlreadyVisible =
+            modalContainer && modalContainer.classList.contains("modal-visible");
+
+        if (typeof manageEarthcalUserSub === "function") {
+            try {
+                manageEarthcalUserSub();
+                return true;
+            } catch (error) {
+                console.error(
+                    "Unable to open subscription modal after ensuring Jedi access.",
+                    error,
+                );
+            }
+        }
+
+        if (modalContainer && !modalAlreadyVisible) {
+            modalContainer.classList.remove("modal-hidden");
+            modalContainer.classList.add("modal-visible");
+            return true;
+        }
+
+        return false;
+    };
+
+    const verifyJediPlanAccess = () => {
+        if (typeof ensureJediPlanAccess !== "function") {
+            console.warn(
+                "⚠️ ensureJediPlanAccess is not available to validate the user's subscription.",
+            );
+            return;
+        }
+
+        let hasAccess = false;
+
+        try {
+            hasAccess = Boolean(ensureJediPlanAccess(() => {}));
+        } catch (error) {
+            console.error("Unable to verify Jedi plan access.", error);
+        }
+
+        if (hasAccess) {
+            return;
+        }
+
+        hideCometSystem();
+        openSubscriptionModal();
+    };
+
+    const toggleCometSystem = () => {
+        const isVisible = cometSystem.dataset.cometVisible === "true";
+
+        if (isVisible) {
+            hideCometSystem();
+            return false;
+        }
+
+        showCometSystem();
+
+        if (accessCheckTimeoutId !== null) {
+            window.clearTimeout(accessCheckTimeoutId);
+        }
+
+        accessCheckTimeoutId = window.setTimeout(() => {
+            accessCheckTimeoutId = null;
+            verifyJediPlanAccess();
+        }, 500);
+
+        return false;
+    };
+
+    const handleCometInteraction = (event) => {
+        if (event?.preventDefault) {
+            event.preventDefault();
+        }
+        if (event?.stopPropagation) {
+            event.stopPropagation();
+        }
+
+        return toggleCometSystem();
+    };
+
+    if (cometButton && !cometButton.hasAttribute("onclick")) {
+        cometButton.addEventListener("click", handleCometInteraction);
     }
 
-    if (cometButton) {
-        cometButton.addEventListener("click", showCometSystem);
-    }
+    window.toggleCometSystem = toggleCometSystem;
+    window.handleCometClick = handleCometInteraction;
+    window.hideCometSystem = hideCometSystem;
 });
