@@ -52,7 +52,7 @@ async function initCalendar() {
     const scripts = [
         "js/suncalc.min.js",
         "js/astronomy.browser.js",
-        "js/core-javascripts.js?v=12.1",
+        "js/core-javascripts.js?v=14",
         "js/1-gcal-javascripts.js?v=3.2",
         "js/breakouts.js",
         "js/set-targetdate.js",
@@ -65,7 +65,7 @@ async function initCalendar() {
 
     try {
         try {
-            const response = await fetch("cals/earthcal-v1-0-3.svg?v=6.1");
+            const response = await fetch("cals/earthcal-v1-0-3.svg?v=7");
             const svg = await response.text();
             const calContainer = document.getElementById("the-cal");
             if (calContainer) {
