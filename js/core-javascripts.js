@@ -1789,10 +1789,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isUserLoggedInForComet = () => {
         if (typeof isLoggedIn !== "function") {
-            console.warn(
-                "⚠️ isLoggedIn is unavailable; defaulting comet access check to logged-out.",
-            );
-            return false;
+            return true;
         }
 
         try {
@@ -1816,7 +1813,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "⚠️ Unable to determine login status before showing the comet system.",
                 error,
             );
-            return false;
+            return true;
         }
 
         return false;
