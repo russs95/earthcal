@@ -1822,36 +1822,173 @@ document.addEventListener("DOMContentLoaded", () => {
         animateCometIfPossible();
     };
 
-    const isUserLoggedInForComet = () => {
-        if (typeof isLoggedIn !== "function") {
-            return true;
+    const coerceLoginBoolean = (value) => {
+        if (typeof value === "boolean") {
+            return value;
+        }
+
+        if (typeof value === "number") {
+            return value !== 0;
+        }
+
+        if (typeof value === "string") {
+            const normalized = value.trim().toLowerCase();
+            if (["true", "1", "yes", "logged_in"].includes(normalized)) {
+                return true;
+            }
+
+            if (["false", "0", "no", "logged_out"].includes(normalized)) {
+                return false;
+            }
+        }
+
+        return null;
+    };
+
+    const parseJsonSafely = (value) => {
+        if (!value || typeof value !== "string") {
+            return null;
         }
 
         try {
-            const loginState = isLoggedIn({ returnPayload: true });
-
-            if (typeof loginState === "boolean") {
-                return loginState;
-            }
-
-            if (loginState && typeof loginState === "object") {
-                if (typeof loginState.isLoggedIn === "boolean") {
-                    return loginState.isLoggedIn;
-                }
-
-                if (loginState.payload?.buwana_id) {
-                    return true;
-                }
-            }
+            return JSON.parse(value);
         } catch (error) {
-            console.warn(
-                "⚠️ Unable to determine login status before showing the comet system.",
-                error,
-            );
+            return null;
+        }
+    };
+
+    const decodeJwtPayload = (token) => {
+        if (!token || typeof token !== "string") {
+            return null;
+        }
+
+        try {
+            const parts = token.split(".");
+            if (parts.length < 2) {
+                return null;
+            }
+            const payload = parts[1]
+                .replace(/-/g, "+")
+                .replace(/_/g, "/");
+            const decoded = atob(payload);
+            return JSON.parse(decoded);
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const isPayloadFresh = (payload) => {
+        if (!payload || typeof payload !== "object") {
+            return false;
+        }
+
+        if (!payload.exp) {
             return true;
         }
 
-        return false;
+        const exp = Number(payload.exp);
+        if (Number.isNaN(exp)) {
+            return true;
+        }
+
+        return exp > Math.floor(Date.now() / 1000);
+    };
+
+    const resolveStoredAuthPayload = () => {
+        if (typeof window === "undefined") {
+            return null;
+        }
+
+        const sources = [];
+
+        if (window.sessionStorage) {
+            sources.push(() => parseJsonSafely(window.sessionStorage.getItem("buwana_user")));
+        }
+
+        if (window.localStorage) {
+            sources.push(() => parseJsonSafely(window.localStorage.getItem("user_profile")));
+            sources.push(() => decodeJwtPayload(window.localStorage.getItem("id_token")));
+            sources.push(() => decodeJwtPayload(window.localStorage.getItem("access_token")));
+        }
+
+        if (typeof window.name === "string" && window.name.trim()) {
+            sources.push(() => {
+                const payload = parseJsonSafely(window.name);
+                return payload?.__earthcal_oidc || null;
+            });
+        }
+
+        for (const readSource of sources) {
+            try {
+                const payload = readSource();
+                if (payload?.buwana_id && isPayloadFresh(payload)) {
+                    return payload;
+                }
+            } catch (error) {
+                console.warn("⚠️ Unable to read stored authentication payload for comet system.", error);
+            }
+        }
+
+        return null;
+    };
+
+    const deriveLoginState = (loginState) => {
+        if (typeof loginState === "boolean") {
+            return loginState;
+        }
+
+        if (!loginState || typeof loginState !== "object") {
+            return null;
+        }
+
+        const explicitFlag =
+            coerceLoginBoolean(
+                loginState.isLoggedIn ??
+                    loginState.loggedIn ??
+                    loginState.authenticated ??
+                    loginState.status,
+            );
+        if (typeof explicitFlag === "boolean") {
+            return explicitFlag;
+        }
+
+        const candidatePayload =
+            loginState.payload ??
+            loginState.user ??
+            loginState.session ??
+            null;
+
+        if (candidatePayload?.buwana_id && isPayloadFresh(candidatePayload)) {
+            return true;
+        }
+
+        if (loginState.buwana_id && isPayloadFresh(loginState)) {
+            return true;
+        }
+
+        return null;
+    };
+
+    const isUserLoggedInForComet = () => {
+        let loginState;
+
+        if (typeof isLoggedIn === "function") {
+            try {
+                loginState = isLoggedIn({ returnPayload: true });
+            } catch (error) {
+                console.warn(
+                    "⚠️ Unable to determine login status before showing the comet system.",
+                    error,
+                );
+            }
+        }
+
+        const derived = deriveLoginState(loginState);
+        if (typeof derived === "boolean") {
+            return derived;
+        }
+
+        return Boolean(resolveStoredAuthPayload());
     };
 
     const promptLoginForCometAccess = () => {
