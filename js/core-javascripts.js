@@ -1772,6 +1772,8 @@ const initializeCometSystem = () => {
 
     let accessCheckTimeoutId = null;
     let hideTimeoutId = null;
+    let nextCometAnimationOptions = null;
+    let cometAnimationInitialized = false;
 
     const hideCometSystem = (options = {}) => {
         if (accessCheckTimeoutId !== null) {
@@ -1801,13 +1803,17 @@ const initializeCometSystem = () => {
         }
     };
 
-    const animateCometIfPossible = () => {
+    const animateCometIfPossible = (animationOptions) => {
         if (typeof animateCometTrajectory !== "function") {
             return;
         }
 
         try {
-            animateCometTrajectory();
+            if (animationOptions) {
+                animateCometTrajectory(undefined, animationOptions);
+            } else {
+                animateCometTrajectory();
+            }
         } catch (error) {
             console.error("Unable to animate comet trajectory.", error);
         }
@@ -1825,7 +1831,9 @@ const initializeCometSystem = () => {
         cometSystem.style.opacity = "1";
         cometSystem.dataset.cometVisible = "true";
 
-        animateCometIfPossible();
+        const pendingAnimationOptions = nextCometAnimationOptions;
+        nextCometAnimationOptions = null;
+        animateCometIfPossible(pendingAnimationOptions);
     };
 
     const coerceLoginBoolean = (value) => {
@@ -2189,7 +2197,18 @@ const initializeCometSystem = () => {
             return false;
         }
 
-        animateCometIfPossible();
+        const isCometVisible = cometSystem.dataset.cometVisible === "true";
+        if (!isCometVisible) {
+            if (!cometAnimationInitialized) {
+                nextCometAnimationOptions = { skipAnimation: true };
+                cometAnimationInitialized = true;
+            } else {
+                nextCometAnimationOptions = null;
+            }
+        } else {
+            nextCometAnimationOptions = null;
+        }
+
         return toggleCometSystem();
     };
 
