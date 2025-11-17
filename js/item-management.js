@@ -837,6 +837,9 @@ function applyKindToForm(kind, context = {}, { restoreState = null } = {}) {
     const emojiPreview = document.getElementById('ec-emoji-preview');
     if (emojiInput) emojiInput.value = emojiValue;
     if (emojiPreview) emojiPreview.textContent = emojiValue;
+    if (root) {
+        root.dataset.presetEmoji = emojiValue;
+    }
 
     wireEmojiPicker({
         buttonId: 'ec-emoji-button',
@@ -2380,7 +2383,11 @@ function collectAddItemFormData(user) {
     const calendar_id = calendarSelection && calendarSelection !== '__add_new__' ? calendarSelection : null;
     const title = valueOf('#ec-title')?.trim() || '';
     const pinned = checked('#ec-pinned');
-    const rawEmoji = valueOf('#ec-emoji');
+    const formRoot = document.getElementById('ec-add-form-root');
+    const emojiPreview = document.getElementById('ec-emoji-preview');
+    const rawEmojiInput = valueOf('#ec-emoji');
+    const fallbackEmoji = emojiPreview?.textContent || formRoot?.dataset?.presetEmoji || '';
+    const rawEmoji = rawEmojiInput || fallbackEmoji;
     const emoji = rawEmoji ? sanitizeEmojiInput(rawEmoji) : null;
     const color_hex = valueOf('#ec-color') || null;
     const tzid = valueOf('#ec-tzid') || getUserTZ();

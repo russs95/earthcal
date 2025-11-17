@@ -4521,6 +4521,9 @@ svg path #june:hover {
     padding: 16px 25px;
     border-radius: 5px;
     z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
 }
 
 #bottom-left-buttons button {
