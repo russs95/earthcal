@@ -141,6 +141,9 @@
             const header = document.getElementById('header');
             const rayLine = document.getElementById('ray_lines');
             const bottomButtons = document.getElementById('bottom-left-buttons');
+            if (bottomButtons) {
+                bottomButtons.style.pointerEvents = 'none';
+            }
             // ANIMATED DISPLAY of the Calendar Interface
             setTimeout(() => {
                 dayLinesDiv.style.opacity = '1';
@@ -151,8 +154,13 @@
                 allDaymarkers.style.opacity = '1'; // Show allDaymarkers
             }, 3000);
             setTimeout(() => {
-                header.style.opacity = '1'; // Show header with current date and time
-                bottomButtons.style.opacity = '1'; // Show header with current date and time
+                if (header) {
+                    header.style.opacity = '1'; // Show header with current date and time
+                }
+                if (bottomButtons) {
+                    bottomButtons.style.opacity = '1';
+                    bottomButtons.style.pointerEvents = 'auto';
+                }
             }, 4000);
 
 
@@ -633,6 +641,7 @@
                 data-hide="planet-buttons kin-buttons themoonphases americas-map euro-map moon-cycle moon-phase"
                 title="Activate 3I-Atlas Journey"
                 data-role="palette-root"
+                onclick="return window.handleCometClick ? window.handleCometClick(event) : false;"
                 >
         </button>
 
