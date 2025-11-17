@@ -1746,7 +1746,13 @@ function guidedTour() {
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
+const initializeCometSystem = () => {
+    if (initializeCometSystem.__initialized) {
+        return;
+    }
+
+    initializeCometSystem.__initialized = true;
+
     const cometButton = document.getElementById("comet-button");
     const cometSystem = document.getElementById("comet_system");
 
@@ -2194,4 +2200,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.toggleCometSystem = toggleCometSystem;
     window.handleCometClick = handleCometClick;
     window.hideCometSystem = hideCometSystem;
-});
+};
+
+if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeCometSystem, { once: true });
+    } else {
+        initializeCometSystem();
+    }
+}
