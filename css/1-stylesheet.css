@@ -3778,7 +3778,7 @@ INFO MODAL
 
 .ec-notes-toggle-button.is-open .ec-notes-toggle-thumb,
 .ec-notes-toggle-thumb.is-open {
-    top: calc(100% - 6px - 16px);
+    top: calc(100% - 6px - 10px);
 }
 
 .ec-notes-toggle-button:hover {
@@ -3884,13 +3884,14 @@ INFO MODAL
 }
 
 .ec-color-input {
-    width: 36px;
-    min-width: 36px;
-    height: 36px;
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
     padding: 0;
     cursor: pointer;
     border-radius: 15px;
     margin: 0;
+    border: 2px solid var(--button-2-1)
 }
 
 .ec-form-inline {
