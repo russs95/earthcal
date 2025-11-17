@@ -728,7 +728,7 @@ function animateWhaleCycle(date) {
 
 function animateCometTrajectory(date, options = {}) {
   const cometElement = document.getElementById("comet-start");
-  const cometPathElement = document.getElementById("comit-orbit");
+  const cometPathElement = document.getElementById("comet-orbit");
 
   if (!cometElement || !cometPathElement) {
     console.warn("⚠️ Cannot animate comet trajectory: missing SVG elements.");
@@ -779,46 +779,60 @@ function animateCometTrajectory(date, options = {}) {
 
   const restorePathVisibility = ensureSvgVisibility(cometPathElement);
   const restoreCometVisibility = ensureSvgVisibility(cometElement, "inline");
+  let visibilityRestored = false;
+  const finalizeVisibility = () => {
+    if (visibilityRestored) {
+      return;
+    }
+    visibilityRestored = true;
+    restorePathVisibility();
+    restoreCometVisibility();
+  };
 
   let targetPoint = null;
-  let startPoint = null;
+  let pathLength = null;
   let measurementFailed = false;
 
   try {
-    const pathLength = cometPathElement.getTotalLength();
+    pathLength = cometPathElement.getTotalLength();
     if (!Number.isFinite(pathLength) || pathLength <= 0) {
       console.warn("⚠️ animateCometTrajectory skipped: comet path length is invalid.");
       measurementFailed = true;
     } else {
       targetPoint = cometPathElement.getPointAtLength(pathLength * progress);
-      if (hasPreviousProgress) {
-        startPoint = cometPathElement.getPointAtLength(pathLength * startProgress);
-      }
     }
   } catch (error) {
     console.error("❌ animateCometTrajectory failed while reading path geometry:", error);
     measurementFailed = true;
-  } finally {
-    restorePathVisibility();
-    restoreCometVisibility();
   }
 
-  if (measurementFailed || !targetPoint || !Number.isFinite(targetPoint.x) || !Number.isFinite(targetPoint.y)) {
+  if (
+    measurementFailed ||
+    !targetPoint ||
+    !Number.isFinite(targetPoint.x) ||
+    !Number.isFinite(targetPoint.y) ||
+    !Number.isFinite(pathLength) ||
+    pathLength <= 0
+  ) {
+    finalizeVisibility();
     return;
   }
 
-  const currentX = Number.parseFloat(cometElement.getAttribute("cx"));
-  const currentY = Number.parseFloat(cometElement.getAttribute("cy"));
-  const startX = startPoint && Number.isFinite(startPoint.x)
-    ? startPoint.x
-    : (Number.isFinite(currentX) ? currentX : targetPoint.x);
-  const startY = startPoint && Number.isFinite(startPoint.y)
-    ? startPoint.y
-    : (Number.isFinite(currentY) ? currentY : targetPoint.y);
+  const startRatio = clampProgress(startProgress);
+  const endRatio = clampProgress(progress);
+  const progressDelta = endRatio - startRatio;
 
-  const deltaX = targetPoint.x - startX;
-  const deltaY = targetPoint.y - startY;
-  const distance = Math.hypot(deltaX, deltaY);
+  let initialPoint;
+  try {
+    initialPoint = cometPathElement.getPointAtLength(pathLength * startRatio);
+  } catch (error) {
+    console.error("❌ animateCometTrajectory failed while sampling initial point:", error);
+    finalizeVisibility();
+    return;
+  }
+
+  cometElement.setAttribute("cx", initialPoint.x.toFixed(3));
+  cometElement.setAttribute("cy", initialPoint.y.toFixed(3));
 
   const previousAnimation = cometElement.__trajectoryAnimation;
   if (previousAnimation instanceof Animation) {
@@ -829,31 +843,37 @@ function animateCometTrajectory(date, options = {}) {
     cancelAnimationFrame(previousAnimation);
   }
 
-  cometElement.dataset.cometProgress = startProgress.toFixed(4);
+  cometElement.dataset.cometProgress = startRatio.toFixed(4);
 
-  if (skipAnimation) {
-    cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
-    cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
-    cometElement.dataset.cometProgress = progress.toFixed(4);
-    cometElement.__trajectoryAnimation = null;
-    return;
+  const hasValidStartDate = startDate instanceof Date && !Number.isNaN(startDate.getTime());
+  const durationReferenceDate = hasValidStartDate ? startDate : resolvedDate;
+  const realDaysToTargetDate = Math.abs(resolvedDate - durationReferenceDate) / dayMs;
+
+  let animationDuration = 500;
+  if (Number.isFinite(realDaysToTargetDate)) {
+    if (realDaysToTargetDate < 30) {
+      animationDuration = 500;
+    } else if (realDaysToTargetDate < 60) {
+      animationDuration = 1000;
+    } else if (realDaysToTargetDate < 120) {
+      animationDuration = 1500;
+    } else if (realDaysToTargetDate < 180) {
+      animationDuration = 2000;
+    } else if (realDaysToTargetDate <= 366) {
+      animationDuration = 3000;
+    } else {
+      animationDuration = 4000;
+    }
   }
 
-  if (!Number.isFinite(distance) || distance < 0.01) {
+  const hasMovement = Math.abs(progressDelta) > 0.0001;
+
+  if (skipAnimation || !hasMovement || animationDuration <= 0) {
     cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
     cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
-    cometElement.dataset.cometProgress = progress.toFixed(4);
+    cometElement.dataset.cometProgress = endRatio.toFixed(4);
     cometElement.__trajectoryAnimation = null;
-    return;
-  }
-
-  const duration = Math.min(Math.max(distance * 18, 250), 2000);
-
-  if (!Number.isFinite(duration) || duration <= 0) {
-    cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
-    cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
-    cometElement.dataset.cometProgress = progress.toFixed(4);
-    cometElement.__trajectoryAnimation = null;
+    finalizeVisibility();
     return;
   }
 
@@ -864,31 +884,41 @@ function animateCometTrajectory(date, options = {}) {
         cancelAnimationFrame(this.frameId);
         this.frameId = null;
       }
+      finalizeVisibility();
     }
   };
 
   const startTime = performance.now();
-  const progressDelta = progress - startProgress;
 
   const step = (timestamp) => {
     const elapsed = timestamp - startTime;
-    const linearProgress = Math.min(elapsed / duration, 1);
+    const linearProgress = Math.min(elapsed / animationDuration, 1);
+    const currentProgress = startRatio + (progressDelta * linearProgress);
+    const clampedProgress = clampProgress(currentProgress);
 
-    const currentX = startX + (deltaX * linearProgress);
-    const currentY = startY + (deltaY * linearProgress);
-    const currentProgress = startProgress + (progressDelta * linearProgress);
+    let currentPoint;
+    try {
+      currentPoint = cometPathElement.getPointAtLength(pathLength * clampedProgress);
+    } catch (error) {
+      console.error("❌ Unable to sample comet path during animation:", error);
+      animationState.cancel();
+      cometElement.__trajectoryAnimation = null;
+      finalizeVisibility();
+      return;
+    }
 
-    cometElement.setAttribute("cx", currentX.toFixed(3));
-    cometElement.setAttribute("cy", currentY.toFixed(3));
-    cometElement.dataset.cometProgress = clampProgress(currentProgress).toFixed(4);
+    cometElement.setAttribute("cx", currentPoint.x.toFixed(3));
+    cometElement.setAttribute("cy", currentPoint.y.toFixed(3));
+    cometElement.dataset.cometProgress = clampedProgress.toFixed(4);
 
     if (linearProgress < 1) {
       animationState.frameId = requestAnimationFrame(step);
     } else {
       cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
       cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
-      cometElement.dataset.cometProgress = progress.toFixed(4);
+      cometElement.dataset.cometProgress = endRatio.toFixed(4);
       cometElement.__trajectoryAnimation = null;
+      finalizeVisibility();
     }
   };
 
