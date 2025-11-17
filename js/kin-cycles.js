@@ -726,7 +726,7 @@ function animateWhaleCycle(date) {
 }
 
 
-function animateCometTrajectory(date) {
+function animateCometTrajectory(date, options = {}) {
   const cometElement = document.getElementById("comet-start");
   const cometPathElement = document.getElementById("comit-orbit");
 
@@ -735,7 +735,16 @@ function animateCometTrajectory(date) {
     return;
   }
 
-  const resolvedDate = (date instanceof Date && !Number.isNaN(date.getTime())) ? date : targetDate;
+  const animationOptions = (options && typeof options === "object") ? options : {};
+  const skipAnimation = Boolean(animationOptions.skipAnimation);
+
+  const resolvedDateCandidate = (date instanceof Date && !Number.isNaN(date.getTime()))
+    ? date
+    : animationOptions.date;
+
+  const resolvedDate = (resolvedDateCandidate instanceof Date && !Number.isNaN(resolvedDateCandidate.getTime()))
+    ? resolvedDateCandidate
+    : targetDate;
 
   if (!(resolvedDate instanceof Date) || Number.isNaN(resolvedDate.getTime())) {
     console.warn("⚠️ animateCometTrajectory skipped: invalid date provided.");
@@ -764,10 +773,15 @@ function animateCometTrajectory(date) {
     return;
   }
 
+  const previousProgressRaw = Number.parseFloat(cometElement.dataset.cometProgress);
+  const hasPreviousProgress = Number.isFinite(previousProgressRaw);
+  const startProgress = hasPreviousProgress ? clampProgress(previousProgressRaw) : progress;
+
   const restorePathVisibility = ensureSvgVisibility(cometPathElement);
   const restoreCometVisibility = ensureSvgVisibility(cometElement, "inline");
 
   let targetPoint = null;
+  let startPoint = null;
   let measurementFailed = false;
 
   try {
@@ -777,6 +791,9 @@ function animateCometTrajectory(date) {
       measurementFailed = true;
     } else {
       targetPoint = cometPathElement.getPointAtLength(pathLength * progress);
+      if (hasPreviousProgress) {
+        startPoint = cometPathElement.getPointAtLength(pathLength * startProgress);
+      }
     }
   } catch (error) {
     console.error("❌ animateCometTrajectory failed while reading path geometry:", error);
@@ -792,8 +809,12 @@ function animateCometTrajectory(date) {
 
   const currentX = Number.parseFloat(cometElement.getAttribute("cx"));
   const currentY = Number.parseFloat(cometElement.getAttribute("cy"));
-  const startX = Number.isFinite(currentX) ? currentX : targetPoint.x;
-  const startY = Number.isFinite(currentY) ? currentY : targetPoint.y;
+  const startX = startPoint && Number.isFinite(startPoint.x)
+    ? startPoint.x
+    : (Number.isFinite(currentX) ? currentX : targetPoint.x);
+  const startY = startPoint && Number.isFinite(startPoint.y)
+    ? startPoint.y
+    : (Number.isFinite(currentY) ? currentY : targetPoint.y);
 
   const deltaX = targetPoint.x - startX;
   const deltaY = targetPoint.y - startY;
@@ -808,9 +829,15 @@ function animateCometTrajectory(date) {
     cancelAnimationFrame(previousAnimation);
   }
 
-  const previousProgress = Number.parseFloat(cometElement.dataset.cometProgress);
-  const startProgress = Number.isFinite(previousProgress) ? clampProgress(previousProgress) : progress;
   cometElement.dataset.cometProgress = startProgress.toFixed(4);
+
+  if (skipAnimation) {
+    cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
+    cometElement.setAttribute("cy", targetPoint.y.toFixed(3));
+    cometElement.dataset.cometProgress = progress.toFixed(4);
+    cometElement.__trajectoryAnimation = null;
+    return;
+  }
 
   if (!Number.isFinite(distance) || distance < 0.01) {
     cometElement.setAttribute("cx", targetPoint.x.toFixed(3));
