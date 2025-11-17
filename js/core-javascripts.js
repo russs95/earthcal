@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && typeof window.handleCometClick !== "functio
     }
 
     const message =
-      "The comet experience is available after login. Please sign in to access this feature.";
+      "Tracking the 3I ATLAS comet is available only for logged in Jedi accounts. Please sign in to access this feature.";
 
     if (typeof window.alert === "function") {
       window.alert(message);

@@ -1,24 +1,51 @@
 [
     {
-        "date": "01-01-2025",
+        "date": "2025-01-01",
         "dist_to_earth": "11.616 AU",
         "event_title": "Approaching Jupiter's orbit",
         "event_description": "3I-Atlas entering inner solar system",
         "event_url": "",
-        "event_img": "",
+        "event_img": "https://earthcal.app/assests/icons/comet.png",
         "event_emoji": "🪐"
     },
 
-    [
+  {
+    "date": "2025-01-02",
+    "dist_to_earth": "11.583 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+
+  {
+    "date": "2025-01-03",
+    "dist_to_earth": "11.583 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+
+
+
+
+
+
+
         {
             "date": "2025-05-07",
             "dist_to_earth": "≈6.35 AU",
             "event_title": "Precovery Images Identified",
             "event_description": "Archival data from TESS show 3I/ATLAS was present and possibly active before its official discovery. :contentReference[oaicite:1]{index=1}",
             "event_url": "https://www.universetoday.com/articles/tess-spotted-3iatlas-two-months-before-it-was-discovered-it-was-even-active-then/",
-            "event_img": "",
+            "event_img": "https://www.universetoday.com/article_images/3i-atlas-hubble.jpg_20250809_085036_20250828_112553.webp",
             "event_emoji": "🗃️"
         },
+
+
         {
             "date": "2025-07-01",
             "dist_to_earth": "≈4.5 AU",
