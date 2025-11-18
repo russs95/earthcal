@@ -3046,10 +3046,15 @@ INFO MODAL
   left: 4px;
   width: calc((100% - 8px) / var(--toggle-count));
   border-radius: 999px;
-  background: #9ca3af;
+  background: var(--emblem-green, #22c55e);
   transform: translateX(calc(var(--toggle-index) * 100%));
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.2s ease;
   will-change: transform;
+}
+
+.ec-plan-toggle:hover .ec-toggle-indicator,
+.ec-plan-toggle:focus-within .ec-toggle-indicator {
+  background: var(--emblem-green-hover, var(--emblem-green-over, var(--emblem-green, #16a34a)));
 }
 
 .ec-toggle-option {
@@ -3105,10 +3110,28 @@ INFO MODAL
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4);
 }
 
+.ec-plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .ec-plan-card h2 {
   font-size: clamp(1.2rem, 2.2vw, 1.6rem);
   margin: 0;
   color: var(--h1);
+}
+
+.ec-plan-status-pill {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--emblem-green, rgba(34, 197, 94, 0.85));
+  color: var(--emblem-green, rgba(34, 197, 94, 0.85));
+  background: rgba(34, 197, 94, 0.12);
+  white-space: nowrap;
 }
 
 .ec-plan-card .ec-plan-price {

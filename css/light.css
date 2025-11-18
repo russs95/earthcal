@@ -412,8 +412,13 @@
 }
 
 .ec-plan-toggle .ec-toggle-indicator {
-  background: #0b1120;
+  background: var(--emblem-green, #0b1120);
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.ec-plan-toggle:hover .ec-toggle-indicator,
+.ec-plan-toggle:focus-within .ec-toggle-indicator {
+  background: var(--emblem-green-hover, var(--emblem-green-over, var(--emblem-green, #0b1120)));
 }
 
 .ec-plan-toggle .ec-toggle-option {

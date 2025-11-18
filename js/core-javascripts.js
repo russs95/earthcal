@@ -749,11 +749,11 @@ async function manageEarthcalUserSub() {
         const firstAvailableInterval = intervalOrder.find((interval) => jediByInterval[interval]) || 'month';
 
         const jediPriceAttr = (interval, key) => escapeHtml(jediPriceData[interval]?.[key] || 'Coming soon');
-        const padwanCardClass = '';
-        const jediCardClass = ' current-plan';
+        const padwanCardClass = userPlanType === 'padwan' ? ' current-plan' : '';
+        const jediCardClass = userPlanType === 'jedi' ? ' current-plan' : '';
         const showUpgradeControls = userPlanType === 'padwan' || userPlanType === 'jedi';
         const downgradeLinkHtml = userPlanType === 'jedi'
-            ? `<a class="ec-downgrade-link" href="#" onclick="return downgradeToPadwanPlan();">Downgrade to Padwan Plan (for beta testers)</a>`
+            ? `<!-- <a class="ec-downgrade-link" href="#" onclick="return downgradeToPadwanPlan();">Downgrade to Padwan Plan (for beta testers)</a> -->`
             : '';
         const upgradeButtonHtml = showUpgradeControls
             ? `
@@ -778,6 +778,45 @@ async function manageEarthcalUserSub() {
             `
             : '';
 
+        const renderPlanHeader = (planName, isCurrentPlan) => `
+            <div class="ec-plan-card-header">
+                <h2>${escapeHtml(planName)}</h2>
+                ${isCurrentPlan ? '<span class="ec-plan-status-pill" aria-label="Subscribed plan">🟢 Subscribed</span>' : ''}
+            </div>
+        `;
+
+        const padwanCardHtml = `
+            <div class="ec-plan-card${padwanCardClass}">
+                ${renderPlanHeader(padwanPlan?.name || 'Padwan Plan', userPlanType === 'padwan')}
+                <div class="ec-plan-price">${escapeHtml(padwanPriceData.priceText)}</div>
+                ${padwanPriceData.intervalText ? `<div class="ec-plan-interval">${escapeHtml(padwanPriceData.intervalText)}</div>` : ''}
+                ${renderFeatures(padwanPlan)}
+            </div>
+        `;
+
+        const jediCardHtml = `
+            <div class="ec-plan-card${jediCardClass}">
+                ${renderPlanHeader(jediDisplayPlan?.name || 'Jedi Plan', userPlanType === 'jedi')}
+                <div class="ec-plan-price" data-role="jedi-price"
+                    data-month-price="${jediPriceAttr('month', 'priceText')}"
+                    data-month-interval="${jediPriceAttr('month', 'intervalText')}"
+                    data-year-price="${jediPriceAttr('year', 'priceText')}"
+                    data-year-interval="${jediPriceAttr('year', 'intervalText')}"
+                    data-lifetime-price="${jediPriceAttr('lifetime', 'priceText')}"
+                    data-lifetime-interval="${jediPriceAttr('lifetime', 'intervalText')}">
+                    ${escapeHtml(jediPriceData[firstAvailableInterval]?.priceText || 'Coming soon')}
+                </div>
+                <div class="ec-plan-interval" data-role="jedi-interval">
+                    ${escapeHtml(jediPriceData[firstAvailableInterval]?.intervalText || '')}
+                </div>
+                ${renderFeatures(jediDisplayPlan)}
+            </div>
+        `;
+
+        const planCardsHtml = userPlanType === 'jedi'
+            ? `${jediCardHtml}${padwanCardHtml}`
+            : `${padwanCardHtml}${jediCardHtml}`;
+
         modalContent.innerHTML = `
             <div class="ec-subscription-modal">
                 <h1>Upgrade EarthCal</h1>
@@ -790,28 +829,7 @@ async function manageEarthcalUserSub() {
                     <button type="button" class="ec-toggle-option" data-interval="lifetime" aria-pressed="false">Lifetime</button>
                 </div>
                 <div class="ec-plan-columns">
-                    <div class="ec-plan-card${padwanCardClass}">
-                        <h2>${escapeHtml(padwanPlan?.name || 'Padwan Plan')}</h2>
-                        <div class="ec-plan-price">${escapeHtml(padwanPriceData.priceText)}</div>
-                        ${padwanPriceData.intervalText ? `<div class="ec-plan-interval">${escapeHtml(padwanPriceData.intervalText)}</div>` : ''}
-                        ${renderFeatures(padwanPlan)}
-                    </div>
-                    <div class="ec-plan-card${jediCardClass}">
-                        <h2>${escapeHtml(jediDisplayPlan?.name || 'Jedi Plan')}</h2>
-                        <div class="ec-plan-price" data-role="jedi-price"
-                            data-month-price="${jediPriceAttr('month', 'priceText')}"
-                            data-month-interval="${jediPriceAttr('month', 'intervalText')}"
-                            data-year-price="${jediPriceAttr('year', 'priceText')}"
-                            data-year-interval="${jediPriceAttr('year', 'intervalText')}"
-                            data-lifetime-price="${jediPriceAttr('lifetime', 'priceText')}"
-                            data-lifetime-interval="${jediPriceAttr('lifetime', 'intervalText')}">
-                            ${escapeHtml(jediPriceData[firstAvailableInterval]?.priceText || 'Coming soon')}
-                        </div>
-                        <div class="ec-plan-interval" data-role="jedi-interval">
-                            ${escapeHtml(jediPriceData[firstAvailableInterval]?.intervalText || '')}
-                        </div>
-                        ${renderFeatures(jediDisplayPlan)}
-                    </div>
+                    ${planCardsHtml}
                 </div>
                 ${upgradeButtonHtml}
             </div>
