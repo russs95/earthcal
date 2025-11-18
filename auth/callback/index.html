@@ -265,7 +265,15 @@
         const urlParams = new URLSearchParams(search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
-        const status = urlParams.get("status");
+
+        const reservedParamKeys = new Set(["code", "state", "session_state"]);
+        const forwardedParams = new URLSearchParams();
+        urlParams.forEach((value, key) => {
+            if (!value || reservedParamKeys.has(String(key).toLowerCase())) {
+                return;
+            }
+            forwardedParams.append(key, value);
+        });
 
         if (!code || !state) {
             console.error("Missing code or state in callback");
@@ -313,6 +321,18 @@
             const idPayload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
             console.log("ID Token Payload:", idPayload);
 
+            const ensureForwardParam = (key, value) => {
+                if (!value || forwardedParams.has(key)) {
+                    return;
+                }
+                forwardedParams.set(key, value);
+            };
+
+            ensureForwardParam("firstname", idPayload.given_name || idPayload.name);
+            ensureForwardParam("first_name", idPayload.given_name || idPayload.name);
+            ensureForwardParam("buwana_id", idPayload.buwana_id);
+            ensureForwardParam("id", idPayload.buwana_id);
+
             const supportedLangs = ['en','es','id','fr','zh','ar','de'];
             let lang = (navigator.language || 'en').slice(0,2).toLowerCase();
             if (!supportedLangs.includes(lang)) lang = 'en';
@@ -354,10 +374,10 @@
 
             window.history.replaceState({}, document.title, "/auth/callback");
 
-            let redirectUrl = "/index.html";
-            if (status) {
-                redirectUrl += `?status=${encodeURIComponent(status)}`;
-            }
+            const redirectQuery = forwardedParams.toString();
+            const redirectUrl = redirectQuery
+                ? `/index.html?${redirectQuery}`
+                : "/index.html";
             window.location.href = redirectUrl;
 
         } catch (err) {
