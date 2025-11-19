@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EarthCal | Reconnecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/assets/icons/favicon.ico" />
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg-light: #f5f5f5;
+            --bg-dark: #0d0f1a;
+            --text-light: #1f2937;
+            --text-dark: #e2e8f0;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Mulish", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            padding: 24px;
+            text-align: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: var(--bg-dark);
+                color: var(--text-dark);
+            }
+        }
+        .card {
+            max-width: 420px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 18px;
+            padding: 32px 28px;
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+        }
+        @media (prefers-color-scheme: dark) {
+            .card {
+                background: rgba(13, 15, 26, 0.9);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+            }
+        }
+        .card h1 {
+            margin: 0 0 12px;
+            font-size: clamp(1.25rem, 4vw, 1.6rem);
+        }
+        .card p {
+            margin: 0;
+            opacity: 0.85;
+        }
+        #status-detail {
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Preparing your secure login…</h1>
+    <p>We're refreshing your connection with Buwana to finish setting up your EarthCal account.</p>
+    <p id="status-detail">This will only take a moment.</p>
+</div>
+<script>
+(function () {
+    const CLIENT_ID = "ecal_7f3da821d0a54f8a9b58";
+    const SUPPORTED_LANGS = ["en", "es", "id", "fr", "zh", "ar", "de"];
+
+    function persistOidcFallback(values) {
+        try {
+            const existingName = window.name;
+            let existingPayload = {};
+            if (existingName) {
+                try {
+                    existingPayload = JSON.parse(existingName);
+                } catch (error) {
+                    existingPayload = {};
+                }
+            }
+
+            const oidcData = {
+                ...(existingPayload.__earthcal_oidc || {}),
+                ...values,
+                timestamp: Date.now(),
+            };
+
+            window.name = JSON.stringify({
+                ...existingPayload,
+                __earthcal_oidc: oidcData,
+            });
+        } catch (error) {
+            console.warn('[OIDC] Unable to persist fallback auth data:', error);
+            try {
+                window.name = JSON.stringify({
+                    __earthcal_oidc: { ...values, timestamp: Date.now() },
+                });
+            } catch (nestedError) {
+                console.warn('[OIDC] Unable to set window.name fallback:', nestedError);
+            }
+        }
+    }
+
+    function generateRandomString(length) {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const array = new Uint8Array(length);
+        window.crypto.getRandomValues(array);
+        array.forEach(val => result += charset[val % charset.length]);
+        return result;
+    }
+
+    function base64UrlEncode(arrayBuffer) {
+        return btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    async function generateCodeChallenge(code_verifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(code_verifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        return base64UrlEncode(digest);
+    }
+
+    function detectLanguage(preferred) {
+        const normalized = (preferred || navigator.language || 'en').slice(0, 2).toLowerCase();
+        if (SUPPORTED_LANGS.includes(normalized)) {
+            return normalized;
+        }
+        return 'en';
+    }
+
+    function buildLoginUrl(params) {
+        const lang = detectLanguage(params.lang);
+        const loginParams = new URLSearchParams();
+        loginParams.set('app', CLIENT_ID);
+        loginParams.set('status', 'firsttime');
+        loginParams.set('lang', lang);
+        if (params.buwanaId) {
+            loginParams.set('id', params.buwanaId);
+        }
+        if (params.firstname) {
+            loginParams.set('firstname', params.firstname);
+        }
+        if (params.timezone) {
+            loginParams.set('timezone', params.timezone);
+        }
+        return `https://buwana.ecobricks.org/${lang}/login.php?${loginParams.toString()}`;
+    }
+
+    async function primeOidcState() {
+        const state = generateRandomString(32);
+        const nonce = generateRandomString(32);
+        const code_verifier = generateRandomString(64);
+        const code_challenge = await generateCodeChallenge(code_verifier);
+
+        sessionStorage.setItem('oidc_state', state);
+        sessionStorage.setItem('oidc_nonce', nonce);
+        sessionStorage.setItem('pkce_code_verifier', code_verifier);
+
+        persistOidcFallback({
+            oidc_state: state,
+            oidc_nonce: nonce,
+            pkce_code_verifier: code_verifier,
+            timestamp: Date.now(),
+        });
+
+        return {
+            state,
+            nonce,
+            code_challenge,
+        };
+    }
+
+    function readSearchParams() {
+        const params = new URLSearchParams(window.location.search);
+        const buwanaId = params.get('buwana_id') || params.get('id') || '';
+        const firstname = params.get('firstname') || params.get('first_name') || '';
+        const timezone = params.get('timezone') || '';
+        const lang = params.get('lang') || '';
+        return { buwanaId, firstname, timezone, lang };
+    }
+
+    async function init() {
+        const statusDetail = document.getElementById('status-detail');
+        try {
+            statusDetail.textContent = 'Refreshing your secure connection…';
+            await primeOidcState();
+            statusDetail.textContent = 'Redirecting you to Buwana…';
+            const userParams = readSearchParams();
+            const buwanaUrl = buildLoginUrl(userParams);
+            window.location.replace(buwanaUrl);
+        } catch (error) {
+            console.error('Unable to rebuild login session', error);
+            statusDetail.textContent = 'We could not refresh your login automatically. Please return to the EarthCal login page and try again.';
+        }
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

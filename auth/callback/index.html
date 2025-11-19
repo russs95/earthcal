@@ -285,7 +285,20 @@
         const expectedState = storedState || readOidcFallback("oidc_state");
         if (state !== expectedState) {
             console.error("State mismatch.");
-            alert("Login failed: invalid state.");
+            const recoveryParams = new URLSearchParams();
+            const fieldsToCarry = ["buwana_id", "id", "firstname", "first_name", "timezone", "lang", "status"];
+            fieldsToCarry.forEach((key) => {
+                const value = forwardedParams.get(key) || urlParams.get(key);
+                if (value) {
+                    recoveryParams.set(key, value);
+                }
+            });
+            recoveryParams.set("reason", "state_mismatch");
+            const recoveryQuery = recoveryParams.toString();
+            const firstTimeUrl = recoveryQuery
+                ? `/first-time-login.html?${recoveryQuery}`
+                : "/first-time-login.html";
+            window.location.replace(firstTimeUrl);
             return;
         }
 
