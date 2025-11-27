@@ -1099,9 +1099,9 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                         title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
                         onclick="pinThisDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
                         onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
-                        onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : '⬤'}';"
+                        onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : dateEmoji}';"
                         style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
-                        ${dateCycle.pinned === '1' ? '📌' : '⬤'}
+                        ${dateCycle.pinned === '1' ? '📌' : dateEmoji}
                     </button>`
     }
             </div>
@@ -1365,10 +1365,10 @@ function editDateCycle(uniqueKey) {
             <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
                 <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
             </div>
-            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width:100%;" onclick="saveDateCycleEditedChanges('${uniqueKey}')">
+            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width: calc(100% - 10px); margin-left: auto; margin-right: auto; display: block;" onclick="saveDateCycleEditedChanges('${uniqueKey}')">
                 🐿️ Save Changes
             </button>
-            <button type="button" class="confirmation-blur-button" style="width:100%;" onclick="shareDateCycle('${uniqueKey}')">
+            <button type="button" class="confirmation-blur-button greenback" style="width: calc(100% - 10px); margin-left: auto; margin-right: auto; display: block;" onclick="shareDateCycle('${uniqueKey}')">
     🔗 Share Event
             </button>
 
