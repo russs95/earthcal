@@ -113,6 +113,72 @@
 
     <!-- Inline styles current being experimented with-->
     <style>
+        .offline-toggle-wrapper {
+            margin: 24px auto 12px;
+            text-align: center;
+        }
+
+        .offline-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .offline-switch {
+            position: relative;
+            display: inline-block;
+            width: 120px;
+            height: 48px;
+        }
+
+        .offline-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .offline-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cfd8dc;
+            transition: 0.4s;
+            border-radius: 30px;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .offline-slider:before {
+            position: absolute;
+            content: "";
+            height: 40px;
+            width: 40px;
+            left: 6px;
+            bottom: 4px;
+            background-color: #fff;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .offline-switch input:checked + .offline-slider {
+            background-color: #0fb57f;
+        }
+
+        .offline-switch input:checked + .offline-slider:before {
+            transform: translateX(62px);
+        }
+
+        .offline-mode-caption {
+            margin-top: 8px;
+            font-size: 0.95em;
+            color: var(--text-secondary, #666);
+        }
     </style>
     <script src="js/gsap.min.js"></script>
     <script src="js/MotionPathPlugin.min.js"></script>
@@ -309,10 +375,21 @@
 
         /* ==================== OFFLINE MODE PLACEHOLDER ==================== */
         function initializeOfflineMode() {
-            await getUserData(); // This sets time_zone, targetDate, etc.
-            alert(
-                "Looks like you're offline.  No problem you can use the simple version of EarthCal without any user data."
-            );
+            const savedChoice = (typeof getSavedOfflineMode === 'function')
+                ? getSavedOfflineMode()
+                : 'offline';
+
+            const useCachedData = savedChoice !== 'simple';
+
+            if (typeof getOfflineUserData === 'function') {
+                getOfflineUserData({ useCachedData });
+            } else if (typeof useDefaultUser === 'function') {
+                useDefaultUser();
+            }
+
+            if (typeof sendUpRegistration === 'function') {
+                sendUpRegistration();
+            }
         }
 
 
@@ -412,6 +489,31 @@
                     <button id="auth-signup-button" class="signup-button" onclick="window.location.href='https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58'">Sign Up to Earthcal</button>
                     <p style="margin:auto;margin-bottom: -15px;font-size: 0.8em; text-align: center;" data-lang-id="1000-authentication-by" >Authentication by</p>
                     <div class="buwana-word-mark" alt="Buwana Logo" title="Authentication by Buwana" onclick="navigateTo('index.php')" style="cursor:pointer;"></div>
+                </div>
+
+            </div>
+
+            <div class="form-container" id="offline-form-section" style="display:none;">
+                <div style="text-align:center;width:100%;" >
+                    <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
+                    <div id="offline-status-message">Welcome Earthling</div>
+                    <div id="offline-sub-status-message">It looks like you are offline.  Please choose if you wish to use Offline Mode (loading your cached data) or Simple mode (anonymous).</div>
+                </div>
+
+                <div class="offline-toggle-wrapper">
+                    <div class="offline-toggle" aria-label="Toggle between offline mode and simple mode">
+                        <span class="mode-label">Simple</span>
+                        <label class="offline-switch">
+                            <input type="checkbox" id="offline-mode-toggle" aria-label="Offline mode selector">
+                            <span class="offline-slider"></span>
+                        </label>
+                        <span class="mode-label">Offline</span>
+                    </div>
+                    <div id="offline-mode-status" class="offline-mode-caption">Your choice is saved for next time.</div>
+                </div>
+
+                <div style="text-align:center;width:100%;margin:auto;margin-top:16px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                    <button id="offline-go-button" class="login-button">Go</button>
                 </div>
 
             </div>

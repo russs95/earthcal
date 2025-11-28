@@ -399,6 +399,121 @@ function useDefaultUser() {
     setCurrentDate(userTimeZone, userLanguage);
 }
 
+const OFFLINE_MODE_STORAGE_KEY = 'earthcal_offline_mode';
+
+function getSavedOfflineMode() {
+    const saved = localStorage.getItem(OFFLINE_MODE_STORAGE_KEY);
+    return saved === 'simple' ? 'simple' : 'offline';
+}
+
+function setOfflineModeChoice(mode) {
+    const normalized = mode === 'simple' ? 'simple' : 'offline';
+    localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, normalized);
+    window.earthcalMode = normalized;
+    window.isOfflineMode = normalized === 'offline';
+    window.isSimpleMode = normalized === 'simple';
+    return normalized;
+}
+
+function updateOfflineToggleUI(mode) {
+    const toggle = document.getElementById('offline-mode-toggle');
+    const status = document.getElementById('offline-mode-status');
+    const normalized = mode === 'simple' ? 'simple' : 'offline';
+
+    if (toggle) {
+        toggle.checked = normalized === 'offline';
+    }
+
+    if (status) {
+        status.textContent = normalized === 'offline'
+            ? 'Offline Mode: Load cached data and continue where you left off.'
+            : 'Simple Mode: Start fresh without cached data.';
+    }
+}
+
+function handleOfflineToggleChange(event) {
+    const mode = event.target.checked ? 'offline' : 'simple';
+    const normalized = setOfflineModeChoice(mode);
+    updateOfflineToggleUI(normalized);
+}
+
+function showOfflineForm() {
+    const offlineForm = document.getElementById('offline-form-section');
+    const loginForm = document.getElementById('login-form-section');
+    const loggedInView = document.getElementById('logged-in-view');
+
+    if (!offlineForm) {
+        console.warn('❌ Missing offline form section.');
+        return;
+    }
+
+    const mode = getSavedOfflineMode();
+    setOfflineModeChoice(mode);
+    updateOfflineToggleUI(mode);
+
+    offlineForm.style.display = 'block';
+    offlineForm.setAttribute('aria-hidden', 'false');
+
+    if (loginForm) {
+        loginForm.style.display = 'none';
+    }
+
+    if (loggedInView) {
+        loggedInView.style.display = 'none';
+    }
+
+    const toggle = document.getElementById('offline-mode-toggle');
+    if (toggle && !toggle.dataset.bound) {
+        toggle.addEventListener('change', handleOfflineToggleChange);
+        toggle.dataset.bound = 'true';
+    }
+
+    const goButton = document.getElementById('offline-go-button');
+    if (goButton && !goButton.dataset.bound) {
+        goButton.addEventListener('click', () => {
+            const useCachedData = getSavedOfflineMode() !== 'simple';
+            getOfflineUserData({ useCachedData });
+
+            if (typeof displayDayInfo === 'function' && typeof window.targetDate !== 'undefined') {
+                displayDayInfo(window.targetDate, window.userLanguage, window.userTimeZone);
+            }
+
+            if (typeof sendDownRegistration === 'function') {
+                sendDownRegistration();
+            }
+        });
+        goButton.dataset.bound = 'true';
+    }
+
+    setRegistrationFooterBackground('login');
+}
+
+function getOfflineUserData({ useCachedData = true } = {}) {
+    const mode = setOfflineModeChoice(useCachedData ? 'offline' : 'simple');
+
+    if (!useCachedData) {
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('calendar_')) {
+                localStorage.removeItem(key);
+            }
+        });
+        sessionStorage.removeItem('user_calendars');
+        sessionStorage.removeItem('user_calendars_v1');
+    }
+
+    useDefaultUser();
+
+    if (typeof window.targetDate === 'undefined' || !(window.targetDate instanceof Date)) {
+        window.targetDate = new Date();
+    }
+
+    if (typeof window.currentYear === 'undefined' || Number.isNaN(window.currentYear)) {
+        window.currentYear = window.targetDate.getFullYear();
+    }
+
+    return { mode, useCachedData, targetDate: window.targetDate };
+}
+
 
 
 
@@ -1887,6 +2002,13 @@ async function sendUpRegistration() {
     }
 
     container.classList.add("expanded");
+
+    if (!navigator.onLine) {
+        console.warn("[EarthCal] Offline detected. Showing offline mode chooser.");
+        showOfflineForm();
+        updateFooterAndArrowUI(footer, upArrow, downArrow);
+        return;
+    }
 
     const { isLoggedIn: loggedIn, payload } = isLoggedIn({ returnPayload: true });
 
