@@ -162,13 +162,6 @@ async function getUserData() {
 
     if (!ok || !payload?.buwana_id) {
         console.warn("⚪ Not logged in or token expired. Using default view.");
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith("calendar_")) {
-                localStorage.removeItem(key);
-            }
-        });
-        sessionStorage.removeItem("user_calendars");
-        sessionStorage.removeItem("user_calendars_v1");
         useDefaultUser();
         updateSessionStatus("⚪ Not logged in", false);
         window.user_plan = "padwan";
@@ -486,6 +479,25 @@ function showOfflineForm() {
     }
 
     setRegistrationFooterBackground('login');
+}
+
+function hideOfflineForm() {
+    const offlineForm = document.getElementById('offline-form-section');
+    const loginForm = document.getElementById('login-form-section');
+    const loggedInView = document.getElementById('logged-in-view');
+
+    if (offlineForm) {
+        offlineForm.style.display = 'none';
+        offlineForm.setAttribute('aria-hidden', 'true');
+    }
+
+    if (loginForm) {
+        loginForm.style.display = 'block';
+    }
+
+    if (loggedInView) {
+        loggedInView.style.display = 'none';
+    }
 }
 
 function getOfflineUserData({ useCachedData = true } = {}) {
@@ -2009,6 +2021,8 @@ async function sendUpRegistration() {
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }
+
+    hideOfflineForm();
 
     const { isLoggedIn: loggedIn, payload } = isLoggedIn({ returnPayload: true });
 
