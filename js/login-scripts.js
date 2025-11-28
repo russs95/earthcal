@@ -3,6 +3,7 @@
 
 // Global plan tracker shared across EarthCal modules
 window.user_plan = window.user_plan || "padwan";
+window.earthcalUsageMode = window.earthcalUsageMode || "offline";
 
 // LOGIN CHECKING
 
@@ -397,6 +398,48 @@ function useDefaultUser() {
 
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
+}
+
+async function getOfflineUserData({ useCachedData = true } = {}) {
+    userLanguage = (navigator.language || 'en').slice(0, 2);
+
+    try {
+        userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Jakarta";
+    } catch (e) {
+        console.warn("⚠️ Falling back to default timezone for offline mode:", e);
+        userTimeZone = "Asia/Jakarta";
+    }
+
+    if (!useCachedData) {
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("calendar_")) {
+                localStorage.removeItem(key);
+            }
+        });
+        sessionStorage.removeItem("user_calendars");
+        sessionStorage.removeItem("user_calendars_v1");
+    }
+
+    userProfile = {
+        first_name: "Earthling",
+        earthling_emoji: "🌎",
+        email: null,
+        buwana_id: null,
+        status: useCachedData ? "offline" : "simple"
+    };
+
+    setCurrentDate(userTimeZone, userLanguage);
+    await displayUserData(userTimeZone, userLanguage);
+
+    window.user_plan = "padwan";
+    window.cometAccessState = {
+        loggedIn: false,
+        plan: null,
+        planId: null,
+        lastUpdated: new Date().toISOString(),
+        source: "getOfflineUserData",
+        mode: useCachedData ? "offline" : "simple"
+    };
 }
 
 

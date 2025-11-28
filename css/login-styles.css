@@ -1047,6 +1047,77 @@ margin-right: auto;
     }
 }
 
+/* Offline mode chooser */
+#offline-form-section {
+    gap: 16px;
+}
+
+#offline-form-section .earthcal-app-logo img {
+    width: 125px;
+    height: 125px;
+}
+
+.offline-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.offline-toggle-label {
+    font-weight: 600;
+    color: var(--h1);
+}
+
+.offline-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+    height: 48px;
+}
+
+.offline-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.offline-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--toggle-bg, #b7bbbd);
+    transition: 0.4s;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.offline-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 38px;
+    width: 38px;
+    left: 6px;
+    bottom: 5px;
+    background-color: var(--toggle-knob-bg, #fff);
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.offline-toggle-switch input:checked + .offline-toggle-slider {
+    background-color: var(--toggle-bg-active, #4e5255);
+}
+
+.offline-toggle-switch input:checked + .offline-toggle-slider:before {
+    transform: translateX(64px);
+}
+
 
 
 

@@ -264,10 +264,8 @@
 
             /* ==================== ONLINE / OFFLINE GATE ==================== */
             if (!navigator.onLine) {
-                // User is offline → simple mode, no user data / cached datecycles
-                initializeOfflineMode();
-
-                displayDayInfo(targetDate, userLanguage, userTimeZone);
+                // User is offline → let them choose how to proceed
+                await initializeOfflineMode();
                 return;
             }
 
@@ -308,11 +306,58 @@
         }
 
         /* ==================== OFFLINE MODE PLACEHOLDER ==================== */
-        function initializeOfflineMode() {
-            await getUserData(); // This sets time_zone, targetDate, etc.
-            alert(
-                "Looks like you're offline.  No problem you can use the simple version of EarthCal without any user data."
-            );
+        async function initializeOfflineMode() {
+            const storedPreference = localStorage.getItem('earthcal_mode_preference');
+            window.earthcalUsageMode = storedPreference === 'simple' ? 'simple' : 'offline';
+
+            const offlineToggle = document.getElementById('offline-mode-toggle');
+            if (offlineToggle) {
+                offlineToggle.checked = window.earthcalUsageMode === 'offline';
+                offlineToggle.addEventListener('change', () => {
+                    window.earthcalUsageMode = offlineToggle.checked ? 'offline' : 'simple';
+                });
+            }
+
+            const offlineSection = document.getElementById('offline-form-section');
+            const loginSection = document.getElementById('login-form-section');
+            const loggedInView = document.getElementById('logged-in-view');
+
+            if (loginSection) loginSection.style.display = 'none';
+            if (loggedInView) loggedInView.style.display = 'none';
+            if (offlineSection) offlineSection.style.display = 'block';
+
+            sendUpRegistration();
+
+            const goButton = document.getElementById('offline-go-button');
+            if (goButton) {
+                goButton.onclick = async () => {
+                    const usingOfflineCache = offlineToggle ? offlineToggle.checked : true;
+                    window.earthcalUsageMode = usingOfflineCache ? 'offline' : 'simple';
+                    localStorage.setItem('earthcal_mode_preference', window.earthcalUsageMode);
+
+                    await getOfflineUserData({ useCachedData: usingOfflineCache });
+                    await displayDayInfo(targetDate, userLanguage, userTimeZone);
+
+                    if (typeof highlightDateCycles === 'function') {
+                        highlightDateCycles(targetDate);
+                    }
+
+                    if (userClock) {
+                        openClock(userTimeZone);
+                    }
+                };
+            }
+
+            await getOfflineUserData({ useCachedData: window.earthcalUsageMode !== 'simple' });
+            await displayDayInfo(targetDate, userLanguage, userTimeZone);
+
+            if (typeof highlightDateCycles === 'function') {
+                highlightDateCycles(targetDate);
+            }
+
+            if (userClock) {
+                openClock(userTimeZone);
+            }
         }
 
 
@@ -414,6 +459,27 @@
                     <div class="buwana-word-mark" alt="Buwana Logo" title="Authentication by Buwana" onclick="navigateTo('index.php')" style="cursor:pointer;"></div>
                 </div>
 
+            </div>
+
+            <div class="form-container" id="offline-form-section" style="display:none;">
+                <div style="text-align:center;width:100%;" >
+                    <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
+                    <div id="offline-status-message">Welcome Earthling</div>
+                    <div id="offline-sub-status-message">It looks like you are offline.  Please choose if you wish to use Offline Mode (loading your cached data) or Simple mode (anonymous).</div>
+                </div>
+
+                <div class="offline-toggle-wrapper">
+                    <span class="offline-toggle-label">Simple</span>
+                    <label class="offline-toggle-switch" aria-label="Toggle offline or simple mode">
+                        <input type="checkbox" id="offline-mode-toggle" />
+                        <span class="offline-toggle-slider"></span>
+                    </label>
+                    <span class="offline-toggle-label">Offline</span>
+                </div>
+
+                <div style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                    <button id="offline-go-button" class="login-button">Go</button>
+                </div>
             </div>
 
             <!--To be shown upon login-->
