@@ -1,6 +1,6 @@
 {
   "name": "earthcal",
-  "version": "0.9.8",
+  "version": "1.0.4",
   "description": "Sync your moments with Earth's cycles",
   "main": "main.js",
   "scripts": {

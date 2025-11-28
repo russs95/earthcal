@@ -96,7 +96,7 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=37"></script>
+    <script src="js/earthcal-init.js?v=38.1"></script>
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v=7.56" as="style" onload="this.rel='stylesheet'">
@@ -107,7 +107,7 @@
     <link rel="stylesheet" href="css/slider.css?v=1.2">
 
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=12.6">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=12.7">
     <link rel="stylesheet" href="css/login-styles.css?v=8.72">
     <link rel="stylesheet" href="css/mini-mode.css?v=1">
 
@@ -132,8 +132,9 @@
         //Initiate
         gsap.registerPlugin(MotionPathPlugin);
 
-        /*ROLL CALL*/
+        /* ==================== ROLL CALL / INITIALIZE PAGE ==================== */
         async function initializePage() {
+            /* ==================== INITIAL DOM ELEMENT ROLL CALL ==================== */
             const solarCenterDiv = document.getElementById('solar-system-center');
             const dayLinesDiv = document.getElementById('days-of-year-lines');
             const allDaymarkers = document.getElementById('all-daymarkers');
@@ -141,18 +142,23 @@
             const header = document.getElementById('header');
             const rayLine = document.getElementById('ray_lines');
             const bottomButtons = document.getElementById('bottom-left-buttons');
+
+            /* ==================== INITIAL INTERFACE STATE ==================== */
             if (bottomButtons) {
                 bottomButtons.style.pointerEvents = 'none';
             }
-            // ANIMATED DISPLAY of the Calendar Interface
+
+            /* ==================== ANIMATED DISPLAY OF CALENDAR INTERFACE ==================== */
             setTimeout(() => {
                 dayLinesDiv.style.opacity = '1';
                 // whiteBack.style.opacity = '1';
                 rayLine.style.opacity = '1';
             }, 2000);
+
             setTimeout(() => {
                 allDaymarkers.style.opacity = '1'; // Show allDaymarkers
             }, 3000);
+
             setTimeout(() => {
                 if (header) {
                     header.style.opacity = '1'; // Show header with current date and time
@@ -163,17 +169,22 @@
                 }
             }, 4000);
 
+            /* ==================== THEME / COLOR INITIALIZATION ==================== */
+            updateBackgroundColor();   // Updates colors for night and day themes
+            updateHighlightColor();    // Updates colors for night and day themes
 
-            updateBackgroundColor();   //Updates colors for night and day themese
-            updateHighlightColor(); //Updates colors for night and day themese
-
-            // Check for shared event via URL parameters
+            /* ==================== URL PARAMS: NEW USER / SHARED EVENT ==================== */
             const params = new URLSearchParams(window.location.search);
-            if (params.get('status') === 'firsttime') {  // 🌀 Welcome new Earthling!
-                alert("Welcome!  Looks like this is your first time logging into Earthcal with your Buwana account.  See the user menu at the bottom left corner for your newfound calendar powers.");
+
+            // 🌀 Welcome new Earthling!
+            if (params.get('status') === 'firsttime') {
+                alert(
+                    "Welcome!  Looks like this is your first time logging into Earthcal with your Buwana account.  See the user menu at the bottom left corner for your newfound calendar powers."
+                );
             }
 
-            if (params.get('action') === 'add-event') {  // 🌀 Add new shared event
+            // 🌀 Add new shared event
+            if (params.get('action') === 'add-event') {
                 const sharedDate = params.get('date');
                 let year, month, day;
 
@@ -198,71 +209,112 @@
             } else {
                 setCurrentDate(); // Fallback if no shared event
                 if (userAnimations) animatePlanetsIfReady();
-              }
+            }
 
-              const currentYear = parseInt(currentYearText.textContent); //gets the year from the currentYearText div
+            /* ==================== CORE YEAR / DAY INITIALIZATION ==================== */
+            const currentYear = parseInt(currentYearText.textContent); // gets the year from the currentYearText div
 
-            cyclesToggleSimplified();  // to show/hide animal cycles
-            initializeToggleListener();  //to show or hide datecycles?
-            updateDayIds(currentYear);  //Updates the day ids for the current year
-            updateDayTitles(currentYear);  //Updates the day titles for the current year
-            title2tooltip();   //Adds titles tooltips to the non-date paths
-            title2datetip();   //Adds titles to the date paths
-            triggerPlanets();  //Enables the planet animations to be triggered.
+            cyclesToggleSimplified();          // Show/hide animal cycles
+            initializeToggleListener();        // Show or hide datecycles?
+            updateDayIds(currentYear);         // Updates the day ids for the current year
+            updateDayTitles(currentYear);      // Updates the day titles for the current year
+            title2tooltip();                   // Adds title tooltips to the non-date paths
+            title2datetip();                   // Adds titles to the date paths
+            triggerPlanets();                  // Enables the planet animations to be triggered.
             listenForMonthBreakout();
             listenForCloseBreakout();
             attachBreakoutTouchListeners();
-            // displayMoonPhaseInDiv(targetDate); //not needed this is for the moon info div!
+
+            /* ==================== MOON PHASE INITIALIZATION ==================== */
+            // displayMoonPhaseInDiv(targetDate); // not needed; this is for the moon info div!
             addMoonPhaseInteraction();
             // displayCurrentMoonPhase();
             updateMoonPhase(targetDate);
+
             // Initialize event listeners for the Sun SVG paths and reset the Moon phase to the current date
-              addDayPathEventListeners();
-              resetMoonPhase();
-              setTimeout(function() {
+            addDayPathEventListeners();
+            resetMoonPhase();
+
+            setTimeout(function () {
                 startDate = targetDate;
+
                 if (params.get('action') === 'add-event') {
                     if (userAnimations) animatePlanetsIfReady();
                 }
+
                 setYearsMonthsOn();
                 updateTargetMonth();
-                if (localStorage.getItem('buwana_id')) {
-                    // Clear out all local cached datecycles (keys starting with "calendar_")
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('calendar_')) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                    // Proceed with syncing and then highlighting.
-                    syncDatecycles()
-                        .then(() => {
-                            highlightDateCycles(targetDate);
-                        })
-                        .catch(err => {
-                            console.error("Sync error:", err);
-                        });
-                } else {
-                    highlightDateCycles(targetDate);
-                }
                 calculateHijriMonthNames(currentYear);
                 setLunarMonthForTarget(targetDate, currentYear);
             }, 1500);
 
+
             setTimeout(updateTargetDay, 2500);
             openPlanetInfoBox();
 
-            //checkTourToken();
-            // Check if the version  has already been seen
+            /* ==================== OPTIONAL INTRO / TOUR (COMMENTED OUT) ==================== */
+            // checkTourToken();
             // const tokenKey = 'newVersionInfoSeen';
-            //     if (!localStorage.getItem(tokenKey)) {
-            // setTimeout(showIntroModal, 5000);
+            // if (!localStorage.getItem(tokenKey)) {
+            //     setTimeout(showIntroModal, 5000);
             // };
-            // //setTimeout(openCurrentMonthBreakout,4000);
-            // setTimeout(triggerBreakoutDay,4000);  //allows the selected breakout to be highlighted
+            // setTimeout(openCurrentMonthBreakout, 4000);
+            // setTimeout(triggerBreakoutDay, 4000);  // allows the selected breakout to be highlighted
+
+
+            /* ==================== ONLINE / OFFLINE GATE ==================== */
+            if (!navigator.onLine) {
+                // User is offline → simple mode, no user data / cached datecycles
+                initializeOfflineMode();
+
+                displayDayInfo(targetDate, userLanguage, userTimeZone);
+                return;
+            }
+
+            /* ==================== ONLINE MODE: STARTUP SEQUENCES ==================== */
+
+
+            setTimeout(function () {
+                    if (localStorage.getItem('buwana_id')) {
+                        // Clear out all local cached datecycles (keys starting with "calendar_")
+                        Object.keys(localStorage).forEach(key => {
+                            if (key.startsWith('calendar_')) {
+                                localStorage.removeItem(key);
+                            }
+                        });
+
+                        // Proceed with syncing and then highlighting.
+                        syncDatecycles()
+                            .then(() => {
+                                highlightDateCycles(targetDate);
+                            })
+                            .catch(err => {
+                                console.error("Sync error:", err);
+                            });
+                    } else {
+                        // Online, but no Buwana account → highlight any server/default datecycles
+                        highlightDateCycles(targetDate);
+                    }
+                }, 2500);
+
+
+            /* ==================== USER DATA & FINAL UI SETUP (ONLINE ONLY) ==================== */
             await getUserData(); // This sets time_zone, targetDate, etc.
             displayDayInfo(targetDate, userLanguage, userTimeZone);
-            if (userClock) openClock(userTimeZone);
+
+            if (userClock) {
+                openClock(userTimeZone);
+            }
         }
+
+        /* ==================== OFFLINE MODE PLACEHOLDER ==================== */
+        function initializeOfflineMode() {
+            await getUserData(); // This sets time_zone, targetDate, etc.
+            alert(
+                "Looks like you're offline.  No problem you can use the simple version of EarthCal without any user data."
+            );
+        }
+
 
 
 
