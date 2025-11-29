@@ -1,30 +1,6 @@
 // Register the service worker
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
-        const betaTestingEnabled = window.EARTHCAL_BETA_TESTING?.enabled === false;
-
-        if (betaTestingEnabled) {
-            console.info("EARTHCAL beta testing mode enabled – skipping service worker registration and clearing caches.");
-
-            try {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(registrations.map((registration) => registration.unregister()));
-            } catch (err) {
-                console.warn("Failed to unregister existing service workers during beta cleanup.", err);
-            }
-
-            if ("caches" in window) {
-                try {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
-                } catch (err) {
-                    console.warn("Failed to clear caches during beta cleanup.", err);
-                }
-            }
-
-            return;
-        }
-
         navigator.serviceWorker
             .register("js/service-worker.js?v=3.1")
             .then(
