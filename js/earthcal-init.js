@@ -1,7 +1,7 @@
 // Register the service worker
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
-        const betaTestingEnabled = window.EARTHCAL_BETA_TESTING?.enabled === true;
+        const betaTestingEnabled = window.EARTHCAL_BETA_TESTING?.enabled === false;
 
         if (betaTestingEnabled) {
             console.info("EARTHCAL beta testing mode enabled – skipping service worker registration and clearing caches.");
