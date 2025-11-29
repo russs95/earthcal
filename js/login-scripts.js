@@ -464,7 +464,11 @@ function showOfflineForm() {
     const goButton = document.getElementById('offline-go-button');
     if (goButton && !goButton.dataset.bound) {
         goButton.addEventListener('click', () => {
-            const useCachedData = getSavedOfflineMode() !== 'simple';
+            const toggle = document.getElementById('offline-mode-toggle');
+            const mode = toggle && toggle.checked ? 'offline' : 'simple';
+            const useCachedData = setOfflineModeChoice(mode) !== 'simple';
+            updateOfflineToggleUI(mode);
+
             getOfflineUserData({ useCachedData });
 
             if (typeof displayDayInfo === 'function' && typeof window.targetDate !== 'undefined') {
@@ -511,9 +515,56 @@ function getOfflineUserData({ useCachedData = true } = {}) {
         });
         sessionStorage.removeItem('user_calendars');
         sessionStorage.removeItem('user_calendars_v1');
-    }
+        useDefaultUser();
+    } else {
+        const safeParse = (value) => {
+            try { return JSON.parse(value); } catch { return null; }
+        };
 
-    useDefaultUser();
+        const cachedProfile = safeParse(localStorage.getItem('user_profile')) || {};
+        const hasCachedProfile = Object.keys(cachedProfile).length > 0;
+
+        if (hasCachedProfile) {
+            userLanguage = (cachedProfile.locale || cachedProfile.lang || navigator.language || 'en').slice(0, 2);
+
+            try {
+                userTimeZone = cachedProfile["buwana:timezone"] || cachedProfile.timezone ||
+                    Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Jakarta";
+            } catch (e) {
+                userTimeZone = "Asia/Jakarta";
+            }
+
+            userProfile = {
+                first_name: cachedProfile.given_name || cachedProfile.first_name || "Earthling",
+                earthling_emoji: cachedProfile["buwana:earthlingEmoji"] || cachedProfile.earthling_emoji || "🐸",
+                email: cachedProfile.email || null,
+                buwana_id: cachedProfile.buwana_id || cachedProfile.sub || null,
+                community: cachedProfile["buwana:community"] || cachedProfile.community || null,
+                continent: cachedProfile["buwana:location.continent"] || cachedProfile.continent || null,
+                status: cachedProfile.status || "returning",
+            };
+
+            displayUserData(userTimeZone, userLanguage);
+            setCurrentDate(userTimeZone, userLanguage);
+        } else {
+            useDefaultUser();
+        }
+
+        const cachedRaw = sessionStorage.getItem('user_calendars_v1');
+        const cachedCalendars = safeParse(cachedRaw);
+
+        if (Array.isArray(cachedCalendars) && cachedCalendars.length) {
+            try {
+                sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(cachedCalendars)));
+            } catch (err) {
+                console.debug('Unable to refresh legacy calendar cache for offline mode:', err);
+            }
+
+            if (typeof showLoggedInView === 'function') {
+                showLoggedInView(cachedCalendars, { autoExpand: false });
+            }
+        }
+    }
 
     if (typeof window.targetDate === 'undefined' || !(window.targetDate instanceof Date)) {
         window.targetDate = new Date();
