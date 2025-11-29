@@ -2,7 +2,7 @@
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         navigator.serviceWorker
-            .register("js/service-worker.js?v=3.1")
+            .register("js/service-worker.js?v=3.2")
             .then(
                 function (registration) {
                     console.log(
