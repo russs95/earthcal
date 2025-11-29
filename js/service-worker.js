@@ -62,11 +62,6 @@ const API_ENDPOINTS = [
 
 // 🔹 Install event - Cache static assets
 self.addEventListener('install', event => {
-    if (!cachingEnabled) {
-        console.info('[Service Worker] Caching disabled in beta mode – skipping install caching.');
-        return;
-    }
-
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             console.log('[Service Worker] Pre-caching static assets');
@@ -77,11 +72,6 @@ self.addEventListener('install', event => {
 
 // 🔹 Activate event - Clean up old caches
 self.addEventListener('activate', event => {
-    if (!cachingEnabled) {
-        console.info('[Service Worker] Caching disabled in beta mode – skipping cache cleanup on activate.');
-        return;
-    }
-
     event.waitUntil(
         caches.keys().then(keys => {
             return Promise.all(
