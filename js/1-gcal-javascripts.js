@@ -747,10 +747,20 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                         }
                     }
 
-                    try {
-                        sessionStorage.setItem('user_calendars_v1', JSON.stringify(updatedCalendars || []));
-                    } catch (cacheErr) {
-                        console.debug('[addNewiCal] Unable to refresh v1 calendar cache:', cacheErr);
+                    if (typeof persistCalendarListCache === 'function') {
+                        try {
+                            persistCalendarListCache(updatedCalendars || []);
+                        } catch (cacheErr) {
+                            console.debug('[addNewiCal] Unable to refresh v1 calendar cache:', cacheErr);
+                        }
+                    } else {
+                        try {
+                            const payload = JSON.stringify(updatedCalendars || []);
+                            sessionStorage.setItem('user_calendars_v1', payload);
+                            localStorage.setItem('user_calendars_v1', payload);
+                        } catch (cacheErr) {
+                            console.debug('[addNewiCal] Unable to refresh v1 calendar cache:', cacheErr);
+                        }
                     }
 
                     if (typeof buildLegacyCalendarCache === 'function') {
