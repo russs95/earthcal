@@ -1367,10 +1367,20 @@ async function addNewCalendarV1(hostTarget) {
                         }
                     }
 
-                    try {
-                        sessionStorage.setItem('user_calendars_v1', JSON.stringify(updatedCalendars || []));
-                    } catch (err) {
-                        console.debug('[addNewCalendarV1] Unable to refresh v1 calendar cache:', err);
+                    if (typeof persistCalendarListCache === 'function') {
+                        try {
+                            persistCalendarListCache(updatedCalendars || []);
+                        } catch (err) {
+                            console.debug('[addNewCalendarV1] Unable to refresh v1 calendar cache:', err);
+                        }
+                    } else {
+                        try {
+                            const payload = JSON.stringify(updatedCalendars || []);
+                            sessionStorage.setItem('user_calendars_v1', payload);
+                            localStorage.setItem('user_calendars_v1', payload);
+                        } catch (err) {
+                            console.debug('[addNewCalendarV1] Unable to refresh v1 calendar cache:', err);
+                        }
                     }
 
                     if (typeof buildLegacyCalendarCache === 'function') {
@@ -1723,11 +1733,15 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
             let storedCalendars = [];
             let updated = false;
             try {
-                const raw = sessionStorage.getItem('user_calendars_v1');
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (Array.isArray(parsed)) {
-                        storedCalendars = parsed;
+                if (typeof readCalendarListCache === 'function') {
+                    storedCalendars = readCalendarListCache() || [];
+                } else {
+                    const raw = sessionStorage.getItem('user_calendars_v1') || localStorage.getItem('user_calendars_v1');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) {
+                            storedCalendars = parsed;
+                        }
                     }
                 }
             } catch (err) {
@@ -1767,10 +1781,20 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
             const nextCalendars = storedCalendars.map(mapper);
 
             if (updated) {
-                try {
-                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(nextCalendars));
-                } catch (err) {
-                    console.debug('[openEditCalendarOverlay] Unable to update calendar cache:', err);
+                if (typeof persistCalendarListCache === 'function') {
+                    try {
+                        persistCalendarListCache(nextCalendars);
+                    } catch (err) {
+                        console.debug('[openEditCalendarOverlay] Unable to update calendar cache:', err);
+                    }
+                } else {
+                    try {
+                        const payload = JSON.stringify(nextCalendars);
+                        sessionStorage.setItem('user_calendars_v1', payload);
+                        localStorage.setItem('user_calendars_v1', payload);
+                    } catch (err) {
+                        console.debug('[openEditCalendarOverlay] Unable to update calendar cache:', err);
+                    }
                 }
 
                 if (typeof buildLegacyCalendarCache === 'function') {

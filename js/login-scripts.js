@@ -97,6 +97,74 @@ function isLoggedIn({ returnPayload = false } = {}) {
         : !!isValid;
 }
 
+const CALENDAR_LIST_CACHE_KEY = 'user_calendars_v1';
+const LEGACY_CALENDAR_LIST_CACHE_KEY = 'user_calendars';
+const OFFLINE_PROFILE_CACHE_KEY = 'user_profile_offline';
+
+function persistCalendarListCache(calendars) {
+    if (!Array.isArray(calendars)) {
+        return;
+    }
+
+    try {
+        const payload = JSON.stringify(calendars);
+        sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
+        localStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
+    } catch (err) {
+        console.debug('[cache] Unable to persist calendar list cache', err);
+    }
+
+    try {
+        sessionStorage.setItem(
+            LEGACY_CALENDAR_LIST_CACHE_KEY,
+            JSON.stringify(buildLegacyCalendarCache(calendars))
+        );
+    } catch (err) {
+        console.warn('⚠️ Unable to cache legacy calendar view:', err);
+    }
+}
+
+function readCalendarListCache() {
+    const tryParse = (value) => {
+        try { return JSON.parse(value); } catch { return null; }
+    };
+
+    const sources = [
+        () => sessionStorage.getItem(CALENDAR_LIST_CACHE_KEY),
+        () => localStorage.getItem(CALENDAR_LIST_CACHE_KEY),
+    ];
+
+    for (const getter of sources) {
+        const raw = getter();
+        if (!raw) continue;
+        const parsed = tryParse(raw);
+        if (Array.isArray(parsed)) {
+            try {
+                sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, JSON.stringify(parsed));
+            } catch {
+                /* noop */
+            }
+            return parsed;
+        }
+    }
+
+    return null;
+}
+
+function persistOfflineProfile(profile) {
+    if (!profile || typeof profile !== 'object') {
+        return;
+    }
+
+    const { exp, iat, nbf, ...rest } = profile;
+
+    try {
+        localStorage.setItem(OFFLINE_PROFILE_CACHE_KEY, JSON.stringify(rest));
+    } catch (err) {
+        console.debug('[cache] Unable to persist offline profile cache', err);
+    }
+}
+
 // -----------------------------
 
 
@@ -258,19 +326,9 @@ async function getUserData() {
     setCurrentDate(userTimeZone, userLanguage);
 
     // 📅 Load calendar data: session first, then fetch from API if missing
-    const calendarCache = sessionStorage.getItem('user_calendars_v1');
-
-    let calendars = null;
-    if (calendarCache) {
-        try {
-            const parsed = JSON.parse(calendarCache);
-            if (Array.isArray(parsed)) {
-                calendars = parsed;
-                console.log('📅 Using cached v1 calendar data');
-            }
-        } catch (e) {
-            console.warn('⚠️ Cached v1 calendar data was corrupted. Will fetch fresh data.');
-        }
+    let calendars = readCalendarListCache();
+    if (calendars) {
+        console.log('📅 Using cached v1 calendar data');
     }
 
     if (!calendars) {
@@ -290,12 +348,7 @@ async function getUserData() {
 
             if (freshData?.ok && Array.isArray(freshData.calendars)) {
                 calendars = freshData.calendars;
-                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
-                try {
-                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
-                } catch (err) {
-                    console.warn('⚠️ Unable to cache legacy calendar view:', err);
-                }
+                persistCalendarListCache(calendars);
                 console.log('📡 Fetched and cached fresh v1 calendar data.');
             } else {
                 console.warn('⚠️ API calendar fetch failed:', freshData?.error || freshData?.message || 'unknown_error');
@@ -521,10 +574,14 @@ function getOfflineUserData({ useCachedData = true } = {}) {
             try { return JSON.parse(value); } catch { return null; }
         };
 
-        const cachedProfile = safeParse(localStorage.getItem('user_profile')) || {};
+        const cachedProfile = safeParse(localStorage.getItem('user_profile'))
+            || safeParse(localStorage.getItem(OFFLINE_PROFILE_CACHE_KEY))
+            || {};
         const hasCachedProfile = Object.keys(cachedProfile).length > 0;
 
         if (hasCachedProfile) {
+            persistOfflineProfile(cachedProfile);
+
             userLanguage = (cachedProfile.locale || cachedProfile.lang || navigator.language || 'en').slice(0, 2);
 
             try {
@@ -550,8 +607,7 @@ function getOfflineUserData({ useCachedData = true } = {}) {
             useDefaultUser();
         }
 
-        const cachedRaw = sessionStorage.getItem('user_calendars_v1');
-        const cachedCalendars = safeParse(cachedRaw);
+        const cachedCalendars = readCalendarListCache();
 
         if (Array.isArray(cachedCalendars) && cachedCalendars.length) {
             try {
@@ -1363,21 +1419,7 @@ function refreshLoggedInCalendarLists(nextCalendars) {
         return;
     }
 
-    let calendars = Array.isArray(nextCalendars) ? nextCalendars : null;
-
-    if (!calendars) {
-        try {
-            const cachedRaw = sessionStorage.getItem('user_calendars_v1');
-            if (cachedRaw) {
-                const parsed = JSON.parse(cachedRaw);
-                if (Array.isArray(parsed)) {
-                    calendars = parsed;
-                }
-            }
-        } catch (err) {
-            console.debug('[refreshLoggedInCalendarLists] unable to parse cached calendars', err);
-        }
-    }
+    let calendars = Array.isArray(nextCalendars) ? nextCalendars : readCalendarListCache();
 
     if (!Array.isArray(calendars)) {
         calendars = [];
@@ -1471,6 +1513,13 @@ function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceTyp
 
             if (changed) {
                 sessionStorage.setItem(key, JSON.stringify(next));
+                if (key === CALENDAR_LIST_CACHE_KEY) {
+                    try {
+                        localStorage.setItem(CALENDAR_LIST_CACHE_KEY, JSON.stringify(next));
+                    } catch (storageErr) {
+                        console.debug('[updateCachedCalendarActiveState] unable to persist local calendar cache', storageErr);
+                    }
+                }
                 sessionStorage.setItem(CAL_CACHE_AT_KEY_NAME, String(Date.now()));
             }
         } catch (err) {
@@ -1595,17 +1644,7 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
 
     const normalizedCalendars = normalizeCalendarList(calendarList);
 
-    try {
-        sessionStorage.setItem('user_calendars_v1', JSON.stringify(normalizedCalendars));
-    } catch (err) {
-        console.debug('[showLoggedInView] Unable to cache v1 calendars:', err);
-    }
-
-    try {
-        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(normalizedCalendars)));
-    } catch (err) {
-        console.debug('[showLoggedInView] Unable to refresh legacy calendar cache:', err);
-    }
+    persistCalendarListCache(normalizedCalendars);
 
     const sortedCalendars = sortCalendarsByName(normalizedCalendars);
 
@@ -1972,7 +2011,8 @@ async function showLoginForm(loggedOutView, loggedInView) {
     // 🌿 Pull from persistent profile or global scope
     let profile = window.userProfile;
     if (!profile) {
-        const profileStr = localStorage.getItem("user_profile");
+        const profileStr = localStorage.getItem("user_profile")
+            || localStorage.getItem(OFFLINE_PROFILE_CACHE_KEY);
         if (profileStr) {
             try {
                 profile = JSON.parse(profileStr);
@@ -2082,19 +2122,10 @@ async function sendUpRegistration() {
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
 
-        let calendars = null;
-        const v1Cache = sessionStorage.getItem("user_calendars_v1");
+        let calendars = readCalendarListCache();
 
-        if (v1Cache) {
-            try {
-                const parsed = JSON.parse(v1Cache);
-                if (Array.isArray(parsed)) {
-                    calendars = parsed;
-                    console.log("📅 Using cached v1 calendar data.");
-                }
-            } catch (e) {
-                console.warn("⚠️ Failed to parse cached v1 calendar data:", e);
-            }
+        if (calendars) {
+            console.log("📅 Using cached v1 calendar data.");
         }
 
         if (!calendars && payload?.buwana_id) {
@@ -2114,12 +2145,7 @@ async function sendUpRegistration() {
                 const calJson = await calRes.json();
                 if (calJson?.ok && Array.isArray(calJson.calendars)) {
                     calendars = calJson.calendars;
-                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
-                    try {
-                        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
-                    } catch (err) {
-                        console.warn('⚠️ Unable to cache legacy calendar view:', err);
-                    }
+                    persistCalendarListCache(calendars);
                     console.log("✅ Fresh v1 calendar data loaded.");
                 } else {
                     console.warn("⚠️ Calendar fetch failed:", calJson?.error || calJson?.message || 'unknown_error');
@@ -2130,11 +2156,6 @@ async function sendUpRegistration() {
         }
 
         if (calendars) {
-            try {
-                sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
-            } catch (err) {
-                console.debug('Unable to update legacy calendar cache:', err);
-            }
             showLoggedInView(calendars);
         } else {
             console.warn("❌ No calendar data available to render logged-in view.");
@@ -2494,13 +2515,10 @@ async function editV1cal(calendarId) {
 
     if (!calendar) {
         try {
-            const raw = sessionStorage.getItem('user_calendars_v1');
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                calendar = tryFindCalendar(parsed);
-            }
+            const parsed = readCalendarListCache();
+            calendar = tryFindCalendar(parsed);
         } catch (err) {
-            console.debug('[editV1cal] Unable to read calendar cache from sessionStorage:', err);
+            console.debug('[editV1cal] Unable to read calendar cache from storage:', err);
         }
     }
 
@@ -2592,12 +2610,7 @@ async function deleteV1cal(calendarId, isDefault = false) {
             if (calRes.ok) {
                 const calData = await calRes.json();
                 if (calData?.ok && Array.isArray(calData.calendars)) {
-                    sessionStorage.setItem('user_calendars_v1', JSON.stringify(calData.calendars));
-                    try {
-                        sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calData.calendars)));
-                    } catch (err) {
-                        console.warn('⚠️ Unable to refresh legacy calendar cache after delete:', err);
-                    }
+                    persistCalendarListCache(calData.calendars);
                     showLoggedInView(calData.calendars);
                 }
             }
@@ -3170,12 +3183,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
                     }
                 }
 
-                sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
-                try {
-                    sessionStorage.setItem('user_calendars', JSON.stringify(buildLegacyCalendarCache(calendars)));
-                } catch (err) {
-                    console.warn('⚠️ Unable to refresh legacy calendar cache:', err);
-                }
+                persistCalendarListCache(calendars);
 
                 latestCalendars = calendars;
                 console.log('🔁 user_calendars cache refreshed.');
@@ -3313,9 +3321,30 @@ function logoutBuwana() {
     // 🌿 Clear tokens and session state
     localStorage.removeItem('id_token');
     localStorage.removeItem('access_token');
-    localStorage.removeItem('user_profile');  // <-- ✅ remove the cached user profile
+    localStorage.removeItem('token_type');
+    localStorage.removeItem('expires_in');
 
+    try {
+        const cachedProfileStr = localStorage.getItem('user_profile');
+        if (cachedProfileStr) {
+            const parsed = JSON.parse(cachedProfileStr);
+            persistOfflineProfile(parsed);
+        }
+    } catch (err) {
+        console.debug('[logout] Unable to persist offline profile cache before logout', err);
+    }
+
+    localStorage.removeItem('user_profile');
+
+    const cachedCalendarList = sessionStorage.getItem(CALENDAR_LIST_CACHE_KEY);
+    const cachedLegacyList = sessionStorage.getItem(LEGACY_CALENDAR_LIST_CACHE_KEY);
     sessionStorage.clear();
+    if (cachedCalendarList) {
+        sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, cachedCalendarList);
+    }
+    if (cachedLegacyList) {
+        sessionStorage.setItem(LEGACY_CALENDAR_LIST_CACHE_KEY, cachedLegacyList);
+    }
 
     // 🌿 Clear global JS state
     window.userProfile = null;

@@ -379,6 +379,12 @@
             localStorage.setItem("token_type", tokenData.token_type);
             localStorage.setItem("expires_in", tokenData.expires_in);
             localStorage.setItem("user_profile", JSON.stringify(idPayload));
+            try {
+                const { exp, iat, nbf, ...offlineProfile } = idPayload || {};
+                localStorage.setItem("user_profile_offline", JSON.stringify(offlineProfile));
+            } catch (profileErr) {
+                console.debug('Unable to persist offline profile cache', profileErr);
+            }
 
             sessionStorage.removeItem("pkce_code_verifier");
             sessionStorage.removeItem("oidc_state");
