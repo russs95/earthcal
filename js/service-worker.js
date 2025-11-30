@@ -1,6 +1,4 @@
 importScripts('earthcal-config.js');
-
-const cachingEnabled = self.EARTHCAL_BETA_TESTING?.enabled !== true;
 const CACHE_NAME = 'earthcal-cache-v3';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
@@ -99,11 +97,6 @@ async function limitCacheSize(cacheName, maxItems) {
 
 // 🔹 Fetch event - Serve from cache or fetch from network
 self.addEventListener('fetch', event => {
-    if (!cachingEnabled) {
-        event.respondWith(fetch(event.request));
-        return;
-    }
-
     if (event.request.mode === 'navigate') {
         event.respondWith(handleNavigationRequest(event.request));
         return;
