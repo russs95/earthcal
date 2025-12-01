@@ -102,6 +102,12 @@ self.addEventListener('fetch', event => {
         return;
     }
 
+    // Cache and replay API POST requests (e.g., calendar lists and date items)
+    if (event.request.method === 'POST' && shouldCacheApiRequest(event.request.url)) {
+        event.respondWith(handleApiPostRequest(event.request));
+        return;
+    }
+
     event.respondWith(
         caches.open(CACHE_NAME).then(cache => {
             return cache.match(event.request).then(response => {
@@ -150,15 +156,48 @@ function shouldCacheApiRequest(url) {
 }
 
 function isCacheableResponse(request, response) {
-    if (request.method !== 'GET') {
-        return false;
-    }
-
     if (!response || response.status !== 200) {
         return false;
     }
 
     return response.type === 'basic' || response.type === 'cors';
+}
+
+async function buildApiCacheKeyRequest(request) {
+    try {
+        const body = await request.clone().text();
+        const cacheUrl = `${request.url}|${body}`;
+        return new Request(cacheUrl, { method: 'GET' });
+    } catch (err) {
+        console.warn('[Service Worker] Unable to build API cache key:', err);
+        return new Request(request.url, { method: 'GET' });
+    }
+}
+
+async function handleApiPostRequest(request) {
+    const cache = await caches.open(CACHE_NAME);
+    const cacheKeyRequest = await buildApiCacheKeyRequest(request);
+
+    try {
+        const networkResponse = await fetch(request.clone());
+
+        if (isCacheableResponse(request, networkResponse)) {
+            console.log(`[Service Worker] Caching API POST response: ${request.url}`);
+            cache.put(cacheKeyRequest, networkResponse.clone());
+            limitCacheSize(CACHE_NAME, MAX_API_CACHE_ITEMS);
+        }
+
+        return networkResponse;
+    } catch (err) {
+        const cachedResponse = await cache.match(cacheKeyRequest);
+        if (cachedResponse) {
+            console.warn(`[Service Worker] Serving cached API response for offline POST: ${request.url}`);
+            return cachedResponse;
+        }
+
+        console.error('[Service Worker] No cached API response available for POST request.');
+        return new Response('Offline', { status: 503, statusText: 'Offline' });
+    }
 }
 
 function handleNetworkResponse(request, networkResponse, cache) {
