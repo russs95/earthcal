@@ -101,13 +101,21 @@ const CALENDAR_LIST_CACHE_KEY = 'user_calendars_v1';
 const LEGACY_CALENDAR_LIST_CACHE_KEY = 'user_calendars';
 const OFFLINE_PROFILE_CACHE_KEY = 'user_profile_offline';
 
-function persistCalendarListCache(calendars) {
+function getActiveBuwanaId() {
+    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
+    return ok ? payload?.buwana_id ?? null : null;
+}
+
+function persistCalendarListCache(calendars, ownerId = null) {
     if (!Array.isArray(calendars)) {
         return;
     }
 
+    const resolvedOwnerId = ownerId ?? getActiveBuwanaId();
+    const wrapped = { ownerId: resolvedOwnerId, calendars };
+
     try {
-        const payload = JSON.stringify(calendars);
+        const payload = JSON.stringify(wrapped);
         sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
         localStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
     } catch (err) {
@@ -129,23 +137,58 @@ function readCalendarListCache() {
         try { return JSON.parse(value); } catch { return null; }
     };
 
+    const parseCacheEntry = (raw) => {
+        const parsed = tryParse(raw);
+        if (!parsed) return null;
+
+        if (Array.isArray(parsed)) {
+            return { ownerId: null, calendars: parsed };
+        }
+
+        if (Array.isArray(parsed?.calendars)) {
+            return { ownerId: parsed.ownerId ?? null, calendars: parsed.calendars };
+        }
+
+        return null;
+    };
+
+    const currentUserId = getActiveBuwanaId();
     const sources = [
-        () => sessionStorage.getItem(CALENDAR_LIST_CACHE_KEY),
-        () => localStorage.getItem(CALENDAR_LIST_CACHE_KEY),
+        { storage: sessionStorage, name: 'sessionStorage' },
+        { storage: localStorage, name: 'localStorage' },
     ];
 
-    for (const getter of sources) {
-        const raw = getter();
+    for (const { storage } of sources) {
+        const raw = storage.getItem(CALENDAR_LIST_CACHE_KEY);
         if (!raw) continue;
-        const parsed = tryParse(raw);
-        if (Array.isArray(parsed)) {
-            try {
-                sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, JSON.stringify(parsed));
-            } catch {
-                /* noop */
-            }
-            return parsed;
+
+        const parsed = parseCacheEntry(raw);
+        if (!parsed) continue;
+
+        const { ownerId, calendars } = parsed;
+
+        if (currentUserId && ownerId && ownerId !== currentUserId) {
+            // 🚫 Cached for another user; clear and continue.
+            storage.removeItem(CALENDAR_LIST_CACHE_KEY);
+            continue;
         }
+
+        if (currentUserId && !ownerId) {
+            // 🚫 Legacy cache without an owner, ignore to avoid cross-account reuse.
+            storage.removeItem(CALENDAR_LIST_CACHE_KEY);
+            continue;
+        }
+
+        try {
+            sessionStorage.setItem(
+                CALENDAR_LIST_CACHE_KEY,
+                JSON.stringify({ ownerId: ownerId ?? currentUserId ?? null, calendars })
+            );
+        } catch {
+            /* noop */
+        }
+
+        return calendars;
     }
 
     return null;
@@ -348,7 +391,7 @@ async function getUserData() {
 
             if (freshData?.ok && Array.isArray(freshData.calendars)) {
                 calendars = freshData.calendars;
-                persistCalendarListCache(calendars);
+                persistCalendarListCache(calendars, buwanaId);
                 console.log('📡 Fetched and cached fresh v1 calendar data.');
             } else {
                 console.warn('⚠️ API calendar fetch failed:', freshData?.error || freshData?.message || 'unknown_error');
@@ -1500,10 +1543,11 @@ function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceTyp
             const raw = sessionStorage.getItem(key);
             if (!raw) return;
             const parsed = JSON.parse(raw);
-            if (!Array.isArray(parsed)) return;
+            const cachedCalendars = Array.isArray(parsed?.calendars) ? parsed.calendars : (Array.isArray(parsed) ? parsed : null);
+            if (!cachedCalendars) return;
 
             let changed = false;
-            const next = parsed.map((entry) => {
+            const nextCalendars = cachedCalendars.map((entry) => {
                 if (matchCalendar(entry)) {
                     changed = true;
                     return { ...entry, is_active: !!isActive };
@@ -1512,10 +1556,18 @@ function updateCachedCalendarActiveState({ calendarId, subscriptionId, sourceTyp
             });
 
             if (changed) {
-                sessionStorage.setItem(key, JSON.stringify(next));
+                const nextPayload = Array.isArray(parsed)
+                    ? nextCalendars
+                    : { ...parsed, calendars: nextCalendars };
+
+                sessionStorage.setItem(key, JSON.stringify(nextPayload));
                 if (key === CALENDAR_LIST_CACHE_KEY) {
                     try {
-                        localStorage.setItem(CALENDAR_LIST_CACHE_KEY, JSON.stringify(next));
+                        const ownerId = parsed?.ownerId ?? getActiveBuwanaId() ?? null;
+                        localStorage.setItem(
+                            CALENDAR_LIST_CACHE_KEY,
+                            JSON.stringify({ ownerId, calendars: nextCalendars })
+                        );
                     } catch (storageErr) {
                         console.debug('[updateCachedCalendarActiveState] unable to persist local calendar cache', storageErr);
                     }
@@ -1644,7 +1696,7 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
 
     const normalizedCalendars = normalizeCalendarList(calendarList);
 
-    persistCalendarListCache(normalizedCalendars);
+    persistCalendarListCache(normalizedCalendars, payload.buwana_id);
 
     const sortedCalendars = sortCalendarsByName(normalizedCalendars);
 
@@ -2145,7 +2197,7 @@ async function sendUpRegistration() {
                 const calJson = await calRes.json();
                 if (calJson?.ok && Array.isArray(calJson.calendars)) {
                     calendars = calJson.calendars;
-                    persistCalendarListCache(calendars);
+                    persistCalendarListCache(calendars, payload.buwana_id);
                     console.log("✅ Fresh v1 calendar data loaded.");
                 } else {
                     console.warn("⚠️ Calendar fetch failed:", calJson?.error || calJson?.message || 'unknown_error');
@@ -2610,7 +2662,7 @@ async function deleteV1cal(calendarId, isDefault = false) {
             if (calRes.ok) {
                 const calData = await calRes.json();
                 if (calData?.ok && Array.isArray(calData.calendars)) {
-                    persistCalendarListCache(calData.calendars);
+                    persistCalendarListCache(calData.calendars, buwanaId);
                     showLoggedInView(calData.calendars);
                 }
             }
@@ -3183,7 +3235,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
                     }
                 }
 
-                persistCalendarListCache(calendars);
+                persistCalendarListCache(calendars, payload.buwana_id);
 
                 latestCalendars = calendars;
                 console.log('🔁 user_calendars cache refreshed.');
