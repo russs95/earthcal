@@ -2018,10 +2018,18 @@ async function syncDatecycles() {
             .filter(key => /^calendar_\d+$/.test(key) && !keysToKeep.has(key))
             .forEach(key => localStorage.removeItem(key));
 
+        const cachePayload = JSON.stringify(calendars);
+
         try {
-            sessionStorage.setItem('user_calendars_v1', JSON.stringify(calendars));
+            sessionStorage.setItem('user_calendars_v1', cachePayload);
         } catch (storageErr) {
             console.warn('Unable to cache user calendars in sessionStorage:', storageErr);
+        }
+
+        try {
+            localStorage.setItem('user_calendars_v1', cachePayload);
+        } catch (storageErr) {
+            console.warn('Unable to cache user calendars in localStorage:', storageErr);
         }
 
         const summary = `Your ${calendars.length} calendars and ${totalItems} datecycles were updated`;
