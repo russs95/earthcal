@@ -2,7 +2,7 @@
     {
         "date": "2025-01-01",
         "dist_to_earth": "11.616 AU",
-        "event_title": "Approaching Jupiter's orbit",
+        "event_title": "Approaching Saturn's orbit",
         "event_description": "3I-Atlas entering inner solar system",
         "event_url": "",
         "event_img": "https://earthcal.app/assests/icons/comet.png",
@@ -12,7 +12,7 @@
   {
     "date": "2025-01-02",
     "dist_to_earth": "11.583 AU",
-    "event_title": "Approaching Jupiter's orbit",
+    "event_title": "Approaching Saturn's orbit",
     "event_description": "3I-Atlas entering inner solar system",
     "event_url": "",
     "event_img": "https://earthcal.app/assests/icons/comet.png",
@@ -21,23 +21,1124 @@
 
   {
     "date": "2025-01-03",
-    "dist_to_earth": "11.583 AU",
-    "event_title": "Approaching Jupiter's orbit",
+    "dist_to_earth": "11.550 AU",
+    "event_title": "Approaching Saturn's orbit",
     "event_description": "3I-Atlas entering inner solar system",
     "event_url": "",
     "event_img": "https://earthcal.app/assests/icons/comet.png",
     "event_emoji": "🪐"
   },
-
-
-
-
-
-
+ {
+    "date": "2025-01-04",
+    "dist_to_earth": "11.517 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+ {
+    "date": "2025-01-05",
+    "dist_to_earth": "11.483 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+ {
+    "date": "2025-01-06",
+    "dist_to_earth": "11.449 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+ {
+    "date": "2025-01-07",
+    "dist_to_earth": "11.415 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+ {
+    "date": "2025-01-08",
+    "dist_to_earth": "11.380 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-09",
+    "dist_to_earth": "11.346 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-10",
+    "dist_to_earth": "11.310 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-11",
+    "dist_to_earth": "11.275 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-12",
+    "dist_to_earth": "11.239 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-13",
+    "dist_to_earth": "11.203 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-14",
+    "dist_to_earth": "11.167 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-15",
+    "dist_to_earth": "11.130 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-16",
+    "dist_to_earth": "11.094 AU",
+    "event_title": "Approaching Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-17",
+    "dist_to_earth": "11.056 AU",
+    "event_title": "Reaches Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-18",
+    "dist_to_earth": "11.019 AU",
+    "event_title": "Reaches Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-19",
+    "dist_to_earth": "10.981 AU",
+    "event_title": "Reaches Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-20",
+    "dist_to_earth": "10.943 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-21",
+    "dist_to_earth": "10.905 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-22",
+    "dist_to_earth": "10.866 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-23",
+    "dist_to_earth": "10.827 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-24",
+    "dist_to_earth": "10.788 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-25",
+    "dist_to_earth": "10.749 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-26",
+    "dist_to_earth": "10.709 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-27",
+    "dist_to_earth": "10.669 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-28",
+    "dist_to_earth": "10.629 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-29",
+    "dist_to_earth": "10.588 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-30",
+    "dist_to_earth": "10.547 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-01-31",
+    "dist_to_earth": "10.506 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-01",
+    "dist_to_earth": "10.465 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-02",
+    "dist_to_earth": "10.423 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-03",
+    "dist_to_earth": "10.381 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-04",
+    "dist_to_earth": "10.339 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-05",
+    "dist_to_earth": "10.297 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-06",
+    "dist_to_earth": "10.254 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-07",
+    "dist_to_earth": "10.211 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-08",
+    "dist_to_earth": "10.168 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-09",
+    "dist_to_earth": "10.125 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-10",
+    "dist_to_earth": "10.081 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-11",
+    "dist_to_earth": "10.037 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-12",
+    "dist_to_earth": "9.993 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-13",
+    "dist_to_earth": "9.949 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-14",
+    "dist_to_earth": "9.904 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-15",
+    "dist_to_earth": "9.859 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-16",
+    "dist_to_earth": "9.814 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-17",
+    "dist_to_earth": "9.769 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-18",
+    "dist_to_earth": "9.723 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-19",
+    "dist_to_earth": "9.677 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-20",
+    "dist_to_earth": "9.631 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-21",
+    "dist_to_earth": "9.585 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-22",
+    "dist_to_earth": "9.539 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-23",
+    "dist_to_earth": "9.492 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-24",
+    "dist_to_earth": "9.446 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-25",
+    "dist_to_earth": "9.399 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-26",
+    "dist_to_earth": "9.351 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-27",
+    "dist_to_earth": "9.304 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+  {
+    "date": "2025-02-28",
+    "dist_to_earth": "9.256 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+  },
+{
+    "date": "2025-03-01",
+    "dist_to_earth": "9.209 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-02",
+    "dist_to_earth": "9.161 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-03",
+    "dist_to_earth": "9.112 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-04",
+    "dist_to_earth": "9.064 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-05",
+    "dist_to_earth": "9.016 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-06",
+    "dist_to_earth": "8.967 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-07",
+    "dist_to_earth": "8.918 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-08",
+    "dist_to_earth": "8.869 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-09",
+    "dist_to_earth": "8.820 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-10",
+    "dist_to_earth": "8.771 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-11",
+    "dist_to_earth": "8.721 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-12",
+    "dist_to_earth": "8.672 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-13",
+    "dist_to_earth": "8.622 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-14",
+    "dist_to_earth": "8.572 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-15",
+    "dist_to_earth": "8.522 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-16",
+    "dist_to_earth": "8.472 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-17",
+    "dist_to_earth": "8.422 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-18",
+    "dist_to_earth": "8.372 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-19",
+    "dist_to_earth": "8.321 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-20",
+    "dist_to_earth": "8.271 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-21",
+    "dist_to_earth": "8.220 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-22",
+    "dist_to_earth": "8.169 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-23",
+    "dist_to_earth": "8.118 AU",
+    "event_title": "Leaving Saturn's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-24",
+    "dist_to_earth": "8.067 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-25",
+    "dist_to_earth": "8.016 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-26",
+    "dist_to_earth": "7.965 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-27",
+    "dist_to_earth": "7.914 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-28",
+    "dist_to_earth": "7.863 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-29",
+    "dist_to_earth": "7.812 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-30",
+    "dist_to_earth": "7.760 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-03-31",
+    "dist_to_earth": "7.709 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-01",
+    "dist_to_earth": "7.657 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-02",
+    "dist_to_earth": "7.606 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-03",
+    "dist_to_earth": "7.554 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-04",
+    "dist_to_earth": "7.503 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-05",
+    "dist_to_earth": "7.451 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-06",
+    "dist_to_earth": "7.399 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-07",
+    "dist_to_earth": "7.348 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-08",
+    "dist_to_earth": "7.296 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-09",
+    "dist_to_earth": "7.244 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-10",
+    "dist_to_earth": "7.192 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-11",
+    "dist_to_earth": "7.141 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-12",
+    "dist_to_earth": "7.089 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-13",
+    "dist_to_earth": "7.037 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-14",
+    "dist_to_earth": "6.986 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-15",
+    "dist_to_earth": "6.934 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-16",
+    "dist_to_earth": "6.882 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-17",
+    "dist_to_earth": "6.831 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-18",
+    "dist_to_earth": "6.779 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-19",
+    "dist_to_earth": "6.728 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-20",
+    "dist_to_earth": "6.676 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-21",
+    "dist_to_earth": "6.625 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-22",
+    "dist_to_earth": "6.573 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-23",
+    "dist_to_earth": "6.522 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-24",
+    "dist_to_earth": "6.471 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-25",
+    "dist_to_earth": "6.420 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-26",
+    "dist_to_earth": "6.369 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-27",
+    "dist_to_earth": "6.318 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-28",
+    "dist_to_earth": "6.267 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-29",
+    "dist_to_earth": "6.216 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-04-30",
+    "dist_to_earth": "6.165 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-01",
+    "dist_to_earth": "6.115 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-02",
+    "dist_to_earth": "6.065 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-03",
+    "dist_to_earth": "6.014 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-04",
+    "dist_to_earth": "5.964 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-05",
+    "dist_to_earth": "5.914 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-06",
+    "dist_to_earth": "5.864 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
 
         {
             "date": "2025-05-07",
-            "dist_to_earth": "≈6.35 AU",
+            "dist_to_earth": "5.814 AU",
             "event_title": "Precovery Images Identified",
             "event_description": "Archival data from TESS show 3I/ATLAS was present and possibly active before its official discovery. :contentReference[oaicite:1]{index=1}",
             "event_url": "https://www.universetoday.com/articles/tess-spotted-3iatlas-two-months-before-it-was-discovered-it-was-even-active-then/",
@@ -45,91 +1146,2174 @@
             "event_emoji": "🗃️"
         },
 
+{
+    "date": "2025-05-08",
+    "dist_to_earth": "5.765 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-09",
+    "dist_to_earth": "5.715 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-10",
+    "dist_to_earth": "5.666 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-11",
+    "dist_to_earth": "5.617 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-12",
+    "dist_to_earth": "5.568 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-13",
+    "dist_to_earth": "5.520 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-14",
+    "dist_to_earth": "5.471 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-15",
+    "dist_to_earth": "5.423 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-16",
+    "dist_to_earth": "5.375 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-17",
+    "dist_to_earth": "5.327 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-18",
+    "dist_to_earth": "5.279 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-19",
+    "dist_to_earth": "5.232 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-20",
+    "dist_to_earth": "5.185 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-21",
+    "dist_to_earth": "5.138 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-22",
+    "dist_to_earth": "5.091 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-23",
+    "dist_to_earth": "5.045 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-24",
+    "dist_to_earth": "4.998 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-25",
+    "dist_to_earth": "4.953 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-26",
+    "dist_to_earth": "4.907 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-27",
+    "dist_to_earth": "4.862 AU",
+     "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+	{
+   	 "date": "2025-05-28",
+    	"dist_to_earth": "4.816 AU",
+    	"event_title": "Saturn's closest",
+    	"event_description": "3I/ATLAS is in the closest range with Saturn (9.931 AU)",
+    	"event_url": "",
+    	"event_img": "https://earthcal.app/assests/icons/comet.png",
+    	"event_emoji": "🪐"
+	},
+{
+    "date": "2025-05-29",
+    "dist_to_earth": "4.772 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-30",
+    "dist_to_earth": "4.727 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-05-31",
+    "dist_to_earth": "4.683 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-01",
+    "dist_to_earth": "4.639 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-02",
+    "dist_to_earth": "4.596 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-03",
+    "dist_to_earth": "4.553 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-04",
+    "dist_to_earth": "4.510 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-05",
+    "dist_to_earth": "4.467 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-06",
+    "dist_to_earth": "4.425 AU",
+    "event_title": "Approaching Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-07",
+    "dist_to_earth": "4.383 AU",
+    "event_title": "Reaches Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-08",
+    "dist_to_earth": "4.342 AU",
+    "event_title": "Reaches Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-09",
+    "dist_to_earth": "4.301 AU",
+    "event_title": "Reaches Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-10",
+    "dist_to_earth": "4.260 AU",
+    "event_title": "Reaches Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-11",
+    "dist_to_earth": "4.220 AU",
+    "event_title": "Reaches Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-12",
+    "dist_to_earth": "4.180 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-13",
+    "dist_to_earth": "4.141 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-14",
+    "dist_to_earth": "4.102 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-15",
+    "dist_to_earth": "4.063 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-16",
+    "dist_to_earth": "4.025 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-17",
+    "dist_to_earth": "3.987 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-18",
+    "dist_to_earth": "3.949 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-19",
+    "dist_to_earth": "3.913 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-20",
+    "dist_to_earth": "3.876 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-21",
+    "dist_to_earth": "3.840 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-22",
+    "dist_to_earth": "3.804 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-23",
+    "dist_to_earth": "3.769 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-24",
+    "dist_to_earth": "3.735 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-25",
+    "dist_to_earth": "3.701 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-26",
+    "dist_to_earth": "3.667 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-27",
+    "dist_to_earth": "3.634 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-28",
+    "dist_to_earth": "3.601 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-29",
+    "dist_to_earth": "3.569 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-06-30",
+    "dist_to_earth": "3.537 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+}, 
 
         {
             "date": "2025-07-01",
-            "dist_to_earth": "≈4.5 AU",
+            "dist_to_earth": "3.506 AU",
             "event_title": "Discovery by ATLAS",
             "event_description": "The ATLAS survey in Chile first reported the interstellar comet. :contentReference[oaicite:2]{index=2}",
             "event_url": "https://science.nasa.gov/blogs/planetary-defense/2025/07/02/nasa-discovers-interstellar-comet-moving-through-solar-system/",
             "event_img": "",
             "event_emoji": "🔭"
         },
+
+{
+    "date": "2025-07-02",
+    "dist_to_earth": "3.475 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-07-03",
+    "dist_to_earth": "3.445 AU",
+    "event_title": "Leaving Jupiter's orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-07-04",
+    "dist_to_earth": "3.416 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-05",
+    "dist_to_earth": "3.387 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-06",
+    "dist_to_earth": "3.358 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-07",
+    "dist_to_earth": "3.330 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-08",
+    "dist_to_earth": "3.303 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-09",
+    "dist_to_earth": "3.276 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-10",
+    "dist_to_earth": "3.250 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-11",
+    "dist_to_earth": "3.224 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-12",
+    "dist_to_earth": "3.199 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-13",
+    "dist_to_earth": "3.174 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-14",
+    "dist_to_earth": "3.150 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-15",
+    "dist_to_earth": "3.126 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-16",
+    "dist_to_earth": "3.103 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-17",
+    "dist_to_earth": "3.081 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-18",
+    "dist_to_earth": "3.059 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-19",
+    "dist_to_earth": "3.038 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-20",
+    "dist_to_earth": "3.017 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+
         {
             "date": "2025-07-21",
-            "dist_to_earth": "≈4.2 AU",
+            "dist_to_earth": "2.997 AU",
             "event_title": "First Hubble Imaging",
             "event_description": "Hubble Space Telescope captured sharp images permitting nucleus size constraints. :contentReference[oaicite:3]{index=3}",
             "event_url": "https://science.nasa.gov/missions/hubble/as-nasa-missions-study-interstellar-comet-hubble-makes-size-estimate/",
             "event_img": "",
             "event_emoji": "🛰️"
         },
+
+{
+    "date": "2025-07-22",
+    "dist_to_earth": "2.977 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-23",
+    "dist_to_earth": "2.958 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-24",
+    "dist_to_earth": "2.940 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-25",
+    "dist_to_earth": "2.922 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-26",
+    "dist_to_earth": "2.904 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-27",
+    "dist_to_earth": "2.887 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-28",
+    "dist_to_earth": "2.871 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-29",
+    "dist_to_earth": "2.855 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-30",
+    "dist_to_earth": "2.840 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-07-31",
+    "dist_to_earth": "2.825 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-01",
+    "dist_to_earth": "2.811 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+
         {
             "date": "2025-08-02",
-            "dist_to_earth": "≈3.8 AU",
+            "dist_to_earth": "2.797 AU",
             "event_title": "Sun-Facing Jet Detected",
             "event_description": "Ground-based imagery shows a prominent jet pointing toward the Sun, indicating strong outgassing. :contentReference[oaicite:4]{index=4}",
             "event_url": "https://www.livescience.com/space/comets/new-images-of-interstellar-object-3i-atlas-show-giant-jet-shooting-toward-the-sun/",
             "event_img": "",
             "event_emoji": "💨"
         },
+
+{
+    "date": "2025-08-03",
+    "dist_to_earth": "2.784 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-04",
+    "dist_to_earth": "2.771 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-05",
+    "dist_to_earth": "2.759 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-06",
+    "dist_to_earth": "2.747 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-07",
+    "dist_to_earth": "2.736 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-08",
+    "dist_to_earth": "2.725 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-09",
+    "dist_to_earth": "2.714 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-10",
+    "dist_to_earth": "2.705 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-11",
+    "dist_to_earth": "2.695 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-12",
+    "dist_to_earth": "2.686 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-13",
+    "dist_to_earth": "2.677 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-14",
+    "dist_to_earth": "2.669 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-15",
+    "dist_to_earth": "2.661 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-16",
+    "dist_to_earth": "2.654 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-17",
+    "dist_to_earth": "2.646 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-18",
+    "dist_to_earth": "2.640 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-19",
+    "dist_to_earth": "2.633 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-20",
+    "dist_to_earth": "2.627 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-21",
+    "dist_to_earth": "2.621 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-22",
+    "dist_to_earth": "2.616 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-23",
+    "dist_to_earth": "2.611 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-24",
+    "dist_to_earth": "2.606 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-25",
+    "dist_to_earth": "2.601 AU",
+    "event_title": "Crossing into asteroid belt",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/solar/bosf/images/BOSF_01_085.jpg?w=715&h=728&fit=clip&crop=faces%2Cfocalpoint",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-08-26",
+    "dist_to_earth": "2.597 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
         {
             "date": "2025-08-27",
-            "dist_to_earth": "≈3.1 AU",
+            "dist_to_earth": "2.593 AU",
             "event_title": "Gemini Deep Imaging",
             "event_description": "Gemini South Observatory obtains deep exposures of the tail and coma structure. :contentReference[oaicite:5]{index=5}",
             "event_url": "https://www.nsf.gov/news/interstellar-comet-3iatlas-observed-nsf-funded-gemini-north",
             "event_img": "",
             "event_emoji": "🌠"
         },
+
+{
+    "date": "2025-08-28",
+    "dist_to_earth": "2.589 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-08-29",
+    "dist_to_earth": "2.585 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-08-30",
+    "dist_to_earth": "2.581 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-08-31",
+    "dist_to_earth": "2.578 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-01",
+    "dist_to_earth": "2.575 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-02",
+    "dist_to_earth": "2.572 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-03",
+    "dist_to_earth": "2.569 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-04",
+    "dist_to_earth": "2.566 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-05",
+    "dist_to_earth": "2.564 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-06",
+    "dist_to_earth": "2.561 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-07",
+    "dist_to_earth": "2.559 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
         {
             "date": "2025-09-08",
-            "dist_to_earth": "≈2.6 AU",
+            "dist_to_earth": "2.557 AU",
             "event_title": "Comet Activity Increases",
             "event_description": "Brightness and tail length increase significantly as the comet approaches the Sun. :contentReference[oaicite:6]{index=6}",
             "event_url": "https://arxiv.org/abs/2510.18769",
             "event_img": "",
             "event_emoji": "📈"
         },
+
+{
+    "date": "2025-09-09",
+    "dist_to_earth": "2.554 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-10",
+    "dist_to_earth": "2.552 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-11",
+    "dist_to_earth": "2.550 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-12",
+    "dist_to_earth": "2.548 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-13",
+    "dist_to_earth": "2.546 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/ATLAS inbound trajectory continues",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-14",
+    "dist_to_earth": "2.544 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-15",
+    "dist_to_earth": "2.542 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-16",
+    "dist_to_earth": "2.540 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-17",
+    "dist_to_earth": "2.537 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-18",
+    "dist_to_earth": "2.535 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-19",
+    "dist_to_earth": "2.533 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-20",
+    "dist_to_earth": "2.531 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-21",
+    "dist_to_earth": "2.529 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-22",
+    "dist_to_earth": "2.526 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-23",
+    "dist_to_earth": "2.524 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-24",
+    "dist_to_earth": "2.521 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-25",
+    "dist_to_earth": "2.518 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-26",
+    "dist_to_earth": "2.516 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-27",
+    "dist_to_earth": "2.513 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-28",
+    "dist_to_earth": "2.510 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-29",
+    "dist_to_earth": "2.506 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-09-30",
+    "dist_to_earth": "2.503 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-01",
+    "dist_to_earth": "2.500 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-02",
+    "dist_to_earth": "2.496 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
         {
             "date": "2025-10-03",
-            "dist_to_earth": "≈1.9 AU",
+            "dist_to_earth": "2.492 AU",
             "event_title": "Closest to Mars (~0.19 AU)",
             "event_description": "3I/ATLAS makes its closest pass to Mars, providing excellent observational geometry. :contentReference[oaicite:7]{index=7}",
             "event_url": "https://apnews.com/article/b9df6568efee22c02b722a87377d30db",
             "event_img": "",
             "event_emoji": "👀"
         },
+
+{
+    "date": "2025-10-04",
+    "dist_to_earth": "2.488 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-05",
+    "dist_to_earth": "2.484 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-06",
+    "dist_to_earth": "2.479 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-07",
+    "dist_to_earth": "2.475 AU",
+    "event_title": "Reaches Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
+	{
+    	"date": "2025-10-08",
+    	"dist_to_earth": "2.470 AU",
+    	"event_title": "Closest to Mercury",
+    	"event_description": "Comet continues accelerating into inner system",
+    	"event_url": "",
+    	"event_img": "https://earthcal.app/assests/icons/comet.png",
+    	"event_emoji": "🪐"
+	},
+
+{
+    "date": "2025-10-09",
+    "dist_to_earth": "2.465 AU",
+    "event_title": "Reaches Mars' orbit",
+    "event_description": "3I-Atlas entering inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-10",
+    "dist_to_earth": "2.460 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I-Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-11",
+    "dist_to_earth": "2.454 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I-Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-12",
+    "dist_to_earth": "2.448 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-13",
+    "dist_to_earth": "2.442 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-14",
+    "dist_to_earth": "2.436 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-15",
+    "dist_to_earth": "2.430 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-16",
+    "dist_to_earth": "2.423 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-17",
+    "dist_to_earth": "2.416 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-18",
+    "dist_to_earth": "2.409 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-19",
+    "dist_to_earth": "2.401 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-20",
+    "dist_to_earth": "2.393 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-21",
+    "dist_to_earth": "2.385 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-22",
+    "dist_to_earth": "2.377 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-23",
+    "dist_to_earth": "2.368 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-24",
+    "dist_to_earth": "2.360 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-25",
+    "dist_to_earth": "2.351 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-26",
+    "dist_to_earth": "2.341 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-27",
+    "dist_to_earth": "2.332 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-28",
+    "dist_to_earth": "2.322 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
         {
             "date": "2025-10-29",
-            "dist_to_earth": "≈1.4 AU",
+            "dist_to_earth": "2.312 AU",
             "event_title": "Perihelion (~1.36–1.40 AU)",
             "event_description": "Comet reaches its closest approach to the Sun; inner solar system max activity. :contentReference[oaicite:8]{index=8}",
             "event_url": "https://www.space.com/astronomy/comets/you-wont-see-interstellar-comet-3i-atlas-zoom-closest-to-the-sun-on-oct-30-but-these-spacecraft-will",
             "event_img": "",
             "event_emoji": "☀️"
         },
+
+{
+    "date": "2025-10-30",
+    "dist_to_earth": "2.301 AU",
+    "event_title": "Passing beside Earth's orbit",
+    "event_description": "3I/Atlas entered inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-10-31",
+    "dist_to_earth": "2.291 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-01",
+    "dist_to_earth": "2.280 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-02",
+    "dist_to_earth": "2.269 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+
+	{
+    	"date": "2025-11-03",
+    	"dist_to_earth": "2.258 AU",
+    	"event_title": "Closest to Venus",
+    	"event_description": "Increasing heliocentric velocity and dust release",
+    	"event_url": "",
+    	"event_img": "https://earthcal.app/assests/icons/comet.png",
+    	"event_emoji": "🪐"
+	},
+
+{
+    "date": "2025-11-04",
+    "dist_to_earth": "2.246 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-05",
+    "dist_to_earth": "2.235 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-06",
+    "dist_to_earth": "2.223 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-07",
+    "dist_to_earth": "2.211 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-08",
+    "dist_to_earth": "2.199 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-09",
+    "dist_to_earth": "2.187 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-10",
+    "dist_to_earth": "2.174 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-11",
+    "dist_to_earth": "2.162 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-12",
+    "dist_to_earth": "2.149 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-13",
+    "dist_to_earth": "2.136 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-14",
+    "dist_to_earth": "2.123 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-15",
+    "dist_to_earth": "2.110 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-16",
+    "dist_to_earth": "2.097 AU",
+    "event_title": "Getting further away from Earth's orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-17",
+    "dist_to_earth": "2.085 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-18",
+    "dist_to_earth": "2.072 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-19",
+    "dist_to_earth": "2.059 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-20",
+    "dist_to_earth": "2.046 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-21",
+    "dist_to_earth": "2.033 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-22",
+    "dist_to_earth": "2.020 AU",
+    "event_title": "Approaching Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-23",
+    "dist_to_earth": "2.007 AU",
+    "event_title": "Reaches Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-24",
+    "dist_to_earth": "1.995 AU",
+    "event_title": "Reaches Mars' orbit",
+    "event_description": "3I/Atlas is about to leave the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🪐"
+},
+{
+    "date": "2025-11-25",
+    "dist_to_earth": "1.982 AU",
+    "event_title": "Passing through Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌀"
+},
+{
+    "date": "2025-11-26",
+    "dist_to_earth": "1.970 AU",
+    "event_title": "Passing through Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌀"
+},
+{
+    "date": "2025-11-27",
+    "dist_to_earth": "1.958 AU",
+    "event_title": "Passing through Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌀"
+},
+{
+    "date": "2025-11-28",
+    "dist_to_earth": "1.946 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+	{
+    	"date": "2025-11-29",
+    	"dist_to_earth": "1.934 AU",
+    	"event_title": "Leaves inner solar system",
+    	"event_description": "3I/ATLAS is outside of Mars' orbit",
+    	"event_url": "",
+    	"event_img": "https://earthcal.app/assests/icons/comet.png",
+    	"event_emoji": "✨"
+	},
+{
+    "date": "2025-11-30",
+    "dist_to_earth": "1.923 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-01",
+    "dist_to_earth": "1.912 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-02",
+    "dist_to_earth": "1.901 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-03",
+    "dist_to_earth": "1.891 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-04",
+    "dist_to_earth": "1.881 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-05",
+    "dist_to_earth": "1.871 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-06",
+    "dist_to_earth": "1.862 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-07",
+    "dist_to_earth": "1.854 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-08",
+    "dist_to_earth": "1.846 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-09",
+    "dist_to_earth": "1.838 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-10",
+    "dist_to_earth": "1.831 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-11",
+    "dist_to_earth": "1.824 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-12",
+    "dist_to_earth": "1.819 AU",
+    "event_title": "Leaving Mars' orbit",
+    "event_description": "3I/Atlas leaving the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🔴"
+},
+{
+    "date": "2025-12-13",
+    "dist_to_earth": "1.814 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+},
+{
+    "date": "2025-12-14",
+    "dist_to_earth": "1.809 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+},
+{
+    "date": "2025-12-15",
+    "dist_to_earth": "1.805 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+},
+{
+    "date": "2025-12-16",
+    "dist_to_earth": "1.802 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+},
+{
+    "date": "2025-12-17",
+    "dist_to_earth": "1.800 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+},
+  {
+    "date": "2025-12-18",
+    "dist_to_earth": "1.799 AU",
+    "event_title": "Approaching closest point to Earth",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "🌎"
+  },
+
         {
             "date": "2025-12-19",
-            "dist_to_earth": "≈1.8 AU",
-            "event_title": "Closest to Earth (~1.8 AU)",
+            "dist_to_earth": "1.798 AU",
+            "event_title": "Closest to Earth",
             "event_description": "Safest/closest approach to Earth; large-aperture instruments are active. :contentReference[oaicite:9]{index=9}",
             "event_url": "https://science.nasa.gov/solar-system/comets/3i-atlas/",
             "event_img": "",
             "event_emoji": "🌍"
         },
+
+{
+    "date": "2025-12-20",
+    "dist_to_earth": "1.798 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-21",
+    "dist_to_earth": "1.799 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-22",
+    "dist_to_earth": "1.801 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-23",
+    "dist_to_earth": "1.804 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-24",
+    "dist_to_earth": "1.808 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-25",
+    "dist_to_earth": "1.813 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-26",
+    "dist_to_earth": "1.819 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-27",
+    "dist_to_earth": "1.825 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+
         {
             "date": "2025-12-28",
-            "dist_to_earth": "≈1.0 AU (estimated outbound)",
+            "dist_to_earth": "1.833 AU (estimated outbound)",
             "event_title": "Earth Orbit Crossing (Outbound)",
             "event_description": "Estimated outward crossing of Earth’s ~1 AU orbital distance as the comet leaves the inner solar system.",
             "event_url": "",
             "event_img": "",
             "event_emoji": "🌏"
-        }
-    ]
+        },
 
-
-
+{
+    "date": "2025-12-29",
+    "dist_to_earth": "1.842 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-30",
+    "dist_to_earth": "1.852 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+},
+{
+    "date": "2025-12-31",
+    "dist_to_earth": "1.862 AU",
+    "event_title": "Approaching asteroid belt",
+    "event_description": "3I/Atlas getting further away from the inner solar system",
+    "event_url": "",
+    "event_img": "https://earthcal.app/assests/icons/comet.png",
+    "event_emoji": "☄️"
+}
 
 ]
+
+
+
+
+
