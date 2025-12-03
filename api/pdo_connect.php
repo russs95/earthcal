@@ -21,33 +21,75 @@ if (!function_exists('earthcal_get_pdo')) {
             return $cached;
         }
 
+        $resolveClientTimezone = function (): string {
+            $candidates = [];
+
+            if (isset($_SERVER['HTTP_X_USER_TIMEZONE'])) {
+                $candidates[] = trim((string)$_SERVER['HTTP_X_USER_TIMEZONE']);
+            }
+
+            if (isset($_COOKIE['user_timezone'])) {
+                $candidates[] = trim((string)$_COOKIE['user_timezone']);
+            }
+
+            if (isset($_SESSION['user_timezone'])) {
+                $candidates[] = trim((string)$_SESSION['user_timezone']);
+            }
+
+            if (isset($_REQUEST['time_zone'])) {
+                $candidates[] = trim((string)$_REQUEST['time_zone']);
+            }
+
+            $candidates[] = date_default_timezone_get() ?: 'UTC';
+
+            foreach ($candidates as $tz) {
+                if ($tz === '') {
+                    continue;
+                }
+
+                try {
+                    new DateTimeZone($tz);
+                    return $tz;
+                } catch (Exception $e) {
+                    continue;
+                }
+            }
+
+            return 'UTC';
+        };
+
         if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
             $cached = $GLOBALS['pdo'];
-            return $cached;
+        } else {
+            $host = $GLOBALS['cal_servername'] ?? $GLOBALS['host'] ?? null;
+            $port = $GLOBALS['cal_port'] ?? $GLOBALS['port'] ?? null;
+            $db   = $GLOBALS['cal_dbname'] ?? $GLOBALS['db'] ?? null;
+            $user = $GLOBALS['cal_username'] ?? $GLOBALS['user'] ?? null;
+            $pass = $GLOBALS['cal_password'] ?? $GLOBALS['pass'] ?? null;
+
+            if ($db === null || $user === null || $pass === null) {
+                throw new RuntimeException('Database credentials missing in calconn_env.php');
+            }
+
+            $host = $host ?: '127.0.0.1';
+            $port = $port ?: 3306;
+            $dsn  = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
+
+            $cached = new PDO($dsn, (string)$user, (string)$pass, [
+                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                 PDO::ATTR_EMULATE_PREPARES   => true,
+                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
+             ]);
         }
 
-        $host = $GLOBALS['cal_servername'] ?? $GLOBALS['host'] ?? null;
-        $port = $GLOBALS['cal_port'] ?? $GLOBALS['port'] ?? null;
-        $db   = $GLOBALS['cal_dbname'] ?? $GLOBALS['db'] ?? null;
-        $user = $GLOBALS['cal_username'] ?? $GLOBALS['user'] ?? null;
-        $pass = $GLOBALS['cal_password'] ?? $GLOBALS['pass'] ?? null;
+        $clientTz = $resolveClientTimezone();
 
-        if ($db === null || $user === null || $pass === null) {
-            throw new RuntimeException('Database credentials missing in calconn_env.php');
+        try {
+            $cached->exec('SET time_zone = ' . $cached->quote($clientTz));
+        } catch (Exception $e) {
+            error_log('Unable to set SQL session time zone to ' . $clientTz . ': ' . $e->getMessage());
         }
-
-        $host = $host ?: '127.0.0.1';
-        $port = $port ?: 3306;
-        $dsn  = "mysql:host={$host};port={$port};dbname={$db};charset=utf8mb4";
-
-        $cached = new PDO($dsn, (string)$user, (string)$pass, [
-             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-             PDO::ATTR_EMULATE_PREPARES   => true,
-             PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
-         ]);
-
-        $cached->exec("SET time_zone = '+00:00'");
 
         error_log('EarthCal PDO created at: ' . (__FILE__) . ' emulate_prepares=' .
                   var_export($cached->getAttribute(PDO::ATTR_EMULATE_PREPARES), true));

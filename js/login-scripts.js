@@ -449,7 +449,13 @@ const OFFLINE_MODE_STORAGE_KEY = 'earthcal_offline_mode';
 
 function getSavedOfflineMode() {
     const saved = localStorage.getItem(OFFLINE_MODE_STORAGE_KEY);
-    return saved === 'simple' ? 'simple' : 'offline';
+    if (saved === 'simple') {
+        return 'simple';
+    }
+
+    // Default persistently to offline so cached data is retained between sessions
+    localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, 'offline');
+    return 'offline';
 }
 
 function setOfflineModeChoice(mode) {
