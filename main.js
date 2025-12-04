@@ -43,15 +43,7 @@ function createWindow() {
         { label: 'Minimal Mode', click: () => toggleMinimalFloater() },
       ],
     },
-    {
-      label: 'Events',
-      submenu: [
-        { label: 'Import Datecycle', click: () => importMenuDatecycles() },
-        { label: 'Export Datecycles', click: () => exportMenuDatecycles() },
-        { type: 'separator' },
-        { label: 'Clear All Datecycles', click: () => deleteAllDatecycles() },
-      ],
-    },
+
     {
       label: 'Help',
       submenu: [
@@ -352,27 +344,4 @@ function importMenuDatecycles() {
   });
 }
 
-// 🔹 Function to Clear All Data (Browser Cache)
-function deleteAllDatecycles() {
-  dialog.showMessageBox({
-    type: 'warning',
-    title: 'Reset Earthcal',
-    message: 'This will reset Earthcal. Are you sure you want to clear ALL your cycles, events, and personal preferences?',
-    buttons: ['Cancel', 'OK'],
-    defaultId: 1,
-    cancelId: 0,
-  }).then((response) => {
-    if (response.response === 1) {  // User clicked OK
-      session.defaultSession.clearStorageData({
-        storages: ['appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers']
-      }).then(() => {
-        dialog.showMessageBox({
-          type: 'info',
-          title: 'Earthcal Reset',
-          message: 'All Earthcal data has been cleared.',
-          buttons: ['OK'],
-        });
-      });
-    }
-  });
-}
+
