@@ -620,46 +620,48 @@
                     <button type="button" class="top-add-button" onclick="openAddItem()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
                 </div>
             </div>
-            <div id="time-controller">
-                <div
-                    id="prev-year"
-                    class="previous-button"
-                    onclick="prevYear()"
-                    aria-label="Previous Year"
-                    title="Go to previous year"
-                ></div>
-                <div
-                    id="prev-day"
-                    class="previous-button"
-                    onclick="set2Yesterday()"
-                    aria-label="Yesterday"
-                    title="Go back one day"
-                ></div>
-                <div
-                    id="reset-to-today"
-                    class="today-button"
-                    onclick="set2Today()"
-                    aria-label="Today"
-                    title="Today"
-                ></div>
-                <div
-                    id="next-day"
-                    class="next-button"
-                    onclick="set2Tomorrow()"
-                    aria-label="Next Day"
-                    title="Go to next day"
-                ></div>
-                <div
-                    id="next-year"
-                    class="next-button"
-                    onclick="nextYear()"
-                    aria-label="Next Year"
-                    title="Go to next year"
-                ></div>
-                <div>
+            <div class="time-controls-row">
+                <div class="event-toggle-wrapper">
                     <button type="button" id="event-show-hide" class="eye-open" onclick="toggleDateCycleView()" aria-label="Show/Hide events" style="width: 45px;
   margin: 6px 5px 0px 0px;">
                     </button>
+                </div>
+                <div id="time-controller">
+                    <div
+                        id="prev-year"
+                        class="previous-button"
+                        onclick="prevYear()"
+                        aria-label="Previous Year"
+                        title="Go to previous year"
+                    ></div>
+                    <div
+                        id="prev-day"
+                        class="previous-button"
+                        onclick="set2Yesterday()"
+                        aria-label="Yesterday"
+                        title="Go back one day"
+                    ></div>
+                    <div
+                        id="reset-to-today"
+                        class="today-button"
+                        onclick="set2Today()"
+                        aria-label="Today"
+                        title="Today"
+                    ></div>
+                    <div
+                        id="next-day"
+                        class="next-button"
+                        onclick="set2Tomorrow()"
+                        aria-label="Next Day"
+                        title="Go to next day"
+                    ></div>
+                    <div
+                        id="next-year"
+                        class="next-button"
+                        onclick="nextYear()"
+                        aria-label="Next Year"
+                        title="Go to next year"
+                    ></div>
                 </div>
             </div>
 
