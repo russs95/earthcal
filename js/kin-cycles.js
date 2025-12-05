@@ -726,6 +726,99 @@ function animateWhaleCycle(date) {
 }
 
 
+const loadCometTrajectoryData = (() => {
+  let cachedData = null;
+  let inFlight = null;
+
+  return function fetchCometData() {
+    if (cachedData) {
+      return Promise.resolve(cachedData);
+    }
+
+    if (inFlight) {
+      return inFlight;
+    }
+
+    inFlight = fetch('/cycles/3I-ATLAS.json')
+      .then(response => response.json())
+      .then(data => {
+        cachedData = Array.isArray(data) ? data : [];
+        return cachedData;
+      })
+      .catch(error => {
+        console.error('❌ Failed to load comet trajectory data:', error);
+        return [];
+      })
+      .finally(() => {
+        inFlight = null;
+      });
+
+    return inFlight;
+  };
+})();
+
+function renderCometTrajectoryInfo(resolvedDate) {
+  const infoContainer = document.getElementById('comet-3i-trajectory');
+
+  if (!infoContainer) {
+    return;
+  }
+
+  loadCometTrajectoryData().then(data => {
+    const targetKey = resolvedDate instanceof Date
+      ? resolvedDate.toISOString().slice(0, 10)
+      : null;
+
+    const matchedEntry = targetKey
+      ? data.find(entry => entry && entry.date === targetKey)
+      : null;
+
+    if (!matchedEntry) {
+      infoContainer.innerHTML = '';
+      return;
+    }
+
+    const {
+      event_img: eventImg,
+      event_emoji: eventEmoji,
+      event_title: eventTitle,
+      event_description: eventDescription,
+      dist_to_earth: distToEarth,
+      event_url: eventUrl
+    } = matchedEntry;
+
+    const hasEventImg = typeof eventImg === 'string' && eventImg.trim() !== '';
+    const hasEventUrl = typeof eventUrl === 'string' && eventUrl.trim() !== '';
+
+    const contentParts = [];
+
+    if (hasEventImg) {
+      contentParts.push(
+        `<div class="comet-3i-image"><img src="${eventImg}" alt="${eventTitle || 'Comet 3I-Atlas event'}" style="max-height:144px;"></div>`
+      );
+    }
+
+    contentParts.push(
+      `<div><b>${eventEmoji ? `${eventEmoji} ` : ''}${eventTitle || ''}</b></div>`
+    );
+
+    if (eventDescription) {
+      contentParts.push(`<div>${eventDescription}</div>`);
+    }
+
+    if (distToEarth) {
+      contentParts.push(`<div>Distance to Earth: ${distToEarth}</div>`);
+    }
+
+    if (hasEventUrl) {
+      contentParts.push(`<div><a href="${eventUrl}" target="_blank">Learn more </a></div>`);
+    }
+
+    infoContainer.innerHTML = contentParts.join('');
+    infoContainer.style.display = 'block';
+  });
+}
+
 function animateCometTrajectory(date, options = {}) {
   const cometElement = document.getElementById("comet-start");
   const cometPathElement = document.getElementById("comet-orbit");
@@ -750,6 +843,8 @@ function animateCometTrajectory(date, options = {}) {
     console.warn("⚠️ animateCometTrajectory skipped: invalid date provided.");
     return;
   }
+
+  renderCometTrajectoryInfo(resolvedDate);
 
   const journeyStart = new Date(2025, 0, 1);
   const journeyEnd = new Date(2025, 11, 25);
