@@ -3070,3 +3070,630 @@ async function getDefaultCalendarForUser(buwana_id) {
     return def ? { id: def.calendar_id, name: def.name } : { id: null, name: 'My Calendar' };
 }
 
+// ===== DateCycle highlighting and display (migrated from 1-event-management.js) =====
+
+function parseBooleanishFlag(value) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        if (!Number.isFinite(value)) {
+            return null;
+        }
+        return value !== 0;
+    }
+
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (!normalized) {
+            return null;
+        }
+
+        if ([
+            '1', 'true', 'yes', 'y', 'on', 'active', 'enabled'
+        ].includes(normalized)) {
+            return true;
+        }
+
+        if ([
+            '0', 'false', 'no', 'n', 'off', 'inactive', 'disabled'
+        ].includes(normalized)) {
+            return false;
+        }
+
+        return null;
+    }
+
+    return null;
+}
+
+function buildCalendarActivityMap() {
+    const map = new Map();
+
+    if (typeof sessionStorage === 'undefined') {
+        return map;
+    }
+
+    try {
+        const rawCache = sessionStorage.getItem('cal_activity_map');
+        if (!rawCache) {
+            return map;
+        }
+
+        const parsed = JSON.parse(rawCache);
+        const activityKeys = [
+            'is_active',
+            'isActive',
+            'active',
+            'enabled',
+            'display_enabled',
+            'displayEnabled'
+        ];
+
+        parsed?.forEach(entry => {
+            if (!entry || typeof entry !== 'object') {
+                return;
+            }
+
+            const idCandidates = [entry.cal_id, entry.calendar_id, entry.calendarId, entry.calId];
+
+            let calId = null;
+            for (const candidate of idCandidates) {
+                const numeric = Number(candidate);
+                if (Number.isFinite(numeric)) {
+                    calId = numeric;
+                    break;
+                }
+            }
+
+            if (calId === null) {
+                return;
+            }
+
+            for (const key of activityKeys) {
+                if (!(key in entry)) {
+                    continue;
+                }
+
+                const parsedFlag = parseBooleanishFlag(entry[key]);
+                if (parsedFlag !== null) {
+                    map.set(calId, parsedFlag);
+                    return;
+                }
+            }
+        });
+    } catch (err) {
+        console.warn('highlightDateCycles: unable to parse calendar activity cache:', err);
+    }
+
+    return map;
+}
+
+function isDateCycleVisible(entry, calendarActivityMap) {
+    if (!entry || typeof entry !== 'object') {
+        return false;
+    }
+
+    const visibilityKeys = [
+        'is_active',
+        'isActive',
+        'cal_active',
+        'calActive',
+        'display_enabled',
+        'displayEnabled',
+        'active',
+        'enabled',
+        'status'
+    ];
+
+    for (const key of visibilityKeys) {
+        if (!(key in entry)) {
+            continue;
+        }
+
+        const parsedFlag = parseBooleanishFlag(entry[key]);
+        if (parsedFlag === false) {
+            return false;
+        }
+        if (parsedFlag === true) {
+            return true;
+        }
+    }
+
+    const idCandidates = [
+        entry.cal_id,
+        entry.calendar_id,
+        entry.calendarId,
+        entry.calId
+    ];
+
+    for (const candidate of idCandidates) {
+        const numeric = Number(candidate);
+        if (!Number.isFinite(numeric)) {
+            continue;
+        }
+
+        if (calendarActivityMap.has(numeric)) {
+            return calendarActivityMap.get(numeric) !== false;
+        }
+    }
+
+    return true;
+}
+
+const DATE_CYCLE_NOTICE_DURATION = 10000;
+let dateCycleNoticeTimeoutId = null;
+
+function clearDateCycleNoticeHide() {
+    if (dateCycleNoticeTimeoutId !== null) {
+        clearTimeout(dateCycleNoticeTimeoutId);
+        dateCycleNoticeTimeoutId = null;
+    }
+}
+
+function hideDateCycleNotice() {
+    clearDateCycleNoticeHide();
+
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (!dateCycleCountBox) return;
+
+    dateCycleCountBox.classList.remove("show");
+}
+
+function scheduleDateCycleNoticeHide(delay = DATE_CYCLE_NOTICE_DURATION) {
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (!dateCycleCountBox) return;
+
+    clearDateCycleNoticeHide();
+
+    dateCycleNoticeTimeoutId = setTimeout(() => {
+        hideDateCycleNotice();
+    }, delay);
+}
+
+async function loadTranslationsWithFallback(langCode) {
+    if (typeof loadTranslations === "function") {
+        return await loadTranslations(langCode);
+    }
+    const translationVersion = '1.2';
+    try {
+        const module = await import(`../translations/${langCode}.js?v=${translationVersion}`);
+        return module.translations;
+    } catch (e) {
+        const fallback = await import(`../translations/en.js?v=${translationVersion}`);
+        return fallback.translations;
+    }
+}
+
+async function updateDateCycleCount(pinnedCount, currentCount) {
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    const currentDatecycleCount = document.getElementById("current-datecycle-count");
+    const eyeIcon = document.getElementById("eye-icon");
+
+    if (!currentDatecycleCount || !dateCycleCountBox || !eyeIcon) return;
+
+    const totalCount = pinnedCount + currentCount;
+
+    clearDateCycleNoticeHide();
+
+    if (totalCount === 0) {
+        hideDateCycleNotice();
+        currentDatecycleCount.textContent = "";
+        eyeIcon.classList.remove("eye-open");
+        eyeIcon.classList.add("eye-closed");
+        return;
+    }
+
+    eyeIcon.classList.add("eye-open");
+    eyeIcon.classList.remove("eye-closed");
+
+    const lang = (window.userLanguage || navigator.language || "en").slice(0, 2).toLowerCase();
+    const translations = await loadTranslationsWithFallback(lang);
+    const prefix = translations.todayYouveGot || "On this day you've got";
+    const eventWord = totalCount === 1
+        ? (translations.event || translations.events || "event")
+        : (translations.events || translations.event || "events");
+
+    const message = `${prefix} ${totalCount} ${eventWord}`;
+
+    currentDatecycleCount.textContent = message;
+    dateCycleCountBox.classList.add("show");
+    scheduleDateCycleNoticeHide();
+}
+
+function mapColor(colorName) {
+    const colorMap = {
+        blue: "var(--blue)",
+        yellow: "var(--yellow)",
+        green: "var(--green)",
+        red: "var(--red)",
+        orange: "var(--orange)"
+    };
+    return colorMap[colorName?.toLowerCase()] || colorName || "#000";
+}
+
+function writeMatchingDateCycles(divElement, dateCycle) {
+    window.dateCycleCount = (window.dateCycleCount || 0) + 1;
+
+    const eventName = dateCycle.title || "Untitled Event";
+    const bulletColor = mapColor(dateCycle.datecycle_color);
+    const calendarColor = mapColor(dateCycle.cal_color);
+
+    const eventNameStyle = Number(dateCycle.completed) === 1
+        ? "text-decoration: line-through; color: grey;"
+        : `color: ${bulletColor}`;
+
+    const isPublic = String(dateCycle.public) === "1";
+    const hideButtonsStyle = isPublic ? "display: none;" : "display: flex;";
+    const contentOnclick = isPublic ? "" : `onclick="editDateCycle('${dateCycle.unique_key}')"`;
+
+    const dateEmoji = dateCycle.date_emoji || '⬤';
+    const calendarEmoji = dateCycle.cal_emoji || '🗓️';
+
+    const commentText = typeof dateCycle.comments === 'string' ? dateCycle.comments : '';
+    const hasComments = commentText.trim() !== '';
+    const isCompleted = Number(dateCycle.completed) === 1;
+    const notesHtml = (!isCompleted && hasComments)
+        ? `<div class="current-date-notes" style="height: fit-content; max-width:300px;">${commentText}</div>`
+        : '';
+
+    divElement.innerHTML += `
+        <div class="date-info" data-key="${dateCycle.unique_key}" style="
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid grey;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            position: relative;
+            min-height: 75px;
+            direction: ltr;">
+
+            <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
+                ${isPublic ?
+        `<span title="This dateCycle is public and cannot be pinned" style="font-size: 1.2em;">${dateEmoji}</span>` :
+        `<button class="bullet-pin-button"
+                        role="button"
+                        aria-label="${dateCycle.pinned === '1' ? 'Unpin this dateCycle' : 'Pin this DateCycle'}"
+                        title="${dateCycle.pinned === '1' ? 'Unpin this!' : 'Pin this!'}"
+                        onclick="pinThisDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                        onmouseover="this.textContent = '${dateCycle.pinned === '1' ? '↗️' : '📌'}';"
+                        onmouseout="this.textContent = '${dateCycle.pinned === '1' ? '📌' : dateEmoji}';"
+                        style="font-size: 0.8em; margin: 0; border: none; background: none; cursor: pointer; color: ${bulletColor};">
+                        ${dateCycle.pinned === '1' ? '📌' : dateEmoji}
+                    </button>`
+    }
+            </div>
+
+            <div class="datecycle-content" ${contentOnclick} style="flex-grow: 1; cursor: pointer; margin-bottom: auto;">
+                <div class="current-date-info-title" style="${eventNameStyle}">
+                    ${eventName}
+                </div>
+                <div class="current-datecycle-data">
+                    <div class="current-date-calendar" style="color: ${calendarColor};">
+                        ${calendarEmoji} ${dateCycle.cal_name}
+                    </div>
+                </div>
+                ${notesHtml}
+            </div>
+
+            <div id="non-public-actions" style="${hideButtonsStyle}
+                position: absolute;
+                top: 10px;
+                right: 8px;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;">
+
+                <button class="delete-button-datecycle"
+                    role="button"
+                    aria-label="Delete this event"
+                    title="Delete this event"
+                    onclick="deleteDateCycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: 1.8em; cursor: pointer; background: none; border: none; font-weight: bold;">
+                    ×
+                </button>
+
+                <button class="forward-button-datecycle"
+                    role="button"
+                    aria-label="Push to today"
+                    title="Push to today"
+                    onclick="push2today('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none;">
+                    ➜
+                </button>
+                <button class="close-button-datecycle"
+                    role="button"
+                    aria-label="Toggle completion status"
+                    title="Toggle completion"
+                    onclick="checkOffDatecycle('${dateCycle.unique_key}'); event.stopPropagation();"
+                    style="font-size: larger; cursor: pointer; background: none; border: none; ${dateCycle.completed === '1' ? 'color: black;' : ''}">
+                    ✔
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function highlightDateCycles(targetDate) {
+    const targetDateObj = new Date(targetDate);
+    const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
+    const formattedTargetDateAnnual = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-`;
+
+    const eventToggleButton = document.getElementById('event-show-hide');
+
+    const elementsWithDateEvent = Array.from(document.querySelectorAll("div.date_event, path.date_event"));
+    elementsWithDateEvent.forEach(element => element.classList.remove("date_event"));
+
+    const previouslyDecoratedPaths = document.querySelectorAll('path[data-datecycle-tooltip], path[data-datecycle-title], path[data-datecycle-count], path[style*="--datecycle-highlight-color"]');
+    previouslyDecoratedPaths.forEach(path => {
+        path.removeAttribute('data-datecycle-tooltip');
+        path.removeAttribute('data-datecycle-count');
+        if (path.hasAttribute('data-datecycle-title')) {
+            path.removeAttribute('title');
+            path.removeAttribute('data-datecycle-title');
+        }
+        path.style.removeProperty('--datecycle-highlight-color');
+    });
+
+    const rawDateCycleEvents = await fetchDateCycleCalendars();
+
+    if (!Array.isArray(rawDateCycleEvents) || rawDateCycleEvents.length === 0) {
+        console.warn("⚠️ Highlighter: No dateCycles found in storage.");
+        await updateDateCycleCount(0, 0);
+        if (eventToggleButton) {
+            eventToggleButton.style.visibility = 'hidden';
+        }
+        return;
+    }
+
+    const calendarActivityMap = buildCalendarActivityMap();
+    const dateCycleEvents = rawDateCycleEvents.filter(dc => isDateCycleVisible(dc, calendarActivityMap));
+
+    if (dateCycleEvents.length === 0) {
+        console.info('ℹ️ Highlighter: All dateCycles are from inactive calendars.');
+        await updateDateCycleCount(0, 0);
+        if (eventToggleButton) {
+            eventToggleButton.style.visibility = 'hidden';
+        }
+        return;
+    }
+
+    let matchingPinned = [];
+    let matchingCurrent = [];
+    const now = new Date();
+
+    function wasEditedRecently(dateCycle) {
+        const lastEdited = new Date(dateCycle.last_edited);
+        return (now - lastEdited) < 60000;
+    }
+
+    dateCycleEvents.forEach(dateCycle => {
+        const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
+        const storedDateFormattedAnnual = `-${dateCycle.day}-${dateCycle.month}-`;
+
+        if (
+            storedDateFormatted === formattedTargetDate ||
+            (dateCycle.frequency && dateCycle.frequency.toLowerCase() === "annual" && storedDateFormattedAnnual === formattedTargetDateAnnual)
+        ) {
+            if (String(dateCycle.pinned) === "1") {
+                matchingPinned.push(dateCycle);
+            } else {
+                matchingCurrent.push(dateCycle);
+            }
+        }
+    });
+
+    const totalMatching = matchingPinned.length + matchingCurrent.length;
+    if (eventToggleButton) {
+        eventToggleButton.style.visibility = totalMatching > 0 ? 'visible' : 'hidden';
+    }
+
+    const pinnedDiv = document.getElementById('pinned-datecycles');
+    const currentDiv = document.getElementById('current-datecycles');
+
+    [pinnedDiv, currentDiv].forEach(div => {
+        if (!div) {
+            return;
+        }
+        div.innerHTML = "";
+        div.style.display = 'none';
+    });
+
+    matchingPinned.forEach(dc => {
+        if (pinnedDiv) {
+            writeMatchingDateCycles(pinnedDiv, dc);
+            if (wasEditedRecently(dc)) {
+                const elem = pinnedDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
+                if (elem) {
+                    elem.classList.add("slide-in-left");
+                    setTimeout(() => {
+                        elem.classList.remove("slide-in-left");
+                    }, 500);
+                }
+            }
+        }
+    });
+
+    matchingCurrent.forEach(dc => {
+        if (currentDiv) {
+            writeMatchingDateCycles(currentDiv, dc);
+            if (wasEditedRecently(dc)) {
+                const elem = currentDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
+                if (elem) {
+                    elem.classList.add("slide-in-left");
+                    setTimeout(() => {
+                        elem.classList.remove("slide-in-left");
+                    }, 500);
+                }
+            }
+        }
+    });
+
+    await updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
+
+    const pathEventMap = new Map();
+
+    dateCycleEvents.forEach(dc => {
+        const formatted = `-${dc.day}-${dc.month}-${dc.year}`;
+        const formattedAnnual = `-${dc.day}-${dc.month}-`;
+
+        let matchingPaths;
+
+        if (dc.frequency && dc.frequency.toLowerCase() === "annual") {
+            matchingPaths = document.querySelectorAll(`path[id*="${formattedAnnual}"]`);
+        } else {
+            matchingPaths = document.querySelectorAll(`path[id*="${formatted}"]`);
+        }
+
+        matchingPaths.forEach(path => {
+            if (!path.id.endsWith("-day-marker")) {
+                return;
+            }
+
+            path.classList.add("date_event");
+
+            const entry = pathEventMap.get(path) || [];
+            const isPinned = String(dc.pinned) === "1";
+            const emoji = dc.date_emoji || (isPinned ? "📌" : "⬤");
+            const sanitizedTime = (dc.time && dc.time !== 'under dev' && dc.time !== '00:00') ? dc.time : null;
+            const allDay = Number(dc.all_day) === 1 || (!sanitizedTime && !dc.dtstart_utc);
+
+            entry.push({
+                emoji,
+                title: dc.title || "Untitled Event",
+                calendar: dc.cal_name || "",
+                time: sanitizedTime,
+                allDay,
+                color: dc.datecycle_color || dc.cal_color || '#3b82f6',
+                pinned: isPinned
+            });
+
+            pathEventMap.set(path, entry);
+        });
+    });
+
+    pathEventMap.forEach((events, path) => {
+        if (!Array.isArray(events) || events.length === 0) {
+            return;
+        }
+
+        const tooltipLines = events.map(event => {
+            const pinPrefix = event.pinned ? '📌 ' : '';
+            const timeLabel = event.allDay ? window.translations?.allDay || 'All Day' : (event.time && event.time !== '00:00' ? ` @ ${event.time}` : '');
+            const calendarLabel = event.calendar ? ` • ${event.calendar}` : '';
+            return `${pinPrefix}${event.emoji} ${event.title}${timeLabel}${calendarLabel}`.trim();
+        });
+
+        const tooltip = tooltipLines.join('\n');
+        if (tooltip) {
+            path.setAttribute('data-datecycle-tooltip', tooltip);
+            path.setAttribute('data-datecycle-count', String(events.length));
+            path.setAttribute('data-datecycle-title', '1');
+            path.setAttribute('title', tooltip);
+        }
+
+        const highlightColor = events.find(ev => ev.color)?.color;
+        if (highlightColor) {
+            path.style.setProperty('--datecycle-highlight-color', highlightColor);
+        }
+    });
+}
+
+function toggleDateCycleView() {
+    const allPinnedDateCyclesDiv = document.getElementById("all-pinned-datecycles");
+    const allCurrentDateCyclesDiv = document.getElementById("all-current-datecycles");
+    const eyeIcon = document.getElementById("eye-icon");
+    const eventToggleButton = document.getElementById("event-show-hide");
+
+    if (!allPinnedDateCyclesDiv || !allCurrentDateCyclesDiv || !eyeIcon) return;
+
+    const isVisible = window.getComputedStyle(allCurrentDateCyclesDiv).display !== "none";
+
+    if (isVisible) {
+        allCurrentDateCyclesDiv.style.display = "none";
+        allPinnedDateCyclesDiv.style.display = "none";
+        eyeIcon.classList.remove("eye-open");
+        eyeIcon.classList.add("eye-closed");
+        if (eventToggleButton) {
+            eventToggleButton.classList.remove("eye-open");
+            eventToggleButton.classList.add("eye-closed");
+        }
+    } else {
+        allCurrentDateCyclesDiv.style.display = "block";
+        allPinnedDateCyclesDiv.style.display = "block";
+        eyeIcon.classList.remove("eye-closed");
+        eyeIcon.classList.add("eye-open");
+        if (eventToggleButton) {
+            eventToggleButton.classList.remove("eye-closed");
+            eventToggleButton.classList.add("eye-open");
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const eyeIcon = document.getElementById("eye-icon");
+    if (eyeIcon) {
+        eyeIcon.addEventListener("click", toggleDateCycleView);
+    }
+
+    const dateCycleCountBox = document.getElementById("date-cycle-count-box");
+    if (dateCycleCountBox) {
+        const pauseNotice = () => clearDateCycleNoticeHide();
+        const resumeNotice = () => {
+            if (dateCycleCountBox.classList.contains("show")) {
+                scheduleDateCycleNoticeHide();
+            }
+        };
+
+        dateCycleCountBox.addEventListener("mouseenter", pauseNotice);
+        dateCycleCountBox.addEventListener("focusin", pauseNotice);
+        dateCycleCountBox.addEventListener("mouseleave", resumeNotice);
+        dateCycleCountBox.addEventListener("focusout", resumeNotice);
+
+        const closeNoticeButton = document.getElementById("close-datecycle-notice");
+        if (closeNoticeButton) {
+            closeNoticeButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                hideDateCycleNotice();
+                closeNoticeButton.blur();
+            });
+        }
+    }
+});
+
+function sanitizeComments(commentFlag, comments) {
+    if (commentFlag != 1) return "";
+    if (comments === undefined || comments === null) return "";
+    const text = String(comments).trim();
+    if (!text || text === "0" || text.toLowerCase() === "null") return "";
+    return text;
+}
+
+function fetchDateCycleCalendars() {
+    const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith("calendar_"));
+    const allDateCycles = [];
+
+    for (const key of calendarKeys) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) continue;
+
+            const parsed = JSON.parse(raw);
+            const list = Array.isArray(parsed)
+                ? parsed
+                : Array.isArray(parsed.datecycles)
+                    ? parsed.datecycles
+                    : [];
+
+            const valid = list.filter(dc => String(dc?.delete_it ?? '0') !== '1');
+            allDateCycles.push(...valid);
+        } catch (err) {
+            console.warn(`❌ Error parsing ${key}:`, err);
+        }
+    }
+
+    return allDateCycles;
+}
+

@@ -1,3 +1,4 @@
+// Legacy: these helpers have moved to js/item-management.js. dash.html no longer loads this file.
 //  OPENING THE ADD DATECYCLE FORM
 
 async function openAddCycle() {
