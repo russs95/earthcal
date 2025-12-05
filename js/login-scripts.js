@@ -619,6 +619,21 @@ function getOfflineUserData({ useCachedData = true } = {}) {
             || {};
         const hasCachedProfile = Object.keys(cachedProfile).length > 0;
 
+        const cachedBuwanaId = Number(cachedProfile.buwana_id || cachedProfile.sub);
+        if (cachedBuwanaId && window.syncStore?.initSyncStore && window.syncStore?.loadInitialState) {
+            (async () => {
+                try {
+                    await window.syncStore.initSyncStore({ buwana_id: cachedBuwanaId });
+                    await window.syncStore.loadInitialState();
+                    if (window.syncStore.getStatus) {
+                        updateOfflineSyncIndicator(window.syncStore.getStatus());
+                    }
+                } catch (err) {
+                    console.warn('[offline] Unable to warm sync-store cache for offline mode', err);
+                }
+            })();
+        }
+
         if (hasCachedProfile) {
             persistOfflineProfile(cachedProfile);
 
