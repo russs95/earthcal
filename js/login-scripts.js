@@ -379,6 +379,36 @@ function updateSessionStatus(message, isLoggedIn = false) {
     if (regUpButton) regUpButton.classList.toggle('active', isLoggedIn);
 }
 
+let syncIndicatorUnsubscribe = null;
+
+function updateOfflineSyncIndicator(status = {}) {
+    const indicator = document.getElementById('offline-sync-indicator');
+    if (!indicator) return;
+    const pending = Number(status.pending || 0);
+    const isOnline = Boolean(status.online && status.backendReachable);
+
+    if (pending > 0) {
+        indicator.textContent = `There are ${pending} offline changes waiting to be synced`;
+    } else if (!isOnline) {
+        indicator.textContent = 'Offline mode: using cached data';
+    } else {
+        indicator.textContent = 'You are online and synced';
+    }
+}
+
+function attachOfflineIndicatorListener() {
+    if (!window.syncStore?.onOnlineStatusChange) {
+        updateOfflineSyncIndicator({ online: navigator.onLine, pending: 0, backendReachable: navigator.onLine });
+        return;
+    }
+    if (!syncIndicatorUnsubscribe) {
+        syncIndicatorUnsubscribe = window.syncStore.onOnlineStatusChange(updateOfflineSyncIndicator);
+    }
+    if (window.syncStore.getStatus) {
+        updateOfflineSyncIndicator(window.syncStore.getStatus());
+    }
+}
+
 // Promise helper to wait for an element to appear
 function waitForElement(selector, timeout = 5000) {
     return new Promise((resolve, reject) => {
@@ -419,6 +449,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
         console.warn(e.message);
     }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateOfflineSyncIndicator({ online: navigator.onLine, backendReachable: navigator.onLine, pending: 0 });
 });
 
 
@@ -1573,6 +1607,8 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
         console.warn("❌ Cannot show logged-in view — user not authenticated.");
         return;
     }
+
+    attachOfflineIndicatorListener();
 
     const isContainerExpanded = registrationContainer?.classList.contains('expanded');
     const shouldShowPanel = autoExpand || isContainerExpanded;

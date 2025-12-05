@@ -31,6 +31,17 @@ Options to add to-do title, color, emoji and description
 
 
 async function openAddItem() {
+    async function initSyncStoreForUser(user) {
+        if (!user?.buwana_id || !window.syncStore?.initSyncStore) return false;
+        try {
+            await window.syncStore.initSyncStore({ buwana_id: user.buwana_id });
+            return true;
+        } catch (err) {
+            console.warn('[openAddItem] sync-store init failed', err);
+            return false;
+        }
+    }
+
     // ============================================================
     // 0. ENSURE USER IS LOGGED IN
     // ------------------------------------------------------------
@@ -312,19 +323,27 @@ async function openAddItem() {
         saveBtn.textContent = 'Saving…';
 
         try {
-            const res = await fetch('/api/v1/add_item.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify(payload)
-            });
+            const usedSyncStore = await initSyncStoreForUser(user);
+            if (usedSyncStore) {
+                const result = await window.syncStore.createOrUpdateItem(payload);
+                if (result?.queued) {
+                    console.info('[openAddItem] item queued for background sync');
+                }
+            } else {
+                const res = await fetch('/api/v1/add_item.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload)
+                });
 
-            const data = await res.json().catch(() => ({}));
+                const data = await res.json().catch(() => ({}));
 
-            if (!res.ok || !data?.ok) {
-                console.warn('[openAddItem] add_item error:', data);
-                alert(data?.error || 'Sorry, we could not save your item.');
-                return;
+                if (!res.ok || !data?.ok) {
+                    console.warn('[openAddItem] add_item error:', data);
+                    alert(data?.error || 'Sorry, we could not save your item.');
+                    return;
+                }
             }
 
             // Success UX — close modal, refresh cached data, then update highlights

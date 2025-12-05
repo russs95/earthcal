@@ -2791,6 +2791,13 @@ color: #b2b1b1;
     transform: translateY(-5px);
 }
 
+.offline-sync-indicator {
+    margin: 4px auto 0;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--subdued-text, #6b7280);
+}
+
 /* 4) When dragged, cancel smooth animation */
 #registration-container.grabbed {
     transition: none !important;
