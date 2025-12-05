@@ -764,6 +764,8 @@ function renderCometTrajectoryInfo(resolvedDate) {
     return;
   }
 
+  infoContainer.classList.add('comet-3i-info');
+
   loadCometTrajectoryData().then(data => {
     const targetKey = resolvedDate instanceof Date
       ? resolvedDate.toISOString().slice(0, 10)
@@ -790,31 +792,36 @@ function renderCometTrajectoryInfo(resolvedDate) {
     const hasEventImg = typeof eventImg === 'string' && eventImg.trim() !== '';
     const hasEventUrl = typeof eventUrl === 'string' && eventUrl.trim() !== '';
 
-    const contentParts = [];
+    const textParts = [];
 
-    if (hasEventImg) {
-      contentParts.push(
-        `<div class="comet-3i-image"><img src="${eventImg}" alt="${eventTitle || 'Comet 3I-Atlas event'}" style="max-height:144px;"></div>`
-      );
-    }
-
-    contentParts.push(
-      `<div><b>${eventEmoji ? `${eventEmoji} ` : ''}${eventTitle || ''}</b></div>`
+    textParts.push(
+      `<div class="comet-3i-title"><b>${eventEmoji ? `${eventEmoji} ` : ''}${eventTitle || ''}</b></div>`
     );
 
     if (eventDescription) {
-      contentParts.push(`<div>${eventDescription}</div>`);
+      textParts.push(`<div>${eventDescription}</div>`);
     }
 
     if (distToEarth) {
-      contentParts.push(`<div>Distance to Earth: ${distToEarth}</div>`);
+      textParts.push(`<div>Distance to Earth: ${distToEarth}</div>`);
     }
 
     if (hasEventUrl) {
-      contentParts.push(`<div><a href="${eventUrl}" target="_blank">Learn more </a></div>`);
+      textParts.push(`<div><a href="${eventUrl}" target="_blank">Learn more </a></div>`);
     }
 
-    infoContainer.innerHTML = contentParts.join('');
+    const imageMarkup = hasEventImg
+      ? `<div class="comet-3i-image"><img src="${eventImg}" alt="${eventTitle || 'Comet 3I-Atlas event'}"></div>`
+      : '';
+
+    const detailsMarkup = textParts.join('');
+
+    infoContainer.innerHTML = `
+      <div class="comet-3i-content">
+        ${imageMarkup}
+        <div class="comet-3i-text">${detailsMarkup}</div>
+      </div>
+    `;
     infoContainer.style.display = 'block';
   });
 }
