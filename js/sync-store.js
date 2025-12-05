@@ -329,7 +329,7 @@
             }
         }
         persistOutbox(remaining);
-        if (connectivityState.online) {
+        if (connectivityState.online && !remaining.length) {
             await loadInitialState();
         }
         return remaining;
