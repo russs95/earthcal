@@ -155,6 +155,31 @@ path[id*="week-"] {
     pointer-events: none;
 }
 
+.comet-3i-info {
+    font-family: 'Mulish', sans-serif;
+}
+
+.comet-3i-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.comet-3i-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    line-height: 1.4;
+}
+
+.comet-3i-title {
+    font-size: 1em;
+}
+
+.comet-3i-image img {
+    max-height: 40px;
+}
+
 
 .modal-hidden {
     display:none;}

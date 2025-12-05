@@ -2215,6 +2215,14 @@ const initializeCometSystem = () => {
             return false;
         }
 
+        if (typeof renderCometTrajectoryInfo === "function") {
+            try {
+                renderCometTrajectoryInfo(targetDate);
+            } catch (error) {
+                console.warn("⚠️ Unable to render comet info before toggling the system.", error);
+            }
+        }
+
         const isCometVisible = cometSystem.dataset.cometVisible === "true";
         if (!isCometVisible) {
             if (!cometAnimationInitialized) {
