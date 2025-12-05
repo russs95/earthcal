@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && typeof window.handleCometClick !== "functio
     }
 
     const message =
-      "Tracking the 3I ATLAS comet is available only for logged in Jedi accounts. Please sign in to access this feature.";
+      "Tracking the 3I ATLAS comet is available only for logged in accounts. Please sign in to access this feature.";
 
     if (typeof window.alert === "function") {
       window.alert(message);
@@ -1788,17 +1788,11 @@ const initializeCometSystem = () => {
         cometSystem.style.transition = "opacity 0.6s ease";
     }
 
-    let accessCheckTimeoutId = null;
     let hideTimeoutId = null;
     let nextCometAnimationOptions = null;
     let cometAnimationInitialized = false;
 
     const hideCometSystem = (options = {}) => {
-        if (accessCheckTimeoutId !== null) {
-            window.clearTimeout(accessCheckTimeoutId);
-            accessCheckTimeoutId = null;
-        }
-
         cometSystem.dataset.cometVisible = "false";
         cometSystem.style.opacity = "0";
 
@@ -2025,7 +2019,7 @@ const initializeCometSystem = () => {
 
     const promptLoginForCometAccess = () => {
         const message =
-            "Sorry, to use the comet functionality you must first login with your Jedi level Buwana account.";
+            "Sorry, to use the comet functionality you must first log in to your Buwana account.";
 
         showCometSystem();
 
@@ -2086,84 +2080,6 @@ const initializeCometSystem = () => {
         };
     };
 
-    const userHasJediPlanForComet = (accessSnapshot = null) => {
-        const snapshot = accessSnapshot || getCometAccessSnapshot();
-        return snapshot.plan === "jedi";
-    };
-
-    const openManageSubscriptionPanel = () => {
-        if (typeof manageEarthcalUserSub === "function") {
-            try {
-                manageEarthcalUserSub();
-                return true;
-            } catch (error) {
-                console.error(
-                    "Unable to open manage subscription panel for comet interactions.",
-                    error,
-                );
-            }
-        }
-
-        return openSubscriptionModal();
-    };
-
-    const promptJediPlanRequirement = () => {
-        window.alert(
-            "You need an EarthCal Jedi level plan to use the comet functionality. Upgrade to continue.",
-        );
-        openManageSubscriptionPanel();
-    };
-
-    const openSubscriptionModal = () => {
-        const modalContainer = document.getElementById("form-modal-message");
-        const modalAlreadyVisible =
-            modalContainer && modalContainer.classList.contains("modal-visible");
-
-        if (typeof manageEarthcalUserSub === "function") {
-            try {
-                manageEarthcalUserSub();
-                return true;
-            } catch (error) {
-                console.error(
-                    "Unable to open subscription modal after ensuring Jedi access.",
-                    error,
-                );
-            }
-        }
-
-        if (modalContainer && !modalAlreadyVisible) {
-            modalContainer.classList.remove("modal-hidden");
-            modalContainer.classList.add("modal-visible");
-            return true;
-        }
-
-        return false;
-    };
-
-    const verifyJediPlanAccess = () => {
-        if (typeof ensureJediPlanAccess !== "function") {
-            console.warn(
-                "⚠️ ensureJediPlanAccess is not available to validate the user's subscription.",
-            );
-            return;
-        }
-
-        let hasAccess = false;
-
-        try {
-            hasAccess = Boolean(ensureJediPlanAccess(() => {}));
-        } catch (error) {
-            console.error("Unable to verify Jedi plan access.", error);
-        }
-
-        if (hasAccess) {
-            return;
-        }
-
-        hideCometSystem();
-        openSubscriptionModal();
-    };
-
     const toggleCometSystem = () => {
         const isVisible = cometSystem.dataset.cometVisible === "true";
 
@@ -2173,15 +2089,6 @@ const initializeCometSystem = () => {
         }
 
         showCometSystem();
-
-        if (accessCheckTimeoutId !== null) {
-            window.clearTimeout(accessCheckTimeoutId);
-        }
-
-        accessCheckTimeoutId = window.setTimeout(() => {
-            accessCheckTimeoutId = null;
-            verifyJediPlanAccess();
-        }, 500);
 
         return false;
     };
@@ -2207,11 +2114,6 @@ const initializeCometSystem = () => {
 
         if (!userLoggedIn) {
             promptLoginForCometAccess();
-            return false;
-        }
-
-        if (!userHasJediPlanForComet(accessSnapshot)) {
-            promptJediPlanRequirement();
             return false;
         }
 
