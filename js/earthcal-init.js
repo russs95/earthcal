@@ -27,6 +27,7 @@ async function initCalendar() {
 
     const scripts = [
         "js/suncalc.min.js",
+        "js/sync-store.js?v=1",
         "js/astronomy.browser.js",
         "js/core-javascripts.js?v=23.5",
         "js/1-gcal-javascripts.js?v=3.2",

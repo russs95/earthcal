@@ -29,6 +29,19 @@ async function openAddCycle() {
 
 const EARTHCAL_V1_API_BASE = '../api/v1';
 
+async function ensureSyncStoreReady(buwanaId) {
+    if (!buwanaId || !window.syncStore || typeof window.syncStore.initSyncStore !== 'function') {
+        return false;
+    }
+    try {
+        await window.syncStore.initSyncStore({ buwana_id: Number(buwanaId) });
+        return true;
+    } catch (err) {
+        console.warn('[sync-store] init failed in event-management', err);
+        return false;
+    }
+}
+
 function getActiveUserContext() {
     if (typeof isLoggedIn === 'function') {
         try {
@@ -302,6 +315,14 @@ async function persistDateCycle(dateCycle, overrides = {}) {
             delete payload[key];
         }
     });
+
+    if (await ensureSyncStoreReady(buwana_id)) {
+        const result = await window.syncStore.createOrUpdateItem(payload);
+        if (result?.queued) {
+            console.info('[persistDateCycle] change queued for sync');
+        }
+        return result;
+    }
 
     return await callV1Api('update_item.php', payload);
 }
@@ -1524,10 +1545,15 @@ async function deleteDateCycle(uniqueKey) {
     }
 
     try {
-        await callV1Api('delete_item.php', {
-            buwana_id,
-            item_id: Number(record.dateCycle.item_id)
-        });
+        const usedSyncStore = await ensureSyncStoreReady(buwana_id);
+        if (usedSyncStore) {
+            await window.syncStore.deleteItem(Number(record.dateCycle.item_id), record.dateCycle.cal_id);
+        } else {
+            await callV1Api('delete_item.php', {
+                buwana_id,
+                item_id: Number(record.dateCycle.item_id)
+            });
+        }
         await syncDatecycles();
         highlightDateCycles(targetDate);
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
@@ -1906,7 +1932,12 @@ async function addDatecycle() {
     };
 
     try {
-        await callV1Api('add_item.php', payload);
+        const usedSyncStore = await ensureSyncStoreReady(resolvedBuwanaId);
+        if (usedSyncStore) {
+            await window.syncStore.createOrUpdateItem(payload);
+        } else {
+            await callV1Api('add_item.php', payload);
+        }
         await syncDatecycles();
 
         document.getElementById('select-calendar').value = 'Select calendar...';
@@ -1984,6 +2015,22 @@ async function syncDatecycles() {
     if (!buwana_id) {
         console.warn('syncDatecycles: no buwana_id found.');
         return 'Please log in to sync your calendars.';
+    }
+
+    if (await ensureSyncStoreReady(buwana_id)) {
+        try {
+            const state = await window.syncStore.loadInitialState();
+            const calendars = Array.isArray(state?.calendars) ? state.calendars : [];
+            const totalItems = Object.values(state?.itemsByCalendar || {}).reduce(
+                (sum, list) => sum + (Array.isArray(list) ? list.length : 0),
+                0
+            );
+            const summary = `Your ${calendars.length} calendars and ${totalItems} datecycles were updated`;
+            console.log('✅ Sync complete (sync-store):', summary);
+            return summary;
+        } catch (err) {
+            console.warn('[syncDatecycles] sync-store path failed, using legacy flow', err);
+        }
     }
 
     try {
