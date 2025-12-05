@@ -61,9 +61,21 @@ const API_ENDPOINTS = [
 // 🔹 Install event - Cache static assets
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
+        caches.open(CACHE_NAME).then(async cache => {
             console.log('[Service Worker] Pre-caching static assets');
-            return cache.addAll(STATIC_ASSETS);
+
+            const results = await Promise.allSettled(
+                STATIC_ASSETS.map(asset => cache.add(asset))
+            );
+
+            const failedAssets = results
+                .map((result, index) => ({ result, asset: STATIC_ASSETS[index] }))
+                .filter(entry => entry.result.status === 'rejected')
+                .map(entry => entry.asset);
+
+            if (failedAssets.length) {
+                console.warn('[Service Worker] Some assets failed to cache during install:', failedAssets);
+            }
         })
     );
 });

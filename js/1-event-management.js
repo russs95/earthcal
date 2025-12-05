@@ -1588,6 +1588,10 @@ function showAddNoteCheckbox() {
     const addNoteCheckboxDiv = document.getElementById('add-note-check-boxed');
     const confirmDateCycleButton = document.getElementById('confirm-dateCycle-button');
 
+    if (!addDateTitleTextarea || !addNoteCheckboxDiv || !confirmDateCycleButton) {
+        return;
+    }
+
     if (addDateTitleTextarea.value.trim() !== '') {
         addNoteCheckboxDiv.style.display = 'block';
         confirmDateCycleButton.style.display = 'block';
@@ -1604,6 +1608,10 @@ function toggleAddNoteForm() {
     const addNoteCheckbox = document.getElementById('add-note-checkbox');
     const addNoteForm = document.getElementById('add-note-form');
 
+    if (!addNoteCheckbox || !addNoteForm) {
+        return;
+    }
+
     if (addNoteCheckbox.checked) {
         addNoteForm.style.display = 'block';
     } else {
@@ -1612,8 +1620,16 @@ function toggleAddNoteForm() {
 }
 
 // Attach event listeners to call the functions when needed
-document.getElementById('add-date-title').addEventListener('input', showAddNoteCheckbox);
-document.getElementById('add-note-checkbox').addEventListener('change', toggleAddNoteForm);
+const addDateTitleInput = document.getElementById('add-date-title');
+const addNoteCheckboxElement = document.getElementById('add-note-checkbox');
+
+if (addDateTitleInput) {
+    addDateTitleInput.addEventListener('input', showAddNoteCheckbox);
+}
+
+if (addNoteCheckboxElement) {
+    addNoteCheckboxElement.addEventListener('change', toggleAddNoteForm);
+}
 
 
 
