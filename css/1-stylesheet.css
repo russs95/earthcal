@@ -161,6 +161,7 @@ path[id*="week-"] {
 
 .comet-3i-content {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     gap: 10px;
 }
@@ -284,7 +285,6 @@ p {
     color: grey;
     height: fit-content;
     padding-top: 10px;
-    width:100%;
     line-height: 1.2;
     }
   }
@@ -309,7 +309,6 @@ p {
     color: grey;
     height: fit-content;
     padding-top: 10px;
-    width:100%;
     padding-right: 25px;
 
     }

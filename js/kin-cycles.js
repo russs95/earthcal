@@ -795,7 +795,7 @@ function renderCometTrajectoryInfo(resolvedDate) {
     const textParts = [];
 
     textParts.push(
-      `<div class="comet-3i-title"><b>${eventEmoji ? `${eventEmoji} ` : ''}${eventTitle || ''}</b></div>`
+      `<div class="comet-3i-title"><b>${eventTitle || ''}${eventEmoji ? ` ${eventEmoji}` : ''}</b></div>`
     );
 
     if (eventDescription) {
