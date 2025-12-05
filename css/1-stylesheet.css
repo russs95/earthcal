@@ -4530,6 +4530,18 @@ svg path #june:hover {
     flex: 0 0 auto;
 }
 
+.time-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.event-toggle-wrapper {
+    display: flex;
+    align-items: center;
+}
+
 #bottom-left-buttons {
     display: flex;
     position: fixed;

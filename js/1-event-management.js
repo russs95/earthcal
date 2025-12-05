@@ -714,7 +714,7 @@ async function highlightDateCycles(targetDate) {
         console.warn("⚠️ Highlighter: No dateCycles found in storage.");
         await updateDateCycleCount(0, 0); // No events, reset count display
         if (eventToggleButton) {
-            eventToggleButton.style.display = 'none';
+            eventToggleButton.style.visibility = 'hidden';
         }
         return;
     }
@@ -726,7 +726,7 @@ async function highlightDateCycles(targetDate) {
         console.info('ℹ️ Highlighter: All dateCycles are from inactive calendars.');
         await updateDateCycleCount(0, 0);
         if (eventToggleButton) {
-            eventToggleButton.style.display = 'none';
+            eventToggleButton.style.visibility = 'hidden';
         }
         return;
     }
@@ -764,7 +764,7 @@ async function highlightDateCycles(targetDate) {
 
     const totalMatching = matchingPinned.length + matchingCurrent.length;
     if (eventToggleButton) {
-        eventToggleButton.style.display = totalMatching > 0 ? '' : 'none';
+        eventToggleButton.style.visibility = totalMatching > 0 ? 'visible' : 'hidden';
     }
 
     // Get the container elements.
