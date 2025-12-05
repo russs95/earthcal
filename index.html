@@ -1,11 +1,1714 @@
 <!DOCTYPE html>
-<HTML lang="en">
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sync with Earthen cycles</title>
+    <link rel="icon" href="assets/icons/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="canonical" href="https://earthcal.app/">
+    <meta name="description" content="Apply the revolutionary powers of cyclical moment management to harmonize your time on planet Earth. Align your to-dos, events and cycles with the moon, planets, great creatures and interstellar visitors.">
+    <meta name="keywords" content="EarthCal, circular calendar, Earthen cycles, astronomical events, lunar calendar, solar system">
+    <meta name="author" content="Earthen.io">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://earthcal.app/">
+    <meta property="og:title" content="EarthCal | Sync your moments with Earth's cycles">
+    <meta property="og:description" content="Get started with EarthCal and prepare a calendar that follows the rhythms of our planet, moon, and stars.">
+    <meta property="og:image" content="https://earthcal.app/assets/images/cal-banner.png">
+    <meta property="og:image:alt" content="A vibrant circular calendar highlighting Earth's annual orbit and celestial cycles.">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="753">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EarthCal | Sync your moments with Earth's cycles">
+    <meta name="twitter:description" content="Join EarthCal to organise your events around Earth's living cycles and celestial rhythms.">
+    <meta name="twitter:image" content="https://earthcal.app/assets/images/cal-banner.png">
+
+    <script src="translations/index-en.js"></script>
+    <script src="js/index-i18n-loader.js"></script>
+
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const buwanaId = params.get("buwana_id") || params.get("id");
+                const firstName = params.get("firstname") || params.get("first_name");
+                if (buwanaId) {
+                    try {
+                        localStorage.setItem("buwana_id", buwanaId);
+                    } catch (storageError) {
+                        console.warn("Unable to store buwana_id in localStorage.", storageError);
+                    }
+                }
+
+                if (firstName) {
+                    window.__EARTHCAL_FIRST_NAME__ = firstName;
+                }
+
+                const statusParam = params.get("status");
+                const hasFirstTimeFlag = statusParam === "firsttime";
+                window.__EARTHCAL_HAS_FIRST_TIME__ = hasFirstTimeFlag;
+                window.__EARTHCAL_STATUS_PARAM__ = statusParam;
+                window.__EARTHCAL_BUWANA_ID__ = buwanaId;
+            } catch (error) {
+                console.error("Unable to process onboarding redirect.", error);
+            }
+        })();
+    </script>
+    <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
+    <!-- Preload critical dashboard resources ttt-->
+    <link rel="preload" href="js/earthcal-init.js?v=2.1" as="script">
+    <link rel="preload" href="css/light.css?v7" as="style">
+    <link rel="preload" href="css/dark.css?v7" as="style">
+    <link rel="preload" href="css/1-stylesheet.css" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.3">
+    <link rel="preload" href="assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="assets/fonts/Arvo-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="svgs/up-reg-arrow-dark.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-dark-over.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-dark-active.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-dark-active-hover.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-light.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-light-over.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-light-active.svg" as="image">
+    <link rel="preload" href="svgs/up-reg-arrow-light-active-hover.svg" as="image">
+    <style>
+        /* Base styles */
+        :root {
+            --general-background: rgb(245, 245, 245);
+            --emblem-green: #008000;
+            --emblem-green-over: #0ca70c;
+        }
+        html,
+        body {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Mulish', sans-serif;
+            background-color: var(--general-background);
+            background-image: url('webp/earthen-subscription-background-light.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: black;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        body.first-time {
+            /*padding: 20px 16px 60px;*/
+        }
+        body.first-time-ready {
+            justify-content: flex-start;
+            overflow-x: hidden;
+        }
+        body.first-time-ready #onboarding-section {
+            display: flex;
+        }
+        #initial-load {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 24px 16px 60px;
+            box-sizing: border-box;
+            gap: 18px;
+        }
+        .earthcal-logo {
+            width: 120px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        #loading-progress {
+            width: min(140px, 35vw);
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            margin-top: 18px;
+        }
+        #loading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #b5b4b4b4;
+        }
+        #get-started-button::after {
+            content: "";
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+        }
+        #get-started-button:not([aria-disabled="true"]):not(:disabled):hover::after {
+            content: "→";
+            margin-left: 0.25rem;
+            opacity: 1;
+            transform: translateX(2px);
+        }
+        .footer {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: grey;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+        .footer > * {
+            pointer-events: auto;
+        }
+        .earthen-logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #onboarding-time {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            max-width: min(960px, 100vw);
+            height: 100%;
+            min-height: 100vh;
+            max-height: 100vh;
+            margin: 0 auto;
+            padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2.5rem);
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        #onboarding-section {
+            display: none;
+            margin-top: 0;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 24px;
+            padding: clamp(1.5rem, 5vw, 2.5rem);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(1rem, 4vw, 1.75rem);
+            text-align: center;
+            color: inherit;
+            backdrop-filter: blur(12px);
+            overflow-y: auto;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 2;
+        }
+        #welcome-message {
+            margin: 0;
+        }
+        #generic-welcome {
+            margin: 0;
+        }
+        #status-messages {
+            width: 100%;
+        }
+        #status-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            text-align: left;
+        }
+        .status-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            color: rgba(15, 23, 42, 0.75);
+        }
+        .status-text p {
+            margin: 0;
+        }
+        #task-log {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.52rem;
+        }
+        #task-log li {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        #task-log li.task-log-error {
+            color: #b91c1c;
+        }
+        .task-log-icon {
+            flex: 0 0 20px;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .task-log-icon__image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .task-log-icon--warning {
+            color: #b91c1c;
+        }
+        .task-log-label {
+            flex: 1;
+        }
+        #get-started-button {
+            align-self: center;
+            margin-top: 0.5rem;
+            padding: 0.85rem 2.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #f7f9fb;
+            background-color: var(--emblem-green, #0d1a26);
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
+
+        }
+        #get-started-button[aria-disabled="true"],
+        #get-started-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #get-started-button:not([aria-disabled="true"]):not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.22);
+            background-color: var(--emblem-green-over, #14293a);
+            color: #f7f9fb;
+        }
+
+        /* Dark mode overrides */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --general-background: rgb(13, 15, 26);
+                --emblem-green: #2b6d27;
+                --emblem-green-over: #41a43c;
+            }
+            body {
+                color: white;
+                background-image: url('webp/earthen-subscription-background-dark.webp');
+            }
+            #loading-progress {
+                background: rgba(255, 255, 255, 0.12);
+            }
+            #loading-progress-bar {
+                background: #383737;
+            }
+            #onboarding-section {
+                background: rgba(13, 18, 32, 0.85);
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+            }
+            .status-text {
+                color: rgba(226, 232, 240, 0.85);
+            }
+        }
+
+        /* Mobile styles */
+        @media screen and (max-width: 768px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+            }
+            body.first-time {
+                padding: 0;
+            }
+            body.first-time-ready {
+                align-items: center;
+                justify-content: center;
+                padding: 32px 16px 56px;
+            }
+            .footer {
+                font-size: 1em;
+            }
+            .footer img {
+                width: 40px;
+                height: 40px;
+            }
+
+            #onboarding-section {
+                border-radius: 24px;
+                box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+                backdrop-filter: blur(12px);
+                justify-content: flex-start;
+                padding: clamp(1.75rem, 6vw, 2.25rem);
+                gap: clamp(1rem, 5vw, 1.75rem);
+                width: min(90vw, 420px);
+                box-sizing: border-box;
+                margin: 0 auto;
+                max-height: calc(100vh - 96px);
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+            #onboarding-time {
+                justify-content: center;
+            }
+            #welcome-message {
+                font-size: clamp(2rem, 7vw, 2.6rem);
+                margin-top: 0;
+            }
+            #generic-welcome,
+            #status-intro,
+            #task-log {
+                font-size: clamp(1.05rem, 4.8vw, 1.25rem);
+                line-height: 1.55;
+            }
+            #status-message {
+                gap: clamp(1.25rem, 5vw, 1.75rem);
+            }
+            .status-text {
+                font-size: clamp(1.05rem, 4.5vw, 1.2rem);
+                padding-right: 0;
+            }
+            #task-log li {
+                line-height: 1.55;
+            }
+            #get-started-button {
+                font-size: clamp(1.1rem, 4.2vw, 1.25rem);
+                padding: clamp(1rem, 4.5vw, 1.2rem) clamp(2.5rem, 8vw, 3.1rem);
+                margin-top: auto;
+            }
+            #status-messages {
+                width: 100%;
+            }
+        }
+
+        /* Tablet styles */
+        @media screen and (min-width: 769px) and (max-width: 1200px) {
+            #initial-load .earthcal-logo {
+                width: 155px;
+            }
+            #onboarding-section {
+                width: min(82vw, 640px);
+                margin: auto;
+            }
+        }
+
+        /* Desktop styles */
+        @media screen and (min-width: 1201px) {
+            #initial-load .earthcal-logo {
+                width: 177px;
+            }
+            #onboarding-section {
+                width: 640px;
+                margin: auto;
+            }
+        }
+    </style>
+</head>
 <body>
-<div class="footer" style="text-align: center">
-    <a href="dash.html"><span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
+<div id="initial-load" aria-hidden="true">
+
+    <img class="earthcal-logo" src="svgs/earthcal-icon.svg" alt="EarthCal logo" aria-hidden="true">
+
+    <div id="loading-progress" role="presentation" aria-hidden="true">
+        <div id="loading-progress-bar"></div>
+    </div>
+
+    <div class="footer" style="text-align: center">
+        <a href="dash.html"><span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:33px;height:33px;">
             </span></a>
-    <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html">EarthCal v1.0.4 by Earthen</a></p>
+        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html">EarthCal v1.0.4 by Earthen</a></p>
+    </div>
 </div>
+
+
+<div id="onboarding-time" hidden>
+
+    <main id="onboarding-section" role="main" hidden>
+        <h1 id="welcome-message" class="modal-header">Welcome Earthling</h1>
+        <p id="generic-welcome" class="modal-description" hidden>Looks like this is your first time logging into EarthCal! Let's get your account setup.</p>
+        <div id="status-messages" hidden>
+            <div id="status-message">
+                <div class="status-text" aria-live="polite">
+                    <p id="status-intro">We're preparing your personalized EarthCal experience...</p>
+                    <ul id="task-log" role="log" aria-live="polite" aria-busy="true"></ul>
+                </div>
+            </div>
+        </div>
+        <button id="get-started-button" type="button" aria-disabled="true" disabled hidden>Get Started</button>
+    </main>
+    <div class="footer" style="text-align: center">
+        <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
+            <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:44px;height:44px;">
+        </span>
+        <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.0.4 by Earthen</p>
+    </div>
+</div>
+
+
+
+
+<script src="js/earthcal-config.js"></script>
+<script src="js/first-onboarding.js"></script>
+<script type="module">
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const fallbackTranslations = window.EARTHCAL_INDEX_TRANSLATIONS || {};
+    const fallbackLanguage = window.EARTHCAL_INDEX_LANGUAGE || "en";
+
+    const translationState = await (window.__earthcalIndexI18nPromise ?? Promise.resolve({
+        translations: fallbackTranslations,
+        fallback: fallbackTranslations,
+        lang: fallbackLanguage,
+    }));
+
+    const getValue = (source, path) => {
+        if (!source || typeof source !== "object") {
+            return undefined;
+        }
+        return path.split(".").reduce((acc, segment) => {
+            if (acc && typeof acc === "object" && Object.prototype.hasOwnProperty.call(acc, segment)) {
+                return acc[segment];
+            }
+            return undefined;
+        }, source);
+    };
+
+    const createTranslator = (primary, fallback) => (key, params = {}, fallbackValue = "") => {
+        const raw = getValue(primary, key);
+        const fallbackRaw = raw === undefined ? getValue(fallback, key) : undefined;
+        const template = raw !== undefined ? raw : fallbackRaw;
+
+        if (template === undefined || template === null) {
+            return fallbackValue;
+        }
+
+        if (typeof template === "string") {
+            return template.replace(/%\{(.*?)\}/g, (match, token) => {
+                if (Object.prototype.hasOwnProperty.call(params, token)) {
+                    const value = params[token];
+                    return value === undefined || value === null ? "" : String(value);
+                }
+                return "";
+            });
+        }
+
+        if (typeof template === "function") {
+            try {
+                return template(params);
+            } catch (error) {
+                console.warn("EarthCal index: unable to format translation for", key, error);
+                return fallbackValue;
+            }
+        }
+
+        return template;
+    };
+
+    const translations = translationState?.translations || fallbackTranslations;
+    const translationFallback = translationState?.fallback || fallbackTranslations;
+    const translate = createTranslator(translations, translationFallback);
+    const activeLanguage = (translationState?.lang || fallbackLanguage || "en").toLowerCase();
+
+    const htmlElement = document.documentElement;
+    if (htmlElement) {
+        htmlElement.lang = activeLanguage;
+        if (activeLanguage === "ar") {
+            htmlElement.dir = "rtl";
+        } else {
+            htmlElement.removeAttribute("dir");
+        }
+    }
+
+    const bodyElement = document.body;
+    if (bodyElement) {
+        if (activeLanguage === "ar") {
+            bodyElement.dir = "rtl";
+        } else {
+            bodyElement.removeAttribute("dir");
+        }
+    }
+
+    const updateMetaContent = () => {
+        const title = translate("meta.title", {}, document.title);
+        if (title) {
+            document.title = title;
+        }
+
+        const metaSelectors = [
+            { selector: 'meta[name="description"]', key: "meta.description" },
+            { selector: 'meta[name="keywords"]', key: "meta.keywords" },
+            { selector: 'meta[property="og:title"]', key: "meta.ogTitle" },
+            { selector: 'meta[property="og:description"]', key: "meta.ogDescription" },
+            { selector: 'meta[name="twitter:title"]', key: "meta.twitterTitle" },
+            { selector: 'meta[name="twitter:description"]', key: "meta.twitterDescription" },
+            { selector: 'meta[property="og:image:alt"]', key: "meta.imageAlt" },
+        ];
+
+        metaSelectors.forEach(({ selector, key }) => {
+            const element = document.querySelector(selector);
+            if (!element) {
+                return;
+            }
+            const value = translate(key, {}, element.getAttribute("content") || "");
+            if (value) {
+                element.setAttribute("content", value);
+            }
+        });
+    };
+
+    const updateStaticText = () => {
+        document.querySelectorAll(".footer-text").forEach((el) => {
+            const fallbackValue = el.textContent || translate("footer.tagline", {}, "");
+            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.0.0 by Earthen");
+        });
+
+        document.querySelectorAll('[data-i18n][data-i18n-attr]').forEach((el) => {
+            const key = el.getAttribute("data-i18n");
+            const attr = el.getAttribute("data-i18n-attr");
+            if (!key || !attr) {
+                return;
+            }
+            const fallbackValue = el.getAttribute(attr) || "";
+            const value = translate(key, {}, fallbackValue);
+            if (value) {
+                el.setAttribute(attr, value);
+            }
+        });
+    };
+
+    updateMetaContent();
+    updateStaticText();
+
+    const defaultName = translate("onboarding.defaultName", {}, "Earthling");
+
+    const welcomeEl = document.getElementById("welcome-message");
+    if (welcomeEl) {
+        welcomeEl.textContent = translate("onboarding.welcomeMessage", { name: defaultName }, `Welcome ${defaultName}`);
+    }
+
+    const genericWelcomeEl = document.getElementById("generic-welcome");
+    if (genericWelcomeEl) {
+        genericWelcomeEl.textContent = translate(
+            "onboarding.firstTimeIntro",
+            {},
+            "Looks like this is your first time logging into EarthCal! Let's get your account setup."
+        );
+    }
+
+    const statusIntroEl = document.getElementById("status-intro");
+    if (statusIntroEl) {
+        statusIntroEl.textContent = translate(
+            "onboarding.preparingExperience",
+            {},
+            "We're preparing your personalized EarthCal experience..."
+        );
+    }
+
+    const buttonLabels = {
+        getStarted: translate("buttons.getStarted", {}, "Get Started"),
+        continue: translate("buttons.continue", {}, "Continue"),
+    };
+
+    const getStartedButtonEl = document.getElementById("get-started-button");
+    if (getStartedButtonEl) {
+        getStartedButtonEl.textContent = buttonLabels.getStarted;
+    }
+
+    const MINIMUM_REDIRECT_DELAY_MS = 1;
+
+    const collectPreloadAssets = () => {
+        const selectors = [
+            { selector: 'link[rel="preload"][href]', attr: 'href' },
+            { selector: 'link[rel="stylesheet"][href]', attr: 'href' },
+            { selector: 'script[src]', attr: 'src' },
+            { selector: 'img[src]', attr: 'src' },
+        ];
+        const seen = new Set();
+        const assets = [];
+
+        selectors.forEach(({ selector, attr }) => {
+            document.querySelectorAll(selector).forEach((element) => {
+                const value = element.getAttribute(attr);
+                if (!value || value.startsWith('data:')) {
+                    return;
+                }
+
+                let resolved;
+                try {
+                    resolved = new URL(value, window.location.href).toString();
+                } catch (error) {
+                    console.warn('Unable to resolve asset URL for progress tracking.', value, error);
+                    return;
+                }
+
+                if (seen.has(resolved)) {
+                    return;
+                }
+
+                seen.add(resolved);
+                assets.push(resolved);
+            });
+        });
+
+        return assets;
+    };
+
+    const EARTHCAL_ANNIVERSARY_TITLE = translate("events.anniversaryTitle", {}, "EarthCal Anniversary");
+    const EARTHCAL_ANNIVERSARY_NOTES = translate(
+        "events.anniversaryNotes",
+        {},
+        "You joined EarthCal on this day! Celebrating your transition from linear-time to cycle-time."
+    );
+
+    const loadingProgressBar = document.getElementById("loading-progress-bar");
+    const PROGRESS_ANIMATION_MIN_DURATION_MS = 1;
+    const PROGRESS_ANIMATION_MAX_DURATION_MS = 5000;
+    const MINIMUM_PROGRESS_DURATION_MS = 1;
+
+    const progressAnimationState = {
+        from: 0,
+        to: 0,
+        start: 0,
+        duration: 0,
+        raf: null,
+        current: 0,
+    };
+
+    const progressTiming = {
+        startedAt: null,
+        completionTimeout: null,
+    };
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animateProgressFrame = (timestamp) => {
+        const { start, duration, from, to } = progressAnimationState;
+        const elapsed = timestamp - start;
+        const progress = duration <= 0 ? 1 : Math.min(1, elapsed / duration);
+        const eased = easeOutCubic(progress);
+        const value = from + (to - from) * eased;
+
+        progressAnimationState.current = value;
+        if (loadingProgressBar) {
+            loadingProgressBar.style.width = `${value}%`;
+        }
+
+        if (progress < 1) {
+            progressAnimationState.raf = requestAnimationFrame(animateProgressFrame);
+            return;
+        }
+
+        progressAnimationState.raf = null;
+        progressAnimationState.current = to;
+        if (loadingProgressBar) {
+            loadingProgressBar.style.width = `${to}%`;
+        }
+    };
+
+    const scheduleProgressAnimation = (target) => {
+        const now = performance.now();
+        const from = progressAnimationState.current;
+        const diff = Math.abs(target - from);
+        const durationRange = PROGRESS_ANIMATION_MAX_DURATION_MS - PROGRESS_ANIMATION_MIN_DURATION_MS;
+        const duration = PROGRESS_ANIMATION_MIN_DURATION_MS + (durationRange * Math.min(diff, 100)) / 100;
+
+        progressAnimationState.from = from;
+        progressAnimationState.to = target;
+        progressAnimationState.start = now;
+        progressAnimationState.duration = duration;
+
+        if (progressAnimationState.raf) {
+            cancelAnimationFrame(progressAnimationState.raf);
+        }
+        progressAnimationState.raf = requestAnimationFrame(animateProgressFrame);
+    };
+
+    const setLoadingProgress = (value, options = {}) => {
+        if (!loadingProgressBar) return;
+        const { force = false } = options;
+        const clamped = Math.max(0, Math.min(100, value));
+
+        const clearCompletionTimeout = () => {
+            if (progressTiming.completionTimeout) {
+                clearTimeout(progressTiming.completionTimeout);
+                progressTiming.completionTimeout = null;
+            }
+        };
+
+        if (clamped <= 0) {
+            progressTiming.startedAt = performance.now();
+            clearCompletionTimeout();
+        } else if (progressTiming.startedAt === null) {
+            progressTiming.startedAt = performance.now();
+        }
+
+        if (clamped >= 100) {
+            if (!force) {
+                const startTime = progressTiming.startedAt;
+                const elapsed = startTime === null ? Infinity : performance.now() - startTime;
+                if (elapsed < MINIMUM_PROGRESS_DURATION_MS) {
+                    const remaining = MINIMUM_PROGRESS_DURATION_MS - elapsed;
+                    clearCompletionTimeout();
+                    progressTiming.completionTimeout = window.setTimeout(() => {
+                        progressTiming.completionTimeout = null;
+                        setLoadingProgress(100, { force: true });
+                    }, remaining);
+                    return;
+                }
+            }
+            clearCompletionTimeout();
+            progressTiming.startedAt = null;
+        } else if (progressTiming.completionTimeout && clamped < 100) {
+            clearCompletionTimeout();
+        }
+
+        if (!Number.isFinite(progressAnimationState.current)) {
+            progressAnimationState.current = 0;
+        }
+
+        if (Math.abs(clamped - progressAnimationState.current) < 0.1) {
+            progressAnimationState.current = clamped;
+            loadingProgressBar.style.width = `${clamped}%`;
+            return;
+        }
+
+        scheduleProgressAnimation(clamped);
+    };
+
+    const preloadAssets = async () => {
+        const assets = collectPreloadAssets();
+        const total = assets.length;
+        if (total === 0) {
+            setLoadingProgress(0);
+            setLoadingProgress(100);
+            return;
+        }
+        let loaded = 0;
+        setLoadingProgress(0);
+
+        await Promise.all(
+            assets.map(async (asset) => {
+                try {
+                    await fetch(asset, { cache: 'force-cache' });
+                } catch (err) {
+                    console.warn("Failed to load", asset, err);
+                } finally {
+                    loaded += 1;
+                    setLoadingProgress((loaded / total) * 100);
+                }
+            })
+        );
+        setLoadingProgress(100);
+    };
+
+    const parseJwt = (tkn) => {
+        try {
+            const [, payload] = tkn.split(".");
+            return JSON.parse(atob(payload));
+        } catch {
+            return null;
+        }
+    };
+
+    const ensureSessionProfile = () => {
+        const defaultProfile = {
+            first_name: defaultName,
+            earthling_emoji: "🐸",
+            email: null,
+            buwana_id: null,
+            status: "new",
+        };
+
+        const token = localStorage.getItem("access_token") || localStorage.getItem("id_token");
+        if (!token) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            return;
+        }
+
+        const payload = parseJwt(token);
+        const isValid = payload && (!payload.exp || payload.exp > Math.floor(Date.now() / 1000));
+        if (!isValid) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(defaultProfile));
+            return;
+        }
+
+        const profile = JSON.parse(localStorage.getItem("user_profile") || "null");
+        if (profile) {
+            sessionStorage.setItem("buwana_user", JSON.stringify(profile));
+        }
+    };
+
+    const handleDefaultFlow = async () => {
+        const redirectTarget = "dash.html";
+
+        // ensureSessionProfile();
+
+        if (!navigator.onLine) {
+            console.warn("⚠️ Offline. Preloading may fail.");
+        }
+
+        const startTime = performance.now();
+        await preloadAssets();
+        const elapsed = performance.now() - startTime;
+        if (elapsed < MINIMUM_REDIRECT_DELAY_MS) {
+            await delay(MINIMUM_REDIRECT_DELAY_MS - elapsed);
+        }
+
+        setLoadingProgress(100);
+        window.location.href = redirectTarget;
+    };
+
+    const handleFirstTimeFlow = async () => {
+        document.body.classList.add("first-time");
+        const initialLoad = document.getElementById("initial-load");
+        const onboardingWrapper = document.getElementById("onboarding-time");
+        await preloadAssets();
+
+        if (initialLoad) {
+            initialLoad.style.display = "none";
+        }
+        if (onboardingWrapper) {
+            onboardingWrapper.removeAttribute("hidden");
+            onboardingWrapper.style.display = "flex";
+        }
+        document.body.classList.add("first-time-ready");
+
+        const onboardingSection = document.getElementById("onboarding-section");
+        const genericWelcome = document.getElementById("generic-welcome");
+        const statusMessages = document.getElementById("status-messages");
+        if (onboardingSection) {
+            onboardingSection.removeAttribute("hidden");
+            onboardingSection.style.display = "flex";
+        }
+        if (genericWelcome) {
+            genericWelcome.removeAttribute("hidden");
+        }
+        if (statusMessages) {
+            statusMessages.removeAttribute("hidden");
+        }
+
+        await runFirstTimeOnboarding();
+    };
+
+    const runFirstTimeOnboarding = async () => {
+        const greetingEl = document.getElementById("welcome-message");
+        const statusIntro = document.getElementById("status-intro");
+        const genericWelcome = document.getElementById("generic-welcome");
+        const taskLog = document.getElementById("task-log");
+        const getStartedButton = document.getElementById("get-started-button");
+        let onboardingFailed = false;
+        let startButtonHref = null;
+
+        const onboardingText = {
+            statusSettingUp: translate("onboarding.settingUp", {}, "We are setting up your personalized calendars..."),
+            accountError: translate(
+                "onboarding.accountError",
+                {},
+                "We could not confirm your EarthCal account. Please refresh the page to try again."
+            ),
+            onboardingError: translate(
+                "onboarding.onboardingError",
+                {},
+                "We ran into a hiccup preparing your account. Please refresh the page to try again."
+            ),
+            completionNew: translate(
+                "onboarding.completion.newCalendar",
+                {},
+                "Your My Calendar is ready, you're subscribed to the public 2025 and 2026 Astronomical Events Calendars, and we've added today's celebration plus practice items so you can try EarthCal's features 🎉. Click below to get started."
+            ),
+            completionExisting: translate(
+                "onboarding.completion.existingCalendar",
+                {},
+                "Your My Calendar was already waiting for you, so we re-confirmed your Astronomical Events subscriptions, refreshed today's celebration, and made sure your practice items are ready to explore!"
+            ),
+            tasks: {
+                verifyingAccount: translate("onboarding.tasks.verifyingAccount", {}, "Confirming your EarthCal account"),
+                verifyingAccountExisting: translate(
+                    "onboarding.tasks.verifyingAccountCompleteExisting",
+                    {},
+                    "Confirmed your EarthCal account details"
+                ),
+                verifyingAccountCreated: translate(
+                    "onboarding.tasks.verifyingAccountCompleteNew",
+                    {},
+                    "Created your EarthCal account details"
+                ),
+                creatingCalendar: translate(
+                    "onboarding.tasks.creatingCalendar",
+                    {},
+                    "Setting up a default My Calendar for your events, to-dos, and journals."
+                ),
+                calendarCreated: translate("onboarding.tasks.calendarCreated", {}, "Created your My Calendar"),
+                calendarExisting: translate(
+                    "onboarding.tasks.calendarExisting",
+                    {},
+                    "Your My Calendar was already set up"
+                ),
+                subscribingCalendars: translate(
+                    "onboarding.tasks.subscribingCalendars",
+                    {},
+                    "Subscribing you to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                subscriptionsExisting: translate(
+                    "onboarding.tasks.subscriptionsExisting",
+                    {},
+                    "You were already subscribed to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                subscriptionsCreated: translate(
+                    "onboarding.tasks.subscriptionsCreated",
+                    {},
+                    "Subscribed you to the public 2025 and 2026 Astronomical Events Calendars"
+                ),
+                schedulingAnniversary: translate(
+                    "onboarding.tasks.schedulingAnniversary",
+                    {},
+                    "Ensuring your 🎉 EarthCal Anniversary celebration is scheduled"
+                ),
+                anniversaryExisting: translate(
+                    "onboarding.tasks.anniversaryExisting",
+                    {},
+                    "Your celebration event for today was already on the calendar"
+                ),
+                anniversaryCreated: translate(
+                    "onboarding.tasks.anniversaryCreated",
+                    {},
+                    "Added an event for today to celebrate your first login to EarthCal."
+                ),
+                practiceEvents: translate(
+                    "onboarding.tasks.practiceEvents",
+                    {},
+                    "Setting up sample events on your My Calendar for feature practice"
+                ),
+                practiceEventsCreated: translate(
+                    "onboarding.tasks.practiceEventsCreated",
+                    {},
+                    "Added feature-practice items to your My Calendar"
+                ),
+                practiceEventsExisting: translate(
+                    "onboarding.tasks.practiceEventsExisting",
+                    {},
+                    "Your feature-practice items were already waiting on your My Calendar"
+                ),
+            },
+            errors: {
+                unexpected: translate("errors.unexpected", {}, "An unexpected error occurred."),
+                details: (message) => translate("errors.details", { message }, `Details: ${message}`),
+            },
+        };
+
+        const normalizeTimeZone = (value) => {
+            if (typeof value !== "string") {
+                return null;
+            }
+            const trimmed = value.trim();
+            return trimmed.length > 0 ? trimmed : null;
+        };
+
+        const toInt = (value) => {
+            if (value === null || value === undefined) {
+                return null;
+            }
+            const parsed = Number.parseInt(String(value), 10);
+            return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        };
+
+        const authState = typeof window.isLoggedIn === "function"
+            ? window.isLoggedIn({ returnPayload: true })
+            : { isLoggedIn: false, payload: null };
+
+        const payload = authState.payload ?? null;
+        const profile = window.userProfile ?? null;
+
+        const sanitizeName = (value) => {
+            if (typeof value !== "string") {
+                return null;
+            }
+            const trimmed = value.trim();
+            return trimmed.length > 0 ? trimmed : null;
+        };
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const urlFirstName = window.__EARTHCAL_FIRST_NAME__
+            || searchParams.get("firstname")
+            || searchParams.get("first_name");
+
+        const sanitizedUrlFirstName = sanitizeName(urlFirstName);
+
+        let firstName = sanitizedUrlFirstName || defaultName;
+
+        const earthlingEmoji = profile?.earthling_emoji
+            || payload?.["buwana:earthlingEmoji"]
+            || "🌎";
+
+        const buwanaIdValue = window.__EARTHCAL_BUWANA_ID__ || searchParams.get("id") || searchParams.get("buwana_id");
+        const buwanaId = toInt(buwanaIdValue);
+
+        const tokenTimeZone = normalizeTimeZone(
+            profile?.time_zone
+            || payload?.["buwana:timeZone"]
+            || payload?.zoneinfo
+            || payload?.tzid
+            || payload?.time_zone
+        );
+
+        const resolvedTimeZone = tokenTimeZone
+            || normalizeTimeZone(window.userTimeZone)
+            || (() => {
+                try {
+                    return normalizeTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                } catch (error) {
+                    console.warn("Unable to resolve browser timezone.", error);
+                    return null;
+                }
+            })()
+            || "Etc/UTC";
+
+        const defaultCalendarDescription = translate(
+            "onboarding.defaultCalendarDescription",
+            {},
+            "Your default, all-purpose personal calendar for general events, to-dos and journals."
+        );
+
+        const updateGreeting = (name) => {
+            if (!greetingEl) {
+                return;
+            }
+            const safeName = typeof name === "string" && name.trim().length > 0
+                ? name.trim()
+                : defaultName;
+            greetingEl.textContent = translate(
+                "onboarding.welcomeMessage",
+                { name: safeName },
+                `Welcome ${safeName}`
+            );
+        };
+
+        updateGreeting(firstName);
+
+        if (!buwanaId) {
+            console.error("Unable to locate id in the current URL parameters.");
+            if (statusIntro) {
+                statusIntro.textContent = onboardingText.accountError;
+            }
+            return;
+        }
+
+        try {
+            if (typeof window.createJWTloginURL === "function") {
+                const loginURL = await window.createJWTloginURL();
+                if (loginURL) {
+                    startButtonHref = loginURL;
+                }
+            }
+        } catch (error) {
+            console.error("Unable to generate login URL.", error);
+        }
+
+        const subscribeToPublicCalendars = async (userId) => {
+            const calendarIds = [52, 53];
+            const subscriptionEndpoint = "api/v1/update_pub_cal_subs.php";
+            const outcomes = [];
+            for (const calendarId of calendarIds) {
+                const response = await fetch(subscriptionEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: userId,
+                        calendar_id: calendarId,
+                        subscribe: true,
+                    }),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 409) {
+                        outcomes.push({ calendarId, alreadySubscribed: true });
+                        continue;
+                    }
+                    throw new Error(`Subscription request failed with status ${response.status} for calendar ${calendarId}`);
+                }
+
+                const json = await response.json();
+                if (!json?.ok) {
+                    const errorMessage = typeof json?.error === "string" ? json.error.toLowerCase() : "";
+                    if (errorMessage.includes("already")) {
+                        outcomes.push({ calendarId, alreadySubscribed: true });
+                        continue;
+                    }
+                    throw new Error(json?.error || `Unable to subscribe to calendar ${calendarId}`);
+                }
+
+                const alreadySubscribed = Boolean(
+                    json?.alreadySubscribed
+                    || json?.already_subscribed
+                    || json?.alreadyExists
+                    || json?.already_exists
+                    || json?.status === "existing"
+                );
+
+                outcomes.push({
+                    calendarId,
+                    alreadySubscribed,
+                    subscribed: Boolean(json?.subscribed ?? json?.created ?? json?.ok),
+                });
+            }
+
+            return outcomes;
+        };
+
+        const MIN_TASK_DURATION_MS = 3600;
+
+        const runTask = async (label, action) => {
+            const list = taskLog;
+            let listItem = null;
+            let iconWrapper = null;
+            let iconElement = null;
+            let labelSpan = null;
+            const started = performance.now();
+            if (list) {
+                listItem = document.createElement("li");
+                iconWrapper = document.createElement("span");
+                iconWrapper.className = "task-log-icon task-log-icon--spinner";
+                iconWrapper.setAttribute("aria-hidden", "true");
+
+                iconElement = document.createElement("object");
+                iconElement.className = "task-log-icon__image";
+                iconElement.setAttribute("type", "image/svg+xml");
+                iconElement.setAttribute("data", "svgs/earthcal-spinner.svg");
+                iconElement.setAttribute("aria-hidden", "true");
+                iconWrapper.appendChild(iconElement);
+
+                labelSpan = document.createElement("span");
+                labelSpan.className = "task-log-label";
+                labelSpan.textContent = label;
+
+                listItem.append(iconWrapper, labelSpan);
+                list.appendChild(listItem);
+            }
+
+            try {
+                const result = await action();
+                const elapsed = performance.now() - started;
+                if (elapsed < MIN_TASK_DURATION_MS) {
+                    await delay(MIN_TASK_DURATION_MS - elapsed);
+                }
+                if (listItem) {
+                    if (iconWrapper) {
+                        iconWrapper.classList.remove("task-log-icon--spinner");
+                        iconWrapper.classList.add("task-log-icon--success");
+                        iconWrapper.setAttribute("aria-hidden", "true");
+                        if (!iconElement || iconElement.tagName.toLowerCase() !== "img") {
+                            if (iconElement && iconElement.parentElement === iconWrapper) {
+                                iconWrapper.removeChild(iconElement);
+                            }
+                            const successImage = document.createElement("img");
+                            successImage.className = "task-log-icon__image";
+                            successImage.src = "assets/icons/green-check.png";
+                            successImage.alt = "";
+                            iconWrapper.appendChild(successImage);
+                            iconElement = successImage;
+                        } else {
+                            iconElement.removeAttribute("data");
+                            iconElement.removeAttribute("type");
+                            iconElement.src = "assets/icons/green-check.png";
+                        }
+                    }
+                    if (labelSpan) {
+                        labelSpan.textContent = label;
+                    } else {
+                        listItem.append(label);
+                    }
+                }
+                return { result, listItem };
+            } catch (taskError) {
+                const elapsed = performance.now() - started;
+                if (elapsed < MIN_TASK_DURATION_MS) {
+                    await delay(MIN_TASK_DURATION_MS - elapsed);
+                }
+                if (listItem) {
+                    if (iconWrapper) {
+                        iconWrapper.classList.remove("task-log-icon--spinner");
+                        iconWrapper.classList.add("task-log-icon--warning");
+                        if (iconElement && iconElement.parentElement === iconWrapper) {
+                            iconWrapper.removeChild(iconElement);
+                        }
+                        iconElement = null;
+                        iconWrapper.textContent = "⚠️";
+                        iconWrapper.removeAttribute("aria-hidden");
+                    }
+                    if (labelSpan) {
+                        labelSpan.textContent = label;
+                    } else {
+                        listItem.append(label);
+                    }
+                }
+                throw taskError;
+            }
+        };
+
+        const updateTaskLabel = (listItem, text) => {
+            if (!listItem) {
+                return;
+            }
+
+            const labelEl = listItem.querySelector(".task-log-label");
+            const newText = typeof text === "string" ? text : "";
+
+            if (labelEl) {
+                labelEl.textContent = newText;
+                return;
+            }
+
+            listItem.textContent = newText;
+        };
+
+        const hasExistingAnniversaryEvent = async ({ userId, calendarId }) => {
+            if (!userId || !calendarId) {
+                return false;
+            }
+
+            const numericCalendarId = Number(calendarId);
+            if (!Number.isFinite(numericCalendarId)) {
+                return false;
+            }
+
+            try {
+                const response = await fetch("api/v1/get_user_items.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: userId,
+                        include_public: false,
+                        only_active: true,
+                    }),
+                });
+
+                if (!response.ok) {
+                    console.warn(`Unable to confirm existing anniversary events (status ${response.status}).`);
+                    return false;
+                }
+
+                const json = await response.json();
+                if (!json?.ok || !Array.isArray(json?.calendars)) {
+                    return false;
+                }
+
+                const normalizedTarget = EARTHCAL_ANNIVERSARY_TITLE.toLowerCase();
+                const targetCalendar = json.calendars.find((calendar) => {
+                    const calendarIdentifier = Number(calendar?.calendar_id ?? calendar?.calendarId ?? calendar?.id);
+                    return Number.isFinite(calendarIdentifier) && calendarIdentifier === numericCalendarId;
+                });
+
+                if (!targetCalendar || !Array.isArray(targetCalendar.items)) {
+                    return false;
+                }
+
+                return targetCalendar.items.some((item) => {
+                    if (!item) {
+                        return false;
+                    }
+                    const summary = typeof item.summary === "string" ? item.summary.trim().toLowerCase() : "";
+                    return summary === normalizedTarget;
+                });
+            } catch (error) {
+                console.warn("Unable to verify existing EarthCal Anniversary event.", error);
+                return false;
+            }
+        };
+
+        const resolveEventTimeZone = (value) => normalizeTimeZone(value) || "Etc/UTC";
+
+        const formatTodayForTimeZone = (tzid) => {
+            const safeTzid = resolveEventTimeZone(tzid);
+            try {
+                const formatter = new Intl.DateTimeFormat("en-CA", {
+                    timeZone: safeTzid,
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                });
+                return { date: formatter.format(new Date()), tzid: safeTzid };
+            } catch (error) {
+                console.warn("Falling back to UTC for date formatting.", error);
+                return { date: new Date().toISOString().slice(0, 10), tzid: safeTzid };
+            }
+        };
+
+        const PRACTICE_EVENT_DEFINITIONS = [
+            {
+                item_kind: "todo",
+                title: "Check Me",
+                notes: "Tap the ✔️ on the right side to mark an item completed.",
+                color_hex: "#22c55e",
+            },
+            {
+                item_kind: "todo",
+                title: "Pin Me",
+                notes: "Hit the 🟠 circle in the top left to pin this item.",
+                color_hex: "#f97316",
+            },
+            {
+                item_kind: "todo",
+                title: "Edit Me",
+                notes: "Click this text to edit and share this event.",
+                color_hex: "#3b82f6",
+            },
+            {
+                item_kind: "todo",
+                title: "Push Me",
+                notes: "So this won't actually work til tomorrow. Hit the right arrow ➡️ to the right and an event will be pushed to Today. Yeah... if you hit it now, it just appears again! However, tomorrow this will be very handy when going through incomplete items from the day before to get your day setup.",
+                color_hex: "#2563eb",
+            },
+        ];
+
+        const addAnniversaryEvent = async ({ userId, calendarId, tzid }) => {
+            if (!userId || !calendarId) {
+                throw new Error("Missing calendar context for the anniversary event.");
+            }
+
+            const alreadyScheduled = await hasExistingAnniversaryEvent({ userId, calendarId });
+            if (alreadyScheduled) {
+                return { alreadyExists: true };
+            }
+
+            const { date: todayInTz, tzid: safeTzid } = formatTodayForTimeZone(tzid);
+
+            const payload = {
+                buwana_id: userId,
+                calendar_id: calendarId,
+                item_kind: "event",
+                title: EARTHCAL_ANNIVERSARY_TITLE,
+                notes: EARTHCAL_ANNIVERSARY_NOTES,
+                start_local: `${todayInTz} 00:00:00`,
+                tzid: safeTzid,
+                all_day: true,
+                emoji: "🎉",
+            };
+
+            const response = await fetch("api/v1/add_item.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    return { alreadyExists: true };
+                }
+                throw new Error(`Anniversary event creation failed with status ${response.status}`);
+            }
+
+            const json = await response.json();
+            if (!json?.ok) {
+                const errorMessage = typeof json?.error === "string" ? json.error.toLowerCase() : "";
+                if (errorMessage.includes("already")) {
+                    return { alreadyExists: true };
+                }
+                throw new Error(json?.error || "Unable to add the anniversary event.");
+            }
+
+            const alreadyExists = Boolean(
+                json?.alreadyExists
+                || json?.already_exists
+                || json?.status === "existing"
+            );
+
+            return {
+                alreadyExists,
+                created: Boolean(json?.created ?? json?.ok),
+            };
+        };
+
+        const addPracticeEvents = async ({ userId, calendarId, tzid }) => {
+            if (!userId || !calendarId) {
+                throw new Error("Missing calendar context for practice events.");
+            }
+
+            const { date: todayInTz, tzid: safeTzid } = formatTodayForTimeZone(tzid);
+            let createdCount = 0;
+            let alreadyExistsCount = 0;
+
+            for (const definition of PRACTICE_EVENT_DEFINITIONS) {
+                const payload = {
+                    buwana_id: userId,
+                    calendar_id: calendarId,
+                    item_kind: definition.item_kind,
+                    title: definition.title,
+                    notes: definition.notes,
+                    start_local: `${todayInTz} 00:00:00`,
+                    tzid: safeTzid,
+                    all_day: true,
+                    emoji: "🧪",
+                    color_hex: definition.color_hex,
+                };
+
+                const response = await fetch("api/v1/add_item.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 409) {
+                        alreadyExistsCount += 1;
+                        continue;
+                    }
+                    throw new Error(`Practice event creation failed with status ${response.status} for ${definition.title}`);
+                }
+
+                const json = await response.json();
+                if (!json?.ok) {
+                    const errorMessage = typeof json?.error === "string" ? json.error.toLowerCase() : "";
+                    if (errorMessage.includes("already")) {
+                        alreadyExistsCount += 1;
+                        continue;
+                    }
+                    throw new Error(json?.error || `Unable to add the practice event "${definition.title}".`);
+                }
+
+                const alreadyExists = Boolean(
+                    json?.alreadyExists
+                    || json?.already_exists
+                    || json?.status === "existing"
+                );
+
+                if (alreadyExists) {
+                    alreadyExistsCount += 1;
+                } else {
+                    createdCount += 1;
+                }
+            }
+
+            return {
+                created: createdCount,
+                alreadyExists: alreadyExistsCount,
+                total: PRACTICE_EVENT_DEFINITIONS.length,
+            };
+        };
+
+        try {
+            if (statusIntro) {
+                statusIntro.textContent = onboardingText.statusSettingUp;
+            }
+
+            let userTimeZone = resolvedTimeZone;
+            let calendarId = null;
+            let myCalendarCreated = false;
+            let calendarTimeZone = resolvedTimeZone;
+            const hasTokenTimeZone = Boolean(tokenTimeZone);
+
+            const { result: accountCheckJson, listItem: confirmTaskItem } = await runTask(onboardingText.tasks.verifyingAccount, async () => {
+                const checkResponse = await fetch("api/v1/create_my_calendar.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({ buwana_id: buwanaId, check_only: true }),
+                });
+
+                if (!checkResponse.ok) {
+                    throw new Error(`User confirmation failed with status ${checkResponse.status}`);
+                }
+
+                const checkJson = await checkResponse.json();
+                if (!checkJson?.ok || !checkJson?.exists) {
+                    throw new Error("User not located in users_tb.");
+                }
+                console.log(`✅ Confirmed EarthCal account in users_tb for buwana_id ${buwanaId}.`, checkJson.user ?? {});
+                if (!hasTokenTimeZone && checkJson?.user?.time_zone) {
+                    userTimeZone = checkJson.user.time_zone;
+                }
+                const fetchedFirstName = checkJson?.user?.first_name
+                    || checkJson?.user?.firstName
+                    || checkJson?.user?.given_name;
+                const sanitizedFetchedFirstName = sanitizeName(fetchedFirstName);
+                if (!sanitizedUrlFirstName && sanitizedFetchedFirstName) {
+                    firstName = sanitizedFetchedFirstName;
+                    updateGreeting(firstName);
+                }
+                return checkJson;
+            });
+
+            const alreadyExisting = Boolean(accountCheckJson?.exists);
+            updateTaskLabel(
+                confirmTaskItem,
+                alreadyExisting
+                    ? onboardingText.tasks.verifyingAccountExisting
+                    : onboardingText.tasks.verifyingAccountCreated
+            );
+
+            const { listItem: calendarTaskItem } = await runTask(onboardingText.tasks.creatingCalendar, async () => {
+                const createResponse = await fetch("api/v1/create_my_calendar.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        buwana_id: buwanaId,
+                        emoji: "📆",
+                        tzid: userTimeZone,
+                        description: defaultCalendarDescription,
+                    }),
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`Calendar creation failed with status ${createResponse.status}`);
+                }
+
+                const createJson = await createResponse.json();
+                if (!createJson?.ok) {
+                    throw new Error(createJson?.error || "Unknown error while creating My Calendar");
+                }
+
+                console.log("📅 My Calendar status:", createJson);
+                const calendar = createJson.calendar ?? null;
+                const potentialId = calendar?.calendar_id ?? calendar?.calendarId ?? calendar?.id;
+                const parsedId = typeof potentialId === "string" || typeof potentialId === "number"
+                    ? Number(potentialId)
+                    : null;
+                if (Number.isFinite(parsedId)) {
+                    calendarId = parsedId;
+                }
+                myCalendarCreated = Boolean(createJson.created);
+                calendarTimeZone = calendar?.tzid || userTimeZone || resolvedTimeZone || "Etc/UTC";
+                return createJson;
+            });
+
+            updateTaskLabel(
+                calendarTaskItem,
+                myCalendarCreated
+                    ? onboardingText.tasks.calendarCreated
+                    : onboardingText.tasks.calendarExisting
+            );
+
+            const { result: subscriptionResults, listItem: subscriptionTaskItem } = await runTask(
+                onboardingText.tasks.subscribingCalendars,
+                async () => subscribeToPublicCalendars(buwanaId)
+            );
+
+            const alreadyEnabled = Array.isArray(subscriptionResults)
+                && subscriptionResults.length > 0
+                && subscriptionResults.every((entry) => entry?.alreadySubscribed);
+            updateTaskLabel(
+                subscriptionTaskItem,
+                alreadyEnabled
+                    ? onboardingText.tasks.subscriptionsExisting
+                    : onboardingText.tasks.subscriptionsCreated
+            );
+
+            const { result: anniversaryResult, listItem: anniversaryTaskItem } = await runTask(
+                onboardingText.tasks.schedulingAnniversary,
+                async () => addAnniversaryEvent({
+                    userId: buwanaId,
+                    calendarId,
+                    tzid: calendarTimeZone || userTimeZone,
+                })
+            );
+
+            updateTaskLabel(
+                anniversaryTaskItem,
+                anniversaryResult?.alreadyExists
+                    ? onboardingText.tasks.anniversaryExisting
+                    : onboardingText.tasks.anniversaryCreated
+            );
+
+            const { result: practiceResult, listItem: practiceTaskItem } = await runTask(
+                onboardingText.tasks.practiceEvents,
+                async () => addPracticeEvents({
+                    userId: buwanaId,
+                    calendarId,
+                    tzid: calendarTimeZone || userTimeZone,
+                })
+            );
+
+            const createdPracticeItems = Number(practiceResult?.created ?? 0);
+            updateTaskLabel(
+                practiceTaskItem,
+                createdPracticeItems > 0
+                    ? onboardingText.tasks.practiceEventsCreated
+                    : onboardingText.tasks.practiceEventsExisting
+            );
+
+            if (taskLog) {
+                taskLog.setAttribute("aria-busy", "false");
+            }
+
+            const completionMessage = myCalendarCreated
+                ? onboardingText.completionNew
+                : onboardingText.completionExisting;
+
+            if (statusIntro) {
+                statusIntro.textContent = "";
+                statusIntro.setAttribute("hidden", "");
+            }
+
+            if (genericWelcome) {
+                genericWelcome.textContent = completionMessage;
+            }
+        } catch (error) {
+            onboardingFailed = true;
+            console.error("Unable to complete onboarding steps.", error);
+            if (statusIntro) {
+                statusIntro.textContent = onboardingText.onboardingError;
+            }
+            if (taskLog) {
+                taskLog.setAttribute("aria-busy", "false");
+                const errorItem = document.createElement("li");
+                errorItem.textContent = error instanceof Error
+                    ? onboardingText.errors.details(error.message)
+                    : onboardingText.errors.unexpected;
+                errorItem.classList.add("task-log-error");
+                taskLog.appendChild(errorItem);
+            }
+        } finally {
+            if (getStartedButton) {
+                getStartedButton.textContent = onboardingFailed
+                    ? buttonLabels.continue
+                    : buttonLabels.getStarted;
+                getStartedButton.removeAttribute("hidden");
+                getStartedButton.disabled = false;
+                getStartedButton.setAttribute("aria-disabled", "false");
+                const destination = startButtonHref || "dash.html";
+                getStartedButton.addEventListener("click", () => {
+                    window.location.href = destination;
+                }, { once: true });
+            }
+        }
+    };
+
+    (async function initApp() {
+        const hasFirstTimeFlag = Boolean(window.__EARTHCAL_HAS_FIRST_TIME__);
+        if (hasFirstTimeFlag) {
+            await handleFirstTimeFlow();
+        } else {
+            await handleDefaultFlow();
+        }
+    })();
+</script>
 </body>
 </html>

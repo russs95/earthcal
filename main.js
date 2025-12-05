@@ -1,78 +1,223 @@
-const { app, BrowserWindow, Menu, shell, dialog, session, ipcMain } = require('electron');
+// =========================
+// MAIN PROCESS: IMPORTS & GLOBALS
+// =========================
+const { app, BrowserWindow, Menu, shell, dialog, ipcMain, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 
-let mainWindow;
-let isMinimal = false;
+let mainWindow = null;
+let httpServer = null;
+let serverStarted = false;
 
+const PORT = 3000;
+// Where index.html, dash.html, service-worker.js, assets/ etc. live inside the bundle/snap
+const PUBLIC_DIR = __dirname;
+
+// Enable SharedArrayBuffer support (as you had before)
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
 app.commandLine.appendSwitch('disable-features', 'RendererCodeIntegrity');
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1028,
-    height: 769,
-    icon: path.join(__dirname, 'assets', 'earthcal.png'),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      sandbox: false,
-    },
-  });
 
-  mainWindow.loadFile('index.html');
+// =========================
+// LOCAL HTTP SERVER (STATIC FILES)
+// =========================
+function startLocalServer() {
+    if (serverStarted) return;
 
-  const template = [
-    {
-      label: 'File',
-      submenu: [{ label: 'Exit', role: 'quit' }],
-    },
-    {
-      label: 'View',
-      submenu: [
-        { label: 'Reload', role: 'reload' },
-        { label: 'Toggle Developer Tools', role: 'toggleDevTools' },
-      ],
-    },
-    {
-      label: 'Window',
-      submenu: [
-        { label: 'Minimize', role: 'minimize' },
-        { label: 'Maximize', role: 'maximize' },
-        { label: 'Close', role: 'close' },
-        { type: 'separator' },
-        { label: 'Minimal Mode', click: () => toggleMinimalFloater() },
-      ],
-    },
+    httpServer = http.createServer((req, res) => {
+        try {
+            // Strip query string
+            const urlPath = (req.url || '/').split('?')[0];
 
-    {
-      label: 'Help',
-      submenu: [
-        { label: 'EarthCal Online', click: () => shell.openExternal('https://cycles.earthen.io') },
-        { label: 'Calendar Guide Wiki', click: () => shell.openExternal('https://guide.earthen.io/') },
-        { label: 'Guided Tour', click: () => guidedTour() },
-      ],
-    },
-    {
-      label: 'About',
-      submenu: [
-        { label: 'Created by Earthen.io', click: () => shell.openExternal('https://earthen.io') },
-        { label: 'License', click: () => showLicenseDialog() },
-        { type: 'separator' },
-        { label: 'About Earthcal', click: () => showAboutDialog() },
-      ],
-    },
-  ];
+            // Default to index.html for root
+            let filePath = urlPath === '/' ? '/index.html' : urlPath;
 
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+            // Simple path traversal protection
+            filePath = filePath.replace(/\.\./g, '');
+
+            const fullPath = path.join(PUBLIC_DIR, filePath);
+
+            fs.readFile(fullPath, (err, data) => {
+                if (err) {
+                    res.writeHead(404, { 'Content-Type': 'text/plain' });
+                    res.end('Not found');
+                    return;
+                }
+
+                // Basic MIME type handling
+                let contentType = 'text/plain';
+                if (filePath.endsWith('.html')) contentType = 'text/html';
+                else if (filePath.endsWith('.js')) contentType = 'application/javascript';
+                else if (filePath.endsWith('.css')) contentType = 'text/css';
+                else if (filePath.endsWith('.json')) contentType = 'application/json';
+                else if (filePath.endsWith('.png')) contentType = 'image/png';
+                else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) contentType = 'image/jpeg';
+                else if (filePath.endsWith('.svg')) contentType = 'image/svg+xml';
+                else if (filePath.endsWith('.ico')) contentType = 'image/x-icon';
+
+                res.writeHead(200, { 'Content-Type': contentType });
+                res.end(data);
+            });
+        } catch (e) {
+            console.error('HTTP server error:', e);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Internal server error');
+        }
+    });
+
+    httpServer.listen(PORT, '127.0.0.1', () => {
+        serverStarted = true;
+        createWindow(); // Only create the window once server is ready
+    });
+
+    httpServer.on('error', (err) => {
+        console.error('Local HTTP server failed:', err);
+        // Fallback to file:// if localhost fails for some reason
+        createWindow(true);
+    });
 }
 
-const { screen } = require('electron');
 
+// =========================
+// BROWSER WINDOW & MENU
+// =========================
+function createWindow(useFileFallback = false) {
+    mainWindow = new BrowserWindow({
+        width: 1028,
+        height: 769,
+        icon: path.join(__dirname, 'assets', 'earthcal.png'),
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            sandbox: false,
+        },
+    });
+
+    const startURL = useFileFallback
+        ? `file://${path.join(__dirname, 'index.html')}`
+        : `http://127.0.0.1:${PORT}/index.html`;
+
+    mainWindow.loadURL(startURL);
+
+    const template = [
+        {
+            label: 'File',
+            submenu: [{ label: 'Exit', role: 'quit' }],
+        },
+        {
+            label: 'View',
+            submenu: [
+                { label: 'Reload', role: 'reload' },
+                { label: 'Toggle Developer Tools', role: 'toggleDevTools' },
+            ],
+        },
+        {
+            label: 'Window',
+            submenu: [
+                { label: 'Minimize', role: 'minimize' },
+                { label: 'Maximize', role: 'maximize' },
+                { label: 'Close', role: 'close' },
+                { type: 'separator' },
+                // Minimal Mode is currently commented out (see section below)
+                // { label: 'Minimal Mode', click: () => toggleMinimalFloater() },
+            ],
+        },
+        {
+            label: 'Help',
+            submenu: [
+                { label: 'EarthCal Online', click: () => shell.openExternal('https://cycles.earthen.io') },
+                { label: 'Calendar Guide Wiki', click: () => shell.openExternal('https://guide.earthen.io/') },
+                {
+                    label: 'Guided Tour',
+                    click: () => {
+                        // Let the renderer handle the actual guided tour
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('start-guided-tour');
+                        }
+                    },
+                },
+            ],
+        },
+        {
+            label: 'About',
+            submenu: [
+                {
+                    label: 'Created by Earthen.io',
+                    click: () => shell.openExternal('https://earthen.io/cycles/'),
+                },
+                { label: 'License', click: () => showLicenseDialog() },
+                { type: 'separator' },
+                { label: 'About Earthcal', click: () => showAboutDialog() },
+            ],
+        },
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+}
+
+
+// =========================
+// ABOUT & LICENSE DIALOGS
+// =========================
+function showAboutDialog() {
+    const packagePath = path.join(__dirname, 'package.json');
+
+    // Use SNAP environment variable for icon path (if you decide to use it in the future)
+    const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
+
+    if (fs.existsSync(packagePath)) {
+        const packageContent = fs.readFileSync(packagePath, 'utf8');
+        const packageData = JSON.parse(packageContent);
+
+        dialog.showMessageBox({
+            type: 'info',
+            title: 'About',
+            message: `EarthCal ${packageData.version}`,
+            detail: 'Sync your moments with Earth\'s cycles.',
+            buttons: ['OK'],
+            icon: iconPath, // optional: comment out if you don’t want an icon
+        });
+    } else {
+        dialog.showMessageBox({
+            type: 'error',
+            title: 'Error',
+            message: 'Package.json file not found.',
+            buttons: ['OK'],
+        });
+    }
+}
+
+function showLicenseDialog() {
+    const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
+
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'EarthCal License',
+        detail:
+            'The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License.',
+        buttons: ['OK'],
+        icon: iconPath, // optional
+    });
+}
+
+
+// =========================
+// OPTIONAL: MINIMAL MODE (CURRENTLY DISABLED)
+// =========================
+/*
+let isMinimal = false;
 
 function toggleMinimalFloater() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  openClock(userTimeZone);
+
+  // NOTE: openClock and userTimeZone need to be defined or removed
+  // openClock(userTimeZone);
+
   if (!isMinimal) {
     isMinimal = true;
 
@@ -90,32 +235,27 @@ function toggleMinimalFloater() {
     mainWindow.setMovable(true);
     mainWindow.setTitle('');
 
-    // ✅ Remove menu bar completely, but keep functionality
     mainWindow.setMenuBarVisibility(true);
     mainWindow.setAutoHideMenuBar(true);
 
-    // ✅ Transparent floating effect
     mainWindow.setBackgroundColor('#00000000');
     mainWindow.setHasShadow(true);
 
-    // ✅ Enable full window dragging
     mainWindow.webContents.executeJavaScript(`
       document.body.style.webkitAppRegion = 'drag';
       document.body.style.cursor = 'grab';
     `);
 
-    // ✅ Add a simple right-click context menu with "Maximize"
     const contextMenu = Menu.buildFromTemplate([
       {
-        label: "Maximize",
-        click: () => toggleMinimalFloater()
-      }
+        label: 'Maximize',
+        click: () => toggleMinimalFloater(),
+      },
     ]);
 
-    mainWindow.webContents.on("context-menu", (e) => {
+    mainWindow.webContents.on('context-menu', () => {
       contextMenu.popup();
     });
-
   } else {
     isMinimal = false;
     mainWindow.setBounds({ width: 1028, height: 769 });
@@ -132,7 +272,6 @@ function toggleMinimalFloater() {
     mainWindow.setBackgroundColor('#FFFFFF');
     mainWindow.setHasShadow(true);
 
-    // ✅ Disable dragging when maximized
     mainWindow.webContents.executeJavaScript(`
       document.body.style.webkitAppRegion = 'no-drag';
       document.body.style.cursor = 'default';
@@ -140,208 +279,38 @@ function toggleMinimalFloater() {
   }
 }
 
-// 🔹 Ensure IPC Event Listener Works
-ipcMain.on('restore-earthcal', () => {
-  toggleMinimalFloater();
+// If you want renderer to trigger restore/maximize:
+// ipcMain.on('restore-earthcal', () => {
+//   toggleMinimalFloater();
+// });
+*/
+
+
+// =========================
+// APP LIFECYCLE
+// =========================
+app.whenReady().then(() => {
+    startLocalServer();
 });
 
-
-
-// 🔹 Show About Dialog (Fixed Syntax)
-function showAboutDialog() {
-  const packagePath = path.join(__dirname, 'package.json');
-
-  // Use SNAP environment variable for icon path
-  const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
-
-  if (fs.existsSync(packagePath)) {
-    const packageContent = fs.readFileSync(packagePath, 'utf8');
-    const packageData = JSON.parse(packageContent);
-
-    dialog.showMessageBox({
-      type: 'info',
-      title: `About`, // ✅ Fixed syntax
-      message: `EarthCal ${packageData.version}`, // ✅ Fixed syntax
-
-      detail: `Sync your moments with Earth's cycles.`,
-      buttons: ['OK'],
-    });
-  } else {
-    dialog.showMessageBox({
-      type: 'error',
-      title: 'Error',
-      message: 'Package.json file not found.',
-      buttons: ['OK'],
-    });
-  }
-}
-
-
-
-
-// 🔹 Show License Dialog
-function showLicenseDialog() {
-// Use SNAP environment variable for icon path
-  const iconPath = path.join(process.env.SNAP || __dirname, 'meta/gui/earthcal.png');
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Earthcal License',
-
-    detail: `The EarthCal concept and code are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License.`,
-    buttons: ['OK'],
-  });
-}
-
-app.whenReady().then(createWindow);
-
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+        if (serverStarted) {
+            createWindow();
+        } else {
+            startLocalServer();
+        }
+    }
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
-
-
-
-
-
-
-function exportMenuDatecycles() {
-  const { dialog } = require('electron');
-  const fs = require('fs');
-
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Export My Calendar DateCycles',
-    message: 'Use this feature to export all your personal dateCycles (from your My Calendar). You can then import the file on another account or share them to be published as a public calendar.',
-    buttons: ['Cancel', 'Save Datecycles...'],
-    defaultId: 1,
-    cancelId: 0
-  }).then(response => {
-    if (response.response === 1) {  // User clicked "Save Datecycles..."
-      mainWindow.webContents.executeJavaScript(`
-        (async () => {
-          try {
-            let exportedData = [];
-
-            // Loop through localStorage keys
-            for (let i = 0; i < localStorage.length; i++) {
-              let key = localStorage.key(i);
-
-              // Ensure it's a calendar key
-              if (key.startsWith('calendar_')) {
-                let rawData = localStorage.getItem(key);
-
-                // Handle stringified JSON issue
-                let parsedData;
-                try {
-                  parsedData = JSON.parse(rawData);
-                } catch (e) {
-                  console.error('Error parsing stored JSON for', key, e);
-                  continue;
-                }
-
-                if (Array.isArray(parsedData)) {
-                  // Filter only My Calendar & non-public (public: 0)
-                  let myCalendarData = parsedData.filter(event =>
-                    event.cal_name === 'My Calendar' && event.public === 0
-                  );
-
-                  exportedData = exportedData.concat(myCalendarData);
-                }
-              }
-            }
-
-            if (exportedData.length === 0) {
-              require('electron').dialog.showMessageBox({
-                type: 'info',
-                title: 'No Personal DateCycles',
-                message: 'No private DateCycles found in your My Calendar to export.',
-                buttons: ['OK']
-              });
-              return;
-            }
-
-            // Send parsed data back to main process for file saving
-            require('electron').ipcRenderer.send('save-datecycles', JSON.stringify(exportedData, null, 2));
-          } catch (error) {
-            console.error('Export error:', error);
-            require('electron').dialog.showMessageBox({
-              type: 'error',
-              title: 'Export Failed',
-              message: 'An error occurred while exporting your DateCycles.',
-              buttons: ['OK']
-            });
-          }
-        })();
-      `);
+app.on('quit', () => {
+    if (httpServer) {
+        httpServer.close();
     }
-  });
-}
-
-
-
-
-ipcMain.on('save-datecycles', (event, data) => {
-  dialog.showSaveDialog({
-    title: 'Save DateCycles File',
-    defaultPath: 'EarthCal_DateCycles.json',
-    filters: [{ name: 'JSON Files', extensions: ['json'] }]
-  }).then(result => {
-    if (!result.canceled && result.filePath) {
-      fs.writeFile(result.filePath, data, 'utf8', (err) => {
-        if (err) {
-          dialog.showMessageBox({
-            type: 'error',
-            title: 'Save Failed',
-            message: 'Could not save the DateCycles file.',
-            buttons: ['OK']
-          });
-        } else {
-          dialog.showMessageBox({
-            type: 'info',
-            title: 'Export Successful',
-            message: 'Your My Calendar DateCycles were successfully saved!',
-            buttons: ['OK']
-          });
-        }
-      });
-    }
-  });
 });
-
-
-
-// 🔹 Function to Import Datecycles
-function importMenuDatecycles() {
-  dialog.showOpenDialog({
-    title: 'Select Datecycle JSON File',
-    filters: [{ name: 'JSON Files', extensions: ['json'] }],
-    properties: ['openFile']
-  }).then(result => {
-    if (result.canceled || result.filePaths.length === 0) {
-      return;
-    }
-
-    const filePath = result.filePaths[0];
-
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        dialog.showMessageBox({ type: 'error', title: 'Import Failed', message: 'Error reading file.', buttons: ['OK'] });
-        return;
-      }
-
-      try {
-        const importedDatecycles = JSON.parse(data);
-        if (!Array.isArray(importedDatecycles) || importedDatecycles.length === 0) throw new Error('Invalid format.');
-        mainWindow.webContents.send('import-datecycles', importedDatecycles);
-      } catch (error) {
-        dialog.showMessageBox({ type: 'error', title: 'Import Error', message: 'Invalid JSON format.', buttons: ['OK'] });
-      }
-    });
-  });
-}
-
-
