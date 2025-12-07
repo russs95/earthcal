@@ -184,20 +184,42 @@
             }
         });
     }
-
     async function initSyncStore(user, options = {}) {
-        currentUser = user;
-        apiBase = options.apiBase || DEFAULT_API_BASE;
+        // Store current user (may just be { buwana_id } in offline mode)
+        currentUser = user || null;
+
+        // Detect if we're running on a local dev / snap origin
+        let isLocalhost = false;
+        try {
+            if (typeof window !== 'undefined' && window.location && window.location.origin) {
+                const origin = window.location.origin;
+                isLocalhost = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origin);
+            }
+        } catch (e) {
+            // ignore – fallback to DEFAULT_API_BASE below
+        }
+
+        // Resolve API base:
+        // 1. options.apiBase (explicit override)
+        // 2. If localhost/snap -> talk to production backend
+        // 3. Otherwise default to relative /api/v1
+        apiBase = options.apiBase
+            || (isLocalhost ? 'https://earthcal.app/api/v1' : DEFAULT_API_BASE);
+
+        console.debug('[sync-store] initSyncStore for user', currentUser?.buwana_id, 'apiBase =', apiBase);
+
+        // Update pending count from outbox
         connectivityState.pending = readOutbox().length;
 
-        if (!initialized) {
+        // Attach connectivity listeners once
+        if (!initialized && typeof window !== 'undefined') {
             window.addEventListener('online', onConnectivityChange);
             window.addEventListener('offline', onConnectivityChange);
             initialized = true;
         }
 
         await determineConnectivity();
-        return connectivityState;
+        return { ...connectivityState };
     }
 
     async function loadInitialState() {

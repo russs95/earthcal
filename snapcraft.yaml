@@ -1,5 +1,6 @@
 name: earthcal
-version: '1.0.4'
+title: EarthCal | EarthCycles Calendar
+version: '1.1.0'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
@@ -7,6 +8,14 @@ description: |
 base: core22
 confinement: strict
 grade: stable
+
+# Recommended metadata for the store & linter
+license: CC-BY-NC-SA-4.0
+contact: admin@earthcal.app
+website: https://earthcal.app
+source-code: https://github.com/russs95/earthcal
+issues: https://github.com/russs95/earthcal/issues
+donation: https://earthen.io
 
 apps:
   earthcal:
@@ -24,6 +33,8 @@ apps:
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
       ELECTRON_DISABLE_SANDBOX: 1
+      GTK_MODULES: ""   # prevent trying to load canberra/atk GTK modules
+
 
 parts:
   earthcal:
@@ -38,6 +49,3 @@ parts:
       - libnspr4
       - libgtk-3-0
       - libcanberra-gtk3-module
-
-
-

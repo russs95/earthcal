@@ -223,16 +223,37 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// Main entry point for loading *online* user state.
+//
+// This runs on app startup before we know whether the user will
+// choose "online" or "offline" mode in the UI. Its job is:
+//
+// 1. Ask Buwana, "Is this user logged in? Give me their claims."
+// 2. If logged in:
+//    - Populate global variables (userProfile, language, timezone).
+//    - Persist a durable offline profile + buwana_id token in localStorage.
+//    - Work out the user’s subscription / plan.
+//    - Initialize the sync-store (offline-first engine) and load
+//      the full calendar + datecycle state from the backend.
+//    - Mirror that state into our legacy caches for old code paths.
+// 3. If NOT logged in: fall back to a simple default guest view.
+//
 async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
+    // 1️⃣ Check current auth state via Buwana helper
+    //    isLoggedIn() returns both a boolean and the token payload (claims)
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
 
+    // ─────────────────────────────────────────────────────────────
+    // EARLY EXIT: user is not logged in or token has expired
+    // ─────────────────────────────────────────────────────────────
     if (!ok || !payload?.buwana_id) {
         console.warn("⚪ Not logged in or token expired. Using default view.");
-        useDefaultUser();
+        useDefaultUser();                          // fall back to guest user
         updateSessionStatus("⚪ Not logged in", false);
-        window.user_plan = "padwan";
+
+        window.user_plan = "padwan";               // default free plan
         window.cometAccessState = {
             loggedIn: false,
             plan: null,
@@ -243,15 +264,39 @@ async function getUserData() {
         return;
     }
 
-    // 🔐 Cache auth payload for downstream functions
+    // At this point we *do* have a valid Buwana user.
+    // payload contains id, email, given_name, custom claims, etc.
+
+    // 2️⃣ Cache auth payload in sessionStorage for *this browser session*
+    //    (used by other runtime helpers; not meant to survive browser restarts)
     if (!sessionStorage.getItem("buwana_user")) {
         sessionStorage.setItem("buwana_user", JSON.stringify(payload));
     }
 
-    // 🌍 Populate globals
+    // 3️⃣ ALSO cache a durable profile snapshot in localStorage
+    //    This is the key piece that offline mode will later use.
+    //
+    //    - "user_profile": full JWT claim snapshot, used by getOfflineUserData()
+    //    - "earthcal_last_buwana_id": simple scalar id, used as a fallback
+    //      if we somehow lose the full profile but still know the id.
+    try {
+        localStorage.setItem("user_profile", JSON.stringify(payload));
+        localStorage.setItem("earthcal_last_buwana_id", String(payload.buwana_id));
+
+        if (typeof persistOfflineProfile === "function") {
+            // Your existing helper (if present) to mirror profile into any
+            // other offline-specific cache or format that you use.
+            persistOfflineProfile(payload);
+        }
+    } catch (e) {
+        console.warn("[getUserData] Unable to persist offline profile cache", e);
+    }
+
+    // 4️⃣ Populate global variables used by the UI layer
     const buwanaId = payload.buwana_id;
     userLanguage = navigator.language.slice(0, 2);
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     userProfile = {
         first_name: payload.given_name || "Earthling",
         email: payload.email || null,
@@ -264,6 +309,13 @@ async function getUserData() {
 
     console.log("✅ Loaded userProfile:", userProfile);
 
+    // ─────────────────────────────────────────────────────────────
+    // SUBSCRIPTION / PLAN LOOKUP
+    // ─────────────────────────────────────────────────────────────
+    //
+    // We query your backend to work out which EarthCal plan this user is on.
+    // This is logically independent of offline caching, but the plan info
+    // still needs to be available both online and offline (at least as last-known).
     let resolvedPlanId = null;
     let userPlanType = "padwan";
 
@@ -291,7 +343,9 @@ async function getUserData() {
             extractPlanId(subscriptionData?.current_subscription?.plan);
 
         if (!resolvedPlanId && Array.isArray(subscriptionData?.plans)) {
-            const activePlan = subscriptionData.plans.find((plan) => plan?.is_current || plan?.isCurrent);
+            const activePlan = subscriptionData.plans.find(
+                (plan) => plan?.is_current || plan?.isCurrent
+            );
             resolvedPlanId = extractPlanId(activePlan);
         }
 
@@ -303,7 +357,10 @@ async function getUserData() {
 
         userPlanType = mapPlanIdToType(resolvedPlanId ?? 1);
         window.user_plan = userPlanType;
-        console.log(`🛰️ EarthCal user_plan set to "${userPlanType}" (plan_id: ${resolvedPlanId ?? 'unknown'})`);
+
+        console.log(
+            `🛰️ EarthCal user_plan set to "${userPlanType}" (plan_id: ${resolvedPlanId ?? 'unknown'})`
+        );
     } catch (error) {
         window.user_plan = "padwan";
         console.warn('⚠️ Unable to determine subscription plan, defaulting to "padwan".', error);
@@ -317,6 +374,7 @@ async function getUserData() {
         source: "getUserData",
     };
 
+    // 5️⃣ Update the visible "session" UI and clock for the logged-in user
     updateSessionStatus(
         `🟢 Logged in as ${userProfile.first_name} ${userProfile.earthling_emoji}`,
         true
@@ -325,47 +383,111 @@ async function getUserData() {
     displayUserData(userTimeZone, userLanguage);
     setCurrentDate(userTimeZone, userLanguage);
 
-    // 📅 Load calendar data: session first, then fetch from API if missing
-    let calendars = readCalendarListCache();
-    if (calendars) {
-        console.log('📅 Using cached v1 calendar data');
-    }
+    // ─────────────────────────────────────────────────────────────
+    // SYNC-STORE INITIALIZATION (OFFLINE-FIRST ENGINE)
+    // ─────────────────────────────────────────────────────────────
+    //
+    // Here we ask syncStore to:
+    //   - detect connectivity
+    //   - flush any offline outbox, if present
+    //   - pull the latest calendars + items from the backend
+    //   - write them into its own cache keys:
+    //       ec_user_<buwanaId>_calendars
+    //       ec_user_<buwanaId>_items
+    //       calendar_<id> mirrors (for legacy code)
+    //
+    // Later, when you start the app offline and call getOfflineUserData(),
+    // we will look up:
+    //   1. user_profile / earthcal_last_buwana_id  → buwana_id
+    //   2. ec_user_<buwanaId>_*                    → cached data
+    //
+    let calendars = null;
 
-    if (!calendars) {
+    if (window.syncStore?.initSyncStore && window.syncStore?.loadInitialState) {
         try {
-            const calendarRes = await fetch('/api/v1/list_calendars.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify({ buwana_id: buwanaId })
-            });
+            await window.syncStore.initSyncStore(
+                { buwana_id: buwanaId },
+                { apiBase: '/api/v1' }   // syncStore will rewrite this if needed for Electron
+            );
 
-            if (!calendarRes.ok) {
-                throw new Error(`HTTP ${calendarRes.status}`);
-            }
+            attachOfflineIndicatorListener();
 
-            const freshData = await calendarRes.json();
+            const { calendars: syncCalendars } = await window.syncStore.loadInitialState();
 
-            if (freshData?.ok && Array.isArray(freshData.calendars)) {
-                calendars = freshData.calendars;
-                persistCalendarListCache(calendars);
-                console.log('📡 Fetched and cached fresh v1 calendar data.');
-            } else {
-                console.warn('⚠️ API calendar fetch failed:', freshData?.error || freshData?.message || 'unknown_error');
+            if (Array.isArray(syncCalendars) && syncCalendars.length) {
+                calendars = syncCalendars;
+
+                // Also mirror into the previous v1 calendar cache so that any
+                // older code paths that still expect `user_calendars_v1` keep working.
+                if (typeof persistCalendarListCache === "function") {
+                    persistCalendarListCache(syncCalendars);
+                }
+
+                console.log(
+                    "🔄 Sync-store loaded initial calendars.",
+                    syncCalendars.length
+                );
             }
         } catch (err) {
-            console.error('❌ Error fetching calendar data from API:', err);
+            console.warn("[sync-store] init/load failed, falling back to legacy calendar fetch", err);
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // LEGACY CALENDAR FETCH (FALLBACK PATH)
+    // ─────────────────────────────────────────────────────────────
+    //
+    // If syncStore is not available or failed, we use the old behaviour:
+    //   1. Try reading the existing cache.
+    //   2. If missing, call list_calendars.php directly and cache result.
+    if (!calendars) {
+        calendars = readCalendarListCache();
+        if (calendars) {
+            console.log('📅 Using cached v1 calendar data (legacy path)');
+        }
+
+        if (!calendars) {
+            try {
+                const calendarRes = await fetch('/api/v1/list_calendars.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ buwana_id: buwanaId })
+                });
+
+                if (!calendarRes.ok) {
+                    throw new Error(`HTTP ${calendarRes.status}`);
+                }
+
+                const freshData = await calendarRes.json();
+
+                if (freshData?.ok && Array.isArray(freshData.calendars)) {
+                    calendars = freshData.calendars;
+                    persistCalendarListCache(calendars);
+                    console.log('📡 Fetched and cached fresh v1 calendar data (legacy path).');
+                } else {
+                    console.warn(
+                        '⚠️ API calendar fetch failed:',
+                        freshData?.error || freshData?.message || 'unknown_error'
+                    );
+                }
+            } catch (err) {
+                console.error('❌ Error fetching calendar data from API (legacy path):', err);
+            }
+        }
+    }
+
+    // If we *still* have nothing, fall back to guest user and bail.
     if (!calendars) {
         useDefaultUser();
         return;
     }
 
-    // 🌟 Prepare logged-in panel but keep it hidden until the user opens it
+    // 6️⃣ Prepare the logged-in panel (but don’t auto-open it)
     showLoggedInView(calendars, { autoExpand: false });
-    await syncDatecycles();  // 🔄 Begin sync with latest calendar state
+
+    // 7️⃣ Kick off any additional external sync (CalDAV / Google / etc.)
+    await syncDatecycles();
 }
 
 

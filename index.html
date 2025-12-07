@@ -440,7 +440,7 @@
         <a href="dash.html"><span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:33px;height:33px;">
             </span></a>
-        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html">EarthCal v1.0.4 by Earthen</a></p>
+        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html">EarthCal v1.1 by Earthen</a></p>
     </div>
 </div>
 
@@ -464,7 +464,7 @@
         <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
             <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:44px;height:44px;">
         </span>
-        <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.0.4 by Earthen</p>
+        <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.1 by Earthen</p>
     </div>
 </div>
 
@@ -583,7 +583,7 @@
     const updateStaticText = () => {
         document.querySelectorAll(".footer-text").forEach((el) => {
             const fallbackValue = el.textContent || translate("footer.tagline", {}, "");
-            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.0.0 by Earthen");
+            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.1 by Earthen");
         });
 
         document.querySelectorAll('[data-i18n][data-i18n-attr]').forEach((el) => {
