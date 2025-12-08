@@ -118,10 +118,30 @@
         return base64UrlEncode(digest);
     }
 
+    function isLocalOrigin(origin) {
+        return origin.startsWith('http://127.0.0.1') || origin.startsWith('http://localhost');
+    }
+
+    function buildRedirectUri() {
+        const origin = (window.location.origin || '').replace(/\/$/, '');
+        const defaultRedirect = 'https://earthcal.app/auth/callback';
+        const base = isLocalOrigin(origin)
+            ? `${origin}/auth/callback`
+            : defaultRedirect;
+
+        const redirectObj = new URL(base);
+        const status = new URLSearchParams(window.location.search).get('status');
+        if (status) {
+            redirectObj.searchParams.set('status', status);
+        }
+
+        return redirectObj.toString();
+    }
+
     async function createJWTloginURL() {
         const buwanaAuthorizeURL = 'https://buwana.ecobricks.org/authorize';
         const client_id = 'ecal_7f3da821d0a54f8a9b58';
-        const redirect_uri = 'https://earthcal.app/auth/callback';
+        const redirect_uri = buildRedirectUri();
         const scope = 'openid email profile';
         const lang = 'en';
 
