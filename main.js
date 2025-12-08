@@ -36,31 +36,44 @@ function startLocalServer() {
             // Simple path traversal protection
             filePath = filePath.replace(/\.\./g, '');
 
-            const fullPath = path.join(PUBLIC_DIR, filePath);
+            // Resolve directories to their index.html so /auth/callback works in the snap
+            const initialPath = path.join(PUBLIC_DIR, filePath);
 
-            fs.readFile(fullPath, (err, data) => {
-                if (err) {
-                    res.writeHead(404, { 'Content-Type': 'text/plain' });
-                    res.end('Not found');
+            const serveFile = (finalPath) => {
+                fs.readFile(finalPath, (err, data) => {
+                    if (err) {
+                        res.writeHead(404, { 'Content-Type': 'text/plain' });
+                        res.end('Not found');
+                        return;
+                    }
+
+                    // Basic MIME type handling
+                    let contentType = 'text/plain';
+                    if (finalPath.endsWith('.html')) contentType = 'text/html';
+                    else if (finalPath.endsWith('.js')) contentType = 'application/javascript';
+                    else if (finalPath.endsWith('.css')) contentType = 'text/css';
+                    else if (finalPath.endsWith('.json')) contentType = 'application/json';
+                    else if (finalPath.endsWith('.webmanifest')) contentType = 'application/manifest+json';
+                    else if (finalPath.endsWith('.png')) contentType = 'image/png';
+                    else if (finalPath.endsWith('.jpg') || finalPath.endsWith('.jpeg')) contentType = 'image/jpeg';
+                    else if (finalPath.endsWith('.webp')) contentType = 'image/webp';
+                    else if (finalPath.endsWith('.svg')) contentType = 'image/svg+xml';
+                    else if (finalPath.endsWith('.ttf')) contentType = 'font/ttf';
+                    else if (finalPath.endsWith('.ico')) contentType = 'image/x-icon';
+
+                    res.writeHead(200, { 'Content-Type': contentType });
+                    res.end(data);
+                });
+            };
+
+            fs.stat(initialPath, (err, stats) => {
+                if (!err && stats.isDirectory()) {
+                    const indexPath = path.join(initialPath, 'index.html');
+                    serveFile(indexPath);
                     return;
                 }
 
-                // Basic MIME type handling
-                let contentType = 'text/plain';
-                if (filePath.endsWith('.html')) contentType = 'text/html';
-                else if (filePath.endsWith('.js')) contentType = 'application/javascript';
-                else if (filePath.endsWith('.css')) contentType = 'text/css';
-                else if (filePath.endsWith('.json')) contentType = 'application/json';
-                else if (filePath.endsWith('.webmanifest')) contentType = 'application/manifest+json';
-                else if (filePath.endsWith('.png')) contentType = 'image/png';
-                else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) contentType = 'image/jpeg';
-                else if (filePath.endsWith('.webp')) contentType = 'image/webp';
-                else if (filePath.endsWith('.svg')) contentType = 'image/svg+xml';
-                else if (filePath.endsWith('.ttf')) contentType = 'font/ttf';
-                else if (filePath.endsWith('.ico')) contentType = 'image/x-icon';
-
-                res.writeHead(200, { 'Content-Type': contentType });
-                res.end(data);
+                serveFile(initialPath);
             });
         } catch (e) {
             console.error('HTTP server error:', e);
