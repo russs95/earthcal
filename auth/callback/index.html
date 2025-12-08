@@ -5,13 +5,13 @@
     <title>Earthcal | Authenticating..</title>
     <link rel="icon" href="/assets/icons/favicon.ico" />
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
-<!--    <link rel="preload" href="/js/earthcal-init.js?v=2.1" as="script">-->
-<!--    <link rel="preload" href="/css/1-stylesheet.css" as="style">-->
-    <link rel="preload" href="https://earthcal.app/css/light.css?v7" as="style">
-    <link rel="preload" href="https://earthcal.app/css/dark.css?v7" as="style">
 
-    <link rel="preload" href="https://earthcal.app/assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
-    <link rel="preload" href="https://earthcal.app/assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <!-- Origin-relative preloads (work on earthcal.app AND 127.0.0.1:3000) -->
+    <link rel="preload" href="/css/light.css?v7" as="style">
+    <link rel="preload" href="/css/dark.css?v7" as="style">
+
+    <link rel="preload" href="/assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
     <style>
         :root {
@@ -124,21 +124,30 @@
     </style>
 </head>
 <body>
-    <div id="initial-load" aria-hidden="true">
-        <img class="earthcal-logo" src="/svgs/earthcal-icon.svg" alt="EarthCal logo" aria-hidden="true">
-        <div id="authenticating-text" role="status" aria-live="polite">
-            <span>Authenticating with Buwana</span>
-            <span id="dots">...</span>
-        </div>
-        <div class="footer" style="text-align: center">
-            <span class="earthen-logo-wrapper" aria-label="Visit Earthen">
-                <img class="earthen-logo" src="https://earthcal.app/svgs/earthen-icon.svg" alt="Earthen logo">
-            </span>
-            <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.0 by Earthen</p>
-        </div>
+<div id="initial-load" aria-hidden="true">
+    <img class="earthcal-logo" src="/svgs/earthcal-icon.svg" alt="EarthCal logo" aria-hidden="true">
+    <div id="authenticating-text" role="status" aria-live="polite">
+        <span>Authenticating with Buwana</span>
+        <span id="dots">...</span>
     </div>
+    <div class="footer" style="text-align: center">
+            <span class="earthen-logo-wrapper" aria-label="Visit Earthen">
+                <img class="earthen-logo" src="/svgs/earthen-icon.svg" alt="Earthen logo">
+            </span>
+        <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.0 by Earthen</p>
+    </div>
+</div>
 
 <script>
+    // ========= Shared OIDC constants (origin-aware) =========
+    const OIDC_FALLBACK_MAX_AGE = 10 * 60 * 1000; // 10 minutes
+    const OIDC_CLIENT_ID = "ecal_7f3da821d0a54f8a9b58";
+
+    // Use current origin so this works on https://earthcal.app and http://127.0.0.1:3000
+    const APP_ORIGIN = window.location.origin.replace(/\/$/, "");
+    const APP_REDIRECT_URI = `${APP_ORIGIN}/auth/callback`;
+
+    // ========= Theme helpers =========
     function readStoredThemePreference() {
         try {
             const stored = localStorage.getItem('user_dark_mode')
@@ -215,8 +224,7 @@
         dotElem.textContent = ".".repeat(dotPhase);
     }, 400);
 
-    const OIDC_FALLBACK_MAX_AGE = 10 * 60 * 1000; // 10 minutes
-
+    // ========= OIDC fallback helpers =========
     function readOidcFallback(key) {
         try {
             if (!window.name) return null;
@@ -252,8 +260,7 @@
     }
 
     (async function() {
-        // 🛠️ Some providers incorrectly append query parameters using '?' instead of '&'.
-        //    Normalize the query string so code and state can be parsed reliably.
+        // Normalize query string if provider misuses '?'
         let search = window.location.search;
         if ((search.match(/\?/g) || []).length > 1) {
             const parts = search.split('?');
@@ -311,14 +318,15 @@
         }
 
         try {
+            // 🔑 Origin-aware redirect_uri: must match what was used in redirectToBuwana()
             const tokenResponse = await fetch("https://buwana.ecobricks.org/token", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
                     grant_type: "authorization_code",
                     code: code,
-                    redirect_uri: "https://earthcal.app/auth/callback",
-                    client_id: "ecal_7f3da821d0a54f8a9b58",
+                    redirect_uri: APP_REDIRECT_URI,
+                    client_id: OIDC_CLIENT_ID,
                     code_verifier: codeVerifier
                 })
             });
@@ -351,7 +359,7 @@
             if (!supportedLangs.includes(lang)) lang = 'en';
 
             const checkResp = await fetch(
-                `https://buwana.ecobricks.org/api/check_user_app_connection.php?buwana_id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`,
+                `https://buwana.ecobricks.org/api/check_user_app_connection.php?buwana_id=${idPayload.buwana_id}&client_id=${encodeURIComponent(OIDC_CLIENT_ID)}`,
                 { credentials: 'include' }
             );
             let checkData = null;
@@ -369,11 +377,12 @@
                 const connectUrl =
                     (checkData && checkData.app_login_url)
                         ? checkData.app_login_url
-                        : `https://buwana.ecobricks.org/${lang}/app-connect.php?id=${idPayload.buwana_id}&client_id=ecal_7f3da821d0a54f8a9b58`;
+                        : `https://buwana.ecobricks.org/${lang}/app-connect.php?id=${idPayload.buwana_id}&client_id=${encodeURIComponent(OIDC_CLIENT_ID)}`;
                 window.location.href = connectUrl;
                 return;
             }
 
+            // Store tokens/profile under the current origin (earthcal.app OR 127.0.0.1:3000)
             localStorage.setItem("id_token", tokenData.id_token);
             localStorage.setItem("access_token", tokenData.access_token);
             localStorage.setItem("token_type", tokenData.token_type);
