@@ -89,8 +89,16 @@ function startLocalServer() {
 
     httpServer.on('error', (err) => {
         console.error('Local HTTP server failed:', err);
-        // Fallback to file:// if localhost fails for some reason
-        createWindow(true);
+
+        // Avoid falling back to file:// because it breaks origin-scoped storage
+        // that the auth and offline caches rely on (file:// gets its own origin).
+        dialog.showErrorBox(
+            'EarthCal startup error',
+            'EarthCal could not start its local server on http://127.0.0.1:3000.\n' +
+                'Please make sure another process is not using that port and restart the app.'
+        );
+
+        app.quit();
     });
 }
 
