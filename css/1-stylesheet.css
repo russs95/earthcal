@@ -2792,10 +2792,11 @@ color: #b2b1b1;
 }
 
 .offline-sync-indicator {
-    margin: 4px auto 0;
+    margin: 2px auto 0;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.77rem;
     color: var(--subdued-text, #6b7280);
+    font-family: 'Mulish',sans-serif;
 }
 
 /* 4) When dragged, cancel smooth animation */
@@ -2822,7 +2823,7 @@ color: #b2b1b1;
 
 @media screen and (max-width: 699px) {
     #reg-up-button {
-        margin: 0px -20px 6px auto;
+        margin: 0px -20px 10px auto;
         height: 30px;
     }
 
@@ -2832,14 +2833,14 @@ color: #b2b1b1;
     #reg-up-button {
         width: 25%;
         height: 38px;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
     }
 
 }
 
 @media screen and (min-width: 1201px) {
     #reg-up-button {
-        margin: 0px auto 6px 30px;
+        margin: 0px auto 10px 30px;
         width: 25%;
         height: 40px;
     }
@@ -2941,7 +2942,7 @@ INFO MODAL
   gap: 12px;
   margin: 0 auto 16px auto;
   max-width: 720px;
-  color: var(--p);
+  color: var(--text-color);
 }
 
 .ec-loading-spinner {
@@ -2953,7 +2954,7 @@ INFO MODAL
   font-size: 0.95rem;
   margin-bottom: 16px;
   text-align: center;
-  color: var(--p);
+  color: var(--text-color);
 }
 
 .ec-plan-table {
@@ -3021,7 +3022,7 @@ INFO MODAL
 .ec-plan-description {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--p);
+  color: var(--text-color);
 }
 
 .ec-plan-price {
@@ -3031,7 +3032,7 @@ INFO MODAL
 
 .ec-plan-interval {
   font-size: 0.85rem;
-  color: var(--p);
+  color: var(--text-color);
   margin-top: 4px;
 }
 
@@ -3085,7 +3086,7 @@ INFO MODAL
 
 .ec-plan-toggle:hover .ec-toggle-indicator,
 .ec-plan-toggle:focus-within .ec-toggle-indicator {
-  background: var(--emblem-green-hover, var(--emblem-green-over, var(--emblem-green, #16a34a)));
+  background: var(--emblem-green-over, var(--emblem-green-over, var(--emblem-green, #16a34a)));
 }
 
 .ec-toggle-option {
@@ -3178,7 +3179,7 @@ INFO MODAL
   list-style: disc;
   padding-left: 1.25rem;
   margin: 0;
-  color: var(--p);
+  color: var(--text-color);
 }
 
 .ec-plan-feature-list li {
@@ -3279,7 +3280,7 @@ INFO MODAL
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--p);
+  color: var(--text-color);
   }
 
   .ec-coupon-input-wrapper {
@@ -3418,7 +3419,7 @@ INFO MODAL
 
   .ec-coupon-cancel {
   background-color: rgba(148, 163, 184, 0.2);
-  color: var(--p);
+  color: var(--text-color);
   }
 
   .ec-coupon-cancel:hover,
@@ -3431,7 +3432,7 @@ INFO MODAL
   min-height: 1.2rem;
   font-size: 0.85rem;
   text-align: center;
-  color: var(--p);
+  color: var(--text-color);
   }
 
   .ec-downgrade-footer {
@@ -3653,7 +3654,7 @@ INFO MODAL
 .ec-public-nav-link {
     background: none;
     border: none;
-    color: var(--link-color, var(--accent-color, #2563eb));
+    color: var(--emblem-green, var(--emblem-green-over, #2563eb));
     padding: 0;
     font: inherit;
     text-decoration: underline;
@@ -4499,7 +4500,7 @@ svg path #june:hover {
 
 #current-datecycle-count {
     font-size: 0.88em;
-    font-family: 'Mulish';
+    font-family: 'Mulish', sans-serif;
     color: var(--subdued-text);
     text-align: center;
     cursor: default;
