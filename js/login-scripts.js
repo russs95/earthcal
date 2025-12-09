@@ -5,28 +5,27 @@
 window.user_plan = window.user_plan || "padwan";
 
 
-// For adjusting the way that the electron snap calls earthcal APIS:
-
+// API base resolver (supports hosted + Electron/Snap origins)
 function resolveEarthcalApiBase() {
     const origin = window.location.origin || '';
-
-    // Snap / Electron / local dev: serve UI from 127.0.0.1 or file://
-    if (
-        origin.startsWith('http://127.0.0.1') ||
-        origin.startsWith('http://localhost') ||
-        origin.startsWith('file://')
-    ) {
+    // If running on localhost / snap (127.0.0.1:3000, localhost:3000 etc.),
+    // we want to call the hosted API at https://earthcal.app/api/v1
+    if (origin.startsWith('http://127.0.0.1') || origin.startsWith('http://localhost')) {
         return 'https://earthcal.app/api/v1';
     }
-
-    // Hosted web: same-origin relative APIs
-    return '/api/v1';
+    // Otherwise we’re on the real site; use same-origin /api/v1
+    return `${origin.replace(/\/$/, '')}/api/v1`;
 }
 
-
+function getApiBase() {
+    // Allow an override if needed in future
+    return (typeof window.EARTHCAL_API_BASE !== 'undefined')
+        ? window.EARTHCAL_API_BASE
+        : resolveEarthcalApiBase();
+}
 
 // Make it globally visible so sync-store can reuse it too
-window.EARTHCAL_API_BASE = resolveEarthcalApiBase();
+window.EARTHCAL_API_BASE = getApiBase();
 
 
 // LOGIN CHECKING
@@ -325,9 +324,7 @@ async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
     // 🔎 Decide which API base to talk to (hosted vs local snap)
-    const apiBase = (typeof window.EARTHCAL_API_BASE !== 'undefined')
-        ? window.EARTHCAL_API_BASE
-        : resolveEarthcalApiBase();
+    const apiBase = getApiBase();
 
     // 1️⃣ Check current auth state via Buwana helper
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
@@ -1456,7 +1453,8 @@ function renderCalendarSelectionForm(calendars, {
             button.classList.add('is-syncing');
 
             try {
-                const res = await fetch('/api/v1/sync_ical.php', {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/sync_ical.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -2353,6 +2351,7 @@ async function sendUpRegistration() {
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
 
+        const apiBase = getApiBase();
         let calendars = readCalendarListCache();
 
         if (calendars) {
@@ -2362,7 +2361,7 @@ async function sendUpRegistration() {
         if (!calendars && payload?.buwana_id) {
             console.log("📡 Fetching fresh v1 calendar data...");
             try {
-                const calRes = await fetch('/api/v1/list_calendars.php', {
+                const calRes = await fetch(`${apiBase}/list_calendars.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -2421,7 +2420,8 @@ async function requestCalendarDetails(calendarId) {
         body.buwana_id = buwanaId;
     }
 
-    const response = await fetch('/api/v1/get_cal_info.php', {
+    const apiBase = getApiBase();
+    const response = await fetch(`${apiBase}/get_cal_info.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -2660,7 +2660,8 @@ async function toggleV1CalVisibility(toggleInput) {
     toggleInput.disabled = true;
 
     try {
-        const response = await fetch('/api/v1/cal_active_toggle.php', {
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/cal_active_toggle.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
@@ -2801,10 +2802,12 @@ async function deleteV1cal(calendarId, isDefault = false) {
 
     const buwanaId = payload.buwana_id;
 
+    const apiBase = getApiBase();
+
     try {
         setSyncStatus("Deleting calendar...", "🗑️", true);
 
-        const response = await fetch('/api/v1/delete_cal.php', {
+        const response = await fetch(`${apiBase}/delete_cal.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
@@ -2831,7 +2834,7 @@ async function deleteV1cal(calendarId, isDefault = false) {
         localStorage.removeItem(`calendar_${calendarId}`);
 
         try {
-            const calRes = await fetch('/api/v1/list_calendars.php', {
+            const calRes = await fetch(`${apiBase}/list_calendars.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
@@ -2917,7 +2920,8 @@ async function exportUserCalendar2ICS(calendarId, triggerButton = null) {
     }
 
     try {
-        const response = await fetch('/api/v1/export_user_ics.php', {
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/export_user_ics.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
@@ -3132,11 +3136,12 @@ async function fetchCalendarDatecycles(buwanaId, calendarId, options = {}) {
     const sourceType = typeof opts.source === 'string' ? opts.source : (typeof opts.type === 'string' ? opts.type : 'public');
     const numericBuwanaId = Number.isFinite(Number(buwanaId)) ? Number(buwanaId) : buwanaId;
 
-    let endpoint = '/api/v1/get_pub_cal_items.php';
+    const apiBase = getApiBase();
+    let endpoint = `${apiBase}/get_pub_cal_items.php`;
     let payload = { buwana_id: numericBuwanaId, calendar_id: calendarId };
 
     if (sourceType === 'user') {
-        endpoint = '/api/v1/get_user_items.php';
+        endpoint = `${apiBase}/get_user_items.php`;
         payload = { buwana_id: numericBuwanaId };
 
         if ('include_public' in opts) {
@@ -3253,6 +3258,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
     }
 
     const buwanaId = payload.buwana_id;
+    const apiBase = getApiBase();
     let latestCalendars = null;
     console.log(`🔄 Updating subscription for calendar ${calendarId}, subscribe: ${subscribe ? '1' : '0'}`);
 
@@ -3264,7 +3270,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
             setSyncStatus("Removing calendar subscription...", "🔴", true);
         }
 
-        const endpoint = '/api/v1/toggle_pub_subscriptions.php';
+        const endpoint = `${apiBase}/toggle_pub_subscriptions.php`;
 
         const requestBody = {
             buwana_id: buwanaId,
@@ -3339,7 +3345,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
 
         // 3. Refresh calendar metadata cache
         try {
-            const calRes = await fetch('/api/v1/list_calendars.php', {
+            const calRes = await fetch(`${apiBase}/list_calendars.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
@@ -3382,7 +3388,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
 
                         if (activationPayload.calendar_id !== undefined || activationPayload.subscription_id !== undefined) {
                             try {
-                                const activateRes = await fetch('/api/v1/cal_active_toggle.php', {
+                                const activateRes = await fetch(`${apiBase}/cal_active_toggle.php`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     credentials: 'same-origin',
