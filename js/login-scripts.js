@@ -126,17 +126,52 @@ const CALENDAR_LIST_CACHE_KEY = 'user_calendars_v1';
 const LEGACY_CALENDAR_LIST_CACHE_KEY = 'user_calendars';
 const OFFLINE_PROFILE_CACHE_KEY = 'user_profile_offline';
 
+function resolveCachedBuwanaId() {
+    const tryParse = (value) => {
+        try { return JSON.parse(value); } catch { return null; }
+    };
+
+    const sources = [
+        () => sessionStorage.getItem("buwana_user"),
+        () => localStorage.getItem("user_profile"),
+        () => localStorage.getItem(OFFLINE_PROFILE_CACHE_KEY),
+    ];
+
+    for (const getter of sources) {
+        const raw = getter();
+        if (!raw) continue;
+        const parsed = tryParse(raw);
+        if (parsed?.buwana_id) {
+            return parsed.buwana_id;
+        }
+    }
+
+    const fallbackId = localStorage.getItem("earthcal_last_buwana_id");
+    return fallbackId || null;
+}
+
 function persistCalendarListCache(calendars) {
     if (!Array.isArray(calendars)) {
         return;
     }
 
+    let payload = null;
+
     try {
-        const payload = JSON.stringify(calendars);
+        payload = JSON.stringify(calendars);
         sessionStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
         localStorage.setItem(CALENDAR_LIST_CACHE_KEY, payload);
     } catch (err) {
         console.debug('[cache] Unable to persist calendar list cache', err);
+    }
+
+    const buwanaId = resolveCachedBuwanaId();
+    if (payload && buwanaId) {
+        try {
+            localStorage.setItem(`ec_user_${buwanaId}_calendars`, payload);
+        } catch (err) {
+            console.warn('[cache] Unable to persist user-scoped calendar cache', err);
+        }
     }
 
     try {
