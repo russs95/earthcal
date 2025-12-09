@@ -2668,6 +2668,8 @@ function humanDate(yyyy_mm_dd) {
 
 const CAL_CACHE_KEY = 'earthcal_calendars';
 const CAL_CACHE_AT_KEY = 'earthcal_calendars_cached_at';
+const LOCAL_CAL_CACHE_KEY = 'user_calendars_list';
+const LOCAL_CAL_CACHE_AT_KEY = 'user_calendars_cached_at';
 const PUBLIC_CAL_CACHE_KEY = 'earthcal_public_calendars';
 const PUBLIC_CAL_CACHE_AT_KEY = 'earthcal_public_calendars_cached_at';
 
@@ -2736,20 +2738,33 @@ async function loadUserCalendars(buwana_id, { force = false, maxAgeMs = 5 * 60 *
 
 /** Read calendar cache if not older than maxAgeMs; else null. */
 function readCalendarsFromCache(maxAgeMs) {
-    try {
-        const at = Number(sessionStorage.getItem(CAL_CACHE_AT_KEY) || 0);
-        if (at && Date.now() - at <= maxAgeMs) {
-            const arr = JSON.parse(sessionStorage.getItem(CAL_CACHE_KEY) || '[]');
-            if (Array.isArray(arr) && arr.length) return arr;
-        }
-    } catch {}
-    return null;
+    const attemptRead = (storage, key, atKey) => {
+        try {
+            const at = Number(storage.getItem(atKey) || 0);
+            if (at && Date.now() - at <= maxAgeMs) {
+                const arr = JSON.parse(storage.getItem(key) || '[]');
+                if (Array.isArray(arr) && arr.length) return arr;
+            }
+        } catch (_) {}
+        return null;
+    };
+
+    // Prefer the session cache (short-lived) for freshness
+    const sessionCached = attemptRead(sessionStorage, CAL_CACHE_KEY, CAL_CACHE_AT_KEY);
+    if (sessionCached) return sessionCached;
+
+    // Fall back to the persistent localStorage cache for offline app use
+    return attemptRead(localStorage, LOCAL_CAL_CACHE_KEY, LOCAL_CAL_CACHE_AT_KEY);
 }
 
 function saveCalendarsToCache(list) {
     try {
         sessionStorage.setItem(CAL_CACHE_KEY, JSON.stringify(list || []));
         sessionStorage.setItem(CAL_CACHE_AT_KEY, String(Date.now()));
+
+        // Persist for offline/standalone apps
+        localStorage.setItem(LOCAL_CAL_CACHE_KEY, JSON.stringify(list || []));
+        localStorage.setItem(LOCAL_CAL_CACHE_AT_KEY, String(Date.now()));
     } catch (e) {
         console.debug('saveCalendarsToCache failed (quota?)', e);
     }
@@ -2758,6 +2773,8 @@ function saveCalendarsToCache(list) {
 function invalidateCalendarsCache() {
     sessionStorage.removeItem(CAL_CACHE_KEY);
     sessionStorage.removeItem(CAL_CACHE_AT_KEY);
+    localStorage.removeItem(LOCAL_CAL_CACHE_KEY);
+    localStorage.removeItem(LOCAL_CAL_CACHE_AT_KEY);
 }
 
 async function loadPublicCalendars({ force = false, maxAgeMs = 5 * 60 * 1000 } = {}) {
