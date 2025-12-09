@@ -3,31 +3,63 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+/* ============================================================
+   EARTHCAL v1 APIS  | get_user_items.php
+   Returns all calendars (and items) for a given Buwana user.
+   ------------------------------------------------------------
+   Expected JSON Payload:
+   {
+     "buwana_id": 123,
+     "include_public": true,  // optional; default true
+     "only_active": true,     // optional; default true
+     "year": 2024             // optional; filter items by year
+   }
+   ------------------------------------------------------------
+   Successful Response:
+   {
+     "ok": true,
+     "calendar_count": 4,
+     "item_count": 128,
+     "calendars": [ ... ]
+   }
+   ============================================================ */
+
+
+// -------------------------------------------------------------
+// 0. Earthcal.app server-based APIs CORS Setup
+// -------------------------------------------------------------
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && $origin !== null) {
-    $trimmedOrigin = rtrim($origin, '/');
-    if (in_array($trimmedOrigin, $allowed_origins, true)) {
-        header('Access-Control-Allow-Origin: ' . $trimmedOrigin);
+
+// If this is a CORS request (Origin header present)…
+if ($origin !== '') {
+    $normalized_origin = rtrim($origin, '/');
+
+    if (in_array($normalized_origin, $allowed_origins, true)) {
+        header('Access-Control-Allow-Origin: ' . $normalized_origin);
+        header('Vary: Origin'); // best practice
     } else {
+        // Explicitly reject unknown web origins
         http_response_code(403);
         echo json_encode(['ok' => false, 'error' => 'cors_denied']);
         exit;
     }
-} else {
-    header('Access-Control-Allow-Origin: *');
-}
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    exit(0);
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        exit(0);
+    }
+} else {
+    // No Origin header (e.g. curl, server-side) – no CORS needed
+    // You can leave this branch empty or add minimal headers if you like.
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
