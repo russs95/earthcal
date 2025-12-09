@@ -1,33 +1,62 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
+
+/* ============================================================
+   EARTHCAL v1 APIS  | check_user_sub.php
+   Look up a user's active subscription and available plans.
+   ------------------------------------------------------------
+   Expected JSON Payload:
+   {
+     "buwana_id": 123
+   }
+
+   Successful Response:
+   {
+     "ok": true,
+     "plans": [ ... active plans ... ],
+     "current_subscription": { ... normalized subscription ... },
+     "current_plan_name": "Pro Monthly"
+   }
+   ============================================================ */
+
+// -------------------------------------------------------------
+// 0. Earthcal.app server-based APIs CORS Setup
+// -------------------------------------------------------------
 
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && $origin !== null) {
-    $trimmedOrigin = rtrim($origin, '/');
-    if (in_array($trimmedOrigin, $allowed_origins, true)) {
-        header('Access-Control-Allow-Origin: ' . $trimmedOrigin);
+
+// If this is a CORS request (Origin header present)…
+if ($origin !== '') {
+    $normalizedOrigin = rtrim($origin, '/');
+
+    if (in_array($normalizedOrigin, $allowed_origins, true)) {
+        header('Access-Control-Allow-Origin: ' . $normalizedOrigin);
+        header('Vary: Origin'); // best practice
     } else {
+        // Explicitly reject unknown web origins
         http_response_code(403);
         echo json_encode(['ok' => false, 'error' => 'cors_denied']);
         exit;
     }
-} else {
-    header('Access-Control-Allow-Origin: *');
-}
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    exit(0);
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        exit(0);
+    }
+} else {
+    // No Origin header (e.g. curl, server-side) – no CORS needed
+    // You can leave this branch empty or add minimal headers if you like.
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -36,21 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$raw = file_get_contents('php://input');
-$payload = json_decode($raw ?: '[]', true);
-if (!is_array($payload)) {
-    $payload = $_POST;
-}
-
-$buwanaId = filter_var($payload['buwana_id'] ?? null, FILTER_VALIDATE_INT);
-if (!$buwanaId) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'buwana_id_required']);
-    exit;
-}
-
+// -------------------------------------------------------------
+// 1. Load dependencies and connect to database
+// -------------------------------------------------------------
 try {
     require_once __DIR__ . '/../pdo_connect.php';
+    require_once __DIR__ . '/../earthcal_plan_helpers.php';
     $pdo = earthcal_get_pdo();
 } catch (Throwable $e) {
     http_response_code(500);
@@ -58,8 +78,29 @@ try {
     exit;
 }
 
-require_once __DIR__ . '/../earthcal_plan_helpers.php';
+// -------------------------------------------------------------
+// 2. Parse input
+// -------------------------------------------------------------
+$raw = file_get_contents('php://input');
+$payload = json_decode($raw ?: '[]', true);
+if (!is_array($payload)) {
+    $payload = $_POST;
+}
 
+$buwanaId = filter_var($payload['buwana_id'] ?? null, FILTER_VALIDATE_INT);
+
+// -------------------------------------------------------------
+// 3. Validate input
+// -------------------------------------------------------------
+if (!$buwanaId) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => 'buwana_id_required']);
+    exit;
+}
+
+// -------------------------------------------------------------
+// 4. Fetch active plans and subscription
+// -------------------------------------------------------------
 try {
     $plans = earthcal_fetch_active_plans($pdo);
 } catch (Throwable $e) {
@@ -133,6 +174,9 @@ try {
     exit;
 }
 
+// -------------------------------------------------------------
+// 5. Emit response
+// -------------------------------------------------------------
 echo json_encode([
     'ok' => true,
     'plans' => $plans,
