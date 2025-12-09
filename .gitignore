@@ -19,7 +19,7 @@ earthcal_1.0.3_amd64.snap
 earthcal_1.0.4_amd64.snap
 experiments
 /earthcal_0.9.5_amd64.snap
-/earthcal_0.9.6_amd64.snap
+earthcal_1.1.0_amd64.snap
 .htaccess
 api/.htaccess
 api/buwanaconn_env.php
@@ -27,3 +27,4 @@ api/calconn_env.php
 api/stripe_env.php
 
 /vendor/
+/earthcal_1.1.0_amd64.snap

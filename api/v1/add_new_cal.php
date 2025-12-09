@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 /* ============================================================
    EARTHCAL v1 APIS  | add_new_cal.php
+
    This API creates a new calendar (non-default) for the user.
    ------------------------------------------------------------
    Expected JSON Payload:
