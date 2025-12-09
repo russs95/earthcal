@@ -8,30 +8,43 @@ header('Content-Type: application/json; charset=utf-8');
    Updated: 2025-10-09
    ============================================================ */
 
+
 // -------------------------------------------------------------
-//  0️⃣ CORS Setup (consistent with your other v1 APIs)
+//  Earthcal.app server-based APIs CORS Setup
 // -------------------------------------------------------------
 $allowed_origins = [
-    'https://ecobricks.org',
     'https://earthcal.app',
-    'http://localhost',
-    'file://'
+    // EarthCal desktop / local dev:
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
 ];
+
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array(rtrim($origin, '/'), $allowed_origins)) {
-    header('Access-Control-Allow-Origin: ' . rtrim($origin, '/'));
-} elseif (empty($origin)) {
-    header('Access-Control-Allow-Origin: *');
+
+// If this is a CORS request (Origin header present)…
+if ($origin !== '') {
+    $normalized_origin = rtrim($origin, '/');
+
+    if (in_array($normalized_origin, $allowed_origins, true)) {
+        header('Access-Control-Allow-Origin: ' . $normalized_origin);
+        header('Vary: Origin'); // best practice
+    } else {
+        // Explicitly reject unknown web origins
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'cors_denied']);
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        exit(0);
+    }
 } else {
-    header('HTTP/1.1 403 Forbidden');
-    echo json_encode(['ok' => false, 'error' => 'cors_denied']);
-    exit;
+    // No Origin header (e.g. curl, server-side) – no CORS needed
+    // You can leave this branch empty or add minimal headers if you like.
 }
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    exit(0);
-}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'error' => 'invalid_method']);

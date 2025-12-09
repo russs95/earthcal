@@ -3,13 +3,11 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Allow calls from our known front-end origins.
-$allowedOrigins = [
-    'https://ecobricks.org',
+$allowed_origins = [
     'https://earthcal.app',
-    'https://beta.earthcal.app',
-    'http://localhost',
-    'file://'
+    // EarthCal desktop / local dev:
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

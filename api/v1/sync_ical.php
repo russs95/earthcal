@@ -11,9 +11,14 @@ require_once '../pdo_connect.php';
 header('Content-Type: application/json; charset=utf-8');
 
 /* ----------------------------- CORS ----------------------------- */
+
 $allowed_origins = [
-  'https://ecobricks.org','https://earthcal.app','https://beta.earthcal.app','http://localhost','file://'
+    'https://earthcal.app',
+    // EarthCal desktop / local dev:
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
 ];
+
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origin !== '' && $origin !== null) {
   $trim = rtrim($origin,'/');

@@ -5,12 +5,11 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Configure the CORS policy so trusted surfaces (web app, beta app, local dev)
 // can call this endpoint directly from the browser.
-$allowedOrigins = [
-
+$allowed_origins = [
     'https://earthcal.app',
-    'https://beta.earthcal.app',
-    'http://localhost',
-    'file://'
+    // EarthCal desktop / local dev:
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
