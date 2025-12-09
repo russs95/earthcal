@@ -3,17 +3,47 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
 /* ============================================================
-   EARTHCAL v1 | add_item.php  (PDO version)
+   EARTHCAL v1 APIS  | add_item.php
    Adds a new To-Do / Event / Journal entry for a user.
-   Updated: 2025-10-09
+   ------------------------------------------------------------
+   Expected JSON Payload:
+   {
+     "buwana_id": 123,
+     "title": "Doctor Appointment",
+     "item_kind": "event",  // todo | event | journal
+     "start_local": "2025-05-01 09:00:00",
+     "end_local": "2025-05-01 10:00:00", // optional
+     "tzid": "America/Los_Angeles",
+     "calendar_id": 42, // optional; falls back to default or creates one
+     "all_day": false,
+     "pinned": false,
+     "emoji": "🩺",
+     "color_hex": "#3b82f6",
+     "notes": "Bring previous lab results",
+     "duration_minutes": 60, // optional; used if end_local missing
+     "location": "Clinic",
+     "url": "https://example.com/appointment",
+     "extras": {"doctor": "Smith"},
+     "categories": ["health", "personal"]
+   }
+   ------------------------------------------------------------
+   Successful Response:
+   {
+     "ok": true,
+     "item_id": 987,
+     "calendar_id": 42,
+     "item_kind": "event",
+     ... other echoed fields ...
+   }
    ============================================================ */
 
 
 // -------------------------------------------------------------
-//  Earthcal.app server-based APIs CORS Setup
+// 0. Earthcal.app server-based APIs CORS Setup
 // -------------------------------------------------------------
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
@@ -52,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // -------------------------------------------------------------
-//  1️⃣ Database connection (via PDO)
+// 1. Database connection (via PDO)
 // -------------------------------------------------------------
 try {
     require_once __DIR__ . '/../pdo_connect.php';
@@ -64,7 +94,7 @@ try {
 }
 
 // -------------------------------------------------------------
-//  2️⃣ Parse & validate input
+// 2. Parse & validate input
 // -------------------------------------------------------------
 $raw = file_get_contents('php://input');
 $data = json_decode($raw ?: '[]', true);
@@ -97,7 +127,7 @@ if (!$buwana_id || $title === '' || $start_local === '') {
 }
 
 // -------------------------------------------------------------
-//  3️⃣ Helpers
+// 3. Helpers
 // -------------------------------------------------------------
 function rand_hex(int $bytes = 16): string { return bin2hex(random_bytes($bytes)); }
 function rand_slug(int $len = 12): string {
@@ -121,7 +151,7 @@ function to_utc(string $local, string $tzid): string {
 }
 
 // -------------------------------------------------------------
-//  4️⃣ Resolve calendar_id (use existing, default, or create new)
+// 4. Resolve calendar_id (use existing, default, or create new)
 // -------------------------------------------------------------
 try {
     if ($calendar_id > 0) {
@@ -169,7 +199,7 @@ try {
 }
 
 // -------------------------------------------------------------
-//  5️⃣ Compute UTC timestamps
+// 5. Compute UTC timestamps
 // -------------------------------------------------------------
 if ($all_day) {
     $datePart = substr($start_local, 0, 10);
@@ -294,7 +324,7 @@ if (is_array($categories_input)) {
 }
 
 // -------------------------------------------------------------
-//  6️⃣ Insert item into items_v1_tb
+// 6. Insert item into items_v1_tb
 // -------------------------------------------------------------
 try {
     // Fetch actual column names
