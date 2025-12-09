@@ -2688,9 +2688,14 @@ async function loadUserCalendars(buwana_id, { force = false, maxAgeMs = 5 * 60 *
         if (cached) return cached;
     }
 
+    const apiBase = (typeof getApiBase === 'function')
+        ? getApiBase()
+        : (window.EARTHCAL_API_BASE || '/api/v1');
+    const listCalendarsUrl = `${String(apiBase).replace(/\/$/, '')}/list_calendars.php`;
+
     let res;
     try {
-        res = await fetch('/api/v1/list_calendars.php', {
+        res = await fetch(listCalendarsUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
