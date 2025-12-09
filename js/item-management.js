@@ -2670,7 +2670,6 @@ const CAL_CACHE_KEY = 'earthcal_calendars';
 const CAL_CACHE_AT_KEY = 'earthcal_calendars_cached_at';
 const LOCAL_CAL_CACHE_KEY = 'user_calendars_list';
 const LOCAL_CAL_CACHE_AT_KEY = 'user_calendars_cached_at';
-const SYNC_STORE_CAL_CACHE_KEY = 'user_calendars_v1';
 const PUBLIC_CAL_CACHE_KEY = 'earthcal_public_calendars';
 const PUBLIC_CAL_CACHE_AT_KEY = 'earthcal_public_calendars_cached_at';
 
@@ -2739,18 +2738,13 @@ async function loadUserCalendars(buwana_id, { force = false, maxAgeMs = 5 * 60 *
 
 /** Read calendar cache if not older than maxAgeMs; else null. */
 function readCalendarsFromCache(maxAgeMs) {
-    const attemptRead = (storage, key, atKey, { allowMissingTimestamp = false } = {}) => {
+    const attemptRead = (storage, key, atKey) => {
         try {
-            const raw = storage.getItem(key);
-            if (!raw) return null;
-
-            const at = Number(atKey ? storage.getItem(atKey) || 0 : 0);
-            const arr = JSON.parse(raw || '[]');
-            const hasData = Array.isArray(arr) && arr.length;
-            const isFresh = at && Date.now() - at <= maxAgeMs;
-            const canUseStale = allowMissingTimestamp && !at;
-
-            if (hasData && (isFresh || canUseStale)) return arr;
+            const at = Number(storage.getItem(atKey) || 0);
+            if (at && Date.now() - at <= maxAgeMs) {
+                const arr = JSON.parse(storage.getItem(key) || '[]');
+                if (Array.isArray(arr) && arr.length) return arr;
+            }
         } catch (_) {}
         return null;
     };
@@ -2759,16 +2753,8 @@ function readCalendarsFromCache(maxAgeMs) {
     const sessionCached = attemptRead(sessionStorage, CAL_CACHE_KEY, CAL_CACHE_AT_KEY);
     if (sessionCached) return sessionCached;
 
-    // sync-store mirrors calendars to session/localStorage under user_calendars_v1 without timestamps
-    const syncStoreSession = attemptRead(sessionStorage, SYNC_STORE_CAL_CACHE_KEY, null, { allowMissingTimestamp: true });
-    if (syncStoreSession) return syncStoreSession;
-
     // Fall back to the persistent localStorage cache for offline app use
-    const localCached = attemptRead(localStorage, LOCAL_CAL_CACHE_KEY, LOCAL_CAL_CACHE_AT_KEY);
-    if (localCached) return localCached;
-
-    // Finally, accept sync-store's persisted copy even if it lacks a timestamp
-    return attemptRead(localStorage, SYNC_STORE_CAL_CACHE_KEY, null, { allowMissingTimestamp: true });
+    return attemptRead(localStorage, LOCAL_CAL_CACHE_KEY, LOCAL_CAL_CACHE_AT_KEY);
 }
 
 function saveCalendarsToCache(list) {
@@ -2779,11 +2765,6 @@ function saveCalendarsToCache(list) {
         // Persist for offline/standalone apps
         localStorage.setItem(LOCAL_CAL_CACHE_KEY, JSON.stringify(list || []));
         localStorage.setItem(LOCAL_CAL_CACHE_AT_KEY, String(Date.now()));
-
-        // Mirror sync-store's calendar cache key for compatibility
-        const serialized = JSON.stringify(list || []);
-        sessionStorage.setItem(SYNC_STORE_CAL_CACHE_KEY, serialized);
-        localStorage.setItem(SYNC_STORE_CAL_CACHE_KEY, serialized);
     } catch (e) {
         console.debug('saveCalendarsToCache failed (quota?)', e);
     }
@@ -2792,10 +2773,8 @@ function saveCalendarsToCache(list) {
 function invalidateCalendarsCache() {
     sessionStorage.removeItem(CAL_CACHE_KEY);
     sessionStorage.removeItem(CAL_CACHE_AT_KEY);
-    sessionStorage.removeItem(SYNC_STORE_CAL_CACHE_KEY);
     localStorage.removeItem(LOCAL_CAL_CACHE_KEY);
     localStorage.removeItem(LOCAL_CAL_CACHE_AT_KEY);
-    localStorage.removeItem(SYNC_STORE_CAL_CACHE_KEY);
 }
 
 async function loadPublicCalendars({ force = false, maxAgeMs = 5 * 60 * 1000 } = {}) {
