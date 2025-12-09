@@ -1852,21 +1852,28 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     } = loggedInStrings;
 
     const fallbackCalendars = Array.isArray(calendars) ? [...calendars] : [];
-    let calendarList = [];
+    let calendarList = [...fallbackCalendars];
 
     if (typeof loadUserCalendars === 'function') {
         try {
-            calendarList = await loadUserCalendars(buwana_id, { force: true });
+            const freshCalendars = await loadUserCalendars(buwana_id, { force: false });
+
+            // If the refresh returned only a synthetic fallback calendar but we already
+            // had a richer cache (e.g. from the Electron snap), prefer the cached data
+            // to avoid overwriting it with a placeholder.
+            const looksLikeFallback = Array.isArray(freshCalendars)
+                && freshCalendars.length === 1
+                && (freshCalendars[0]?.calendar_id ?? freshCalendars[0]?.id ?? null) === null
+                && ((freshCalendars[0]?.name || '').trim().toLowerCase() === 'my calendar');
+
+            if (!looksLikeFallback || calendarList.length === 0) {
+                calendarList = freshCalendars;
+            } else {
+                console.warn('[showLoggedInView] Keeping cached calendar list because fresh data looks like fallback.');
+            }
         } catch (err) {
             console.warn('[showLoggedInView] Unable to refresh v1 calendars:', err);
-            calendarList = [];
         }
-    } else {
-        calendarList = [...fallbackCalendars];
-    }
-
-    if (!Array.isArray(calendarList) || !calendarList.length) {
-        calendarList = [...fallbackCalendars];
     }
 
     if (!Array.isArray(calendarList)) {
