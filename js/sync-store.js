@@ -140,31 +140,40 @@
     }
 
     async function checkBackendReachable() {
-        if (!navigator.onLine) return false;
+        // Don’t short-circuit on navigator.onLine; just try.
         try {
             const res = await fetch(`${apiBase}/get_earthcal_plans.php`, {
                 method: 'GET',
                 cache: 'no-store',
-                credentials: 'same-origin'
+                credentials: 'omit'
             });
-            return res.ok || res.status === 404;
+            // If we got any HTTP response, the backend is reachable.
+            return true;
         } catch (err) {
             console.debug('[sync-store] backend reachability failed', err);
             return false;
         }
     }
 
+
     async function determineConnectivity() {
         const reachable = await checkBackendReachable();
+
+        // In Electron/snap, navigator.onLine is often unreliable.
+        // If the backend is reachable, we treat the app as online.
+        const online = reachable || navigator.onLine;
+
         connectivityState = {
             ...connectivityState,
-            online: navigator.onLine && reachable,
+            online,
             backendReachable: reachable,
             lastChecked: Date.now()
         };
+
         notifyStatusListeners();
         return connectivityState.online;
     }
+
 
     function notifyStatusListeners(extra = {}) {
         const payload = { ...connectivityState, ...extra, pending: readOutbox().length };

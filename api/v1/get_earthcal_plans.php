@@ -12,6 +12,8 @@ header('Content-Type: application/json; charset=utf-8');
 //  0. Earthcal.app server-based APIs CORS Setup
 // -------------------------------------------------------------
 
+
+
 $allowed_origins = [
     'https://earthcal.app',
     'https://beta.earthcal.app',
@@ -21,6 +23,8 @@ $allowed_origins = [
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+error_log('get_earthcal_plans origin=' . ($origin ?: 'NONE'));
 
 // If this is a CORS request (Origin header present)…
 if ($origin !== '') {
@@ -51,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(['ok' => false, 'error' => 'invalid_method']);
     exit;
 }
+
 
 
 // -------------------------------------------------------------
