@@ -2797,6 +2797,9 @@ color: #b2b1b1;
     font-size: 0.77rem;
     color: var(--subdued-text, #6b7280);
     font-family: 'Mulish',sans-serif;
+    margin-right: auto;
+    width: 222px;
+    margin-left: 15px;
 }
 
 /* 4) When dragged, cancel smooth animation */
