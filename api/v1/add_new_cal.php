@@ -1,12 +1,11 @@
 <?php
 
-
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
 /* ============================================================
-   EARTHCAL v1 | add_new_cal.php
-   Create a new user calendar (non-default).
+   EARTHCAL v1 APIS  | add_new_cal.php
+   This API creates a new calendar (non-default) for the user.
    ------------------------------------------------------------
    Expected JSON Payload:
    {
@@ -22,10 +21,12 @@ header('Content-Type: application/json; charset=utf-8');
    ============================================================ */
 
 // -------------------------------------------------------------
-//  Earthcal.app server-based APIs CORS Setup
+//  0. Earthcal.app server-based APIs CORS Setup
 // -------------------------------------------------------------
+
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
@@ -65,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // -------------------------------------------------------------
-// 1️⃣ Connect to database (PDO)
+// 1.  Connect to database (PDO)
 // -------------------------------------------------------------
 try {
     require_once __DIR__ . '/../pdo_connect.php';
@@ -92,7 +93,7 @@ try {
 
 
 // -------------------------------------------------------------
-// 2️⃣ Parse input
+// 2. Parse input
 // -------------------------------------------------------------
 $raw = file_get_contents('php://input');
 $data = json_decode($raw ?: '[]', true);
@@ -114,7 +115,7 @@ if (!$buwana_id || $name === '') {
 }
 
 // -------------------------------------------------------------
-// 3️⃣ Helpers
+// 3. Helpers
 // -------------------------------------------------------------
 function rand_hex(int $bytes = 16): string { return bin2hex(random_bytes($bytes)); }
 function rand_slug(int $len = 12): string {
@@ -127,7 +128,7 @@ function make_internal_subscription_url(string $type, int $uid, int $calId): str
 }
 
 // -------------------------------------------------------------
-// 4️⃣ Verify user exists
+// 4. Verify user exists
 // -------------------------------------------------------------
 try {
     $u = $pdo->prepare("SELECT buwana_id FROM users_tb WHERE buwana_id=? LIMIT 1");
@@ -144,7 +145,7 @@ try {
 }
 
 // -------------------------------------------------------------
-// 5️⃣ Create new calendar
+// 5.  Create the new v1 calendar
 // -------------------------------------------------------------
 try {
     $pdo->beginTransaction();
