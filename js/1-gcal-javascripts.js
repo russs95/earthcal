@@ -530,8 +530,8 @@ function addNewiCal({ hostTarget, meta = {}, icalUrl = '' } = {}) {
                 </div>
                 <div class="ec-inline-field ec-color-field" style="width:auto;display:flex;align-items:center;">
                     <input id="ec-cal-color" name="calendar_color" type="color" value="${escapeAttr(defaultColor)}"
-                           class="blur-form-field ec-color-input" aria-label="Calendar color"
-                           style="width:40px;height:40px;padding:0;">
+                           class="ec-color-input" aria-label="Calendar color"
+                           style="width:40px;height:40px;padding:0;border:0">
                 </div>
             </div>
             <div class="ec-add-calendar-actions" style="margin-top:8px;display:flex;">

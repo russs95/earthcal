@@ -474,7 +474,7 @@ flex-direction: row;
 
 #event-show-hide  {
   border: none;
-    margin:0 10px 10px 10px;
+    margin:0 10px -5px 10px;
   cursor:pointer;
   height:30px;
   width:30px;
@@ -3817,7 +3817,7 @@ INFO MODAL
     width: 100%;
     height: 100%;
     border-radius: 999px;
-    background: var(--form-field-background);
+    /*background: var(--form-field-background);*/
     pointer-events: none;
     transition: background 0.2s ease;
 }

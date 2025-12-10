@@ -3492,7 +3492,7 @@ async function sendDownRegistration() {
 
         if (footer) {
             footer.style.height = "25px";
-            footer.style.marginBottom = "";
+            footer.style.marginBottom = "5px";
         }
 
         if (loggedOutView) {
