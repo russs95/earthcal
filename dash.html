@@ -385,17 +385,16 @@
             const savedChoice = (typeof getSavedOfflineMode === 'function')
                 ? getSavedOfflineMode()
                 : 'offline';
+            const normalizedChoice = (typeof setOfflineModeChoice === 'function')
+                ? setOfflineModeChoice(savedChoice)
+                : savedChoice;
 
-            const useCachedData = savedChoice !== 'simple';
+            const useCachedData = normalizedChoice !== 'simple';
 
             if (typeof getOfflineUserData === 'function') {
                 getOfflineUserData({ useCachedData });
             } else if (typeof useDefaultUser === 'function') {
                 useDefaultUser();
-            }
-
-            if (typeof sendUpRegistration === 'function') {
-                sendUpRegistration();
             }
         }
 
@@ -506,19 +505,7 @@
                 <div style="text-align:center;width:100%;" >
                     <div class="earthcal-app-logo" style="margin-bottom: 20px;"><img src="svgs/earthcal-icon.svg" style="width:125px;height:125px;"></div>
                     <div id="offline-status-message" class="login-greeting">Welcome Earthling</div>
-                    <div id="offline-sub-status-message">It looks like you are offline.  Please choose if you wish to use Offline Mode (loading your cached data) or Simple mode (anonymous).</div>
-                </div>
-
-                <div class="offline-toggle-wrapper">
-                    <div class="offline-toggle" aria-label="Toggle between offline mode and simple mode">
-                        <span class="mode-label">Simple</span>
-                        <label class="offline-switch">
-                            <input type="checkbox" id="offline-mode-toggle" aria-label="Offline mode selector">
-                            <span class="offline-slider"></span>
-                        </label>
-                        <span class="mode-label">Offline</span>
-                    </div>
-                    <div id="offline-mode-status" class="offline-mode-caption">Your choice is saved for next time.</div>
+                    <div id="offline-sub-status-message">It looks like you are offline. We'll use your cached data now and sync when you're back online.</div>
                 </div>
 
                 <div style="text-align:center;width:100%;margin:auto;margin-top:16px;max-width:500px;display:flex;flex-direction:column;gap:10px;">

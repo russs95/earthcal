@@ -316,35 +316,11 @@ async function openMainMenu() {
         ? `https://buwana.ecobricks.org/${lang}/feedback.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(appClientId)}`
         : `https://buwana.ecobricks.org/${lang}/feedback.php`;
 
-    const userPlan = (window.user_plan || '').toLowerCase();
-    const planName = userPlan === 'jedi'
-        ? 'EarthCal Jedi'
-        : userPlan === 'padwan'
-            ? 'EarthCal Padwan'
-            : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
-    const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
-    const planActionText = userPlan === 'jedi'
-        ? 'Manage Subscription'
-        : 'Upgrade EarthCal';
-    const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
-
     const feedbackItemHtml = isAuthenticated
         ? `
             <div class="menu-page-item">
                 <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
                     Feedback &amp; Bugs
-                </div>
-            </div>
-        `
-        : '';
-
-    const planStatusHtml = isAuthenticated
-        ? `
-            <div class="menu-plan-status">
-                <div class="menu-plan-pill ${planClass}">
-                    <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
-                    <span class="menu-plan-pill-text">${planName}</span>
-                    ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
                 </div>
             </div>
         `
@@ -364,6 +340,9 @@ async function openMainMenu() {
             <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
                 ${mainMenu.latestVersion}
             </div>
+            <div class="menu-page-item" role="button" tabindex="0" onclick="manageEarthcalUserSub();" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); manageEarthcalUserSub(); }">
+                Upgrade Earthcal
+            </div>
             <div class="menu-page-item">
                 <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
             </div>
@@ -373,8 +352,6 @@ async function openMainMenu() {
             </div>
 
             ${feedbackItemHtml}
-
-            ${planStatusHtml}
         </div>
         
         <div id="main-menu-footer">
