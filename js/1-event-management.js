@@ -796,8 +796,7 @@ async function highlightDateCycles(targetDate) {
         }
     });
 
-    const unsyncedMatching = [...matchingPinned, ...matchingCurrent].filter(dc => dc && dc.pending);
-    console.log(`📌 Found ${matchingPinned.length} pinned, ${matchingCurrent.length} current dateCycles for target date and ${unsyncedMatching.length} unsynced item.`);
+    console.log(`📌 Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
     console.log('[highlightDateCycles] rendering dateCycles for target', {
         targetDate: targetDateObj.toISOString(),
         matchingPinned,
