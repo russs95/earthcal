@@ -669,8 +669,12 @@ function setOfflineModeChoice(mode) {
     window.earthcalMode = normalized;
     window.isOfflineMode = normalized === 'offline';
     window.isSimpleMode = normalized === 'simple';
+    window.isSimpleModeActive = window.isSimpleMode;
     return normalized;
 }
+
+// Ensure global offline/simple mode flags are initialized on load
+setOfflineModeChoice(getSavedOfflineMode());
 
 function updateOfflineToggleUI(mode) {
     const toggle = document.getElementById('offline-mode-toggle');
@@ -2350,8 +2354,23 @@ async function sendUpRegistration() {
     container.classList.add("expanded");
 
     if (!navigator.onLine) {
-        console.warn("[EarthCal] Offline detected. Showing offline mode chooser.");
-        showOfflineForm();
+        console.warn("[EarthCal] Offline detected. Showing cached logged-in view.");
+
+        const offlineForm = document.getElementById('offline-form-section');
+        if (offlineForm) {
+            offlineForm.style.display = 'none';
+            offlineForm.setAttribute('aria-hidden', 'true');
+        }
+
+        const cachedCalendars = readCalendarListCache();
+
+        if (cachedCalendars && typeof showLoggedInView === 'function') {
+            showLoggedInView(cachedCalendars);
+        } else {
+            console.warn('[EarthCal] No cached calendars available to render logged-in view. Showing login form.');
+            showLoginForm(loggedOutView, loggedInView);
+        }
+
         updateFooterAndArrowUI(footer, upArrow, downArrow);
         return;
     }

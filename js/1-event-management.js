@@ -727,6 +727,16 @@ async function highlightDateCycles(targetDate) {
         path.style.removeProperty('--datecycle-highlight-color');
     });
 
+    const simpleModeEnabled = window.isSimpleMode || window.isSimpleModeActive;
+    if (simpleModeEnabled) {
+        console.info('ℹ️ Highlighter: Simple mode enabled — hiding date items.');
+        await updateDateCycleCount(0, 0);
+        if (eventToggleButton) {
+            eventToggleButton.style.visibility = 'hidden';
+        }
+        return;
+    }
+
     // 🔹 Fetch all dateCycles from storage or API
     const rawDateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
 
