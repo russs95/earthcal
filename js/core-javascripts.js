@@ -2070,13 +2070,15 @@ const initializeCometSystem = () => {
         return false;
     };
 
-    const handleCometClick = (event) => {
+    const handleCometClick = (event, clickedTargetDate) => {
         if (event?.preventDefault) {
             event.preventDefault();
         }
         if (event?.stopPropagation) {
             event.stopPropagation();
         }
+
+        const activeTargetDate = clickedTargetDate ?? targetDate;
 
         const accessSnapshot = getCometAccessSnapshot();
         const userLoggedIn = Boolean(accessSnapshot.loggedIn);
@@ -2096,7 +2098,7 @@ const initializeCometSystem = () => {
 
         if (typeof renderCometTrajectoryInfo === "function") {
             try {
-                renderCometTrajectoryInfo(targetDate);
+                renderCometTrajectoryInfo(activeTargetDate);
             } catch (error) {
                 console.warn("⚠️ Unable to render comet info before toggling the system.", error);
             }
@@ -2118,7 +2120,7 @@ const initializeCometSystem = () => {
     };
 
     if (cometButton && !cometButton.hasAttribute("onclick")) {
-        cometButton.addEventListener("click", handleCometClick);
+        cometButton.addEventListener("click", (event) => handleCometClick(event, targetDate));
     }
 
     window.toggleCometSystem = toggleCometSystem;
