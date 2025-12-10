@@ -104,6 +104,15 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
+        const rawDate = item.start_local || item.dtstart_utc || item.date || '';
+        const [datePart, timePart] = String(rawDate).split(' ');
+
+        const [yearStr, monthStr, dayStr] = (datePart || '').split('-');
+        const year = Number(yearStr);
+        const month = Number(monthStr);
+        const day = Number(dayStr);
+        const timeLabel = (timePart || '00:00').slice(0, 5);
+
         if (typeof global.normalizeV1Item === 'function') {
             try {
                 return global.normalizeV1Item(item, calendar, buwanaId);
@@ -111,9 +120,6 @@
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
-        const rawDate = item.start_local || item.dtstart_utc || '';
-        const [datePart, timePart] = rawDate.split(' ');
-        const timeLabel = (timePart || '00:00').slice(0, 5);
         return {
             unique_key: `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`,
             item_id: Number(item.item_id || item.id) || item.item_id || item.id,
@@ -123,6 +129,9 @@
             cal_color: calendar?.color || '#3b82f6',
             title: item.summary || item.title || 'Untitled Event',
             date: datePart || item.date || '',
+            year: Number.isFinite(year) ? year : undefined,
+            month: Number.isFinite(month) ? month : undefined,
+            day: Number.isFinite(day) ? day : undefined,
             time: timeLabel,
             time_zone: item.tzid || calendar?.tzid || 'Etc/UTC',
             comments: item.description || item.notes || '',
@@ -133,6 +142,7 @@
             date_emoji: item.emoji || calendar?.emoji || '⬤',
             pinned: item.pinned ? '1' : '0',
             completed: item.percent_complete >= 100 ? '1' : '0',
+            frequency: item.frequency || item.recurrence || '',
             all_day: item.all_day ? 1 : 0,
             tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
             raw_v1: item
@@ -281,6 +291,17 @@
 
         if (!itemsByCalendar[calId]) itemsByCalendar[calId] = [];
 
+        let calendar = calendars.find((c) => Number(c.calendar_id) === Number(calId));
+        if (!calendar) {
+            calendar = {
+                calendar_id: calId,
+                name: change.payload?.calendar_name || 'My Calendar',
+                color: change.payload?.color_hex || change.payload?.color || '#3b82f6',
+                emoji: change.payload?.emoji || '📅'
+            };
+            calendars.push(calendar);
+        }
+
         const normalized = normalizeItem(
             {
                 ...change.payload,
@@ -289,12 +310,7 @@
                 description: change.payload.description || change.payload.notes,
                 color_hex: change.payload.color_hex || change.payload.color
             },
-            calendars.find((c) => Number(c.calendar_id) === Number(calId)) || {
-                calendar_id: calId,
-                name: change.payload.calendar_name || 'My Calendar',
-                color: change.payload.color_hex || '#3b82f6',
-                emoji: change.payload.emoji || '📅'
-            },
+            calendar,
             currentUser?.buwana_id
         );
 
