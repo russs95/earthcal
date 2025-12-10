@@ -2207,6 +2207,33 @@ function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith("calendar_"));
     const dedupedDateCycles = new Map();
 
+    const normalizeForHighlight = (dc) => {
+        const normalized = { ...dc };
+
+        if (!normalized.day || !normalized.month || !normalized.year) {
+            const rawDate = normalized.date || normalized.start_local || normalized.dtstart_utc || '';
+            const datePart = String(rawDate).split(' ')[0];
+            const [yearStr, monthStr, dayStr] = datePart.split('-');
+            const year = Number(yearStr);
+            const month = Number(monthStr);
+            const day = Number(dayStr);
+
+            if (Number.isFinite(year)) normalized.year = year;
+            if (Number.isFinite(month)) normalized.month = month;
+            if (Number.isFinite(day)) normalized.day = day;
+        }
+
+        if (normalized.pinned === undefined && normalized.pin !== undefined) {
+            normalized.pinned = normalized.pin;
+        }
+
+        normalized.pinned = String(normalized.pinned ?? '0');
+        normalized.frequency = normalized.frequency || normalized.recurrence || '';
+        normalized.last_edited = normalized.last_edited || normalized.updated_at || new Date().toISOString();
+
+        return normalized;
+    };
+
     const offlineModeActive = (() => {
         if (typeof window !== 'undefined' && (window.isOfflineMode === true || window.earthcalMode === 'offline')) {
             return true;
@@ -2223,23 +2250,25 @@ function fetchDateCycleCalendars() {
 
     const addValidCycles = (list = []) => {
         list.forEach(dc => {
+            const normalized = normalizeForHighlight(dc);
+
             if (String(dc?.delete_it ?? '0') === '1') {
                 return;
             }
 
-            const uniqueKey = dc?.unique_key
-                || `${dc?.cal_id || dc?.calendar_id || 'cal'}_${dc?.item_id || dc?.ID || dc?.id || 'item'}_${dc?.last_edited || dc?.date || ''}`;
+            const uniqueKey = normalized?.unique_key
+                || `${normalized?.cal_id || normalized?.calendar_id || 'cal'}_${normalized?.item_id || normalized?.ID || normalized?.id || 'item'}_${normalized?.last_edited || normalized?.date || ''}`;
             const existing = dedupedDateCycles.get(uniqueKey);
 
             if (!existing) {
-                dedupedDateCycles.set(uniqueKey, dc);
+                dedupedDateCycles.set(uniqueKey, normalized);
                 return;
             }
 
             const existingEdited = new Date(existing.last_edited || 0).getTime();
-            const incomingEdited = new Date(dc.last_edited || 0).getTime();
+            const incomingEdited = new Date(normalized.last_edited || 0).getTime();
             if (incomingEdited > existingEdited) {
-                dedupedDateCycles.set(uniqueKey, dc);
+                dedupedDateCycles.set(uniqueKey, normalized);
             }
         });
     };
