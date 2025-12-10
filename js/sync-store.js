@@ -120,7 +120,7 @@
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
-        return {
+        const normalized = {
             unique_key: `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`,
             item_id: Number(item.item_id || item.id) || item.item_id || item.id,
             buwana_id: buwanaId,
@@ -147,6 +147,16 @@
             tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
             raw_v1: item
         };
+
+        const itemCacheKey = storageKey('items');
+        if (itemCacheKey) {
+            console.log('[sync-store][normalizeItem] preparing cached item for highlightDateCycles', {
+                cacheKey: itemCacheKey,
+                item: normalized
+            });
+        }
+
+        return normalized;
     }
 
     async function checkBackendReachable() {
