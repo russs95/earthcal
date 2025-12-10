@@ -2195,7 +2195,44 @@ function fetchLocalCalendarByCalId(calId) {
 
 function fetchDateCycleCalendars() {
     const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith("calendar_"));
-    const allDateCycles = [];
+    const dedupedDateCycles = new Map();
+
+    const offlineModeActive = (() => {
+        if (typeof window !== 'undefined' && (window.isOfflineMode === true || window.earthcalMode === 'offline')) {
+            return true;
+        }
+        try {
+            if (localStorage.getItem('earthcal_offline_mode') === 'offline') {
+                return true;
+            }
+        } catch (err) {
+            console.warn('[highlightDateCycles] unable to read offline mode flag:', err);
+        }
+        return navigator.onLine === false;
+    })();
+
+    const addValidCycles = (list = []) => {
+        list.forEach(dc => {
+            if (String(dc?.delete_it ?? '0') === '1') {
+                return;
+            }
+
+            const uniqueKey = dc?.unique_key
+                || `${dc?.cal_id || dc?.calendar_id || 'cal'}_${dc?.item_id || dc?.ID || dc?.id || 'item'}_${dc?.last_edited || dc?.date || ''}`;
+            const existing = dedupedDateCycles.get(uniqueKey);
+
+            if (!existing) {
+                dedupedDateCycles.set(uniqueKey, dc);
+                return;
+            }
+
+            const existingEdited = new Date(existing.last_edited || 0).getTime();
+            const incomingEdited = new Date(dc.last_edited || 0).getTime();
+            if (incomingEdited > existingEdited) {
+                dedupedDateCycles.set(uniqueKey, dc);
+            }
+        });
+    };
 
     for (const key of calendarKeys) {
         try {
@@ -2209,14 +2246,33 @@ function fetchDateCycleCalendars() {
                     ? parsed.datecycles
                     : [];
 
-            const valid = list.filter(dc => String(dc?.delete_it ?? '0') !== '1');
-            allDateCycles.push(...valid);
+            addValidCycles(list);
         } catch (err) {
             console.warn(`❌ Error parsing ${key}:`, err);
         }
     }
 
-    return allDateCycles;
+    if (offlineModeActive) {
+        try {
+            const pendingKeys = Object.keys(localStorage).filter(k => /^ec_user_\d+_items$/.test(k));
+            for (const key of pendingKeys) {
+                const raw = localStorage.getItem(key);
+                if (!raw) continue;
+
+                const parsed = JSON.parse(raw);
+                const calendarItems = parsed && typeof parsed === 'object' ? parsed : {};
+                Object.values(calendarItems).forEach(list => {
+                    if (Array.isArray(list)) {
+                        addValidCycles(list);
+                    }
+                });
+            }
+        } catch (err) {
+            console.warn('[highlightDateCycles] unable to read pending-sync cache:', err);
+        }
+    }
+
+    return Array.from(dedupedDateCycles.values());
 }
 
 
