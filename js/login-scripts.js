@@ -757,6 +757,32 @@ function hideOfflineForm() {
 }
 
 function getOfflineUserData({ useCachedData = true } = {}) {
+    // If we have connectivity but no authenticated session, avoid loading any
+    // offline caches and prompt the user to log in instead.
+    if (navigator.onLine && !isLoggedIn()) {
+        console.warn('[offline] Online without auth; skipping offline mode.');
+
+        setOfflineModeChoice('simple');
+
+        if (typeof useDefaultUser === 'function') {
+            useDefaultUser();
+        }
+
+        if (typeof sendUpRegistration === 'function') {
+            sendUpRegistration();
+        }
+
+        if (typeof window.targetDate === 'undefined' || !(window.targetDate instanceof Date)) {
+            window.targetDate = new Date();
+        }
+
+        if (typeof window.currentYear === 'undefined' || Number.isNaN(window.currentYear)) {
+            window.currentYear = window.targetDate.getFullYear();
+        }
+
+        return { mode: 'simple', useCachedData: false, targetDate: window.targetDate };
+    }
+
     const mode = setOfflineModeChoice(useCachedData ? 'offline' : 'simple');
 
     if (!useCachedData) {
