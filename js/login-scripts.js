@@ -692,6 +692,14 @@ function handleOfflineToggleChange(eventOrChecked) {
     const mode = checked ? 'offline' : 'simple';
     const normalized = setOfflineModeChoice(mode);
     updateOfflineToggleUI(normalized);
+
+    if (typeof highlightDateCycles === 'function') {
+        const target = (typeof window !== 'undefined' && window.targetDate instanceof Date)
+            ? window.targetDate
+            : new Date();
+        Promise.resolve(highlightDateCycles(target))
+            .catch(err => console.warn('[offline-toggle] highlightDateCycles failed:', err));
+    }
 }
 
 function showOfflineForm() {
@@ -726,6 +734,14 @@ function showOfflineForm() {
             updateOfflineToggleUI(choice);
 
             getOfflineUserData({ useCachedData });
+
+            if (typeof highlightDateCycles === 'function') {
+                const target = (typeof window !== 'undefined' && window.targetDate instanceof Date)
+                    ? window.targetDate
+                    : new Date();
+                Promise.resolve(highlightDateCycles(target))
+                    .catch(err => console.warn('[offline-go] highlightDateCycles failed:', err));
+            }
 
             if (typeof displayDayInfo === 'function' && typeof window.targetDate !== 'undefined') {
                 displayDayInfo(window.targetDate, window.userLanguage, window.userTimeZone);
@@ -872,6 +888,12 @@ function getOfflineUserData({ useCachedData = true } = {}) {
 
     if (typeof window.currentYear === 'undefined' || Number.isNaN(window.currentYear)) {
         window.currentYear = window.targetDate.getFullYear();
+    }
+
+    if (typeof highlightDateCycles === 'function') {
+        const target = (window.targetDate instanceof Date) ? window.targetDate : new Date();
+        Promise.resolve(highlightDateCycles(target))
+            .catch(err => console.warn('[offline] highlightDateCycles failed:', err));
     }
 
     return { mode, useCachedData, targetDate: window.targetDate };
@@ -1807,8 +1829,34 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     const downArrow = document.getElementById('reg-down-button');
 
     // ✅ Validate login status first
-    const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
-    if (!ok || !payload?.buwana_id) {
+    const safeParse = (value) => {
+        try { return JSON.parse(value); } catch { return null; }
+    };
+
+    const { isLoggedIn: ok, payload: loginPayload } = isLoggedIn({ returnPayload: true });
+    const offlineModeActive = window.isOfflineMode === true
+        || window.earthcalMode === 'offline'
+        || navigator.onLine === false;
+
+    let payload = loginPayload;
+
+    if ((!ok || !payload?.buwana_id) && offlineModeActive) {
+        const cachedProfile = safeParse(localStorage.getItem('user_profile'))
+            || safeParse(localStorage.getItem(OFFLINE_PROFILE_CACHE_KEY))
+            || {};
+
+        if (cachedProfile?.buwana_id) {
+            payload = {
+                buwana_id: cachedProfile.buwana_id,
+                given_name: cachedProfile.given_name || cachedProfile.first_name,
+                ["buwana:earthlingEmoji"]: cachedProfile["buwana:earthlingEmoji"] || cachedProfile.earthling_emoji,
+                lang: cachedProfile.lang || cachedProfile.locale,
+            };
+            console.info('[EarthCal] Using cached profile for offline logged-in view.');
+        }
+    }
+
+    if (!payload?.buwana_id) {
         console.warn("❌ Cannot show logged-in view — user not authenticated.");
         return;
     }
