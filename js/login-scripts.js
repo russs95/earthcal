@@ -3398,13 +3398,25 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
             credentials: 'same-origin',
             body: JSON.stringify(requestBody),
         });
-        const result = await response.json();
+
+        let result = null;
+        let rawBody = null;
+        const responseClone = response.clone();
+
+        try {
+            result = await response.json();
+        } catch (parseErr) {
+            rawBody = await responseClone.text().catch(() => '');
+            console.warn('⚠️ toggleSubscription: failed to parse JSON response', parseErr, rawBody);
+        }
+
         console.info('📩 public subscription response', {
             status: response.status,
             ok: response.ok,
-            result
+            result,
+            rawBody
         });
-        summary.response = result;
+        summary.response = result ?? rawBody;
         if (Number.isFinite(Number(result?.calendar_id))) {
             summary.calendar_id = Number(result.calendar_id);
         }
@@ -3414,8 +3426,8 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
         if (typeof result?.subscribed === 'boolean') {
             summary.is_active = result.subscribed;
         }
-        if (!response.ok || result.success === false || result.ok === false) {
-            const errorMessage = result?.error || result?.message || 'update_failed';
+        if (!response.ok || result?.success === false || result?.ok === false) {
+            const errorMessage = result?.error || result?.message || rawBody || 'update_failed';
             console.error(`❌ Failed to update subscription: ${errorMessage}`);
             alert(`Error: ${errorMessage}`);
             return { ...summary, success: false, error: errorMessage };

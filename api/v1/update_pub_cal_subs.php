@@ -13,7 +13,7 @@ $allowed_origins = [
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origin !== '' && $origin !== null) {
     $normalizedOrigin = rtrim($origin, '/');
-    if (in_array($normalizedOrigin, $allowedOrigins, true)) {
+    if (in_array($normalizedOrigin, $allowed_origins, true)) {
         header('Access-Control-Allow-Origin: ' . $normalizedOrigin);
     } else {
         http_response_code(403);
