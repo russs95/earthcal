@@ -120,7 +120,7 @@
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
-        return {
+        const normalized = {
             unique_key: `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`,
             item_id: Number(item.item_id || item.id) || item.item_id || item.id,
             buwana_id: buwanaId,
@@ -147,6 +147,16 @@
             tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
             raw_v1: item
         };
+
+        const itemCacheKey = storageKey('items');
+        if (itemCacheKey) {
+            console.log('[sync-store][normalizeItem] preparing cached item for highlightDateCycles', {
+                cacheKey: itemCacheKey,
+                item: normalized
+            });
+        }
+
+        return normalized;
     }
 
     async function checkBackendReachable() {
@@ -357,6 +367,25 @@
             queued_at: Date.now(),
             last_error: null
         };
+        const outboxKey = storageKey('outbox');
+        console.log('[sync-store] enqueueing offline change', {
+            outboxKey,
+            operation,
+            calendar_id: entry.calendar_id,
+            item_id: entry.item_id,
+            client_temp_id: entry.client_temp_id,
+            queued_at: entry.queued_at,
+            payloadSnapshot: {
+                summary: payload?.summary || payload?.title,
+                start_local: payload?.start_local || payload?.date,
+                calendar_name: payload?.calendar_name,
+                color_hex: payload?.color_hex,
+                emoji: payload?.emoji,
+                pinned: payload?.pinned,
+                all_day: payload?.all_day,
+                tzid: payload?.tzid
+            }
+        });
         outbox.push(entry);
         persistOutbox(outbox);
         applyLocalChange(entry);
