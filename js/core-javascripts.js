@@ -1,6 +1,24 @@
 
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 
+function resolveEarthcalApiBase() {
+  const origin = (typeof window !== "undefined" && window.location?.origin) ? window.location.origin : "";
+  // If running on localhost / snap (127.0.0.1:3000, localhost:3000 etc.),
+  // we want to call the hosted API at https://earthcal.app/api/v1
+  if (origin.startsWith("http://127.0.0.1") || origin.startsWith("http://localhost")) {
+    return "https://earthcal.app/api/v1";
+  }
+  // Otherwise we’re on the real site; use same-origin /api/v1
+  return `${origin.replace(/\/$/, "")}/api/v1`;
+}
+
+function getApiBase() {
+  // Allow an override if needed in future
+  return (typeof window !== "undefined" && typeof window.EARTHCAL_API_BASE !== "undefined")
+    ? window.EARTHCAL_API_BASE
+    : resolveEarthcalApiBase();
+}
+
 // Ensure the comet button click handler always exists so visitors without the
 // fully initialized dashboard (for example, logged-out users) don't encounter a
 // ReferenceError when they tap the button. The DOMContentLoaded handler later in
@@ -1075,7 +1093,8 @@ async function upgradeUserPlan() {
             .querySelector('.ec-plan-toggle')
             ?.getAttribute('data-active-interval') || 'month';
 
-        const response = await fetch('../api/v1/create_checkout_session.php', {
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/create_checkout_session.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1108,7 +1127,8 @@ async function manageBilling() {
         return;
     }
 
-    const res = await fetch('/api/v1/create_portal_session.php', {
+    const apiBase = getApiBase();
+    const res = await fetch(`${apiBase}/create_portal_session.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ buwana_id: user.buwana_id })
@@ -2070,13 +2090,15 @@ const initializeCometSystem = () => {
         return false;
     };
 
-    const handleCometClick = (event) => {
+    const handleCometClick = (event, clickedTargetDate) => {
         if (event?.preventDefault) {
             event.preventDefault();
         }
         if (event?.stopPropagation) {
             event.stopPropagation();
         }
+
+        const activeTargetDate = clickedTargetDate ?? targetDate;
 
         const accessSnapshot = getCometAccessSnapshot();
         const userLoggedIn = Boolean(accessSnapshot.loggedIn);
@@ -2096,7 +2118,7 @@ const initializeCometSystem = () => {
 
         if (typeof renderCometTrajectoryInfo === "function") {
             try {
-                renderCometTrajectoryInfo(targetDate);
+                renderCometTrajectoryInfo(activeTargetDate);
             } catch (error) {
                 console.warn("⚠️ Unable to render comet info before toggling the system.", error);
             }
@@ -2118,7 +2140,7 @@ const initializeCometSystem = () => {
     };
 
     if (cometButton && !cometButton.hasAttribute("onclick")) {
-        cometButton.addEventListener("click", handleCometClick);
+        cometButton.addEventListener("click", (event) => handleCometClick(event, targetDate));
     }
 
     window.toggleCometSystem = toggleCometSystem;
