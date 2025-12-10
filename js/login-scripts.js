@@ -674,22 +674,18 @@ function setOfflineModeChoice(mode) {
 
 function updateOfflineToggleUI(mode) {
     const toggle = document.getElementById('offline-mode-toggle');
-    const status = document.getElementById('offline-mode-status');
     const normalized = mode === 'simple' ? 'simple' : 'offline';
 
     if (toggle) {
         toggle.checked = normalized === 'offline';
     }
-
-    if (status) {
-        status.textContent = normalized === 'offline'
-            ? 'Offline Mode: Load cached data and continue where you left off.'
-            : 'Simple Mode: Start fresh without cached data.';
-    }
 }
 
-function handleOfflineToggleChange(event) {
-    const mode = event.target.checked ? 'offline' : 'simple';
+function handleOfflineToggleChange(eventOrChecked) {
+    const checked = typeof eventOrChecked === 'boolean'
+        ? eventOrChecked
+        : Boolean(eventOrChecked?.target?.checked);
+    const mode = checked ? 'offline' : 'simple';
     const normalized = setOfflineModeChoice(mode);
     updateOfflineToggleUI(normalized);
 }
@@ -704,8 +700,7 @@ function showOfflineForm() {
         return;
     }
 
-    const mode = getSavedOfflineMode();
-    setOfflineModeChoice(mode);
+    const mode = setOfflineModeChoice(getSavedOfflineMode());
     updateOfflineToggleUI(mode);
 
     offlineForm.style.display = 'block';
@@ -719,19 +714,12 @@ function showOfflineForm() {
         loggedInView.style.display = 'none';
     }
 
-    const toggle = document.getElementById('offline-mode-toggle');
-    if (toggle && !toggle.dataset.bound) {
-        toggle.addEventListener('change', handleOfflineToggleChange);
-        toggle.dataset.bound = 'true';
-    }
-
     const goButton = document.getElementById('offline-go-button');
     if (goButton && !goButton.dataset.bound) {
         goButton.addEventListener('click', () => {
-            const toggle = document.getElementById('offline-mode-toggle');
-            const mode = toggle && toggle.checked ? 'offline' : 'simple';
-            const useCachedData = setOfflineModeChoice(mode) !== 'simple';
-            updateOfflineToggleUI(mode);
+            const choice = setOfflineModeChoice(getSavedOfflineMode());
+            const useCachedData = choice !== 'simple';
+            updateOfflineToggleUI(choice);
 
             getOfflineUserData({ useCachedData });
 

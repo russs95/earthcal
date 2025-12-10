@@ -241,6 +241,42 @@ async function showUserCalSettings() {
 
     const timezones = translations.timezones;
 
+    const payload = (typeof resolveAuthPayload === 'function') ? resolveAuthPayload() : null;
+    const resolvedBuwanaId = payload?.buwana_id || (() => {
+        const storedId = localStorage.getItem('buwana_id');
+        if (!storedId) return null;
+        const numericId = Number(storedId);
+        return Number.isNaN(numericId) ? storedId : numericId;
+    })();
+
+    const isAuthenticated = Boolean(payload?.buwana_id || resolvedBuwanaId);
+    const userPlan = (window.user_plan || '').toLowerCase();
+    const planName = userPlan === 'jedi'
+        ? 'EarthCal Jedi'
+        : userPlan === 'padwan'
+            ? 'EarthCal Padwan'
+            : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
+    const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
+    const planActionText = userPlan === 'jedi'
+        ? 'Manage Subscription'
+        : 'Upgrade EarthCal';
+    const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
+    const planStatusHtml = isAuthenticated
+        ? `
+            <div class="menu-plan-status">
+                <div class="menu-plan-pill ${planClass}">
+                    <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
+                    <span class="menu-plan-pill-text">${planName}</span>
+                    ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                </div>
+            </div>
+        `
+        : '';
+
+    const savedOfflineMode = (typeof getSavedOfflineMode === 'function')
+        ? getSavedOfflineMode()
+        : 'offline';
+
     const timezoneOptions = timezones.map(tz => {
         const offset = getTimeZoneOffsetDisplay(tz.value);
     return `<option value="${tz.value}" ${tz.value === userTimeZone ? 'selected' : ''}>
@@ -296,6 +332,14 @@ async function showUserCalSettings() {
                     <span class="toggle-slider orbit-toggle-slider"></span>
                 </label>
             </div>
+            <div class="toggle-row">
+                <span>When offline use cached data then sync it when online</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
+                    <span class="toggle-slider orbit-toggle-slider"></span>
+                </label>
+            </div>
+            ${planStatusHtml}
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
                 ${settingsContent.applySettings}
             </button>
@@ -331,6 +375,7 @@ async function showUserCalSettings() {
     const timezoneSelect = modalContent.querySelector('#timezone');
     const languageSelect = modalContent.querySelector('#language');
     const applyButton = modalContent.querySelector('.stellar-submit');
+    const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
@@ -348,6 +393,11 @@ async function showUserCalSettings() {
     timezoneSelect?.addEventListener('change', checkSettingsChange);
     languageSelect?.addEventListener('change', checkSettingsChange);
     checkSettingsChange();
+
+    if (offlineModeToggle) {
+        updateOfflineToggleUI(savedOfflineMode);
+        offlineModeToggle.addEventListener('change', handleOfflineToggleChange);
+    }
 }
 
 function getUtcOffset(tz) {
