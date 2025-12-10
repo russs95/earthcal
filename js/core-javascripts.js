@@ -2091,7 +2091,31 @@ const initializeCometSystem = () => {
         return false;
     };
 
-    const handleCometClick = (event, clickedTargetDate) => {
+    const isOfflineModeActive = () => {
+        if (window.isOfflineMode === true) {
+            return true;
+        }
+
+        if (typeof getSavedOfflineMode === "function") {
+            try {
+                if (getSavedOfflineMode() === "offline") {
+                    return true;
+                }
+            } catch (error) {
+                console.warn("⚠️ Unable to read saved offline mode before comet update.", error);
+            }
+        }
+
+        try {
+            return localStorage.getItem("earthcal_offline_mode") === "offline";
+        } catch (error) {
+            console.warn("⚠️ Unable to read offline mode from storage before comet update.", error);
+        }
+
+        return false;
+    };
+
+    const updateCometTrajectory = (event, requestedTargetDate) => {
         if (event?.preventDefault) {
             event.preventDefault();
         }
@@ -2099,20 +2123,22 @@ const initializeCometSystem = () => {
             event.stopPropagation();
         }
 
-        const activeTargetDate = clickedTargetDate ?? targetDate;
+        const activeTargetDate = requestedTargetDate ?? targetDate;
 
         const accessSnapshot = getCometAccessSnapshot();
         const userLoggedIn = Boolean(accessSnapshot.loggedIn);
-        console.info("🛰️ handleCometClick invoked", {
+        const offlineModeEnabled = isOfflineModeActive();
+        console.info("🛰️ updateCometTrajectory invoked", {
             loggedIn: userLoggedIn,
             plan: accessSnapshot.plan || "unknown",
             planId: accessSnapshot.planId ?? "unknown",
+            offlineMode: offlineModeEnabled,
             lastUpdated: accessSnapshot.lastUpdated ?? "n/a",
             source: accessSnapshot.source,
             timestamp: new Date().toISOString(),
         });
 
-        if (!userLoggedIn) {
+        if (!userLoggedIn && !offlineModeEnabled) {
             promptLoginForCometAccess();
             return false;
         }
@@ -2141,12 +2167,13 @@ const initializeCometSystem = () => {
     };
 
     if (cometButton && !cometButton.hasAttribute("onclick")) {
-        cometButton.addEventListener("click", (event) => handleCometClick(event, targetDate));
+        cometButton.addEventListener("click", (event) => updateCometTrajectory(event, targetDate));
     }
 
     window.toggleCometSystem = toggleCometSystem;
-    window.handleCometClick = handleCometClick;
+    window.handleCometClick = updateCometTrajectory;
     window.hideCometSystem = hideCometSystem;
+    window.updateCometTrajectory = updateCometTrajectory;
 };
 
 if (typeof document !== "undefined") {
