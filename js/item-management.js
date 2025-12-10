@@ -121,7 +121,8 @@ async function openAddItem() {
             };
             console.log('[openAddItem] sending create_my_calendar request with payload:', payload);
 
-            const makeRes = await fetch('/api/v1/create_my_calendar.php', {
+            const apiBase = resolveCalendarApiBase();
+            const makeRes = await fetch(`${apiBase}/create_my_calendar.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
@@ -330,7 +331,8 @@ async function openAddItem() {
                     console.info('[openAddItem] item queued for background sync');
                 }
             } else {
-                const res = await fetch('/api/v1/add_item.php', {
+                const apiBase = resolveCalendarApiBase();
+                const res = await fetch(`${apiBase}/add_item.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -1350,7 +1352,8 @@ async function addNewCalendarV1(hostTarget) {
             submitBtn.textContent = 'Creating…';
 
             try {
-                const res = await fetch('/api/v1/add_new_cal.php', {
+                const apiBase = resolveCalendarApiBase();
+                const res = await fetch(`${apiBase}/add_new_cal.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -1715,7 +1718,8 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
             }
 
             try {
-                const response = await fetch('/api/v1/save_user_calendar.php', {
+                const apiBase = resolveCalendarApiBase();
+                const response = await fetch(`${apiBase}/save_user_calendar.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -2612,6 +2616,23 @@ function sanitizeEmojiInput(v) {
     return (v || '').trim().slice(0, 4);
 }
 
+function resolveCalendarApiBase() {
+    const safeResolve = (fn) => {
+        if (typeof fn === 'function') {
+            try { return fn(); } catch (_) { /* ignore */ }
+        }
+        return null;
+    };
+
+    return (
+        safeResolve(typeof getApiBase === 'function' ? getApiBase : null)
+        || safeResolve(typeof resolveEarthcalApiBase === 'function' ? resolveEarthcalApiBase : null)
+        || (typeof window !== 'undefined' && window.location?.origin
+            ? `${window.location.origin.replace(/\/$/, '')}/api/v1`
+            : '/api/v1')
+    );
+}
+
 function sanitizeHexColor(color, fallback = '#3b82f6') {
     if (typeof color !== 'string') return fallback;
     const trimmed = color.trim();
@@ -2688,9 +2709,7 @@ async function loadUserCalendars(buwana_id, { force = false, maxAgeMs = 5 * 60 *
         if (cached) return cached;
     }
 
-    const apiBase = (typeof getApiBase === 'function')
-        ? getApiBase()
-        : (window.EARTHCAL_API_BASE || '/api/v1');
+    const apiBase = resolveCalendarApiBase();
     const listCalendarsUrl = `${String(apiBase).replace(/\/$/, '')}/list_calendars.php`;
 
     let res;
@@ -2918,7 +2937,8 @@ function readLegacyPublicCalendars() {
 }
 
 async function fetchPublicCalendarsFromApi() {
-    const endpoint = '/api/v1/get_public_cals.php';
+    const apiBase = resolveCalendarApiBase();
+    const endpoint = `${apiBase}/get_public_cals.php`;
     const attempts = [
         { method: 'GET', options: { method: 'GET', headers: { 'Accept': 'application/json' } } },
         { method: 'POST', options: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' } }

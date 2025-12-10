@@ -24,6 +24,29 @@ function getApiBase() {
         : resolveEarthcalApiBase();
 }
 
+function resolveLoginApiBase(contextLabel = 'api') {
+    const safeResolve = (fn) => {
+        if (typeof fn === 'function') {
+            try { return fn(); } catch (_) {}
+        }
+        return null;
+    };
+
+    const resolved =
+        safeResolve(typeof getApiBase === 'function' ? getApiBase : null)
+        || safeResolve(typeof resolveEarthcalApiBase === 'function' ? resolveEarthcalApiBase : null)
+        || (typeof window !== 'undefined' && window.location?.origin
+            ? `${window.location.origin.replace(/\/$/, '')}/api/v1`
+            : '/api/v1');
+
+    if (typeof resolved !== 'string' || !resolved) {
+        console.warn(`[${contextLabel}] falling back to /api/v1 because API base could not be resolved.`);
+        return '/api/v1';
+    }
+
+    return resolved;
+}
+
 // Make it globally visible so sync-store can reuse it too
 window.EARTHCAL_API_BASE = getApiBase();
 
@@ -324,7 +347,7 @@ async function getUserData() {
     console.log("🌿 getUserData: Starting...");
 
     // 🔎 Decide which API base to talk to (hosted vs local snap)
-    const apiBase = getApiBase();
+    const apiBase = resolveLoginApiBase('getUserData');
 
     // 1️⃣ Check current auth state via Buwana helper
     const { isLoggedIn: ok, payload } = isLoggedIn({ returnPayload: true });
@@ -1493,7 +1516,7 @@ function renderCalendarSelectionForm(calendars, {
             button.classList.add('is-syncing');
 
             try {
-                const apiBase = getApiBase();
+                const apiBase = resolveLoginApiBase('webcal-sync');
                 const res = await fetch(`${apiBase}/sync_ical.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2432,7 +2455,7 @@ async function sendUpRegistration() {
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
 
-        const apiBase = getApiBase();
+        const apiBase = resolveLoginApiBase('showLoggedInView');
         let calendars = readCalendarListCache();
 
         if (calendars) {
@@ -2501,7 +2524,7 @@ async function requestCalendarDetails(calendarId) {
         body.buwana_id = buwanaId;
     }
 
-    const apiBase = getApiBase();
+    const apiBase = resolveLoginApiBase('requestCalendarDetails');
     const response = await fetch(`${apiBase}/get_cal_info.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2741,7 +2764,7 @@ async function toggleV1CalVisibility(toggleInput) {
     toggleInput.disabled = true;
 
     try {
-        const apiBase = getApiBase();
+        const apiBase = resolveLoginApiBase('toggleCalendarActive');
         const response = await fetch(`${apiBase}/cal_active_toggle.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2883,7 +2906,7 @@ async function deleteV1cal(calendarId, isDefault = false) {
 
     const buwanaId = payload.buwana_id;
 
-    const apiBase = getApiBase();
+    const apiBase = resolveLoginApiBase('toggleCalendarView');
 
     try {
         setSyncStatus("Deleting calendar...", "🗑️", true);
@@ -3001,7 +3024,7 @@ async function exportUserCalendar2ICS(calendarId, triggerButton = null) {
     }
 
     try {
-        const apiBase = getApiBase();
+        const apiBase = resolveLoginApiBase('downloadCalendars');
         const response = await fetch(`${apiBase}/export_user_ics.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -3217,7 +3240,7 @@ async function fetchCalendarDatecycles(buwanaId, calendarId, options = {}) {
     const sourceType = typeof opts.source === 'string' ? opts.source : (typeof opts.type === 'string' ? opts.type : 'public');
     const numericBuwanaId = Number.isFinite(Number(buwanaId)) ? Number(buwanaId) : buwanaId;
 
-    const apiBase = getApiBase();
+    const apiBase = resolveLoginApiBase('fetchPublicItems');
     let endpoint = `${apiBase}/get_pub_cal_items.php`;
     let payload = { buwana_id: numericBuwanaId, calendar_id: calendarId };
 
@@ -3339,7 +3362,7 @@ async function toggleSubscription(calendarId, subscribe, subscriptionId = null) 
     }
 
     const buwanaId = payload.buwana_id;
-    const apiBase = getApiBase();
+    const apiBase = resolveLoginApiBase('toggleSubscription');
     let latestCalendars = null;
     console.log(`🔄 Updating subscription for calendar ${calendarId}, subscribe: ${subscribe ? '1' : '0'}`);
 
