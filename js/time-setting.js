@@ -261,13 +261,18 @@ async function showUserCalSettings() {
         ? 'Manage Subscription'
         : 'Upgrade EarthCal';
     const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
+    const syncStatus = typeof window !== 'undefined' && typeof window.syncStore?.getStatus === 'function'
+        ? window.syncStore.getStatus()
+        : null;
+    const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
+    const showPlanAction = showSubscriptionLink && hasConnectivity;
     const planStatusHtml = isAuthenticated
         ? `
             <div class="menu-plan-status">
                 <div class="menu-plan-pill ${planClass}">
                     <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
                     <span class="menu-plan-pill-text">${planName}</span>
-                    ${showSubscriptionLink ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                    ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
                 </div>
             </div>
         `
@@ -336,7 +341,7 @@ async function showUserCalSettings() {
                 <span>When offline use cached data then sync it when online</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
-                    <span class="toggle-slider orbit-toggle-slider"></span>
+                    <span class="toggle-slider"></span>
                 </label>
             </div>
             ${planStatusHtml}

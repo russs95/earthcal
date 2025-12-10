@@ -643,13 +643,14 @@ async function manageEarthcalUserSub() {
     };
 
     try {
+        const apiBase = getApiBase();
         const [subscriptionResponse, plansResponse] = await Promise.all([
-            fetch('api/v1/check_user_sub.php', {
+            fetch(`${apiBase}/check_user_sub.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ buwana_id: user.buwana_id }),
             }),
-            fetch('api/v1/get_earthcal_plans.php', {
+            fetch(`${apiBase}/get_earthcal_plans.php`, {
                 method: 'GET',
                 headers: { Accept: 'application/json' },
             }),
