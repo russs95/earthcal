@@ -367,6 +367,25 @@
             queued_at: Date.now(),
             last_error: null
         };
+        const outboxKey = storageKey('outbox');
+        console.log('[sync-store] enqueueing offline change', {
+            outboxKey,
+            operation,
+            calendar_id: entry.calendar_id,
+            item_id: entry.item_id,
+            client_temp_id: entry.client_temp_id,
+            queued_at: entry.queued_at,
+            payloadSnapshot: {
+                summary: payload?.summary || payload?.title,
+                start_local: payload?.start_local || payload?.date,
+                calendar_name: payload?.calendar_name,
+                color_hex: payload?.color_hex,
+                emoji: payload?.emoji,
+                pinned: payload?.pinned,
+                all_day: payload?.all_day,
+                tzid: payload?.tzid
+            }
+        });
         outbox.push(entry);
         persistOutbox(outbox);
         applyLocalChange(entry);
