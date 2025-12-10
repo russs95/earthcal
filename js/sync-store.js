@@ -281,6 +281,17 @@
 
         if (!itemsByCalendar[calId]) itemsByCalendar[calId] = [];
 
+        let calendar = calendars.find((c) => Number(c.calendar_id) === Number(calId));
+        if (!calendar) {
+            calendar = {
+                calendar_id: calId,
+                name: change.payload?.calendar_name || 'My Calendar',
+                color: change.payload?.color_hex || change.payload?.color || '#3b82f6',
+                emoji: change.payload?.emoji || '📅'
+            };
+            calendars.push(calendar);
+        }
+
         const normalized = normalizeItem(
             {
                 ...change.payload,
@@ -289,12 +300,7 @@
                 description: change.payload.description || change.payload.notes,
                 color_hex: change.payload.color_hex || change.payload.color
             },
-            calendars.find((c) => Number(c.calendar_id) === Number(calId)) || {
-                calendar_id: calId,
-                name: change.payload.calendar_name || 'My Calendar',
-                color: change.payload.color_hex || '#3b82f6',
-                emoji: change.payload.emoji || '📅'
-            },
+            calendar,
             currentUser?.buwana_id
         );
 
