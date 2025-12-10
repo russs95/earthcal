@@ -763,6 +763,11 @@ async function highlightDateCycles(targetDate) {
     }
 
     console.log(`✅ Retrieved ${rawDateCycleEvents.length} dateCycles from storage (${dateCycleEvents.length} active).`);
+    console.log('[highlightDateCycles] candidate events for display', {
+        targetDate: targetDateObj.toISOString(),
+        all: rawDateCycleEvents,
+        active: dateCycleEvents
+    });
 
     // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
@@ -792,6 +797,11 @@ async function highlightDateCycles(targetDate) {
     });
 
     console.log(`📌 Found ${matchingPinned.length} pinned and ${matchingCurrent.length} current dateCycles for target date.`);
+    console.log('[highlightDateCycles] rendering dateCycles for target', {
+        targetDate: targetDateObj.toISOString(),
+        matchingPinned,
+        matchingCurrent
+    });
 
     const totalMatching = matchingPinned.length + matchingCurrent.length;
     if (eventToggleButton) {
