@@ -104,14 +104,47 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
-        const rawDate = item.start_local || item.dtstart_utc || item.date || '';
-        const [datePart, timePart] = String(rawDate).split(' ');
+        const toUtcDateTime = (rawLocal) => {
+            if (!rawLocal) return null;
+            const normalizedLocal = String(rawLocal).replace(' ', 'T');
+            const parsed = new Date(normalizedLocal);
+            if (Number.isNaN(parsed.getTime())) return null;
 
-        const [yearStr, monthStr, dayStr] = (datePart || '').split('-');
-        const year = Number(yearStr);
-        const month = Number(monthStr);
-        const day = Number(dayStr);
-        const timeLabel = (timePart || '00:00').slice(0, 5);
+            const offsetMs = parsed.getTimezoneOffset() * 60000;
+            const utcDate = new Date(parsed.getTime() - offsetMs);
+            return `${utcDate.toISOString().slice(0, 19).replace('T', ' ')}`;
+        };
+
+        const parseDateParts = () => {
+            const rawDate = item.start_local || item.dtstart_utc || item.date || '';
+            const firstToken = String(rawDate).trim().split(' ')[0];
+            const explicitParts = [item.year, item.month, item.day].map(Number);
+
+            let year = Number.isFinite(explicitParts[0]) ? explicitParts[0] : undefined;
+            let month = Number.isFinite(explicitParts[1]) ? explicitParts[1] : undefined;
+            let day = Number.isFinite(explicitParts[2]) ? explicitParts[2] : undefined;
+            let datePart = '';
+
+            const match = firstToken.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (match) {
+                year = Number(match[1]);
+                month = Number(match[2]);
+                day = Number(match[3]);
+                datePart = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+            } else if (year && month && day) {
+                datePart = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
+
+            return { datePart, year, month, day };
+        };
+
+        const { datePart, year, month, day } = parseDateParts();
+        const timeLabel = (() => {
+            const rawDate = item.start_local || item.dtstart_utc || item.date || '';
+            const timePart = String(rawDate).trim().split(' ')[1] || item.time;
+            const safeTime = (timePart || '00:00').slice(0, 5);
+            return safeTime;
+        })();
 
         if (typeof global.normalizeV1Item === 'function') {
             try {
@@ -120,11 +153,16 @@
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
+        const uniqueKey = `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`;
+        const numericItemId = Number(item.item_id || item.id);
+        const itemId = Number.isFinite(numericItemId) ? numericItemId : (item.item_id || item.id);
+        const calendarId = Number(calendar?.calendar_id || item.calendar_id || item.cal_id);
+
         const normalized = {
-            unique_key: `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`,
-            item_id: Number(item.item_id || item.id) || item.item_id || item.id,
+            unique_key: uniqueKey,
+            item_id: itemId,
             buwana_id: buwanaId,
-            cal_id: Number(calendar?.calendar_id),
+            cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
             cal_name: calendar?.name || 'My Calendar',
             cal_color: calendar?.color || '#3b82f6',
             title: item.summary || item.title || 'Untitled Event',
@@ -145,7 +183,29 @@
             frequency: item.frequency || item.recurrence || '',
             all_day: item.all_day ? 1 : 0,
             tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
-            raw_v1: item
+            raw_v1: {
+                item_id: itemId || uniqueKey,
+                calendar_id: Number.isFinite(calendarId) ? calendarId : null,
+                uid: item.uid || uniqueKey,
+                component_type: item.component_type || item.item_kind || item.kind || 'todo',
+                dtstart_utc: item.dtstart_utc || toUtcDateTime(item.start_local || item.date),
+                due_utc: item.due_utc || toUtcDateTime(item.start_local || item.date),
+                item_emoji: item.emoji || calendar?.emoji || '⬤',
+                item_color: item.color_hex || calendar?.color || '#3b82f6',
+                summary: item.summary || item.title || 'Untitled Event',
+                description: item.description || item.notes || '',
+                tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
+                recurrence: item.recurrence || item.frequency || '',
+                pinned: item.pinned ? 1 : 0,
+                percent_complete: typeof item.percent_complete === 'number'
+                    ? item.percent_complete
+                    : (item.completed || item.done || item.status === 'COMPLETED') ? 100 : 0,
+                status: item.status || (item.completed || item.done ? 'COMPLETED' : 'NEEDS-ACTION'),
+                all_day: item.all_day ? 1 : 0,
+                start_local: item.start_local || item.date || datePart,
+                created_at: item.created_at || new Date().toISOString(),
+                updated_at: item.updated_at || new Date().toISOString()
+            }
         };
 
         const itemCacheKey = storageKey('items');
