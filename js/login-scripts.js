@@ -357,6 +357,35 @@ async function getUserData() {
     // ─────────────────────────────────────────────────────────────
     if (!ok || !payload?.buwana_id) {
         console.warn("⚪ Not logged in or token expired. Using default view.");
+
+        // If we land here *with* internet connectivity, force a clean slate so
+        // EarthCal renders with ZERO cached data (web + Electron). This prevents
+        // stale offline caches from showing when the session has expired.
+        if (navigator.onLine) {
+            try {
+                const storageKeysToClear = [
+                    "buwana_user",
+                    "user_profile",
+                    OFFLINE_PROFILE_CACHE_KEY,
+                    CALENDAR_LIST_CACHE_KEY,
+                    LEGACY_CALENDAR_LIST_CACHE_KEY,
+                    "earthcal_last_buwana_id",
+                ];
+
+                storageKeysToClear.forEach((key) => {
+                    sessionStorage.removeItem(key);
+                    localStorage.removeItem(key);
+                });
+
+                // Remove any per-calendar cache entries (legacy v1 pattern)
+                Object.keys(localStorage)
+                    .filter((key) => key.startsWith("calendar_") || key.startsWith("ec_user_"))
+                    .forEach((key) => localStorage.removeItem(key));
+            } catch (clearErr) {
+                console.warn("[getUserData] Unable to fully clear cached data for guest view", clearErr);
+            }
+        }
+
         useDefaultUser();
         updateSessionStatus("⚪ Not logged in", false);
 
