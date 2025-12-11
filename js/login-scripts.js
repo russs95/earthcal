@@ -8,13 +8,29 @@ window.user_plan = window.user_plan || "padwan";
 // API base resolver (supports hosted + Electron/Snap origins)
 function resolveEarthcalApiBase() {
     const origin = window.location.origin || '';
-    // If running on localhost / snap (127.0.0.1:3000, localhost:3000 etc.),
-    // we want to call the hosted API at https://earthcal.app/api/v1
-    if (origin.startsWith('http://127.0.0.1') || origin.startsWith('http://localhost')) {
+    const normalizedOrigin = origin.replace(/\/$/, '');
+
+    const host = (() => {
+        try {
+            return origin ? new URL(origin).hostname : '';
+        } catch (_) {
+            return '';
+        }
+    })();
+
+    const isLocalHost = /^https?:\/\/(127\.0\.0\.1|localhost)/.test(normalizedOrigin);
+    const isEarthcalHost = /(?:^|\.)earthcal\.app$/.test(host);
+
+    // If running on localhost / snap, force the hosted API to avoid missing endpoints.
+    if (isLocalHost) {
         return 'https://earthcal.app/api/v1';
     }
-    // Otherwise we’re on the real site; use same-origin /api/v1
-    return `${origin.replace(/\/$/, '')}/api/v1`;
+
+    // Use same-origin only when served from an Earthcal domain; otherwise default to the
+    // primary API host so external mirrors don’t hit 404s for PHP endpoints.
+    return isEarthcalHost
+        ? `${normalizedOrigin}/api/v1`
+        : 'https://earthcal.app/api/v1';
 }
 
 function getApiBase() {
