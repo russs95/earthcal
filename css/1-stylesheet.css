@@ -146,11 +146,11 @@ path[id*="week-"] {
     display:none;
     width: 300px;
     height:fit-content;
-    font-size: 0.8em;
+    font-size: 0.8em !important;
     text-align:left;
     z-index: 20;
     position: fixed;
-    bottom: 85px;
+    bottom: 50px;
     left: 25px;
     pointer-events: none;
 }
