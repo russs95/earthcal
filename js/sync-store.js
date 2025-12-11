@@ -135,17 +135,6 @@
                 datePart = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             }
 
-            if (!datePart) {
-                const normalized = String(rawDate || '').replace(' ', 'T');
-                const parsed = new Date(normalized);
-                if (!Number.isNaN(parsed.getTime())) {
-                    year = Number.isFinite(year) ? year : parsed.getFullYear();
-                    month = Number.isFinite(month) ? month : parsed.getMonth() + 1;
-                    day = Number.isFinite(day) ? day : parsed.getDate();
-                    datePart = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                }
-            }
-
             return { datePart, year, month, day };
         };
 
