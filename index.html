@@ -603,6 +603,60 @@
     updateMetaContent();
     updateStaticText();
 
+    const resolveOnboardingApiBase = () => {
+        const safeResolve = (fn) => {
+            if (typeof fn === "function") {
+                try {
+                    return fn();
+                } catch (_) {
+                    /* ignore */
+                }
+            }
+            return null;
+        };
+
+        const override = typeof window !== "undefined" && window.EARTHCAL_API_BASE;
+        if (override) {
+            return String(override).replace(/\/$/, "");
+        }
+
+        const resolved = safeResolve(typeof resolveEarthcalApiBase === "function" ? resolveEarthcalApiBase : null);
+        if (resolved) {
+            return String(resolved).replace(/\/$/, "");
+        }
+
+        const origin = (typeof window !== "undefined" && window.location?.origin)
+            ? window.location.origin
+            : "";
+        const normalizedOrigin = origin.replace(/\/$/, "");
+
+        let host = "";
+        try {
+            host = origin ? new URL(origin).hostname : "";
+        } catch (_) {
+            host = "";
+        }
+
+        const isLocalHost = /^https?:\/\/(127\.0\.0\.1|localhost)/.test(normalizedOrigin);
+        const isEarthcalHost = /(?:^|\.)earthcal\.app$/.test(host);
+
+        if (isLocalHost) {
+            return "https://earthcal.app/api/v1";
+        }
+
+        return isEarthcalHost ? `${normalizedOrigin}/api/v1` : "https://earthcal.app/api/v1";
+    };
+
+    const onboardingApiBase = resolveOnboardingApiBase();
+    const onboardingApiUrl = (path) => {
+        const base = typeof onboardingApiBase === "string" && onboardingApiBase.trim()
+            ? onboardingApiBase
+            : "/api/v1";
+        const cleanedBase = base.replace(/\/$/, "");
+        const cleanedPath = typeof path === "string" ? path.replace(/^\//, "") : "";
+        return `${cleanedBase}/${cleanedPath}`;
+    };
+
     const defaultName = translate("onboarding.defaultName", {}, "Earthling");
 
     const welcomeEl = document.getElementById("welcome-message");
@@ -1130,7 +1184,7 @@
 
         const subscribeToPublicCalendars = async (userId) => {
             const calendarIds = [52, 53];
-            const subscriptionEndpoint = "api/v1/update_pub_cal_subs.php";
+            const subscriptionEndpoint = onboardingApiUrl("update_pub_cal_subs.php");
             const outcomes = [];
             for (const calendarId of calendarIds) {
                 const response = await fetch(subscriptionEndpoint, {
@@ -1297,7 +1351,7 @@
             }
 
             try {
-                const response = await fetch("api/v1/get_user_items.php", {
+                const response = await fetch(onboardingApiUrl("get_user_items.php"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "same-origin",
@@ -1410,7 +1464,7 @@
                 emoji: "🎉",
             };
 
-            const response = await fetch("api/v1/add_item.php", {
+            const response = await fetch(onboardingApiUrl("add_item.php"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "same-origin",
@@ -1468,7 +1522,7 @@
                     color_hex: definition.color_hex,
                 };
 
-                const response = await fetch("api/v1/add_item.php", {
+                const response = await fetch(onboardingApiUrl("add_item.php"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "same-origin",
@@ -1525,7 +1579,7 @@
             const hasTokenTimeZone = Boolean(tokenTimeZone);
 
             const { result: accountCheckJson, listItem: confirmTaskItem } = await runTask(onboardingText.tasks.verifyingAccount, async () => {
-                const checkResponse = await fetch("api/v1/create_my_calendar.php", {
+                const checkResponse = await fetch(onboardingApiUrl("create_my_calendar.php"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "same-origin",
@@ -1564,7 +1618,7 @@
             );
 
             const { listItem: calendarTaskItem } = await runTask(onboardingText.tasks.creatingCalendar, async () => {
-                const createResponse = await fetch("api/v1/create_my_calendar.php", {
+                const createResponse = await fetch(onboardingApiUrl("create_my_calendar.php"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "same-origin",
