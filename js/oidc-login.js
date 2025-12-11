@@ -68,12 +68,7 @@ export async function redirectToBuwana() {
         ? `${origin.replace(/\/$/, '')}/auth/callback`
         : defaultRedirectUri;
 
-    // Optional: honour ?status= in the current URL
-    const status = new URLSearchParams(window.location.search).get("status");
     const redirectUriObj = new URL(baseRedirectUri);
-    if (status) {
-        redirectUriObj.searchParams.set("status", status);
-    }
 
     // Use browser language if available
     const lang = (navigator.language || "en").slice(0, 2) || "en";
