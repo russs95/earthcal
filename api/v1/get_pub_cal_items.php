@@ -34,40 +34,41 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
-/*--------------------------------------------------------
-| CORS (Cross-Origin Resource Sharing)
-| Only allow known origins to call this API.
----------------------------------------------------------*/
+// -------------------------------------------------------------
+// 0. Earthcal.app server-based APIs CORS Setup
+// -------------------------------------------------------------
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && $origin !== null) {
-    $normalizedOrigin = rtrim($origin, '/');
-    if (in_array($normalizedOrigin, $allowedOrigins, true)) {
-        header('Access-Control-Allow-Origin: ' . $normalizedOrigin);
+
+// If this is a CORS request (Origin header present)…
+if ($origin !== '') {
+    $normalized_origin = rtrim($origin, '/');
+
+    if (in_array($normalized_origin, $allowed_origins, true)) {
+        header('Access-Control-Allow-Origin: ' . $normalized_origin);
+        header('Vary: Origin'); // best practice
     } else {
-        // Block unexpected origins (security)
+        // Explicitly reject unknown web origins
         http_response_code(403);
         echo json_encode(['ok' => false, 'success' => false, 'error' => 'cors_denied']);
         exit;
     }
-} else {
-    // Allow local file access or curl testing
-    header('Access-Control-Allow-Origin: *');
-}
 
-/*--------------------------------------------------------
-| Handle preflight OPTIONS requests (CORS handshake)
----------------------------------------------------------*/
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    exit(0);
+    if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        exit(0);
+    }
+} else {
+    // No Origin header (e.g. curl, server-side) – no CORS needed
+    // You can leave this branch empty or add minimal headers if you like.
 }
 
 /*--------------------------------------------------------
