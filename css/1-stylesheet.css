@@ -2836,14 +2836,14 @@ color: #b2b1b1;
     #reg-up-button {
         width: 25%;
         height: 38px;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
     }
 
 }
 
 @media screen and (min-width: 1201px) {
     #reg-up-button {
-        margin: 0px auto 10px 30px;
+        margin: 0px auto 6px 30px;
         width: 25%;
         height: 40px;
     }

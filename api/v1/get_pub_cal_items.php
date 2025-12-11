@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /*
 |--------------------------------------------------------------------------
-| get_calendar_items.php — EarthCal v1.0
+| get_pub_cal_items.php — EarthCal v.0.9
 |--------------------------------------------------------------------------
 | PURPOSE:
 |   This API retrieves a calendar and all its visible items (events, todos,
