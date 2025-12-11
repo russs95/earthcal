@@ -275,13 +275,7 @@ function buildRedirectUri() {
         ? `${origin}/auth/callback`
         : defaultRedirect;
 
-    const redirectObj = new URL(base);
-    const status = new URLSearchParams(window.location.search).get("status");
-    if (status) {
-        redirectObj.searchParams.set("status", status);
-    }
-
-    return redirectObj.toString();
+    return new URL(base).toString();
 }
 
 // -----------------------------
