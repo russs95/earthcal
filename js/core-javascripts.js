@@ -2,14 +2,33 @@
 /* EARTHCYCLES CALENDAR PRIMARY JAVASCRIPTS */
 
 function resolveEarthcalApiBase() {
-  const origin = (typeof window !== "undefined" && window.location?.origin) ? window.location.origin : "";
-  // If running on localhost / snap (127.0.0.1:3000, localhost:3000 etc.),
-  // we want to call the hosted API at https://earthcal.app/api/v1
-  if (origin.startsWith("http://127.0.0.1") || origin.startsWith("http://localhost")) {
+  const origin = (typeof window !== "undefined" && window.location?.origin)
+    ? window.location.origin
+    : "";
+  const normalizedOrigin = origin.replace(/\/$/, "");
+
+  const host = (() => {
+    try {
+      return origin ? new URL(origin).hostname : "";
+    } catch (_) {
+      return "";
+    }
+  })();
+
+  const isLocalHost = /^https?:\/\/(127\.0\.0\.1|localhost)/.test(normalizedOrigin);
+  const isEarthcalHost = /(?:^|\.)earthcal\.app$/.test(host);
+
+  // If running locally (Electron/Snap or localhost), always call the hosted API.
+  if (isLocalHost) {
     return "https://earthcal.app/api/v1";
   }
-  // Otherwise we’re on the real site; use same-origin /api/v1
-  return `${origin.replace(/\/$/, "")}/api/v1`;
+
+  // If the current host is an Earthcal domain (earthcal.app, beta.earthcal.app, etc.),
+  // keep requests on the same origin. Otherwise, default to the primary API host to
+  // avoid 404s on external mirrors.
+  return isEarthcalHost
+    ? `${normalizedOrigin}/api/v1`
+    : "https://earthcal.app/api/v1";
 }
 
 function getApiBase() {
