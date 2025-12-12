@@ -272,7 +272,7 @@ async function showUserCalSettings() {
     const showPlanAction = showSubscriptionLink && hasConnectivity;
     const planStatusHtml = isAuthenticated
         ? `
-            <div class="menu-plan-status">
+            <div class="menu-plan-status settings-plan-status">
                 <div class="menu-plan-pill ${planClass}">
                     <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
                     <span class="menu-plan-pill-text">${planName}</span>
@@ -324,7 +324,10 @@ async function showUserCalSettings() {
 
     const modalContent = document.getElementById('modal-content');
     modalContent.innerHTML = `
-        <div class="top-settings-icon"></div>
+        <div class="settings-modal-header">
+            <div class="top-settings-icon"></div>
+        </div>
+        ${planStatusHtml}
         <form id="user-settings-form">
             <div>
                 <select id="timezone" name="timezone" class="blur-form-field">
@@ -377,11 +380,10 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row">
                 <span>Clear all your Earthcal user data from cache</span>
-                <button type="button" id="clear-user-data-button" class="toggle-button danger-toggle" aria-label="Clear cached user data">
-                    <span class="toggle-slider danger-slider"></span>
+                <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
+                    CLEAR
                 </button>
             </div>
-            ${planStatusHtml}
             ${profileButtonsHtml}
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
                 ${settingsContent.applySettings}
