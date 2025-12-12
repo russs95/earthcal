@@ -2111,7 +2111,7 @@ const initializeCometSystem = () => {
     };
 
     const isOfflineModeActive = () => {
-        if (window.isOfflineMode === true) {
+        if (window.isOfflineMode === true || window.isForcedOffline === true) {
             return true;
         }
 
@@ -2125,10 +2125,26 @@ const initializeCometSystem = () => {
             }
         }
 
+        if (typeof isForcedOfflineEnabled === "function") {
+            try {
+                if (isForcedOfflineEnabled()) {
+                    return true;
+                }
+            } catch (error) {
+                console.warn("⚠️ Unable to read forced offline mode before comet update.", error);
+            }
+        }
+
         try {
             return localStorage.getItem("earthcal_offline_mode") === "offline";
         } catch (error) {
             console.warn("⚠️ Unable to read offline mode from storage before comet update.", error);
+        }
+
+        try {
+            return localStorage.getItem("earthcal_forced_offline") === "true";
+        } catch (error) {
+            console.warn("⚠️ Unable to read forced offline flag before comet update.", error);
         }
 
         return false;

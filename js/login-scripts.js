@@ -713,6 +713,7 @@ function useDefaultUser() {
 }
 
 const OFFLINE_MODE_STORAGE_KEY = 'earthcal_offline_mode';
+const FORCED_OFFLINE_STORAGE_KEY = 'earthcal_forced_offline';
 
 function getSavedOfflineMode() {
     const saved = localStorage.getItem(OFFLINE_MODE_STORAGE_KEY);
@@ -723,6 +724,113 @@ function getSavedOfflineMode() {
     // Default persistently to offline so cached data is retained between sessions
     localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, 'offline');
     return 'offline';
+}
+
+function isForcedOfflineEnabled() {
+    try {
+        const stored = localStorage.getItem(FORCED_OFFLINE_STORAGE_KEY);
+        if (stored === 'true') {
+            return true;
+        }
+    } catch (err) {
+        console.warn('[EarthCal] Unable to read forced offline preference:', err);
+    }
+
+    return window.isForcedOffline === true;
+}
+
+function setForcedOfflinePreference(enabled) {
+    const forced = enabled === true;
+    try {
+        localStorage.setItem(FORCED_OFFLINE_STORAGE_KEY, forced ? 'true' : 'false');
+    } catch (err) {
+        console.warn('[EarthCal] Unable to persist forced offline preference:', err);
+    }
+
+    window.isForcedOffline = forced;
+
+    // Forced offline always implies the cached-data offline mode.
+    const mode = forced ? 'offline' : getSavedOfflineMode();
+    const normalized = setOfflineModeChoice(mode);
+    updateOfflineToggleUI(normalized);
+
+    return forced;
+}
+
+function updateForcedOfflineToggleUI(enabled) {
+    const toggle = document.getElementById('forced-offline-toggle');
+    if (toggle) {
+        toggle.checked = enabled === true;
+    }
+}
+
+function toggleForcedOfflineMode(eventOrChecked) {
+    const enabled = typeof eventOrChecked === 'boolean'
+        ? eventOrChecked
+        : Boolean(eventOrChecked?.target?.checked);
+    const forced = setForcedOfflinePreference(enabled);
+    updateForcedOfflineToggleUI(forced);
+
+    if (typeof window.syncStore?.getStatus === 'function' && typeof updateOfflineSyncIndicator === 'function') {
+        updateOfflineSyncIndicator(window.syncStore.getStatus());
+    }
+
+    if (forced) {
+        console.info('[EarthCal] Forced offline mode enabled. All syncing paused.');
+    } else {
+        console.info('[EarthCal] Forced offline mode disabled. Online checks may resume.');
+    }
+}
+
+async function clearAllUserData() {
+    const confirmReset = window.confirm('Are you sure you want to clear and reset all your user data? You will need to login again to retrieve all your Earthcal data.');
+    if (!confirmReset) return;
+
+    try {
+        localStorage.clear();
+        sessionStorage.clear();
+    } catch (err) {
+        console.warn('[EarthCal] Unable to clear storage during reset:', err);
+    }
+
+    if (window.caches && typeof window.caches.keys === 'function') {
+        try {
+            const keys = await window.caches.keys();
+            await Promise.all(keys.map((key) => window.caches.delete(key)));
+        } catch (err) {
+            console.warn('[EarthCal] Unable to clear Cache Storage during reset:', err);
+        }
+    }
+
+    window.isForcedOffline = false;
+    window.isOfflineMode = false;
+    window.earthcalMode = null;
+    setOfflineModeChoice('simple');
+    updateForcedOfflineToggleUI(false);
+    updateOfflineToggleUI('simple');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'reset-alert-overlay';
+    overlay.innerHTML = `
+        <div class="reset-alert-dialog">
+            <p>Earthcal fully reset.</p>
+            <button type="button" class="reload-button">Reload</button>
+        </div>
+    `;
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            overlay.remove();
+        }
+    });
+
+    const reloadButton = overlay.querySelector('.reload-button');
+    reloadButton?.addEventListener('click', () => {
+        window.location.reload();
+    });
+
+    document.body.appendChild(overlay);
+    reloadButton?.focus();
 }
 
 function setOfflineModeChoice(mode) {
@@ -737,6 +845,13 @@ function setOfflineModeChoice(mode) {
 
 // Ensure global offline/simple mode flags are initialized on load
 setOfflineModeChoice(getSavedOfflineMode());
+
+const initialForcedOffline = isForcedOfflineEnabled();
+if (initialForcedOffline) {
+    setForcedOfflinePreference(true);
+} else {
+    window.isForcedOffline = false;
+}
 
 function updateOfflineToggleUI(mode) {
     const toggle = document.getElementById('offline-mode-toggle');
@@ -1898,7 +2013,8 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     const { isLoggedIn: ok, payload: loginPayload } = isLoggedIn({ returnPayload: true });
     const offlineModeActive = window.isOfflineMode === true
         || window.earthcalMode === 'offline'
-        || navigator.onLine === false;
+        || navigator.onLine === false
+        || isForcedOfflineEnabled();
 
     let payload = loginPayload;
 
@@ -2005,8 +2121,6 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
 
     const sortedCalendars = sortCalendarsByName(normalizedCalendars);
 
-    const editProfileUrl = `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(buwana_id)}&app=${encodeURIComponent(payload.aud || payload.client_id || "unknown")}`;
-
     document.removeEventListener('click', handleCalOutsideClick, true);
     currentExpandedCalRowId = null;
 
@@ -2025,15 +2139,6 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
             <div id="public-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
             <p id="webcal-intro-text" style="text-align:center; margin-bottom: 8px;"></p>
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
-
-            <div id="logged-in-buttons" style="max-width: 90%; margin: auto; display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
-                    Edit Buwana Profile
-                </button>
-                <p class="ec-profile-connection-note" style="margin:0;text-align:center;font-size:0.85rem;color:var(--subdued-text, #6b7280);">
-                    You are connected to Earthcal with your ${earthling_emoji} ${escapeHtml(first_name)} Buwana account.
-                </p>
-            </div>
 
             <p id="cal-datecycle-count"></p>
         </div>

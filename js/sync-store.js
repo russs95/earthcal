@@ -236,7 +236,33 @@
     }
 
 
+    const isForcedOffline = () => {
+        if (typeof window !== 'undefined' && window.isForcedOffline === true) {
+            return true;
+        }
+
+        try {
+            return localStorage.getItem('earthcal_forced_offline') === 'true';
+        } catch (err) {
+            console.warn('[sync-store] Unable to read forced offline flag', err);
+        }
+
+        return false;
+    };
+
     async function determineConnectivity() {
+        if (isForcedOffline()) {
+            connectivityState = {
+                ...connectivityState,
+                online: false,
+                backendReachable: false,
+                lastChecked: Date.now(),
+                forcedOffline: true
+            };
+            notifyStatusListeners();
+            return false;
+        }
+
         const reachable = await checkBackendReachable();
 
         // In Electron/snap, navigator.onLine is often unreliable.
@@ -247,7 +273,8 @@
             ...connectivityState,
             online,
             backendReachable: reachable,
-            lastChecked: Date.now()
+            lastChecked: Date.now(),
+            forcedOffline: false
         };
 
         notifyStatusListeners();

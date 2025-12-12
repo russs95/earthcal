@@ -250,6 +250,10 @@ async function showUserCalSettings() {
     })();
 
     const isAuthenticated = Boolean(payload?.buwana_id || resolvedBuwanaId);
+    const profile = window.userProfile || {};
+    const firstName = profile.first_name || payload?.given_name || 'Earthling';
+    const sanitizedFirstName = (typeof escapeHtml === 'function') ? escapeHtml(firstName) : firstName;
+    const earthlingEmoji = profile.earthling_emoji || payload?.["buwana:earthlingEmoji"] || '🌍';
     const userPlan = (window.user_plan || '').toLowerCase();
     const planName = userPlan === 'jedi'
         ? 'EarthCal Jedi'
@@ -281,6 +285,26 @@ async function showUserCalSettings() {
     const savedOfflineMode = (typeof getSavedOfflineMode === 'function')
         ? getSavedOfflineMode()
         : 'offline';
+    const forcedOfflineEnabled = (typeof isForcedOfflineEnabled === 'function')
+        ? isForcedOfflineEnabled()
+        : false;
+
+    const editProfileUrl = isAuthenticated && resolvedBuwanaId
+        ? `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(payload?.aud || payload?.client_id || "unknown")}`
+        : null;
+
+    const profileButtonsHtml = editProfileUrl
+        ? `
+            <div id="logged-in-buttons" class="settings-profile-actions">
+                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
+                    Edit Buwana Profile
+                </button>
+                <p class="ec-profile-connection-note" style="margin:0;text-align:center;font-size:0.85rem;color:var(--subdued-text, #6b7280);">
+                    You are connected to Earthcal with your ${earthlingEmoji} ${sanitizedFirstName} Buwana account.
+                </p>
+            </div>
+        `
+        : '';
 
     const timezoneOptions = timezones.map(tz => {
         const offset = getTimeZoneOffsetDisplay(tz.value);
@@ -344,7 +368,21 @@ async function showUserCalSettings() {
                     <span class="toggle-slider"></span>
                 </label>
             </div>
+            <div class="toggle-row">
+                <span>Use Earthcal in offline mode. Turn off all internet and syncing functionality</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <span>Clear all your Earthcal user data from cache</span>
+                <button type="button" id="clear-user-data-button" class="toggle-button danger-toggle" aria-label="Clear cached user data">
+                    <span class="toggle-slider danger-slider"></span>
+                </button>
+            </div>
             ${planStatusHtml}
+            ${profileButtonsHtml}
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
                 ${settingsContent.applySettings}
             </button>
@@ -402,6 +440,16 @@ async function showUserCalSettings() {
     if (offlineModeToggle) {
         updateOfflineToggleUI(savedOfflineMode);
         offlineModeToggle.addEventListener('change', handleOfflineToggleChange);
+    }
+
+    const forcedOfflineToggle = modalContent.querySelector('#forced-offline-toggle');
+    if (forcedOfflineToggle && typeof toggleForcedOfflineMode === 'function') {
+        forcedOfflineToggle.addEventListener('change', toggleForcedOfflineMode);
+    }
+
+    const clearUserDataButton = modalContent.querySelector('#clear-user-data-button');
+    if (clearUserDataButton) {
+        clearUserDataButton.addEventListener('click', clearAllUserData);
     }
 }
 
