@@ -365,7 +365,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>When offline use cached data then sync it when online</span>
+                <span>Offline mode uses cached data. Syncs-up when online.</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                     <span class="toggle-slider"></span>

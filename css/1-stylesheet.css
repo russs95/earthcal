@@ -164,6 +164,7 @@ path[id*="week-"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+    pointer-events: none;
 }
 
 .comet-3i-text {
@@ -171,14 +172,17 @@ path[id*="week-"] {
     flex-direction: column;
     gap: 4px;
     line-height: 1.4;
+    pointer-events: none;
 }
 
 .comet-3i-title {
     font-size: 1em;
+    pointer-events: none;
 }
 
 .comet-3i-image img {
     max-height: 40px;
+    pointer-events: none;
 }
 
 
