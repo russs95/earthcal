@@ -12,7 +12,7 @@ let serverStarted = false;
 
 const PORT = 3000;
 // Where index.html, dash.html, service-worker.js, assets/ etc. live inside the bundle/snap
-const PUBLIC_DIR = __dirname;
+const PUBLIC_DIR = path.resolve(__dirname, '..');
 
 // Enable SharedArrayBuffer support (as you had before)
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
@@ -110,7 +110,7 @@ function createWindow(useFileFallback = false) {
     mainWindow = new BrowserWindow({
         width: 1028,
         height: 769,
-        icon: path.join(__dirname, 'assets', 'earthcal.png'),
+        icon: path.join(PUBLIC_DIR, 'assets', 'earthcal.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             sandbox: false,
@@ -118,7 +118,7 @@ function createWindow(useFileFallback = false) {
     });
 
     const startURL = useFileFallback
-        ? `file://${path.join(__dirname, 'index.html')}`
+        ? `file://${path.join(PUBLIC_DIR, 'index.html')}`
         : `http://127.0.0.1:${PORT}/index.html`;
 
     mainWindow.loadURL(startURL);
