@@ -39,7 +39,7 @@ apps:
 parts:
   earthcal:
     plugin: dump
-    source: earthcal-linux-x64/
+    source: ./earthcal-linux-x64/
     build-snaps:
       - node/14/stable
     build-packages:
