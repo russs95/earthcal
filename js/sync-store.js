@@ -104,6 +104,10 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
+        const rawLocalInput = item?.start_local || item?.date || '';
+        const rawDateInput = item?.start_local || item?.dtstart_utc || item?.date || '';
+        console.log('[sync-store][normalizeItem] received inputs', { rawLocal: rawLocalInput, rawDate: rawDateInput });
+
         const toUtcDateTime = (rawLocal) => {
             if (!rawLocal) return null;
             const normalizedLocal = String(rawLocal).replace(' ', 'T');
@@ -216,6 +220,13 @@
                 item: normalized
             });
         }
+
+        console.log('[sync-store][normalizeItem] parsed date parts', {
+            date: datePart || item.date,
+            year,
+            month,
+            day
+        });
 
         return normalized;
     }
