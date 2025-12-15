@@ -104,6 +104,10 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
+        const rawLocalInput = item?.start_local || item?.date || '';
+        const rawDateInput = item?.start_local || item?.dtstart_utc || item?.date || '';
+        console.log('[sync-store][normalizeItem] received inputs', { rawLocal: rawLocalInput, rawDate: rawDateInput });
+
         const toUtcDateTime = (rawLocal) => {
             if (!rawLocal) return null;
             const normalizedLocal = String(rawLocal).replace(' ', 'T');
@@ -117,7 +121,8 @@
 
         const parseDateParts = () => {
             const rawDate = item.start_local || item.dtstart_utc || item.date || '';
-            const firstToken = String(rawDate).trim().split(' ')[0];
+            const sanitized = String(rawDate).trim().replace('T', ' ');
+            const firstToken = sanitized.split(' ')[0];
             const explicitParts = [item.year, item.month, item.day].map(Number);
 
             let year = Number.isFinite(explicitParts[0]) ? explicitParts[0] : undefined;
@@ -141,7 +146,7 @@
         const { datePart, year, month, day } = parseDateParts();
         const timeLabel = (() => {
             const rawDate = item.start_local || item.dtstart_utc || item.date || '';
-            const timePart = String(rawDate).trim().split(' ')[1] || item.time;
+            const timePart = String(rawDate).trim().replace('T', ' ').split(' ')[1] || item.time;
             const safeTime = (timePart || '00:00').slice(0, 5);
             return safeTime;
         })();
@@ -215,6 +220,13 @@
                 item: normalized
             });
         }
+
+        console.log('[sync-store][normalizeItem] parsed date parts', {
+            date: datePart || item.date,
+            year,
+            month,
+            day
+        });
 
         return normalized;
     }
