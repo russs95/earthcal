@@ -96,7 +96,7 @@
             sessionStorage.setItem('user_calendars_v1', payload);
             localStorage.setItem('user_calendars_v1', payload);
         } catch (err) {
-            console.debug('[sync-store] unable to mirror calendar list', err);
+            console.warn('[sync-store] unable to mirror calendar list', err);
         }
 
         connectivityState.pending = readOutbox().length;
@@ -104,10 +104,6 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
-        const rawLocalInput = item?.start_local || item?.date || '';
-        const rawDateInput = item?.start_local || item?.dtstart_utc || item?.date || '';
-        console.log('[sync-store][normalizeItem] received inputs', { rawLocal: rawLocalInput, rawDate: rawDateInput });
-
         const toUtcDateTime = (rawLocal) => {
             if (!rawLocal) return null;
             const normalizedLocal = String(rawLocal).replace(' ', 'T');
@@ -263,21 +259,6 @@
         normalized.month = resolvedMonth;
         normalized.day = resolvedDay;
 
-        const itemCacheKey = storageKey('items');
-        if (itemCacheKey) {
-            console.log('[sync-store][normalizeItem] preparing cached item for highlightDateCycles', {
-                cacheKey: itemCacheKey,
-                item: normalized
-            });
-        }
-
-        console.log('[sync-store][normalizeItem] parsed date parts', {
-            date: normalized?.date || datePart || item.date,
-            year: normalized?.year ?? year,
-            month: normalized?.month ?? month,
-            day: normalized?.day ?? day
-        });
-
         return normalized;
     }
 
@@ -292,7 +273,6 @@
             // If we got any HTTP response, the backend is reachable.
             return true;
         } catch (err) {
-            console.debug('[sync-store] backend reachability failed', err);
             return false;
         }
     }
@@ -383,8 +363,6 @@
         // 3. Otherwise default to relative /api/v1
         apiBase = options.apiBase
             || (isLocalhost ? 'https://earthcal.app/api/v1' : DEFAULT_API_BASE);
-
-        console.debug('[sync-store] initSyncStore for user', currentUser?.buwana_id, 'apiBase =', apiBase);
 
         // Update pending count from outbox
         connectivityState.pending = readOutbox().length;
@@ -516,25 +494,6 @@
             queued_at: Date.now(),
             last_error: null
         };
-        const outboxKey = storageKey('outbox');
-        console.log('[sync-store] enqueueing offline change', {
-            outboxKey,
-            operation,
-            calendar_id: entry.calendar_id,
-            item_id: entry.item_id,
-            client_temp_id: entry.client_temp_id,
-            queued_at: entry.queued_at,
-            payloadSnapshot: {
-                summary: payload?.summary || payload?.title,
-                start_local: payload?.start_local || payload?.date,
-                calendar_name: payload?.calendar_name,
-                color_hex: payload?.color_hex,
-                emoji: payload?.emoji,
-                pinned: payload?.pinned,
-                all_day: payload?.all_day,
-                tzid: payload?.tzid
-            }
-        });
         outbox.push(entry);
         persistOutbox(outbox);
         applyLocalChange(entry);
