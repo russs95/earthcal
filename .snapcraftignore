@@ -1,0 +1,4 @@
+earthcal-linux-x64/
+mac/
+*.snap
+node_modules/

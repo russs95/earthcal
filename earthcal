@@ -1,0 +1,8 @@
+#!/bin/sh
+# Launcher script for EarthCal inside the snap
+
+# Go into the electron project directory inside the snap
+cd "$SNAP/electron"
+
+# Run Electron with our main process file
+exec "$SNAP/electron/node_modules/.bin/electron" "$SNAP/electron/main.js"

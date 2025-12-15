@@ -1,12 +1,13 @@
 {
   "name": "earthcal",
-  "version": "1.1.0",
+  "version": "1.1.4",
   "description": "Sync your moments with Earth's cycles",
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
-    "package": "electron-packager . earthcal --platform=linux --arch=x64 --overwrite",
-    "snap": "electron-installer-snap --src earthcal-linux-x64/ --dest snap/",
+    "prepare-public": "./prepare-public.sh",
+    "package": "npm run prepare-public && electron-packager . earthcal --platform=linux --arch=x64 --out=./ --overwrite",
+    "snap": "npm run package && electron-installer-snap --src earthcal-linux-x64/ --dest snap/",
     "test": "jest"
   },
   "repository": {

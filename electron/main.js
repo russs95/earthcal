@@ -1,6 +1,9 @@
+
 // =========================
 // MAIN PROCESS: IMPORTS & GLOBALS
 // =========================
+
+
 const { app, BrowserWindow, Menu, shell, dialog, ipcMain, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -11,8 +14,15 @@ let httpServer = null;
 let serverStarted = false;
 
 const PORT = 3000;
-// Where index.html, dash.html, service-worker.js, assets/ etc. live inside the bundle/snap
-const PUBLIC_DIR = path.resolve(__dirname, '..');
+
+const isPackaged = app.isPackaged;
+
+// DEV: serve from repo root (one level up)
+// PACKAGED: serve from the bundled public/ folder inside the app
+const PUBLIC_DIR = isPackaged
+    ? path.join(__dirname, 'public')
+    : path.resolve(__dirname, '..');
+
 
 // Enable SharedArrayBuffer support (as you had before)
 app.commandLine.appendSwitch('enable-features', 'SharedArrayBuffer');
@@ -95,7 +105,7 @@ function startLocalServer() {
         dialog.showErrorBox(
             'EarthCal startup error',
             'EarthCal could not start its local server on http://127.0.0.1:3000.\n' +
-                'Please make sure another process is not using that port and restart the app.'
+            'Please make sure another process is not using that port and restart the app.'
         );
 
         app.quit();
