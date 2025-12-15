@@ -226,10 +226,10 @@
         }
 
         console.log('[sync-store][normalizeItem] parsed date parts', {
-            date: normalized?.date || datePart || item.date,
-            year: normalized?.year ?? year,
-            month: normalized?.month ?? month,
-            day: normalized?.day ?? day
+            date: datePart || item.date,
+            year,
+            month,
+            day
         });
 
         return normalized;
