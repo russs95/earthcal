@@ -151,67 +151,71 @@
             return safeTime;
         })();
 
+        let normalized;
         if (typeof global.normalizeV1Item === 'function') {
             try {
-                return global.normalizeV1Item(item, calendar, buwanaId);
+                normalized = global.normalizeV1Item(item, calendar, buwanaId);
             } catch (err) {
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
-        const uniqueKey = `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`;
-        const numericItemId = Number(item.item_id || item.id);
-        const itemId = Number.isFinite(numericItemId) ? numericItemId : (item.item_id || item.id);
-        const calendarId = Number(calendar?.calendar_id || item.calendar_id || item.cal_id);
 
-        const normalized = {
-            unique_key: uniqueKey,
-            item_id: itemId,
-            buwana_id: buwanaId,
-            cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
-            cal_name: calendar?.name || 'My Calendar',
-            cal_color: calendar?.color || '#3b82f6',
-            title: item.summary || item.title || 'Untitled Event',
-            date: datePart || item.date || '',
-            year: Number.isFinite(year) ? year : undefined,
-            month: Number.isFinite(month) ? month : undefined,
-            day: Number.isFinite(day) ? day : undefined,
-            time: timeLabel,
-            time_zone: item.tzid || calendar?.tzid || 'Etc/UTC',
-            comments: item.description || item.notes || '',
-            comment: item.description || item.notes ? '1' : '0',
-            last_edited: item.updated_at || new Date().toISOString(),
-            created_at: item.created_at || new Date().toISOString(),
-            datecycle_color: item.color_hex || calendar?.color || '#3b82f6',
-            date_emoji: item.emoji || calendar?.emoji || '⬤',
-            pinned: item.pinned ? '1' : '0',
-            completed: item.percent_complete >= 100 ? '1' : '0',
-            frequency: item.frequency || item.recurrence || '',
-            all_day: item.all_day ? 1 : 0,
-            tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
-            raw_v1: {
-                item_id: itemId || uniqueKey,
-                calendar_id: Number.isFinite(calendarId) ? calendarId : null,
-                uid: item.uid || uniqueKey,
-                component_type: item.component_type || item.item_kind || item.kind || 'todo',
-                dtstart_utc: item.dtstart_utc || toUtcDateTime(item.start_local || item.date),
-                due_utc: item.due_utc || toUtcDateTime(item.start_local || item.date),
-                item_emoji: item.emoji || calendar?.emoji || '⬤',
-                item_color: item.color_hex || calendar?.color || '#3b82f6',
-                summary: item.summary || item.title || 'Untitled Event',
-                description: item.description || item.notes || '',
-                tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
-                recurrence: item.recurrence || item.frequency || '',
-                pinned: item.pinned ? 1 : 0,
-                percent_complete: typeof item.percent_complete === 'number'
-                    ? item.percent_complete
-                    : (item.completed || item.done || item.status === 'COMPLETED') ? 100 : 0,
-                status: item.status || (item.completed || item.done ? 'COMPLETED' : 'NEEDS-ACTION'),
-                all_day: item.all_day ? 1 : 0,
-                start_local: item.start_local || item.date || datePart,
+        if (!normalized) {
+            const uniqueKey = `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`;
+            const numericItemId = Number(item.item_id || item.id);
+            const itemId = Number.isFinite(numericItemId) ? numericItemId : (item.item_id || item.id);
+            const calendarId = Number(calendar?.calendar_id || item.calendar_id || item.cal_id);
+
+            normalized = {
+                unique_key: uniqueKey,
+                item_id: itemId,
+                buwana_id: buwanaId,
+                cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
+                cal_name: calendar?.name || 'My Calendar',
+                cal_color: calendar?.color || '#3b82f6',
+                title: item.summary || item.title || 'Untitled Event',
+                date: datePart || item.date || '',
+                year: Number.isFinite(year) ? year : undefined,
+                month: Number.isFinite(month) ? month : undefined,
+                day: Number.isFinite(day) ? day : undefined,
+                time: timeLabel,
+                time_zone: item.tzid || calendar?.tzid || 'Etc/UTC',
+                comments: item.description || item.notes || '',
+                comment: item.description || item.notes ? '1' : '0',
+                last_edited: item.updated_at || new Date().toISOString(),
                 created_at: item.created_at || new Date().toISOString(),
-                updated_at: item.updated_at || new Date().toISOString()
-            }
-        };
+                datecycle_color: item.color_hex || calendar?.color || '#3b82f6',
+                date_emoji: item.emoji || calendar?.emoji || '⬤',
+                pinned: item.pinned ? '1' : '0',
+                completed: item.percent_complete >= 100 ? '1' : '0',
+                frequency: item.frequency || item.recurrence || '',
+                all_day: item.all_day ? 1 : 0,
+                tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
+                raw_v1: {
+                    item_id: itemId || uniqueKey,
+                    calendar_id: Number.isFinite(calendarId) ? calendarId : null,
+                    uid: item.uid || uniqueKey,
+                    component_type: item.component_type || item.item_kind || item.kind || 'todo',
+                    dtstart_utc: item.dtstart_utc || toUtcDateTime(item.start_local || item.date),
+                    due_utc: item.due_utc || toUtcDateTime(item.start_local || item.date),
+                    item_emoji: item.emoji || calendar?.emoji || '⬤',
+                    item_color: item.color_hex || calendar?.color || '#3b82f6',
+                    summary: item.summary || item.title || 'Untitled Event',
+                    description: item.description || item.notes || '',
+                    tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
+                    recurrence: item.recurrence || item.frequency || '',
+                    pinned: item.pinned ? 1 : 0,
+                    percent_complete: typeof item.percent_complete === 'number'
+                        ? item.percent_complete
+                        : (item.completed || item.done || item.status === 'COMPLETED') ? 100 : 0,
+                    status: item.status || (item.completed || item.done ? 'COMPLETED' : 'NEEDS-ACTION'),
+                    all_day: item.all_day ? 1 : 0,
+                    start_local: item.start_local || item.date || datePart,
+                    created_at: item.created_at || new Date().toISOString(),
+                    updated_at: item.updated_at || new Date().toISOString()
+                }
+            };
+        }
 
         const itemCacheKey = storageKey('items');
         if (itemCacheKey) {
