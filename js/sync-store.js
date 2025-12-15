@@ -173,8 +173,8 @@
                 cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
                 cal_name: calendar?.name || 'My Calendar',
                 cal_color: calendar?.color || '#3b82f6',
-                title: 'TEST',
-                date: '11-22-2025',
+                title: item.summary || item.title || 'Untitled Event',
+                date: datePart || item.date || '',
                 year: Number.isFinite(year) ? year : undefined,
                 month: Number.isFinite(month) ? month : undefined,
                 day: Number.isFinite(day) ? day : undefined,
@@ -217,6 +217,34 @@
             };
         }
 
+        const finalDatePart = datePart || normalized?.date || item.date || '';
+
+        const resolvedYear = (() => {
+            const normalizedYear = Number(normalized?.year);
+            if (Number.isFinite(normalizedYear)) return normalizedYear;
+            if (Number.isFinite(year)) return year;
+            return undefined;
+        })();
+
+        const resolvedMonth = (() => {
+            const normalizedMonth = Number(normalized?.month);
+            if (Number.isFinite(normalizedMonth)) return normalizedMonth;
+            if (Number.isFinite(month)) return month;
+            return undefined;
+        })();
+
+        const resolvedDay = (() => {
+            const normalizedDay = Number(normalized?.day);
+            if (Number.isFinite(normalizedDay)) return normalizedDay;
+            if (Number.isFinite(day)) return day;
+            return undefined;
+        })();
+
+        normalized.date = finalDatePart;
+        normalized.year = resolvedYear;
+        normalized.month = resolvedMonth;
+        normalized.day = resolvedDay;
+
         const itemCacheKey = storageKey('items');
         if (itemCacheKey) {
             console.log('[sync-store][normalizeItem] preparing cached item for highlightDateCycles', {
@@ -226,10 +254,10 @@
         }
 
         console.log('[sync-store][normalizeItem] parsed date parts', {
-            date: datePart || item.date,
-            year,
-            month,
-            day
+            date: normalized?.date || datePart || item.date,
+            year: normalized?.year ?? year,
+            month: normalized?.month ?? month,
+            day: normalized?.day ?? day
         });
 
         return normalized;
