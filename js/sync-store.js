@@ -217,14 +217,6 @@
             };
         }
 
-        const finalDatePart = normalized?.date || datePart || item.date || '';
-        if (!normalized.date || !normalized.year || !normalized.month || !normalized.day) {
-            normalized.date = normalized.date || finalDatePart;
-            normalized.year = Number.isFinite(normalized.year) ? normalized.year : Number.isFinite(year) ? year : undefined;
-            normalized.month = Number.isFinite(normalized.month) ? normalized.month : Number.isFinite(month) ? month : undefined;
-            normalized.day = Number.isFinite(normalized.day) ? normalized.day : Number.isFinite(day) ? day : undefined;
-        }
-
         const itemCacheKey = storageKey('items');
         if (itemCacheKey) {
             console.log('[sync-store][normalizeItem] preparing cached item for highlightDateCycles', {
@@ -234,10 +226,10 @@
         }
 
         console.log('[sync-store][normalizeItem] parsed date parts', {
-            date: normalized?.date || datePart || item.date,
-            year: normalized?.year ?? year,
-            month: normalized?.month ?? month,
-            day: normalized?.day ?? day
+            date: datePart || item.date,
+            year,
+            month,
+            day
         });
 
         return normalized;
