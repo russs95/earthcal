@@ -219,8 +219,24 @@
 
         const finalDatePart = datePart || normalized?.date || item.date || '';
 
+        const derivedFromDatePart = (() => {
+            const match = String(finalDatePart)
+                .trim()
+                .split(' ')[0]
+                .match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+            if (!match) return {};
+
+            return {
+                year: Number(match[1]),
+                month: Number(match[2]),
+                day: Number(match[3])
+            };
+        })();
+
         const resolvedYear = (() => {
             const normalizedYear = Number(normalized?.year);
+            if (Number.isFinite(derivedFromDatePart.year)) return derivedFromDatePart.year;
             if (Number.isFinite(normalizedYear)) return normalizedYear;
             if (Number.isFinite(year)) return year;
             return undefined;
@@ -228,6 +244,7 @@
 
         const resolvedMonth = (() => {
             const normalizedMonth = Number(normalized?.month);
+            if (Number.isFinite(derivedFromDatePart.month)) return derivedFromDatePart.month;
             if (Number.isFinite(normalizedMonth)) return normalizedMonth;
             if (Number.isFinite(month)) return month;
             return undefined;
@@ -235,6 +252,7 @@
 
         const resolvedDay = (() => {
             const normalizedDay = Number(normalized?.day);
+            if (Number.isFinite(derivedFromDatePart.day)) return derivedFromDatePart.day;
             if (Number.isFinite(normalizedDay)) return normalizedDay;
             if (Number.isFinite(day)) return day;
             return undefined;
