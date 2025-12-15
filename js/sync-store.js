@@ -104,6 +104,10 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
+        const rawLocalInput = item?.start_local || item?.date || '';
+        const rawDateInput = item?.start_local || item?.dtstart_utc || item?.date || '';
+        console.log('[sync-store][normalizeItem] received inputs', { rawLocal: rawLocalInput, rawDate: rawDateInput });
+
         const toUtcDateTime = (rawLocal) => {
             if (!rawLocal) return null;
             const normalizedLocal = String(rawLocal).replace(' ', 'T');
@@ -117,7 +121,8 @@
 
         const parseDateParts = () => {
             const rawDate = item.start_local || item.dtstart_utc || item.date || '';
-            const firstToken = String(rawDate).trim().split(' ')[0];
+            const sanitized = String(rawDate).trim().replace('T', ' ');
+            const firstToken = sanitized.split(' ')[0];
             const explicitParts = [item.year, item.month, item.day].map(Number);
 
             let year = Number.isFinite(explicitParts[0]) ? explicitParts[0] : undefined;
@@ -141,72 +146,104 @@
         const { datePart, year, month, day } = parseDateParts();
         const timeLabel = (() => {
             const rawDate = item.start_local || item.dtstart_utc || item.date || '';
-            const timePart = String(rawDate).trim().split(' ')[1] || item.time;
+            const timePart = String(rawDate).trim().replace('T', ' ').split(' ')[1] || item.time;
             const safeTime = (timePart || '00:00').slice(0, 5);
             return safeTime;
         })();
 
+        let normalized;
         if (typeof global.normalizeV1Item === 'function') {
             try {
-                return global.normalizeV1Item(item, calendar, buwanaId);
+                normalized = global.normalizeV1Item(item, calendar, buwanaId);
             } catch (err) {
                 console.warn('[sync-store] normalizeV1Item failed, falling back', err);
             }
         }
-        const uniqueKey = `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`;
-        const numericItemId = Number(item.item_id || item.id);
-        const itemId = Number.isFinite(numericItemId) ? numericItemId : (item.item_id || item.id);
-        const calendarId = Number(calendar?.calendar_id || item.calendar_id || item.cal_id);
 
-        const normalized = {
-            unique_key: uniqueKey,
-            item_id: itemId,
-            buwana_id: buwanaId,
-            cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
-            cal_name: calendar?.name || 'My Calendar',
-            cal_color: calendar?.color || '#3b82f6',
-            title: item.summary || item.title || 'Untitled Event',
-            date: datePart || item.date || '',
-            year: Number.isFinite(year) ? year : undefined,
-            month: Number.isFinite(month) ? month : undefined,
-            day: Number.isFinite(day) ? day : undefined,
-            time: timeLabel,
-            time_zone: item.tzid || calendar?.tzid || 'Etc/UTC',
-            comments: item.description || item.notes || '',
-            comment: item.description || item.notes ? '1' : '0',
-            last_edited: item.updated_at || new Date().toISOString(),
-            created_at: item.created_at || new Date().toISOString(),
-            datecycle_color: item.color_hex || calendar?.color || '#3b82f6',
-            date_emoji: item.emoji || calendar?.emoji || '⬤',
-            pinned: item.pinned ? '1' : '0',
-            completed: item.percent_complete >= 100 ? '1' : '0',
-            frequency: item.frequency || item.recurrence || '',
-            all_day: item.all_day ? 1 : 0,
-            tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
-            raw_v1: {
-                item_id: itemId || uniqueKey,
-                calendar_id: Number.isFinite(calendarId) ? calendarId : null,
-                uid: item.uid || uniqueKey,
-                component_type: item.component_type || item.item_kind || item.kind || 'todo',
-                dtstart_utc: item.dtstart_utc || toUtcDateTime(item.start_local || item.date),
-                due_utc: item.due_utc || toUtcDateTime(item.start_local || item.date),
-                item_emoji: item.emoji || calendar?.emoji || '⬤',
-                item_color: item.color_hex || calendar?.color || '#3b82f6',
-                summary: item.summary || item.title || 'Untitled Event',
-                description: item.description || item.notes || '',
-                tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
-                recurrence: item.recurrence || item.frequency || '',
-                pinned: item.pinned ? 1 : 0,
-                percent_complete: typeof item.percent_complete === 'number'
-                    ? item.percent_complete
-                    : (item.completed || item.done || item.status === 'COMPLETED') ? 100 : 0,
-                status: item.status || (item.completed || item.done ? 'COMPLETED' : 'NEEDS-ACTION'),
-                all_day: item.all_day ? 1 : 0,
-                start_local: item.start_local || item.date || datePart,
+        if (!normalized) {
+            const uniqueKey = `v1_${calendar?.calendar_id || 'cal'}_${item.item_id || item.id || Date.now()}`;
+            const numericItemId = Number(item.item_id || item.id);
+            const itemId = Number.isFinite(numericItemId) ? numericItemId : (item.item_id || item.id);
+            const calendarId = Number(calendar?.calendar_id || item.calendar_id || item.cal_id);
+
+            normalized = {
+                unique_key: uniqueKey,
+                item_id: itemId,
+                buwana_id: buwanaId,
+                cal_id: Number.isFinite(calendarId) ? calendarId : undefined,
+                cal_name: calendar?.name || 'My Calendar',
+                cal_color: calendar?.color || '#3b82f6',
+                title: item.summary || item.title || 'Untitled Event',
+                date: datePart || item.date || '',
+                year: Number.isFinite(year) ? year : undefined,
+                month: Number.isFinite(month) ? month : undefined,
+                day: Number.isFinite(day) ? day : undefined,
+                time: timeLabel,
+                time_zone: item.tzid || calendar?.tzid || 'Etc/UTC',
+                comments: item.description || item.notes || '',
+                comment: item.description || item.notes ? '1' : '0',
+                last_edited: item.updated_at || new Date().toISOString(),
                 created_at: item.created_at || new Date().toISOString(),
-                updated_at: item.updated_at || new Date().toISOString()
-            }
-        };
+                datecycle_color: item.color_hex || calendar?.color || '#3b82f6',
+                date_emoji: item.emoji || calendar?.emoji || '⬤',
+                pinned: item.pinned ? '1' : '0',
+                completed: item.percent_complete >= 100 ? '1' : '0',
+                frequency: item.frequency || item.recurrence || '',
+                all_day: item.all_day ? 1 : 0,
+                tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
+                raw_v1: {
+                    item_id: itemId || uniqueKey,
+                    calendar_id: Number.isFinite(calendarId) ? calendarId : null,
+                    uid: item.uid || uniqueKey,
+                    component_type: item.component_type || item.item_kind || item.kind || 'todo',
+                    dtstart_utc: item.dtstart_utc || toUtcDateTime(item.start_local || item.date),
+                    due_utc: item.due_utc || toUtcDateTime(item.start_local || item.date),
+                    item_emoji: item.emoji || calendar?.emoji || '⬤',
+                    item_color: item.color_hex || calendar?.color || '#3b82f6',
+                    summary: item.summary || item.title || 'Untitled Event',
+                    description: item.description || item.notes || '',
+                    tzid: item.tzid || calendar?.tzid || 'Etc/UTC',
+                    recurrence: item.recurrence || item.frequency || '',
+                    pinned: item.pinned ? 1 : 0,
+                    percent_complete: typeof item.percent_complete === 'number'
+                        ? item.percent_complete
+                        : (item.completed || item.done || item.status === 'COMPLETED') ? 100 : 0,
+                    status: item.status || (item.completed || item.done ? 'COMPLETED' : 'NEEDS-ACTION'),
+                    all_day: item.all_day ? 1 : 0,
+                    start_local: item.start_local || item.date || datePart,
+                    created_at: item.created_at || new Date().toISOString(),
+                    updated_at: item.updated_at || new Date().toISOString()
+                }
+            };
+        }
+
+        const finalDatePart = datePart || normalized?.date || item.date || '';
+
+        const resolvedYear = (() => {
+            const normalizedYear = Number(normalized?.year);
+            if (Number.isFinite(normalizedYear)) return normalizedYear;
+            if (Number.isFinite(year)) return year;
+            return undefined;
+        })();
+
+        const resolvedMonth = (() => {
+            const normalizedMonth = Number(normalized?.month);
+            if (Number.isFinite(normalizedMonth)) return normalizedMonth;
+            if (Number.isFinite(month)) return month;
+            return undefined;
+        })();
+
+        const resolvedDay = (() => {
+            const normalizedDay = Number(normalized?.day);
+            if (Number.isFinite(normalizedDay)) return normalizedDay;
+            if (Number.isFinite(day)) return day;
+            return undefined;
+        })();
+
+        normalized.date = finalDatePart;
+        normalized.year = resolvedYear;
+        normalized.month = resolvedMonth;
+        normalized.day = resolvedDay;
 
         const itemCacheKey = storageKey('items');
         if (itemCacheKey) {
@@ -215,6 +252,13 @@
                 item: normalized
             });
         }
+
+        console.log('[sync-store][normalizeItem] parsed date parts', {
+            date: normalized?.date || datePart || item.date,
+            year: normalized?.year ?? year,
+            month: normalized?.month ?? month,
+            day: normalized?.day ?? day
+        });
 
         return normalized;
     }
