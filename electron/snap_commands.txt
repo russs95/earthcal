@@ -1,5 +1,5 @@
 # Run these commands from within the electron/ directory
-npx electron-packager . earthcal --platform=linux --arch=x64 --out=./earthcal-linux-x64 --overwrite --prune=true
+npx electron-packager . earthcal --platform=linux --arch=x64 --out=./ --overwrite --prune=true
 snapcraft pack
 snapcraft
 sudo snap install --dangerous earthcal_*.snap
