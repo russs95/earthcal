@@ -1,18 +1,15 @@
-//
-//  ContentView.swift
-//  earthcal_mac
-//
-//  Created by Earthen Labs on 16/12/25.
-//
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        WebView()
-            .ignoresSafeArea()
+        EarthCalWebView()
+            .frame(minWidth: 800, minHeight: 600)
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(WebViewController())
+    }
 }

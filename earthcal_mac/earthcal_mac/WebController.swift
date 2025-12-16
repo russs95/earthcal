@@ -1,7 +1,14 @@
+//
+//  WebController.swift
+//  earthcal_mac
+//
+//  Created by Earthen Labs on 17/12/25.
+//
+
 import SwiftUI
 import WebKit
 
-struct EarthCalWebView: NSViewRepresentable {
+struct WebView: NSViewRepresentable {
     @EnvironmentObject var controller: WebViewController
 
     func makeNSView(context: Context) -> WKWebView {
@@ -11,6 +18,7 @@ struct EarthCalWebView: NSViewRepresentable {
         webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
         #endif
 
+        // Let the controller drive this webView (for Reload, Guided Tour, etc.)
         controller.webView = webView
 
         loadFromLocalServer(in: webView)
@@ -18,7 +26,7 @@ struct EarthCalWebView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        // no-op for now
+        // nothing for now
     }
 
     private func loadFromLocalServer(in webView: WKWebView) {
