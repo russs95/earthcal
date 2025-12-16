@@ -1515,8 +1515,16 @@ async function push2today(uniqueKey) {
         return;
     }
 
+    const timeZone = window.userTimeZone || getUserTimezone();
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+
+    const formattedDate = formatter.format(new Date());
     const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split('T')[0];
     const [year, month, day] = formattedDate.split('-');
 
     const updatedDateCycle = {
