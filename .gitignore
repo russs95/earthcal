@@ -1,30 +1,19 @@
 
 .idea
-dist
-dist-old
-earthcal-linux-x64
-node_modules
-usr
-electron-builder.yml
 CNAME
 External Libraries
 Scratches and Consoles
-resources
-earthcal_0.9.5_amd64.snap
-earthcal_0.9.6_amd64.snap
-earthcal_0.9.7_amd64.snap
-earthcal_0.9.8_amd64.snap
-earthcal_1.0.2_amd64.snap
-earthcal_1.0.3_amd64.snap
-earthcal_1.0.4_amd64.snap
+trash
 experiments
-/earthcal_0.9.5_amd64.snap
-earthcal_1.1.0_amd64.snap
 .htaccess
 api/.htaccess
 api/buwanaconn_env.php
 api/calconn_env.php
 api/stripe_env.php
 
-/vendor/
-/earthcal_1.1.0_amd64.snap
+vendor/
+electron/earthcal_1.1.0_amd64.snap
+electron/earthcal-linus-x64
+electron/node_modules
+electron/public
+
