@@ -17,3 +17,10 @@ electron/earthcal-linus-x64
 electron/node_modules
 electron/public
 
+# macOS
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+DerivedData/

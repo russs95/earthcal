@@ -1,0 +1,677 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C2C210C82EF16034004FE9E3 /* earthcal_macApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C210C72EF16034004FE9E3 /* earthcal_macApp.swift */; };
+		C2C210CA2EF16034004FE9E3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C210C92EF16034004FE9E3 /* ContentView.swift */; };
+		C2C210CC2EF16037004FE9E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C2C210CB2EF16037004FE9E3 /* Assets.xcassets */; };
+		C2C210CF2EF16037004FE9E3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C2C210CE2EF16037004FE9E3 /* Preview Assets.xcassets */; };
+		C2C210DA2EF16038004FE9E3 /* earthcal_macTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C210D92EF16038004FE9E3 /* earthcal_macTests.swift */; };
+		C2C210E42EF16038004FE9E3 /* earthcal_macUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C210E32EF16038004FE9E3 /* earthcal_macUITests.swift */; };
+		C2C210E62EF16038004FE9E3 /* earthcal_macUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C210E52EF16038004FE9E3 /* earthcal_macUITestsLaunchTests.swift */; };
+		C2C211002EF1623E004FE9E3 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F22EF1623D004FE9E3 /* index.html */; };
+		C2C211012EF1623E004FE9E3 /* js in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F32EF1623D004FE9E3 /* js */; };
+		C2C211022EF1623E004FE9E3 /* webp in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F42EF1623D004FE9E3 /* webp */; };
+		C2C211032EF1623E004FE9E3 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F52EF1623D004FE9E3 /* assets */; };
+		C2C211042EF1623E004FE9E3 /* login.html in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F62EF1623D004FE9E3 /* login.html */; };
+		C2C211052EF1623E004FE9E3 /* svgs in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F72EF1623E004FE9E3 /* svgs */; };
+		C2C211062EF1623E004FE9E3 /* css in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F82EF1623E004FE9E3 /* css */; };
+		C2C211072EF1623E004FE9E3 /* translations in Resources */ = {isa = PBXBuildFile; fileRef = C2C210F92EF1623E004FE9E3 /* translations */; };
+		C2C211082EF1623E004FE9E3 /* cycles in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FA2EF1623E004FE9E3 /* cycles */; };
+		C2C211092EF1623E004FE9E3 /* auth in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FB2EF1623E004FE9E3 /* auth */; };
+		C2C2110A2EF1623E004FE9E3 /* dash.html in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FC2EF1623E004FE9E3 /* dash.html */; };
+		C2C2110B2EF1623E004FE9E3 /* share.html in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FD2EF1623E004FE9E3 /* share.html */; };
+		C2C2110C2EF1623E004FE9E3 /* cals in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FE2EF1623E004FE9E3 /* cals */; };
+		C2C2110D2EF1623E004FE9E3 /* billing-success.html in Resources */ = {isa = PBXBuildFile; fileRef = C2C210FF2EF1623E004FE9E3 /* billing-success.html */; };
+		C2C2110F2EF1631C004FE9E3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C2110E2EF1631C004FE9E3 /* WebView.swift */; };
+		C2E0410B2EF1759B004AB510 /* LocalWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */; };
+		C2E0410E2EF17722004AB510 /* Swifter in Frameworks */ = {isa = PBXBuildFile; productRef = C2E0410D2EF17722004AB510 /* Swifter */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C2C210D62EF16038004FE9E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C2C210BC2EF16033004FE9E3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C2C210C32EF16033004FE9E3;
+			remoteInfo = earthcal_mac;
+		};
+		C2C210E02EF16038004FE9E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C2C210BC2EF16033004FE9E3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C2C210C32EF16033004FE9E3;
+			remoteInfo = earthcal_mac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C2C210C42EF16034004FE9E3 /* earthcal_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = earthcal_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2C210C72EF16034004FE9E3 /* earthcal_macApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = earthcal_macApp.swift; sourceTree = "<group>"; };
+		C2C210C92EF16034004FE9E3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C2C210CB2EF16037004FE9E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C2C210CE2EF16037004FE9E3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C2C210D02EF16037004FE9E3 /* earthcal_mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = earthcal_mac.entitlements; sourceTree = "<group>"; };
+		C2C210D52EF16038004FE9E3 /* earthcal_macTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = earthcal_macTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2C210D92EF16038004FE9E3 /* earthcal_macTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = earthcal_macTests.swift; sourceTree = "<group>"; };
+		C2C210DF2EF16038004FE9E3 /* earthcal_macUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = earthcal_macUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2C210E32EF16038004FE9E3 /* earthcal_macUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = earthcal_macUITests.swift; sourceTree = "<group>"; };
+		C2C210E52EF16038004FE9E3 /* earthcal_macUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = earthcal_macUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C2C210F22EF1623D004FE9E3 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../../index.html; sourceTree = "<group>"; };
+		C2C210F32EF1623D004FE9E3 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../../js; sourceTree = "<group>"; };
+		C2C210F42EF1623D004FE9E3 /* webp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = webp; path = ../../webp; sourceTree = "<group>"; };
+		C2C210F52EF1623D004FE9E3 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../assets; sourceTree = "<group>"; };
+		C2C210F62EF1623D004FE9E3 /* login.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = login.html; path = ../../login.html; sourceTree = "<group>"; };
+		C2C210F72EF1623E004FE9E3 /* svgs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = svgs; path = ../../svgs; sourceTree = "<group>"; };
+		C2C210F82EF1623E004FE9E3 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../css; sourceTree = "<group>"; };
+		C2C210F92EF1623E004FE9E3 /* translations */ = {isa = PBXFileReference; lastKnownFileType = folder; name = translations; path = ../../translations; sourceTree = "<group>"; };
+		C2C210FA2EF1623E004FE9E3 /* cycles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = cycles; path = ../../cycles; sourceTree = "<group>"; };
+		C2C210FB2EF1623E004FE9E3 /* auth */ = {isa = PBXFileReference; lastKnownFileType = folder; name = auth; path = ../../auth; sourceTree = "<group>"; };
+		C2C210FC2EF1623E004FE9E3 /* dash.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = dash.html; path = ../../dash.html; sourceTree = "<group>"; };
+		C2C210FD2EF1623E004FE9E3 /* share.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = share.html; path = ../../share.html; sourceTree = "<group>"; };
+		C2C210FE2EF1623E004FE9E3 /* cals */ = {isa = PBXFileReference; lastKnownFileType = folder; name = cals; path = ../../cals; sourceTree = "<group>"; };
+		C2C210FF2EF1623E004FE9E3 /* billing-success.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "billing-success.html"; path = "../../billing-success.html"; sourceTree = "<group>"; };
+		C2C2110E2EF1631C004FE9E3 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWebServer.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C2C210C12EF16033004FE9E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2E0410E2EF17722004AB510 /* Swifter in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210D22EF16038004FE9E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210DC2EF16038004FE9E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C2C210BB2EF16033004FE9E3 = {
+			isa = PBXGroup;
+			children = (
+				C2C210C62EF16034004FE9E3 /* earthcal_mac */,
+				C2C210D82EF16038004FE9E3 /* earthcal_macTests */,
+				C2C210E22EF16038004FE9E3 /* earthcal_macUITests */,
+				C2C210C52EF16034004FE9E3 /* Products */,
+				C2E0410C2EF17722004AB510 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C2C210C52EF16034004FE9E3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C2C210C42EF16034004FE9E3 /* earthcal_mac.app */,
+				C2C210D52EF16038004FE9E3 /* earthcal_macTests.xctest */,
+				C2C210DF2EF16038004FE9E3 /* earthcal_macUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C2C210C62EF16034004FE9E3 /* earthcal_mac */ = {
+			isa = PBXGroup;
+			children = (
+				C2C210F52EF1623D004FE9E3 /* assets */,
+				C2C210FB2EF1623E004FE9E3 /* auth */,
+				C2C210FF2EF1623E004FE9E3 /* billing-success.html */,
+				C2C210FE2EF1623E004FE9E3 /* cals */,
+				C2C210F82EF1623E004FE9E3 /* css */,
+				C2C210FA2EF1623E004FE9E3 /* cycles */,
+				C2C210FC2EF1623E004FE9E3 /* dash.html */,
+				C2C210F22EF1623D004FE9E3 /* index.html */,
+				C2C210F32EF1623D004FE9E3 /* js */,
+				C2C210F62EF1623D004FE9E3 /* login.html */,
+				C2C210FD2EF1623E004FE9E3 /* share.html */,
+				C2C210F72EF1623E004FE9E3 /* svgs */,
+				C2C210F92EF1623E004FE9E3 /* translations */,
+				C2C210F42EF1623D004FE9E3 /* webp */,
+				C2C210C72EF16034004FE9E3 /* earthcal_macApp.swift */,
+				C2C210C92EF16034004FE9E3 /* ContentView.swift */,
+				C2C210CB2EF16037004FE9E3 /* Assets.xcassets */,
+				C2C210D02EF16037004FE9E3 /* earthcal_mac.entitlements */,
+				C2C210CD2EF16037004FE9E3 /* Preview Content */,
+				C2C2110E2EF1631C004FE9E3 /* WebView.swift */,
+				C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */,
+			);
+			path = earthcal_mac;
+			sourceTree = "<group>";
+		};
+		C2C210CD2EF16037004FE9E3 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C2C210CE2EF16037004FE9E3 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C2C210D82EF16038004FE9E3 /* earthcal_macTests */ = {
+			isa = PBXGroup;
+			children = (
+				C2C210D92EF16038004FE9E3 /* earthcal_macTests.swift */,
+			);
+			path = earthcal_macTests;
+			sourceTree = "<group>";
+		};
+		C2C210E22EF16038004FE9E3 /* earthcal_macUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C2C210E32EF16038004FE9E3 /* earthcal_macUITests.swift */,
+				C2C210E52EF16038004FE9E3 /* earthcal_macUITestsLaunchTests.swift */,
+			);
+			path = earthcal_macUITests;
+			sourceTree = "<group>";
+		};
+		C2E0410C2EF17722004AB510 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C2C210C32EF16033004FE9E3 /* earthcal_mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_mac" */;
+			buildPhases = (
+				C2C210C02EF16033004FE9E3 /* Sources */,
+				C2C210C12EF16033004FE9E3 /* Frameworks */,
+				C2C210C22EF16033004FE9E3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = earthcal_mac;
+			packageProductDependencies = (
+				C2E0410D2EF17722004AB510 /* Swifter */,
+			);
+			productName = earthcal_mac;
+			productReference = C2C210C42EF16034004FE9E3 /* earthcal_mac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C2C210D42EF16038004FE9E3 /* earthcal_macTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C2C210EC2EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_macTests" */;
+			buildPhases = (
+				C2C210D12EF16038004FE9E3 /* Sources */,
+				C2C210D22EF16038004FE9E3 /* Frameworks */,
+				C2C210D32EF16038004FE9E3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C2C210D72EF16038004FE9E3 /* PBXTargetDependency */,
+			);
+			name = earthcal_macTests;
+			productName = earthcal_macTests;
+			productReference = C2C210D52EF16038004FE9E3 /* earthcal_macTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C2C210DE2EF16038004FE9E3 /* earthcal_macUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C2C210EF2EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_macUITests" */;
+			buildPhases = (
+				C2C210DB2EF16038004FE9E3 /* Sources */,
+				C2C210DC2EF16038004FE9E3 /* Frameworks */,
+				C2C210DD2EF16038004FE9E3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C2C210E12EF16038004FE9E3 /* PBXTargetDependency */,
+			);
+			name = earthcal_macUITests;
+			productName = earthcal_macUITests;
+			productReference = C2C210DF2EF16038004FE9E3 /* earthcal_macUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C2C210BC2EF16033004FE9E3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					C2C210C32EF16033004FE9E3 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+					C2C210D42EF16038004FE9E3 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = C2C210C32EF16033004FE9E3;
+					};
+					C2C210DE2EF16038004FE9E3 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = C2C210C32EF16033004FE9E3;
+					};
+				};
+			};
+			buildConfigurationList = C2C210BF2EF16033004FE9E3 /* Build configuration list for PBXProject "earthcal_mac" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C2C210BB2EF16033004FE9E3;
+			packageReferences = (
+				C2E041092EF1756B004AB510 /* XCRemoteSwiftPackageReference "swifter" */,
+			);
+			productRefGroup = C2C210C52EF16034004FE9E3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C2C210C32EF16033004FE9E3 /* earthcal_mac */,
+				C2C210D42EF16038004FE9E3 /* earthcal_macTests */,
+				C2C210DE2EF16038004FE9E3 /* earthcal_macUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C2C210C22EF16033004FE9E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2C211062EF1623E004FE9E3 /* css in Resources */,
+				C2C211002EF1623E004FE9E3 /* index.html in Resources */,
+				C2C211042EF1623E004FE9E3 /* login.html in Resources */,
+				C2C2110A2EF1623E004FE9E3 /* dash.html in Resources */,
+				C2C210CF2EF16037004FE9E3 /* Preview Assets.xcassets in Resources */,
+				C2C210CC2EF16037004FE9E3 /* Assets.xcassets in Resources */,
+				C2C2110B2EF1623E004FE9E3 /* share.html in Resources */,
+				C2C2110C2EF1623E004FE9E3 /* cals in Resources */,
+				C2C211082EF1623E004FE9E3 /* cycles in Resources */,
+				C2C211032EF1623E004FE9E3 /* assets in Resources */,
+				C2C211022EF1623E004FE9E3 /* webp in Resources */,
+				C2C211012EF1623E004FE9E3 /* js in Resources */,
+				C2C211072EF1623E004FE9E3 /* translations in Resources */,
+				C2C211092EF1623E004FE9E3 /* auth in Resources */,
+				C2C2110D2EF1623E004FE9E3 /* billing-success.html in Resources */,
+				C2C211052EF1623E004FE9E3 /* svgs in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210D32EF16038004FE9E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210DD2EF16038004FE9E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C2C210C02EF16033004FE9E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2C210CA2EF16034004FE9E3 /* ContentView.swift in Sources */,
+				C2C2110F2EF1631C004FE9E3 /* WebView.swift in Sources */,
+				C2C210C82EF16034004FE9E3 /* earthcal_macApp.swift in Sources */,
+				C2E0410B2EF1759B004AB510 /* LocalWebServer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210D12EF16038004FE9E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2C210DA2EF16038004FE9E3 /* earthcal_macTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C2C210DB2EF16038004FE9E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2C210E62EF16038004FE9E3 /* earthcal_macUITestsLaunchTests.swift in Sources */,
+				C2C210E42EF16038004FE9E3 /* earthcal_macUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C2C210D72EF16038004FE9E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C2C210C32EF16033004FE9E3 /* earthcal_mac */;
+			targetProxy = C2C210D62EF16038004FE9E3 /* PBXContainerItemProxy */;
+		};
+		C2C210E12EF16038004FE9E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C2C210C32EF16033004FE9E3 /* earthcal_mac */;
+			targetProxy = C2C210E02EF16038004FE9E3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C2C210E72EF16038004FE9E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C2C210E82EF16038004FE9E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C2C210EA2EF16038004FE9E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = earthcal_mac/earthcal_mac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"earthcal_mac/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C2C210EB2EF16038004FE9E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = earthcal_mac/earthcal_mac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"earthcal_mac/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C2C210ED2EF16038004FE9E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.7;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-macTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/earthcal_mac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/earthcal_mac";
+			};
+			name = Debug;
+		};
+		C2C210EE2EF16038004FE9E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.7;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-macTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/earthcal_mac.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/earthcal_mac";
+			};
+			name = Release;
+		};
+		C2C210F02EF16038004FE9E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-macUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = earthcal_mac;
+			};
+			name = Debug;
+		};
+		C2C210F12EF16038004FE9E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Earthen-Labs.earthcal-macUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = earthcal_mac;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C2C210BF2EF16033004FE9E3 /* Build configuration list for PBXProject "earthcal_mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2C210E72EF16038004FE9E3 /* Debug */,
+				C2C210E82EF16038004FE9E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2C210EA2EF16038004FE9E3 /* Debug */,
+				C2C210EB2EF16038004FE9E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C2C210EC2EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_macTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2C210ED2EF16038004FE9E3 /* Debug */,
+				C2C210EE2EF16038004FE9E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C2C210EF2EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_macUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2C210F02EF16038004FE9E3 /* Debug */,
+				C2C210F12EF16038004FE9E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C2E041092EF1756B004AB510 /* XCRemoteSwiftPackageReference "swifter" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/httpswift/swifter.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C2E0410D2EF17722004AB510 /* Swifter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2E041092EF1756B004AB510 /* XCRemoteSwiftPackageReference "swifter" */;
+			productName = Swifter;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C2C210BC2EF16033004FE9E3 /* Project object */;
+}
