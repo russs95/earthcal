@@ -31,6 +31,8 @@
 		C2C2110F2EF1631C004FE9E3 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C2110E2EF1631C004FE9E3 /* WebView.swift */; };
 		C2E0410B2EF1759B004AB510 /* LocalWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */; };
 		C2E0410E2EF17722004AB510 /* Swifter in Frameworks */ = {isa = PBXBuildFile; productRef = C2E0410D2EF17722004AB510 /* Swifter */; };
+		C2E041102EF255B7004AB510 /* WebController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E0410F2EF255B7004AB510 /* WebController.swift */; };
+		C2E041142EF25807004AB510 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E041132EF25807004AB510 /* WebViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,7 +53,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C2C210C42EF16034004FE9E3 /* earthcal_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = earthcal_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2C210C42EF16034004FE9E3 /* EarthCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EarthCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2C210C72EF16034004FE9E3 /* earthcal_macApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = earthcal_macApp.swift; sourceTree = "<group>"; };
 		C2C210C92EF16034004FE9E3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C2C210CB2EF16037004FE9E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -78,6 +80,8 @@
 		C2C210FF2EF1623E004FE9E3 /* billing-success.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "billing-success.html"; path = "../../billing-success.html"; sourceTree = "<group>"; };
 		C2C2110E2EF1631C004FE9E3 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWebServer.swift; sourceTree = "<group>"; };
+		C2E0410F2EF255B7004AB510 /* WebController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebController.swift; sourceTree = "<group>"; };
+		C2E041132EF25807004AB510 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,7 +124,7 @@
 		C2C210C52EF16034004FE9E3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C2C210C42EF16034004FE9E3 /* earthcal_mac.app */,
+				C2C210C42EF16034004FE9E3 /* EarthCal.app */,
 				C2C210D52EF16038004FE9E3 /* earthcal_macTests.xctest */,
 				C2C210DF2EF16038004FE9E3 /* earthcal_macUITests.xctest */,
 			);
@@ -151,6 +155,8 @@
 				C2C210CD2EF16037004FE9E3 /* Preview Content */,
 				C2C2110E2EF1631C004FE9E3 /* WebView.swift */,
 				C2E0410A2EF1759B004AB510 /* LocalWebServer.swift */,
+				C2E0410F2EF255B7004AB510 /* WebController.swift */,
+				C2E041132EF25807004AB510 /* WebViewController.swift */,
 			);
 			path = earthcal_mac;
 			sourceTree = "<group>";
@@ -190,9 +196,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C2C210C32EF16033004FE9E3 /* earthcal_mac */ = {
+		C2C210C32EF16033004FE9E3 /* EarthCal */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_mac" */;
+			buildConfigurationList = C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "EarthCal" */;
 			buildPhases = (
 				C2C210C02EF16033004FE9E3 /* Sources */,
 				C2C210C12EF16033004FE9E3 /* Frameworks */,
@@ -202,12 +208,12 @@
 			);
 			dependencies = (
 			);
-			name = earthcal_mac;
+			name = EarthCal;
 			packageProductDependencies = (
 				C2E0410D2EF17722004AB510 /* Swifter */,
 			);
 			productName = earthcal_mac;
-			productReference = C2C210C42EF16034004FE9E3 /* earthcal_mac.app */;
+			productReference = C2C210C42EF16034004FE9E3 /* EarthCal.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C2C210D42EF16038004FE9E3 /* earthcal_macTests */ = {
@@ -285,7 +291,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C2C210C32EF16033004FE9E3 /* earthcal_mac */,
+				C2C210C32EF16033004FE9E3 /* EarthCal */,
 				C2C210D42EF16038004FE9E3 /* earthcal_macTests */,
 				C2C210DE2EF16038004FE9E3 /* earthcal_macUITests */,
 			);
@@ -338,7 +344,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C2C210CA2EF16034004FE9E3 /* ContentView.swift in Sources */,
+				C2E041142EF25807004AB510 /* WebViewController.swift in Sources */,
 				C2C2110F2EF1631C004FE9E3 /* WebView.swift in Sources */,
+				C2E041102EF255B7004AB510 /* WebController.swift in Sources */,
 				C2C210C82EF16034004FE9E3 /* earthcal_macApp.swift in Sources */,
 				C2E0410B2EF1759B004AB510 /* LocalWebServer.swift in Sources */,
 			);
@@ -366,12 +374,12 @@
 /* Begin PBXTargetDependency section */
 		C2C210D72EF16038004FE9E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C2C210C32EF16033004FE9E3 /* earthcal_mac */;
+			target = C2C210C32EF16033004FE9E3 /* EarthCal */;
 			targetProxy = C2C210D62EF16038004FE9E3 /* PBXContainerItemProxy */;
 		};
 		C2C210E12EF16038004FE9E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C2C210C32EF16033004FE9E3 /* earthcal_mac */;
+			target = C2C210C32EF16033004FE9E3 /* EarthCal */;
 			targetProxy = C2C210E02EF16038004FE9E3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -507,6 +515,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"earthcal_mac/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EarthCal;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -532,6 +541,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"earthcal_mac/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EarthCal;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -625,7 +635,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "earthcal_mac" */ = {
+		C2C210E92EF16038004FE9E3 /* Build configuration list for PBXNativeTarget "EarthCal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C2C210EA2EF16038004FE9E3 /* Debug */,

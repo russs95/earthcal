@@ -37,11 +37,8 @@ class Planet {
     // Map orbit ratios to rotation degrees
     const startDegrees = orbitRatio1 * 360;
     const endDegrees = orbitRatio2 * 360;
-    const consolidated = planetGroup.transform?.baseVal?.consolidate();
-    const baseMatrix = consolidated?.matrix;
-    const transformPrefix = baseMatrix
-      ? `matrix(${baseMatrix.a}, ${baseMatrix.b}, ${baseMatrix.c}, ${baseMatrix.d}, ${baseMatrix.e}, ${baseMatrix.f}) `
-      : "";
+    const baseTransform = (planetGroup.getAttribute("transform") || "").trim();
+    const transformPrefix = baseTransform ? `${baseTransform} ` : "";
 
     // Create the first animation (snap to start angle)
     const planetAnimation1 = planetGroup.animate(
