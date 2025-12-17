@@ -6,16 +6,21 @@ class Planet {
   }
 
   animate() {
+    const planetGroup = document.getElementById(`${this.element_id}_system`);
     const planetElement = document.getElementById(this.element_id);
     const planetOrbitElement = document.getElementById(this.orbit_id);
 
-  if (!planetElement || !planetOrbitElement) {
-    console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
-    return;
-  }
+    if (!planetGroup || !planetElement || !planetOrbitElement) {
+      console.warn(`Missing element for ${this.element_id}, ${this.orbit_id}, or planet system group.`);
+      return;
+    }
+
+    planetGroup.style.transformOrigin = "center";
+    planetGroup.style.transformBox = "fill-box";
+    planetGroup.style.willChange = "transform";
+
     // Reference date
     const yearStart = new Date(2023, 0, 1);
-    //console.log("Initiating:" + yearStart + startDate);
 
     // Calculate days and ratios
     const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
@@ -29,44 +34,20 @@ class Planet {
       return;
     }
 
-    // Pre-calculate trigonometric values
-    const orbitRadius = planetOrbitElement.r.baseVal.value;
-    const finalCoords1 = {
-      x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio1),
-      y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio1),
-    };
-    const finalCoords2 = {
-      x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio2),
-      y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio2),
-    };
+    // Map orbit ratios to rotation degrees
+    const startDegrees = orbitRatio1 * 360;
+    const endDegrees = orbitRatio2 * 360;
+    const consolidated = planetGroup.transform?.baseVal?.consolidate();
+    const baseMatrix = consolidated?.matrix;
+    const transformPrefix = baseMatrix
+      ? `matrix(${baseMatrix.a}, ${baseMatrix.b}, ${baseMatrix.c}, ${baseMatrix.d}, ${baseMatrix.e}, ${baseMatrix.f}) `
+      : "";
 
-    // GPU optimization with `will-change`
-    planetElement.style.willChange = "transform";
-
-    // Set the planet's position to the starting coordinates
-    if (startCoords.cx == 0 && startCoords.cy == 0) {
-      startCoords = {
-        cx: parseFloat(planetElement.getAttribute("cx") || 0),
-        cy: parseFloat(planetElement.getAttribute("cy") || 0),
-      };
-    }
-
-    planetElement.setAttribute("cx", startCoords.cx);
-    planetElement.setAttribute("cy", startCoords.cy);
-
-    // Create the first animation
-    const planetAnimation1 = planetElement.animate(
+    // Create the first animation (snap to start angle)
+    const planetAnimation1 = planetGroup.animate(
       [
-        {
-          cx: startCoords.cx,
-          cy: startCoords.cy,
-          transform: `rotate(0deg)`,
-        },
-        {
-          cx: finalCoords1.x.toFixed(2) + "px",
-          cy: finalCoords1.y.toFixed(2) + "px",
-          transform: `rotate(${orbitRatio1 * 360}deg)`,
-        },
+        { transform: `${transformPrefix}rotate(${startDegrees}deg)` },
+        { transform: `${transformPrefix}rotate(${startDegrees}deg)` },
       ],
       {
         duration: 0, // Immediate
@@ -92,18 +73,10 @@ class Planet {
         animationDuration = 4000;
       }
 
-      planetElement.animate(
+      planetGroup.animate(
         [
-          {
-            cx: finalCoords1.x.toFixed(2) + "px",
-            cy: finalCoords1.y.toFixed(2) + "px",
-            transform: `rotate(${orbitRatio1 * 360}deg)`,
-          },
-          {
-            cx: finalCoords2.x.toFixed(2) + "px",
-            cy: finalCoords2.y.toFixed(2) + "px",
-            transform: `rotate(${orbitRatio2 * 360}deg)`,
-          },
+          { transform: `${transformPrefix}rotate(${startDegrees}deg)` },
+          { transform: `${transformPrefix}rotate(${endDegrees}deg)` },
         ],
         {
           duration: animationDuration,
@@ -642,7 +615,9 @@ function arePlanetsReady() {
   const ids = [
     "mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune",
     "mercury-orbit", "venus-orbit", "earth-orbit", "mars-orbit", "jupiter-orbit",
-    "saturn-orbit", "uranus-orbit", "neptune-orbit"
+    "saturn-orbit", "uranus-orbit", "neptune-orbit",
+    "mercury_system", "venus_system", "earth_system", "mars_system", "jupiter_system",
+    "saturn_system", "uranus_system", "neptune_system"
   ];
   return ids.every(id => document.getElementById(id) !== null);
 }
