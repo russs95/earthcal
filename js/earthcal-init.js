@@ -33,7 +33,7 @@ async function initCalendar() {
         "js/1-gcal-javascripts.js?v=3.2",
         "js/breakouts.js",
         "js/set-targetdate.js",
-        "js/planet-orbits.js",
+        "js/planet-orbits.js?v=3.4",
         "js/login-scripts.js?v=19.1",
         "js/item-management.js?v=9.9",
         "js/time-setting.js?v=1.4",

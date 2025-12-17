@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Earthcal
+Name=EarthCal
 Comment=Sync your moments with Earth's cycles
 Exec=earthcal %U
 Icon=${SNAP}/meta/gui/earthcal.png
