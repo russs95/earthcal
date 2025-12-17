@@ -13,7 +13,7 @@ api/stripe_env.php
 
 vendor/
 electron/earthcal_1.1.0_amd64.snap
-electron/earthcal-linus-x64
+electron/earthcal-linux-x64
 electron/node_modules
 electron/public
 

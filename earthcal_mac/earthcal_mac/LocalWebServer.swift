@@ -114,7 +114,7 @@ final class LocalWebServer {
                     try? writer.write(data)
                 }
             } catch {
-                print("❌ Error reading file:", error)
+                print("❌ There was an error reading file:", error)
                 return .internalServerError
             }
         } else {
