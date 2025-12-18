@@ -38,7 +38,6 @@ async function initCalendar() {
         "js/item-management.js?v=9.9",
         "js/time-setting.js?v=1.4",
         "js/calendar-scripts.js?v=2.6",
-        "js/1-event-management.js?v=3.4",
     ];
 
     try {
