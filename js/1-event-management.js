@@ -1546,6 +1546,13 @@ async function push2today(uniqueKey) {
 
     const normalizedTime = eventTime.length === 5 ? `${eventTime}:00` : eventTime;
 
+    console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate})`);
+    const eventTime = (record.dateCycle?.time && record.dateCycle.time !== 'under dev')
+        ? record.dateCycle.time
+        : `${getPart('hour')}:${getPart('minute')}`;
+
+    const normalizedTime = eventTime.length === 5 ? `${eventTime}:00` : eventTime;
+
     const updatedDateCycle = {
         ...record.dateCycle,
         year,
