@@ -1515,12 +1515,17 @@ async function push2today(uniqueKey) {
         return;
     }
 
+    const timeZone = window.userTimeZone || getUserTimezone();
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+
+    const formattedDate = formatter.format(new Date());
     const currentDate = new Date();
-    const year = String(currentDate.getFullYear());
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-    const timeString = `${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
+    const [year, month, day] = formattedDate.split('-');
 
     const updatedDateCycle = {
         ...record.dateCycle,

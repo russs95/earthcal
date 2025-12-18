@@ -1,6 +1,6 @@
 name: earthcal
 title: EarthCal | EarthCycles Calendar
-version: '1.1.0'
+version: '1.1.5'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
@@ -8,7 +8,7 @@ description: |
 base: core22
 confinement: strict
 grade: stable
-
+icon: snap/gui/earthcal.png
 # Recommended metadata for the store & linter
 license: CC-BY-NC-SA-4.0
 contact: admin@earthcal.app
@@ -20,6 +20,7 @@ donation: https://earthen.io
 apps:
   earthcal:
     command: earthcal
+    desktop: snap/gui/earthcal.desktop
     extensions: [gnome]
     plugs:
       - browser-support
