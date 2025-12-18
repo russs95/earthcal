@@ -1516,8 +1516,11 @@ async function push2today(uniqueKey) {
     }
 
     const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split('T')[0];
-    const [year, month, day] = formattedDate.split('-');
+    const year = String(currentDate.getFullYear());
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const timeString = `${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
 
     const updatedDateCycle = {
         ...record.dateCycle,
@@ -1529,7 +1532,7 @@ async function push2today(uniqueKey) {
     };
 
     try {
-        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} 00:00:00` });
+        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
         await syncDatecycles();
         highlightDateCycles(targetDate);
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
