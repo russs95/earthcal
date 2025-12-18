@@ -1507,8 +1507,6 @@ function shareDateCycle(uniqueKey) {
 
 
 async function push2today(uniqueKey) {
-    console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today`);
-
     const record = findDateCycleInStorage(uniqueKey);
     if (!record) {
         console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
@@ -1535,6 +1533,13 @@ async function push2today(uniqueKey) {
     const getPart = (type) => timeParts.find((part) => part.type === type)?.value || '00';
     const formattedDate = formatter.format(now);
     const [year, month, day] = formattedDate.split('-');
+    const eventTime = (record.dateCycle?.time && record.dateCycle.time !== 'under dev')
+        ? record.dateCycle.time
+        : `${getPart('hour')}:${getPart('minute')}`;
+
+    const normalizedTime = eventTime.length === 5 ? `${eventTime}:00` : eventTime;
+
+    console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate})`);
     const eventTime = (record.dateCycle?.time && record.dateCycle.time !== 'under dev')
         ? record.dateCycle.time
         : `${getPart('hour')}:${getPart('minute')}`;
