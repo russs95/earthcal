@@ -1507,7 +1507,14 @@ function shareDateCycle(uniqueKey) {
 
 
 async function push2today(uniqueKey) {
-    console.log(`Pushing dateCycle with unique_key: ${uniqueKey} to today`);
+    const today = new Date();
+    const year = String(today.getFullYear());
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const timeString = today.toTimeString().slice(0, 8);
+
+    console.log(`🤞Yo, yo...pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate}).`);
 
     const record = findDateCycleInStorage(uniqueKey);
     if (!record) {
@@ -1515,31 +1522,19 @@ async function push2today(uniqueKey) {
         return;
     }
 
-    const timeZone = window.userTimeZone || getUserTimezone();
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-        timeZone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
-
-    const formattedDate = formatter.format(new Date());
-    const currentDate = new Date();
-    const [year, month, day] = formattedDate.split('-');
-
     const updatedDateCycle = {
         ...record.dateCycle,
         year,
         month,
         day,
         date: formattedDate,
-        last_edited: currentDate.toISOString()
+        last_edited: today.toISOString()
     };
 
     try {
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
         await syncDatecycles();
-        highlightDateCycles(targetDate);
+        highlightDateCycles(today);
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
         console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
