@@ -1516,6 +1516,7 @@ async function push2today(uniqueKey) {
     }
 
     const timeZone = window.userTimeZone || getUserTimezone();
+    const now = new Date();
     const formatter = new Intl.DateTimeFormat('en-CA', {
         timeZone,
         year: 'numeric',
@@ -1523,9 +1524,22 @@ async function push2today(uniqueKey) {
         day: '2-digit'
     });
 
-    const formattedDate = formatter.format(new Date());
-    const currentDate = new Date();
+    const timeParts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    }).formatToParts(now);
+
+    const getPart = (type) => timeParts.find((part) => part.type === type)?.value || '00';
+    const formattedDate = formatter.format(now);
     const [year, month, day] = formattedDate.split('-');
+    const eventTime = (record.dateCycle?.time && record.dateCycle.time !== 'under dev')
+        ? record.dateCycle.time
+        : `${getPart('hour')}:${getPart('minute')}`;
+
+    const normalizedTime = eventTime.length === 5 ? `${eventTime}:00` : eventTime;
 
     const updatedDateCycle = {
         ...record.dateCycle,
@@ -1533,11 +1547,15 @@ async function push2today(uniqueKey) {
         month,
         day,
         date: formattedDate,
-        last_edited: currentDate.toISOString()
+        time: eventTime,
+        last_edited: now.toISOString()
     };
 
     try {
-        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
+        await updateServerDateCycle(updatedDateCycle, {
+            start_local: `${formattedDate} ${normalizedTime}`,
+            tzid: timeZone
+        });
         await syncDatecycles();
         highlightDateCycles(targetDate);
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
