@@ -1537,7 +1537,7 @@ async function push2today(uniqueKey) {
     };
 
     try {
-        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} 00:00:00` });
+        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
         await syncDatecycles();
         highlightDateCycles(targetDate);
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
