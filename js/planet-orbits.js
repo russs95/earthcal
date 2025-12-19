@@ -598,8 +598,6 @@ function adjustSaturnSize(per_dist) {
 }
 
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
 
 

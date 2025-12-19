@@ -5,7 +5,7 @@ snapcraft
 sudo snap install --dangerous earthcal_*.snap
 
 snapcraft login
-snapcraft upload earthcal_1.0.4_amd64.snap
+snapcraft upload earthcal_1.1.5_amd64.snap
 
 snapcraft status earthcal
 sudo snap refresh earthcal --edge
