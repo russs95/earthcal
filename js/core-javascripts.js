@@ -1348,32 +1348,42 @@ function getTheDayOfYear(targetDate) {
   }
 
 
-  
- 
-  function calendarRefresh() {
-    // Phase 1: instant animations
+
+function whenReady(selector, cb, tries = 30) {
+    const el = document.querySelector(selector);
+    if (el) return cb(el);
+    if (tries <= 0) return console.warn(`Missing ${selector}`);
+    setTimeout(() => whenReady(selector, cb, tries - 1), 100);
+}
+
+
+
+let animatePlanets = null;
+
+function ensurePlanetAnimator() {
+    if (animatePlanets) return true;
+
+    const root = document.getElementById("solar-system-center");
+    const sol = root?.querySelector?.("#sol");
+    if (!root || !sol) return false; // SVG not ready yet
+
+    animatePlanets = buildSolarAnimatorByRotation();
+    return true;
+}
+
+
+
+function calendarRefresh() {
+    // Phase 1: immediate UI updates
     updateTargetMonth();
     displayDayInfo(targetDate, userLanguage, userTimeZone);
-    // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
-    //Sets the lunar month for the target date
     resetPaths();
     updateTargetDay();
-  // Phase 2: animations after 0.1sec
 
-    // Animate planets only when the Planet objects are available.
-    // Without this check, `mercury`, `venus`, etc. may resolve to DOM
-    // elements before `planet-orbits-2.js` initialises the Planet
-    // instances, causing Element.animate to be invoked without
-    // arguments.  Guarding the calls ensures we only trigger the
-    // custom animation logic once the objects exist.
-    if (typeof Planet !== "undefined") {
-      [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune].forEach(
-        (planet) => {
-          if (planet instanceof Planet) {
-            planet.animate();
-          }
-        }
-      );
+    // Phase 2: planets (once SVG is ready)
+    if (ensurePlanetAnimator()) {
+        // Use your UTC-safe dates (your setCurrentDate should create UTC dates)
+        animatePlanets(startDate, targetDate);
     }
 
     if (typeof animateCometTrajectory === "function") {

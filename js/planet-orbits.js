@@ -1,129 +1,202 @@
-class Planet {
-    constructor(element_id, orbit_id, orbit_days) {
-        this.element_id = element_id; // ID of the SVG planet element
-        this.orbit_id = orbit_id; // ID of the SVG orbit element
-        this.orbit_days = orbit_days; // Number of days the planet takes to orbit
+/* ============================================================
+   EARTHCAL — PLANET ORBITS (ROTATE PLANET GROUPS AROUND THE SUN)
+   - Epoch = Jan 1, 2023 (SVG planet positions represent this)
+   - Rotates ONLY the planet groups (#mercury, #venus, ...) — NOT the orbit circles
+   - DST-safe day math (UTC midnight)
+   - Two-frame init (set start, then animate next frame) to prevent “backstep”
+   - Reverse-time animation fixed (unwrap direction follows time jump)
+   - Per-planet FPS throttling (Earth smooth, outer planets low FPS)
+   ============================================================ */
+
+
+/* ============================================================
+   1) UTC DAY MATH (DST-SAFE)
+   ============================================================ */
+/* ============================================================
+   EARTHCAL — PLANET ORBITS (ROTATE PLANET GROUPS AROUND THE SUN)
+   Uses SVG epoch rotations as baseline (Jan 1, 2023)
+   ============================================================ */
+
+function utcMidnight(y, m, d) { return Date.UTC(y, m, d); }
+
+function daysBetweenUTC(a, b) {
+    const msPerDay = 86400000;
+    const A = utcMidnight(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
+    const B = utcMidnight(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate());
+    return (B - A) / msPerDay;
+}
+
+function durationForDayJump(dayJump) {
+    const d = Math.abs(dayJump);
+    if (d < 30) return 500;
+    if (d < 60) return 1000;
+    if (d < 120) return 1500;
+    if (d < 180) return 2000;
+    if (d <= 366) return 3000;
+    return 4000;
+}
+
+/* 2) ANGLE HELPERS */
+function parseRotateDegrees(transformStr) {
+    const m = /rotate\(\s*([-+0-9.]+)/.exec(transformStr || "");
+    return m ? parseFloat(m[1]) : 0;
+}
+
+function unwrapAngleBySign(startDeg, endDeg, directionSign) {
+    if (directionSign > 0) {
+        while (endDeg < startDeg) endDeg += 360;
+    } else {
+        while (endDeg > startDeg) endDeg -= 360;
+    }
+    return endDeg;
+}
+
+/* 3) PLANET ROTATOR (epoch angle comes from SVG once) */
+class PlanetGroupRotator {
+    constructor(groupId, orbitDays, pivot, { direction = +1, minFrameMs = 0 } = {}) {
+        this.groupId = groupId;
+        this.orbitDays = orbitDays;
+        this.direction = direction;
+        this.pivot = pivot;
+        this.minFrameMs = minFrameMs;
+
+        this.el = document.getElementById(groupId);
+        if (!this.el) {
+            console.warn(`Missing planet group: #${groupId}`);
+            this.ok = false;
+            return;
+        }
+        this.ok = true;
+
+        // Cache epoch angle ONCE (SVG contains Jan 1 2023 pose)
+        if (this.el.dataset.ecEpochAngle == null) {
+            const tf = this.el.getAttribute("transform") || "";
+            this.el.dataset.ecEpochAngle = String(parseRotateDegrees(tf));
+        }
+        this.epochAngle = parseFloat(this.el.dataset.ecEpochAngle);
+
+        this._lastSetMs = -Infinity;
     }
 
-    animate() {
-        const planetElement = document.getElementById(this.element_id);
-        const planetOrbitElement = document.getElementById(this.orbit_id);
+    angleAt(date, epochDate) {
+        const days = daysBetweenUTC(epochDate, date);
+        const rev = days / this.orbitDays;
+        return this.epochAngle + this.direction * rev * 360;
+    }
 
-        if (!planetElement || !planetOrbitElement) {
-            console.warn(`Missing element for ${this.element_id} or ${this.orbit_id}`);
-            return;
-        }
-        // Reference date
-        const yearStart = new Date(2023, 0, 1);
-        //console.log("Initiating:" + yearStart + startDate);
+    setAngle(angleDeg, nowMs = performance.now()) {
+        if (!this.ok) return;
+        if (this.minFrameMs > 0 && nowMs - this._lastSetMs < this.minFrameMs) return;
+        this._lastSetMs = nowMs;
 
-        // Calculate days and ratios
-        const daysSinceYearStart = Math.floor((startDate - yearStart) / (1000 * 60 * 60 * 24));
-        const daysSinceTargetDate = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
-        const totalDays = daysSinceYearStart + daysSinceTargetDate;
+        const { x, y } = this.pivot;
+        this.el.setAttribute("transform", `rotate(${angleDeg} ${x} ${y})`);
+    }
 
-        const orbitRatio1 = daysSinceYearStart / this.orbit_days;
-        const orbitRatio2 = totalDays / this.orbit_days;
-
-        if (isNaN(orbitRatio1) || isNaN(orbitRatio2)) {
-            return;
-        }
-
-        // Pre-calculate trigonometric values
-        const orbitRadius = planetOrbitElement.r.baseVal.value;
-        const finalCoords1 = {
-            x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio1),
-            y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio1),
-        };
-        const finalCoords2 = {
-            x: orbitRadius * Math.sin(2 * Math.PI * orbitRatio2),
-            y: orbitRadius * Math.cos(2 * Math.PI * orbitRatio2),
-        };
-
-        // GPU optimization with `will-change`
-        planetElement.style.willChange = "transform";
-
-        // Set the planet's position to the starting coordinates
-        if (startCoords.cx == 0 && startCoords.cy == 0) {
-            startCoords = {
-                cx: parseFloat(planetElement.getAttribute("cx") || 0),
-                cy: parseFloat(planetElement.getAttribute("cy") || 0),
-            };
-        }
-
-        planetElement.setAttribute("cx", startCoords.cx);
-        planetElement.setAttribute("cy", startCoords.cy);
-
-        // Create the first animation
-        const planetAnimation1 = planetElement.animate(
-            [
-                {
-                    cx: startCoords.cx,
-                    cy: startCoords.cy,
-                    transform: `rotate(0deg)`,
-                },
-                {
-                    cx: finalCoords1.x.toFixed(2) + "px",
-                    cy: finalCoords1.y.toFixed(2) + "px",
-                    transform: `rotate(${orbitRatio1 * 360}deg)`,
-                },
-            ],
-            {
-                duration: 0, // Immediate
-                easing: "linear",
-                fill: "forwards",
-            }
-        );
-
-        // Chain the second animation
-        planetAnimation1.onfinish = () => {
-            let animationDuration;
-            if (daysSinceTargetDate < 30) {
-                animationDuration = 500;
-            } else if (daysSinceTargetDate < 60) {
-                animationDuration = 1000;
-            } else if (daysSinceTargetDate < 120) {
-                animationDuration = 1500;
-            } else if (daysSinceTargetDate < 180) {
-                animationDuration = 2000;
-            } else if (daysSinceTargetDate <= 366) {
-                animationDuration = 3000;
-            } else {
-                animationDuration = 4000;
-            }
-
-            planetElement.animate(
-                [
-                    {
-                        cx: finalCoords1.x.toFixed(2) + "px",
-                        cy: finalCoords1.y.toFixed(2) + "px",
-                        transform: `rotate(${orbitRatio1 * 360}deg)`,
-                    },
-                    {
-                        cx: finalCoords2.x.toFixed(2) + "px",
-                        cy: finalCoords2.y.toFixed(2) + "px",
-                        transform: `rotate(${orbitRatio2 * 360}deg)`,
-                    },
-                ],
-                {
-                    duration: animationDuration,
-                    easing: "linear",
-                    fill: "forwards",
-                }
-            );
-        };
+    forceAngle(angleDeg) {
+        if (!this.ok) return;
+        const { x, y } = this.pivot;
+        this.el.setAttribute("transform", `rotate(${angleDeg} ${x} ${y})`);
+        this._lastSetMs = performance.now();
     }
 }
 
-// Create instances of the Planet class
-const mercury = new Planet("mercury", "mercury-orbit", 88);
-const venus = new Planet("venus", "venus-orbit", 224.7);
-const earth = new Planet("earth", "earth-orbit", 365);
-const mars = new Planet("mars", "mars-orbit", 687);
-const jupiter = new Planet("jupiter", "jupiter-orbit", 4333);
-const saturn = new Planet("saturn", "saturn-orbit", 10759);
-const uranus = new Planet("uranus", "uranus-orbit", 30687);
-const neptune = new Planet("neptune", "neptune-orbit", 60190);
+/* 4) BUILD + EXPORT animatePlanets */
+function buildSolarAnimatorByRotation() {
+    const root = document.getElementById("solar-system-center");
+    if (!root) throw new Error("Missing #solar-system-center");
+
+    const sol = root.querySelector("#sol");
+    if (!sol) throw new Error("Missing #sol");
+
+    const pivot = { x: sol.cx.baseVal.value, y: sol.cy.baseVal.value };
+    const epochDate = new Date(Date.UTC(2025, 0, 1));
+
+    const planets = [
+        new PlanetGroupRotator("mercury", 88, pivot, { direction: +1, minFrameMs: 0 }),
+        new PlanetGroupRotator("venus", 224.7, pivot, { direction: +1, minFrameMs: 0 }),
+        new PlanetGroupRotator("earth", 365.256, pivot, { direction: +1, minFrameMs: 0 }),
+        new PlanetGroupRotator("mars", 686.98, pivot, { direction: +1, minFrameMs: 16 }),
+        new PlanetGroupRotator("jupiter", 4332.59, pivot, { direction: +1, minFrameMs: 48 }),
+        new PlanetGroupRotator("saturn", 10759, pivot, { direction: +1, minFrameMs: 120 }),
+        new PlanetGroupRotator("uranus", 30687, pivot, { direction: +1, minFrameMs: 160 }),
+        new PlanetGroupRotator("neptune", 60190, pivot, { direction: +1, minFrameMs: 200 }),
+    ].filter(p => p.ok);
+
+    let lastKey = "";
+    let animToken = 0;
+
+    return function animatePlanets(startDate, targetDate) {
+        if (!(startDate instanceof Date) || !(targetDate instanceof Date)) {
+            console.warn("animatePlanets expects (Date startDate, Date targetDate)");
+            return;
+        }
+
+        const dayJump = daysBetweenUTC(startDate, targetDate);
+        const duration = durationForDayJump(dayJump);
+        const jumpSign = Math.sign(dayJump) || 1;
+
+        const key = `${startDate.toISOString()}__${targetDate.toISOString()}`;
+        if (key === lastKey) return;
+        lastKey = key;
+
+        const plan = planets.map(p => {
+            const a0 = p.angleAt(startDate, epochDate);
+            let a1 = p.angleAt(targetDate, epochDate);
+
+            const desiredSign = p.direction * jumpSign;
+            a1 = unwrapAngleBySign(a0, a1, desiredSign);
+
+            return { p, a0, a1 };
+        });
+
+        // Snap if no duration
+        if (!duration || duration <= 0) {
+            for (const { p, a1 } of plan) p.forceAngle(a1);
+            return;
+        }
+
+        // Set planets to start pose FIRST (so Jan 1 2023 matches SVG perfectly when startDate=epoch)
+        for (const { p, a0 } of plan) p.forceAngle(a0);
+
+        const myToken = ++animToken;
+
+        // Two-frame init: begin interpolation next frame
+        requestAnimationFrame(() => {
+            if (myToken !== animToken) return;
+            const t0 = performance.now();
+
+            function tick(now) {
+                if (myToken !== animToken) return;
+
+                const t = (now - t0) / duration;
+                if (t >= 1) {
+                    for (const { p, a1 } of plan) p.forceAngle(a1);
+                    return;
+                }
+
+                for (const { p, a0, a1 } of plan) {
+                    p.setAngle(a0 + (a1 - a0) * t, now);
+                }
+                requestAnimationFrame(tick);
+            }
+
+            requestAnimationFrame(tick);
+        });
+    };
+}
+
+/* 5) GLOBAL INIT */
+window.initPlanetAnimator = function initPlanetAnimator() {
+    if (typeof window.animatePlanets === "function") return window.animatePlanets;
+    window.animatePlanets = buildSolarAnimatorByRotation();
+    return window.animatePlanets;
+};
+
+
+
+
+
 
 
 /*----------------------------------
@@ -635,30 +708,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
-function arePlanetsReady() {
-    const ids = [
-        "mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune",
-        "mercury-orbit", "venus-orbit", "earth-orbit", "mars-orbit", "jupiter-orbit",
-        "saturn-orbit", "uranus-orbit", "neptune-orbit"
-    ];
-    return ids.every(id => document.getElementById(id) !== null);
-}
-
-function animatePlanetsIfReady(retries = 10) {
-    if (arePlanetsReady()) {
-        mercury.animate();
-        venus.animate();
-        earth.animate();
-        mars.animate();
-        jupiter.animate();
-        saturn.animate();
-        uranus.animate();
-        neptune.animate();
-    } else if (retries > 0) {
-        console.warn("Planet elements not ready. Retrying...");
-        setTimeout(() => animatePlanetsIfReady(retries - 1), 300);
-    } else {
-        console.error("Planet elements still missing after multiple retries.");
-    }
-}

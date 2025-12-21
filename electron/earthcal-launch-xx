@@ -1,8 +1,0 @@
-#!/bin/sh
-# Simple launcher for EarthCal inside the snap
-
-# Make sure we’re in the electron project directory inside the snap
-cd "$SNAP/electron"
-
-# Use the Electron binary from node_modules to run main.js
-exec "$SNAP/electron/node_modules/.bin/electron" "$SNAP/electron/main.js"

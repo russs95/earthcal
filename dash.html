@@ -96,7 +96,8 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=7"></script>
+    <script src="js/earthcal-init.js?v=13"></script>
+
 
     <!--Default Light Styles to load first-->
     <link rel="preload" href="css/light.css?v=7.56" as="style" onload="this.rel='stylesheet'">
@@ -104,11 +105,11 @@
     <!--Stylesheets for light and dark mode.  They need to be called here-->
     <link rel="stylesheet" href="css/light.css?v=7.77" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
     <link rel="stylesheet" href="css/dark.css?v=7.777" media="(prefers-color-scheme: dark)">
-    <link rel="stylesheet" href="css/slider.css?v=1.2">
+    <link rel="stylesheet" href="css/slider.css?v=1.3">
 
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=16.1">
-    <link rel="stylesheet" href="css/login-styles.css?v=8.9">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=16.3">
+    <link rel="stylesheet" href="css/login-styles.css?v=8.91">
     <link rel="stylesheet" href="css/mini-mode.css?v=1">
 
     <!-- Inline styles current being experimented with-->
@@ -221,6 +222,7 @@
             const header = document.getElementById('header');
             const rayLine = document.getElementById('ray_lines');
             const bottomButtons = document.getElementById('bottom-left-buttons');
+            const theYear = document.getElementById('the_year');
 
             /* ==================== INITIAL INTERFACE STATE ==================== */
             if (bottomButtons) {
@@ -236,6 +238,7 @@
 
             setTimeout(() => {
                 allDaymarkers.style.opacity = '1'; // Show allDaymarkers
+                theYear.style.opacity = '1';
             }, 3000);
 
             setTimeout(() => {
@@ -286,9 +289,21 @@
 
                 prefillAddDateCycle(cycleData);
             } else {
-                setCurrentDate(); // Fallback if no shared event
-                if (userAnimations) animatePlanetsIfReady();
+                setCurrentDate(); // sets startDate + targetDate
+
+                if (typeof window.initPlanetAnimator === "function") {
+                    window.initPlanetAnimator();
+                }
+
+                if (typeof window.animatePlanets === "function") {
+                    window.animatePlanets(startDate, targetDate);
+                } else {
+                    console.warn("animatePlanets not ready yet.");
+                }
+
             }
+
+
 
             /* ==================== CORE YEAR / DAY INITIALIZATION ==================== */
             const currentYear = parseInt(currentYearText.textContent); // gets the year from the currentYearText div

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cleaned for rotational animation: orbits are true circles centered on the Sun.
+     Planet groups are positioned to match the original Jan 1, 2023 epoch placement. -->
+<svg id="svg1" width="82.101mm" height="82.391mm" version="1.1" viewBox="0 0 82.101 82.391" xmlns="http://www.w3.org/2000/svg">
+    <g id="layer1" transform="translate(-118.8 -56.092)">
+        <g id="solar-system-center" transform="matrix(.27667 0 0 .27667 109.81 51.904)" style="-ms-user-select:none;-webkit-user-select:none">
+
+            <!-- Sun (pivot) -->
+            <circle id="sol" cx="180.85" cy="164.03" r="8.5" style="fill:#ffd900"/>
+
+            <!-- ====== MERCURY ====== -->
+            <g id="mercury_system">
+                <circle id="mercury_orbit" cx="180.85" cy="164.03" r="30.396" fill="none" stroke="#a05a2c" stroke-width="1.8898" title="Mercury's orbit"/>
+                <!-- epoch angle: 50.044780° -->
+                <g id="mercury" transform="rotate(50.044780 180.85 164.03)">
+                    <circle id="mercury-planet" cx="211.246" cy="164.03" r="3.4307" style="fill:#a05a2c"/>
+                </g>
+            </g>
+
+            <!-- ====== VENUS ====== -->
+            <g id="venus_system">
+                <circle id="venus-orbit" cx="180.85" cy="164.03" r="48.473" fill="none" stroke="#00e513" stroke-width="1.8898"/>
+                <!-- epoch angle: 283.429446° -->
+                <g id="venus" transform="rotate(283.429446 180.85 164.03)">
+                    <circle id="venus-planet" cx="229.323" cy="164.03" r="3.0913" fill="#00e513" stroke="#00e513" stroke-width="1.8008" style="-ms-user-select:none;-webkit-user-select:none"/>
+                </g>
+            </g>
+
+            <!-- ====== EARTH ====== -->
+            <g id="earth_system">
+                <circle id="earth-orbit" cx="180.85" cy="164.03" r="68.065" fill="none" stroke="#2929e3" stroke-width="1.8897" style="-ms-user-select:none;-webkit-user-select:none"/>
+                <!-- epoch angle: 330.584011° -->
+                <g id="earth" transform="rotate(330.584011 180.85 164.03)">
+                    <circle id="earth-planet" cx="248.915" cy="164.03" r="4.4468" style="-ms-user-select:none;-webkit-user-select:none;fill:#2929e3"/>
+                </g>
+            </g>
+
+            <!-- ====== MARS ====== -->
+            <g id="mars_system">
+                <circle id="mars-orbit" cx="180.85" cy="164.03" r="87.069" fill="none" stroke="#d40000" stroke-width="1.8944"/>
+                <!-- epoch angle: 334.263577° -->
+                <g id="mars" transform="rotate(334.263577 180.85 164.03)">
+                    <ellipse id="mars-planet" cx="267.919" cy="164.03" rx="3.0927" ry="3.0927" fill="#d40000" stroke="#d40000" stroke-width="1.342" style="-ms-user-select:none;-webkit-user-select:none" title="Mars"/>
+                </g>
+            </g>
+
+            <!-- ====== JUPITER ====== -->
+            <g id="jupiter_system">
+                <circle id="jupiter-orbit" cx="180.85" cy="164.03" r="104.193" fill="none" stroke="#ff8201" stroke-width="1.852" title="Jupiter's orbit"/>
+                <!-- epoch angle: 303.225422° -->
+                <g id="jupiter" transform="rotate(303.225422 180.85 164.03)">
+                    <ellipse id="jupiter-planet" cx="285.043" cy="164.03" rx="5.6705" ry="5.6748" fill="#ff8201" stroke="#ff8201" stroke-width="2.4617" style="-ms-user-select:none;-webkit-user-select:none" title="Jupiter"/>
+                </g>
+            </g>
+
+            <!-- ====== SATURN ====== -->
+            <g id="saturn_system">
+                <circle id="saturn-orbit" cx="180.85" cy="164.03" r="118.131" fill="none" stroke="#666666" stroke-width="1.8186" title="Saturn's orbit"/>
+                <!-- epoch angle: 219.427213° -->
+                <g id="saturn" transform="rotate(219.427213 180.85 164.03)">
+                    <ellipse id="saturn-planet" cx="298.981" cy="164.03" rx="4.6914" ry="4.6911" fill="#666666" stroke="#666666" stroke-width="2.1064" style="-ms-user-select:none;-webkit-user-select:none" title="Saturn today"/>
+                </g>
+            </g>
+
+            <!-- ====== URANUS ====== -->
+            <g id="uranus_system">
+                <circle id="uranus-orbit" cx="180.85" cy="164.03" r="133.509" fill="none" stroke="#0cacf5" stroke-width="1.7786" style="-ms-user-select:none;-webkit-user-select:none"/>
+                <!-- epoch angle: 285.527327° -->
+                <g id="uranus" transform="rotate(285.527327 180.85 164.03)">
+                    <circle id="uranus-planet" cx="314.359" cy="164.03" r="4.5596" style="fill:#0cacf5"/>
+                </g>
+            </g>
+
+            <!-- ====== NEPTUNE ====== -->
+            <g id="neptune_system">
+                <circle id="neptune-orbit" cx="180.85" cy="164.03" r="148.007" fill="none" stroke="#7939d9" stroke-width="1.7068"/>
+                <!-- epoch angle: 229.007674° -->
+                <g id="neptune" transform="rotate(229.007674 180.85 164.03)">
+                    <ellipse id="neptune-planet" cx="328.857" cy="164.03" rx="3.7587" ry="3.7523" fill="#7939d9" stroke="#7939d9" stroke-width="1.6863" style="-ms-user-select:none;-webkit-user-select:none" title="Neptune"/>
+                </g>
+            </g>
+
+        </g>
+    </g>
+</svg>

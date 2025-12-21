@@ -94,6 +94,10 @@ path[id*="week-"] {
     transition: opacity 1.3s ease-out;
 }
 
+#the_year  {
+    transition: opacity 0.2s ease-out;
+}
+
 #days-of-year-lines {
     opacity: 0;
 }
@@ -103,6 +107,10 @@ path[id*="week-"] {
 }
 
 #ray_lines  {
+    opacity: 0;
+}
+
+#the_year  {
     opacity: 0;
 }
 
@@ -2743,7 +2751,6 @@ color: #b2b1b1;
     width: 100%;
     height: 25px;
     position: fixed;
-    bottom: -14px;
     color: var(--subdued-text);
     text-align: center;
     transition: transform 0.3s ease, height 0.5s ease;
@@ -2812,7 +2819,7 @@ color: #b2b1b1;
 /* 3) When the container has the “hover” class, slide both up */
 #registration-container.hover > #reg-up-button,
 #registration-container.hover > #registration-footer {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
 }
 
 .offline-sync-indicator {
@@ -2850,8 +2857,12 @@ color: #b2b1b1;
 
 @media screen and (max-width: 699px) {
     #reg-up-button {
-        margin: 0px -20px 10px auto;
+        margin: 0px -20px 1px auto;
         height: 30px;
+    }
+
+    #registration-footer {
+        bottom: -20px;
     }
 
 }
@@ -2860,16 +2871,24 @@ color: #b2b1b1;
     #reg-up-button {
         width: 25%;
         height: 38px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
+    }
+
+    #registration-footer {
+        bottom: -17px;
     }
 
 }
 
 @media screen and (min-width: 1201px) {
     #reg-up-button {
-        margin: 0px auto 6px 30px;
+        margin: 0px auto 4px 30px;
         width: 25%;
         height: 40px;
+    }
+
+    #registration-footer {
+        bottom: -14px;
     }
 
 }
