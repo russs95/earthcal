@@ -254,34 +254,6 @@ async function showUserCalSettings() {
     const firstName = profile.first_name || payload?.given_name || 'Earthling';
     const sanitizedFirstName = (typeof escapeHtml === 'function') ? escapeHtml(firstName) : firstName;
     const earthlingEmoji = profile.earthling_emoji || payload?.["buwana:earthlingEmoji"] || '🌍';
-    const userPlan = (window.user_plan || '').toLowerCase();
-    const planName = userPlan === 'jedi'
-        ? 'EarthCal Jedi'
-        : userPlan === 'padwan'
-            ? 'EarthCal Padwan'
-            : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
-    const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
-    const planActionText = userPlan === 'jedi'
-        ? 'Manage Subscription'
-        : 'Upgrade EarthCal';
-    const showSubscriptionLink = isAuthenticated && (userPlan === 'padwan' || userPlan === 'jedi');
-    const syncStatus = typeof window !== 'undefined' && typeof window.syncStore?.getStatus === 'function'
-        ? window.syncStore.getStatus()
-        : null;
-    const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
-    const showPlanAction = showSubscriptionLink && hasConnectivity;
-    const planStatusHtml = isAuthenticated
-        ? `
-            <div class="menu-plan-status settings-plan-status">
-                <div class="menu-plan-pill ${planClass}">
-                    <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
-                    <span class="menu-plan-pill-text">${planName}</span>
-                    ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
-                </div>
-            </div>
-        `
-        : '';
-
     const savedOfflineMode = (typeof getSavedOfflineMode === 'function')
         ? getSavedOfflineMode()
         : 'offline';
@@ -327,7 +299,6 @@ async function showUserCalSettings() {
         <div class="settings-modal-header">
             <div class="top-settings-icon"></div>
         </div>
-        ${planStatusHtml}
         <form id="user-settings-form">
             <div>
                 <select id="timezone" name="timezone" class="blur-form-field">

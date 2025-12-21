@@ -3,7 +3,7 @@ dark-mode-toggle.slider::part(toggleLabel) {
   position: relative;
   height: calc(var(--dark-mode-toggle-icon-size, 1rem) * 2);
   width: calc(var(--dark-mode-toggle-icon-size, 1rem) * 4.5);
-  background-color: #b7bbbd;
+  background-color: var(--toggle-bg, #b7bbbd);
   border-radius: var(--dark-mode-toggle-icon-size, 1rem);
   transition: 0.4s;
 }
@@ -30,7 +30,7 @@ dark-mode-toggle.slider::part(toggleLabel)::before {
 }
 
 dark-mode-toggle.slider[mode="dark"]::part(toggleLabel) {
-  background-color: #4e5255;
+  background-color: var(--toggle-bg-active, #4e5255);
 }
 
 dark-mode-toggle.slider[mode="dark"]::part(toggleLabel)::before {

@@ -2120,6 +2120,32 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     persistCalendarListCache(normalizedCalendars);
 
     const sortedCalendars = sortCalendarsByName(normalizedCalendars);
+    const userPlan = (window.user_plan || '').toLowerCase();
+    const planName = userPlan === 'jedi'
+        ? 'EarthCal Jedi'
+        : userPlan === 'padwan'
+            ? 'EarthCal Padwan'
+            : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
+    const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
+    const planActionText = userPlan === 'jedi'
+        ? 'Manage Subscription'
+        : 'Upgrade EarthCal';
+    const syncStatus = typeof window !== 'undefined' && typeof window.syncStore?.getStatus === 'function'
+        ? window.syncStore.getStatus()
+        : null;
+    const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
+    const showPlanAction = (userPlan === 'padwan' || userPlan === 'jedi') && hasConnectivity;
+    const planStatusHtml = (userPlan === 'padwan' || userPlan === 'jedi')
+        ? `
+            <div class="menu-plan-status">
+                <div class="menu-plan-pill ${planClass}">
+                    <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
+                    <span class="menu-plan-pill-text">${planName}</span>
+                    ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                </div>
+            </div>
+        `
+        : '';
 
     document.removeEventListener('click', handleCalOutsideClick, true);
     currentExpandedCalRowId = null;
@@ -2141,6 +2167,7 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
             <div id="webcal-calendar-selection-form" class="cal-toggle-list" style="text-align:left; max-width:500px; margin:0 auto 32px;"></div>
 
             <p id="cal-datecycle-count"></p>
+            ${planStatusHtml}
         </div>
     `;
 
@@ -3879,7 +3906,6 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
 
 
 

@@ -541,7 +541,7 @@ flex-direction: row;
 .settings-modal-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   margin-bottom: 10px;
 }
 
@@ -4731,13 +4731,16 @@ svg path #june:hover {
     background: var(--general-background);
     border-radius: 15px;
     height: 38px;
+    --toggle-control-width: 68px;
+    --toggle-control-height: 30px;
+    --toggle-knob-size: calc(var(--toggle-control-height) - 8px);
 }
 
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 68px;
-    height: 30px;
+    width: var(--toggle-control-width);
+    height: var(--toggle-control-height);
 }
 
 .toggle-switch input {
@@ -4756,14 +4759,14 @@ svg path #june:hover {
     bottom: 0;
     background-color: var(--toggle-bg, #b7bbbd);
     transition: 0.4s;
-    border-radius: 30px;
+    border-radius: var(--toggle-control-height);
 }
 
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 22px;
-    width: 22px;
+    height: var(--toggle-knob-size);
+    width: var(--toggle-knob-size);
     left: 4px;
     bottom: 4px;
     background-color: var(--toggle-knob-bg, #fff);
@@ -4776,7 +4779,7 @@ svg path #june:hover {
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(38px);
+    transform: translateX(calc(var(--toggle-control-width) - var(--toggle-knob-size) - 8px));
 }
 
 /* Clock toggle icon styles */
@@ -4800,8 +4803,8 @@ svg path #june:hover {
 .toggle-button {
     position: relative;
     display: inline-block;
-    width: 68px;
-    height: 30px;
+    width: var(--toggle-control-width);
+    height: var(--toggle-control-height);
     padding: 0;
     border: none;
     background: transparent;
@@ -4818,10 +4821,10 @@ svg path #june:hover {
 }
 
 .clear-cache-button {
-    width: 68px;
-    height: 30px;
+    width: var(--toggle-control-width);
+    height: var(--toggle-control-height);
     border: none;
-    border-radius: 30px;
+    border-radius: var(--toggle-control-height);
     background-color: #dc2626;
     color: #fff;
     font-weight: 700;
@@ -4896,4 +4899,13 @@ svg path #june:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.settings-profile-actions button {
+    width: 100%;
+}
+
+.toggle-row dark-mode-toggle.slider {
+    --dark-mode-toggle-icon-size: 15px;
+    --dark-mode-toggle-icon-icon-size: 14px;
 }
