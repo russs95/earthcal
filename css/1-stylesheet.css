@@ -893,6 +893,12 @@ border-color: #00a112 !important;
     left: 25px;
     }
 
+#main-menu-overlay .x-button {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+}
+
 #add-datecycle .x-button {
     top:20px;
     right: 20px;
@@ -2770,6 +2776,7 @@ color: #b2b1b1;
     align-self: flex-end;
     margin: 12px 12px 0 0;
     z-index: 60;
+    right: 20px;
 }
 
 #reg-up-button {
@@ -2800,7 +2807,13 @@ color: #b2b1b1;
 /* Expanded: fully slid up */
 #registration-container.expanded {
     transform: translateY(0);
-    height: 95vh;
+    height: 100vh;
+}
+
+#registration-container.expanded #registration-footer {
+    bottom: 0;
+    height: 100vh;
+    margin-bottom: 0;
 }
 
 /* Allow pointer events only when expanded */
