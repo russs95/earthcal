@@ -858,13 +858,15 @@ border-color: #00a112 !important;
 
   @media screen and (min-width: 700px) {
 .x-button {
-    padding: 10px;
+    padding: 12px;
     background-size: contain;
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 70px;
     border:none;
     cursor:pointer;
     z-index:30;
+    position: fixed;
+    margin-top:5px;
     }
 }
 
@@ -2857,7 +2859,7 @@ color: #b2b1b1;
 
 @media screen and (max-width: 699px) {
     #reg-up-button {
-        margin: 0px -20px 1px auto;
+        margin: 0px -20px 0.5px auto;
         height: 30px;
     }
 
@@ -4750,7 +4752,7 @@ svg path #june:hover {
     background: var(--general-background);
     border-radius: 15px;
     height: 38px;
-    --toggle-control-width: 68px;
+    --toggle-control-width: 65px;
     --toggle-control-height: 30px;
     --toggle-knob-size: calc(var(--toggle-control-height) - 8px);
 }
@@ -4760,6 +4762,7 @@ svg path #june:hover {
     display: inline-block;
     width: var(--toggle-control-width);
     height: var(--toggle-control-height);
+    min-width: 65px;
 }
 
 .toggle-switch input {
@@ -4853,6 +4856,7 @@ svg path #june:hover {
     justify-content: center;
     padding: 0;
     cursor: pointer;
+    min-width: 65px;
 }
 
 .clear-cache-button:hover {
