@@ -893,6 +893,14 @@ border-color: #00a112 !important;
     left: 25px;
     }
 
+#main-menu-overlay .x-button {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    right: auto;
+    z-index: 60;
+    }
+
 #add-datecycle .x-button {
     top:20px;
     right: 20px;
