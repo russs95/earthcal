@@ -72,7 +72,7 @@ versioning: {
     "Perbaikan bug kecil dan besar.",
   ],
   gotIt: "👍 Ayo Mulai!",
-  tour: " 🌏 Selengkapnya: Tur EarthCal",
+  tour: " 🌏 EarthCal Guided Tour",
 },
 
 

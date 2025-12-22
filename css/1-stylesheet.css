@@ -894,11 +894,15 @@ border-color: #00a112 !important;
     }
 
 #main-menu-overlay .x-button {
-    position: fixed;
+    position: absolute;
     top: 25px;
     left: 25px;
     right: auto;
     z-index: 60;
+    }
+
+#main-menu-overlay.main-menu-open .x-button {
+    position: fixed;
     }
 
 #add-datecycle .x-button {
@@ -2935,8 +2939,13 @@ INFO MODAL
     margin: auto auto auto auto;;
     overflow-y: auto; /* Enable vertical scrolling */
     height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
+.modal-content-box::-webkit-scrollbar {
+    display: none;
+}
   
   .modal-message {
     margin: auto;
@@ -3104,6 +3113,12 @@ INFO MODAL
   border-radius: 999px;
   background: rgba(22, 163, 74, 0.1);
   border: 1px solid #22c55e;
+}
+
+.ec-plan-current-label--padwan {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid #f97316;
 }
 
 .ec-plan-toggle {

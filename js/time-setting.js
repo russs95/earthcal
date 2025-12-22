@@ -241,15 +241,11 @@ async function showUserCalSettings() {
 
     const timezones = translations.timezones;
 
-    const payload = (typeof resolveAuthPayload === 'function') ? resolveAuthPayload() : null;
-    const resolvedBuwanaId = payload?.buwana_id || (() => {
-        const storedId = localStorage.getItem('buwana_id');
-        if (!storedId) return null;
-        const numericId = Number(storedId);
-        return Number.isNaN(numericId) ? storedId : numericId;
-    })();
+    const loginState = (typeof isLoggedIn === 'function') ? isLoggedIn({ returnPayload: true }) : { isLoggedIn: false };
+    const payload = loginState?.payload || null;
+    const resolvedBuwanaId = payload?.buwana_id || null;
 
-    const isAuthenticated = Boolean(payload?.buwana_id || resolvedBuwanaId);
+    const isAuthenticated = Boolean(loginState?.isLoggedIn && resolvedBuwanaId);
     const profile = window.userProfile || {};
     const firstName = profile.first_name || payload?.given_name || 'Earthling';
     const sanitizedFirstName = (typeof escapeHtml === 'function') ? escapeHtml(firstName) : firstName;

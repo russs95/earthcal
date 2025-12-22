@@ -405,6 +405,7 @@ async function openMainMenu() {
     modal.style.width = "100%";
     document.body.style.overflowY = "hidden";
     document.body.style.maxHeight = "101vh";
+    modal.classList.add("main-menu-open");
 
     modal.setAttribute("tabindex", "0");
     modal.focus();
@@ -755,7 +756,7 @@ async function manageEarthcalUserSub() {
 
         let planMessage = '';
         if (userPlanType === 'padwan') {
-            planMessage = "You're using EarthCal | Padwan.  Upgrade to Jedi for full time powers.";
+            planMessage = "You're using EarthCal | Padwan.  Upgrade to Jedi for full time powers. 🚀";
         } else if (currentPlanName) {
             planMessage = `You're currently on the ${escapeHtml(currentPlanName)} plan.`;
         }
@@ -835,7 +836,7 @@ async function manageEarthcalUserSub() {
         modalContent.innerHTML = `
             <div class="ec-subscription-modal">
                 <h1>Upgrade EarthCal</h1>
-                ${planMessage ? `<div class="ec-plan-current-label">${planMessage}</div>` : ''}
+                ${planMessage ? `<div class="ec-plan-current-label${userPlanType === 'padwan' ? ' ec-plan-current-label--padwan' : ''}">${planMessage}</div>` : ''}
                 <p id="sales-pitch">The way we perceive and track our time on planet Earth is fundamental to the harmony we find with the cycles of life. EarthCal is a powerful tool to transition from linear and rectangular time-thinking, to circular and cyclical time. Our free Padwan subscription gives you all you need to get going with EarthCal, while our Jedi subscription gives you access to the latest and greatest features.</p>
                 <div class="ec-plan-toggle" role="group" aria-label="Choose billing interval">
                     <span class="ec-toggle-indicator"></span>
@@ -1177,6 +1178,7 @@ function closeMainMenu() {
     modal.style.width = "0%";
     document.body.style.overflowY = "unset";
     document.body.style.maxHeight = "unset";
+    modal.classList.remove("main-menu-open");
 
     modalOpen = false;
 
