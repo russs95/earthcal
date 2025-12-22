@@ -74,7 +74,7 @@ export const translations = {
       "Kleinere und größere Fehlerbehebungen."
     ],
     gotIt: "👍 Los geht’s!",
-    tour: " 🌏 Mehr: EarthCal-Tour"
+    tour: " 🌏 EarthCal Guided Tour"
   },
 
 // SETTINGS
