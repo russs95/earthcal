@@ -304,31 +304,6 @@ async function openMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
     const content = document.getElementById("main-menu-content");
 
-    if (modal) {
-        let closeButton = modal.querySelector(".main-menu-close") || modal.querySelector(".x-button");
-        if (!closeButton) {
-            closeButton = document.createElement("button");
-            closeButton.type = "button";
-            closeButton.className = "x-button main-menu-close";
-            closeButton.setAttribute("aria-label", "Close");
-            modal.insertBefore(closeButton, modal.firstChild);
-        } else {
-            closeButton.classList.add("main-menu-close");
-            closeButton.setAttribute("aria-label", "Close");
-        }
-
-        if (!closeButton.hasAttribute("data-main-menu-close")) {
-            if (!closeButton.getAttribute("onclick")) {
-                closeButton.addEventListener("click", () => {
-                    closeMainMenu();
-                    updateBackgroundColor();
-                    updateHighlightColor();
-                });
-            }
-            closeButton.setAttribute("data-main-menu-close", "true");
-        }
-    }
-
     const lang = userLanguage?.toLowerCase() || 'en';
     const { mainMenu } = await loadTranslations(lang);
 
