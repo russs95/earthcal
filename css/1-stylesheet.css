@@ -949,6 +949,7 @@ border-color: #00a112 !important;
   gap: 12px;
   margin: 24px auto 0;
   text-align: center;
+    margin-bottom: 30px;
 }
 
 .settings-plan-status {
@@ -987,6 +988,8 @@ border-color: #00a112 !important;
 
 .menu-plan-pill-text {
   white-space: nowrap;
+    font-family: 'Mulish', sans-serif;
+    font-weight: bolder;
 }
 
 .menu-plan-action {
@@ -2709,8 +2712,7 @@ color: #b2b1b1;
     flex-flow: column;
     width: 100%;
     min-height: 100%;
-    border-top: 1px var( --header-accent) solid;
-    background-color: var(--top-header);
+
 }
 
 
@@ -2780,6 +2782,8 @@ color: #b2b1b1;
     flex-flow: column;
     cursor: pointer;
     overflow-x: hidden;
+    border-top: 1px var( --header-accent) solid;
+    background-color: var(--top-header);
 }
 
 #reg-down-button {
