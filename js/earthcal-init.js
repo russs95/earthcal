@@ -70,16 +70,16 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core-javascripts.js?v=27.1",
+        "js/core-javascripts.js?v=27.2",
         "js/1-gcal-javascripts.js?v=3.2",
         "js/breakouts.js",
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js",
-        "js/time-setting.js?v=1.6",
+        "js/time-setting.js?v=1.7",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=7.2",
+        "js/planet-orbits.js?v=7.3",
         // rest of app
         "js/login-scripts.js?v=19.2",
         "js/item-management.js?v=9.9",
@@ -88,7 +88,7 @@ async function initCalendar() {
 
     try {
         // 1) Load SVG first so elements exist when scripts start wiring listeners
-        await loadSvgIntoContainer("cals/earthcal-v1-0-3.svg?v=11", "the-cal");
+        await loadSvgIntoContainer("cals/earthcal-v1-0-3.svg?v=13", "the-cal");
 
         // 2) Preload scripts (real preload links, not fetch)
         await Promise.all(scripts.map(preloadScript));

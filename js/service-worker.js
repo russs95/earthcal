@@ -27,7 +27,6 @@ const STATIC_ASSETS = [
     './css/1-stylesheet.css?v=12.7',
     './css/login-styles.css?v=8.72',
     './css/slider.css?v=1.2',
-    './css/mini-mode.css?v=1',
     './assets/fonts/Mulish-Light.ttf',
     './assets/fonts/Mulish-Medium.ttf',
     './assets/fonts/Arvo-Regular.ttf',

@@ -120,6 +120,7 @@ path[id*="week-"] {
     text-align:center;
     cursor:pointer;
     margin-right: 5px;
+    pointer-events: all;
 }
 
 .next-button {
@@ -129,6 +130,8 @@ path[id*="week-"] {
     cursor:pointer;
 
     margin-left:5px;
+    pointer-events: all;
+
 }
 
 #reset-to-today {
@@ -138,6 +141,7 @@ path[id*="week-"] {
     cursor:pointer;
     margin-right: 5px;
     margin-left:5px;
+    pointer-events: all;
 }
 
 
@@ -495,6 +499,7 @@ flex-direction: row;
   cursor:pointer;
   height:30px;
   width:30px;
+    pointer-events: all;
 }
 
 
@@ -865,7 +870,6 @@ border-color: #00a112 !important;
     border:none;
     cursor:pointer;
     z-index:30;
-    position: fixed;
     margin-top:5px;
     }
 }
@@ -912,7 +916,7 @@ border-color: #00a112 !important;
     }
 
 #form-modal-message > .x-button {
-    position: fixed;
+    /*position: fixed;*/
     top:25px;
     right: 12px;
     z-index: 60;
@@ -1696,10 +1700,12 @@ LOADING ANIMATION OF THE PLANETS
 
 #prev-year {
   cursor: pointer;
+    pointer-events: all;
 }
 
 #next-year {
   cursor: pointer;
+    pointer-events: all;
 }
 
 #the_sun,
