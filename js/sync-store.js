@@ -607,7 +607,7 @@
             }
         }
         persistOutbox(remaining);
-        if (connectivityState.online && hadSuccess) {
+        if (connectivityState.online && hadSuccess && remaining.length === 0) {
             await loadInitialState();
         }
         return remaining;
@@ -715,6 +715,10 @@
                     await reconcileServerItem(calId, clientTempId, serverItem || { ...payload, item_id: serverId });
                 } else {
                     removeOutboxEntryByClientId(clientTempId);
+                    await loadInitialState();
+                }
+                const summary = summarizeOutbox(readOutbox());
+                if (operation === 'create' && connectivityState.online && summary.pending === 0 && summary.errors === 0) {
                     await loadInitialState();
                 }
                 notifyStatusListeners();
