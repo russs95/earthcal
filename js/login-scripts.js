@@ -2580,6 +2580,99 @@ async function createJWTloginURL() {
     return url.toString();
 }
 
+function parseJsonSafe(value) {
+    if (!value) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(value);
+    } catch (error) {
+        console.debug('[login] Unable to parse cached value:', error);
+        return null;
+    }
+}
+
+function countCachedDateItems(buwanaId) {
+    const itemsKey = buwanaId ? `ec_user_${buwanaId}_items` : null;
+    const itemsByCalendar = itemsKey ? parseJsonSafe(localStorage.getItem(itemsKey)) : null;
+
+    if (itemsByCalendar && typeof itemsByCalendar === 'object') {
+        return Object.values(itemsByCalendar).reduce((total, list) => {
+            return total + (Array.isArray(list) ? list.length : 0);
+        }, 0);
+    }
+
+    return Object.keys(localStorage).reduce((total, key) => {
+        if (!/^calendar_\d+$/.test(key)) {
+            return total;
+        }
+
+        const cachedItems = parseJsonSafe(localStorage.getItem(key));
+        return total + (Array.isArray(cachedItems) ? cachedItems.length : 0);
+    }, 0);
+}
+
+function getCachedUserContext() {
+    const profile = parseJsonSafe(localStorage.getItem('user_profile'))
+        || parseJsonSafe(localStorage.getItem(OFFLINE_PROFILE_CACHE_KEY))
+        || null;
+
+    const calendars = readCalendarListCache();
+    const buwanaId = profile?.buwana_id || profile?.sub || null;
+    const totalDateItems = countCachedDateItems(buwanaId);
+    const hasCachedProfile = profile && Object.keys(profile).length > 0;
+    const hasCachedCalendars = Array.isArray(calendars) && calendars.length > 0;
+
+    return {
+        profile,
+        calendars,
+        buwanaId,
+        totalDateItems,
+        hasCachedData: Boolean(hasCachedProfile || hasCachedCalendars || totalDateItems > 0)
+    };
+}
+
+function setLoginViewCopy(title, subtitle) {
+    const statusMessage = document.getElementById('status-message');
+    const subStatusMessage = document.getElementById('sub-status-message');
+
+    if (statusMessage && typeof title === 'string') {
+        statusMessage.textContent = title;
+    }
+
+    if (subStatusMessage && typeof subtitle === 'string') {
+        subStatusMessage.textContent = subtitle;
+    }
+}
+
+function configureOfflineModeButton({ visible = false, onClick = null } = {}) {
+    const offlineButton = document.getElementById('offline-mode-button');
+    if (!offlineButton) {
+        return;
+    }
+
+    offlineButton.style.display = visible ? 'block' : 'none';
+    offlineButton.onclick = onClick;
+}
+
+function resetLoginButtonsToDefault() {
+    const loginButton = document.getElementById('auth-login-button');
+    const signupButton = document.getElementById('auth-signup-button');
+
+    if (loginButton) {
+        loginButton.textContent = "Login with Buwana";
+        loginButton.style.display = 'block';
+    }
+
+    if (signupButton) {
+        signupButton.textContent = "Sign Up to Earthcal";
+        signupButton.style.display = 'block';
+    }
+
+    configureOfflineModeButton({ visible: false });
+}
+
 async function sendUpRegistration() {
     const container = document.getElementById("registration-container");
     const footer = document.getElementById("registration-footer");
@@ -2594,6 +2687,11 @@ async function sendUpRegistration() {
     }
 
     container.classList.add("expanded");
+    configureOfflineModeButton({ visible: false });
+
+    const { profile: cachedProfile, calendars: cachedCalendars, totalDateItems, hasCachedData } = getCachedUserContext();
+    const loginButton = document.getElementById("auth-login-button");
+    const signupButton = document.getElementById("auth-signup-button");
 
     if (!navigator.onLine) {
         console.warn("[EarthCal] Offline detected. Showing cached logged-in view.");
@@ -2604,13 +2702,39 @@ async function sendUpRegistration() {
             offlineForm.setAttribute('aria-hidden', 'true');
         }
 
-        const cachedCalendars = readCalendarListCache();
-
-        if (cachedCalendars && typeof showLoggedInView === 'function') {
+        if (Array.isArray(cachedCalendars) && cachedCalendars.length && typeof showLoggedInView === 'function') {
             showLoggedInView(cachedCalendars);
         } else {
-            console.warn('[EarthCal] No cached calendars available to render logged-in view. Showing login form.');
-            showLoginForm(loggedOutView, loggedInView);
+            console.warn('[EarthCal] No cached calendars available to render logged-in view. Showing offline message.');
+            setRegistrationFooterBackground('login');
+            loggedOutView.style.display = "block";
+            loggedInView.style.display = "none";
+
+            setLoginViewCopy(
+                "You're Offline",
+                "Connect to the internet to login and sync with the Earthcal server."
+            );
+
+            if (loginButton) {
+                loginButton.style.display = 'none';
+            }
+
+            if (signupButton) {
+                signupButton.style.display = 'none';
+            }
+
+            configureOfflineModeButton({
+                visible: true,
+                onClick: () => {
+                    if (typeof getOfflineUserData === 'function') {
+                        getOfflineUserData({ useCachedData: false });
+                    }
+
+                    if (typeof sendDownRegistration === 'function') {
+                        sendDownRegistration();
+                    }
+                }
+            });
         }
 
         updateFooterAndArrowUI(footer, upArrow, downArrow);
@@ -2625,9 +2749,10 @@ async function sendUpRegistration() {
         console.log("[EarthCal] Valid token found. Showing logged-in view.");
         loggedOutView.style.display = "none";
         loggedInView.style.display = "block";
+        configureOfflineModeButton({ visible: false });
 
         const apiBase = resolveLoginApiBase('showLoggedInView');
-        let calendars = readCalendarListCache();
+        let calendars = cachedCalendars || readCalendarListCache();
 
         if (calendars) {
             console.log("📅 Using cached v1 calendar data.");
@@ -2667,7 +2792,51 @@ async function sendUpRegistration() {
         }
     } else {
         console.warn("[EarthCal] Not logged in. Showing login form.");
-        showLoginForm(loggedOutView, loggedInView);
+        resetLoginButtonsToDefault();
+        createJWTloginURL();
+
+        if (hasCachedData) {
+            const emoji = cachedProfile?.earthling_emoji
+                || cachedProfile?.["buwana:earthlingEmoji"]
+                || "🌱";
+            const firstName = cachedProfile?.first_name || cachedProfile?.given_name || "Earthling";
+            const formattedTotal = new Intl.NumberFormat().format(Math.max(0, totalDateItems || 0));
+
+            setRegistrationFooterBackground('login');
+            loggedOutView.style.display = "block";
+            loggedInView.style.display = "none";
+
+            setLoginViewCopy(
+                `Welcome back ${firstName}`,
+                `You're currently logged out, and Earthcal is using your ${formattedTotal} cached dates and cycle data. Login again with your Buwana credentials to sync with your Earthcal account.`
+            );
+
+            if (loginButton) {
+                loginButton.textContent = `${emoji} Login`;
+                loginButton.style.display = 'block';
+            }
+
+            if (signupButton) {
+                signupButton.textContent = "Sign up";
+                signupButton.style.display = 'block';
+            }
+
+            configureOfflineModeButton({
+                visible: true,
+                onClick: () => {
+                    if (typeof sendDownRegistration === 'function') {
+                        sendDownRegistration();
+                    }
+                }
+            });
+        } else {
+            setLoginViewCopy(
+                "Welcome Earthling",
+                "Login with a Buwana account to unlock EarthCal's powerful event & cycle management."
+            );
+            configureOfflineModeButton({ visible: false });
+            showLoginForm(loggedOutView, loggedInView);
+        }
     }
 
     updateFooterAndArrowUI(footer, upArrow, downArrow);
@@ -3906,8 +4075,6 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
-
 
 
 

@@ -4753,7 +4753,7 @@ svg path #june:hover {
     font-size: larger;
     background-color: var(--emblem-green);
     color: white;
-    margin: 1px auto 50px auto;
+    margin: 1px auto 10px auto;
     cursor: pointer;
 
 }
@@ -4765,6 +4765,23 @@ svg path #june:hover {
 
 
 
+}
+
+.offline-button {
+    border: 1px solid var(--subdued-text, #6b7280);
+    width:100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: larger;
+    background-color: var(--toggle-row-bg, #e5e7eb);
+    color: var(--text-color, #111827);
+    margin: 1px auto 10px auto;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.offline-button:hover {
+    background-color: var(--toggle-row-overbg, #d1d5db);
 }
 
 
