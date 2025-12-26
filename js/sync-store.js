@@ -12,6 +12,77 @@
         lastChecked: null
     };
 
+    function parseLocalDateTimeParts(raw) {
+        if (!raw) return null;
+        const sanitized = String(raw).trim().replace('T', ' ');
+        const match = sanitized.match(
+            /^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/
+        );
+
+        if (!match) return null;
+
+        const [, year, month, day, hour = '0', minute = '0', second = '0'] = match;
+        return {
+            year: Number(year),
+            month: Number(month),
+            day: Number(day),
+            hour: Number(hour),
+            minute: Number(minute),
+            second: Number(second)
+        };
+    }
+
+    function getTimezoneOffsetMs(date, timeZone) {
+        try {
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const parts = formatter.formatToParts(date);
+            const filled = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+            const tzAsUtc = Date.UTC(
+                Number(filled.year),
+                Number(filled.month) - 1,
+                Number(filled.day),
+                Number(filled.hour),
+                Number(filled.minute),
+                Number(filled.second)
+            );
+            return tzAsUtc - date.getTime();
+        } catch (err) {
+            console.warn('[sync-store] unable to compute timezone offset, defaulting to 0ms:', err);
+            return 0;
+        }
+    }
+
+    function zonedDateTimeToUtc(localDateTime, timeZone) {
+        const parts = parseLocalDateTimeParts(localDateTime);
+        if (!parts) return null;
+
+        const utcGuess = Date.UTC(
+            parts.year,
+            parts.month - 1,
+            parts.day,
+            parts.hour,
+            parts.minute,
+            parts.second
+        );
+        const utcDate = new Date(utcGuess);
+        const offset = getTimezoneOffsetMs(utcDate, timeZone);
+        return new Date(utcGuess - offset);
+    }
+
+    function formatUtcIso(date) {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
+
     function storageKey(type) {
         if (!currentUser?.buwana_id) return null;
         return `ec_user_${currentUser.buwana_id}_${type}`;
@@ -122,15 +193,11 @@
     }
 
     function normalizeItem(item, calendar, buwanaId) {
+        const timeZone = item.tzid || calendar?.tzid || 'Etc/UTC';
         const toUtcDateTime = (rawLocal) => {
             if (!rawLocal) return null;
-            const normalizedLocal = String(rawLocal).replace(' ', 'T');
-            const parsed = new Date(normalizedLocal);
-            if (Number.isNaN(parsed.getTime())) return null;
-
-            const offsetMs = parsed.getTimezoneOffset() * 60000;
-            const utcDate = new Date(parsed.getTime() - offsetMs);
-            return `${utcDate.toISOString().slice(0, 19).replace('T', ' ')}`;
+            const utcDate = zonedDateTimeToUtc(rawLocal, timeZone);
+            return formatUtcIso(utcDate);
         };
 
         const parseDateParts = () => {
