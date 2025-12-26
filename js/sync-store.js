@@ -8,6 +8,7 @@
         online: navigator.onLine,
         backendReachable: false,
         pending: 0,
+        errors: 0,
         lastChecked: null
     };
 
@@ -21,11 +22,24 @@
         if (!key) return [];
         try {
             const parsed = JSON.parse(localStorage.getItem(key) || '[]');
-            return Array.isArray(parsed) ? parsed : [];
+            if (!Array.isArray(parsed)) return [];
+            return parsed.map((entry) => ({
+                status: 'pending',
+                server_id: null,
+                last_error: null,
+                ...entry
+            }));
         } catch (err) {
             console.warn('[sync-store] unable to parse outbox', err);
             return [];
         }
+    }
+
+    function summarizeOutbox(list) {
+        const safeList = Array.isArray(list) ? list : [];
+        const pending = safeList.filter((entry) => entry?.status !== 'sent' && entry?.status !== 'error').length;
+        const errors = safeList.filter((entry) => entry?.status === 'error').length;
+        return { pending, errors };
     }
 
     function persistOutbox(list) {
@@ -36,7 +50,9 @@
         } catch (err) {
             console.warn('[sync-store] unable to persist outbox', err);
         }
-        connectivityState.pending = Array.isArray(list) ? list.length : 0;
+        const summary = summarizeOutbox(list);
+        connectivityState.pending = summary.pending;
+        connectivityState.errors = summary.errors;
         notifyStatusListeners();
     }
 
@@ -99,7 +115,9 @@
             console.warn('[sync-store] unable to mirror calendar list', err);
         }
 
-        connectivityState.pending = readOutbox().length;
+        const summary = summarizeOutbox(readOutbox());
+        connectivityState.pending = summary.pending;
+        connectivityState.errors = summary.errors;
         notifyStatusListeners({ totalItems, calendarCount: safeCalendars.length });
     }
 
@@ -325,7 +343,13 @@
 
 
     function notifyStatusListeners(extra = {}) {
-        const payload = { ...connectivityState, ...extra, pending: readOutbox().length };
+        const summary = summarizeOutbox(readOutbox());
+        const payload = {
+            ...connectivityState,
+            ...extra,
+            pending: summary.pending,
+            errors: summary.errors
+        };
         statusListeners.forEach((cb) => {
             try {
                 cb(payload);
@@ -365,7 +389,9 @@
             || (isLocalhost ? 'https://earthcal.app/api/v1' : DEFAULT_API_BASE);
 
         // Update pending count from outbox
-        connectivityState.pending = readOutbox().length;
+        const summary = summarizeOutbox(readOutbox());
+        connectivityState.pending = summary.pending;
+        connectivityState.errors = summary.errors;
 
         // Attach connectivity listeners once
         if (!initialized && typeof window !== 'undefined') {
@@ -425,6 +451,7 @@
         const itemsByCalendar = { ...existing.itemsByCalendar };
         const calId = change.payload?.calendar_id || change.payload?.cal_id;
         if (!calId && calId !== 0) return existing;
+        let pendingItem = null;
 
         if (!itemsByCalendar[calId]) itemsByCalendar[calId] = [];
 
@@ -468,52 +495,119 @@
                     item.item_id === change.client_temp_id
                 ) {
                     updated = true;
-                    return { ...item, ...normalized, pending: !connectivityState.online };
+                    const nextItem = {
+                        ...item,
+                        ...normalized,
+                        pending: change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online),
+                        last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
+                    };
+                    pendingItem = nextItem;
+                    return nextItem;
                 }
                 return item;
             });
             if (!updated) {
-                itemsByCalendar[calId].push({ ...normalized, pending: true });
+                const nextItem = {
+                    ...normalized,
+                    pending: true,
+                    last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
+                };
+                pendingItem = nextItem;
+                itemsByCalendar[calId].push(nextItem);
             }
         } else {
-            itemsByCalendar[calId].push({ ...normalized, pending: !connectivityState.online });
+            const nextItem = {
+                ...normalized,
+                pending: change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online),
+                last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
+            };
+            pendingItem = nextItem;
+            itemsByCalendar[calId].push(nextItem);
         }
 
         persistCachedState(calendars, itemsByCalendar);
-        return { calendars, itemsByCalendar };
+        return { calendars, itemsByCalendar, item: pendingItem || normalized, calendarId: calId };
     }
 
-    function enqueueChange(operation, payload) {
+    function upsertOutboxEntry(entry) {
         const outbox = readOutbox();
+        const idx = outbox.findIndex((e) => e.client_temp_id === entry.client_temp_id || e.item_id === entry.item_id);
+        const merged = {
+            status: 'pending',
+            last_error: null,
+            server_id: null,
+            ...entry
+        };
+        if (idx >= 0) {
+            outbox[idx] = { ...outbox[idx], ...merged };
+        } else {
+            outbox.push(merged);
+        }
+        persistOutbox(outbox);
+        return merged;
+    }
+
+    function removeOutboxEntryByClientId(clientTempId) {
+        persistOutbox(
+            readOutbox().filter(
+                (entry) => entry.client_temp_id !== clientTempId && entry.item_id !== clientTempId
+            )
+        );
+    }
+
+    function enqueueChange(operation, payload, options = {}) {
         const entry = {
             operation,
             payload,
             item_id: payload?.item_id || null,
             calendar_id: payload?.calendar_id || payload?.cal_id || null,
-            client_temp_id: payload?.client_temp_id || `tmp_${Date.now()}`,
+            client_temp_id: payload?.client_temp_id || payload?.item_id || `tmp_${Date.now()}`,
             queued_at: Date.now(),
-            last_error: null
+            status: options.status || 'pending',
+            last_error: options.last_error || null,
+            server_id: options.server_id || null
         };
-        outbox.push(entry);
-        persistOutbox(outbox);
-        applyLocalChange(entry);
-        return entry;
+        const stored = upsertOutboxEntry(entry);
+        if (options.applyLocalChange !== false) {
+            applyLocalChange(stored);
+        }
+        return stored;
     }
 
     async function flushOutbox() {
         const queue = readOutbox();
         if (!queue.length) return [];
         const remaining = [];
+        let hadSuccess = false;
         for (const entry of queue) {
+            if (entry.status === 'sent') continue;
             try {
-                await applyChangeToServer(entry);
+                if (entry.operation === 'delete') {
+                    await applyChangeToServer(entry);
+                    applyLocalChange({ ...entry, status: 'sent' });
+                    hadSuccess = true;
+                    continue;
+                }
+                const response = await applyChangeToServer(entry);
+                const serverItem = response?.item || response?.data || response;
+                const calId = entry.calendar_id || entry.payload?.calendar_id || entry.payload?.cal_id;
+                const serverId = response?.item_id || serverItem?.item_id || serverItem?.id || entry.item_id;
+                await reconcileServerItem(calId, entry.client_temp_id, serverItem || { ...entry.payload, item_id: serverId });
+                hadSuccess = true;
             } catch (err) {
                 console.warn('[sync-store] failed to flush entry', err);
-                remaining.push({ ...entry, last_error: err?.message || 'Unknown error' });
+                const errored = {
+                    ...entry,
+                    status: 'error',
+                    last_error: err?.message || 'Unknown error',
+                    error_at: Date.now()
+                };
+                applyLocalChange(errored);
+                remaining.push(errored);
             }
         }
         persistOutbox(remaining);
-        if (connectivityState.online && !remaining.length) {
+        if (connectivityState.online && hadSuccess) {
             await loadInitialState();
         }
         return remaining;
@@ -545,22 +639,103 @@
         return data;
     }
 
+    function reconcileServerItem(calId, clientTempId, serverItem) {
+        if (!calId && calId !== 0) return;
+        const cached = readCachedState() || { calendars: [], itemsByCalendar: {} };
+        const calendars = Array.isArray(cached.calendars) ? [...cached.calendars] : [];
+        const itemsByCalendar = { ...cached.itemsByCalendar };
+        const calendar = calendars.find((c) => Number(c.calendar_id) === Number(calId));
+        const normalized = normalizeItem(serverItem || {}, calendar, currentUser?.buwana_id);
+        const targetId = normalized.item_id || clientTempId;
+        const items = Array.isArray(itemsByCalendar[calId]) ? [...itemsByCalendar[calId]] : [];
+        let replaced = false;
+
+        const updatedItems = items.map((item) => {
+            if (
+                item.item_id === clientTempId ||
+                item.unique_key === clientTempId ||
+                item.item_id === targetId
+            ) {
+                replaced = true;
+                return {
+                    ...item,
+                    ...normalized,
+                    item_id: normalized.item_id || targetId,
+                    pending: false,
+                    last_error: null
+                };
+            }
+            return item;
+        });
+
+        if (!replaced) {
+            updatedItems.push({ ...normalized, pending: false, last_error: null });
+        }
+
+        itemsByCalendar[calId] = updatedItems;
+
+        const outbox = readOutbox();
+        const updatedOutbox = outbox
+            .map((entry) => {
+                if (entry.client_temp_id === clientTempId || entry.item_id === clientTempId) {
+                    return {
+                        ...entry,
+                        status: 'sent',
+                        server_id: normalized.item_id || entry.server_id || entry.item_id
+                    };
+                }
+                return entry;
+            })
+            .filter((entry) => entry.status !== 'sent');
+
+        persistCachedState(calendars, itemsByCalendar);
+        persistOutbox(updatedOutbox);
+    }
+
     async function createOrUpdateItem(payload) {
         const operation = payload?.item_id ? 'update' : 'create';
-        const online = await determineConnectivity();
-        if (!online) {
-            enqueueChange(operation === 'create' ? 'create' : 'update', payload);
-            return { ok: true, queued: true };
-        }
-        try {
-            await applyChangeToServer({ operation, payload, item_id: payload?.item_id });
-            await loadInitialState();
-            return { ok: true, queued: false };
-        } catch (err) {
-            console.warn('[sync-store] live create/update failed, queueing', err);
-            enqueueChange(operation === 'create' ? 'create' : 'update', { ...payload, last_error: err?.message });
-            return { ok: false, queued: true, error: err };
-        }
+        const clientTempId = payload?.client_temp_id || payload?.item_id || `tmp_${Date.now()}`;
+        const change = enqueueChange(
+            operation,
+            { ...payload, client_temp_id: clientTempId },
+            { applyLocalChange: false }
+        );
+        const pendingState = applyLocalChange(change);
+        const pendingItem = pendingState?.item;
+
+        (async () => {
+            const online = await determineConnectivity();
+            if (!online) return;
+            try {
+                const response = await applyChangeToServer({ ...change, item_id: payload?.item_id });
+                const serverItem = response?.item || response?.data || response;
+                const calId = payload?.calendar_id || payload?.cal_id || change.calendar_id;
+                const serverId = response?.item_id || serverItem?.item_id || serverItem?.id || payload?.item_id;
+                if (serverItem && (serverItem.item_id || serverItem.id || serverId)) {
+                    await reconcileServerItem(calId, clientTempId, serverItem || { ...payload, item_id: serverId });
+                } else {
+                    removeOutboxEntryByClientId(clientTempId);
+                    await loadInitialState();
+                }
+                notifyStatusListeners();
+            } catch (err) {
+                console.warn('[sync-store] live create/update failed, queueing', err);
+                const outboxEntry = {
+                    ...change,
+                    status: 'error',
+                    last_error: err?.message || 'Unknown error'
+                };
+                persistOutbox(
+                    readOutbox().map((entry) =>
+                        entry.client_temp_id === clientTempId ? outboxEntry : entry
+                    )
+                );
+                applyLocalChange(outboxEntry);
+                notifyStatusListeners();
+            }
+        })();
+
+        return { ok: true, queued: true, item: pendingItem, client_temp_id: clientTempId };
     }
 
     async function deleteItem(itemId, calendarId) {
@@ -577,7 +752,7 @@
             return { ok: true, queued: false };
         } catch (err) {
             console.warn('[sync-store] delete failed, queueing', err);
-            enqueueChange('delete', payload);
+            enqueueChange('delete', payload, { status: 'error', last_error: err?.message || 'Unknown error' });
             return { ok: false, queued: true, error: err };
         }
     }
@@ -585,7 +760,8 @@
     function onOnlineStatusChange(cb) {
         if (typeof cb === 'function') {
             statusListeners.push(cb);
-            cb({ ...connectivityState, pending: readOutbox().length });
+            const summary = summarizeOutbox(readOutbox());
+            cb({ ...connectivityState, pending: summary.pending, errors: summary.errors });
         }
         return () => {
             statusListeners = statusListeners.filter((fn) => fn !== cb);
@@ -593,7 +769,8 @@
     }
 
     function getStatus() {
-        return { ...connectivityState, pending: readOutbox().length };
+        const summary = summarizeOutbox(readOutbox());
+        return { ...connectivityState, pending: summary.pending, errors: summary.errors };
     }
 
     global.syncStore = {
