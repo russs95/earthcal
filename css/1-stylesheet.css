@@ -1112,6 +1112,12 @@ svg path[id*="december_3"] {
   opacity: 0.8;
 } */
 
+/* Speed up day hover responsiveness, especially on older browsers */
+path[id*='-day'] {
+  will-change: fill-opacity;
+  transition: fill-opacity 0.12s ease-out;
+}
+
 
 @media (min-width: 769px) {
 
@@ -1164,10 +1170,10 @@ svg path[id*="december_3"] {
   svg path[id*="-day"]:hover {
     fill-opacity: 0.6;
   }
-  
+
   /* Add a transition to the paths */
   path[id*='-day'] {
-    transition: fill-opacity 0.75s;
+    transition: fill-opacity 0.12s ease-out;
   }
 
   /* Set the active state of the paths HERE BABY!!*/
