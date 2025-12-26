@@ -1951,7 +1951,8 @@ async function addDatecycle() {
 
     const paddedMonth = String(monthField).padStart(2, '0');
     const paddedDay = String(dayField).padStart(2, '0');
-    const startLocal = `${yearField}-${paddedMonth}-${paddedDay} 00:00:00`;
+    const timeString = new Date().toTimeString().slice(0, 8);
+    const startLocal = `${yearField}-${paddedMonth}-${paddedDay} ${timeString}`;
     const tzid = getUserTimezone();
     const colorHex = resolveColorToHex(dateColorPicker);
 
@@ -1963,7 +1964,7 @@ async function addDatecycle() {
         start_local: startLocal,
         tzid,
         notes: addDateNote,
-        all_day: 1,
+        all_day: 0,
         pinned: false,
         emoji: '',
         color_hex: colorHex,
@@ -2483,7 +2484,6 @@ function fetchDateCycleCalendars() {
 //         lastSyncedDiv.innerHTML = `✅ ${calendarNames} was last synced on ${lastSyncTs}.`;
 //     }
 // }
-
 
 
 
