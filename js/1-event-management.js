@@ -2055,10 +2055,23 @@ async function addDatecycle() {
     const addDateNote = document.getElementById('add-date-note').value.trim();
     const dateColorPicker = document.getElementById('DateColorPicker').value;
 
+    // Mirror push2today: build a concrete Date using the chosen Y/M/D plus the current local time
+    const now = new Date();
+    const eventLocal = new Date(
+        yearField,
+        Number(monthField) - 1,
+        Number(dayField),
+        now.getHours(),
+        now.getMinutes(),
+        now.getSeconds()
+    );
+
+    const paddedMonth = String(eventLocal.getMonth() + 1).padStart(2, '0');
+    const paddedDay = String(eventLocal.getDate()).padStart(2, '0');
+    const timeString = eventLocal.toTimeString().slice(0, 8);
+    const startLocal = `${eventLocal.getFullYear()}-${paddedMonth}-${paddedDay} ${timeString}`;
     const paddedMonth = String(monthField).padStart(2, '0');
     const paddedDay = String(dayField).padStart(2, '0');
-    const timeString = new Date().toTimeString().slice(0, 8);
-    const startLocal = `${yearField}-${paddedMonth}-${paddedDay} ${timeString}`;
     const tzid = getUserTimezone();
     const dtstartUtc = formatUtcIso(zonedDateTimeToUtc(startLocal, tzid));
     const colorHex = resolveColorToHex(dateColorPicker);
