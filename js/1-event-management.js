@@ -89,6 +89,77 @@ function getUserTimezone() {
     }
 }
 
+function parseLocalDateTimeParts(raw) {
+    if (!raw) return null;
+    const sanitized = String(raw).trim().replace('T', ' ');
+    const match = sanitized.match(
+        /^(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/
+    );
+
+    if (!match) return null;
+
+    const [, year, month, day, hour = '0', minute = '0', second = '0'] = match;
+    return {
+        year: Number(year),
+        month: Number(month),
+        day: Number(day),
+        hour: Number(hour),
+        minute: Number(minute),
+        second: Number(second)
+    };
+}
+
+function getTimezoneOffsetMs(date, timeZone) {
+    try {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        const parts = formatter.formatToParts(date);
+        const filled = Object.fromEntries(parts.map(part => [part.type, part.value]));
+        const tzAsUtc = Date.UTC(
+            Number(filled.year),
+            Number(filled.month) - 1,
+            Number(filled.day),
+            Number(filled.hour),
+            Number(filled.minute),
+            Number(filled.second)
+        );
+        return tzAsUtc - date.getTime();
+    } catch (err) {
+        console.warn('Unable to compute timezone offset, defaulting to 0ms:', err);
+        return 0;
+    }
+}
+
+function zonedDateTimeToUtc(localDateTime, timeZone) {
+    const parts = parseLocalDateTimeParts(localDateTime);
+    if (!parts) return null;
+
+    const utcGuess = Date.UTC(
+        parts.year,
+        parts.month - 1,
+        parts.day,
+        parts.hour,
+        parts.minute,
+        parts.second
+    );
+    const utcDate = new Date(utcGuess);
+    const offset = getTimezoneOffsetMs(utcDate, timeZone);
+    return new Date(utcGuess - offset);
+}
+
+function formatUtcIso(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 async function callV1Api(endpoint, payload) {
     const url = `${EARTHCAL_V1_API_BASE}/${endpoint}`;
     const options = {
@@ -113,7 +184,29 @@ async function callV1Api(endpoint, payload) {
     return data;
 }
 
-function parseDateFromItem(dtstartUtc, tzid) {
+function parseDateFromItem(dtstartUtc, tzid, startLocal = null) {
+    const timeZone = tzid || 'Etc/UTC';
+
+    const formatFromParts = (parts) => {
+        if (!parts) return null;
+        const date = `${String(parts.year).padStart(4, '0')}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
+        const timeLabel = `${String(parts.hour ?? 0).padStart(2, '0')}:${String(parts.minute ?? 0).padStart(2, '0')}`;
+        return {
+            date,
+            timeLabel,
+            components: {
+                year: String(parts.year),
+                month: String(parts.month),
+                day: String(parts.day)
+            }
+        };
+    };
+
+    const startLocalParts = parseLocalDateTimeParts(startLocal);
+    if (startLocalParts) {
+        return formatFromParts(startLocalParts);
+    }
+
     if (!dtstartUtc) {
         return {
             date: null,
@@ -123,28 +216,33 @@ function parseDateFromItem(dtstartUtc, tzid) {
     }
 
     try {
-        const iso = dtstartUtc.endsWith('Z') ? dtstartUtc : `${dtstartUtc}Z`;
-        const startDate = new Date(iso);
+        const hasTzOffset = /[zZ]|[+-]\d{2}:?\d{2}$/.test(String(dtstartUtc));
+        const normalizedUtc = hasTzOffset ? dtstartUtc : `${dtstartUtc}Z`;
+        const startDate = new Date(normalizedUtc);
 
         if (Number.isNaN(startDate.getTime())) {
             throw new Error('Invalid start date');
         }
 
-        const year = startDate.getFullYear();
-        const month = startDate.getMonth() + 1;
-        const day = startDate.getDate();
-
-        const hours = startDate.getHours();
-        const minutes = startDate.getMinutes();
-        const timeLabel = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        const parts = formatter.formatToParts(startDate);
+        const filled = Object.fromEntries(parts.map(part => [part.type, part.value]));
         return {
-            date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
-            timeLabel,
+            date: `${filled.year}-${filled.month}-${filled.day}`,
+            timeLabel: `${filled.hour}:${filled.minute}`,
             components: {
-                year: String(year),
-                month: String(month),
-                day: String(day)
+                year: filled.year,
+                month: filled.month,
+                day: filled.day
             }
         };
     } catch (err) {
@@ -158,7 +256,11 @@ function parseDateFromItem(dtstartUtc, tzid) {
 }
 
 function normalizeV1Item(item, calendar, buwanaId) {
-    const { date, timeLabel, components } = parseDateFromItem(item.dtstart_utc, item.tzid);
+    const { date, timeLabel, components } = parseDateFromItem(
+        item.dtstart_utc,
+        item.tzid,
+        item.start_local || item.date
+    );
     const calendarColor = calendar.color || '#3b82f6';
     const providerLower = (calendar.provider || '').toString().toLowerCase();
     const calendarUrlLower = (calendar.url || '').toString().toLowerCase();
@@ -284,14 +386,16 @@ async function persistDateCycle(dateCycle, overrides = {}) {
         dateCycle.comment = sanitizedComments ? 1 : 0;
     }
 
+    const resolvedTzid = overrides.tzid || dateCycle.tzid || getUserTimezone();
+    const resolvedStartLocal = overrides.start_local || buildStartLocal({ ...dateCycle, ...overrides });
     const payload = {
         buwana_id,
         item_id: Number(dateCycle.item_id),
         calendar_id: Number(dateCycle.cal_id),
         summary: dateCycle.title,
         description: overrides.description !== undefined ? overrides.description : sanitizedComments,
-        start_local: buildStartLocal({ ...dateCycle, ...overrides }),
-        tzid: overrides.tzid || dateCycle.tzid || getUserTimezone(),
+        start_local: resolvedStartLocal,
+        tzid: resolvedTzid,
         pinned: overrides.pinned !== undefined ? Boolean(overrides.pinned) : Number(dateCycle.pinned) === 1,
         all_day: overrides.all_day !== undefined ? overrides.all_day : (dateCycle.all_day ? 1 : 0),
         color_hex: overrides.color_hex ? resolveColorToHex(overrides.color_hex) : resolveColorToHex(dateCycle.datecycle_color),
@@ -299,6 +403,11 @@ async function persistDateCycle(dateCycle, overrides = {}) {
         percent_complete: overrides.percent_complete !== undefined ? overrides.percent_complete : (Number(dateCycle.completed) === 1 ? 100 : 0),
         status: overrides.status || (Number(dateCycle.completed) === 1 ? 'COMPLETED' : 'NEEDS-ACTION')
     };
+
+    const computedDtstartUtc = formatUtcIso(zonedDateTimeToUtc(resolvedStartLocal, resolvedTzid));
+    if (computedDtstartUtc) {
+        payload.dtstart_utc = computedDtstartUtc;
+    }
 
     if (overrides.start_local) {
         payload.start_local = overrides.start_local;
@@ -1954,6 +2063,7 @@ async function addDatecycle() {
     const timeString = new Date().toTimeString().slice(0, 8);
     const startLocal = `${yearField}-${paddedMonth}-${paddedDay} ${timeString}`;
     const tzid = getUserTimezone();
+    const dtstartUtc = formatUtcIso(zonedDateTimeToUtc(startLocal, tzid));
     const colorHex = resolveColorToHex(dateColorPicker);
 
     const payload = {
@@ -1963,6 +2073,7 @@ async function addDatecycle() {
         item_kind: 'event',
         start_local: startLocal,
         tzid,
+        dtstart_utc: dtstartUtc || undefined,
         notes: addDateNote,
         all_day: 0,
         pinned: false,
@@ -2484,7 +2595,3 @@ function fetchDateCycleCalendars() {
 //         lastSyncedDiv.innerHTML = `✅ ${calendarNames} was last synced on ${lastSyncTs}.`;
 //     }
 // }
-
-
-
-
