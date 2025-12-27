@@ -186,26 +186,42 @@ async function callV1Api(endpoint, payload) {
 
 function parseDateFromItem(dtstartUtc, tzid, startLocal = null) {
     const timeZone = tzid || 'Etc/UTC';
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
 
-    const formatFromParts = (parts) => {
-        if (!parts) return null;
-        const date = `${String(parts.year).padStart(4, '0')}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
-        const timeLabel = `${String(parts.hour ?? 0).padStart(2, '0')}:${String(parts.minute ?? 0).padStart(2, '0')}`;
+    const formatWithTimezone = (dateObj) => {
+        const parts = formatter.formatToParts(dateObj);
+        const filled = Object.fromEntries(parts.map(part => [part.type, part.value]));
+        const date = `${filled.year}-${filled.month}-${filled.day}`;
+        const timeLabel = `${filled.hour}:${filled.minute}`;
         return {
             date,
             timeLabel,
             components: {
-                year: String(parts.year),
-                month: String(parts.month),
-                day: String(parts.day)
+                year: filled.year,
+                month: filled.month,
+                day: filled.day
             }
         };
     };
 
-    const startLocalParts = parseLocalDateTimeParts(startLocal);
-    if (startLocalParts) {
-        return formatFromParts(startLocalParts);
-    }
+    const tryStartLocal = () => {
+        if (!startLocal) return null;
+        const utcDate = zonedDateTimeToUtc(startLocal, timeZone);
+        if (!utcDate) return null;
+        return formatWithTimezone(utcDate);
+    };
+
+    const fromStartLocal = tryStartLocal();
+    if (fromStartLocal) return fromStartLocal;
 
     if (!dtstartUtc) {
         return {
@@ -217,34 +233,15 @@ function parseDateFromItem(dtstartUtc, tzid, startLocal = null) {
 
     try {
         const hasTzOffset = /[zZ]|[+-]\d{2}:?\d{2}$/.test(String(dtstartUtc));
-        const normalizedUtc = hasTzOffset ? dtstartUtc : `${dtstartUtc}Z`;
-        const startDate = new Date(normalizedUtc);
+        const startDate = hasTzOffset
+            ? new Date(dtstartUtc)
+            : zonedDateTimeToUtc(dtstartUtc, timeZone) || new Date(dtstartUtc);
 
         if (Number.isNaN(startDate.getTime())) {
             throw new Error('Invalid start date');
         }
 
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-        const parts = formatter.formatToParts(startDate);
-        const filled = Object.fromEntries(parts.map(part => [part.type, part.value]));
-        return {
-            date: `${filled.year}-${filled.month}-${filled.day}`,
-            timeLabel: `${filled.hour}:${filled.minute}`,
-            components: {
-                year: filled.year,
-                month: filled.month,
-                day: filled.day
-            }
-        };
+        return formatWithTimezone(startDate);
     } catch (err) {
         console.warn('parseDateFromItem failed:', dtstartUtc, tzid, err);
         return {
