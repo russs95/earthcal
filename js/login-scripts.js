@@ -2652,6 +2652,7 @@ function configureOfflineModeButton({ visible = false, onClick = null } = {}) {
         return;
     }
 
+    offlineButton.textContent = "Continue in Offline Mode";
     offlineButton.style.display = visible ? 'block' : 'none';
     offlineButton.onclick = onClick;
 }
@@ -2799,7 +2800,6 @@ async function sendUpRegistration() {
             const emoji = cachedProfile?.earthling_emoji
                 || cachedProfile?.["buwana:earthlingEmoji"]
                 || "🌱";
-            const firstName = cachedProfile?.first_name || cachedProfile?.given_name || "Earthling";
             const formattedTotal = new Intl.NumberFormat().format(Math.max(0, totalDateItems || 0));
 
             setRegistrationFooterBackground('login');
@@ -2807,8 +2807,8 @@ async function sendUpRegistration() {
             loggedInView.style.display = "none";
 
             setLoginViewCopy(
-                `Welcome back ${firstName}`,
-                `You're currently logged out, and Earthcal is using your ${formattedTotal} cached dates and cycle data. Login again with your Buwana credentials to sync with your Earthcal account.`
+                "You're in offline mode",
+                `Earthcal is using your ${formattedTotal} cached dates and cycle data. Login again with your Buwana credentials to sync with your Earthcal account.`
             );
 
             if (loginButton) {
@@ -2817,8 +2817,7 @@ async function sendUpRegistration() {
             }
 
             if (signupButton) {
-                signupButton.textContent = "Sign up";
-                signupButton.style.display = 'block';
+                signupButton.style.display = 'none';
             }
 
             configureOfflineModeButton({
@@ -4075,8 +4074,6 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
-
 
 
 
