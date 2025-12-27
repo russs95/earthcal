@@ -24,14 +24,14 @@ function setLunarMonthForTarget(targetDate, currentYear) {
 
     // Select the appropriate lunar month div
     const pathElement = document.getElementById(pathID);
-    if (pathElement) {
-        // Add the solar month name class to the lunar div
-        pathElement.classList.add(targetMonthName);
-        // Set the opacity of the specified lunarmonth-12 div to 1
-
-    } else {
-        console.error("Path not found:", pathID);
+    if (!pathElement) {
+        // FIX LUNAR MONTH DISPLAY FOR 14-lunarmonth-12
+        return;
     }
+
+    // Add the solar month name class to the lunar div
+    pathElement.classList.add(targetMonthName);
+    // Set the opacity of the specified lunarmonth-12 div to 1
 }
 
 
