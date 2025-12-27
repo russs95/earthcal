@@ -2070,8 +2070,6 @@ async function addDatecycle() {
     const paddedDay = String(eventLocal.getDate()).padStart(2, '0');
     const timeString = eventLocal.toTimeString().slice(0, 8);
     const startLocal = `${eventLocal.getFullYear()}-${paddedMonth}-${paddedDay} ${timeString}`;
-    const paddedMonth = String(monthField).padStart(2, '0');
-    const paddedDay = String(dayField).padStart(2, '0');
     const tzid = getUserTimezone();
     const dtstartUtc = formatUtcIso(zonedDateTimeToUtc(startLocal, tzid));
     const colorHex = resolveColorToHex(dateColorPicker);
