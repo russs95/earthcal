@@ -223,7 +223,21 @@ function parseDateFromItem(dtstartUtc, tzid, startLocal = null) {
     const fromStartLocal = tryStartLocal();
     if (fromStartLocal) return fromStartLocal;
 
-    if (!dtstartUtc) {
+    const parseUtcDate = (raw) => {
+        if (!raw) return null;
+        const normalized = String(raw).trim();
+        if (!normalized) return null;
+
+        const hasTzOffset = /[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized);
+        const isoCandidate = normalized.includes('T') ? normalized : normalized.replace(' ', 'T');
+        const finalIso = hasTzOffset ? isoCandidate : `${isoCandidate}Z`;
+        const parsed = new Date(finalIso);
+
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    const utcDate = parseUtcDate(dtstartUtc);
+    if (!utcDate) {
         return {
             date: null,
             timeLabel: null,
@@ -231,25 +245,7 @@ function parseDateFromItem(dtstartUtc, tzid, startLocal = null) {
         };
     }
 
-    try {
-        const hasTzOffset = /[zZ]|[+-]\d{2}:?\d{2}$/.test(String(dtstartUtc));
-        const startDate = hasTzOffset
-            ? new Date(dtstartUtc)
-            : zonedDateTimeToUtc(dtstartUtc, timeZone) || new Date(dtstartUtc);
-
-        if (Number.isNaN(startDate.getTime())) {
-            throw new Error('Invalid start date');
-        }
-
-        return formatWithTimezone(startDate);
-    } catch (err) {
-        console.warn('parseDateFromItem failed:', dtstartUtc, tzid, err);
-        return {
-            date: null,
-            timeLabel: null,
-            components: { year: null, month: null, day: null }
-        };
-    }
+    return formatWithTimezone(utcDate);
 }
 
 function normalizeV1Item(item, calendar, buwanaId) {
