@@ -770,41 +770,12 @@
         const pendingState = applyLocalChange(change);
         const pendingItem = pendingState?.item;
 
-        (async () => {
-            const online = await determineConnectivity();
-            if (!online) return;
-            try {
-                const response = await applyChangeToServer({ ...change, item_id: payload?.item_id });
-                const serverItem = response?.item || response?.data || response;
-                const calId = payload?.calendar_id || payload?.cal_id || change.calendar_id;
-                const serverId = response?.item_id || serverItem?.item_id || serverItem?.id || payload?.item_id;
-                if (serverItem && (serverItem.item_id || serverItem.id || serverId)) {
-                    await reconcileServerItem(calId, clientTempId, serverItem || { ...payload, item_id: serverId });
-                } else {
-                    removeOutboxEntryByClientId(clientTempId);
-                    await loadInitialState();
-                }
-                const summary = summarizeOutbox(readOutbox());
-                if (operation === 'create' && connectivityState.online && summary.pending === 0 && summary.errors === 0) {
-                    await loadInitialState();
-                }
-                notifyStatusListeners();
-            } catch (err) {
-                console.warn('[sync-store] live create/update failed, queueing', err);
-                const outboxEntry = {
-                    ...change,
-                    status: 'error',
-                    last_error: err?.message || 'Unknown error'
-                };
-                persistOutbox(
-                    readOutbox().map((entry) =>
-                        entry.client_temp_id === clientTempId ? outboxEntry : entry
-                    )
-                );
-                applyLocalChange(outboxEntry);
-                notifyStatusListeners();
-            }
-        })();
+        const online = await determineConnectivity();
+        if (online) {
+            flushOutbox().catch((err) => console.warn('[sync-store] async flush failed', err));
+        }
+
+        notifyStatusListeners();
 
         return { ok: true, queued: true, item: pendingItem, client_temp_id: clientTempId };
     }
