@@ -35,11 +35,51 @@ async function ensureSyncStoreReady(buwanaId) {
     }
     try {
         await window.syncStore.initSyncStore({ buwana_id: Number(buwanaId) });
+        subscribeToSyncStatusUpdates();
         return true;
     } catch (err) {
         console.warn('[sync-store] init failed in event-management', err);
         return false;
     }
+}
+
+let syncStatusUnsubscribe = null;
+let lastPendingCount = null;
+
+function subscribeToSyncStatusUpdates() {
+    if (!window.syncStore?.onOnlineStatusChange || syncStatusUnsubscribe) {
+        return;
+    }
+
+    if (typeof window.syncStore.getStatus === 'function') {
+        const current = window.syncStore.getStatus() || {};
+        if (current.pending !== undefined) {
+            lastPendingCount = Number(current.pending);
+        }
+    }
+
+    syncStatusUnsubscribe = window.syncStore.onOnlineStatusChange((status = {}) => {
+        const pendingCount = Number(status.pending ?? 0);
+        const normalizedPending = Number.isFinite(pendingCount) ? pendingCount : 0;
+        const pendingChanged = normalizedPending !== lastPendingCount;
+        lastPendingCount = normalizedPending;
+
+        if (
+            pendingChanged &&
+            typeof highlightDateCycles === 'function' &&
+            typeof targetDate !== 'undefined' &&
+            targetDate instanceof Date
+        ) {
+            highlightDateCycles(targetDate);
+        }
+    });
+}
+
+function refreshCurrentHighlights() {
+    if (typeof targetDate === 'undefined') {
+        return Promise.resolve();
+    }
+    return highlightDateCycles(targetDate);
 }
 
 function getActiveUserContext() {
@@ -333,6 +373,28 @@ function findDateCycleInStorage(uniqueKey) {
         }
     }
     return null;
+}
+
+function updateDateCycleRecord(uniqueKey, updater) {
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) return null;
+
+    const updatedDateCycle = typeof updater === 'function'
+        ? updater(record.dateCycle)
+        : { ...record.dateCycle, ...updater };
+
+    if (!updatedDateCycle) return null;
+
+    const updatedCalendarData = [...record.calendarData];
+    updatedCalendarData[record.index] = updatedDateCycle;
+
+    try {
+        localStorage.setItem(record.calendarKey, JSON.stringify(updatedCalendarData));
+    } catch (err) {
+        console.warn(`[updateDateCycleRecord] Unable to persist changes for ${record.calendarKey}`, err);
+    }
+
+    return updatedDateCycle;
 }
 
 function buildStartLocal(dateCycle) {
@@ -1375,34 +1437,43 @@ async function checkOffDatecycle(uniqueKey) {
     }
 
     const wasCompleted = Number(record.dateCycle.completed) === 1;
-    const updatedDateCycle = {
-        ...record.dateCycle,
+    const updatedDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
+        ...existing,
         completed: wasCompleted ? '0' : '1',
-        last_edited: new Date().toISOString()
-    };
+        last_edited: new Date().toISOString(),
+        pending: true
+    }));
+
+    if (!updatedDateCycle) {
+        console.warn(`Unable to update dateCycle locally for ${uniqueKey}`);
+        return;
+    }
 
     const overrides = {
         percent_complete: updatedDateCycle.completed === '1' ? 100 : 0,
         status: updatedDateCycle.completed === '1' ? 'COMPLETED' : 'NEEDS-ACTION'
     };
 
+    await refreshCurrentHighlights();
+
     try {
         await updateServerDateCycle(updatedDateCycle, overrides);
-        await syncDatecycles();
 
         const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
         if (updatedDateCycle.completed === '1' && dateCycleDiv) {
             dateCycleDiv.classList.add('celebrate-animation');
             setTimeout(() => {
                 dateCycleDiv.classList.remove('celebrate-animation');
-                highlightDateCycles(targetDate);
+                refreshCurrentHighlights();
             }, 500);
         } else {
-            highlightDateCycles(targetDate);
+            await refreshCurrentHighlights();
         }
 
         console.log(`✅ Server updated completion for ${updatedDateCycle.title}`);
     } catch (error) {
+        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+        await refreshCurrentHighlights();
         console.error(`⚠️ Server update failed for ${updatedDateCycle.title}`, error);
         alert('Unable to update completion status right now. Please try again later.');
     }
@@ -1627,21 +1698,30 @@ async function push2today(uniqueKey) {
         return;
     }
 
-    const updatedDateCycle = {
-        ...record.dateCycle,
+    const updatedDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
+        ...existing,
         year,
         month,
         day,
         date: formattedDate,
-        last_edited: today.toISOString()
-    };
+        last_edited: today.toISOString(),
+        pending: true
+    }));
+
+    if (!updatedDateCycle) {
+        console.warn(`Unable to mark ${uniqueKey} as pending for push to today.`);
+        return;
+    }
+
+    await refreshCurrentHighlights();
 
     try {
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
-        await syncDatecycles();
-        await highlightDateCycles(targetDate);
+        await refreshCurrentHighlights();
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
+        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+        await refreshCurrentHighlights();
         console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
         alert('Unable to push this event to today right now. Please try again later.');
     }
@@ -1672,6 +1752,16 @@ async function deleteDateCycle(uniqueKey) {
         return;
     }
 
+    const pendingDeletion = updateDateCycleRecord(uniqueKey, (existing) => ({
+        ...existing,
+        pending: true,
+        last_edited: new Date().toISOString()
+    }));
+
+    if (pendingDeletion) {
+        await refreshCurrentHighlights();
+    }
+
     try {
         const usedSyncStore = await ensureSyncStoreReady(buwana_id);
         if (usedSyncStore) {
@@ -1681,11 +1771,23 @@ async function deleteDateCycle(uniqueKey) {
                 buwana_id,
                 item_id: Number(record.dateCycle.item_id)
             });
+            if (record?.calendarKey) {
+                const updatedCalendarData = [...record.calendarData];
+                updatedCalendarData.splice(record.index, 1);
+                try {
+                    localStorage.setItem(record.calendarKey, JSON.stringify(updatedCalendarData));
+                } catch (err) {
+                    console.warn(`[deleteDateCycle] Unable to remove ${uniqueKey} from ${record.calendarKey}`, err);
+                }
+            }
         }
-        await syncDatecycles();
-        highlightDateCycles(targetDate);
+        await refreshCurrentHighlights();
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
     } catch (error) {
+        if (pendingDeletion) {
+            updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+            await refreshCurrentHighlights();
+        }
         console.error('Error deleting dateCycle from the server:', error);
         alert('An error occurred while deleting this event. Please try again later.');
     }
