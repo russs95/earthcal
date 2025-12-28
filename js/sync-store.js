@@ -200,8 +200,55 @@
             return formatUtcIso(utcDate);
         };
 
+        const localizedFromUtc = (() => {
+            if (!item?.dtstart_utc) return null;
+            const normalizedUtc = String(item.dtstart_utc).trim();
+            if (!normalizedUtc) return null;
+
+            const hasTzOffset = /[zZ]|[+-]\d{2}:?\d{2}$/.test(normalizedUtc);
+            const isoCandidate = normalizedUtc.includes('T')
+                ? normalizedUtc
+                : normalizedUtc.replace(' ', 'T');
+            const finalIso = hasTzOffset ? isoCandidate : `${isoCandidate}Z`;
+            const parsed = new Date(finalIso);
+            if (Number.isNaN(parsed.getTime())) return null;
+
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                const parts = formatter.formatToParts(parsed);
+                const filled = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+                return {
+                    datePart: `${filled.year}-${filled.month}-${filled.day}`,
+                    year: Number(filled.year),
+                    month: Number(filled.month),
+                    day: Number(filled.day),
+                    timePart: `${filled.hour}:${filled.minute}`
+                };
+            } catch (err) {
+                console.warn('[sync-store] unable to localize dtstart_utc', err);
+                return null;
+            }
+        })();
+
         const parseDateParts = () => {
-            const rawDate = item.start_local || item.dtstart_utc || item.date || '';
+            const preferLocalized = !item?.start_local && !item?.date;
+            const rawDate =
+                item.start_local ||
+                item.date ||
+                (preferLocalized && localizedFromUtc?.datePart
+                    ? `${localizedFromUtc.datePart} ${localizedFromUtc.timePart || ''}`.trim()
+                    : null) ||
+                item.dtstart_utc ||
+                '';
             const sanitized = String(rawDate).trim().replace('T', ' ');
             const firstToken = sanitized.split(' ')[0];
             const explicitParts = [item.year, item.month, item.day].map(Number);
@@ -221,11 +268,33 @@
                 datePart = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             }
 
-            return { datePart, year, month, day };
+            if (!datePart && localizedFromUtc?.datePart) {
+                datePart = localizedFromUtc.datePart;
+            }
+            if (!Number.isFinite(year) && Number.isFinite(localizedFromUtc?.year)) {
+                year = localizedFromUtc.year;
+            }
+            if (!Number.isFinite(month) && Number.isFinite(localizedFromUtc?.month)) {
+                month = localizedFromUtc.month;
+            }
+            if (!Number.isFinite(day) && Number.isFinite(localizedFromUtc?.day)) {
+                day = localizedFromUtc.day;
+            }
+
+            return {
+                datePart,
+                year,
+                month,
+                day,
+                timeOverride: preferLocalized ? localizedFromUtc?.timePart || null : null
+            };
         };
 
-        const { datePart, year, month, day } = parseDateParts();
+        const { datePart, year, month, day, timeOverride } = parseDateParts();
         const timeLabel = (() => {
+            if (timeOverride) {
+                return timeOverride.slice(0, 5);
+            }
             const rawDate = item.start_local || item.dtstart_utc || item.date || '';
             const timePart = String(rawDate).trim().replace('T', ' ').split(' ')[1] || item.time;
             const safeTime = (timePart || '00:00').slice(0, 5);
