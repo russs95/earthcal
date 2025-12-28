@@ -1199,6 +1199,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const eventName = dateCycle.title || "Untitled Event";
     const bulletColor = mapColor(dateCycle.datecycle_color);
     const calendarColor = mapColor(dateCycle.cal_color);
+    const isPendingSync = dateCycle.pending === true || String(dateCycle.pending) === 'true';
+    const dateInfoBorder = isPendingSync ? '1px dashed grey' : '1px solid grey';
 
     const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
@@ -1225,12 +1227,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
             display: flex;
             align-items: center;
             padding: 16px;
-            border: 1px solid grey;
+            border: ${dateInfoBorder};
             margin-bottom: 10px;
             border-radius: 8px;
             position: relative;
             min-height: 75px;
-            direction: ltr;">
+            direction: ltr;"
+            ${isPendingSync ? 'title="Pending sync with server..."' : ''}>
             
             <!-- Bullet Column -->
             <div class="bullet-column" style="max-width: 12px; margin-right: 12px; margin-bottom: auto; margin-left: -8px;">
