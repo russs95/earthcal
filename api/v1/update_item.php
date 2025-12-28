@@ -2,28 +2,69 @@
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 
+/* ============================================================
+   EARTHCAL v1 APIS  | update_item.php
+   Updates an existing To-Do / Event / Journal entry for a user.
+   ------------------------------------------------------------
+   Expected JSON Payload:
+   {
+     "buwana_id": 123,
+     "item_id": 987,
+     "summary": "Updated title",
+     "description": "Optional notes",
+     "tzid": "America/Los_Angeles",
+     "start_local": "2025-05-01 09:00:00",
+     "pinned": true,
+     "emoji": "🗒️",
+     "color_hex": "#3b82f6",
+     "all_day": false,
+     "percent_complete": 50,
+     "status": "IN-PROCESS"
+   }
+   ------------------------------------------------------------
+   Successful Response:
+   {
+     "ok": true,
+     "item_id": 987,
+     "updated": ["summary", "description", ...],
+     "item": { ... refreshed DB row ... }
+   }
+   ============================================================ */
+
+// -------------------------------------------------------------
+// 0. Earthcal.app server-based APIs CORS Setup
+// -------------------------------------------------------------
 $allowed_origins = [
     'https://earthcal.app',
+    'https://beta.earthcal.app',
     // EarthCal desktop / local dev:
     'http://127.0.0.1:3000',
     'http://localhost:3000',
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin && in_array(rtrim($origin, '/'), $allowed_origins, true)) {
-    header('Access-Control-Allow-Origin: ' . rtrim($origin, '/'));
-} elseif ($origin === '' || $origin === null) {
-    header('Access-Control-Allow-Origin: *');
-} else {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'error' => 'cors_denied']);
-    exit;
-}
+// If this is a CORS request (Origin header present)…
+if ($origin !== '') {
+    $normalized_origin = rtrim($origin, '/');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    exit(0);
+    if (in_array($normalized_origin, $allowed_origins, true)) {
+        header('Access-Control-Allow-Origin: ' . $normalized_origin);
+        header('Vary: Origin'); // best practice
+    } else {
+        // Explicitly reject unknown web origins
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'cors_denied']);
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        exit(0);
+    }
+} else {
+    // No Origin header (e.g. curl, server-side) – no CORS needed
+    // You can leave this branch empty or add minimal headers if you like.
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,6 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// -------------------------------------------------------------
+// 1. Parse & validate input
+// -------------------------------------------------------------
 $raw = file_get_contents('php://input');
 $data = json_decode($raw ?: '[]', true);
 if (!is_array($data)) {
@@ -48,6 +92,9 @@ if (!$buwanaId || !$itemId) {
 
 require_once __DIR__ . '/../pdo_connect.php';
 
+// -------------------------------------------------------------
+// 2. Helpers
+// -------------------------------------------------------------
 function toUtc(string $local, string $tzid): string {
     try {
         $tz = new DateTimeZone($tzid ?: 'Etc/UTC');
@@ -59,6 +106,9 @@ function toUtc(string $local, string $tzid): string {
     return $dt->format('Y-m-d H:i:s');
 }
 
+// -------------------------------------------------------------
+// 3. Authorize + update item
+// -------------------------------------------------------------
 try {
     $pdo = earthcal_get_pdo();
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
