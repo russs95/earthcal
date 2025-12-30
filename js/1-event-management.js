@@ -936,12 +936,6 @@ async function highlightDateCycles(targetDate) {
     // Separate matching dateCycles based on the target date and pin status.
     let matchingPinned = [];
     let matchingCurrent = [];
-    const now = new Date();
-
-    function wasEditedRecently(dateCycle) {
-        const lastEdited = new Date(dateCycle.last_edited);
-        return (now - lastEdited) < 60000; // Edited within the last 60 seconds
-    }
 
     dateCycleEvents.forEach(dateCycle => {
         const storedDateFormatted = `-${dateCycle.day}-${dateCycle.month}-${dateCycle.year}`;
@@ -990,15 +984,6 @@ async function highlightDateCycles(targetDate) {
     matchingPinned.forEach(dc => {
         if (pinnedDiv) {
             writeMatchingDateCycles(pinnedDiv, dc);
-            if (wasEditedRecently(dc)) {
-                const elem = pinnedDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
-                if (elem) {
-                    elem.classList.add("slide-in-left");
-                    setTimeout(() => {
-                        elem.classList.remove("slide-in-left");
-                    }, 500);
-                }
-            }
         }
     });
 
@@ -1006,15 +991,6 @@ async function highlightDateCycles(targetDate) {
     matchingCurrent.forEach(dc => {
         if (currentDiv) {
             writeMatchingDateCycles(currentDiv, dc);
-            if (wasEditedRecently(dc)) {
-                const elem = currentDiv.querySelector(`.date-info[data-key="${dc.unique_key}"]`);
-                if (elem) {
-                    elem.classList.add("slide-in-left");
-                    setTimeout(() => {
-                        elem.classList.remove("slide-in-left");
-                    }, 500);
-                }
-            }
         }
     });
 
