@@ -45,6 +45,31 @@ async function ensureSyncStoreReady(buwanaId) {
 
 let syncStatusUnsubscribe = null;
 let lastPendingCount = null;
+let lastOnlineState = null;
+let latestConnectivityStatus = {
+    online: navigator.onLine,
+    backendReachable: navigator.onLine,
+    forcedOffline: false
+};
+
+function updateConnectivitySnapshot(status = {}) {
+    latestConnectivityStatus = {
+        ...latestConnectivityStatus,
+        ...(status.online !== undefined ? { online: Boolean(status.online) } : {}),
+        ...(status.backendReachable !== undefined ? { backendReachable: Boolean(status.backendReachable) } : {}),
+        ...(status.forcedOffline !== undefined ? { forcedOffline: Boolean(status.forcedOffline) } : {})
+    };
+}
+
+function isDateCycleOnline() {
+    if (latestConnectivityStatus.forcedOffline) {
+        return false;
+    }
+    if (latestConnectivityStatus.online !== undefined || latestConnectivityStatus.backendReachable !== undefined) {
+        return Boolean(latestConnectivityStatus.online && (latestConnectivityStatus.backendReachable ?? true));
+    }
+    return navigator.onLine;
+}
 
 function subscribeToSyncStatusUpdates() {
     if (!window.syncStore?.onOnlineStatusChange || syncStatusUnsubscribe) {
@@ -53,9 +78,11 @@ function subscribeToSyncStatusUpdates() {
 
     if (typeof window.syncStore.getStatus === 'function') {
         const current = window.syncStore.getStatus() || {};
+        updateConnectivitySnapshot(current);
         if (current.pending !== undefined) {
             lastPendingCount = Number(current.pending);
         }
+        lastOnlineState = isDateCycleOnline();
     }
 
     syncStatusUnsubscribe = window.syncStore.onOnlineStatusChange((status = {}) => {
@@ -64,8 +91,14 @@ function subscribeToSyncStatusUpdates() {
         const pendingChanged = normalizedPending !== lastPendingCount;
         lastPendingCount = normalizedPending;
 
+        const previousOnlineState = lastOnlineState;
+        updateConnectivitySnapshot(status);
+        const effectiveOnline = isDateCycleOnline();
+        const onlineChanged = previousOnlineState !== null && effectiveOnline !== previousOnlineState;
+        lastOnlineState = effectiveOnline;
+
         if (
-            pendingChanged &&
+            (pendingChanged || onlineChanged) &&
             typeof highlightDateCycles === 'function' &&
             typeof targetDate !== 'undefined' &&
             targetDate instanceof Date
@@ -1238,7 +1271,13 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const bulletColor = mapColor(dateCycle.datecycle_color);
     const calendarColor = mapColor(dateCycle.cal_color);
     const isPendingSync = dateCycle.pending === true || String(dateCycle.pending) === 'true';
-    const dateInfoBorder = isPendingSync ? '1px dashed grey' : '1px solid grey';
+    const pendingOnline = isPendingSync && isDateCycleOnline();
+    const dateInfoBorder = isPendingSync
+        ? (pendingOnline ? '1px solid #dcdcdc' : '1px dashed grey')
+        : '1px solid grey';
+    const pendingClass = isPendingSync
+        ? (pendingOnline ? 'pending-sync-online' : 'pending-sync-offline')
+        : '';
 
     const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
@@ -1261,7 +1300,7 @@ function writeMatchingDateCycles(divElement, dateCycle) {
         : '';
 
     divElement.innerHTML += `
-        <div class="date-info" data-key="${dateCycle.unique_key}" style="
+        <div class="date-info ${pendingClass}" data-key="${dateCycle.unique_key}" style="
             display: flex;
             align-items: center;
             padding: 16px;
