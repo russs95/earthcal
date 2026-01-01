@@ -513,15 +513,21 @@ async function persistDateCycle(dateCycle, overrides = {}) {
         }
     });
 
+    const pendingAction = overrides.pending_action || dateCycle.pending_action;
+
     if (await ensureSyncStoreReady(buwana_id)) {
-        const result = await window.syncStore.createOrUpdateItem(payload);
+        const result = await window.syncStore.createOrUpdateItem({
+            ...payload,
+            pending_action: pendingAction
+        });
         if (result?.queued) {
             console.info('[persistDateCycle] change queued for sync');
         }
         return result;
     }
 
-    return await callV1Api('update_item.php', payload);
+    const { pending_action, ...safePayload } = payload;
+    return await callV1Api('update_item.php', safePayload);
 }
 
 
@@ -1272,12 +1278,23 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const calendarColor = mapColor(dateCycle.cal_color);
     const isPendingSync = dateCycle.pending === true || String(dateCycle.pending) === 'true';
     const pendingOnline = isPendingSync && isDateCycleOnline();
-    const dateInfoBorder = isPendingSync
-        ? (pendingOnline ? '1px solid #dcdcdc' : '1px dashed grey')
-        : '1px solid grey';
-    const pendingClass = isPendingSync
-        ? (pendingOnline ? 'pending-sync-online' : 'pending-sync-offline')
+    const pendingAction = isPendingSync
+        ? (dateCycle.pending_action || (dateCycle.item_id ? 'update' : 'create'))
         : '';
+    const pendingIndicatorClass = (() => {
+        if (!isPendingSync) return '';
+        if (pendingAction === 'delete') return 'pending-delete';
+        if (pendingAction === 'complete') return 'pending-complete';
+        if (pendingAction === 'create') return 'pending-create';
+        return 'pending-generic';
+    })();
+    const pendingIndicator = isPendingSync
+        ? `<div class="pending-indicator ${pendingIndicatorClass}"></div>`
+        : '';
+    const dateInfoBorder = isPendingSync
+        ? (pendingOnline ? '1px solid grey' : '1px dashed grey')
+        : '1px solid grey';
+    const pendingClass = '';
 
     const eventNameStyle = Number(dateCycle.completed) === 1
         ? "text-decoration: line-through; color: grey;"
@@ -1378,6 +1395,8 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                     ✔
                 </button>
             </div>
+
+            ${pendingIndicator}
         </div>
     `;
 }
@@ -1456,7 +1475,8 @@ async function checkOffDatecycle(uniqueKey) {
         ...existing,
         completed: wasCompleted ? '0' : '1',
         last_edited: new Date().toISOString(),
-        pending: true
+        pending: true,
+        pending_action: wasCompleted ? 'update' : 'complete'
     }));
 
     if (!updatedDateCycle) {
@@ -1466,28 +1486,30 @@ async function checkOffDatecycle(uniqueKey) {
 
     const overrides = {
         percent_complete: updatedDateCycle.completed === '1' ? 100 : 0,
-        status: updatedDateCycle.completed === '1' ? 'COMPLETED' : 'NEEDS-ACTION'
+        status: updatedDateCycle.completed === '1' ? 'COMPLETED' : 'NEEDS-ACTION',
+        pending_action: updatedDateCycle.completed === '1' ? 'complete' : 'update'
     };
 
     await refreshCurrentHighlights();
 
-    try {
-        await updateServerDateCycle(updatedDateCycle, overrides);
-
+    if (!wasCompleted) {
         const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
-        if (updatedDateCycle.completed === '1' && dateCycleDiv) {
+        if (dateCycleDiv) {
             dateCycleDiv.classList.add('celebrate-animation');
             setTimeout(() => {
                 dateCycleDiv.classList.remove('celebrate-animation');
-                refreshCurrentHighlights();
             }, 500);
-        } else {
-            await refreshCurrentHighlights();
         }
+    }
+
+    try {
+        await updateServerDateCycle(updatedDateCycle, overrides);
+
+        await refreshCurrentHighlights();
 
         console.log(`✅ Server updated completion for ${updatedDateCycle.title}`);
     } catch (error) {
-        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
         await refreshCurrentHighlights();
         console.error(`⚠️ Server update failed for ${updatedDateCycle.title}`, error);
         alert('Unable to update completion status right now. Please try again later.');
@@ -1720,7 +1742,8 @@ async function push2today(uniqueKey) {
         day,
         date: formattedDate,
         last_edited: today.toISOString(),
-        pending: true
+        pending: true,
+        pending_action: 'update'
     }));
 
     if (!updatedDateCycle) {
@@ -1731,11 +1754,11 @@ async function push2today(uniqueKey) {
     await refreshCurrentHighlights();
 
     try {
-        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}` });
+        await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
         await refreshCurrentHighlights();
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
-        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
         await refreshCurrentHighlights();
         console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
         alert('Unable to push this event to today right now. Please try again later.');
@@ -1770,6 +1793,7 @@ async function deleteDateCycle(uniqueKey) {
     const pendingDeletion = updateDateCycleRecord(uniqueKey, (existing) => ({
         ...existing,
         pending: true,
+        pending_action: 'delete',
         last_edited: new Date().toISOString()
     }));
 
@@ -1800,7 +1824,7 @@ async function deleteDateCycle(uniqueKey) {
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
     } catch (error) {
         if (pendingDeletion) {
-            updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false });
+            updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
             await refreshCurrentHighlights();
         }
         console.error('Error deleting dateCycle from the server:', error);
@@ -2209,7 +2233,7 @@ async function addDatecycle() {
     try {
         const usedSyncStore = await ensureSyncStoreReady(resolvedBuwanaId);
         if (usedSyncStore) {
-            await window.syncStore.createOrUpdateItem(payload);
+            await window.syncStore.createOrUpdateItem({ ...payload, pending_action: 'create' });
         } else {
             await callV1Api('add_item.php', payload);
         }

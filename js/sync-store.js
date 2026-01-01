@@ -623,6 +623,8 @@
                 );
             });
         } else if (change.operation === 'update') {
+            const pendingFlag = change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online);
+            const pendingAction = change.payload?.pending_action || change.pending_action || 'update';
             let updated = false;
             itemsByCalendar[calId] = itemsByCalendar[calId].map((item) => {
                 if (
@@ -634,7 +636,8 @@
                     const nextItem = {
                         ...item,
                         ...normalized,
-                        pending: change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online),
+                        pending: pendingFlag,
+                        pending_action: pendingFlag ? pendingAction : undefined,
                         last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
                     };
                     pendingItem = nextItem;
@@ -645,16 +648,20 @@
             if (!updated) {
                 const nextItem = {
                     ...normalized,
-                    pending: true,
+                    pending: pendingFlag,
+                    pending_action: pendingFlag ? pendingAction : undefined,
                     last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
                 };
                 pendingItem = nextItem;
                 itemsByCalendar[calId].push(nextItem);
             }
         } else {
+            const pendingFlag = change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online);
+            const pendingAction = change.operation === 'create' ? 'create' : (change.payload?.pending_action || change.pending_action || 'update');
             const nextItem = {
                 ...normalized,
-                pending: change.status === 'pending' || (change.status !== 'sent' && !connectivityState.online),
+                pending: pendingFlag,
+                pending_action: pendingFlag ? pendingAction : undefined,
                 last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
             };
             pendingItem = nextItem;
@@ -756,6 +763,7 @@
                 ? 'update_item.php'
                 : 'add_item.php';
         const body = { ...change.payload };
+        delete body.pending_action;
         if (change.operation === 'delete') {
             body.item_id = change.item_id;
         }
@@ -798,6 +806,7 @@
                     ...normalized,
                     item_id: normalized.item_id || targetId,
                     pending: false,
+                    pending_action: undefined,
                     last_error: null
                 };
             }
@@ -805,7 +814,7 @@
         });
 
         if (!replaced) {
-            updatedItems.push({ ...normalized, pending: false, last_error: null });
+            updatedItems.push({ ...normalized, pending: false, pending_action: undefined, last_error: null });
         }
 
         itemsByCalendar[calId] = updatedItems;
