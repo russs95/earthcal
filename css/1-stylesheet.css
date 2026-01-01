@@ -4493,30 +4493,38 @@ svg path #june:hover {
     overflow: hidden;  /* Keeps the explosion effect within the boundaries */
 }
 
-.date-info.pending-sync-online {
-    border-color: #dcdcdc !important;
-}
-
-.date-info.pending-sync-online::after {
-    content: "";
+.date-info .pending-indicator {
     position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    background: conic-gradient(
-        #a0a0a0 0deg 40deg,
-        #dcdcdc 40deg 360deg
-    );
-    animation: pendingBorderSpin 0.5s linear infinite;
+    bottom: 8px;
+    left: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-left-color: currentColor;
+    animation: pendingIndicatorSpin 0.9s linear infinite;
     pointer-events: none;
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+    opacity: 0.9;
 }
 
-.date-info.pending-sync-offline {
-    border-style: dashed !important;
+.date-info .pending-indicator.pending-create {
+    color: #22c55e;
 }
 
-@keyframes pendingBorderSpin {
+.date-info .pending-indicator.pending-complete {
+    color: #6b7280;
+}
+
+.date-info .pending-indicator.pending-delete {
+    color: #ef4444;
+}
+
+.date-info .pending-indicator.pending-generic {
+    color: #9ca3af;
+}
+
+@keyframes pendingIndicatorSpin {
     0% {
         transform: rotate(0deg);
     }
