@@ -11,7 +11,7 @@ export const translations = {
     welcomeIntro: "Welcome to EarthCal!",
     welcomeParagraph: "It's time to evolve our calendars! It's time to transition from lines and squares, to circles and cycles. EarthCal is your new window to the days, months, years and other Earthen cycles to which our moments on planet Earth dance. Use EarthCal to manage and sync your events with the cycles of the moon, the planets and magnificent creatures.",
 
-    oneOrbitTitle: "One Year.\nOne Orbit.",
+    oneOrbitTitle: "One Year, One Orbit.",
     oneOrbitDesc: "EarthCal starts with a view of the current year. Earth takes ~365 days to spin around the Sun so that's how we've divided up EarthCal's main circle (we make it 366 on a leap year!). Click any of the divisions and watch as Earth animates to that position in its yearly spin around the Sun for that particular day. To zoom, click a month for a closer view of that portion of Earth's orbital progress.",
 
     neighborhoodTitle: "Our Neighbourhood",
@@ -24,7 +24,7 @@ export const translations = {
     animalCyclesDesc: "Great civilizations didn't just follow celestial cycles, they used the cycles of the great creatures around them to celebrate time. Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year. More animals coming soon!",
 
     addEventsTitle: "Add Events & Cycles",
-    addEventsDesc: "Use EarthCal to record your events and daily to-dos. Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date. Google Calendar sync coming soon.",
+    addEventsDesc: "Use EarthCal to record your events and daily to-dos. Add your one time events and annual cycles (like birthdays!) to the calendar by clicking the top left + for the highlighted date. Pro accounts can connect and sync their Google, Apple and Microsoft calendars with Earthcal.",
 
     buttonNextWelcome: "How it works ➔",
     buttonNextOrbit: "The Planets ➔",
