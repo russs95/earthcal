@@ -115,6 +115,32 @@ function refreshCurrentHighlights() {
     return highlightDateCycles(targetDate);
 }
 
+const HIGHLIGHT_REFRESH_DELAY_MS = 120;
+let highlightRefreshTimer = null;
+let highlightRefreshPromise = null;
+function requestHighlightRefresh() {
+    if (typeof targetDate === 'undefined') {
+        return Promise.resolve();
+    }
+    if (highlightRefreshPromise) {
+        return highlightRefreshPromise;
+    }
+
+    highlightRefreshPromise = new Promise((resolve) => {
+        highlightRefreshTimer = setTimeout(async () => {
+            highlightRefreshTimer = null;
+            try {
+                await refreshCurrentHighlights();
+            } finally {
+                highlightRefreshPromise = null;
+                resolve();
+            }
+        }, HIGHLIGHT_REFRESH_DELAY_MS);
+    });
+
+    return highlightRefreshPromise;
+}
+
 function getActiveUserContext() {
     if (typeof isLoggedIn === 'function') {
         try {
@@ -1490,7 +1516,7 @@ async function checkOffDatecycle(uniqueKey) {
         pending_action: updatedDateCycle.completed === '1' ? 'complete' : 'update'
     };
 
-    await refreshCurrentHighlights();
+    await requestHighlightRefresh();
 
     if (!wasCompleted) {
         const dateCycleDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
@@ -1505,12 +1531,12 @@ async function checkOffDatecycle(uniqueKey) {
     try {
         await updateServerDateCycle(updatedDateCycle, overrides);
 
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
 
         console.log(`✅ Server updated completion for ${updatedDateCycle.title}`);
     } catch (error) {
         updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
         console.error(`⚠️ Server update failed for ${updatedDateCycle.title}`, error);
         alert('Unable to update completion status right now. Please try again later.');
     }
@@ -1751,15 +1777,15 @@ async function push2today(uniqueKey) {
         return;
     }
 
-    await refreshCurrentHighlights();
+    await requestHighlightRefresh();
 
     try {
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
         updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
         console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
         alert('Unable to push this event to today right now. Please try again later.');
     }
@@ -1798,7 +1824,7 @@ async function deleteDateCycle(uniqueKey) {
     }));
 
     if (pendingDeletion) {
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
     }
 
     try {
@@ -1820,12 +1846,12 @@ async function deleteDateCycle(uniqueKey) {
                 }
             }
         }
-        await refreshCurrentHighlights();
+        await requestHighlightRefresh();
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
     } catch (error) {
         if (pendingDeletion) {
             updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-            await refreshCurrentHighlights();
+            await requestHighlightRefresh();
         }
         console.error('Error deleting dateCycle from the server:', error);
         alert('An error occurred while deleting this event. Please try again later.');
@@ -2152,6 +2178,51 @@ async function prefillAddDateCycle(data) {
     }
 }
 
+function buildPendingLocalDatecycle(payload, calendarMeta = {}) {
+    const nowIso = new Date().toISOString();
+    const startLocal = payload.start_local || '';
+    const [datePart, timePartRaw] = startLocal.split(' ');
+    const [y, m, d] = (datePart || '').split('-');
+    const timePart = (timePartRaw || '00:00:00').slice(0, 5);
+
+    const localUniqueKey = `local_${payload.calendar_id}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const baseColor = payload.color_hex || calendarMeta.color || calendarMeta.cal_color || '#3b82f6';
+
+    return {
+        unique_key: localUniqueKey,
+        item_id: payload.item_id || localUniqueKey,
+        buwana_id: payload.buwana_id,
+        cal_id: Number(payload.calendar_id),
+        cal_name: calendarMeta.name || 'My Calendar',
+        cal_color: calendarMeta.color || '#3b82f6',
+        cal_emoji: calendarMeta.emoji || '📅',
+        title: payload.title || 'Untitled Event',
+        date: datePart || '',
+        time: timePart || '00:00',
+        time_zone: payload.tzid || getUserTimezone(),
+        day: d || '',
+        month: m || '',
+        year: y || '',
+        comment: payload.notes ? '1' : '0',
+        comments: payload.notes || '',
+        datecycle_color: baseColor,
+        date_emoji: payload.emoji || '',
+        frequency: payload.frequency || 'One-time',
+        pinned: payload.pinned ? '1' : '0',
+        completed: '0',
+        public: '0',
+        delete_it: '0',
+        synced: '0',
+        pending: true,
+        pending_action: payload.pending_action || 'create',
+        last_edited: nowIso,
+        created_at: nowIso,
+        all_day: payload.all_day ? 1 : 0,
+        tzid: payload.tzid || getUserTimezone(),
+        dtstart_utc: payload.dtstart_utc || null,
+        start_local: payload.start_local
+    };
+}
 
 
 
@@ -2174,6 +2245,7 @@ async function addDatecycle() {
     const selCalendarId = document.getElementById('set-calendar-id').value;
     const calendarDropdown = document.getElementById('select-calendar');
     const selCalendarName = calendarDropdown?.options[calendarDropdown.selectedIndex]?.text;
+    const selectedCalendarOption = calendarDropdown?.options[calendarDropdown.selectedIndex];
 
     if (!selCalendarId || !selCalendarName) {
         alert('Missing calendar selection.');
@@ -2230,14 +2302,24 @@ async function addDatecycle() {
         frequency: dateCycleType
     };
 
+    let pendingLocal = null;
     try {
+        const calendarMeta = {
+            name: selCalendarName,
+            color: selectedCalendarOption?.style?.color,
+            emoji: selectedCalendarOption?.dataset?.emoji
+        };
+        pendingLocal = buildPendingLocalDatecycle({ ...payload, pending_action: 'create' }, calendarMeta);
+        appendPendingDateCycleToLocalCalendar(selCalendarId, pendingLocal);
+        await requestHighlightRefresh();
+
         const usedSyncStore = await ensureSyncStoreReady(resolvedBuwanaId);
         if (usedSyncStore) {
             await window.syncStore.createOrUpdateItem({ ...payload, pending_action: 'create' });
         } else {
             await callV1Api('add_item.php', payload);
         }
-        await syncDatecycles();
+        scheduleBackgroundSync('add-datecycle');
 
         document.getElementById('select-calendar').value = 'Select calendar...';
         document.getElementById('dateCycle-type').value = 'One-time';
@@ -2249,9 +2331,23 @@ async function addDatecycle() {
         closeDateCycleExports();
 
         const targetDate = new Date(yearField, Number(monthField) - 1, Number(dayField));
+        window.targetDate = targetDate;
         console.log(`🔍 Highlighting date: ${targetDate.toISOString()}`);
-        await highlightDateCycles(targetDate);
+        await requestHighlightRefresh();
     } catch (error) {
+        if (pendingLocal?.unique_key) {
+            const storageKey = `calendar_${selCalendarId}`;
+            try {
+                const raw = localStorage.getItem(storageKey);
+                const parsed = raw ? JSON.parse(raw) : [];
+                if (Array.isArray(parsed)) {
+                    const cleaned = parsed.filter(dc => dc?.unique_key !== pendingLocal.unique_key);
+                    localStorage.setItem(storageKey, JSON.stringify(cleaned));
+                }
+            } catch (cleanupErr) {
+                console.warn('[addDatecycle] unable to roll back pending local addition:', cleanupErr);
+            }
+        }
         console.error('Failed to add datecycle via v1 API:', error);
         alert(error.message || 'Unable to add event at this time.');
     }
@@ -2387,6 +2483,46 @@ async function syncDatecycles() {
     }
 }
 
+let scheduledSyncTimer = null;
+const SCHEDULED_SYNC_DELAY_MS = 350;
+function scheduleBackgroundSync(reason = 'unspecified') {
+    if (scheduledSyncTimer) {
+        return;
+    }
+    scheduledSyncTimer = setTimeout(async () => {
+        scheduledSyncTimer = null;
+        try {
+            await syncDatecycles();
+        } catch (err) {
+            console.warn(`[scheduleBackgroundSync] sync failed (${reason}):`, err);
+        }
+    }, SCHEDULED_SYNC_DELAY_MS);
+}
+
+function appendPendingDateCycleToLocalCalendar(calendarId, dateCycle) {
+    if (!calendarId || !dateCycle) return;
+
+    const storageKey = `calendar_${calendarId}`;
+    let existing = [];
+    try {
+        const raw = localStorage.getItem(storageKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed)) {
+            existing = parsed;
+        }
+    } catch (err) {
+        console.warn(`[appendPendingDateCycleToLocalCalendar] Unable to read ${storageKey}:`, err);
+    }
+
+    const deduped = existing.filter(dc => dc?.unique_key !== dateCycle.unique_key);
+    deduped.push(dateCycle);
+
+    try {
+        localStorage.setItem(storageKey, JSON.stringify(deduped));
+    } catch (err) {
+        console.warn(`[appendPendingDateCycleToLocalCalendar] Unable to write ${storageKey}:`, err);
+    }
+}
 
 
 
