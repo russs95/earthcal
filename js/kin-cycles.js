@@ -1602,7 +1602,7 @@ const whaleCycleData = [
 
   {
     "Journey": "14% - 16%",
-    "Region": "Los Angelese, California, USA",
+    "Region": "Los Angeles, California, USA",
     "Activity": "Migrating south",
     "Distance": "1565 km",
     "Arrival": "Winter",
