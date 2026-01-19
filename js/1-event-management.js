@@ -1785,33 +1785,41 @@ async function push2today(uniqueKey) {
         return;
     }
 
-    const updatedDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
+    const pendingDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
         ...existing,
-        year,
-        month,
-        day,
-        date: formattedDate,
         last_edited: today.toISOString(),
         pending: true,
         pending_action: 'update'
     }));
 
-    if (!updatedDateCycle) {
+    if (!pendingDateCycle) {
         console.warn(`Unable to mark ${uniqueKey} as pending for push to today.`);
         return;
     }
+
+    const updatedDateCycle = {
+        ...pendingDateCycle,
+        year,
+        month,
+        day,
+        date: formattedDate,
+        last_edited: today.toISOString()
+    };
 
     await requestHighlightRefresh();
 
     try {
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
-        updateDateCycleRecord(uniqueKey, (existing) => ({
-            ...existing,
-            pending: false,
-            pending_action: undefined
-        }));
-
         const dateInfoDiv = getDateInfoDiv();
+        const finalizePushToToday = async () => {
+            updateDateCycleRecord(uniqueKey, {
+                ...updatedDateCycle,
+                pending: false,
+                pending_action: undefined
+            });
+            await requestHighlightRefresh();
+        };
+
         if (dateInfoDiv) {
             const pendingIndicator = dateInfoDiv.querySelector('.pending-indicator');
             if (pendingIndicator) {
@@ -1820,17 +1828,17 @@ async function push2today(uniqueKey) {
             dateInfoDiv.removeAttribute('title');
             dateInfoDiv.classList.remove('slide-out-right');
             void dateInfoDiv.offsetWidth;
-            const finishSlideOut = () => {
+            const finishSlideOut = async () => {
                 if (dateInfoDiv.isConnected) {
                     dateInfoDiv.remove();
                 }
-                requestHighlightRefresh();
+                await finalizePushToToday();
             };
             dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
             setTimeout(finishSlideOut, 450);
             dateInfoDiv.classList.add('slide-out-right');
         } else {
-            await requestHighlightRefresh();
+            await finalizePushToToday();
         }
 
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
