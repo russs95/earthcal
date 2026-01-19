@@ -1752,12 +1752,30 @@ function shareDateCycle(uniqueKey) {
 
 
 async function push2today(uniqueKey) {
+    const getDateInfoDiv = () => document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
     const today = new Date();
     const year = String(today.getFullYear());
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     const timeString = today.toTimeString().slice(0, 8);
+    const isTargetDateToday = targetDate instanceof Date
+        && targetDate.getFullYear() === today.getFullYear()
+        && targetDate.getMonth() === today.getMonth()
+        && targetDate.getDate() === today.getDate();
+
+    if (isTargetDateToday) {
+        const dateInfoDiv = getDateInfoDiv();
+        if (dateInfoDiv) {
+            dateInfoDiv.classList.remove('shake-horizontal');
+            void dateInfoDiv.offsetWidth;
+            dateInfoDiv.classList.add('shake-horizontal');
+            setTimeout(() => {
+                dateInfoDiv.classList.remove('shake-horizontal');
+            }, 400);
+        }
+        return;
+    }
 
     console.log(`🤞Yo, yo...pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate}).`);
 
@@ -1787,7 +1805,34 @@ async function push2today(uniqueKey) {
 
     try {
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
-        await requestHighlightRefresh();
+        updateDateCycleRecord(uniqueKey, (existing) => ({
+            ...existing,
+            pending: false,
+            pending_action: undefined
+        }));
+
+        const dateInfoDiv = getDateInfoDiv();
+        if (dateInfoDiv) {
+            const pendingIndicator = dateInfoDiv.querySelector('.pending-indicator');
+            if (pendingIndicator) {
+                pendingIndicator.remove();
+            }
+            dateInfoDiv.removeAttribute('title');
+            dateInfoDiv.classList.remove('slide-out-right');
+            void dateInfoDiv.offsetWidth;
+            const finishSlideOut = () => {
+                if (dateInfoDiv.isConnected) {
+                    dateInfoDiv.remove();
+                }
+                requestHighlightRefresh();
+            };
+            dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
+            setTimeout(finishSlideOut, 450);
+            dateInfoDiv.classList.add('slide-out-right');
+        } else {
+            await requestHighlightRefresh();
+        }
+
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
         updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
