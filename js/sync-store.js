@@ -446,7 +446,15 @@
         return false;
     };
 
-    async function determineConnectivity() {
+    const CONNECTIVITY_CACHE_MS = 18000;
+    let cachedConnectivity = {
+        lastChecked: 0,
+        online: null,
+        backendReachable: null
+    };
+
+    async function determineConnectivity(options = {}) {
+        const { force = false } = options;
         if (isForcedOffline()) {
             connectivityState = {
                 ...connectivityState,
@@ -457,6 +465,24 @@
             };
             notifyStatusListeners();
             return false;
+        }
+
+        const now = Date.now();
+        if (
+            !force &&
+            cachedConnectivity.lastChecked &&
+            now - cachedConnectivity.lastChecked < CONNECTIVITY_CACHE_MS &&
+            cachedConnectivity.online !== null
+        ) {
+            connectivityState = {
+                ...connectivityState,
+                online: cachedConnectivity.online,
+                backendReachable: cachedConnectivity.backendReachable,
+                lastChecked: cachedConnectivity.lastChecked,
+                forcedOffline: false
+            };
+            notifyStatusListeners();
+            return connectivityState.online;
         }
 
         const reachable = await checkBackendReachable();
@@ -471,6 +497,11 @@
             backendReachable: reachable,
             lastChecked: Date.now(),
             forcedOffline: false
+        };
+        cachedConnectivity = {
+            lastChecked: connectivityState.lastChecked,
+            online,
+            backendReachable: reachable
         };
 
         notifyStatusListeners();
@@ -496,7 +527,7 @@
     }
 
     function onConnectivityChange() {
-        determineConnectivity().then((online) => {
+        determineConnectivity({ force: true }).then((online) => {
             if (online) {
                 flushOutbox();
             }
@@ -536,7 +567,7 @@
             initialized = true;
         }
 
-        await determineConnectivity();
+        await determineConnectivity({ force: true });
         return { ...connectivityState };
     }
 
@@ -717,7 +748,8 @@
         return stored;
     }
 
-    async function flushOutbox() {
+    async function flushOutbox(options = {}) {
+        const { skipReload = false } = options;
         const queue = readOutbox();
         if (!queue.length) return [];
         const remaining = [];
@@ -750,7 +782,7 @@
             }
         }
         persistOutbox(remaining);
-        if (connectivityState.online && hadSuccess && remaining.length === 0) {
+        if (!skipReload && connectivityState.online && hadSuccess && remaining.length === 0) {
             await loadInitialState();
         }
         return remaining;
@@ -850,7 +882,7 @@
 
         const online = await determineConnectivity();
         if (online) {
-            flushOutbox().catch((err) => console.warn('[sync-store] async flush failed', err));
+            flushOutbox({ skipReload: true }).catch((err) => console.warn('[sync-store] async flush failed', err));
         }
 
         notifyStatusListeners();

@@ -29,12 +29,18 @@ async function openAddCycle() {
 
 const EARTHCAL_V1_API_BASE = '../api/v1';
 
+let syncStoreInitializedFor = null;
 async function ensureSyncStoreReady(buwanaId) {
     if (!buwanaId || !window.syncStore || typeof window.syncStore.initSyncStore !== 'function') {
         return false;
     }
+    const resolvedId = Number(buwanaId);
+    if (syncStoreInitializedFor === resolvedId) {
+        return true;
+    }
     try {
-        await window.syncStore.initSyncStore({ buwana_id: Number(buwanaId) });
+        await window.syncStore.initSyncStore({ buwana_id: resolvedId });
+        syncStoreInitializedFor = resolvedId;
         subscribeToSyncStatusUpdates();
         return true;
     } catch (err) {
