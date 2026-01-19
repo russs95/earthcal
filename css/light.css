@@ -346,10 +346,10 @@
 .eye-open {
     background: url(../assets/icons/event-show.svg) center no-repeat;
     background-size: contain;
-    width: 28.5px;
-    height:18.75px;
+    width: 34.2px;
+    height:22.5px;
     cursor:pointer;
-    margin-left:6px;
+    margin-left:7px;
 }
 .eye-open:hover {
     background: url(../assets/icons/event-show-over.svg) center no-repeat;
@@ -359,10 +359,10 @@
 .eye-closed {
     background: url(../assets/icons/event-hide.svg) center no-repeat;
     background-size: contain;
-    width: 28.5px;
-    height:18.75px;
+    width: 34.2px;
+    height:22.5px;
     cursor:pointer;
-    margin-left:6px;
+    margin-left:7px;
 }
 .eye-closed:hover {
     background: url(../assets/icons/event-hide-over.svg) center no-repeat;

@@ -115,32 +115,32 @@ path[id*="week-"] {
 }
 
 .previous-button {
-    width:25px;
-    height:25px;
+    width:30px;
+    height:30px;
     text-align:center;
     cursor:pointer;
-    margin-right: 5px;
+    margin-right: 6px;
     pointer-events: all;
 }
 
 .next-button {
-    width:25px;
-    height:25px;
+    width:30px;
+    height:30px;
     text-align:center;
     cursor:pointer;
 
-    margin-left:5px;
+    margin-left:6px;
     pointer-events: all;
 
 }
 
 #reset-to-today {
-    width:26px;
-    height:26px;
+    width:31.2px;
+    height:31.2px;
     text-align:center;
     cursor:pointer;
-    margin-right: 5px;
-    margin-left:5px;
+    margin-right: 6px;
+    margin-left:6px;
     pointer-events: all;
 }
 
@@ -495,10 +495,10 @@ flex-direction: row;
 
 #event-show-hide  {
   border: none;
-    margin:0 10px -5px 10px;
+    margin:0 12px -5px 12px;
   cursor:pointer;
-  height:30px;
-  width:30px;
+  height:36px;
+  width:36px;
     pointer-events: all;
 }
 
