@@ -4681,31 +4681,53 @@ svg path #june:hover {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 0;
+    gap: 6px;
     padding: 8px 16px;
     background: var(--date-controls);
     border-radius: 20px;
-    width: 100%;
-    max-width: 207px;
+    width: 300px;
     margin-left: auto;
     margin-top: -10px;
+    margin-right: 20px;
+    --time-control-size: 30px;
 }
 
 #time-controller > div {
     flex: 0 0 auto;
 }
 
-.time-controls-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-left: auto;
-}
-
 .event-toggle-wrapper {
     display: flex;
     align-items: center;
+}
+
+#time-controller .previous-button,
+#time-controller .next-button,
+#time-controller #reset-to-today,
+#time-controller #event-show-hide {
+    width: var(--time-control-size);
+    height: var(--time-control-size);
+    margin: 0;
+}
+
+#time-controller #reset-to-today {
+    width: var(--time-control-size);
+    height: var(--time-control-size);
+}
+
+@media (max-width: 1024px) {
+    #time-controller {
+        width: 286px;
+        --time-control-size: 27px;
+    }
+}
+
+@media (max-width: 640px) {
+    #time-controller {
+        width: 250px;
+        padding: 6px 12px;
+        --time-control-size: 24px;
+    }
 }
 
 #bottom-left-buttons {

@@ -1648,13 +1648,13 @@ function editDateCycle(uniqueKey) {
                 </select>
             </div>
 
-            <div id="edit-add-note-form" style="margin-top:0; margin-bottom:0;">
+            <div id="edit-add-note-form" style="margin-top:7px; margin-bottom:15px;">
                 <textarea id="edit-add-date-note" class="blur-form-field" style="width:calc(100% - 10px); padding-right:0;" placeholder="Add a note to this event...">${dateCycle.comments || ''}</textarea>
             </div>
-            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width: calc(100% - 10px); margin-left: auto; margin-right: auto; display: block;" onclick="saveDateCycleEditedChanges('${uniqueKey}')">
+            <button type="button" id="edit-confirm-dateCycle" class="confirmation-blur-button enabled" style="margin-bottom: 14px; width: 100%; max-width: 100%; margin-left: auto; margin-right: auto; display: block;" onclick="saveDateCycleEditedChanges('${uniqueKey}')">
                 🐿️ Save Changes
             </button>
-            <button type="button" class="confirmation-blur-button greenback" style="width: calc(100% - 10px); margin-left: auto; margin-right: auto; display: block;" onclick="shareDateCycle('${uniqueKey}')">
+            <button type="button" class="confirmation-blur-button greenback" style="width: 100%; max-width: 100%; margin-left: auto; margin-right: auto; display: block;" onclick="shareDateCycle('${uniqueKey}')">
     🔗 Share Event
             </button>
 
@@ -1673,6 +1673,13 @@ function editDateCycle(uniqueKey) {
 
 
 async function saveDateCycleEditedChanges(uniqueKey) {
+    const saveButton = document.getElementById('edit-confirm-dateCycle');
+    const originalSaveLabel = saveButton ? saveButton.textContent : '';
+    if (saveButton && !saveButton.dataset.loading) {
+        saveButton.dataset.loading = 'true';
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<img class="ec-loading-spinner" src="svgs/earthcal-spinner.svg" alt="Saving" />';
+    }
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = parseInt(document.getElementById('edit-year-field2').value);
     const dayField = parseInt(document.getElementById('edit-day-field2').value);
@@ -1685,6 +1692,11 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     const record = findDateCycleInStorage(uniqueKey);
     if (!record) {
         alert('Could not find the dateCycle to update.');
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.removeAttribute('data-loading');
+            saveButton.textContent = originalSaveLabel.trim();
+        }
         return;
     }
 
@@ -1715,6 +1727,11 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     } catch (error) {
         console.error(`⚠️ Error updating server for edited dateCycle: ${title}`, error);
         alert('Unable to update event right now. Please try again later.');
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.removeAttribute('data-loading');
+            saveButton.textContent = originalSaveLabel.trim();
+        }
         return;
     }
 
