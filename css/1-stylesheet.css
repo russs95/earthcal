@@ -4483,6 +4483,47 @@ svg path #june:hover {
     animation: shakeHorizontal 0.4s ease-in-out;
 }
 
+@keyframes dateInfoCelebrate {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+    }
+    60% {
+        transform: scale(1.01);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+@keyframes collapseDateInfo {
+    0% {
+        height: var(--collapse-height, 120px);
+        max-height: var(--collapse-height, 120px);
+        opacity: 1;
+        margin-bottom: 10px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        border-width: 1px;
+    }
+    100% {
+        height: 0;
+        max-height: 0;
+        opacity: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-width: 0;
+    }
+}
+
+.date-info.collapse-delete {
+    overflow: hidden;
+    animation: collapseDateInfo 0.35s ease forwards;
+}
+
 
 @keyframes slideInLeft {
     0% {
@@ -4562,6 +4603,10 @@ svg path #june:hover {
     transform-origin: center;
     animation: expandCelebration 0.5s ease-out forwards;
     z-index: 5;
+}
+
+.date-info.celebrate-animation {
+    animation: dateInfoCelebrate 0.5s ease-out;
 }
 
 @keyframes expandCelebration {
@@ -4708,6 +4753,12 @@ svg path #june:hover {
     width: var(--time-control-size);
     height: var(--time-control-size);
     margin: 0;
+}
+
+#time-controller #event-show-hide.eye-open,
+#time-controller #event-show-hide.eye-closed {
+    margin: 0;
+    background-size: 100% 100%;
 }
 
 #time-controller #reset-to-today {

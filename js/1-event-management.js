@@ -1765,6 +1765,26 @@ function shareDateCycle(uniqueKey) {
     });
 }
 
+function runDateInfoAnimation(element, { keyframes, options, className, onFinish } = {}) {
+    if (!element) return null;
+    if (element.animate) {
+        const animation = element.animate(keyframes, options);
+        if (onFinish) {
+            animation.addEventListener('finish', onFinish, { once: true });
+        }
+        return animation;
+    }
+    if (className) {
+        element.classList.remove(className);
+        void element.offsetWidth;
+        element.classList.add(className);
+    }
+    if (onFinish && options?.duration) {
+        setTimeout(onFinish, options.duration + 50);
+    }
+    return null;
+}
+
 
 
 
@@ -1784,12 +1804,22 @@ async function push2today(uniqueKey) {
     if (isTargetDateToday) {
         const dateInfoDiv = getDateInfoDiv();
         if (dateInfoDiv) {
-            dateInfoDiv.classList.remove('shake-horizontal');
-            void dateInfoDiv.offsetWidth;
-            dateInfoDiv.classList.add('shake-horizontal');
-            setTimeout(() => {
-                dateInfoDiv.classList.remove('shake-horizontal');
-            }, 400);
+            const animation = runDateInfoAnimation(dateInfoDiv, {
+                keyframes: [
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-6px)' },
+                    { transform: 'translateX(6px)' },
+                    { transform: 'translateX(-6px)' },
+                    { transform: 'translateX(0)' }
+                ],
+                options: { duration: 400, easing: 'ease-in-out' },
+                className: 'shake-horizontal'
+            });
+            if (!animation) {
+                setTimeout(() => {
+                    dateInfoDiv.classList.remove('shake-horizontal');
+                }, 400);
+            }
         }
         return;
     }
@@ -1843,17 +1873,25 @@ async function push2today(uniqueKey) {
                 pendingIndicator.remove();
             }
             dateInfoDiv.removeAttribute('title');
-            dateInfoDiv.classList.remove('slide-out-right');
-            void dateInfoDiv.offsetWidth;
             const finishSlideOut = async () => {
                 if (dateInfoDiv.isConnected) {
                     dateInfoDiv.remove();
                 }
                 await finalizePushToToday();
             };
-            dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
-            setTimeout(finishSlideOut, 450);
-            dateInfoDiv.classList.add('slide-out-right');
+            const animation = runDateInfoAnimation(dateInfoDiv, {
+                keyframes: [
+                    { transform: 'translateX(0)', opacity: 1 },
+                    { transform: 'translateX(100%)', opacity: 0 }
+                ],
+                options: { duration: 400, easing: 'ease', fill: 'forwards' },
+                className: 'slide-out-right',
+                onFinish: finishSlideOut
+            });
+            if (!animation) {
+                dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
+                setTimeout(finishSlideOut, 450);
+            }
         } else {
             await finalizePushToToday();
         }
@@ -1880,6 +1918,23 @@ async function deleteDateCycle(uniqueKey) {
 
     const userResponse = confirm('Are you sure you want to delete this event?');
     if (!userResponse) return;
+
+    const dateInfoDiv = document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+    if (dateInfoDiv) {
+        const height = dateInfoDiv.offsetHeight;
+        dateInfoDiv.style.setProperty('--collapse-height', `${height}px`);
+        dateInfoDiv.style.height = `${height}px`;
+        dateInfoDiv.style.maxHeight = `${height}px`;
+        dateInfoDiv.innerHTML = '';
+        dateInfoDiv.classList.add('collapse-delete');
+        const removeDateInfo = () => {
+            if (dateInfoDiv.isConnected) {
+                dateInfoDiv.remove();
+            }
+        };
+        dateInfoDiv.addEventListener('animationend', removeDateInfo, { once: true });
+        setTimeout(removeDateInfo, 450);
+    }
 
     if (!record.dateCycle?.item_id) {
         alert('Unable to delete this event. Please sync and try again.');
