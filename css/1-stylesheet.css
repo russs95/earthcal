@@ -1,4 +1,4 @@
-/* 1-stylesheet v 4.6 */
+/* 1-stylesheet v 4.7 */
 
 
 
@@ -495,11 +495,11 @@ flex-direction: row;
 
 #event-show-hide  {
   border: none;
-    margin:0 12px -5px 12px;
-  cursor:pointer;
-  height:36px;
-  width:36px;
-    pointer-events: all;
+  margin: 0;
+  cursor: pointer;
+  height: var(--time-control-size, 30px);
+  width: var(--time-control-size, 30px);
+  pointer-events: all;
 }
 
 
@@ -2848,13 +2848,31 @@ color: #b2b1b1;
 
 .offline-sync-indicator {
     margin: 2px auto 0;
-    text-align: center;
+    text-align: left;
     font-size: 0.77rem;
     color: var(--subdued-text, #6b7280);
     font-family: 'Mulish',sans-serif;
     margin-right: auto;
     width: 222px;
     margin-left: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.offline-sync-indicator .offline-sync-text {
+    flex: 1 1 auto;
+}
+
+.offline-sync-indicator .offline-sync-spinner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+    flex: 0 0 auto;
 }
 
 /* 4) When dragged, cancel smooth animation */
@@ -4546,49 +4564,6 @@ svg path #june:hover {
     overflow: hidden;  /* Keeps the explosion effect within the boundaries */
 }
 
-.date-info .pending-indicator {
-    position: absolute;
-    bottom: 8px;
-    left: 10px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: currentColor;
-    border-left-color: currentColor;
-    animation: pendingIndicatorSpin 0.9s linear infinite;
-    pointer-events: none;
-    opacity: 0.9;
-}
-
-.date-info .pending-indicator.pending-create {
-    color: #22c55e;
-}
-
-.date-info .pending-indicator.pending-complete {
-    color: #6b7280;
-}
-
-.date-info .pending-indicator.pending-delete {
-    color: #ef4444;
-}
-
-.date-info .pending-indicator.pending-generic {
-    color: #9ca3af;
-}
-
-@keyframes pendingIndicatorSpin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-
-
-
 .date-info.celebrate-animation::after {
     content: "";
     position: absolute;
@@ -4759,6 +4734,8 @@ svg path #june:hover {
 #time-controller #event-show-hide.eye-closed {
     margin: 0;
     background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #time-controller #reset-to-today {
