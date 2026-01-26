@@ -748,44 +748,57 @@
         return stored;
     }
 
+    let flushInFlight = null;
     async function flushOutbox(options = {}) {
-        const { skipReload = false } = options;
-        const queue = readOutbox();
-        if (!queue.length) return [];
-        const remaining = [];
-        let hadSuccess = false;
-        for (const entry of queue) {
-            if (entry.status === 'sent') continue;
-            try {
-                if (entry.operation === 'delete') {
-                    await applyChangeToServer(entry);
-                    applyLocalChange({ ...entry, status: 'sent' });
+        if (flushInFlight) {
+            return flushInFlight;
+        }
+
+        flushInFlight = (async () => {
+            const { skipReload = false } = options;
+            const queue = readOutbox();
+            if (!queue.length) return [];
+            const remaining = [];
+            let hadSuccess = false;
+            for (const entry of queue) {
+                if (entry.status === 'sent') continue;
+                try {
+                    if (entry.operation === 'delete') {
+                        await applyChangeToServer(entry);
+                        applyLocalChange({ ...entry, status: 'sent' });
+                        hadSuccess = true;
+                        continue;
+                    }
+                    const response = await applyChangeToServer(entry);
+                    const serverItem = response?.item || response?.data || response;
+                    const calId = entry.calendar_id || entry.payload?.calendar_id || entry.payload?.cal_id;
+                    const serverId = response?.item_id || serverItem?.item_id || serverItem?.id || entry.item_id;
+                    await reconcileServerItem(calId, entry.client_temp_id, serverItem || { ...entry.payload, item_id: serverId });
                     hadSuccess = true;
-                    continue;
+                } catch (err) {
+                    console.warn('[sync-store] failed to flush entry', err);
+                    const errored = {
+                        ...entry,
+                        status: 'error',
+                        last_error: err?.message || 'Unknown error',
+                        error_at: Date.now()
+                    };
+                    applyLocalChange(errored);
+                    remaining.push(errored);
                 }
-                const response = await applyChangeToServer(entry);
-                const serverItem = response?.item || response?.data || response;
-                const calId = entry.calendar_id || entry.payload?.calendar_id || entry.payload?.cal_id;
-                const serverId = response?.item_id || serverItem?.item_id || serverItem?.id || entry.item_id;
-                await reconcileServerItem(calId, entry.client_temp_id, serverItem || { ...entry.payload, item_id: serverId });
-                hadSuccess = true;
-            } catch (err) {
-                console.warn('[sync-store] failed to flush entry', err);
-                const errored = {
-                    ...entry,
-                    status: 'error',
-                    last_error: err?.message || 'Unknown error',
-                    error_at: Date.now()
-                };
-                applyLocalChange(errored);
-                remaining.push(errored);
             }
+            persistOutbox(remaining);
+            if (!skipReload && connectivityState.online && hadSuccess && remaining.length === 0) {
+                await loadInitialState();
+            }
+            return remaining;
+        })();
+
+        try {
+            return await flushInFlight;
+        } finally {
+            flushInFlight = null;
         }
-        persistOutbox(remaining);
-        if (!skipReload && connectivityState.online && hadSuccess && remaining.length === 0) {
-            await loadInitialState();
-        }
-        return remaining;
     }
 
     async function applyChangeToServer(change) {
