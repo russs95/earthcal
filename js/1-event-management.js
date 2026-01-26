@@ -1881,7 +1881,6 @@ async function push2today(uniqueKey) {
     try {
         showDatabaseUpdatingIndicator();
         await removeDateInfoFromUi();
-        await requestHighlightRefresh();
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
         updateDateCycleRecord(uniqueKey, {
             ...updatedDateCycle,
@@ -1946,10 +1945,6 @@ async function deleteDateCycle(uniqueKey) {
         pending_action: 'delete',
         last_edited: new Date().toISOString()
     }));
-
-    if (pendingDeletion) {
-        await requestHighlightRefresh();
-    }
 
     try {
         showDatabaseUpdatingIndicator();
