@@ -4733,6 +4733,9 @@ svg path #june:hover {
 #time-controller #event-show-hide.eye-open,
 #time-controller #event-show-hide.eye-closed {
     margin: 0;
+    padding: 0;
+    width: var(--time-control-size);
+    height: var(--time-control-size);
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
