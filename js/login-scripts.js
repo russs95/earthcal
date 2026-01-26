@@ -959,6 +959,39 @@ function getOfflineUserData({ useCachedData = true } = {}) {
     if (navigator.onLine && !isLoggedIn()) {
         console.warn('[offline] Online without auth; skipping offline mode.');
 
+        try {
+            const promptKey = 'ec_cached_login_prompted';
+            const cachedContext = typeof getCachedUserContext === 'function'
+                ? getCachedUserContext()
+                : { hasCachedData: false };
+            const hasPrompted = sessionStorage.getItem(promptKey) === 'true';
+
+            if (cachedContext?.hasCachedData && !hasPrompted) {
+                sessionStorage.setItem(promptKey, 'true');
+                const shouldLogin = window.confirm(
+                    'Please login to load your date, cycles and other awesome Earthcal data'
+                );
+
+                if (shouldLogin) {
+                    if (typeof createJWTloginURL === 'function') {
+                        Promise.resolve(createJWTloginURL())
+                            .then((url) => {
+                                if (url) {
+                                    window.location.href = url;
+                                }
+                            })
+                            .catch((error) => {
+                                console.warn('[offline] Unable to start login flow.', error);
+                            });
+                    } else if (typeof sendUpRegistration === 'function') {
+                        sendUpRegistration();
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('[offline] Unable to prompt for login when cached data exists.', error);
+        }
+
         setOfflineModeChoice('simple');
 
         if (typeof useDefaultUser === 'function') {
@@ -4074,6 +4107,5 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
 
 
