@@ -66,7 +66,7 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/sync-store.js?v=1.7",
+        "js/sync-store.js?v=2.0",
         "js/astronomy.browser.js",
 
         // core app
