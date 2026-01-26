@@ -1310,19 +1310,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
     const calendarColor = mapColor(dateCycle.cal_color);
     const isPendingSync = dateCycle.pending === true || String(dateCycle.pending) === 'true';
     const pendingOnline = isPendingSync && isDateCycleOnline();
-    const pendingAction = isPendingSync
-        ? (dateCycle.pending_action || (dateCycle.item_id ? 'update' : 'create'))
-        : '';
-    const pendingIndicatorClass = (() => {
-        if (!isPendingSync) return '';
-        if (pendingAction === 'delete') return 'pending-delete';
-        if (pendingAction === 'complete') return 'pending-complete';
-        if (pendingAction === 'create') return 'pending-create';
-        return 'pending-generic';
-    })();
-    const pendingIndicator = isPendingSync
-        ? `<div class="pending-indicator ${pendingIndicatorClass}"></div>`
-        : '';
     const dateInfoBorder = isPendingSync
         ? (pendingOnline ? '1px solid grey' : '1px dashed grey')
         : '1px solid grey';
@@ -1428,7 +1415,6 @@ function writeMatchingDateCycles(divElement, dateCycle) {
                 </button>
             </div>
 
-            ${pendingIndicator}
         </div>
     `;
 }
@@ -1535,16 +1521,16 @@ async function checkOffDatecycle(uniqueKey) {
     }
 
     try {
+        showDatabaseUpdatingIndicator();
         await updateServerDateCycle(updatedDateCycle, overrides);
 
         await requestHighlightRefresh();
 
         console.log(`✅ Server updated completion for ${updatedDateCycle.title}`);
     } catch (error) {
-        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-        await requestHighlightRefresh();
         console.error(`⚠️ Server update failed for ${updatedDateCycle.title}`, error);
-        alert('Unable to update completion status right now. Please try again later.');
+    } finally {
+        refreshDatabaseSyncIndicator();
     }
 }
 
@@ -1785,6 +1771,18 @@ function runDateInfoAnimation(element, { keyframes, options, className, onFinish
     return null;
 }
 
+function showDatabaseUpdatingIndicator() {
+    if (typeof setOfflineSyncIndicatorUpdating === "function") {
+        setOfflineSyncIndicatorUpdating();
+    }
+}
+
+function refreshDatabaseSyncIndicator() {
+    if (typeof refreshOfflineSyncIndicatorStatus === "function") {
+        refreshOfflineSyncIndicatorStatus();
+    }
+}
+
 
 
 
@@ -1853,55 +1851,50 @@ async function push2today(uniqueKey) {
         last_edited: today.toISOString()
     };
 
-    await requestHighlightRefresh();
+    const dateInfoDiv = getDateInfoDiv();
+    const removeDateInfoFromUi = () => new Promise((resolve) => {
+        if (!dateInfoDiv) {
+            resolve();
+            return;
+        }
+        const finishSlideOut = () => {
+            if (dateInfoDiv.isConnected) {
+                dateInfoDiv.remove();
+            }
+            resolve();
+        };
+        const animation = runDateInfoAnimation(dateInfoDiv, {
+            keyframes: [
+                { transform: 'translateX(0)', opacity: 1 },
+                { transform: 'translateX(100%)', opacity: 0 }
+            ],
+            options: { duration: 400, easing: 'ease', fill: 'forwards' },
+            className: 'slide-out-right',
+            onFinish: finishSlideOut
+        });
+        if (!animation) {
+            dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
+            setTimeout(finishSlideOut, 450);
+        }
+    });
 
     try {
+        showDatabaseUpdatingIndicator();
+        await removeDateInfoFromUi();
+        await requestHighlightRefresh();
         await updateServerDateCycle(updatedDateCycle, { start_local: `${formattedDate} ${timeString}`, pending_action: 'update' });
-        const dateInfoDiv = getDateInfoDiv();
-        const finalizePushToToday = async () => {
-            updateDateCycleRecord(uniqueKey, {
-                ...updatedDateCycle,
-                pending: false,
-                pending_action: undefined
-            });
-            await requestHighlightRefresh();
-        };
-
-        if (dateInfoDiv) {
-            const pendingIndicator = dateInfoDiv.querySelector('.pending-indicator');
-            if (pendingIndicator) {
-                pendingIndicator.remove();
-            }
-            dateInfoDiv.removeAttribute('title');
-            const finishSlideOut = async () => {
-                if (dateInfoDiv.isConnected) {
-                    dateInfoDiv.remove();
-                }
-                await finalizePushToToday();
-            };
-            const animation = runDateInfoAnimation(dateInfoDiv, {
-                keyframes: [
-                    { transform: 'translateX(0)', opacity: 1 },
-                    { transform: 'translateX(100%)', opacity: 0 }
-                ],
-                options: { duration: 400, easing: 'ease', fill: 'forwards' },
-                className: 'slide-out-right',
-                onFinish: finishSlideOut
-            });
-            if (!animation) {
-                dateInfoDiv.addEventListener('animationend', finishSlideOut, { once: true });
-                setTimeout(finishSlideOut, 450);
-            }
-        } else {
-            await finalizePushToToday();
-        }
+        updateDateCycleRecord(uniqueKey, {
+            ...updatedDateCycle,
+            pending: false,
+            pending_action: undefined
+        });
+        await requestHighlightRefresh();
 
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
     } catch (error) {
-        updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-        await requestHighlightRefresh();
         console.error(`⚠️ Error updating server for push to today: ${updatedDateCycle.title}`, error);
-        alert('Unable to push this event to today right now. Please try again later.');
+    } finally {
+        refreshDatabaseSyncIndicator();
     }
 }
 
@@ -1959,6 +1952,7 @@ async function deleteDateCycle(uniqueKey) {
     }
 
     try {
+        showDatabaseUpdatingIndicator();
         const usedSyncStore = await ensureSyncStoreReady(buwana_id);
         if (usedSyncStore) {
             await window.syncStore.deleteItem(Number(record.dateCycle.item_id), record.dateCycle.cal_id);
@@ -1980,12 +1974,9 @@ async function deleteDateCycle(uniqueKey) {
         await requestHighlightRefresh();
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
     } catch (error) {
-        if (pendingDeletion) {
-            updateDateCycleRecord(uniqueKey, { ...record.dateCycle, pending: false, pending_action: undefined });
-            await requestHighlightRefresh();
-        }
         console.error('Error deleting dateCycle from the server:', error);
-        alert('An error occurred while deleting this event. Please try again later.');
+    } finally {
+        refreshDatabaseSyncIndicator();
     }
 }
 

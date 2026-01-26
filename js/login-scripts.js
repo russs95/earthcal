@@ -614,6 +614,16 @@ function updateSessionStatus(message, isLoggedIn = false) {
 
 let syncIndicatorUnsubscribe = null;
 
+function renderOfflineSyncIndicator({ text, showSpinner = false } = {}) {
+    const indicator = document.getElementById('offline-sync-indicator');
+    if (!indicator) return;
+    const safeText = text || '';
+    indicator.innerHTML = `
+        <span class="offline-sync-text">${safeText}</span>
+        ${showSpinner ? '<span class="offline-sync-spinner" aria-hidden="true"></span>' : ''}
+    `;
+}
+
 function updateOfflineSyncIndicator(status = {}) {
     const indicator = document.getElementById('offline-sync-indicator');
     if (!indicator) return;
@@ -621,11 +631,26 @@ function updateOfflineSyncIndicator(status = {}) {
     const isOnline = Boolean(status.online && status.backendReachable);
 
     if (pending > 0) {
-        indicator.textContent = `There are ${pending} offline changes waiting to be synced`;
+        renderOfflineSyncIndicator({
+            text: `There are ${pending} offline changes waiting to be synced`,
+            showSpinner: false
+        });
     } else if (!isOnline) {
-        indicator.textContent = 'Offline mode: using cached data';
+        renderOfflineSyncIndicator({ text: 'Offline mode: using cached data', showSpinner: false });
     } else {
-        indicator.textContent = 'You are online and synced';
+        renderOfflineSyncIndicator({ text: 'You are online and synced', showSpinner: false });
+    }
+}
+
+function setOfflineSyncIndicatorUpdating() {
+    renderOfflineSyncIndicator({ text: 'Updating Earthcal database....', showSpinner: true });
+}
+
+function refreshOfflineSyncIndicatorStatus() {
+    if (window.syncStore?.getStatus) {
+        updateOfflineSyncIndicator(window.syncStore.getStatus());
+    } else {
+        updateOfflineSyncIndicator({ online: navigator.onLine, pending: 0, backendReachable: navigator.onLine });
     }
 }
 
@@ -4107,5 +4132,4 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
 
