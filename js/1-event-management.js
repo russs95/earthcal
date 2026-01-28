@@ -1783,6 +1783,41 @@ function refreshDatabaseSyncIndicator() {
     }
 }
 
+function waitForSyncStoreIdle({ timeoutMs = 2000 } = {}) {
+    if (!window.syncStore || typeof window.syncStore.getStatus !== 'function') {
+        return Promise.resolve();
+    }
+
+    const currentStatus = window.syncStore.getStatus() || {};
+    if (Number(currentStatus.pending || 0) === 0) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+        let resolved = false;
+        let unsubscribe = null;
+
+        const finish = () => {
+            if (resolved) return;
+            resolved = true;
+            if (typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+            resolve();
+        };
+
+        if (typeof window.syncStore.onOnlineStatusChange === 'function') {
+            unsubscribe = window.syncStore.onOnlineStatusChange((status = {}) => {
+                if (Number(status.pending || 0) === 0) {
+                    finish();
+                }
+            });
+        }
+
+        setTimeout(finish, timeoutMs);
+    });
+}
+
 
 
 
@@ -1832,6 +1867,10 @@ async function push2today(uniqueKey) {
 
     const pendingDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
         ...existing,
+        year,
+        month,
+        day,
+        date: formattedDate,
         last_edited: today.toISOString(),
         pending: true,
         pending_action: 'update'
@@ -1887,6 +1926,7 @@ async function push2today(uniqueKey) {
             pending: false,
             pending_action: undefined
         });
+        await waitForSyncStoreIdle();
         await requestHighlightRefresh();
 
         console.log(`✅ Server updated for push to today: ${updatedDateCycle.title}`);
@@ -1925,7 +1965,7 @@ async function deleteDateCycle(uniqueKey) {
             }
         };
         dateInfoDiv.addEventListener('animationend', removeDateInfo, { once: true });
-        setTimeout(removeDateInfo, 450);
+        setTimeout(removeDateInfo, 700);
     }
 
     if (!record.dateCycle?.item_id) {
@@ -1943,6 +1983,7 @@ async function deleteDateCycle(uniqueKey) {
         ...existing,
         pending: true,
         pending_action: 'delete',
+        delete_it: '1',
         last_edited: new Date().toISOString()
     }));
 
@@ -1966,6 +2007,7 @@ async function deleteDateCycle(uniqueKey) {
                 }
             }
         }
+        await waitForSyncStoreIdle();
         await requestHighlightRefresh();
         console.log(`DateCycle with unique_key: ${uniqueKey} deleted from the server.`);
     } catch (error) {

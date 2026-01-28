@@ -4553,7 +4553,7 @@ svg path #june:hover {
 
 .date-info.collapse-delete {
     overflow: hidden;
-    animation: collapseDateInfo 0.35s ease forwards;
+    animation: collapseDateInfo 0.6s ease forwards;
 }
 
 
