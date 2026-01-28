@@ -1664,7 +1664,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     if (saveButton && !saveButton.dataset.loading) {
         saveButton.dataset.loading = 'true';
         saveButton.disabled = true;
-        saveButton.innerHTML = '<img class="ec-loading-spinner" src="svgs/earthcal-spinner.svg" alt="Saving" />';
+        saveButton.innerHTML = '<object class="ec-loading-spinner" src="svgs/earthcal-spinner.svg" alt="Saving" />';
     }
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = parseInt(document.getElementById('edit-year-field2').value);

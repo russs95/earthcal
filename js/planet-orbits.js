@@ -110,7 +110,7 @@ function buildSolarAnimatorByRotation() {
     if (!sol) throw new Error("Missing #sol");
 
     const pivot = { x: sol.cx.baseVal.value, y: sol.cy.baseVal.value };
-    const epochDate = new Date(Date.UTC(2025, 0, 1));
+    const epochDate = new Date(Date.UTC(2026, 0, 1));
 
     const planets = [
         new PlanetGroupRotator("mercury", 88, pivot, { direction: +1, minFrameMs: 0 }),

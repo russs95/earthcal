@@ -1,6 +1,20 @@
 /* 1-stylesheet v 4.7 */
 
+:root {
+    @media (min-width: 1200px) {
+        --time-control-size: 35px;
+    }
 
+    @media (max-width: 1200px) {
+        --time-control-size: 27px;
+    }
+
+
+    @media (max-width: 769px) {
+
+        --time-control-size: 24px;
+    }
+}
 
 svg, svg * {
   user-select: none;
@@ -497,8 +511,8 @@ flex-direction: row;
   border: none;
   margin: 0;
   cursor: pointer;
-  height: var(--time-control-size, 30px);
-  width: var(--time-control-size, 30px);
+  /*height: var(--time-control-size);*/
+  /*width: var(--time-control-size);*/
   pointer-events: all;
 }
 
@@ -4709,7 +4723,7 @@ svg path #june:hover {
     margin-left: auto;
     margin-top: -10px;
     margin-right: 20px;
-    --time-control-size: 30px;
+
 }
 
 #time-controller > div {
@@ -4734,11 +4748,12 @@ svg path #june:hover {
 #time-controller #event-show-hide.eye-closed {
     margin: 0;
     padding: 0;
-    width: var(--time-control-size);
+    width: calc(var(--time-control-size) + 15px);
     height: var(--time-control-size);
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
+    margin-top: 4px;
 }
 
 #time-controller #reset-to-today {
@@ -4749,7 +4764,7 @@ svg path #june:hover {
 @media (max-width: 1024px) {
     #time-controller {
         width: 286px;
-        --time-control-size: 27px;
+        /*--time-control-size: 27px;*/
     }
 }
 
@@ -4757,9 +4772,12 @@ svg path #june:hover {
     #time-controller {
         width: 250px;
         padding: 6px 12px;
-        --time-control-size: 24px;
+        /*--time-control-size: 24px;*/
     }
 }
+
+
+
 
 #bottom-left-buttons {
     display: flex;
