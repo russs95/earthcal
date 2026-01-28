@@ -53,12 +53,19 @@ function unwrapAngleBySign(startDeg, endDeg, directionSign) {
 
 /* 3) PLANET ROTATOR (epoch angle comes from SVG once) */
 class PlanetGroupRotator {
-    constructor(groupId, orbitDays, pivot, { direction = +1, minFrameMs = 0 } = {}) {
+    constructor(
+        groupId,
+        orbitDays,
+        pivot,
+        { direction = +1, minFrameMs = 0, counterRotateId = null, counterPivot = null } = {}
+    ) {
         this.groupId = groupId;
         this.orbitDays = orbitDays;
         this.direction = direction;
         this.pivot = pivot;
         this.minFrameMs = minFrameMs;
+        this.counterRotateId = counterRotateId;
+        this.counterPivot = counterPivot;
 
         this.el = document.getElementById(groupId);
         if (!this.el) {
@@ -74,6 +81,20 @@ class PlanetGroupRotator {
             this.el.dataset.ecEpochAngle = String(parseRotateDegrees(tf));
         }
         this.epochAngle = parseFloat(this.el.dataset.ecEpochAngle);
+
+        this.counterEl = null;
+        this.counterBaseTransform = "";
+        if (this.counterRotateId) {
+            this.counterEl = document.getElementById(this.counterRotateId);
+            if (!this.counterEl) {
+                console.warn(`Missing counter-rotation group: #${this.counterRotateId}`);
+            } else if (this.counterEl.dataset.ecBaseTransform == null) {
+                this.counterEl.dataset.ecBaseTransform = this.counterEl.getAttribute("transform") || "";
+                this.counterBaseTransform = this.counterEl.dataset.ecBaseTransform;
+            } else {
+                this.counterBaseTransform = this.counterEl.dataset.ecBaseTransform;
+            }
+        }
 
         this._lastSetMs = -Infinity;
     }
@@ -91,6 +112,7 @@ class PlanetGroupRotator {
 
         const { x, y } = this.pivot;
         this.el.setAttribute("transform", `rotate(${angleDeg} ${x} ${y})`);
+        this.applyCounterRotation(angleDeg);
     }
 
     forceAngle(angleDeg) {
@@ -98,6 +120,16 @@ class PlanetGroupRotator {
         const { x, y } = this.pivot;
         this.el.setAttribute("transform", `rotate(${angleDeg} ${x} ${y})`);
         this._lastSetMs = performance.now();
+        this.applyCounterRotation(angleDeg);
+    }
+
+    applyCounterRotation(angleDeg) {
+        if (!this.counterEl) return;
+        const pivot = this.counterPivot || this.pivot;
+        const { x, y } = pivot;
+        const counterAngle = -angleDeg;
+        const base = this.counterBaseTransform ? `${this.counterBaseTransform} ` : "";
+        this.counterEl.setAttribute("transform", `${base}rotate(${counterAngle} ${x} ${y})`);
     }
 }
 
@@ -115,7 +147,11 @@ function buildSolarAnimatorByRotation() {
     const planets = [
         new PlanetGroupRotator("mercury", 88, pivot, { direction: +1, minFrameMs: 0 }),
         new PlanetGroupRotator("venus", 224.7, pivot, { direction: +1, minFrameMs: 0 }),
-        new PlanetGroupRotator("earth", 365.256, pivot, { direction: +1, minFrameMs: 0 }),
+        new PlanetGroupRotator("earth", 365.256, pivot, {
+            direction: +1,
+            minFrameMs: 0,
+            counterRotateId: "zodiacs",
+        }),
         new PlanetGroupRotator("mars", 686.98, pivot, { direction: +1, minFrameMs: 16 }),
         new PlanetGroupRotator("jupiter", 4332.59, pivot, { direction: +1, minFrameMs: 48 }),
         new PlanetGroupRotator("saturn", 10759, pivot, { direction: +1, minFrameMs: 120 }),
@@ -707,4 +743,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
-

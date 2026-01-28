@@ -11,6 +11,10 @@ const storedAnimations = localStorage.getItem('user_animations');
 window.userAnimations = storedAnimations === null ? true : storedAnimations === 'true';
 if (storedAnimations === null) localStorage.setItem('user_animations', 'true');
 
+const storedZodiacPositions = localStorage.getItem('user_zodiac_positions');
+window.userZodiacPositions = storedZodiacPositions === null ? false : storedZodiacPositions === 'true';
+if (storedZodiacPositions === null) localStorage.setItem('user_zodiac_positions', 'false');
+
 function applyUserDarkMode() {
     if (userDarkMode !== 'dark') return;
     const lightLinks = document.querySelectorAll('link[href*="light.css"]');
@@ -325,6 +329,13 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
+                <span>View zodiac positions:</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} onchange="toggleZodiacPositions(this.checked)" aria-label="View zodiac positions">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
                 <span>Solar system animations:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
@@ -539,6 +550,18 @@ function toggleClockView(isChecked) {
     localStorage.setItem('user_clock', isChecked);
 }
 
+function setZodiacVisibility(isVisible) {
+    const zodiacGroup = document.getElementById('zodiacs');
+    if (!zodiacGroup) return;
+    zodiacGroup.style.display = isVisible ? 'inline' : 'none';
+}
+
+function toggleZodiacPositions(isChecked) {
+    userZodiacPositions = isChecked;
+    localStorage.setItem('user_zodiac_positions', isChecked);
+    setZodiacVisibility(isChecked);
+}
+
 function toggleSolarAnimations(isChecked) {
     userAnimations = isChecked;
     localStorage.setItem('user_animations', isChecked);
@@ -553,6 +576,12 @@ function toggleSolarAnimations(isChecked) {
             el?.getAnimations().forEach(anim => anim.cancel());
         });
     }
+}
+
+if (document.readyState !== 'loading') {
+    setZodiacVisibility(userZodiacPositions);
+} else {
+    document.addEventListener('DOMContentLoaded', () => setZodiacVisibility(userZodiacPositions));
 }
 
 function checkScreenSize() {
