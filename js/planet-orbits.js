@@ -99,6 +99,22 @@ class PlanetGroupRotator {
         this._lastSetMs = -Infinity;
     }
 
+    resolveCounterPivot() {
+        if (!this.counterEl || this.counterPivot) return;
+        if (getComputedStyle(this.counterEl).display === "none") return;
+        let bbox;
+        try {
+            bbox = this.counterEl.getBBox();
+        } catch (error) {
+            return;
+        }
+        if (!bbox || (bbox.width === 0 && bbox.height === 0)) return;
+        this.counterPivot = {
+            x: bbox.x + bbox.width / 2,
+            y: bbox.y + bbox.height / 2,
+        };
+    }
+
     angleAt(date, epochDate) {
         const days = daysBetweenUTC(epochDate, date);
         const rev = days / this.orbitDays;
@@ -125,6 +141,7 @@ class PlanetGroupRotator {
 
     applyCounterRotation(angleDeg) {
         if (!this.counterEl) return;
+        this.resolveCounterPivot();
         const pivot = this.counterPivot || this.pivot;
         const { x, y } = pivot;
         const counterAngle = -angleDeg;
