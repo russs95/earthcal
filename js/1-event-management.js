@@ -1664,7 +1664,8 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     if (saveButton && !saveButton.dataset.loading) {
         saveButton.dataset.loading = 'true';
         saveButton.disabled = true;
-        saveButton.innerHTML = '<object class="ec-loading-spinner" src="svgs/earthcal-spinner.svg" alt="Saving" />';
+        saveButton.classList.add('confirmation-blur-button--loading');
+        saveButton.innerHTML = '<span class="ec-loading-spinner-wrapper" aria-hidden="true"><object class="ec-loading-spinner ec-loading-spinner--small" data="svgs/earthcal-spinner.svg" type="image/svg+xml" aria-hidden="true"></object></span>';
     }
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = parseInt(document.getElementById('edit-year-field2').value);
@@ -1681,6 +1682,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
         if (saveButton) {
             saveButton.disabled = false;
             saveButton.removeAttribute('data-loading');
+            saveButton.classList.remove('confirmation-blur-button--loading');
             saveButton.textContent = originalSaveLabel.trim();
         }
         return;
@@ -1716,6 +1718,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
         if (saveButton) {
             saveButton.disabled = false;
             saveButton.removeAttribute('data-loading');
+            saveButton.classList.remove('confirmation-blur-button--loading');
             saveButton.textContent = originalSaveLabel.trim();
         }
         return;

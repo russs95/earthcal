@@ -3627,6 +3627,24 @@ INFO MODAL
     width: 100%;
     }
 
+.confirmation-blur-button.confirmation-blur-button--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ec-loading-spinner-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ec-loading-spinner.ec-loading-spinner--small {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
 
   .confirmation-blur-button:hover {
   background-color: var(--form-conf-background-over);
