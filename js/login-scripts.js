@@ -985,34 +985,10 @@ function getOfflineUserData({ useCachedData = true } = {}) {
         console.warn('[offline] Online without auth; skipping offline mode.');
 
         try {
-            const promptKey = 'ec_cached_login_prompted';
             const cachedContext = typeof getCachedUserContext === 'function'
                 ? getCachedUserContext()
                 : { hasCachedData: false };
-            const hasPrompted = sessionStorage.getItem(promptKey) === 'true';
-
-            if (cachedContext?.hasCachedData && !hasPrompted) {
-                sessionStorage.setItem(promptKey, 'true');
-                const shouldLogin = window.confirm(
-                    'Please login to load your date, cycles and other awesome Earthcal data'
-                );
-
-                if (shouldLogin) {
-                    if (typeof createJWTloginURL === 'function') {
-                        Promise.resolve(createJWTloginURL())
-                            .then((url) => {
-                                if (url) {
-                                    window.location.href = url;
-                                }
-                            })
-                            .catch((error) => {
-                                console.warn('[offline] Unable to start login flow.', error);
-                            });
-                    } else if (typeof sendUpRegistration === 'function') {
-                        sendUpRegistration();
-                    }
-                }
-            }
+            alertLoginRequiredForCachedData(cachedContext);
         } catch (error) {
             console.warn('[offline] Unable to prompt for login when cached data exists.', error);
         }
@@ -2691,6 +2667,23 @@ function getCachedUserContext() {
     };
 }
 
+function alertLoginRequiredForCachedData(cachedContext = {}) {
+    if (!navigator.onLine) {
+        return false;
+    }
+
+    const promptKey = 'ec_cached_login_prompted';
+    const hasPrompted = sessionStorage.getItem(promptKey) === 'true';
+
+    if (cachedContext?.hasCachedData && !hasPrompted) {
+        sessionStorage.setItem(promptKey, 'true');
+        window.alert('Please login to view your cached Earthcal data.');
+        return true;
+    }
+
+    return false;
+}
+
 function setLoginViewCopy(title, subtitle) {
     const statusMessage = document.getElementById('status-message');
     const subStatusMessage = document.getElementById('sub-status-message');
@@ -2855,37 +2848,19 @@ async function sendUpRegistration() {
         createJWTloginURL();
 
         if (hasCachedData) {
-            const emoji = cachedProfile?.earthling_emoji
-                || cachedProfile?.["buwana:earthlingEmoji"]
-                || "🌱";
-            const formattedTotal = new Intl.NumberFormat().format(Math.max(0, totalDateItems || 0));
-
+            alertLoginRequiredForCachedData({ hasCachedData });
+            setOfflineModeChoice('simple');
             setRegistrationFooterBackground('login');
             loggedOutView.style.display = "block";
             loggedInView.style.display = "none";
 
             setLoginViewCopy(
-                "You're in offline mode",
-                `Earthcal is using your ${formattedTotal} cached dates and cycle data. Login again with your Buwana credentials to sync with your Earthcal account.`
+                "Login to view your data",
+                "Please login with your Buwana account to access your saved Earthcal dates and cycles."
             );
 
-            if (loginButton) {
-                loginButton.textContent = `${emoji} Login`;
-                loginButton.style.display = 'block';
-            }
-
-            if (signupButton) {
-                signupButton.style.display = 'none';
-            }
-
-            configureOfflineModeButton({
-                visible: true,
-                onClick: () => {
-                    if (typeof sendDownRegistration === 'function') {
-                        sendDownRegistration();
-                    }
-                }
-            });
+            configureOfflineModeButton({ visible: false });
+            showLoginForm(loggedOutView, loggedInView);
         } else {
             setLoginViewCopy(
                 "Welcome Earthling",
@@ -4132,4 +4107,3 @@ function logoutBuwana() {
     // 🌿 (Optional) Re-generate login URL again if needed
     sendDownRegistration();
 }
-
