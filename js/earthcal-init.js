@@ -76,12 +76,12 @@ async function initCalendar() {
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1",
-        "js/time-setting.js?v=1.81",
+        "js/time-setting.js?v=1.82",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=8",
+        "js/planet-orbits.js?v=8.2",
         // rest of app
-        "js/login-scripts.js?v=20",
+        "js/login-scripts.js?v=20.1",
         "js/item-management.js?v=9.97",
         "js/calendar-scripts.js?v=2.7",
     ];
