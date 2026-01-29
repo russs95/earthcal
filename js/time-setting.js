@@ -82,7 +82,9 @@ function updateZodiacGroundShade(value) {
     const shade = getZodiacShadeHex(value);
     const zodiacLines = document.getElementById('zodiac-lines');
     const zodiacTexts = document.getElementById('zodiac-texts');
-    const zodiacSymbols = document.getElementById('zodiac-symbols');
+    const zodiacSymbols = document.getElementById('zodiac-symbols')
+        || document.getElementById('g33')
+        || document.getElementById('zodiacs');
     const zodiacContrastRow = document.getElementById('zodiac-contrast-row');
 
     if (zodiacLines) {
@@ -316,13 +318,10 @@ async function showUserCalSettings() {
 
     const profileButtonsHtml = editProfileUrl
         ? `
-            <div id="logged-in-buttons" class="settings-profile-actions">
-                <button type="button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
+            <div class="settings-profile-actions">
+                <button type="button" id="edit-buwana-button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
                     Edit Buwana Profile
                 </button>
-                <p class="ec-profile-connection-note" style="margin:0;text-align:center;font-size:0.85rem;color:var(--subdued-text, #6b7280);">
-                    You are connected to Earthcal with your ${earthlingEmoji} ${sanitizedFirstName} Buwana account.
-                </p>
             </div>
         `
         : '';
@@ -547,6 +546,7 @@ async function showUserCalSettings() {
         zodiacContrastSlider.addEventListener('input', (event) => {
             const newValue = clampZodiacShadeSetting(event.target.value);
             event.target.value = String(newValue);
+            updateZodiacGroundShade(newValue);
             checkSettingsChange();
         });
     }
@@ -571,6 +571,9 @@ async function animateApplySettingsButton() {
     const restoreApplyButton = typeof globalSaveSpinner === 'function'
         ? globalSaveSpinner(applyButton)
         : null;
+    const applyStartTime = typeof performance !== 'undefined' && performance.now
+        ? performance.now()
+        : Date.now();
     const zodiacSlider = document.getElementById('zodiac-contrast-slider');
     if (zodiacSlider) {
         const newValue = clampZodiacShadeSetting(zodiacSlider.value);
@@ -578,11 +581,11 @@ async function animateApplySettingsButton() {
         localStorage.setItem('zodiac_shade_setting', String(newValue));
         updateZodiacGroundShade(newValue);
     }
-    await applySettings();
+    await applySettings(applyStartTime);
     restoreApplyButton?.();
 }
 
-async function applySettings() {
+async function applySettings(applyStartTime) {
     const timezoneSelect = document.getElementById('timezone');
     const languageSelect = document.getElementById('language');
 
@@ -602,6 +605,18 @@ async function applySettings() {
         mainClock.style.display = 'none';
     }
 
+    const startTime = typeof applyStartTime === 'number' ? applyStartTime : null;
+    if (startTime !== null) {
+        const elapsed = (typeof performance !== 'undefined' && performance.now)
+            ? performance.now() - startTime
+            : Date.now() - startTime;
+        const remainingDelay = Math.max(0, 400 - elapsed);
+        if (remainingDelay > 0) {
+            await new Promise(resolve => setTimeout(resolve, remainingDelay));
+        }
+    } else {
+        await new Promise(resolve => setTimeout(resolve, 400));
+    }
     closeTheModal();
 }
 
