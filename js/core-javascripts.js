@@ -38,6 +38,30 @@ function getApiBase() {
     : resolveEarthcalApiBase();
 }
 
+function globalSaveSpinner(button) {
+  if (!button || button.dataset.loading === "true") {
+    return null;
+  }
+
+  const original = {
+    html: button.innerHTML,
+    disabled: button.disabled,
+  };
+
+  button.dataset.loading = "true";
+  button.disabled = true;
+  button.classList.add("ec-save-button--loading");
+  button.innerHTML =
+    '<span class="ec-loading-spinner-wrapper" aria-hidden="true"><object class="ec-loading-spinner ec-loading-spinner--small" data="svgs/earthcal-spinner.svg" type="image/svg+xml" aria-hidden="true"></object></span>';
+
+  return () => {
+    button.disabled = original.disabled;
+    button.classList.remove("ec-save-button--loading");
+    button.innerHTML = original.html;
+    button.removeAttribute("data-loading");
+  };
+}
+
 // Ensure the comet button click handler always exists so visitors without the
 // fully initialized dashboard (for example, logged-out users) don't encounter a
 // ReferenceError when they tap the button. The DOMContentLoaded handler later in

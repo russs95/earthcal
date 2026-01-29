@@ -3628,7 +3628,8 @@ INFO MODAL
     width: 100%;
     }
 
-.confirmation-blur-button.confirmation-blur-button--loading {
+.confirmation-blur-button.confirmation-blur-button--loading,
+.ec-save-button--loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4474,6 +4475,15 @@ svg path #june:hover {
 
 .stellar-submit {
     width: 100%;
+}
+
+.stellar-submit.stellar-submit--apply {
+    background-color: var(--emblem-green);
+    color: #f7f9fb;
+}
+
+.stellar-submit.stellar-submit--apply:hover {
+    background-color: var(--emblem-green-over);
 }
 
 /* Loading State for Sync Buttons */

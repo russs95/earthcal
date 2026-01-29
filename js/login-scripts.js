@@ -757,6 +757,11 @@ function isForcedOfflineEnabled() {
         if (stored === 'true') {
             return true;
         }
+        if (stored === null) {
+            localStorage.setItem(FORCED_OFFLINE_STORAGE_KEY, 'true');
+            window.isForcedOffline = true;
+            return true;
+        }
     } catch (err) {
         console.warn('[EarthCal] Unable to read forced offline preference:', err);
     }
