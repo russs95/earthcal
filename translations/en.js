@@ -94,7 +94,7 @@ settings: {
     applySettings: "Apply Settings",
     saving: "Saving...",
     darkMode: {
-        legend: "Toggle dark and light mode:",
+        legend: "Toggle dark mode",
         remember: "Remember for all pages"
     }
 },
