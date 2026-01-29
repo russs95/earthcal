@@ -1661,6 +1661,13 @@ function editDateCycle(uniqueKey) {
 async function saveDateCycleEditedChanges(uniqueKey) {
     const saveButton = document.getElementById('edit-confirm-dateCycle');
     const originalSaveLabel = saveButton ? saveButton.textContent : '';
+    const loadingStartTime = performance.now();
+    const ensureMinimumSpinnerTime = async () => {
+        const elapsed = performance.now() - loadingStartTime;
+        if (elapsed < 400) {
+            await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
+        }
+    };
     if (saveButton && !saveButton.dataset.loading) {
         saveButton.dataset.loading = 'true';
         saveButton.disabled = true;
@@ -1682,6 +1689,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     const record = findDateCycleInStorage(uniqueKey);
     if (!record) {
         alert('Could not find the dateCycle to update.');
+        await ensureMinimumSpinnerTime();
         if (saveButton) {
             saveButton.disabled = false;
             saveButton.removeAttribute('data-loading');
@@ -1718,6 +1726,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     } catch (error) {
         console.error(`⚠️ Error updating server for edited dateCycle: ${title}`, error);
         alert('Unable to update event right now. Please try again later.');
+        await ensureMinimumSpinnerTime();
         if (saveButton) {
             saveButton.disabled = false;
             saveButton.removeAttribute('data-loading');
@@ -1727,6 +1736,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
         return;
     }
 
+    await ensureMinimumSpinnerTime();
     document.getElementById('form-modal-message').classList.replace('modal-visible', 'modal-hidden');
     document.getElementById('page-content').classList.remove('blur');
 
