@@ -329,13 +329,6 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>View zodiac positions:</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} onchange="toggleZodiacPositions(this.checked)" aria-label="View zodiac positions">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="toggle-row">
                 <span>Solar system animations:</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
@@ -350,14 +343,34 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Use Earthcal in offline mode. Turn off all internet and syncing functionality</span>
+                <span>🔌 Use Earthcal in offline mode</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
+            <div class="toggle-row toggle-row-zodiac" id="zodiac-toggle-row">
+                <div class="toggle-row-main">
+                    <div class="zodiac-toggle-label">
+                        <button type="button" class="zodiac-info-button" id="zodiac-info-button" aria-label="View zodiac positions info" aria-expanded="false">
+                            <span id="zodiac-info-icon" aria-hidden="true">ℹ️</span>
+                            <span class="zodiac-tooltip" role="tooltip">This will soon a premium user feature to view the positions of the planets in the zodiac sectors.</span>
+                        </button>
+                        <span>View zodiac positions</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} onchange="toggleZodiacPositions(this.checked)" aria-label="View zodiac positions">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="zodiac-contrast-row" id="zodiac-contrast-row" aria-hidden="true">
+                    <span class="zodiac-contrast-label" aria-hidden="true">⚪</span>
+                    <input type="range" id="zodiac-contrast-slider" min="-100" max="100" value="0" step="1" aria-label="Zodiac ground contrast">
+                    <span class="zodiac-contrast-label" aria-hidden="true">⚫</span>
+                </div>
+            </div>
             <div class="toggle-row">
-                <span>Clear all your Earthcal user data from cache</span>
+                <span>⚠️ Clear the Earthcal cache.</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
                     CLEAR
                 </button>
@@ -430,6 +443,110 @@ async function showUserCalSettings() {
     const clearUserDataButton = modalContent.querySelector('#clear-user-data-button');
     if (clearUserDataButton) {
         clearUserDataButton.addEventListener('click', clearAllUserData);
+    }
+
+    const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
+    const zodiacInfoButton = modalContent.querySelector('#zodiac-info-button');
+    const zodiacInfoIcon = modalContent.querySelector('#zodiac-info-icon');
+    const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
+    const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
+    const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
+
+    const getZodiacGroundElement = () => {
+        const zodiacGroup = document.getElementById('zodiacs');
+        if (!zodiacGroup) return null;
+        return zodiacGroup.querySelector('#path3') || zodiacGroup.querySelector('path');
+    };
+
+    const parseHexColor = (color) => {
+        if (!color || typeof color !== 'string') return null;
+        const trimmed = color.trim();
+        if (!trimmed.startsWith('#')) return null;
+        const hex = trimmed.slice(1);
+        if (hex.length === 3) {
+            return [
+                parseInt(hex[0] + hex[0], 16),
+                parseInt(hex[1] + hex[1], 16),
+                parseInt(hex[2] + hex[2], 16)
+            ];
+        }
+        if (hex.length === 6) {
+            return [
+                parseInt(hex.slice(0, 2), 16),
+                parseInt(hex.slice(2, 4), 16),
+                parseInt(hex.slice(4, 6), 16)
+            ];
+        }
+        return null;
+    };
+
+    const getBaseZodiacColor = () => {
+        const element = getZodiacGroundElement();
+        if (!element) return [255, 255, 255];
+        if (element.dataset.baseFill) {
+            return element.dataset.baseFill.split(',').map(Number);
+        }
+        const inlineFill = element.getAttribute('fill');
+        const styleFill = element.style.fill;
+        const fill = inlineFill || styleFill || '#ffffff';
+        const parsed = parseHexColor(fill) || [255, 255, 255];
+        element.dataset.baseFill = parsed.join(',');
+        return parsed;
+    };
+
+    const updateZodiacGroundContrast = (value) => {
+        const element = getZodiacGroundElement();
+        if (!element) return;
+        const base = getBaseZodiacColor();
+        const clamped = Math.max(-100, Math.min(100, Number(value) || 0));
+        const target = clamped < 0 ? [255, 255, 255] : [0, 0, 0];
+        const ratio = Math.abs(clamped) / 100;
+        const blended = base.map((channel, index) => {
+            const blendedValue = channel + (target[index] - channel) * ratio;
+            return Math.round(blendedValue);
+        });
+        element.style.fill = `rgb(${blended[0]}, ${blended[1]}, ${blended[2]})`;
+    };
+
+    const setZodiacExpanded = (isExpanded) => {
+        if (!zodiacToggleRow || !zodiacContrastRow || !zodiacInfoButton) return;
+        zodiacToggleRow.classList.toggle('expanded', isExpanded);
+        zodiacContrastRow.style.display = isExpanded ? 'flex' : 'none';
+        zodiacContrastRow.setAttribute('aria-hidden', String(!isExpanded));
+        zodiacInfoButton.setAttribute('aria-expanded', String(isExpanded));
+    };
+
+    const updateZodiacToggleUI = (isChecked) => {
+        if (!zodiacInfoIcon) return;
+        zodiacInfoIcon.textContent = isChecked ? '∨' : 'ℹ️';
+        if (!isChecked) {
+            setZodiacExpanded(false);
+            if (zodiacContrastSlider) {
+                zodiacContrastSlider.value = '0';
+                updateZodiacGroundContrast(0);
+            }
+        }
+    };
+
+    if (zodiacToggle) {
+        updateZodiacToggleUI(zodiacToggle.checked);
+        zodiacToggle.addEventListener('change', (event) => {
+            updateZodiacToggleUI(event.target.checked);
+        });
+    }
+
+    if (zodiacInfoButton) {
+        zodiacInfoButton.addEventListener('click', () => {
+            if (!zodiacToggle?.checked) return;
+            const isExpanded = zodiacToggleRow?.classList.contains('expanded');
+            setZodiacExpanded(!isExpanded);
+        });
+    }
+
+    if (zodiacContrastSlider) {
+        zodiacContrastSlider.addEventListener('input', (event) => {
+            updateZodiacGroundContrast(event.target.value);
+        });
     }
 }
 
