@@ -1667,6 +1667,9 @@ async function saveDateCycleEditedChanges(uniqueKey) {
         saveButton.classList.add('confirmation-blur-button--loading');
         saveButton.innerHTML = '<span class="ec-loading-spinner-wrapper" aria-hidden="true"><object class="ec-loading-spinner ec-loading-spinner--small" data="svgs/earthcal-spinner.svg" type="image/svg+xml" aria-hidden="true"></object></span>';
     }
+    if (saveButton) {
+        await new Promise(requestAnimationFrame);
+    }
     const frequency = document.getElementById('edit-dateCycle-type').value;
     const yearField = parseInt(document.getElementById('edit-year-field2').value);
     const dayField = parseInt(document.getElementById('edit-day-field2').value);
