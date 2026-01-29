@@ -421,10 +421,10 @@ async function showUserCalSettings() {
                     CLEAR
                 </button>
             </div>
-            ${profileButtonsHtml}
-            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit" style="display:none;">
+            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit stellar-submit--apply" style="display:none;">
                 ${settingsContent.applySettings}
             </button>
+            ${profileButtonsHtml}
         </form>
     `;
 
@@ -459,14 +459,24 @@ async function showUserCalSettings() {
     const applyButton = modalContent.querySelector('.stellar-submit');
     const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
     const offlineModeSubRow = modalContent.querySelector('#offline-mode-sub-row');
+    const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
+    const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
+    const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
+    const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
+    const initialZodiacShadeSetting = zodiacContrastSlider
+        ? Number(zodiacContrastSlider.value)
+        : Number(zodiacShadeSetting);
 
     const checkSettingsChange = () => {
         const tzChanged = timezoneSelect?.value !== initialTimezone;
         const langChanged = (languageSelect?.value || '').toLowerCase() !== initialLanguage;
-        if (tzChanged || langChanged) {
+        const zodiacChanged = zodiacContrastSlider
+            ? Number(zodiacContrastSlider.value) !== initialZodiacShadeSetting
+            : false;
+        if (tzChanged || langChanged || zodiacChanged) {
             applyButton.style.display = 'block';
         } else {
             applyButton.style.display = 'none';
@@ -485,7 +495,7 @@ async function showUserCalSettings() {
     const forcedOfflineToggle = modalContent.querySelector('#forced-offline-toggle');
     const updateOfflineSubRowVisibility = (isForcedOffline) => {
         if (!offlineModeSubRow) return;
-        const isHidden = isForcedOffline === true;
+        const isHidden = isForcedOffline !== true;
         offlineModeSubRow.style.display = isHidden ? 'none' : 'flex';
         offlineModeSubRow.setAttribute('aria-hidden', String(isHidden));
     };
@@ -508,11 +518,6 @@ async function showUserCalSettings() {
     if (clearUserDataButton) {
         clearUserDataButton.addEventListener('click', clearAllUserData);
     }
-
-    const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
-    const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
-    const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
-    const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
 
     const setZodiacExpanded = (isExpanded) => {
         if (!zodiacToggleRow || !zodiacContrastRow) return;
@@ -541,11 +546,8 @@ async function showUserCalSettings() {
         zodiacContrastSlider.value = String(clampZodiacShadeSetting(zodiacShadeSetting));
         zodiacContrastSlider.addEventListener('input', (event) => {
             const newValue = clampZodiacShadeSetting(event.target.value);
-            zodiacShadeSetting = newValue;
-            localStorage.setItem('zodiac_shade_setting', String(newValue));
-            const cachedValue = localStorage.getItem('zodiac_shade_setting');
-            console.log('Zodiac slider shade set:', getZodiacShadeHex(newValue), 'cached:', getZodiacShadeHex(cachedValue));
-            updateZodiacGroundShade(newValue);
+            event.target.value = String(newValue);
+            checkSettingsChange();
         });
     }
 }
@@ -566,13 +568,18 @@ function getUtcOffset(tz) {
 async function animateApplySettingsButton() {
     const applyButton = document.querySelector('#user-settings-form button[name="apply"]');
     if (!applyButton) return;
-    const lang = (userLanguage || 'en').toLowerCase();
-    const translations = await loadTranslations(lang);
-    const savingText = translations.settings?.saving || 'Saving...';
-    applyButton.classList.add('loading');
-    applyButton.innerText = savingText;
+    const restoreApplyButton = typeof globalSaveSpinner === 'function'
+        ? globalSaveSpinner(applyButton)
+        : null;
+    const zodiacSlider = document.getElementById('zodiac-contrast-slider');
+    if (zodiacSlider) {
+        const newValue = clampZodiacShadeSetting(zodiacSlider.value);
+        zodiacShadeSetting = newValue;
+        localStorage.setItem('zodiac_shade_setting', String(newValue));
+        updateZodiacGroundShade(newValue);
+    }
     await applySettings();
-    applyButton.classList.remove('loading');
+    restoreApplyButton?.();
 }
 
 async function applySettings() {

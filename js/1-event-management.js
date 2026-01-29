@@ -1660,7 +1660,9 @@ function editDateCycle(uniqueKey) {
 
 async function saveDateCycleEditedChanges(uniqueKey) {
     const saveButton = document.getElementById('edit-confirm-dateCycle');
-    const originalSaveLabel = saveButton ? saveButton.textContent : '';
+    const restoreSaveButton = typeof globalSaveSpinner === 'function'
+        ? globalSaveSpinner(saveButton)
+        : null;
     const loadingStartTime = performance.now();
     const ensureMinimumSpinnerTime = async () => {
         const elapsed = performance.now() - loadingStartTime;
@@ -1668,12 +1670,6 @@ async function saveDateCycleEditedChanges(uniqueKey) {
             await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
         }
     };
-    if (saveButton && !saveButton.dataset.loading) {
-        saveButton.dataset.loading = 'true';
-        saveButton.disabled = true;
-        saveButton.classList.add('confirmation-blur-button--loading');
-        saveButton.innerHTML = '<span class="ec-loading-spinner-wrapper" aria-hidden="true"><object class="ec-loading-spinner ec-loading-spinner--small" data="svgs/earthcal-spinner.svg" type="image/svg+xml" aria-hidden="true"></object></span>';
-    }
     if (saveButton) {
         await new Promise(requestAnimationFrame);
     }
@@ -1690,12 +1686,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
     if (!record) {
         alert('Could not find the dateCycle to update.');
         await ensureMinimumSpinnerTime();
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.removeAttribute('data-loading');
-            saveButton.classList.remove('confirmation-blur-button--loading');
-            saveButton.textContent = originalSaveLabel.trim();
-        }
+        restoreSaveButton?.();
         return;
     }
 
@@ -1727,12 +1718,7 @@ async function saveDateCycleEditedChanges(uniqueKey) {
         console.error(`⚠️ Error updating server for edited dateCycle: ${title}`, error);
         alert('Unable to update event right now. Please try again later.');
         await ensureMinimumSpinnerTime();
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.removeAttribute('data-loading');
-            saveButton.classList.remove('confirmation-blur-button--loading');
-            saveButton.textContent = originalSaveLabel.trim();
-        }
+        restoreSaveButton?.();
         return;
     }
 
