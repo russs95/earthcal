@@ -3619,6 +3619,7 @@ INFO MODAL
     border-radius: 10px;
     border: none;
     font-size: larger;
+    min-height: 44px;
     background-color: var(--form-conf-background);
     color: var(--form-conf-text);
     margin: 1px auto 0px auto;
