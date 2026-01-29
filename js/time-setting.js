@@ -83,9 +83,29 @@ function updateZodiacGroundShade(value) {
     const zodiacLines = document.getElementById('zodiac-lines');
     const zodiacTexts = document.getElementById('zodiac-texts');
     const zodiacSymbols = document.getElementById('zodiac-symbols');
-    if (zodiacLines) zodiacLines.style.stroke = shade;
-    if (zodiacTexts) zodiacTexts.style.fill = shade;
-    if (zodiacSymbols) zodiacSymbols.style.fill = shade;
+    const zodiacContrastRow = document.getElementById('zodiac-contrast-row');
+
+    if (zodiacLines) {
+        zodiacLines.style.stroke = shade;
+        zodiacLines.querySelectorAll('path, line, polyline, polygon, circle, ellipse').forEach((node) => {
+            node.setAttribute('stroke', shade);
+        });
+    }
+    if (zodiacTexts) {
+        zodiacTexts.style.fill = shade;
+        zodiacTexts.querySelectorAll('path, text, tspan').forEach((node) => {
+            node.setAttribute('fill', shade);
+        });
+    }
+    if (zodiacSymbols) {
+        zodiacSymbols.style.fill = shade;
+        zodiacSymbols.querySelectorAll('path, circle, ellipse, polygon').forEach((node) => {
+            node.setAttribute('fill', shade);
+        });
+    }
+    if (zodiacContrastRow) {
+        zodiacContrastRow.style.setProperty('--zodiac-contrast-color', shade);
+    }
 }
 
 
@@ -364,19 +384,21 @@ async function showUserCalSettings() {
                     <span class="toggle-slider orbit-toggle-slider"></span>
                 </label>
             </div>
-            <div class="toggle-row">
-                <span>Offline shows cached data</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="toggle-row">
-                <span>Use Earthcal in offline mode</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
-                    <span class="toggle-slider"></span>
-                </label>
+            <div class="toggle-row toggle-row-offline" id="forced-offline-row">
+                <div class="toggle-row-main">
+                    <span>Use Earthcal in offline mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-sub-row" id="offline-mode-sub-row" aria-hidden="true">
+                    <span>Offline shows cached data</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
             <div class="toggle-row toggle-row-zodiac" id="zodiac-toggle-row">
                 <div class="toggle-row-main">
@@ -389,9 +411,8 @@ async function showUserCalSettings() {
                     </label>
                 </div>
                 <div class="zodiac-contrast-row" id="zodiac-contrast-row" aria-hidden="true">
-                    <span class="zodiac-contrast-label" aria-hidden="true">⚪</span>
+                    <span class="zodiac-contrast-dot" aria-hidden="true"></span>
                     <input type="range" id="zodiac-contrast-slider" min="-100" max="100" value="${zodiacShadeSetting}" step="1" aria-label="Zodiac ground shade">
-                    <span class="zodiac-contrast-label" aria-hidden="true">⚫</span>
                 </div>
             </div>
             <div class="toggle-row">
@@ -437,6 +458,7 @@ async function showUserCalSettings() {
     const languageSelect = modalContent.querySelector('#language');
     const applyButton = modalContent.querySelector('.stellar-submit');
     const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
+    const offlineModeSubRow = modalContent.querySelector('#offline-mode-sub-row');
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
@@ -461,8 +483,25 @@ async function showUserCalSettings() {
     }
 
     const forcedOfflineToggle = modalContent.querySelector('#forced-offline-toggle');
-    if (forcedOfflineToggle && typeof toggleForcedOfflineMode === 'function') {
-        forcedOfflineToggle.addEventListener('change', toggleForcedOfflineMode);
+    const updateOfflineSubRowVisibility = (isForcedOffline) => {
+        if (!offlineModeSubRow) return;
+        const isHidden = isForcedOffline === true;
+        offlineModeSubRow.style.display = isHidden ? 'none' : 'flex';
+        offlineModeSubRow.setAttribute('aria-hidden', String(isHidden));
+    };
+
+    if (forcedOfflineToggle) {
+        updateOfflineSubRowVisibility(forcedOfflineToggle.checked);
+        if (typeof toggleForcedOfflineMode === 'function') {
+            forcedOfflineToggle.addEventListener('change', (event) => {
+                toggleForcedOfflineMode(event);
+                updateOfflineSubRowVisibility(Boolean(event?.target?.checked));
+            });
+        } else {
+            forcedOfflineToggle.addEventListener('change', (event) => {
+                updateOfflineSubRowVisibility(Boolean(event?.target?.checked));
+            });
+        }
     }
 
     const clearUserDataButton = modalContent.querySelector('#clear-user-data-button');
