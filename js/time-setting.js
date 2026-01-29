@@ -65,12 +65,6 @@ async function displayUserData(time_zone, language) {
     }
 }
 
-function getZodiacGroundElement() {
-    const zodiacGroup = document.getElementById('zodiacs');
-    if (!zodiacGroup) return null;
-    return zodiacGroup.querySelector('#path3') || zodiacGroup.querySelector('path');
-}
-
 function clampZodiacShadeSetting(value) {
     return Math.max(-100, Math.min(100, Number(value) || 0));
 }
@@ -85,9 +79,13 @@ function getZodiacShadeHex(value) {
 }
 
 function updateZodiacGroundShade(value) {
-    const element = getZodiacGroundElement();
-    if (!element) return;
-    element.style.fill = getZodiacShadeHex(value);
+    const shade = getZodiacShadeHex(value);
+    const zodiacLines = document.getElementById('zodiac-lines');
+    const zodiacTexts = document.getElementById('zodiac-texts');
+    const zodiacSymbols = document.getElementById('zodiac-symbols');
+    if (zodiacLines) zodiacLines.style.stroke = shade;
+    if (zodiacTexts) zodiacTexts.style.fill = shade;
+    if (zodiacSymbols) zodiacSymbols.style.fill = shade;
 }
 
 
@@ -271,7 +269,6 @@ async function showUserCalSettings() {
     const translations = await loadTranslations(lang);
 
     console.log("Loaded lang:", lang);
-    console.log("Loaded timezones:", translations.timezones);
 
     const settingsContent = translations.settings;
 
@@ -354,28 +351,28 @@ async function showUserCalSettings() {
                 </dark-mode-toggle>
             </div>
             <div class="toggle-row">
-                <span>Toggle clock view:</span>
+                <span>Toggle clock view</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
                     <span class="toggle-slider clock-toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Solar system animations:</span>
+                <span>Solar system animations</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
                     <span class="toggle-slider orbit-toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Offline mode shows cached data.</span>
+                <span>Offline shows cached data</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
-                <span>🔌 Use Earthcal in offline mode</span>
+                <span>Use Earthcal in offline mode</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                     <span class="toggle-slider"></span>
@@ -384,10 +381,6 @@ async function showUserCalSettings() {
             <div class="toggle-row toggle-row-zodiac" id="zodiac-toggle-row">
                 <div class="toggle-row-main">
                     <div class="zodiac-toggle-label">
-                        <button type="button" class="zodiac-info-button" id="zodiac-info-button" aria-label="View zodiac positions info" aria-expanded="false">
-                            <span id="zodiac-info-icon" aria-hidden="true">ℹ️</span>
-                            <span class="zodiac-tooltip" role="tooltip">This will soon a premium user feature to view the positions of the planets in the zodiac sectors.</span>
-                        </button>
                         <span>View zodiac positions</span>
                     </div>
                     <label class="toggle-switch">
@@ -402,7 +395,7 @@ async function showUserCalSettings() {
                 </div>
             </div>
             <div class="toggle-row">
-                <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">⚠️ Clear the Earthcal cache.</span>
+                <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">⚠️ Clear Earthcal's cache</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
                     CLEAR
                 </button>
@@ -478,27 +471,23 @@ async function showUserCalSettings() {
     }
 
     const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
-    const zodiacInfoButton = modalContent.querySelector('#zodiac-info-button');
-    const zodiacInfoIcon = modalContent.querySelector('#zodiac-info-icon');
     const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
     const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
     const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
 
     const setZodiacExpanded = (isExpanded) => {
-        if (!zodiacToggleRow || !zodiacContrastRow || !zodiacInfoButton) return;
+        if (!zodiacToggleRow || !zodiacContrastRow) return;
         zodiacToggleRow.classList.toggle('expanded', isExpanded);
         zodiacContrastRow.style.display = isExpanded ? 'flex' : 'none';
         zodiacContrastRow.setAttribute('aria-hidden', String(!isExpanded));
-        zodiacInfoButton.setAttribute('aria-expanded', String(isExpanded));
     };
 
     const updateZodiacToggleUI = (isChecked) => {
-        if (!zodiacInfoIcon) return;
-        zodiacInfoIcon.textContent = isChecked ? '⚙️' : 'ℹ️';
         if (!isChecked) {
             setZodiacExpanded(false);
             return;
         }
+        setZodiacExpanded(true);
         updateZodiacGroundShade(zodiacShadeSetting);
     };
 
@@ -509,20 +498,14 @@ async function showUserCalSettings() {
         });
     }
 
-    if (zodiacInfoButton) {
-        zodiacInfoButton.addEventListener('click', () => {
-            if (!zodiacToggle?.checked) return;
-            const isExpanded = zodiacToggleRow?.classList.contains('expanded');
-            setZodiacExpanded(!isExpanded);
-        });
-    }
-
     if (zodiacContrastSlider) {
         zodiacContrastSlider.value = String(clampZodiacShadeSetting(zodiacShadeSetting));
         zodiacContrastSlider.addEventListener('input', (event) => {
             const newValue = clampZodiacShadeSetting(event.target.value);
             zodiacShadeSetting = newValue;
             localStorage.setItem('zodiac_shade_setting', String(newValue));
+            const cachedValue = localStorage.getItem('zodiac_shade_setting');
+            console.log('Zodiac slider shade set:', getZodiacShadeHex(newValue), 'cached:', getZodiacShadeHex(cachedValue));
             updateZodiacGroundShade(newValue);
         });
     }
