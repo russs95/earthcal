@@ -15,6 +15,13 @@ const storedZodiacPositions = localStorage.getItem('user_zodiac_positions');
 window.userZodiacPositions = storedZodiacPositions === null ? false : storedZodiacPositions === 'true';
 if (storedZodiacPositions === null) localStorage.setItem('user_zodiac_positions', 'false');
 
+const storedZodiacShadeSetting = localStorage.getItem('zodiac_shade_setting');
+const parsedZodiacShadeSetting = Number(storedZodiacShadeSetting);
+window.zodiacShadeSetting = storedZodiacShadeSetting === null || Number.isNaN(parsedZodiacShadeSetting)
+    ? 0
+    : parsedZodiacShadeSetting;
+if (storedZodiacShadeSetting === null) localStorage.setItem('zodiac_shade_setting', '0');
+
 function applyUserDarkMode() {
     if (userDarkMode !== 'dark') return;
     const lightLinks = document.querySelectorAll('link[href*="light.css"]');
@@ -56,6 +63,31 @@ async function displayUserData(time_zone, language) {
     if (!window.updateTimeInterval) {
         window.updateTimeInterval = setInterval(updateTime, 1000);
     }
+}
+
+function getZodiacGroundElement() {
+    const zodiacGroup = document.getElementById('zodiacs');
+    if (!zodiacGroup) return null;
+    return zodiacGroup.querySelector('#path3') || zodiacGroup.querySelector('path');
+}
+
+function clampZodiacShadeSetting(value) {
+    return Math.max(-100, Math.min(100, Number(value) || 0));
+}
+
+function getZodiacShadeHex(value) {
+    const clamped = clampZodiacShadeSetting(value);
+    const baseGrey = 128;
+    let greyValue = Math.round(baseGrey - (clamped / 100) * baseGrey);
+    greyValue = Math.max(0, Math.min(255, greyValue));
+    const hex = greyValue.toString(16).padStart(2, '0');
+    return `#${hex}${hex}${hex}ff`;
+}
+
+function updateZodiacGroundShade(value) {
+    const element = getZodiacGroundElement();
+    if (!element) return;
+    element.style.fill = getZodiacShadeHex(value);
 }
 
 
@@ -336,7 +368,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Offline mode uses cached data. Syncs-up when online.</span>
+                <span>Offline mode shows cached data.</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                     <span class="toggle-slider"></span>
@@ -365,12 +397,12 @@ async function showUserCalSettings() {
                 </div>
                 <div class="zodiac-contrast-row" id="zodiac-contrast-row" aria-hidden="true">
                     <span class="zodiac-contrast-label" aria-hidden="true">⚪</span>
-                    <input type="range" id="zodiac-contrast-slider" min="-100" max="100" value="0" step="1" aria-label="Zodiac ground contrast">
+                    <input type="range" id="zodiac-contrast-slider" min="-100" max="100" value="${zodiacShadeSetting}" step="1" aria-label="Zodiac ground shade">
                     <span class="zodiac-contrast-label" aria-hidden="true">⚫</span>
                 </div>
             </div>
             <div class="toggle-row">
-                <span>⚠️ Clear the Earthcal cache.</span>
+                <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">⚠️ Clear the Earthcal cache.</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
                     CLEAR
                 </button>
@@ -452,62 +484,6 @@ async function showUserCalSettings() {
     const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
     const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
 
-    const getZodiacGroundElement = () => {
-        const zodiacGroup = document.getElementById('zodiacs');
-        if (!zodiacGroup) return null;
-        return zodiacGroup.querySelector('#path3') || zodiacGroup.querySelector('path');
-    };
-
-    const parseHexColor = (color) => {
-        if (!color || typeof color !== 'string') return null;
-        const trimmed = color.trim();
-        if (!trimmed.startsWith('#')) return null;
-        const hex = trimmed.slice(1);
-        if (hex.length === 3) {
-            return [
-                parseInt(hex[0] + hex[0], 16),
-                parseInt(hex[1] + hex[1], 16),
-                parseInt(hex[2] + hex[2], 16)
-            ];
-        }
-        if (hex.length === 6) {
-            return [
-                parseInt(hex.slice(0, 2), 16),
-                parseInt(hex.slice(2, 4), 16),
-                parseInt(hex.slice(4, 6), 16)
-            ];
-        }
-        return null;
-    };
-
-    const getBaseZodiacColor = () => {
-        const element = getZodiacGroundElement();
-        if (!element) return [255, 255, 255];
-        if (element.dataset.baseFill) {
-            return element.dataset.baseFill.split(',').map(Number);
-        }
-        const inlineFill = element.getAttribute('fill');
-        const styleFill = element.style.fill;
-        const fill = inlineFill || styleFill || '#ffffff';
-        const parsed = parseHexColor(fill) || [255, 255, 255];
-        element.dataset.baseFill = parsed.join(',');
-        return parsed;
-    };
-
-    const updateZodiacGroundContrast = (value) => {
-        const element = getZodiacGroundElement();
-        if (!element) return;
-        const base = getBaseZodiacColor();
-        const clamped = Math.max(-100, Math.min(100, Number(value) || 0));
-        const target = clamped < 0 ? [255, 255, 255] : [0, 0, 0];
-        const ratio = Math.abs(clamped) / 100;
-        const blended = base.map((channel, index) => {
-            const blendedValue = channel + (target[index] - channel) * ratio;
-            return Math.round(blendedValue);
-        });
-        element.style.fill = `rgb(${blended[0]}, ${blended[1]}, ${blended[2]})`;
-    };
-
     const setZodiacExpanded = (isExpanded) => {
         if (!zodiacToggleRow || !zodiacContrastRow || !zodiacInfoButton) return;
         zodiacToggleRow.classList.toggle('expanded', isExpanded);
@@ -518,14 +494,12 @@ async function showUserCalSettings() {
 
     const updateZodiacToggleUI = (isChecked) => {
         if (!zodiacInfoIcon) return;
-        zodiacInfoIcon.textContent = isChecked ? '∨' : 'ℹ️';
+        zodiacInfoIcon.textContent = isChecked ? '⚙️' : 'ℹ️';
         if (!isChecked) {
             setZodiacExpanded(false);
-            if (zodiacContrastSlider) {
-                zodiacContrastSlider.value = '0';
-                updateZodiacGroundContrast(0);
-            }
+            return;
         }
+        updateZodiacGroundShade(zodiacShadeSetting);
     };
 
     if (zodiacToggle) {
@@ -544,8 +518,12 @@ async function showUserCalSettings() {
     }
 
     if (zodiacContrastSlider) {
+        zodiacContrastSlider.value = String(clampZodiacShadeSetting(zodiacShadeSetting));
         zodiacContrastSlider.addEventListener('input', (event) => {
-            updateZodiacGroundContrast(event.target.value);
+            const newValue = clampZodiacShadeSetting(event.target.value);
+            zodiacShadeSetting = newValue;
+            localStorage.setItem('zodiac_shade_setting', String(newValue));
+            updateZodiacGroundShade(newValue);
         });
     }
 }
@@ -677,6 +655,9 @@ function toggleZodiacPositions(isChecked) {
     userZodiacPositions = isChecked;
     localStorage.setItem('user_zodiac_positions', isChecked);
     setZodiacVisibility(isChecked);
+    if (isChecked) {
+        updateZodiacGroundShade(zodiacShadeSetting);
+    }
 }
 
 function toggleSolarAnimations(isChecked) {
@@ -697,8 +678,16 @@ function toggleSolarAnimations(isChecked) {
 
 if (document.readyState !== 'loading') {
     setZodiacVisibility(userZodiacPositions);
+    if (userZodiacPositions) {
+        updateZodiacGroundShade(zodiacShadeSetting);
+    }
 } else {
-    document.addEventListener('DOMContentLoaded', () => setZodiacVisibility(userZodiacPositions));
+    document.addEventListener('DOMContentLoaded', () => {
+        setZodiacVisibility(userZodiacPositions);
+        if (userZodiacPositions) {
+            updateZodiacGroundShade(zodiacShadeSetting);
+        }
+    });
 }
 
 function checkScreenSize() {
