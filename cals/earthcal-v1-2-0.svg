@@ -26,14 +26,14 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="1.9067961"
-     inkscape:cx="345.86813"
+     inkscape:cx="345.60591"
      inkscape:cy="271.39766"
      inkscape:window-width="1920"
      inkscape:window-height="1131"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="solar-system-center" />
+     inkscape:current-layer="earth" />
   <defs
      id="defs5385">
     <clipPath
@@ -4103,22 +4103,22 @@
   </g>
   <g
      id="solar-system-center"
-     transform="matrix(1.0457 0 0 1.0457 -7.9771 -7.1179)"
-     style="-ms-user-select:none;-webkit-user-select:none;user-select:none">
+     transform="matrix(1.0457,0,0,1.0457,-7.9771,-7.1179)"
+     style="display:inline;-ms-user-select:none;-webkit-user-select:none">
     <!-- Sun (pivot) -->
     <circle
        id="sol"
-       cx="180.85"
+       cx="180.85001"
        cy="164.03"
        r="8.5"
        style="fill:#ffd900" />
     <!-- ====== MERCURY ====== -->
     <g
        id="mercury_system"
-       transform="rotate(59.82 180.85 164.03)">
+       transform="rotate(59.82,180.85,164.03)">
       <circle
          id="mercury_orbit"
-         cx="180.85"
+         cx="180.85001"
          cy="164.03"
          r="30.396"
          fill="none"
@@ -4128,22 +4128,22 @@
       <!-- epoch angle: 50.044780&#176; -->
       <g
          id="mercury"
-         transform="rotate(50.045 180.85 164.03)">
+         transform="rotate(50.045,180.85,164.03)">
         <circle
            id="mercury-planet"
            cx="211.25"
            cy="164.03"
-           r="3.4307"
+           r="3.4307001"
            style="fill:#a05a2c" />
       </g>
     </g>
     <!-- ====== VENUS ====== -->
     <g
        id="venus_system"
-       transform="rotate(221.23 180.85 163.17)">
+       transform="rotate(-138.77,180.85,163.17)">
       <circle
          id="venus-orbit"
-         cx="180.85"
+         cx="180.85001"
          cy="164.03"
          r="48.473"
          fill="none"
@@ -4152,10 +4152,10 @@
       <!-- epoch angle: 283.429446&#176; -->
       <g
          id="venus"
-         transform="rotate(-76.571 180.85 164.03)">
+         transform="rotate(-76.571,180.85,164.03)">
         <circle
            id="venus-planet"
-           cx="229.32"
+           cx="229.32001"
            cy="164.03"
            r="3.0913"
            fill="#00e513"
