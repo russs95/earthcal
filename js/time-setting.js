@@ -90,19 +90,19 @@ function updateZodiacGroundShade(value) {
     if (zodiacLines) {
         zodiacLines.style.stroke = shade;
         zodiacLines.querySelectorAll('path, line, polyline, polygon, circle, ellipse').forEach((node) => {
-            node.setAttribute('stroke', shade);
+            node.style.stroke = shade;
         });
     }
     if (zodiacTexts) {
         zodiacTexts.style.fill = shade;
         zodiacTexts.querySelectorAll('path, text, tspan').forEach((node) => {
-            node.setAttribute('fill', shade);
+            node.style.fill = shade;
         });
     }
     if (zodiacSymbols) {
         zodiacSymbols.style.fill = shade;
         zodiacSymbols.querySelectorAll('path, circle, ellipse, polygon').forEach((node) => {
-            node.setAttribute('fill', shade);
+            node.style.fill = shade;
         });
     }
     if (zodiacContrastRow) {
@@ -305,6 +305,8 @@ async function showUserCalSettings() {
     const firstName = profile.first_name || payload?.given_name || 'Earthling';
     const sanitizedFirstName = (typeof escapeHtml === 'function') ? escapeHtml(firstName) : firstName;
     const earthlingEmoji = profile.earthling_emoji || payload?.["buwana:earthlingEmoji"] || '🌍';
+    const userPlanType = (window.user_plan || '').toString().trim().toLowerCase();
+    const isJediPlan = isAuthenticated && userPlanType === 'jedi';
     const savedOfflineMode = (typeof getSavedOfflineMode === 'function')
         ? getSavedOfflineMode()
         : 'offline';
@@ -357,6 +359,13 @@ async function showUserCalSettings() {
                 <select id="language" name="language" class="blur-form-field">
                     ${languageOptions}
                 </select>
+            </div>
+            <div class="toggle-row">
+                <span>Earthcal upgraded to Jedi</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="jedi-plan-toggle" ${isJediPlan ? 'checked' : ''} aria-label="Earthcal upgraded to Jedi">
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
             <div class="toggle-row">
                 <span>${settingsContent.darkMode.legend}</span>
@@ -456,6 +465,7 @@ async function showUserCalSettings() {
     const timezoneSelect = modalContent.querySelector('#timezone');
     const languageSelect = modalContent.querySelector('#language');
     const applyButton = modalContent.querySelector('.stellar-submit');
+    const jediPlanToggle = modalContent.querySelector('#jedi-plan-toggle');
     const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
     const offlineModeSubRow = modalContent.querySelector('#offline-mode-sub-row');
     const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
@@ -485,6 +495,26 @@ async function showUserCalSettings() {
     timezoneSelect?.addEventListener('change', checkSettingsChange);
     languageSelect?.addEventListener('change', checkSettingsChange);
     checkSettingsChange();
+
+    if (jediPlanToggle) {
+        jediPlanToggle.addEventListener('change', (event) => {
+            const wantsJedi = Boolean(event?.target?.checked);
+            if (isJediPlan) {
+                if (!wantsJedi) {
+                    event.target.checked = true;
+                }
+                return;
+            }
+
+            if (wantsJedi) {
+                event.target.checked = false;
+                closeTheModal();
+                if (typeof manageEarthcalUserSub === 'function') {
+                    manageEarthcalUserSub();
+                }
+            }
+        });
+    }
 
     if (offlineModeToggle) {
         updateOfflineToggleUI(savedOfflineMode);
@@ -610,12 +640,12 @@ async function applySettings(applyStartTime) {
         const elapsed = (typeof performance !== 'undefined' && performance.now)
             ? performance.now() - startTime
             : Date.now() - startTime;
-        const remainingDelay = Math.max(0, 400 - elapsed);
+        const remainingDelay = Math.max(0, 500 - elapsed);
         if (remainingDelay > 0) {
             await new Promise(resolve => setTimeout(resolve, remainingDelay));
         }
     } else {
-        await new Promise(resolve => setTimeout(resolve, 400));
+        await new Promise(resolve => setTimeout(resolve, 500));
     }
     closeTheModal();
 }
