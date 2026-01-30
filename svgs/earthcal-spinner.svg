@@ -54,7 +54,7 @@
 
   const DEFAULT_OPACITY = 0.33;
   const ACTIVE_OPACITY = 1;
-  const STEP_INTERVAL_MS = 100;
+  const STEP_INTERVAL_MS = 70;
 
   segments.forEach((segment) => segment.setAttribute("opacity", String(DEFAULT_OPACITY)));
 
