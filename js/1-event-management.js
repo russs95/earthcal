@@ -1825,21 +1825,25 @@ function waitForSyncStoreIdle({ timeoutMs = 2000 } = {}) {
 
 async function push2today(uniqueKey) {
     const getDateInfoDiv = () => document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
+    const getDateTimeAddBox = () => document.querySelector('.date-time-add-box');
+    const isSameDay = (first, second) => first instanceof Date
+        && second instanceof Date
+        && first.getFullYear() === second.getFullYear()
+        && first.getMonth() === second.getMonth()
+        && first.getDate() === second.getDate();
     const today = new Date();
     const year = String(today.getFullYear());
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     const timeString = today.toTimeString().slice(0, 8);
-    const isTargetDateToday = targetDate instanceof Date
-        && targetDate.getFullYear() === today.getFullYear()
-        && targetDate.getMonth() === today.getMonth()
-        && targetDate.getDate() === today.getDate();
+    const isTargetDateToday = isSameDay(targetDate, today);
+    const isStartDateAligned = isSameDay(startDate, targetDate);
 
     if (isTargetDateToday) {
-        const dateInfoDiv = getDateInfoDiv();
-        if (dateInfoDiv) {
-            const animation = runDateInfoAnimation(dateInfoDiv, {
+        const dateTimeAddBox = getDateTimeAddBox();
+        if (dateTimeAddBox && isStartDateAligned) {
+            const animation = runDateInfoAnimation(dateTimeAddBox, {
                 keyframes: [
                     { transform: 'translateX(0)' },
                     { transform: 'translateX(-6px)' },
@@ -1852,11 +1856,20 @@ async function push2today(uniqueKey) {
             });
             if (!animation) {
                 setTimeout(() => {
-                    dateInfoDiv.classList.remove('shake-horizontal');
+                    dateTimeAddBox.classList.remove('shake-horizontal');
                 }, 400);
             }
         }
         return;
+    }
+
+    const hadValidTargetDate = targetDate instanceof Date && !Number.isNaN(targetDate.getTime());
+    if (hadValidTargetDate) {
+        startDate = new Date(targetDate);
+    }
+    targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (typeof calendarRefresh === 'function') {
+        calendarRefresh();
     }
 
     console.log(`🤞Yo, yo...pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate}).`);
