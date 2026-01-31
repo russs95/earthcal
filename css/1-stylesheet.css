@@ -5012,6 +5012,7 @@ svg path #june:hover {
     width: 100%;
     text-align: left;
     font: inherit;
+    min-height: 38px;
 }
 
 .toggle-row.toggle-row-jedi.is-jedi {
@@ -5151,6 +5152,33 @@ svg path #june:hover {
     height: 0;
 }
 
+.toggle-switch.toggle-switch-advanced {
+    width: 60px;
+    height: 28px;
+    min-width: 60px;
+}
+
+.toggle-switch.toggle-switch-advanced .toggle-slider {
+    transition: 0.3s ease;
+    border-radius: 28px;
+}
+
+.toggle-switch.toggle-switch-advanced .toggle-slider:before {
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    transition: 0.3s ease;
+}
+
+.toggle-switch.toggle-switch-advanced input:checked + .toggle-slider {
+    background-color: var(--emblem-green, #008000);
+}
+
+.toggle-switch.toggle-switch-advanced input:checked + .toggle-slider:before {
+    transform: translateX(32px);
+}
+
 /* Generic slider knob used for settings toggles */
 .toggle-slider {
     position: absolute;
@@ -5237,6 +5265,10 @@ svg path #june:hover {
     padding: 0;
     cursor: pointer;
     min-width: 65px;
+}
+
+.settings-select-row .blur-form-field {
+    font-size: 1rem;
 }
 
 .clear-cache-button:hover {

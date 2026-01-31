@@ -322,6 +322,10 @@ async function showUserCalSettings() {
         ? `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(payload?.aud || payload?.client_id || "unknown")}`
         : null;
 
+    const jediStatusText = !isAuthenticated
+        ? 'Login to unlock Earthcal features'
+        : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
+
     const profileButtonsHtml = editProfileUrl
         ? `
             <div class="settings-profile-actions">
@@ -357,17 +361,17 @@ async function showUserCalSettings() {
             <button
                 type="button"
                 class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}"
-                aria-label="Earthcal upgraded to Jedi powers"
+                aria-label="${jediStatusText}"
             >
-                <span>Earthcal upgraded to Jedi powers</span>
+                <span>${jediStatusText}</span>
                 <span class="jedi-access-indicator" aria-hidden="true">${isJediPlan ? '🔓' : '🔒'}</span>
             </button>
-            <div>
+            <div class="settings-select-row">
                 <select id="timezone" name="timezone" class="blur-form-field">
                     ${timezoneOptions}
                 </select>
             </div>
-            <div>
+            <div class="settings-select-row">
                 <select id="language" name="language" class="blur-form-field">
                     ${languageOptions}
                 </select>
@@ -400,14 +404,14 @@ async function showUserCalSettings() {
             <div class="toggle-row toggle-row-offline" id="forced-offline-row">
                 <div class="toggle-row-main">
                     <span>Use Earthcal in offline mode</span>
-                    <label class="toggle-switch">
+                    <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
                 <div class="toggle-sub-row" id="offline-mode-sub-row" aria-hidden="true">
                     <span>Offline shows cached data</span>
-                    <label class="toggle-switch">
+                    <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                         <span class="toggle-slider"></span>
                     </label>
@@ -418,7 +422,7 @@ async function showUserCalSettings() {
                     <div class="zodiac-toggle-label">
                         <span>View zodiac positions</span>
                     </div>
-                    <label class="toggle-switch">
+                    <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} onchange="toggleZodiacPositions(this.checked)" aria-label="View zodiac positions">
                         <span class="toggle-slider"></span>
                     </label>
@@ -430,7 +434,7 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row">
                 <span>View lunar calendar</span>
-                <label class="toggle-switch">
+                <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} onchange="toggleLunarCalendar(this.checked)" aria-label="View lunar calendar">
                     <span class="toggle-slider"></span>
                 </label>
