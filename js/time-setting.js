@@ -363,17 +363,20 @@ async function showUserCalSettings() {
                 type="button"
                 class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}"
                 aria-label="${jediStatusText}"
+                style="padding-top: 20px; padding-bottom: 20px;"
             >
                 <span>${jediStatusText}</span>
                 <span class="jedi-access-indicator" aria-hidden="true">${isJediPlan ? '🔓' : '🔒'}</span>
             </button>
             <div class="settings-select-row">
-                <select id="timezone" name="timezone" class="blur-form-field">
+                <select id="timezone" name="timezone" class="blur-form-field" style="color: var(--h1);
+  font-family: 'Mulish', sans-serif;">
                     ${timezoneOptions}
                 </select>
             </div>
             <div class="settings-select-row">
-                <select id="language" name="language" class="blur-form-field">
+                <select id="language" name="language" class="blur-form-field" style="color: var(--h1);
+  font-family: 'Mulish', sans-serif;">
                     ${languageOptions}
                 </select>
             </div>

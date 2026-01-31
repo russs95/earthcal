@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=35"></script>
+    <script src="js/earthcal-init.js?v=39.5"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=35">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=39.4">
     <link rel="stylesheet" href="css/login-styles.css?v=9">
 
 
@@ -195,6 +195,11 @@
             font-size: 0.95em;
             color: var(--subdued-text, #666);
         }
+
+        #lunar-months {
+            opacity: 0;
+        }
+
     </style>
     <script src="js/gsap.min.js"></script>
     <script src="js/MotionPathPlugin.min.js"></script>
@@ -226,6 +231,7 @@
             const bottomButtons = document.getElementById('bottom-left-buttons');
             const theYear = document.getElementById('the_year');
             const zodiacLayer = document.getElementById('zodiacs');
+            const lunarLayer = document.getElementById('lunar_months-12');
 
             /* ==================== INITIAL INTERFACE STATE ==================== */
             if (bottomButtons) {
@@ -255,8 +261,9 @@
             }, 3000);
 
             setTimeout(() => {
-                zodiacLayer.style.opacity = '1'; // Show allDaymarkers
-            }, 6000);
+                zodiacLayer.style.opacity = '1';
+                lunarLayer.style.opacity = '1';
+            }, 8000);
 
             /* ==================== THEME / COLOR INITIALIZATION ==================== */
             updateBackgroundColor();   // Updates colors for night and day themes
