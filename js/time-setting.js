@@ -354,13 +354,14 @@ async function showUserCalSettings() {
             <div class="top-settings-icon"></div>
         </div>
         <form id="user-settings-form">
-            <div class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}">
+            <button
+                type="button"
+                class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}"
+                aria-label="Earthcal upgraded to Jedi powers"
+            >
                 <span>Earthcal upgraded to Jedi powers</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="jedi-plan-toggle" ${isJediPlan ? 'checked' : ''} aria-label="Earthcal upgraded to Jedi powers">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
+                <span class="jedi-access-indicator" aria-hidden="true">${isJediPlan ? '🔓' : '🔒'}</span>
+            </button>
             <div>
                 <select id="timezone" name="timezone" class="blur-form-field">
                     ${timezoneOptions}
@@ -476,7 +477,7 @@ async function showUserCalSettings() {
     const timezoneSelect = modalContent.querySelector('#timezone');
     const languageSelect = modalContent.querySelector('#language');
     const applyButton = modalContent.querySelector('.stellar-submit');
-    const jediPlanToggle = modalContent.querySelector('#jedi-plan-toggle');
+    const jediPlanRow = modalContent.querySelector('.toggle-row-jedi');
     const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
     const offlineModeSubRow = modalContent.querySelector('#offline-mode-sub-row');
     const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
@@ -507,22 +508,26 @@ async function showUserCalSettings() {
     languageSelect?.addEventListener('change', checkSettingsChange);
     checkSettingsChange();
 
-    if (jediPlanToggle) {
-        jediPlanToggle.addEventListener('change', (event) => {
-            const wantsJedi = Boolean(event?.target?.checked);
-            if (isJediPlan) {
-                if (!wantsJedi) {
-                    event.target.checked = true;
+    if (jediPlanRow) {
+        jediPlanRow.addEventListener('click', () => {
+            if (!isAuthenticated) {
+                window.alert(
+                    "To access Jedi time controls, you must first login to Earthcal with a Buwana account..."
+                );
+                if (typeof closeTheModal === 'function') {
+                    closeTheModal();
+                }
+                if (typeof sendUpRegistration === 'function') {
+                    sendUpRegistration();
                 }
                 return;
             }
 
-            if (wantsJedi) {
-                event.target.checked = false;
+            if (typeof closeTheModal === 'function') {
                 closeTheModal();
-                if (typeof manageEarthcalUserSub === 'function') {
-                    manageEarthcalUserSub();
-                }
+            }
+            if (typeof manageEarthcalUserSub === 'function') {
+                manageEarthcalUserSub();
             }
         });
     }
