@@ -392,22 +392,22 @@ async function showUserCalSettings() {
                 </dark-mode-toggle>
             </div>
             <div class="toggle-row">
-                <span>${clockViewLabel}</span>
-                <label class="toggle-switch toggle-switch-advanced">
-                    <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Analogue clock view">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="toggle-row">
                 <span>Solar system animations</span>
-                <label class="toggle-switch">
+                <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
                     <span class="toggle-slider orbit-toggle-slider"></span>
                 </label>
             </div>
+            <div class="toggle-row">
+                <span>🔒 ${clockViewLabel}</span>
+                <label class="toggle-switch toggle-switch-advanced">
+                    <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Analogue clock view">
+                    <span class="toggle-slider clock-toggle-slider"></span>
+                </label>
+            </div>
             <div class="toggle-row toggle-row-offline" id="forced-offline-row">
                 <div class="toggle-row-main">
-                    <span>Use Earthcal in offline mode</span>
+                    <span>🔒 Use Earthcal in offline mode</span>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                         <span class="toggle-slider"></span>
@@ -437,7 +437,7 @@ async function showUserCalSettings() {
                 </div>
             </div>
             <div class="toggle-row">
-                <span>View lunar calendar</span>
+                <span>🔒 View lunar calendar</span>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} onchange="toggleLunarCalendar(this.checked)" aria-label="View lunar calendar">
                     <span class="toggle-slider"></span>
@@ -784,19 +784,31 @@ function toggleSolarAnimations(isChecked) {
     }
 }
 
-if (document.readyState !== 'loading') {
-    setZodiacVisibility(userZodiacPositions);
+const layerRevealDelayMs = 4000;
+const applyInitialLayerVisibility = () => {
     if (userZodiacPositions) {
-        updateZodiacGroundShade(zodiacShadeSetting);
+        setTimeout(() => {
+            setZodiacVisibility(true);
+            updateZodiacGroundShade(zodiacShadeSetting);
+        }, layerRevealDelayMs);
+    } else {
+        setZodiacVisibility(false);
     }
-    setLunarCalendarVisibility(userLunarCalendar);
+
+    if (userLunarCalendar) {
+        setTimeout(() => {
+            setLunarCalendarVisibility(true);
+        }, layerRevealDelayMs);
+    } else {
+        setLunarCalendarVisibility(false);
+    }
+};
+
+if (document.readyState !== 'loading') {
+    applyInitialLayerVisibility();
 } else {
     document.addEventListener('DOMContentLoaded', () => {
-        setZodiacVisibility(userZodiacPositions);
-        if (userZodiacPositions) {
-            updateZodiacGroundShade(zodiacShadeSetting);
-        }
-        setLunarCalendarVisibility(userLunarCalendar);
+        applyInitialLayerVisibility();
     });
 }
 
