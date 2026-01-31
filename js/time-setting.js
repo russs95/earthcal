@@ -325,6 +325,7 @@ async function showUserCalSettings() {
     const jediStatusText = !isAuthenticated
         ? 'Login to unlock Earthcal features'
         : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
+    const clockViewLabel = isAuthenticated ? '🔓Analogue clock view' : '🔒Analogue clock view';
 
     const profileButtonsHtml = editProfileUrl
         ? `
@@ -388,10 +389,10 @@ async function showUserCalSettings() {
                 </dark-mode-toggle>
             </div>
             <div class="toggle-row">
-                <span>Toggle clock view</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Toggle clock view">
-                    <span class="toggle-slider clock-toggle-slider"></span>
+                <span>${clockViewLabel}</span>
+                <label class="toggle-switch toggle-switch-advanced">
+                    <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Analogue clock view">
+                    <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
@@ -515,9 +516,6 @@ async function showUserCalSettings() {
     if (jediPlanRow) {
         jediPlanRow.addEventListener('click', () => {
             if (!isAuthenticated) {
-                window.alert(
-                    "To access Jedi time controls, you must first login to Earthcal with a Buwana account..."
-                );
                 if (typeof closeTheModal === 'function') {
                     closeTheModal();
                 }
