@@ -1831,15 +1831,16 @@ async function push2today(uniqueKey) {
         && first.getFullYear() === second.getFullYear()
         && first.getMonth() === second.getMonth()
         && first.getDate() === second.getDate();
-    const previousTargetDate = targetDate instanceof Date ? new Date(targetDate) : new Date(targetDate);
-    const hasValidPreviousTargetDate = previousTargetDate instanceof Date && !Number.isNaN(previousTargetDate.getTime());
+    const normalizedTargetDate = targetDate instanceof Date ? targetDate : new Date(targetDate);
+    const hasValidPreviousTargetDate = normalizedTargetDate instanceof Date && !Number.isNaN(normalizedTargetDate.getTime());
+    const previousTargetDate = hasValidPreviousTargetDate ? new Date(normalizedTargetDate) : null;
     const today = new Date();
     const year = String(today.getFullYear());
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     const timeString = today.toTimeString().slice(0, 8);
-    const isTargetDateToday = isSameDay(targetDate, today);
+    const isTargetDateToday = hasValidPreviousTargetDate && isSameDay(normalizedTargetDate, today);
     if (hasValidPreviousTargetDate) {
         startDate = new Date(previousTargetDate);
     }
