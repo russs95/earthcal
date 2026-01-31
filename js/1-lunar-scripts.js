@@ -67,7 +67,7 @@ function getLunarMonthNumber(targetDate, currentYear) {
     }
 
 
-    rotateLunarMonths(moonDay);
+    rotateLunarMonths(moonDay, currentYear);
     return { lunarMonthNumber, moonDay };
 }
 
@@ -97,9 +97,14 @@ function getFirstNewMoon(currentYear) {
 }
 
 
-function rotateLunarMonths(moonDay) {
+function rotateLunarMonths(moonDay, currentYear) {
     var lunarMonths = document.getElementById("lunar_months-12");
     var svg = document.getElementById("EarthCycles");
+    if (!lunarMonths || !svg) return;
+
+    const baseYear = 2026;
+    const baseNewMoon = getFirstNewMoon(baseYear);
+    const baseMoonDay = getDayOfYear(baseNewMoon) + 1;
 
     // Get the SVG's viewBox center
     var viewBox = svg.getAttribute("viewBox").split(" ");
@@ -107,10 +112,10 @@ function rotateLunarMonths(moonDay) {
     var centerY = parseFloat(viewBox[1]) + parseFloat(viewBox[3]) / 2;
 
     // Calculate the lunar day difference
-    var lunarDayDifference = moonDay;
+    var lunarDayDifference = moonDay - baseMoonDay;
 
     // Calculate the equivalent in degrees
-    var degrees = -(360 / 365 * lunarDayDifference)+17;
+    var degrees = -(360 / 365 * lunarDayDifference);
 
     // Preserve any existing transformations by appending rotation instead of replacing the whole transform attribute
     let currentTransform = lunarMonths.getAttribute("transform") || "";

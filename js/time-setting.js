@@ -364,10 +364,10 @@ async function showUserCalSettings() {
                     ${languageOptions}
                 </select>
             </div>
-            <div class="toggle-row">
-                <span>Earthcal upgraded to Jedi</span>
+            <div class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}">
+                <span>Earthcal upgraded to Jedi powers</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="jedi-plan-toggle" ${isJediPlan ? 'checked' : ''} aria-label="Earthcal upgraded to Jedi">
+                    <input type="checkbox" id="jedi-plan-toggle" ${isJediPlan ? 'checked' : ''} aria-label="Earthcal upgraded to Jedi powers">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
