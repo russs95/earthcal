@@ -1831,6 +1831,8 @@ async function push2today(uniqueKey) {
         && first.getFullYear() === second.getFullYear()
         && first.getMonth() === second.getMonth()
         && first.getDate() === second.getDate();
+    const previousTargetDate = targetDate instanceof Date ? new Date(targetDate) : new Date(targetDate);
+    const hasValidPreviousTargetDate = previousTargetDate instanceof Date && !Number.isNaN(previousTargetDate.getTime());
     const today = new Date();
     const year = String(today.getFullYear());
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -1838,11 +1840,13 @@ async function push2today(uniqueKey) {
     const formattedDate = `${year}-${month}-${day}`;
     const timeString = today.toTimeString().slice(0, 8);
     const isTargetDateToday = isSameDay(targetDate, today);
-    const isStartDateAligned = isSameDay(startDate, targetDate);
+    if (hasValidPreviousTargetDate) {
+        startDate = new Date(previousTargetDate);
+    }
 
     if (isTargetDateToday) {
         const dateTimeAddBox = getDateTimeAddBox();
-        if (dateTimeAddBox && isStartDateAligned) {
+        if (dateTimeAddBox) {
             const animation = runDateInfoAnimation(dateTimeAddBox, {
                 keyframes: [
                     { transform: 'translateX(0)' },
@@ -1863,10 +1867,6 @@ async function push2today(uniqueKey) {
         return;
     }
 
-    const hadValidTargetDate = targetDate instanceof Date && !Number.isNaN(targetDate.getTime());
-    if (hadValidTargetDate) {
-        startDate = new Date(targetDate);
-    }
     targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     if (typeof calendarRefresh === 'function') {
         calendarRefresh();

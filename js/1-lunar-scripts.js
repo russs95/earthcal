@@ -48,7 +48,7 @@ function getLunarMonthNumber(targetDate, currentYear) {
 
     // Get the first new moon date of the year
     const firstNewMoon = getFirstNewMoon(currentYear);
-    let moonDay = getDayOfYear(firstNewMoon) + 1; // Set the value of moonDay and add 1
+    let moonDay = getDayOfYear(firstNewMoon); // Set the value of moonDay
 
     // Log the final value of moonDay to the console with up to two decimals
     //alert(`The first new moon of the year is ${moonDay.toFixed(2)} days into January.`);
@@ -60,10 +60,9 @@ function getLunarMonthNumber(targetDate, currentYear) {
     let lunarMonthNumber;
     if (dayOfYear >= moonDay) {
         const daysSinceFirstNewMoon = dayOfYear - moonDay;
-        lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 2;
+        lunarMonthNumber = Math.floor(daysSinceFirstNewMoon / synodicMonth) + 2;
     } else {
-        const daysUntilFirstNewMoon = moonDay - dayOfYear;
-        lunarMonthNumber = 2;
+        lunarMonthNumber = 1;
     }
 
 
@@ -104,7 +103,7 @@ function rotateLunarMonths(moonDay, currentYear) {
 
     const baseYear = 2026;
     const baseNewMoon = getFirstNewMoon(baseYear);
-    const baseMoonDay = getDayOfYear(baseNewMoon) + 1;
+    const baseMoonDay = getDayOfYear(baseNewMoon);
 
     // Get the SVG's viewBox center
     var viewBox = svg.getAttribute("viewBox").split(" ");
