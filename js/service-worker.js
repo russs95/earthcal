@@ -6,6 +6,7 @@ const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 const STATIC_ASSETS = [
     './index.html',
     './dash.html',
+    './billing-cancel.html',
     './robots.txt',
     './site.webmanifest',
     './assets/icons/favicon.ico',
