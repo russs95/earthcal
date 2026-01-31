@@ -5329,7 +5329,8 @@ svg path #june:hover {
 }
 
 .settings-profile-actions {
-    max-width: 90%;
+    width: 100%;
+    max-width: 100%;
     margin: 12px auto 0;
     display: flex;
     flex-direction: column;
@@ -5340,7 +5341,16 @@ svg path #june:hover {
     width: 100%;
 }
 
+.edit-buwana-button {
+    width: 100%;
+}
+
 .toggle-row dark-mode-toggle.slider {
-    --dark-mode-toggle-icon-size: 15px;
-    --dark-mode-toggle-icon-icon-size: 14px;
+    --dark-mode-toggle-height: var(--toggle-control-height);
+    --dark-mode-toggle-width: var(--toggle-control-width);
+    --dark-mode-toggle-knob-size: var(--toggle-knob-size);
+    --dark-mode-toggle-inset: calc((var(--toggle-control-height) - var(--toggle-knob-size)) / 2);
+    --dark-mode-toggle-icon-icon-size: calc(var(--toggle-knob-size) - 6px);
+    min-width: var(--toggle-control-width);
+    height: var(--toggle-control-height);
 }
