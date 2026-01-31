@@ -18,7 +18,13 @@ function setLunarMonthForTarget(targetDate, currentYear) {
 
 
     // Get the lunar month number
-    let lunarMonthNumber = getLunarMonthNumber(targetDate, currentYear);
+    const { lunarMonthNumber, moonDay } = getLunarMonthNumber(targetDate, currentYear);
+    console.log('setLunarMonthForTarget debug:', {
+        targetDate,
+        currentYear,
+        lunarMonthNumber,
+        moonDay
+    });
 
     const pathID = `${lunarMonthNumber}-lunarmonth-12`;
 
@@ -51,7 +57,7 @@ function getLunarMonthNumber(targetDate, currentYear) {
 
     // Calculate the lunar month number based on the day of the year and moon day
     const synodicMonth = 29.530588; // Average number of days between new moons
-    // let lunarMonthNumber = 1;
+    let lunarMonthNumber;
     if (dayOfYear >= moonDay) {
         const daysSinceFirstNewMoon = dayOfYear - moonDay;
         lunarMonthNumber = Math.ceil(daysSinceFirstNewMoon / synodicMonth) + 2;
@@ -62,7 +68,7 @@ function getLunarMonthNumber(targetDate, currentYear) {
 
 
     rotateLunarMonths(moonDay);
-    return lunarMonthNumber;
+    return { lunarMonthNumber, moonDay };
 }
 
 

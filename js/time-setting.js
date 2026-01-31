@@ -15,6 +15,10 @@ const storedZodiacPositions = localStorage.getItem('user_zodiac_positions');
 window.userZodiacPositions = storedZodiacPositions === null ? false : storedZodiacPositions === 'true';
 if (storedZodiacPositions === null) localStorage.setItem('user_zodiac_positions', 'false');
 
+const storedLunarCalendar = localStorage.getItem('user_lunar_calendar');
+window.userLunarCalendar = storedLunarCalendar === null ? false : storedLunarCalendar === 'true';
+if (storedLunarCalendar === null) localStorage.setItem('user_lunar_calendar', 'false');
+
 const storedZodiacShadeSetting = localStorage.getItem('zodiac_shade_setting');
 const parsedZodiacShadeSetting = Number(storedZodiacShadeSetting);
 window.zodiacShadeSetting = storedZodiacShadeSetting === null || Number.isNaN(parsedZodiacShadeSetting)
@@ -424,6 +428,13 @@ async function showUserCalSettings() {
                 </div>
             </div>
             <div class="toggle-row">
+                <span>View lunar calendar</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} onchange="toggleLunarCalendar(this.checked)" aria-label="View lunar calendar">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
                 <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">⚠️ Clear Earthcal's cache</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
                     CLEAR
@@ -734,6 +745,19 @@ function toggleZodiacPositions(isChecked) {
     }
 }
 
+function setLunarCalendarVisibility(isVisible) {
+    const lunarMonthPaths = document.querySelectorAll('path[id*="lunarmonth-12"]');
+    lunarMonthPaths.forEach(path => {
+        path.style.opacity = isVisible ? '1' : '';
+    });
+}
+
+function toggleLunarCalendar(isChecked) {
+    userLunarCalendar = isChecked;
+    localStorage.setItem('user_lunar_calendar', isChecked);
+    setLunarCalendarVisibility(isChecked);
+}
+
 function toggleSolarAnimations(isChecked) {
     userAnimations = isChecked;
     localStorage.setItem('user_animations', isChecked);
@@ -755,12 +779,14 @@ if (document.readyState !== 'loading') {
     if (userZodiacPositions) {
         updateZodiacGroundShade(zodiacShadeSetting);
     }
+    setLunarCalendarVisibility(userLunarCalendar);
 } else {
     document.addEventListener('DOMContentLoaded', () => {
         setZodiacVisibility(userZodiacPositions);
         if (userZodiacPositions) {
             updateZodiacGroundShade(zodiacShadeSetting);
         }
+        setLunarCalendarVisibility(userLunarCalendar);
     });
 }
 
