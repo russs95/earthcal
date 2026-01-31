@@ -5007,12 +5007,14 @@ svg path #june:hover {
     background: transparent;
     margin-top: 4px;
     border-radius: 10px;
-    color: var(--text-color, #111827);
+    color: var(--h1);
     cursor: pointer;
     width: 100%;
     text-align: left;
     font: inherit;
     min-height: 38px;
+    font-size: large;
+    padding: 10px;
 }
 
 .toggle-row.toggle-row-jedi.is-jedi {
@@ -5021,8 +5023,8 @@ svg path #june:hover {
 
 .toggle-row.toggle-row-jedi:hover,
 .toggle-row.toggle-row-jedi:focus-visible {
-    border-color: var(--emblem-green) !important;
-    color: var(--emblem-green);
+    border-color: green !important;
+    color: lightgreen;
 }
 
 .toggle-row.toggle-row-jedi .jedi-access-indicator {
@@ -5345,12 +5347,18 @@ svg path #june:hover {
     width: 100%;
 }
 
-.toggle-row dark-mode-toggle.slider {
+.toggle-row.toggle-row-dark-mode {
+    --toggle-control-width: 56px;
+    --toggle-control-height: 24px;
+    --toggle-knob-size: 16px;
+}
+
+.toggle-row.toggle-row-dark-mode .dark-mode-toggle.slider {
     --dark-mode-toggle-height: var(--toggle-control-height);
     --dark-mode-toggle-width: var(--toggle-control-width);
     --dark-mode-toggle-knob-size: var(--toggle-knob-size);
     --dark-mode-toggle-inset: calc((var(--toggle-control-height) - var(--toggle-knob-size)) / 2);
-    --dark-mode-toggle-icon-icon-size: calc(var(--toggle-knob-size) - 6px);
+    --dark-mode-toggle-icon-icon-size: calc(var(--toggle-knob-size) - 4px);
     min-width: var(--toggle-control-width);
     height: var(--toggle-control-height);
 }
