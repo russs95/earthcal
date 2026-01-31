@@ -329,7 +329,7 @@ async function showUserCalSettings() {
     const profileButtonsHtml = editProfileUrl
         ? `
             <div class="settings-profile-actions">
-                <button type="button" id="edit-buwana-button" class="sync-style confirmation-blur-button enabled" onclick="window.open('${editProfileUrl}', '_blank');">
+                <button type="button" id="edit-buwana-button" class="sync-style confirmation-blur-button enabled edit-buwana-button" onclick="window.open('${editProfileUrl}', '_blank');">
                     Edit Buwana Profile
                 </button>
             </div>
@@ -376,11 +376,11 @@ async function showUserCalSettings() {
                     ${languageOptions}
                 </select>
             </div>
-            <div class="toggle-row">
+            <div class="toggle-row toggle-row-dark-mode">
                 <span>${settingsContent.darkMode.legend}</span>
                 <dark-mode-toggle
                     id="dark-mode-toggle-5"
-                    class="slider"
+                    class="slider toggle-switch toggle-switch-advanced dark-mode-toggle"
                     legend=""
                     remember=""
                     appearance="toggle"
