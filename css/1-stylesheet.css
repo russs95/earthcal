@@ -1427,7 +1427,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .january {
   color: #6600ffff;
-  fill: #6600ffff;
+  fill: #6600ffff !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1435,7 +1435,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .february {
   color: #ff00d9;
-  fill: #ff00d9;
+  fill: #ff00d9 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1444,16 +1444,14 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .march {
   color: #fb0000;
-  fill: #fb0000;
+  fill: #fb0000 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 }
 
 .april {
   color: #ff6403;
-  fill: #ff6403;
-  opacity:1;
-  fill-opacity:1;
+  fill: #ff6403 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1462,7 +1460,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .may {
   color: rgb(255, 128, 1);
-  fill: rgb(255, 128, 1);
+  fill: rgb(255, 128, 1) !important;;
   opacity:1 !important;
   opacity:1 !important;
   fill-opacity:1 !important;
@@ -1470,8 +1468,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .june {
   color: rgb(255, 209, 25);
-  fill: rgb(255, 209, 25);
-  opacity:1;
+  fill: rgb(255, 209, 25) !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1480,8 +1477,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .july {
   color: rgb(251, 251, 0);
-  fill: rgb(251, 251, 0);
-  opacity:1;
+  fill: rgb(251, 251, 0) !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1489,8 +1485,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .august {
   color: #c9fa08;
-  fill: #c9fa08;
-  opacity:1;
+  fill: #c9fa08 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1498,8 +1493,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .september {
   color: #00e513ff;
-  fill: #00e513ff;
-  opacity:1;
+  fill: #00e513ff !important;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1507,7 +1501,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .october {
   color: rgb(0, 230, 169);
-  fill: rgb(0, 230, 169);
+  fill: rgb(0, 230, 169) !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1515,7 +1509,7 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .november {
   color: #0cabf5;
-  fill: #0cabf5;
+  fill: #0cabf5 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
 
@@ -1523,11 +1517,9 @@ svg path[id*="-12-20"][id*="-day-marker"] {
 
 .december {
   color: #3d3de9;
-  fill: #3d3de9;
-  opacity:1;
+  fill: #3d3de9 !important;;
   opacity:1 !important;
   fill-opacity:1 !important;
-
 }
 
 
@@ -5001,6 +4993,10 @@ svg path #june:hover {
 
 .toggle-row.toggle-row-jedi {
     border: 2px solid var(--button-2-1) !important;
+    background: white;
+    margin-top: 4px;
+    border-radius: 10px;
+    color: green;
 }
 
 .toggle-row.toggle-row-jedi.is-jedi {
