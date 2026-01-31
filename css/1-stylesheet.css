@@ -5013,7 +5013,7 @@ svg path #june:hover {
     text-align: left;
     font: inherit;
     min-height: 38px;
-    font-size: large;
+    font-size: 1rem;
     padding: 10px;
 }
 
@@ -5216,20 +5216,20 @@ svg path #june:hover {
 
 /* Clock toggle icon styles */
 .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-off.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-off.svg') center/18px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.clock-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-on.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/clock-on.svg') center/18px no-repeat;
 }
 
 /* Orbit toggle icon styles */
 .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-off.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-off.svg') center/18px no-repeat;
 }
 
 .toggle-switch input:checked + .toggle-slider.orbit-toggle-slider:before {
-    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-on.svg') center/22px no-repeat;
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-on.svg') center/18px no-repeat;
 }
 
 .toggle-button {
@@ -5270,6 +5270,10 @@ svg path #june:hover {
 }
 
 .settings-select-row .blur-form-field {
+    font-size: 1rem;
+}
+
+.settings-select-row {
     font-size: 1rem;
 }
 
@@ -5361,4 +5365,11 @@ svg path #june:hover {
     --dark-mode-toggle-icon-icon-size: calc(var(--toggle-knob-size) - 4px);
     min-width: var(--toggle-control-width);
     height: var(--toggle-control-height);
+    display: inline-flex;
+    align-items: center;
+    overflow: visible;
+}
+
+.toggle-row.toggle-row-dark-mode {
+    overflow: visible;
 }
