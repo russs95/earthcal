@@ -288,6 +288,36 @@ function getTimeZoneOffsetDisplay(timeZone) {
 
 ////${settingsContent.darkMode.remember}
 
+function closeFormModalAlert() {
+    const modal = document.getElementById('form-modal-alert');
+    if (!modal) return;
+    modal.classList.add('modal-hidden');
+    modal.classList.remove('modal-visible');
+    modal.setAttribute('aria-hidden', 'true');
+    const actions = document.getElementById('form-modal-alert-actions');
+    if (actions) actions.innerHTML = '';
+}
+
+function showFormModalAlert({ message, actions = [] }) {
+    const modal = document.getElementById('form-modal-alert');
+    const messageEl = document.getElementById('form-modal-alert-message');
+    const actionsEl = document.getElementById('form-modal-alert-actions');
+    if (!modal || !messageEl || !actionsEl) return;
+    messageEl.textContent = message;
+    actionsEl.innerHTML = '';
+    actions.forEach((action) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = action.className;
+        button.textContent = action.label;
+        button.addEventListener('click', action.onClick);
+        actionsEl.appendChild(button);
+    });
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
 async function showUserCalSettings() {
     const modal = document.getElementById('form-modal-message');
 
@@ -325,7 +355,56 @@ async function showUserCalSettings() {
     const jediStatusText = !isAuthenticated
         ? 'Login to unlock Earthcal features'
         : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
-    const clockViewLabel = isAuthenticated ? '🔓Analogue clock view' : '🔒Analogue clock view';
+    const hasPremiumAccess = isAuthenticated && isJediPlan;
+    const premiumLockPrefix = hasPremiumAccess ? '' : '🔒 ';
+    const clockViewLabel = 'Analogue clock view';
+    const showPremiumAccessAlert = () => {
+        if (hasPremiumAccess) return;
+        if (!isAuthenticated) {
+            showFormModalAlert({
+                message: 'To access this premium Earthcal features you must be logged in first with a Buwana Jedi acount.',
+                actions: [
+                    {
+                        label: 'Login',
+                        className: 'form-alert-button-1',
+                        onClick: () => {
+                            closeFormModalAlert();
+                            if (typeof sendUpRegistration === 'function') {
+                                sendUpRegistration();
+                            }
+                        }
+                    },
+                    {
+                        label: 'Signup to Earthcal',
+                        className: 'form-alert-button-2',
+                        onClick: () => {
+                            closeFormModalAlert();
+                            window.open('https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58', '_blank', 'noopener');
+                        }
+                    }
+                ]
+            });
+            return;
+        }
+        showFormModalAlert({
+            message: 'To access this premium Earthcal power you must upgrade your Earthcal account to Jedi',
+            actions: [
+                {
+                    label: 'Upgrade to Jedi',
+                    className: 'form-alert-button-1',
+                    onClick: () => {
+                        closeFormModalAlert();
+                        if (typeof closeTheModal === 'function') {
+                            closeTheModal();
+                        }
+                        if (typeof manageEarthcalUserSub === 'function') {
+                            manageEarthcalUserSub();
+                        }
+                    }
+                }
+            ]
+        });
+    };
 
     const profileButtonsHtml = editProfileUrl
         ? `
@@ -382,14 +461,10 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row toggle-row-dark-mode">
                 <span>${settingsContent.darkMode.legend}</span>
-                <dark-mode-toggle
-                    id="dark-mode-toggle-5"
-                    class="slider toggle-switch toggle-switch-advanced dark-mode-toggle"
-                    legend=""
-                    remember=""
-                    appearance="toggle"
-                    permanent>
-                </dark-mode-toggle>
+                <label class="toggle-switch toggle-switch-advanced">
+                    <input type="checkbox" id="dark-mode-toggle-5" ${userDarkMode === 'dark' ? 'checked' : ''} aria-label="Toggle dark mode">
+                    <span class="toggle-slider dark-mode-toggle-slider"></span>
+                </label>
             </div>
             <div class="toggle-row">
                 <span>Solar system animations</span>
@@ -399,7 +474,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>🔒 ${clockViewLabel}</span>
+                <span>${isAuthenticated ? '🔓 ' : '🔒 '}${clockViewLabel}</span>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Analogue clock view">
                     <span class="toggle-slider clock-toggle-slider"></span>
@@ -424,10 +499,10 @@ async function showUserCalSettings() {
             <div class="toggle-row toggle-row-zodiac" id="zodiac-toggle-row">
                 <div class="toggle-row-main">
                     <div class="zodiac-toggle-label">
-                        <span>View zodiac positions</span>
+                        <span>${premiumLockPrefix}View zodiac positions</span>
                     </div>
                     <label class="toggle-switch toggle-switch-advanced">
-                        <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} onchange="toggleZodiacPositions(this.checked)" aria-label="View zodiac positions">
+                        <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} aria-label="View zodiac positions">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -437,9 +512,9 @@ async function showUserCalSettings() {
                 </div>
             </div>
             <div class="toggle-row">
-                <span>🔒 View lunar calendar</span>
+                <span>${premiumLockPrefix}View lunar calendar</span>
                 <label class="toggle-switch toggle-switch-advanced">
-                    <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} onchange="toggleLunarCalendar(this.checked)" aria-label="View lunar calendar">
+                    <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} aria-label="View lunar calendar">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -458,10 +533,11 @@ async function showUserCalSettings() {
 
     const darkModeToggleEl = modalContent.querySelector('#dark-mode-toggle-5');
     if (darkModeToggleEl) {
-        darkModeToggleEl.mode = userDarkMode === 'dark' ? 'dark' : 'light';
-        darkModeToggleEl.addEventListener('colorschemechange', (e) => {
-            userDarkMode = e.detail.colorScheme;
+        darkModeToggleEl.checked = userDarkMode === 'dark';
+        darkModeToggleEl.addEventListener('change', (event) => {
+            userDarkMode = event.target.checked ? 'dark' : 'light';
             localStorage.setItem('user_dark_mode', userDarkMode);
+            applyUserDarkMode();
         });
     }
 
@@ -492,6 +568,7 @@ async function showUserCalSettings() {
     const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
     const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
     const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
+    const lunarCalendarToggle = modalContent.querySelector('#lunar-calendar-toggle');
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
@@ -588,7 +665,25 @@ async function showUserCalSettings() {
     if (zodiacToggle) {
         updateZodiacToggleUI(zodiacToggle.checked);
         zodiacToggle.addEventListener('change', (event) => {
-            updateZodiacToggleUI(event.target.checked);
+            if (!hasPremiumAccess) {
+                event.target.checked = userZodiacPositions;
+                showPremiumAccessAlert();
+                return;
+            }
+            const isChecked = event.target.checked;
+            toggleZodiacPositions(isChecked);
+            updateZodiacToggleUI(isChecked);
+        });
+    }
+
+    if (lunarCalendarToggle) {
+        lunarCalendarToggle.addEventListener('change', (event) => {
+            if (!hasPremiumAccess) {
+                event.target.checked = userLunarCalendar;
+                showPremiumAccessAlert();
+                return;
+            }
+            toggleLunarCalendar(event.target.checked);
         });
     }
 

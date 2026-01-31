@@ -450,6 +450,20 @@
 
 <BODY style="overflow: hidden !important;">
 
+<!--FORM MODAL ALERT-->
+<div id="form-modal-alert" class="modal-hidden" aria-hidden="true">
+    <div class="form-modal-alert-overlay" role="dialog" aria-modal="true" aria-labelledby="form-modal-alert-message">
+        <div class="form-modal-alert-card">
+            <button type="button" onclick="closeFormModalAlert()" aria-label="Click to close alert" class="x-button form-modal-alert-close"></button>
+            <div class="form-modal-alert-icon">
+                <img src="svgs/earthcal-spinner.svg" alt="" class="form-modal-alert-icon-image">
+            </div>
+            <div id="form-modal-alert-message" class="form-modal-alert-message"></div>
+            <div id="form-modal-alert-actions" class="form-modal-alert-actions"></div>
+        </div>
+    </div>
+</div>
+
 <!--INFO MODAL-->
 <div id="form-modal-message" class="modal-hidden">
     <button type="button" onclick="closeTheModal()" aria-label="Click to close modal" class="x-button"></button>

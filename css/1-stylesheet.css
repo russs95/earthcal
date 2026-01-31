@@ -2952,6 +2952,95 @@ INFO MODAL
 
 --------------------------------------*/
 
+#form-modal-alert {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 60;
+  padding: 20px;
+}
+
+#form-modal-alert.modal-visible {
+  display: flex;
+}
+
+.form-modal-alert-overlay {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-modal-alert-card {
+  background: var(--general-background);
+  color: var(--h1);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(520px, 92vw);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.form-modal-alert-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.form-modal-alert-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--general-background-highlight);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.form-modal-alert-icon-image {
+  width: 36px;
+  height: 36px;
+}
+
+.form-modal-alert-message {
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.form-modal-alert-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  width: 100%;
+}
+
+.form-alert-button-1,
+.form-alert-button-2 {
+  flex: 1 1 0;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  background: var(--form-conf-background);
+  color: var(--form-conf-text);
+}
+
+.form-alert-button-1:hover,
+.form-alert-button-2:hover {
+  filter: brightness(1.05);
+}
+
 #form-modal-message {
   position: fixed; 
   top: 0;
@@ -5232,6 +5321,10 @@ svg path #june:hover {
     background: var(--toggle-knob-bg, #fff) url('../assets/icons/orbit-on.svg') center/18px no-repeat;
 }
 
+.toggle-slider.dark-mode-toggle-slider:before {
+    background: var(--toggle-knob-bg, #fff) url('../assets/icons/moon.svg') center/14px no-repeat;
+}
+
 .toggle-button {
     position: relative;
     display: inline-block;
@@ -5271,6 +5364,11 @@ svg path #june:hover {
 
 .settings-select-row .blur-form-field {
     font-size: 1rem;
+    border: 1px solid transparent;
+}
+
+.settings-select-row .blur-form-field:hover {
+    border-color: var(--button-2-1-over);
 }
 
 .settings-select-row {
