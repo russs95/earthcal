@@ -1831,7 +1831,27 @@ async function push2today(uniqueKey) {
         && first.getFullYear() === second.getFullYear()
         && first.getMonth() === second.getMonth()
         && first.getDate() === second.getDate();
-    const normalizedTargetDate = targetDate instanceof Date ? targetDate : new Date(targetDate);
+    const record = findDateCycleInStorage(uniqueKey);
+    if (!record) {
+        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
+        return;
+    }
+
+    const parsedRecordDate = (() => {
+        if (record.year && record.month && record.day) {
+            return new Date(Number(record.year), Number(record.month) - 1, Number(record.day));
+        }
+        if (record.date) {
+            const [year, month, day] = record.date.split('-').map(Number);
+            if ([year, month, day].every(Number.isFinite)) {
+                return new Date(year, month - 1, day);
+            }
+        }
+        return null;
+    })();
+
+    const normalizedTargetDate = parsedRecordDate
+        || (targetDate instanceof Date ? targetDate : new Date(targetDate));
     const hasValidPreviousTargetDate = normalizedTargetDate instanceof Date && !Number.isNaN(normalizedTargetDate.getTime());
     const previousTargetDate = hasValidPreviousTargetDate ? new Date(normalizedTargetDate) : null;
     const today = new Date();
@@ -1846,9 +1866,10 @@ async function push2today(uniqueKey) {
     }
 
     if (isTargetDateToday) {
-        const dateTimeAddBox = getDateTimeAddBox();
-        if (dateTimeAddBox) {
-            const animation = runDateInfoAnimation(dateTimeAddBox, {
+        const dateInfoDiv = getDateInfoDiv();
+        const shakeTarget = dateInfoDiv || getDateTimeAddBox();
+        if (shakeTarget) {
+            const animation = runDateInfoAnimation(shakeTarget, {
                 keyframes: [
                     { transform: 'translateX(0)' },
                     { transform: 'translateX(-6px)' },
@@ -1861,7 +1882,7 @@ async function push2today(uniqueKey) {
             });
             if (!animation) {
                 setTimeout(() => {
-                    dateTimeAddBox.classList.remove('shake-horizontal');
+                    shakeTarget.classList.remove('shake-horizontal');
                 }, 400);
             }
         }
@@ -1874,12 +1895,6 @@ async function push2today(uniqueKey) {
     }
 
     console.log(`🤞Yo, yo...pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate}).`);
-
-    const record = findDateCycleInStorage(uniqueKey);
-    if (!record) {
-        console.warn(`No dateCycle found with unique_key: ${uniqueKey}`);
-        return;
-    }
 
     const pendingDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
         ...existing,
