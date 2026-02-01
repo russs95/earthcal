@@ -1482,7 +1482,42 @@ function set2Yesterday() {
 }
 
 function set2Today() {
+  const isSameDay = (first, second) => first instanceof Date
+    && second instanceof Date
+    && first.getFullYear() === second.getFullYear()
+    && first.getMonth() === second.getMonth()
+    && first.getDate() === second.getDate();
+
   setCurrentDate();  // Reset target date to the current date
+  startDate = targetDate;
+
+  console.log('[set2Today] startDate:', startDate, 'targetDate:', targetDate);
+
+  const today = new Date();
+  if (isSameDay(startDate, today)) {
+    const shakeTarget = document.querySelector('.date-time-add-box') || document.querySelector('.date-info');
+    const shakeResult = shakeTarget ? 'YES' : 'NO';
+    console.log('[set2Today] startDate:', startDate, 'targetDate:', targetDate, `shake: ${shakeResult}`);
+    if (shakeTarget && typeof runDateInfoAnimation === 'function') {
+      const animation = runDateInfoAnimation(shakeTarget, {
+        keyframes: [
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-6px)' },
+          { transform: 'translateX(6px)' },
+          { transform: 'translateX(-6px)' },
+          { transform: 'translateX(0)' }
+        ],
+        options: { duration: 400, easing: 'ease-in-out' },
+        className: 'shake-horizontal'
+      });
+      if (!animation) {
+        setTimeout(() => {
+          shakeTarget.classList.remove('shake-horizontal');
+        }, 400);
+      }
+    }
+  }
+
   calendarRefresh(); // Call the calendarRefresh function for all updates
 
   // document.getElementById("yesterday").style.display = "block";
