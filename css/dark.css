@@ -360,7 +360,7 @@
 }
 
 .locked-icon {
-    background: url(../assets/icons/locked-dark.svg) center no-repeat;
+    background: url(../assets/icons/locked-dark.svg?v=3) center no-repeat;
     background-size: contain;
 }
 

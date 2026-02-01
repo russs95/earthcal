@@ -70,13 +70,13 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core-javascripts.js?v=27.32",
+        "js/core.js?v=1",
         "js/1-gcal-javascripts.js?v=3.21",
         "js/breakouts.js",
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1",
-        "js/time-setting.js?v=8.2",
+        "js/time-setting.js?v=9",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=8.2",
@@ -87,7 +87,7 @@ async function initCalendar() {
     ];
 
     try {
-        // 1) Load SVG first so elements exist when scripts start wiring listeners
+        // 1) Load SVG first so elements exist when scripts start wiring listenerss
         await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21.1", "the-cal");
 
         // 2) Preload scripts (real preload links, not fetch)

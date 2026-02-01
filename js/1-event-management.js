@@ -1824,6 +1824,7 @@ function waitForSyncStoreIdle({ timeoutMs = 2000 } = {}) {
 
 
 async function push2today(uniqueKey) {
+    alert('Hello!');
     const getDateInfoDiv = () => document.querySelector(`.date-info[data-key="${uniqueKey}"]`);
     const getDateTimeAddBox = () => document.querySelector('.date-time-add-box');
     const isSameDay = (first, second) => first instanceof Date

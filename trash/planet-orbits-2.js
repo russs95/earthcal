@@ -111,7 +111,7 @@ class Planet {
   }
 }
 
-// Declare planet variables in the global scope so other scripts (e.g. core-javascripts.js)
+// Declare planet variables in the global scope so other scripts (e.g. core.js)
 // can access them after the SVG has been injected. Previously these were scoped to the
 // svgLoaded listener which meant calendarRefresh() would instead reference DOM elements
 // with matching IDs, causing `Element.animate` errors when invoked without arguments.

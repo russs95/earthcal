@@ -5072,8 +5072,8 @@ svg path #june:hover {
 }
 
 .settings-lock-icon {
-    width: 16px;
-    height: 16px;
+    width: 30px;
+    height: 28px;
 }
 
 .toggle-row.toggle-row-zodiac {
@@ -5374,16 +5374,17 @@ svg path #june:hover {
     height: var(--toggle-control-height);
     border: none;
     border-radius: var(--toggle-control-height);
-    background-color: var(--general-background);
-    color: var(--h1);
+    background-color: var(--toggle-bg, #b7bbbd);
+    color: white;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0;
     cursor: pointer;
-    min-width: 65px;
+    max-width: 65px;
+    font-size: 0.77em
 }
 
 .settings-select-row .blur-form-field {

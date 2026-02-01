@@ -14,7 +14,7 @@ const STATIC_ASSETS = [
     './js/earthcal-init.js?v=38.1',
     './js/suncalc.min.js',
     './js/astronomy.browser.js',
-    './js/core-javascripts.js?v=23.3',
+    './js/core.js?v=23.3',
     './js/1-gcal-javascripts.js?v=3.2',
     './js/breakouts.js',
     './js/set-targetdate.js',
