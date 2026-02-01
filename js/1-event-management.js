@@ -1868,6 +1868,8 @@ async function push2today(uniqueKey) {
     if (isTargetDateToday) {
         const dateInfoDiv = getDateInfoDiv();
         const shakeTarget = dateInfoDiv || getDateTimeAddBox();
+        const shakeResult = shakeTarget ? 'YES' : 'NO';
+        console.log('[push2today] startDate:', startDate, 'targetDate:', targetDate, `shake: ${shakeResult}`);
         if (shakeTarget) {
             const animation = runDateInfoAnimation(shakeTarget, {
                 keyframes: [
@@ -1889,6 +1891,7 @@ async function push2today(uniqueKey) {
         return;
     }
 
+    console.log('[push2today] startDate:', startDate, 'targetDate:', targetDate, 'shake: NO');
     targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     if (typeof calendarRefresh === 'function') {
         calendarRefresh();
