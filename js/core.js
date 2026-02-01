@@ -1488,13 +1488,11 @@ function set2Today() {
     && first.getMonth() === second.getMonth()
     && first.getDate() === second.getDate();
 
+  const previousTargetDate = targetDate instanceof Date ? new Date(targetDate) : null;
   setCurrentDate();  // Reset target date to the current date
-  startDate = targetDate;
+  startDate = previousTargetDate || targetDate;
 
-  console.log('[set2Today] startDate:', startDate, 'targetDate:', targetDate);
-
-  const today = new Date();
-  if (isSameDay(startDate, today)) {
+  if (isSameDay(startDate, targetDate)) {
     const shakeTarget = document.querySelector('.date-time-add-box') || document.querySelector('.date-info');
     const shakeResult = shakeTarget ? 'YES' : 'NO';
     console.log('[set2Today] startDate:', startDate, 'targetDate:', targetDate, `shake: ${shakeResult}`);
