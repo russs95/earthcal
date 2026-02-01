@@ -335,7 +335,7 @@
 }
 
 #reset-to-today:hover {
-  background: url(../svgs/to-today-night-over.svg) center no-repeat;
+  background: url(../svgs/to-today-night-over.svg?v=2) center no-repeat;
   background-size: contain;
 }
 
@@ -358,6 +358,27 @@
   background: url(../svgs/to-prev-year-night-over.svg) center no-repeat;
   background-size: contain;
 }
+
+.locked-icon {
+    background: url(../assets/icons/locked-dark.svg) center no-repeat;
+    background-size: contain;
+}
+
+.locked-icon:hover {
+    background: url(../assets/icons/locked-dark-over.svg) center no-repeat;
+    background-size: contain;
+}
+
+.unlocked-icon {
+    background: url(../assets/icons/unlocked-dark.svg) center no-repeat;
+    background-size: contain;
+}
+
+.unlocked-icon:hover {
+    background: url(../assets/icons/unlocked-dark-over.svg) center no-repeat;
+    background-size: contain;
+}
+
 
 #close-datecycle-notice:hover,
 #close-datecycle-notice:focus-visible {

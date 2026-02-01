@@ -76,7 +76,7 @@ async function initCalendar() {
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1",
-        "js/time-setting.js?v=7.23",
+        "js/time-setting.js?v=8.2",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=8.2",
@@ -88,7 +88,7 @@ async function initCalendar() {
 
     try {
         // 1) Load SVG first so elements exist when scripts start wiring listeners
-        await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21", "the-cal");
+        await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21.1", "the-cal");
 
         // 2) Preload scripts (real preload links, not fetch)
         await Promise.all(scripts.map(preloadScript));
@@ -98,7 +98,7 @@ async function initCalendar() {
             await loadScriptSequential(src);
         }
 
-        // 4) Module script(s)
+        // 4) Module script(s)hjhjjk
         const moduleScript = document.createElement("script");
         moduleScript.type = "module";
         moduleScript.src = "js/dark-mode-toggle.mjs.js";

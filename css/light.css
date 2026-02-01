@@ -371,6 +371,26 @@
     background-size: contain;
 }
 
+.locked-icon {
+    background: url(../assets/icons/locked-light.svg) center no-repeat;
+    background-size: contain;
+}
+
+.locked-icon:hover {
+    background: url(../assets/icons/locked-light-over.svg) center no-repeat;
+    background-size: contain;
+}
+
+.unlocked-icon {
+    background: url(../assets/icons/unlocked-light.svg) center no-repeat;
+    background-size: contain;
+}
+
+.unlocked-icon:hover {
+    background: url(../assets/icons/unlocked-light-over.svg) center no-repeat;
+    background-size: contain;
+}
+
 .night-only {display:none;}
 
 .day-only {display:block;}
