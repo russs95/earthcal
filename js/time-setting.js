@@ -19,6 +19,10 @@ const storedLunarCalendar = localStorage.getItem('user_lunar_calendar');
 window.userLunarCalendar = storedLunarCalendar === null ? false : storedLunarCalendar === 'true';
 if (storedLunarCalendar === null) localStorage.setItem('user_lunar_calendar', 'false');
 
+const storedCometTracking = localStorage.getItem('user_comet_tracking');
+window.userCometTracking = storedCometTracking === null ? false : storedCometTracking === 'true';
+if (storedCometTracking === null) localStorage.setItem('user_comet_tracking', 'false');
+
 const storedZodiacShadeSetting = localStorage.getItem('zodiac_shade_setting');
 const parsedZodiacShadeSetting = Number(storedZodiacShadeSetting);
 window.zodiacShadeSetting = storedZodiacShadeSetting === null || Number.isNaN(parsedZodiacShadeSetting)
@@ -305,12 +309,20 @@ function showFormModalAlert({ message, actions = [] }) {
     if (!modal || !messageEl || !actionsEl) return;
     messageEl.textContent = message;
     actionsEl.innerHTML = '';
+    const loginTemplate = document.getElementById('auth-login-button');
+    const signupTemplate = document.getElementById('auth-signup-button');
     actions.forEach((action) => {
-        const button = document.createElement('button');
+        const isSignup = action.template === 'signup';
+        const template = isSignup ? signupTemplate : loginTemplate;
+        const button = template ? template.cloneNode(true) : document.createElement('button');
         button.type = 'button';
-        button.className = action.className;
         button.textContent = action.label;
+        button.removeAttribute('id');
+        button.removeAttribute('onclick');
         button.addEventListener('click', action.onClick);
+        if (!template && action.className) {
+            button.className = action.className;
+        }
         actionsEl.appendChild(button);
     });
     modal.classList.remove('modal-hidden');
@@ -368,7 +380,7 @@ async function showUserCalSettings() {
                 actions: [
                     {
                         label: 'Login',
-                        className: 'form-alert-button-1',
+                        template: 'login',
                         onClick: () => {
                             closeFormModalAlert();
                             if (typeof sendUpRegistration === 'function') {
@@ -378,7 +390,7 @@ async function showUserCalSettings() {
                     },
                     {
                         label: 'Signup to Earthcal',
-                        className: 'form-alert-button-2',
+                        template: 'signup',
                         onClick: () => {
                             closeFormModalAlert();
                             window.open('https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58', '_blank', 'noopener');
@@ -393,7 +405,7 @@ async function showUserCalSettings() {
             actions: [
                 {
                     label: 'Upgrade to Jedi',
-                    className: 'form-alert-button-1',
+                    template: 'login',
                     onClick: () => {
                         closeFormModalAlert();
                         if (typeof closeTheModal === 'function') {
@@ -497,7 +509,10 @@ async function showUserCalSettings() {
                     </label>
                 </div>
                 <div class="toggle-sub-row" id="offline-mode-sub-row" aria-hidden="true">
-                    <span>Offline shows cached data</span>
+                    <div class="toggle-row-label offline-mode-label">
+                        <span class="offline-mode-emoji" aria-hidden="true">🔌</span>
+                        <span>Offline shows cached data</span>
+                    </div>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                         <span class="toggle-slider"></span>
@@ -527,6 +542,16 @@ async function showUserCalSettings() {
                 </div>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} aria-label="View lunar calendar">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <div class="toggle-row-label">
+                    ${lockIconHtml(hasPremiumAccess)}
+                    <span>Enable comet tracking</span>
+                </div>
+                <label class="toggle-switch toggle-switch-advanced">
+                    <input type="checkbox" id="comet-tracking-toggle" ${userCometTracking ? 'checked' : ''} aria-label="Enable comet tracking">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -581,6 +606,7 @@ async function showUserCalSettings() {
     const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
     const zodiacContrastSlider = modalContent.querySelector('#zodiac-contrast-slider');
     const lunarCalendarToggle = modalContent.querySelector('#lunar-calendar-toggle');
+    const cometTrackingToggle = modalContent.querySelector('#comet-tracking-toggle');
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
@@ -696,6 +722,17 @@ async function showUserCalSettings() {
                 return;
             }
             toggleLunarCalendar(event.target.checked);
+        });
+    }
+
+    if (cometTrackingToggle) {
+        cometTrackingToggle.addEventListener('change', (event) => {
+            if (!hasPremiumAccess) {
+                event.target.checked = userCometTracking;
+                showPremiumAccessAlert();
+                return;
+            }
+            toggleCometTracking(event.target.checked);
         });
     }
 
@@ -875,6 +912,18 @@ function toggleLunarCalendar(isChecked) {
     setLunarCalendarVisibility(isChecked);
 }
 
+function setCometTrackingVisibility(isVisible) {
+    const cometSystem = document.getElementById('comet_system-9');
+    if (!cometSystem) return;
+    cometSystem.style.display = isVisible ? 'inline' : 'none';
+}
+
+function toggleCometTracking(isChecked) {
+    userCometTracking = isChecked;
+    localStorage.setItem('user_comet_tracking', isChecked);
+    setCometTrackingVisibility(isChecked);
+}
+
 function toggleSolarAnimations(isChecked) {
     userAnimations = isChecked;
     localStorage.setItem('user_animations', isChecked);
@@ -908,6 +957,14 @@ const applyInitialLayerVisibility = () => {
         }, layerRevealDelayMs);
     } else {
         setLunarCalendarVisibility(false);
+    }
+
+    if (userCometTracking) {
+        setTimeout(() => {
+            setCometTrackingVisibility(true);
+        }, layerRevealDelayMs);
+    } else {
+        setCometTrackingVisibility(false);
     }
 };
 
