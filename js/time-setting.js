@@ -356,8 +356,10 @@ async function showUserCalSettings() {
         ? 'Login to unlock Earthcal features'
         : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
-    const premiumLockPrefix = hasPremiumAccess ? '' : '🔒 ';
     const clockViewLabel = 'Analogue clock view';
+    const lockIconHtml = (isUnlocked) => `
+        <div class="settings-lock-icon ${isUnlocked ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
+    `;
     const showPremiumAccessAlert = () => {
         if (hasPremiumAccess) return;
         if (!isAuthenticated) {
@@ -445,7 +447,7 @@ async function showUserCalSettings() {
                 style="padding-top: 20px; padding-bottom: 20px;"
             >
                 <span>${jediStatusText}</span>
-                <span class="jedi-access-indicator" aria-hidden="true">${isJediPlan ? '🔓' : '🔒'}</span>
+                <div class="jedi-access-indicator ${isJediPlan ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
             </button>
             <div class="settings-select-row">
                 <select id="timezone" name="timezone" class="blur-form-field" style="color: var(--h1);
@@ -474,7 +476,10 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>${isAuthenticated ? '🔓 ' : '🔒 '}${clockViewLabel}</span>
+                <div class="toggle-row-label">
+                    ${lockIconHtml(isAuthenticated)}
+                    <span>${clockViewLabel}</span>
+                </div>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="clock-toggle" ${userClock ? 'checked' : ''} onchange="toggleClockView(this.checked)" aria-label="Analogue clock view">
                     <span class="toggle-slider clock-toggle-slider"></span>
@@ -482,7 +487,10 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row toggle-row-offline" id="forced-offline-row">
                 <div class="toggle-row-main">
-                    <span>🔒 Offline mode when not connected</span>
+                    <div class="toggle-row-label">
+                        ${lockIconHtml(false)}
+                        <span>Offline mode when not connected</span>
+                    </div>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                         <span class="toggle-slider"></span>
@@ -499,7 +507,8 @@ async function showUserCalSettings() {
             <div class="toggle-row toggle-row-zodiac" id="zodiac-toggle-row">
                 <div class="toggle-row-main">
                     <div class="zodiac-toggle-label">
-                        <span>${premiumLockPrefix}View zodiac positions</span>
+                        ${lockIconHtml(hasPremiumAccess)}
+                        <span>View zodiac positions</span>
                     </div>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="zodiac-toggle" ${userZodiacPositions ? 'checked' : ''} aria-label="View zodiac positions">
@@ -512,7 +521,10 @@ async function showUserCalSettings() {
                 </div>
             </div>
             <div class="toggle-row">
-                <span>${premiumLockPrefix}View lunar calendar</span>
+                <div class="toggle-row-label">
+                    ${lockIconHtml(hasPremiumAccess)}
+                    <span>View lunar calendar</span>
+                </div>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="lunar-calendar-toggle" ${userLunarCalendar ? 'checked' : ''} aria-label="View lunar calendar">
                     <span class="toggle-slider"></span>
