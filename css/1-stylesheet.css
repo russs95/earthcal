@@ -2994,22 +2994,6 @@ INFO MODAL
   right: 16px;
 }
 
-.form-modal-alert-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 16px;
-  left: 16px;
-}
-
-.form-modal-alert-icon-image {
-  width: 36px;
-  height: 36px;
-}
-
 .form-modal-alert-message {
   font-size: 1rem;
   line-height: 1.6;
@@ -3022,6 +3006,18 @@ INFO MODAL
   flex-direction: column;
   gap: 12px;
   width: 100%;
+}
+
+.form-modal-alert-button-with-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.form-modal-alert-button-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .form-alert-button-1,
@@ -5003,7 +4999,7 @@ svg path #june:hover {
     font-size: larger;
     background-color: var(--emblem-green);
     color: white;
-    margin: 1px auto 10px auto;
+    margin: 1px auto 0px auto;
     cursor: pointer;
 
 }

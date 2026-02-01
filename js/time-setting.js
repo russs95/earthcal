@@ -302,6 +302,40 @@ function closeFormModalAlert() {
     if (actions) actions.innerHTML = '';
 }
 
+function getSignupUrlFromButton() {
+    const signupButton = document.getElementById('auth-signup-button');
+    if (!signupButton) return null;
+    const onclickValue = signupButton.getAttribute('onclick') || '';
+    const match = onclickValue.match(/window\.location\.href=['"]([^'"]+)['"]/);
+    return match ? match[1] : null;
+}
+
+async function navigateToAuthLogin() {
+    const loginButton = document.getElementById('auth-login-button');
+    if (typeof createJWTloginURL === 'function') {
+        const loginUrl = await createJWTloginURL();
+        if (loginUrl) {
+            window.location.href = loginUrl;
+            return;
+        }
+    }
+    if (loginButton && typeof loginButton.onclick === 'function') {
+        loginButton.onclick();
+    }
+}
+
+function navigateToAuthSignup() {
+    const signupButton = document.getElementById('auth-signup-button');
+    const signupUrl = getSignupUrlFromButton();
+    if (signupUrl) {
+        window.location.href = signupUrl;
+        return;
+    }
+    if (signupButton && typeof signupButton.onclick === 'function') {
+        signupButton.onclick();
+    }
+}
+
 function showFormModalAlert({ message, actions = [] }) {
     const modal = document.getElementById('form-modal-alert');
     const messageEl = document.getElementById('form-modal-alert-message');
@@ -316,12 +350,24 @@ function showFormModalAlert({ message, actions = [] }) {
         const template = isSignup ? signupTemplate : loginTemplate;
         const button = template ? template.cloneNode(true) : document.createElement('button');
         button.type = 'button';
-        button.textContent = action.label;
         button.removeAttribute('id');
         button.removeAttribute('onclick');
         button.addEventListener('click', action.onClick);
         if (!template && action.className) {
             button.className = action.className;
+        }
+        if (action.iconSrc) {
+            button.classList.add('form-modal-alert-button-with-icon');
+            button.textContent = '';
+            const icon = document.createElement('img');
+            icon.src = action.iconSrc;
+            icon.alt = '';
+            icon.className = 'form-modal-alert-button-icon';
+            const label = document.createElement('span');
+            label.textContent = action.label;
+            button.append(icon, label);
+        } else {
+            button.textContent = action.label;
         }
         actionsEl.appendChild(button);
     });
@@ -384,11 +430,10 @@ async function showUserCalSettings() {
                     {
                         label: 'Login',
                         template: 'login',
-                        onClick: () => {
+                        iconSrc: 'svgs/earthcal-icon.svg',
+                        onClick: async () => {
                             closeFormModalAlert();
-                            if (typeof sendUpRegistration === 'function') {
-                                sendUpRegistration();
-                            }
+                            await navigateToAuthLogin();
                         }
                     },
                     {
@@ -396,7 +441,7 @@ async function showUserCalSettings() {
                         template: 'signup',
                         onClick: () => {
                             closeFormModalAlert();
-                            window.open('https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58', '_blank', 'noopener');
+                            navigateToAuthSignup();
                         }
                     }
                 ]
