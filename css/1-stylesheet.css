@@ -5064,7 +5064,9 @@ svg path #june:hover {
 }
 
 .locked-icon,
-.unlocked-icon {
+.unlocked-icon,
+.pure-locked-icon,
+.pure-unlocked-icon {
     display: inline-block;
     width: 16px;
     height: 16px;

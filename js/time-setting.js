@@ -368,6 +368,9 @@ async function showUserCalSettings() {
         ? 'Login to unlock Earthcal features'
         : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
+    const showHoverUnlock = !isAuthenticated && !isJediPlan;
+    const jediAccessIconClass = isJediPlan ? 'pure-unlocked-icon' : 'pure-locked-icon';
+    const jediAccessHoverClass = showHoverUnlock ? 'pure-lock-hover' : '';
     const clockViewLabel = 'Analogue clock view';
     const lockIconHtml = (isUnlocked) => `
         <div class="settings-lock-icon ${isUnlocked ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
@@ -459,7 +462,7 @@ async function showUserCalSettings() {
                 style="padding-top: 20px; padding-bottom: 20px;"
             >
                 <span>${jediStatusText}</span>
-                <div class="jedi-access-indicator ${isJediPlan ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
+                <div class="jedi-access-indicator ${jediAccessIconClass} ${jediAccessHoverClass}" aria-hidden="true"></div>
             </button>
             <div class="settings-select-row">
                 <select id="timezone" name="timezone" class="blur-form-field" style="color: var(--h1);

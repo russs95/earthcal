@@ -369,6 +369,21 @@
     background-size: contain;
 }
 
+.pure-locked-icon {
+    background: url(../assets/icons/pure-locked-dark.svg) center no-repeat;
+    background-size: contain;
+}
+
+.pure-unlocked-icon {
+    background: url(../assets/icons/pure-unlocked-dark.svg) center no-repeat;
+    background-size: contain;
+}
+
+.toggle-row.toggle-row-jedi:hover .jedi-access-indicator.pure-lock-hover {
+    background: url(../assets/icons/pure-unlocked-dark.svg) center no-repeat;
+    background-size: contain;
+}
+
 .unlocked-icon {
     background: url(../assets/icons/unlocked-dark.svg) center no-repeat;
     background-size: contain;
