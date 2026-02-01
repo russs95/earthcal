@@ -482,7 +482,7 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row toggle-row-offline" id="forced-offline-row">
                 <div class="toggle-row-main">
-                    <span>🔒 Use Earthcal in offline mode</span>
+                    <span>🔒 Offline mode when not connected</span>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
                         <span class="toggle-slider"></span>
@@ -519,7 +519,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">⚠️ Clear Earthcal's cache</span>
+                <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">Clear Earthcal's cache</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
                     CLEAR
                 </button>
