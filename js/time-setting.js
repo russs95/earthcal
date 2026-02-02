@@ -336,11 +336,12 @@ function navigateToAuthSignup() {
     }
 }
 
-function showFormModalAlert({ message, actions = [], previewImageSrc = '', previewImageAlt = '' }) {
+function showFormModalAlert({ message, actions = [], previewImageSrc = '', previewImageAlt = '', title = 'Jedi Feature', footerMessage = '' }) {
     const modal = document.getElementById('form-modal-alert');
     const messageEl = document.getElementById('form-modal-alert-message');
     const actionsEl = document.getElementById('form-modal-alert-actions');
     if (!modal || !messageEl || !actionsEl) return;
+    const modalCard = modal.querySelector('.form-modal-alert-card');
     messageEl.innerHTML = '';
     if (previewImageSrc) {
         const previewImage = document.createElement('img');
@@ -349,8 +350,19 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
         previewImage.className = 'form-modal-alert-preview';
         messageEl.appendChild(previewImage);
     }
+    if (title) {
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'form-modal-alert-title';
+        const titleIcon = document.createElement('span');
+        titleIcon.className = 'pure-locked-icon';
+        titleIcon.setAttribute('aria-hidden', 'true');
+        titleEl.appendChild(titleIcon);
+        titleEl.appendChild(document.createTextNode(` ${title}`));
+        messageEl.appendChild(titleEl);
+    }
     const messageItems = Array.isArray(message) ? message : [message];
     messageItems.forEach((text) => {
+        if (!text) return;
         const paragraph = document.createElement('p');
         paragraph.textContent = text;
         messageEl.appendChild(paragraph);
@@ -384,6 +396,17 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
         }
         actionsEl.appendChild(button);
     });
+    if (modalCard) {
+        let footerEl = modalCard.querySelector('#form-modal-alert-footer');
+        if (!footerEl) {
+            footerEl = document.createElement('p');
+            footerEl.id = 'form-modal-alert-footer';
+            footerEl.className = 'form-modal-alert-footer';
+            modalCard.appendChild(footerEl);
+        }
+        footerEl.textContent = footerMessage || '';
+        footerEl.style.display = footerMessage ? 'block' : 'none';
+    }
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
     modal.setAttribute('aria-hidden', 'false');
@@ -439,10 +462,11 @@ async function showUserCalSettings() {
         const promptMessage = !isAuthenticated
             ? 'To access this premium Earthcal features you must be logged in first with a Buwana Jedi acount.'
             : 'To access this premium Earthcal power you must upgrade your Earthcal account to Jedi';
-        const alertMessage = description ? [description, promptMessage] : promptMessage;
+        const alertMessage = description ? [description] : '';
         if (!isAuthenticated) {
             showFormModalAlert({
                 message: alertMessage,
+                footerMessage: promptMessage,
                 previewImageSrc,
                 previewImageAlt,
                 actions: [
@@ -468,7 +492,7 @@ async function showUserCalSettings() {
             return;
         }
         showFormModalAlert({
-            message: alertMessage,
+            message: description ? [description, promptMessage] : promptMessage,
             previewImageSrc,
             previewImageAlt,
             actions: [
