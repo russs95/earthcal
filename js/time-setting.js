@@ -344,10 +344,13 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
     const modalCard = modal.querySelector('.form-modal-alert-card');
     messageEl.innerHTML = '';
     if (previewImageSrc) {
-        const previewImage = document.createElement('img');
-        previewImage.src = previewImageSrc;
-        previewImage.alt = previewImageAlt;
+        const previewImage = document.createElement('div');
         previewImage.className = 'form-modal-alert-preview';
+        previewImage.style.backgroundImage = `url("${previewImageSrc}")`;
+        previewImage.setAttribute('role', 'img');
+        if (previewImageAlt) {
+            previewImage.setAttribute('aria-label', previewImageAlt);
+        }
         messageEl.appendChild(previewImage);
     }
     if (title) {
