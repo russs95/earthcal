@@ -336,12 +336,25 @@ function navigateToAuthSignup() {
     }
 }
 
-function showFormModalAlert({ message, actions = [] }) {
+function showFormModalAlert({ message, actions = [], previewImageSrc = '', previewImageAlt = '' }) {
     const modal = document.getElementById('form-modal-alert');
     const messageEl = document.getElementById('form-modal-alert-message');
     const actionsEl = document.getElementById('form-modal-alert-actions');
     if (!modal || !messageEl || !actionsEl) return;
-    messageEl.textContent = message;
+    messageEl.innerHTML = '';
+    if (previewImageSrc) {
+        const previewImage = document.createElement('img');
+        previewImage.src = previewImageSrc;
+        previewImage.alt = previewImageAlt;
+        previewImage.className = 'form-modal-alert-preview';
+        messageEl.appendChild(previewImage);
+    }
+    const messageItems = Array.isArray(message) ? message : [message];
+    messageItems.forEach((text) => {
+        const paragraph = document.createElement('p');
+        paragraph.textContent = text;
+        messageEl.appendChild(paragraph);
+    });
     actionsEl.innerHTML = '';
     const loginTemplate = document.getElementById('auth-login-button');
     const signupTemplate = document.getElementById('auth-signup-button');
@@ -421,11 +434,17 @@ async function showUserCalSettings() {
     const lockIconHtml = (isUnlocked) => `
         <div class="settings-lock-icon ${isUnlocked ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
     `;
-    const showPremiumAccessAlert = () => {
+    const showPremiumAccessAlert = ({ previewImageSrc = '', previewImageAlt = '', description = '' } = {}) => {
         if (hasPremiumAccess) return;
+        const promptMessage = !isAuthenticated
+            ? 'To access this premium Earthcal features you must be logged in first with a Buwana Jedi acount.'
+            : 'To access this premium Earthcal power you must upgrade your Earthcal account to Jedi';
+        const alertMessage = description ? [description, promptMessage] : promptMessage;
         if (!isAuthenticated) {
             showFormModalAlert({
-                message: 'To access this premium Earthcal features you must be logged in first with a Buwana Jedi acount.',
+                message: alertMessage,
+                previewImageSrc,
+                previewImageAlt,
                 actions: [
                     {
                         label: 'Login',
@@ -449,7 +468,9 @@ async function showUserCalSettings() {
             return;
         }
         showFormModalAlert({
-            message: 'To access this premium Earthcal power you must upgrade your Earthcal account to Jedi',
+            message: alertMessage,
+            previewImageSrc,
+            previewImageAlt,
             actions: [
                 {
                     label: 'Upgrade to Jedi',
@@ -509,15 +530,13 @@ async function showUserCalSettings() {
                 <span>${jediStatusText}</span>
                 <div class="jedi-access-indicator ${jediAccessIconClass} ${jediAccessHoverClass}" aria-hidden="true"></div>
             </button>
-            <div class="settings-select-row">
-                <select id="timezone" name="timezone" class="blur-form-field" style="color: var(--h1);
-  font-family: 'Mulish', sans-serif;">
+            <div class="toggle-row settings-select-row">
+                <select id="timezone" name="timezone" class="blur-form-field">
                     ${timezoneOptions}
                 </select>
             </div>
-            <div class="settings-select-row">
-                <select id="language" name="language" class="blur-form-field" style="color: var(--h1);
-  font-family: 'Mulish', sans-serif;">
+            <div class="toggle-row settings-select-row">
+                <select id="language" name="language" class="blur-form-field">
                     ${languageOptions}
                 </select>
             </div>
@@ -750,14 +769,18 @@ async function showUserCalSettings() {
 
     if (zodiacToggle) {
         updateZodiacToggleUI(zodiacToggle.checked);
-        zodiacToggle.addEventListener('change', (event) => {
-            if (!hasPremiumAccess) {
-                event.target.checked = userZodiacPositions;
-                showPremiumAccessAlert();
-                return;
-            }
-            const isChecked = event.target.checked;
-            toggleZodiacPositions(isChecked);
+                zodiacToggle.addEventListener('change', (event) => {
+                    if (!hasPremiumAccess) {
+                        event.target.checked = userZodiacPositions;
+                        showPremiumAccessAlert({
+                            previewImageSrc: 'assets/images/preview-comet.webp',
+                            previewImageAlt: 'Zodiac overlay preview',
+                            description: 'View an overlay of the twelve houses so that you can gauge where and when the planets will be in particular zodiac zone.'
+                        });
+                        return;
+                    }
+                    const isChecked = event.target.checked;
+                    toggleZodiacPositions(isChecked);
             updateZodiacToggleUI(isChecked);
         });
     }
@@ -766,7 +789,11 @@ async function showUserCalSettings() {
         lunarCalendarToggle.addEventListener('change', (event) => {
             if (!hasPremiumAccess) {
                 event.target.checked = userLunarCalendar;
-                showPremiumAccessAlert();
+                showPremiumAccessAlert({
+                    previewImageSrc: 'assets/images/preview-lunarmonths.webp',
+                    previewImageAlt: 'Lunar months preview',
+                    description: 'View the lunar months overlaid upon the solar year to help make sense of the Korean, Chinese, Islamic or other lunar calendars'
+                });
                 return;
             }
             toggleLunarCalendar(event.target.checked);
@@ -777,7 +804,11 @@ async function showUserCalSettings() {
         cometTrackingToggle.addEventListener('change', (event) => {
             if (!hasPremiumAccess) {
                 event.target.checked = userCometTracking;
-                showPremiumAccessAlert();
+                showPremiumAccessAlert({
+                    previewImageSrc: 'assets/images/preview-comet.webp',
+                    previewImageAlt: 'Comet tracking preview',
+                    description: 'Track the progress of interstellar comet 3I-ATLAS as it zooms though our solar system in 2025 and 2026.'
+                });
                 return;
             }
             toggleCometTracking(event.target.checked);
