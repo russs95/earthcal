@@ -372,12 +372,12 @@
 }
 
 .locked-icon {
-    background: url(../assets/icons/locked-light.svg?v=3) center no-repeat;
+    background: url(../assets/icons/locked-light.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
 .locked-icon:hover {
-    background: url(../assets/icons/locked-light-over.svg) center no-repeat;
+    background: url(../assets/icons/locked-light-over.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
@@ -397,12 +397,12 @@
 }
 
 .unlocked-icon {
-    background: url(../assets/icons/unlocked-light.svg) center no-repeat;
+    background: url(../assets/icons/unlocked-light.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
 .unlocked-icon:hover {
-    background: url(../assets/icons/unlocked-light-over.svg) center no-repeat;
+    background: url(../assets/icons/unlocked-light-over.svg?v=4) center no-repeat;
     background-size: contain;
 }
 

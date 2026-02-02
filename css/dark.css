@@ -360,17 +360,17 @@
 }
 
 .locked-icon {
-    background: url(../assets/icons/locked-dark.svg?v=3) center no-repeat;
+    background: url(../assets/icons/locked-dark.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
 .locked-icon:hover {
-    background: url(../assets/icons/locked-dark-over.svg) center no-repeat;
+    background: url(../assets/icons/locked-dark-over.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
 .pure-locked-icon {
-    background: url(../assets/icons/pure-locked-dark.svg) center no-repeat;
+    background: url(../assets/icons/pure-locked-dark.svg?v=1) center no-repeat;
     background-size: contain;
 }
 
@@ -385,12 +385,12 @@
 }
 
 .unlocked-icon {
-    background: url(../assets/icons/unlocked-dark.svg) center no-repeat;
+    background: url(../assets/icons/unlocked-dark.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
 .unlocked-icon:hover {
-    background: url(../assets/icons/unlocked-dark-over.svg) center no-repeat;
+    background: url(../assets/icons/unlocked-dark-over.svg?v=4) center no-repeat;
     background-size: contain;
 }
 
