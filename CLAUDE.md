@@ -182,14 +182,7 @@ The circular calendar is a single 1.5 MB SVG file (`cals/earthcal-v1-2-2.svg`) i
 
 ### Week Paths
 
-No longer being used.
-```
-
-`calendar-scripts.js` selects them as:
-```js
-document.querySelectorAll('path[id^="week-"]')
-```
-and uses `path.id.slice(5)` to extract the week number. Each path receives a `title` attribute showing the date range (e.g. "Jan 1 to Jan 7").
+The SVG still contains `path[id^="week-"]` elements (the 52-segment week ring), but all JavaScript (`weekPaths`, `getWeekDateRange`, `updateWeekTitles`, `updateTargetWeekColor`) and CSS (hover styles, fade-in animation) code that interacted with them has been removed. The ring exists in the SVG but is inert.
 
 ### Day Paths — the Core of Event Highlighting
 

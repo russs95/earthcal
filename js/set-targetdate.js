@@ -87,38 +87,6 @@ function setYearsMonthsOn() {
 
 
 
-//Set the color of the Target Day's Week
-
-function updateTargetWeekColor() {
-  const targetWeek = Math.ceil((targetDate - new Date(targetDate.getFullYear(), 0, 1)) / 604800000);
-  const targetMonth = targetDate.getMonth();
-  const colors = [
-    '#7f2affff', '#ff11ceff', '#fb0000ff', '#ff6303ff', '#ff8201ff', '#ffd119ff',
-    '#fbfb00ff', '#beee00ff', '#00e513ff', '#00e6a7ff', '#0cacf5ff', '#4343ffff',
-  ];
-
-  const svg = document.querySelector('svg');
-  const paths = svg.querySelectorAll('path');
-
-  paths.forEach(path => {
-    if (path.id.includes('week-')) {  
-        path.style.fill = 'var(--weeks-circle)';
-    } else {
-    }
-  });
-
-  
-  paths.forEach(path => {
-    if (path.id === `week-${targetWeek}`) {
-      path.style.opacity = 0.9;
-      path.style.fill = colors[targetMonth];
-    } else {
-
-    }
-  });
-}
-
-
 function updateTargetMonth() {
   // Ensure targetDate is a Date object
   const targetDateObj = new Date(targetDate);

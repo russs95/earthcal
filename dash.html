@@ -299,12 +299,19 @@
 
             // 🌀 Add new shared event
             if (shareParams.get('action') === 'add-event') {
+                setCurrentDate(); // initialize startDate + targetDate to valid defaults
+
                 const sharedDate = shareParams.get('date');
                 let year, month, day;
 
                 if (sharedDate) {
                     [year, month, day] = sharedDate.split('-').map(Number);
-                    window.targetDate = new Date(year, month - 1, day);
+                    targetDate = new Date(year, month - 1, day); // assign global let, not window property
+                    startDate = new Date(year, 0, 1);
+                }
+
+                if (typeof window.initPlanetAnimator === "function") {
+                    window.initPlanetAnimator();
                 }
 
                 const cycleData = {
@@ -377,7 +384,9 @@
                 startDate = targetDate;
 
                 if (shareParams.get('action') === 'add-event') {
-                    if (userAnimations) animatePlanetsIfReady();
+                    if (userAnimations && typeof window.animatePlanets === "function") {
+                        window.animatePlanets(startDate, targetDate);
+                    }
                 }
 
                 setYearsMonthsOn();

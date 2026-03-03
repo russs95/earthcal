@@ -50,16 +50,12 @@ h2 {
 }
 
 
-path[id*="week-"] {
-    fill: var(--weeks-circle);
-}
-
 #world-background-circle {
     fill: var(--general-background);
 }
 
 #north-america {
-    fill: var(--weeks-circle);
+    fill: var(--map-bg);
 }
 
 #europe-africa-background {
@@ -67,7 +63,7 @@ path[id*="week-"] {
 }
 
 #map-europe-africa {
-    fill: var(--weeks-circle);
+    fill: var(--map-bg);
 }
 
 
@@ -1688,19 +1684,6 @@ svg path[id*="lunar"]:hover {
   fill-opacity: 1;
 }
 
-/*weekly*/
-svg path[id*="week"] {
-  cursor: pointer;
-  transition: 0.5s;
-}
-
-svg path[id*="week"]:hover {
-  opacity: 1;
-  fill: rgb(70, 70, 70);
-}
-
-
-
 /*------------------------------
 
 LOADING ANIMATION OF THE PLANETS
@@ -1730,7 +1713,6 @@ LOADING ANIMATION OF THE PLANETS
 #saturn_system,
 #uranus_system,
 #neptune_system,
-#weeks,
 #solar_months,
 #all_days,
 #day_breakouts
@@ -1795,11 +1777,6 @@ LOADING ANIMATION OF THE PLANETS
 
 #neptune_system {
   animation-delay: 1.32s;
-  transition: 0.4s;
-}
-
-#weeks {
-  animation-delay: 1.485s;
   transition: 0.4s;
 }
 

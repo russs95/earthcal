@@ -3,35 +3,10 @@
 const prevYear = document.getElementById('prev-year');
 const nextYear = document.getElementById('next-year');
 const currentYearText = document.getElementById('current-year').querySelector('tspan');
-const weekPaths = document.querySelectorAll('path[id^="week-"]');
-
-// Helper function to calculate the date range for each week
-function getWeekDateRange(year, week) {
-  const startDate = new Date(Date.UTC(year, 0, 1));
-  const dayOffset = (startDate.getUTCDay() + 6) % 7; // Calculate the day offset for the first bridging week
-  startDate.setUTCDate(1 - dayOffset); // Set the start date to the first day of the first bridging week
-  startDate.setUTCDate(startDate.getUTCDate() + (week - 1) * 7); // Set the start date to the first day of the requested week
-  const endDate = new Date(startDate.getTime());
-  endDate.setUTCDate(endDate.getUTCDate() + 6); // Set the end date to the last day of the requested week
-  const startDateString = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endDateString = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return `${startDateString} to ${endDateString}`;
-}
-
-// Function to update the week titles for the current year
-function updateWeekTitles(year) {
-  weekPaths.forEach((path) => {
-    const weekNumber = path.id.slice(5); // Get the week number from the path ID
-    const dateRange = getWeekDateRange(year, weekNumber);
-    path.setAttribute('title', dateRange);
-  });
-}
-
 
 function prevYearClick() {
   const currentYear = parseInt(currentYearText.textContent);
   currentYearText.textContent = (currentYear - 1).toString();
-  updateWeekTitles(currentYear - 1);
   updateDayIds(currentYear - 1);
   updateDayTitles(currentYear - 1);
 
@@ -52,7 +27,6 @@ function prevYearClick() {
 function nextYearClick() {
   const currentYear = parseInt(currentYearText.textContent);
   currentYearText.textContent = (currentYear + 1).toString();
-  updateWeekTitles(currentYear + 1);
   updateDayIds(currentYear + 1);
   updateDayTitles(currentYear + 1);
 

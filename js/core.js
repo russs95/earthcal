@@ -279,7 +279,6 @@ function searchGoDate() {
   const currentYear = parseInt(currentYearText.textContent, 10);
   currentYearText.textContent = currentYear.toString();
 
-  updateWeekTitles(currentYear);
   updateDayIds(currentYear);
   updateDayTitles(currentYear);
 
