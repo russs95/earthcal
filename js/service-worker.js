@@ -1,5 +1,5 @@
 importScripts('earthcal-config.js');
-const CACHE_NAME = 'earthcal-cache-v3';
+const CACHE_NAME = 'earthcal-cache-v4';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
 // List of assets to pre-cache

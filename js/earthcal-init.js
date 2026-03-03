@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=3.3"
+                "js/service-worker.js?v=3.4"
             );
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
