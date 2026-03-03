@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=3.4"
+                "js/service-worker.js?v=3.5"
             );
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
@@ -66,29 +66,29 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/sync-store.js?v=2.1",
+        "js/sync-store.js?v=2.2",
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=2.1",
-        "js/1-gcal-javascripts.js?v=3.22",
+        "js/core.js?v=2.2",
+        "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
         // date + time (these often influence targetDate/startDate)
-        "js/set-targetdate.js?v=1",
-        "js/time-setting.js?v=9.8",
+        "js/set-targetdate.js?v=1.1",
+        "js/time-setting.js?v=9.9",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=8.2",
+        "js/planet-orbits.js?v=8.3",
         // rest of app
-        "js/login-scripts.js?v=20.2",
-        "js/item-management.js?v=9.98",
-        "js/calendar-scripts.js?v=2.7",
+        "js/login-scripts.js?v=20.3",
+        "js/item-management.js?v=9.99",
+        "js/calendar-scripts.js?v=2.8",
     ];
 
     try {
         // 1) Load SVG first so elements exist when scripts start wiring listenerss
-        await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21.1", "the-cal");
+        await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21.2", "the-cal");
 
         // 2) Preload scripts (real preload links, not fetch)
         await Promise.all(scripts.map(preloadScript));

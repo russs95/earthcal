@@ -479,6 +479,24 @@ localStorage.setItem('earthcal_forced_offline', 'true');
 
 ---
 
+## Cache-Bust Version Policy
+
+Every JS and CSS file referenced in `dash.html`, `index.html`, and `earthcal-init.js` carries a `?v=X.Y` query string for cache busting.
+
+**Rule:** Whenever a file is modified, its `?v=` number must be incremented in **every place it is referenced** across all HTML files and `earthcal-init.js`:
+
+- **Minor change** (bug fix, small tweak): bump the minor version by **+0.1** (e.g. `v=9.8` → `v=9.9`)
+- **Major revision** (new feature, significant rewrite): bump the major version by **+1** and reset minor to 0 (e.g. `v=9.9` → `v=10.0`)
+
+Files to check for references:
+- `dash.html` — inline `<script src>` and `<link href>` tags
+- `index.html` — `<link rel="preload">`, `<link rel="stylesheet">`, and `<script src>` tags
+- `js/earthcal-init.js` — the `scripts[]` array and the SVG `loadSvgIntoContainer()` call
+
+Also bump `js/service-worker.js?v=X.Y` (in `earthcal-init.js`) whenever any cached asset changes, so the service worker's install step re-fetches the updated files.
+
+---
+
 ## Common Gotchas
 
 - **Script load order is critical.** `planet-orbits.js` must load before `calendar-scripts.js`. `sync-store.js` must load before `core.js`. Do not reorder without tracing dependencies.

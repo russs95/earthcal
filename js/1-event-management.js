@@ -381,7 +381,7 @@ function normalizeV1Item(item, calendar, buwanaId) {
         cal_name: calendar.name || 'My Calendar',
         cal_color: calendarColor,
         cal_emoji: calEmoji,
-        title: item.summary || 'Untitled Event',
+        title: item.summary || item.title || 'Untitled Event',
         date: date || item.date || '',
         time: timeLabel || '00:00',
         time_zone: item.tzid || calendar.tzid || 'Etc/UTC',
@@ -2501,13 +2501,15 @@ async function addDatecycle() {
             emoji: selectedCalendarOption?.dataset?.emoji
         };
         pendingLocal = buildPendingLocalDatecycle({ ...payload, pending_action: 'create' }, calendarMeta);
-        appendPendingDateCycleToLocalCalendar(selCalendarId, pendingLocal);
-        await requestHighlightRefresh();
 
         const usedSyncStore = await ensureSyncStoreReady(resolvedBuwanaId);
         if (usedSyncStore) {
+            // sync-store handles local caching via applyLocalChange; subscription render shows item immediately
             await window.syncStore.createOrUpdateItem({ ...payload, pending_action: 'create' });
         } else {
+            // legacy path: show pending item locally while server request is in flight
+            appendPendingDateCycleToLocalCalendar(selCalendarId, pendingLocal);
+            await requestHighlightRefresh();
             await callV1Api('add_item.php', payload);
         }
         scheduleBackgroundSync('add-datecycle');

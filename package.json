@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package": "electron-builder"
+    "package": "electron-builder",
+    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "serve-php": "php -S 127.0.0.1:8081"
   },
   "repository": {
     "type": "git",

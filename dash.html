@@ -97,19 +97,19 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=46.2"></script>
+    <script src="js/earthcal-init.js?v=46.3"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=47">
-    <link rel="stylesheet" href="css/login-styles.css?v=9.1">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=47.1">
+    <link rel="stylesheet" href="css/login-styles.css?v=9.2">
 
 
     <!--Default Light Styles to load first   -->
-    <link rel="preload" href="css/light.css?v=8.4" as="style" onload="this.rel='stylesheet'">
+    <link rel="preload" href="css/light.css?v=8.5" as="style" onload="this.rel='stylesheet'">
 
     <!--Stylesheets for light and dark mode.  They need to be called here   -->
-    <link rel="stylesheet" href="css/light.css?v=8.4" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
-    <link rel="stylesheet" href="css/dark.css?v=8.41" media="(prefers-color-scheme: dark)">
-    <link rel="stylesheet" href="css/slider.css?v=1.4">
+    <link rel="stylesheet" href="css/light.css?v=8.5" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
+    <link rel="stylesheet" href="css/dark.css?v=8.42" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="css/slider.css?v=1.5">
 
 
 
@@ -212,7 +212,7 @@
             updateMoonPhase(date);
         }
     </script>
-    <script src="js/1-lunar-scripts.js?v=3"></script>
+    <script src="js/1-lunar-scripts.js?v=3.1"></script>
     <script>
 
 
@@ -272,6 +272,21 @@
             /* ==================== URL PARAMS: NEW USER / SHARED EVENT ==================== */
             const params = new URLSearchParams(window.location.search);
 
+            // Fall back to sessionStorage for share params preserved across auth redirects
+            // (set by index.html before a redirect that strips the query string)
+            let shareParams = params;
+            if (!params.get('action')) {
+                try {
+                    const pendingShare = sessionStorage.getItem('ec_pending_share');
+                    if (pendingShare) {
+                        shareParams = new URLSearchParams(pendingShare);
+                        sessionStorage.removeItem('ec_pending_share');
+                    }
+                } catch (e) {
+                    console.warn('[share] Unable to restore pending share params', e);
+                }
+            }
+
             const shouldShowJediUpgrade = params.get('show_jedi_upgrade') === '1'
                 || localStorage.getItem('ec_show_jedi_upgrade') === '1';
 
@@ -283,8 +298,8 @@
             }
 
             // 🌀 Add new shared event
-            if (params.get('action') === 'add-event') {
-                const sharedDate = params.get('date');
+            if (shareParams.get('action') === 'add-event') {
+                const sharedDate = shareParams.get('date');
                 let year, month, day;
 
                 if (sharedDate) {
@@ -293,12 +308,12 @@
                 }
 
                 const cycleData = {
-                    frequency: params.get('f'),
-                    title: decodeURIComponent(params.get('t') || ''),
-                    datecycle_color: params.get('c'),
-                    comments: decodeURIComponent(params.get('n') || ''),
-                    id: params.get('id'),
-                    from: decodeURIComponent(params.get('from') || 'An Earthcal user'),
+                    frequency: shareParams.get('f'),
+                    title: decodeURIComponent(shareParams.get('t') || ''),
+                    datecycle_color: shareParams.get('c'),
+                    comments: decodeURIComponent(shareParams.get('n') || ''),
+                    id: shareParams.get('id'),
+                    from: decodeURIComponent(shareParams.get('from') || 'An Earthcal user'),
                     year,
                     month,
                     day
@@ -361,7 +376,7 @@
             setTimeout(function () {
                 startDate = targetDate;
 
-                if (params.get('action') === 'add-event') {
+                if (shareParams.get('action') === 'add-event') {
                     if (userAnimations) animatePlanetsIfReady();
                 }
 
@@ -1068,8 +1083,8 @@
 
 <!-- FINAL LOADED SCRIPTS -->
 
-<script src="js/1-event-management.js?v=18.3"></script>
-<script src="js/kin-cycles.js?v=4.2"></script>
+<script src="js/1-event-management.js?v=18.4"></script>
+<script src="js/kin-cycles.js?v=4.3"></script>
 
 
 </html>

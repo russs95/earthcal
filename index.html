@@ -49,6 +49,15 @@
                 window.__EARTHCAL_HAS_FIRST_TIME__ = hasFirstTimeFlag;
                 window.__EARTHCAL_STATUS_PARAM__ = statusParam;
                 window.__EARTHCAL_BUWANA_ID__ = buwanaId;
+
+                // Preserve share params across auth redirects that may strip the query string
+                if (params.get('action') === 'add-event') {
+                    try {
+                        sessionStorage.setItem('ec_pending_share', window.location.search);
+                    } catch (e) {
+                        console.warn('[share] Unable to save share params to sessionStorage', e);
+                    }
+                }
             } catch (error) {
                 console.error("Unable to process onboarding redirect.", error);
             }
@@ -57,11 +66,11 @@
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources ttt-->
     <link rel="preload" href="svgs/earthen-icon.svg" as="image" type="image/svg+xml">
-    <link rel="preload" href="js/earthcal-init.js?v=25.1" as="script">
-    <link rel="preload" href="css/light.css?v=7.8" as="style">
-    <link rel="preload" href="css/dark.css?v=7.8" as="style">
-    <link rel="preload" href="css/1-stylesheet.css?v=8.7" as="style">
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.7">
+    <link rel="preload" href="js/earthcal-init.js?v=25.2" as="script">
+    <link rel="preload" href="css/light.css?v=7.9" as="style">
+    <link rel="preload" href="css/dark.css?v=7.9" as="style">
+    <link rel="preload" href="css/1-stylesheet.css?v=8.8" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=8.8">
     <link rel="preload" href="assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Arvo-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
@@ -475,7 +484,7 @@
 
 
 <script src="js/earthcal-config.js"></script>
-<script src="js/first-onboarding.js?v=2"></script>
+<script src="js/first-onboarding.js?v=2.1"></script>
 <script type="module">
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -920,7 +929,7 @@
     };
 
     const handleDefaultFlow = async () => {
-        const redirectTarget = "dash.html";
+        const redirectTarget = "dash.html" + window.location.search;
 
         // ensureSessionProfile();
 
