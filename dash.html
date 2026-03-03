@@ -385,39 +385,30 @@
             // setTimeout(triggerBreakoutDay, 4000);  // allows the selected breakout to be highlighted
 
 
-            /* ==================== ONLINE / OFFLINE GATE ==================== */
-            if (!navigator.onLine) {
-                // User is offline → simple mode, no user data / cached datecycles
-                initializeOfflineMode();
+            /* ==================== USER DATA & FINAL UI SETUP ==================== */
+            // Load user data first — populates localStorage caches via syncStore.loadInitialState()
+            await getUserData();
+            displayDayInfo(targetDate, userLanguage, userTimeZone);
 
-                displayDayInfo(targetDate, userLanguage, userTimeZone);
-                return;
+            /* ==================== ONLINE / OFFLINE GATE ==================== */
+            // Use syncStore's probe result, not navigator.onLine (unreliable in Electron/snap)
+            const storeStatus = window.syncStore?.getStatus?.();
+            if (storeStatus && !storeStatus.online && !storeStatus.backendReachable) {
+                initializeOfflineMode();
             }
 
-            /* ==================== ONLINE MODE: STARTUP SEQUENCES ==================== */
-
-
-            setTimeout(function () {
-                    if (localStorage.getItem('buwana_id')) {
-                        // Proceed with syncing and then highlighting.
-                        // Keep any locally cached datecycles until a successful sync completes.
-                        syncDatecycles()
-                            .then(() => {
-                                highlightDateCycles(targetDate);
-                            })
-                            .catch(err => {
-                                console.error("Sync error:", err);
-                            });
-                    } else {
-                        // Online, but no Buwana account → highlight any server/default datecycles
-                        highlightDateCycles(targetDate);
-                    }
-                }, 2500);
-
-
-            /* ==================== USER DATA & FINAL UI SETUP (ONLINE ONLY) ==================== */
-            await getUserData(); // This sets time_zone, targetDate, etc.
-            displayDayInfo(targetDate, userLanguage, userTimeZone);
+            /* ==================== STARTUP SEQUENCES ==================== */
+            // Data is now in localStorage — safe to highlight
+            const { buwana_id } = (typeof getActiveUserContext === 'function')
+                ? getActiveUserContext()
+                : {};
+            if (buwana_id) {
+                syncDatecycles()
+                    .then(() => highlightDateCycles(targetDate))
+                    .catch(err => { console.error("Sync error:", err); highlightDateCycles(targetDate); });
+            } else {
+                highlightDateCycles(targetDate);
+            }
 
             if (userClock) {
                 openClock(userTimeZone);

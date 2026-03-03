@@ -2881,24 +2881,22 @@ function fetchDateCycleCalendars() {
         }
     }
 
-    if (offlineModeActive) {
-        try {
-            const pendingKeys = Object.keys(localStorage).filter(k => /^ec_user_\d+_items$/.test(k));
-            for (const key of pendingKeys) {
-                const raw = localStorage.getItem(key);
-                if (!raw) continue;
+    try {
+        const pendingKeys = Object.keys(localStorage).filter(k => /^ec_user_\d+_items$/.test(k));
+        for (const key of pendingKeys) {
+            const raw = localStorage.getItem(key);
+            if (!raw) continue;
 
-                const parsed = JSON.parse(raw);
-                const calendarItems = parsed && typeof parsed === 'object' ? parsed : {};
-                Object.values(calendarItems).forEach(list => {
-                    if (Array.isArray(list)) {
-                        addValidCycles(list);
-                    }
-                });
-            }
-        } catch (err) {
-            console.warn('[highlightDateCycles] unable to read pending-sync cache:', err);
+            const parsed = JSON.parse(raw);
+            const calendarItems = parsed && typeof parsed === 'object' ? parsed : {};
+            Object.values(calendarItems).forEach(list => {
+                if (Array.isArray(list)) {
+                    addValidCycles(list);
+                }
+            });
         }
+    } catch (err) {
+        console.warn('[highlightDateCycles] unable to read pending-sync cache:', err);
     }
 
     return Array.from(dedupedDateCycles.values());
