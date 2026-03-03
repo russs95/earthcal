@@ -354,7 +354,7 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
         messageEl.appendChild(previewImage);
     }
     if (title) {
-        const titleEl = document.createElement('h3');
+        const titleEl = document.createElement('h2');
         titleEl.className = 'form-modal-alert-title';
         const titleIcon = document.createElement('span');
         titleIcon.className = 'pure-locked-icon';
@@ -450,8 +450,8 @@ async function showUserCalSettings() {
         : null;
 
     const jediStatusText = !isAuthenticated
-        ? 'Login to unlock Earthcal features'
-        : (isJediPlan ? '✅ Full Jedi powers enabled' : 'Upgrade to unlock Jedi features');
+        ? 'Unlock Earthcal features | Signup + Login'
+        : (isJediPlan ? 'Full Jedi powers enabled! | manage subscription' : 'Unlock Jedi features | upgrade');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
     const showHoverUnlock = !isAuthenticated && !isJediPlan;
     const jediAccessIconClass = isJediPlan ? 'pure-unlocked-icon' : 'pure-locked-icon';
@@ -463,8 +463,8 @@ async function showUserCalSettings() {
     const showPremiumAccessAlert = ({ previewImageSrc = '', previewImageAlt = '', description = '' } = {}) => {
         if (hasPremiumAccess) return;
         const promptMessage = !isAuthenticated
-            ? 'To access this premium Earthcal features you must be logged in first with a Buwana Jedi acount.'
-            : 'To access this premium Earthcal power you must upgrade your Earthcal account to Jedi';
+            ? 'Access this advanced Earthcal feature by logging in an upgraded account.'
+            : 'Access this premium Earthcal feature by upgrading your Earthcal account to Jedi';
         const alertMessage = description ? [description] : '';
         if (!isAuthenticated) {
             showFormModalAlert({

@@ -3007,7 +3007,6 @@ INFO MODAL
 }
 
 .form-modal-alert-title {
-  font-size: 1.1rem;
   margin: 0;
   font-weight: 700;
 }
@@ -3017,16 +3016,17 @@ INFO MODAL
 }
 
 .form-modal-alert-preview {
-  width: calc(100% + 48px);
+  width: 100%;
   max-width: none;
   border-radius: 16px 16px 0 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   height: clamp(150px, 28vh, 220px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  /*box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);*/
   margin: 0 -24px 8px;
   display: block;
+    overflow-y: clip;
 }
 
 .form-modal-alert-actions {
@@ -3037,7 +3037,7 @@ INFO MODAL
 }
 
 .form-modal-alert-footer {
-  font-size: 0.9em;
+  font-size: 0.77em;
   color: var(--subdued);
   text-align: center;
   margin: 0;
@@ -3088,6 +3088,7 @@ INFO MODAL
     border-radius: 0;
     box-shadow: none;
     overflow-y: auto;
+      max-height: 95vh;
   }
 
   .form-modal-alert-preview {
@@ -3105,7 +3106,7 @@ INFO MODAL
   }
 
   .form-modal-alert-preview {
-    height: clamp(140px, 22vh, 200px);
+    height: clamp(140px, 40vh, 200px);
   }
 }
 
@@ -3720,6 +3721,18 @@ INFO MODAL
     outline: none;
   }
 
+
+  /*.blur-form-field {*/
+  /*    padding: 8px 10px;*/
+  /*    margin: 4px 0;*/
+  /*    font-size: 18px !important;*/
+  /*    box-sizing: border-box;*/
+  /*    border: 3px solid var(--button-2-1);*/
+  /*    border-radius: 5px;*/
+  /*    background-color: var(--top-header) !important;*/
+  /*    color: var(--h1);*/
+  /*    border: 2px solid var(--button-2-1) !important;*/
+  /*}*/
 @media screen and (max-width: 768px) {
   .ec-subscription-modal {
     padding: 10px;
@@ -5195,7 +5208,7 @@ svg path #june:hover {
 }
 
 .toggle-row.toggle-row-jedi {
-    border: 2px solid var(--button-2-1) !important;
+    border: 1px solid var(--button-2-1) !important;
     background: transparent;
     margin-top: 4px;
     border-radius: 10px;

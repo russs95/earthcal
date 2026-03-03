@@ -624,27 +624,24 @@ async function manageEarthcalUserSub() {
     };
 
     const padwanFeatureList = [
-        'Create events, to-dos and journals.',
-        'Visualize your date-items over real-time Earthen cycles.',
-        'Create and manage various personal calendars.',
-        'Create or subscribe to public calendars.',
-        'View the planet positions and orbits for any date.',
-        'View detailed lunar information for any date.',
-        'View detailed orbital stats for the inner planets for any date.',
-        'View migrations of great creatures for any date.',
-        'Search by date for future and past planetary positions.',
-        'Sync with Ubuntu desktop app',
+        'Harmonize your events with Earthen cycles.',
+        'Create up to 200 events, to-dos and journals.',
+        'Create and manage up to 3 personal calendars.',
+        'Auspice planetary, lunar, solar, Earthen postures for any date.',
+        'Download & Sync with the free Unbuntu Earthcal app.',
     ];
 
     const jediFeatureList = [
-        'Track the interstellar comet 3I-Atlas',
-        'Subscribe to Google calendars',
+        'Up to 10 personal calendars, unlimited date items.',
+        'Track/visualize the comet 3I-Atlas over the days of 2025-26',
+        'Enable Earthcal lunar calendar layer',
+        'Enable Zodiac house visualization layer',
+        'Connect to your (and other public) Google calendars',
         'Subscribe to Apple calendars',
         'Subscribe to Outlook calendars',
         'Subscribe to public iCal feeds',
-        'Toggle between Day and Night modes',
-        'Access Mac desktop app (coming soon)',
-        'Support the development of EarthCal into an even more awesome tool!',
+        'Access to the beta Mac desktop app',
+        'Support the development of EarthCal into an even more awesome tool! 🤩🙏',
     ];
 
     const renderFeatures = (plan) => {
