@@ -2328,9 +2328,90 @@ function clearAllDateCycles() {
 }
 
 
+function saveSharedEventToGuestCache(data) {
+    const key = 'calendar_guest';
+    let existing = [];
+    try {
+        existing = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(existing)) existing = [];
+    } catch (e) {
+        existing = [];
+    }
+
+    const uniqueKey = `shared_${data.id || Date.now()}`;
+    if (existing.some(e => e.unique_key === uniqueKey)) {
+        return; // already saved, no duplicate
+    }
+
+    const item = {
+        unique_key: uniqueKey,
+        title: data.title || 'Shared Event',
+        date: `${data.year}-${String(data.month).padStart(2, '0')}-${String(data.day).padStart(2, '0')}`,
+        day: data.day,
+        month: data.month,
+        year: data.year,
+        datecycle_color: data.datecycle_color || '#3b82f6',
+        frequency: data.frequency || 'One-time',
+        comments: data.comments || '',
+        cal_id: 'guest',
+        cal_name: 'Shared Events',
+        is_active: true,
+        shared_from: data.from || '',
+        last_edited: new Date().toISOString()
+    };
+
+    existing.push(item);
+    localStorage.setItem(key, JSON.stringify(existing));
+}
+
 async function prefillAddDateCycle(data) {
+    const craftBuwana =
+        JSON.parse(sessionStorage.getItem('buwana_user') || '{}').buwana_id ||
+        localStorage.getItem('buwana_id') ||
+        null;
+
     const prefillDate = new Date(data.year, data.month - 1, data.day);
-    window.targetDate = prefillDate; // ensure consistency
+    window.targetDate = prefillDate;
+
+    if (!craftBuwana) {
+        // Guest path: save to local cache, show on calendar, prompt to log in
+        saveSharedEventToGuestCache(data);
+        highlightDateCycles(prefillDate);
+
+        const sharerName = data.from || 'An Earthcal user';
+        const eventTitle = data.title || 'Event';
+        if (typeof showFormModalAlert === 'function') {
+            showFormModalAlert({
+                title: 'Event Added to Your Calendar',
+                message: [
+                    `${sharerName} shared "${eventTitle}" with you and it's now showing on your calendar.`,
+                    'Log in to save it permanently to your Earthcal account.'
+                ],
+                actions: [
+                    {
+                        label: 'Log In to Save',
+                        template: 'login',
+                        iconSrc: 'svgs/earthcal-icon.svg',
+                        onClick: async () => {
+                            if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                            if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
+                            else if (typeof sendUpRegistration === 'function') sendUpRegistration();
+                        }
+                    },
+                    {
+                        label: 'Dismiss',
+                        className: 'confirmation-blur-button',
+                        onClick: () => {
+                            if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                        }
+                    }
+                ]
+            });
+        }
+        return;
+    }
+
+    // Logged-in path: open pre-filled add modal so user can save to their calendar
     await openAddCycle(); // opens modal using global targetDate
 
     // Format target date: "June 11, 2025"

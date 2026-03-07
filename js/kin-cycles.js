@@ -827,8 +827,13 @@ function renderCometTrajectoryInfo(resolvedDate) {
 }
 
 function animateCometTrajectory(date, options = {}) {
-  const cometElement = document.getElementById("comet-start");
-  const cometPathElement = document.getElementById("comet-orbit");
+  // Only run when the user has explicitly enabled comet tracking in Settings
+  if (localStorage.getItem('user_comet_tracking') !== 'true') {
+    return;
+  }
+
+  const cometElement = document.getElementById("comet-start-4");
+  const cometPathElement = document.getElementById("comet-orbit-3");
 
   if (!cometElement || !cometPathElement) {
     console.warn("⚠️ Cannot animate comet trajectory: missing SVG elements.");

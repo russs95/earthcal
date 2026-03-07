@@ -1056,6 +1056,11 @@ function toggleCometTracking(isChecked) {
     userCometTracking = isChecked;
     localStorage.setItem('user_comet_tracking', isChecked);
     setCometTrackingVisibility(isChecked);
+    if (isChecked) {
+        if (typeof animateCometTrajectory === 'function' && typeof targetDate !== 'undefined') {
+            animateCometTrajectory(targetDate);
+        }
+    }
 }
 
 function toggleSolarAnimations(isChecked) {
