@@ -739,17 +739,31 @@ function useDefaultUser() {
 
 const OFFLINE_MODE_STORAGE_KEY = 'earthcal_offline_mode';
 const FORCED_OFFLINE_STORAGE_KEY = 'earthcal_forced_offline';
+const SIMPLE_MODE_STORAGE_KEY = 'earthcal_simple_mode';
 
 function getSavedOfflineMode() {
     const saved = localStorage.getItem(OFFLINE_MODE_STORAGE_KEY);
+    // 'simple' was a legacy combined offline+hide mode — migrate it to 'offline'
     if (saved === 'simple') {
-        return 'simple';
+        localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, 'offline');
+        return 'offline';
     }
 
     // Default persistently to offline so cached data is retained between sessions
     localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, 'offline');
     return 'offline';
 }
+
+function getSavedSimpleMode() {
+    return localStorage.getItem(SIMPLE_MODE_STORAGE_KEY) === 'true';
+}
+
+window.setSimpleMode = function(enabled) {
+    const val = enabled === true;
+    localStorage.setItem(SIMPLE_MODE_STORAGE_KEY, val ? 'true' : 'false');
+    window.isSimpleMode = val;
+    window.isSimpleModeActive = val;
+};
 
 function isForcedOfflineEnabled() {
     try {
@@ -864,17 +878,19 @@ async function clearAllUserData() {
 }
 
 function setOfflineModeChoice(mode) {
-    const normalized = mode === 'simple' ? 'simple' : 'offline';
+    const normalized = 'offline';
     localStorage.setItem(OFFLINE_MODE_STORAGE_KEY, normalized);
     window.earthcalMode = normalized;
-    window.isOfflineMode = normalized === 'offline';
-    window.isSimpleMode = normalized === 'simple';
-    window.isSimpleModeActive = window.isSimpleMode;
+    window.isOfflineMode = true;
     return normalized;
 }
 
-// Ensure global offline/simple mode flags are initialized on load
+// Ensure global offline mode flags are initialized on load
 setOfflineModeChoice(getSavedOfflineMode());
+
+// Initialize simple mode (hide personal events) from its own preference key — defaults to false
+window.isSimpleMode = getSavedSimpleMode();
+window.isSimpleModeActive = window.isSimpleMode;
 
 const initialForcedOffline = isForcedOfflineEnabled();
 if (initialForcedOffline) {

@@ -5359,6 +5359,10 @@ svg path #june:hover {
     background-color: var(--emblem-green, #008000);
 }
 
+.toggle-switch.toggle-switch-simple input:checked + .toggle-slider {
+    background-color: #dc2626;
+}
+
 .toggle-switch.toggle-switch-advanced input:checked + .toggle-slider:before {
     transform: translateX(32px);
 }

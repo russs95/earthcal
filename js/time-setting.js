@@ -649,6 +649,13 @@ async function showUserCalSettings() {
                     <span class="toggle-slider"></span>
                 </label>
             </div>
+            <div class="toggle-row toggle-row-simple-mode">
+                <span>Hide personal event items on Earthcal display</span>
+                <label class="toggle-switch toggle-switch-simple">
+                    <input type="checkbox" id="simple-mode-toggle" ${window.isSimpleMode ? 'checked' : ''} aria-label="Hide personal event items on Earthcal display">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
             <div class="toggle-row">
                 <span title="This will clear your browser cache of all Earthcal data. You will need to login again to retreive it.">Clear Earthcal's cache</span>
                 <button type="button" id="clear-user-data-button" class="clear-cache-button" aria-label="Clear cached user data">
@@ -776,6 +783,27 @@ async function showUserCalSettings() {
     const clearUserDataButton = modalContent.querySelector('#clear-user-data-button');
     if (clearUserDataButton) {
         clearUserDataButton.addEventListener('click', clearAllUserData);
+    }
+
+    const simpleModeToggle = modalContent.querySelector('#simple-mode-toggle');
+    if (simpleModeToggle) {
+        const updateSimpleModeRowStyle = (checked) => {
+            const row = simpleModeToggle.closest('.toggle-row-simple-mode');
+            if (row) {
+                row.style.backgroundColor = checked ? 'rgba(220,38,38,0.15)' : '';
+            }
+        };
+        updateSimpleModeRowStyle(simpleModeToggle.checked);
+        simpleModeToggle.addEventListener('change', (event) => {
+            const enabled = event.target.checked;
+            if (typeof window.setSimpleMode === 'function') {
+                window.setSimpleMode(enabled);
+            }
+            updateSimpleModeRowStyle(enabled);
+            if (typeof highlightDateCycles === 'function' && typeof targetDate !== 'undefined') {
+                highlightDateCycles(targetDate);
+            }
+        });
     }
 
     const setZodiacExpanded = (isExpanded) => {
