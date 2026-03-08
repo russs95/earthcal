@@ -16,6 +16,11 @@ async function openAddCycle() {
 
     document.body.style.overflowY = 'hidden';
     const modal = document.getElementById('add-datecycle');
+    if (!modal) {
+        console.warn('[openAddCycle] #add-datecycle modal not found — falling back to openAddItem');
+        if (typeof openAddItem === 'function') await openAddItem();
+        return;
+    }
     modal.classList.replace('modal-hidden','modal-shown');
     modal.classList.add('dim-blur');
     populateDateFields(targetDate);
@@ -2354,7 +2359,7 @@ function saveSharedEventToGuestCache(data) {
         frequency: data.frequency || 'One-time',
         comments: data.comments || '',
         cal_id: 'guest',
-        cal_name: 'Shared Events',
+        cal_name: 'My Calendar',
         is_active: true,
         shared_from: data.from || '',
         last_edited: new Date().toISOString()
@@ -2362,6 +2367,155 @@ function saveSharedEventToGuestCache(data) {
 
     existing.push(item);
     localStorage.setItem(key, JSON.stringify(existing));
+}
+
+async function fetchAndCachePublicCalendar(calId) {
+    try {
+        const base = (typeof getApiBase === 'function') ? getApiBase() : '/api/v1/';
+        const res = await fetch(base + 'get_pub_cal_items.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ calendar_id: calId })
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!json || !json.items) return;
+
+        const calName = (json.calendar && json.calendar.name) ? json.calendar.name : `Calendar ${calId}`;
+        const shaped = json.items.map(item => {
+            let day = '', month = '', year = '';
+            if (item.dtstart_utc) {
+                const d = new Date(item.dtstart_utc);
+                if (!isNaN(d)) {
+                    day = d.getUTCDate();
+                    month = d.getUTCMonth() + 1;
+                    year = d.getUTCFullYear();
+                }
+            }
+            return {
+                unique_key: `pub_${calId}_${item.item_id || Date.now()}`,
+                title: item.summary || item.title || '',
+                date: year ? `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}` : '',
+                day, month, year,
+                datecycle_color: item.item_color || item.color || '#3b82f6',
+                frequency: item.frequency || 'One-time',
+                cal_id: calId,
+                cal_name: calName,
+                is_active: true,
+                pinned: '0',
+                last_edited: new Date().toISOString()
+            };
+        });
+        localStorage.setItem(`calendar_${calId}`, JSON.stringify(shaped));
+    } catch (e) {
+        // non-critical — silently ignore
+    }
+}
+
+function initGuestExperience(data, prefillDate) {
+    const isFirstVisit = !localStorage.getItem('ec_guest_session');
+    if (isFirstVisit) {
+        localStorage.setItem('ec_guest_session', 'true');
+    }
+
+    // Add shared event to guest calendar
+    const key = 'calendar_guest';
+    let existing = [];
+    try {
+        existing = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(existing)) existing = [];
+    } catch (e) {
+        existing = [];
+    }
+
+    const uniqueKey = `shared_${data.id || Date.now()}`;
+    if (!existing.some(e => e.unique_key === uniqueKey)) {
+        existing.push({
+            unique_key: uniqueKey,
+            title: data.title || 'Shared Event',
+            date: `${data.year}-${String(data.month).padStart(2, '0')}-${String(data.day).padStart(2, '0')}`,
+            day: data.day,
+            month: data.month,
+            year: data.year,
+            datecycle_color: data.datecycle_color || '#3b82f6',
+            frequency: data.frequency || 'One-time',
+            comments: data.comments || '',
+            cal_id: 'guest',
+            cal_name: 'My Calendar',
+            is_active: true,
+            shared_from: data.from || '',
+            last_edited: new Date().toISOString()
+        });
+    }
+
+    if (isFirstVisit) {
+        const today = new Date();
+        const welcomeKey = 'welcome_earthcal';
+        if (!existing.some(e => e.unique_key === welcomeKey)) {
+            existing.push({
+                unique_key: welcomeKey,
+                title: '🌍 First Day on EarthCal!',
+                date: today.toISOString().slice(0, 10),
+                day: today.getDate(),
+                month: today.getMonth() + 1,
+                year: today.getFullYear(),
+                datecycle_color: '#4ade80',
+                frequency: 'One-time',
+                comments: '',
+                cal_id: 'guest',
+                cal_name: 'My Calendar',
+                is_active: true,
+                pinned: '1',
+                last_edited: today.toISOString()
+            });
+        }
+        fetchAndCachePublicCalendar(53); // non-blocking
+    }
+
+    localStorage.setItem(key, JSON.stringify(existing));
+    highlightDateCycles(prefillDate);
+
+    const sharerName = data.from || 'An EarthCal user';
+    const eventTitle = data.title || 'Event';
+
+    if (typeof showFormModalAlert === 'function') {
+        showFormModalAlert({
+            title: 'Welcome to EarthCal! 🌍',
+            message: [
+                `${sharerName} shared "${eventTitle}" with you — it's now on your personal calendar.`,
+                "We've also added a welcome event and subscribed you to the EarthCal community calendar.",
+                'Create an account to save everything permanently.'
+            ],
+            actions: [
+                {
+                    label: 'Create Account',
+                    template: 'login',
+                    iconSrc: 'svgs/earthcal-icon.svg',
+                    onClick: async () => {
+                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                        if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
+                        else if (typeof sendUpRegistration === 'function') sendUpRegistration();
+                    }
+                },
+                {
+                    label: 'Log In',
+                    className: 'confirmation-blur-button',
+                    onClick: async () => {
+                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                        if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
+                        else if (typeof sendUpRegistration === 'function') sendUpRegistration();
+                    }
+                },
+                {
+                    label: 'Explore First',
+                    className: 'confirmation-blur-button',
+                    onClick: () => {
+                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                    }
+                }
+            ]
+        });
+    }
 }
 
 async function prefillAddDateCycle(data) {
@@ -2373,46 +2527,15 @@ async function prefillAddDateCycle(data) {
     const prefillDate = new Date(data.year, data.month - 1, data.day);
     window.targetDate = prefillDate;
 
-    if (!craftBuwana) {
-        // Guest path: save to local cache, show on calendar, prompt to log in
-        saveSharedEventToGuestCache(data);
-        highlightDateCycles(prefillDate);
-
-        const sharerName = data.from || 'An Earthcal user';
-        const eventTitle = data.title || 'Event';
-        if (typeof showFormModalAlert === 'function') {
-            showFormModalAlert({
-                title: 'Event Added to Your Calendar',
-                message: [
-                    `${sharerName} shared "${eventTitle}" with you and it's now showing on your calendar.`,
-                    'Log in to save it permanently to your Earthcal account.'
-                ],
-                actions: [
-                    {
-                        label: 'Log In to Save',
-                        template: 'login',
-                        iconSrc: 'svgs/earthcal-icon.svg',
-                        onClick: async () => {
-                            if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
-                            if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
-                            else if (typeof sendUpRegistration === 'function') sendUpRegistration();
-                        }
-                    },
-                    {
-                        label: 'Dismiss',
-                        className: 'confirmation-blur-button',
-                        onClick: () => {
-                            if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
-                        }
-                    }
-                ]
-            });
-        }
+    const trulyLoggedIn = craftBuwana && (typeof window.isLoggedIn === 'function') && window.isLoggedIn();
+    if (!trulyLoggedIn) {
+        // Guest path: rich preview experience
+        initGuestExperience(data, prefillDate);
         return;
     }
 
-    // Logged-in path: open pre-filled add modal so user can save to their calendar
-    await openAddCycle(); // opens modal using global targetDate
+    // Logged-in path: open the modern add-item modal pre-filled with shared event data
+    await openAddItem();
 
     // Format target date: "June 11, 2025"
     const dateStr = prefillDate.toLocaleDateString('en-US', {
@@ -2421,31 +2544,43 @@ async function prefillAddDateCycle(data) {
         year: 'numeric'
     });
 
-    // Set invitation message
-    const titleElement = document.getElementById('add-event-title');
     const sharerName = data.from || "An Earthcal user";
-    if (titleElement) {
-        titleElement.textContent = `${sharerName} has invited you to add an event to your calendar on ${dateStr}`;
+
+    // Switch form kind to 'event'
+    const kindSelect = document.getElementById('ec-item-kind');
+    if (kindSelect) {
+        kindSelect.value = 'event';
+        kindSelect.dispatchEvent(new Event('change'));
     }
 
-    // Pre-fill form values
-    document.getElementById('dateCycle-type').value = data.frequency || 'One-time';
-    if (data.year) document.getElementById('year-field2').value = data.year;
-    if (data.month) document.getElementById('month-field2').value = data.month;
-    if (data.day) document.getElementById('day-field2').value = data.day;
-    if (data.title) document.getElementById('add-date-title').value = data.title;
+    // Set invitation message as form heading
+    const formHeading = document.getElementById('ec-add-form-title');
+    if (formHeading) {
+        formHeading.textContent = `${sharerName} has invited you to add an event to your calendar on ${dateStr}`;
+    }
+
+    // Pre-fill title
+    if (data.title) {
+        const titleInput = document.getElementById('ec-title');
+        if (titleInput) titleInput.value = data.title;
+    }
+
+    // Pre-fill notes and expand notes section
     if (data.comments) {
-        document.getElementById('add-note-checkbox').checked = true;
-        document.getElementById('add-date-note').value = data.comments;
-    }
-    if (data.datecycle_color) document.getElementById('DateColorPicker').value = data.datecycle_color;
-
-    // Select "My Calendar"
-    const calDropdown = document.getElementById('select-calendar');
-    for (let i = 0; i < calDropdown.options.length; i++) {
-        if (calDropdown.options[i].text.trim() === "My Calendar") {
-            calDropdown.selectedIndex = i;
-            break;
+        const notesInput = document.getElementById('ec-notes');
+        if (notesInput) {
+            notesInput.value = data.comments;
+            const notesBox = document.getElementById('ec-notes-box');
+            const notesToggle = document.getElementById('ec-notes-toggle');
+            if (notesBox) {
+                notesBox.classList.add('is-open');
+                notesBox.setAttribute('aria-hidden', 'false');
+                notesBox.style.maxHeight = notesBox.scrollHeight + 'px';
+            }
+            if (notesToggle) {
+                notesToggle.setAttribute('aria-expanded', 'true');
+                notesToggle.classList.add('is-open');
+            }
         }
     }
 }

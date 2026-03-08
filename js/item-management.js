@@ -52,7 +52,9 @@ async function openAddItem() {
 
     console.log('[openAddItem] user object:', getCurrentUser());
 
-    if (!user?.buwana_id) {
+    const userIsAuthenticated = user?.buwana_id &&
+        (typeof window.isLoggedIn !== 'function' || window.isLoggedIn());
+    if (!userIsAuthenticated) {
         alert('Please log in to add items.');
         if (typeof sendUpRegistration === 'function') sendUpRegistration();
         return;

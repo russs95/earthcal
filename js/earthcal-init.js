@@ -82,7 +82,7 @@ async function initCalendar() {
         "js/planet-orbits.js?v=8.3",
         // rest of app
         "js/login-scripts.js?v=20.4",
-        "js/item-management.js?v=9.99",
+        "js/item-management.js?v=10.0",
         "js/calendar-scripts.js?v=2.8",
     ];
 
