@@ -2416,6 +2416,12 @@ function initGuestExperience(data, prefillDate) {
     const isFirstVisit = !localStorage.getItem('ec_guest_session');
     if (isFirstVisit) {
         localStorage.setItem('ec_guest_session', 'true');
+        // Store guest calendar metadata with a colour so highlights work
+        const guestCal = [{ calendar_id: 'guest', name: 'My Calendar', color: '#9ca3af', emoji: '📅', is_active: true }];
+        try {
+            localStorage.setItem('user_calendars_v1', JSON.stringify(guestCal));
+            sessionStorage.setItem('user_calendars_v1', JSON.stringify(guestCal));
+        } catch (e) { /* non-critical */ }
     }
 
     // Add shared event to guest calendar
@@ -2437,39 +2443,18 @@ function initGuestExperience(data, prefillDate) {
             day: data.day,
             month: data.month,
             year: data.year,
-            datecycle_color: data.datecycle_color || '#3b82f6',
+            datecycle_color: data.datecycle_color || '#9ca3af',
             frequency: data.frequency || 'One-time',
             comments: data.comments || '',
+            description: 'Your first visit to EarthCal. We hope you consider changing your relationship with time.',
             cal_id: 'guest',
             cal_name: 'My Calendar',
+            cal_color: '#9ca3af',
             is_active: true,
+            pinned: '0',
             shared_from: data.from || '',
             last_edited: new Date().toISOString()
         });
-    }
-
-    if (isFirstVisit) {
-        const today = new Date();
-        const welcomeKey = 'welcome_earthcal';
-        if (!existing.some(e => e.unique_key === welcomeKey)) {
-            existing.push({
-                unique_key: welcomeKey,
-                title: '🌍 First Day on EarthCal!',
-                date: today.toISOString().slice(0, 10),
-                day: today.getDate(),
-                month: today.getMonth() + 1,
-                year: today.getFullYear(),
-                datecycle_color: '#4ade80',
-                frequency: 'One-time',
-                comments: '',
-                cal_id: 'guest',
-                cal_name: 'My Calendar',
-                is_active: true,
-                pinned: '1',
-                last_edited: today.toISOString()
-            });
-        }
-        fetchAndCachePublicCalendar(53); // non-blocking
     }
 
     localStorage.setItem(key, JSON.stringify(existing));
@@ -2480,34 +2465,14 @@ function initGuestExperience(data, prefillDate) {
 
     if (typeof showFormModalAlert === 'function') {
         showFormModalAlert({
-            title: 'Welcome to EarthCal! 🌍',
+            title: 'Welcome to Earthcal',
             message: [
-                `${sharerName} shared "${eventTitle}" with you — it's now on your personal calendar.`,
-                "We've also added a welcome event and subscribed you to the EarthCal community calendar.",
-                'Create an account to save everything permanently.'
+                `${sharerName} has shared the event "${eventTitle}" with you.`,
+                `${sharerName} uses Earthcal to sync events and intentions with Earthen cycles. To save and sync your events to Earthcal, login or create an account. We've temporarily saved the event to the display.`
             ],
             actions: [
                 {
-                    label: 'Create Account',
-                    template: 'login',
-                    iconSrc: 'svgs/earthcal-icon.svg',
-                    onClick: async () => {
-                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
-                        if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
-                        else if (typeof sendUpRegistration === 'function') sendUpRegistration();
-                    }
-                },
-                {
-                    label: 'Log In',
-                    className: 'confirmation-blur-button',
-                    onClick: async () => {
-                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
-                        if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
-                        else if (typeof sendUpRegistration === 'function') sendUpRegistration();
-                    }
-                },
-                {
-                    label: 'Explore First',
+                    label: 'Got it',
                     className: 'confirmation-blur-button',
                     onClick: () => {
                         if (typeof closeFormModalAlert === 'function') closeFormModalAlert();

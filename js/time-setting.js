@@ -31,11 +31,15 @@ window.zodiacShadeSetting = storedZodiacShadeSetting === null || Number.isNaN(pa
 if (storedZodiacShadeSetting === null) localStorage.setItem('zodiac_shade_setting', '0');
 
 function applyUserDarkMode() {
-    if (userDarkMode !== 'dark') return;
     const lightLinks = document.querySelectorAll('link[href*="light.css"]');
     const darkLinks = document.querySelectorAll('link[href*="dark.css"]');
-    darkLinks.forEach(link => { link.media = 'all'; link.disabled = false; });
-    lightLinks.forEach(link => { link.media = 'not all'; link.disabled = true; });
+    if (userDarkMode === 'dark') {
+        darkLinks.forEach(link => { link.media = 'all'; link.disabled = false; });
+        lightLinks.forEach(link => { link.media = 'not all'; link.disabled = true; });
+    } else {
+        lightLinks.forEach(link => { link.media = 'all'; link.disabled = false; });
+        darkLinks.forEach(link => { link.media = 'not all'; link.disabled = true; });
+    }
 }
 
 if (document.readyState !== 'loading') {
@@ -675,6 +679,7 @@ async function showUserCalSettings() {
         darkModeToggleEl.addEventListener('change', (event) => {
             userDarkMode = event.target.checked ? 'dark' : 'light';
             localStorage.setItem('user_dark_mode', userDarkMode);
+            console.log(userDarkMode === 'dark' ? 'Dark mode turned on' : 'Light mode turned on');
             applyUserDarkMode();
         });
     }
