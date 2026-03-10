@@ -488,6 +488,18 @@ Files to check for references:
 
 Also bump `js/service-worker.js?v=X.Y` (in `earthcal-init.js`) whenever any cached asset changes, so the service worker's install step re-fetches the updated files.
 
+**IMPORTANT — `earthcal-init.js` itself:** After ANY code change to the project, also bump the `?v=` on the `earthcal-init.js` `<script>` tag in **both** `dash.html` and `index.html`:
+
+```html
+<!-- dash.html and index.html -->
+<script src="js/earthcal-init.js?v=X.Y"></script>
+```
+
+- Minor change → `?v=X.Y` + 0.1 (e.g. `v=50` → `v=50.1`)
+- Major revision → `?v=X+1.0` (e.g. `v=50.9` → `v=51.0`)
+
+This ensures browsers reload the init orchestrator and pick up the freshly-versioned script list inside it.
+
 ---
 
 ## Common Gotchas

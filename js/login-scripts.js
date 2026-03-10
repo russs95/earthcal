@@ -409,10 +409,6 @@ async function getUserData() {
                     localStorage.removeItem(key);
                 });
 
-                // Remove any per-calendar cache entries (legacy v1 pattern)
-                Object.keys(localStorage)
-                    .filter((key) => key.startsWith("calendar_") || key.startsWith("ec_user_"))
-                    .forEach((key) => localStorage.removeItem(key));
             } catch (clearErr) {
                 console.warn("[getUserData] Unable to fully clear cached data for guest view", clearErr);
             }

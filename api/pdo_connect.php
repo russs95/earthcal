@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 if (!function_exists('earthcal_get_pdo')) {
-    require_once __DIR__ . '/calconn_env.php';
-
+    require_once '/var/www/secrets/earthcal/calconn_env.php';
     /**
      * Return a shared PDO instance configured from calconn_env.php.
-     *
+     *require_once __DIR__ . '/calconn_env.php';
+
      * The environment file may either expose a ready-to-use $pdo handle or the
      * discrete credential variables used across legacy scripts. This helper
      * normalises those shapes so the API endpoints can consistently obtain a

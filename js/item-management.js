@@ -1972,11 +1972,20 @@ function displayMoonPhasev1({ date, container } = {}) {
         return `<div class="${classes.join(' ')}">${text}</div>`;
     }).join('');
 
+    let auspiciousText = '';
+    if (typeof SunCalc.getLunarMoment === 'function') {
+        try {
+            const lm = SunCalc.getLunarMoment(target);
+            auspiciousText = `Today is a most auspicious day for intending and manifesting as the moon is ${lm.phaseName}, ${lm.motionName} and ${lm.comboName}.`;
+        } catch (err) {
+            console.warn('[displayMoonPhasev1] getLunarMoment failed:', err);
+        }
+    }
+
     wrapper.innerHTML = `
         <div class="ec-moon-phase-emoji" aria-hidden="true">${emoji}</div>
         <div class="ec-moon-phase-details">
-            <div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>
-            ${metricsHtml}
+            ${auspiciousText ? `<div class="ec-moon-phase-name">${auspiciousText}</div>` : `<div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>${metricsHtml}`}
         </div>
     `;
 
