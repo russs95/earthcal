@@ -368,6 +368,28 @@ async function getUserData() {
     if (!ok || !payload?.buwana_id) {
         console.warn("⚪ Not logged in or token expired. Using default view.");
 
+        // Capture returning user's first name BEFORE clearing localStorage
+        let returningFirstName = null;
+        if (navigator.onLine) {
+            try {
+                const ctx = getCachedUserContext();
+                if (ctx.hasCachedData && ctx.profile) {
+                    const name = ctx.profile.given_name || ctx.profile.first_name || null;
+                    if (name && name !== 'Earthling') {
+                        returningFirstName = name;
+                    }
+                }
+            } catch (_) {}
+        }
+
+        if (returningFirstName) {
+            sessionStorage.setItem('ec_returning_user_name', returningFirstName);
+            // Suppress the window.alert in alertLoginRequiredForCachedData
+            sessionStorage.setItem('ec_cached_login_prompted', 'true');
+        } else {
+            sessionStorage.removeItem('ec_returning_user_name');
+        }
+
         // If we land here *with* internet connectivity, force a clean slate so
         // EarthCal renders with ZERO cached data (web + Electron). This prevents
         // stale offline caches from showing when the session has expired.
@@ -407,6 +429,12 @@ async function getUserData() {
             lastUpdated: new Date().toISOString(),
             source: "getUserData",
         };
+
+        // Auto-show personalized login prompt for returning users who are online
+        if (returningFirstName && navigator.onLine) {
+            sendUpRegistration();
+        }
+
         return;
     }
 
@@ -2577,10 +2605,34 @@ async function showLoginForm(loggedOutView, loggedInView) {
     const loginStrings = translations.login;
 
     const subStatusDiv = document.getElementById('sub-status-message');
-    if (subStatusDiv) {
-        subStatusDiv.innerHTML = (status === "firsttime")
-            ? loginStrings.statusFirstTime(earthling_emoji)
-            : loginStrings.statusReturning(earthling_emoji, first_name);
+    const returningName = sessionStorage.getItem('ec_returning_user_name');
+
+    if (returningName && navigator.onLine) {
+        // Personalized title for returning user with expired session
+        const statusMsgEl = document.getElementById('status-message');
+        if (statusMsgEl) {
+            statusMsgEl.textContent = `${returningName}, please log back in.`;
+        }
+
+        // Lunar moment sub-message
+        let lunarText = 'Use a Buwana account to access the full power of Earthcal.';
+        if (typeof SunCalc !== 'undefined' && typeof SunCalc.getLunarMoment === 'function') {
+            try {
+                const m = SunCalc.getLunarMoment(new Date());
+                lunarText = `Today is a most auspicious day for intending and manifesting as the moon is ${m.phaseName}, ${m.motionName} and ${m.comboName}.`;
+            } catch (e) {
+                console.warn('[showLoginForm] getLunarMoment failed:', e);
+            }
+        }
+        if (subStatusDiv) subStatusDiv.textContent = lunarText;
+
+        sessionStorage.removeItem('ec_returning_user_name');  // consume once
+    } else {
+        if (subStatusDiv) {
+            subStatusDiv.innerHTML = (status === "firsttime")
+                ? loginStrings.statusFirstTime(earthling_emoji)
+                : loginStrings.statusReturning(earthling_emoji, first_name);
+        }
     }
 }
 

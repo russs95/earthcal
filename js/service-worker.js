@@ -1,5 +1,5 @@
 importScripts('earthcal-config.js');
-const CACHE_NAME = 'earthcal-cache-v4';
+const CACHE_NAME = 'earthcal-cache-v5';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
 // List of assets to pre-cache
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
     './js/earthcal-config.js',
     './js/earthcal-init.js?v=38.1',
     './js/suncalc.min.js',
+    './js/auspicer.js',
     './js/astronomy.browser.js',
     './js/core.js?v=23.3',
     './js/1-gcal-javascripts.js?v=3.2',
