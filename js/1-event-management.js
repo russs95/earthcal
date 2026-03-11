@@ -977,6 +977,21 @@ async function highlightDateCycles(targetDate) {
         return;
     }
 
+    // 🔹 Auth guard: do not show cached items to users who are not logged in
+    const userIsLoggedIn = (typeof isLoggedIn === 'function') ? isLoggedIn() : false;
+    if (!userIsLoggedIn) {
+        console.info('ℹ️ Highlighter: User not logged in — skipping date item display.');
+        const pinnedPanel = document.getElementById('pinned-datecycles');
+        const currentPanel = document.getElementById('current-datecycles');
+        if (pinnedPanel) pinnedPanel.innerHTML = '';
+        if (currentPanel) currentPanel.innerHTML = '';
+        await updateDateCycleCount(0, 0);
+        if (eventToggleButton) {
+            eventToggleButton.style.visibility = 'hidden';
+        }
+        return;
+    }
+
     // 🔹 Fetch all dateCycles from storage or API
     const rawDateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
 
