@@ -1,5 +1,5 @@
 
-earthen@103.185.52.122
+ssh earthen@103.185.52.122
 sudo deploy-earthcal
 
 Since the site is mostly static JS/SVG for the animation parts, the simplest options are:
