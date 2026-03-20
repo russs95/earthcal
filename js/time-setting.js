@@ -215,9 +215,9 @@ function setCurrentDate(time_zone = Intl.DateTimeFormat().resolvedOptions().time
     } catch (e) {
         console.error("Failed to parse date with time_zone:", time_zone, e);
 
-        const currentDate = new Date();
-        startDate = new Date(currentDate.getFullYear(), 0, 1);
-        targetDate = new Date(dateInTZ.getFullYear(), dateInTZ.getMonth(), dateInTZ.getDate());
+        const fallbackDate = new Date();
+        startDate = new Date(fallbackDate.getFullYear(), 0, 1);
+        targetDate = new Date(fallbackDate.getFullYear(), fallbackDate.getMonth(), fallbackDate.getDate());
     }
 }
 
@@ -433,21 +433,26 @@ async function showUserCalSettings() {
 
     const loginState = (typeof isLoggedIn === 'function') ? isLoggedIn({ returnPayload: true }) : { isLoggedIn: false };
     const payload = loginState?.payload || null;
-    const resolvedBuwanaId = payload?.buwana_id || null;
-
-    const isAuthenticated = Boolean(loginState?.isLoggedIn && resolvedBuwanaId);
     const profile = window.userProfile || {};
+    // Offline fallback: cached profile may exist even when JWT tokens are expired
+    const offlineCachedId = profile?.buwana_id
+        || (typeof resolveCachedBuwanaId === 'function' ? resolveCachedBuwanaId() : null);
+    const resolvedBuwanaId = payload?.buwana_id || offlineCachedId || null;
+    const isAuthenticated = Boolean(loginState?.isLoggedIn && payload?.buwana_id) || Boolean(offlineCachedId);
     const firstName = profile.first_name || payload?.given_name || 'Earthling';
     const sanitizedFirstName = (typeof escapeHtml === 'function') ? escapeHtml(firstName) : firstName;
     const earthlingEmoji = profile.earthling_emoji || payload?.["buwana:earthlingEmoji"] || '🌍';
-    const userPlanType = (window.user_plan || '').toString().trim().toLowerCase();
+    // Offline fallback: also read cached plan from localStorage in case window.user_plan wasn't restored yet
+    const cachedPlanFromStorage = (() => { try { return localStorage.getItem('earthcal_user_plan') || ''; } catch(e) { return ''; } })();
+    const userPlanType = (window.user_plan || cachedPlanFromStorage || '').toString().trim().toLowerCase();
     const isJediPlan = isAuthenticated && userPlanType === 'jedi';
     const savedOfflineMode = (typeof getSavedOfflineMode === 'function')
         ? getSavedOfflineMode()
         : 'offline';
-    const forcedOfflineEnabled = (typeof isForcedOfflineEnabled === 'function')
-        ? isForcedOfflineEnabled()
-        : false;
+    const rawForcedOfflineStored = localStorage.getItem('earthcal_forced_offline');
+    const forcedOfflineEnabled = rawForcedOfflineStored === null
+        ? isJediPlan
+        : rawForcedOfflineStored === 'true';
 
     const editProfileUrl = isAuthenticated && resolvedBuwanaId
         ? `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(payload?.aud || payload?.client_id || "unknown")}`
@@ -598,21 +603,11 @@ async function showUserCalSettings() {
             <div class="toggle-row toggle-row-offline" id="forced-offline-row">
                 <div class="toggle-row-main">
                     <div class="toggle-row-label">
-                        ${lockIconHtml(false)}
+                        ${lockIconHtml(hasPremiumAccess)}
                         <span>Offline mode when not connected</span>
                     </div>
                     <label class="toggle-switch toggle-switch-advanced">
                         <input type="checkbox" id="forced-offline-toggle" ${forcedOfflineEnabled ? 'checked' : ''} aria-label="Force offline mode">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-sub-row" id="offline-mode-sub-row" aria-hidden="true">
-                    <div class="toggle-row-label offline-mode-label">
-                        <span class="offline-mode-emoji" aria-hidden="true">🔌</span>
-                        <span>Offline shows cached data</span>
-                    </div>
-                    <label class="toggle-switch toggle-switch-advanced">
-                        <input type="checkbox" id="offline-mode-toggle" ${savedOfflineMode !== 'simple' ? 'checked' : ''} aria-label="Offline mode preference">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -705,8 +700,6 @@ async function showUserCalSettings() {
     const languageSelect = modalContent.querySelector('#language');
     const applyButton = modalContent.querySelector('.stellar-submit');
     const jediPlanRow = modalContent.querySelector('.toggle-row-jedi');
-    const offlineModeToggle = modalContent.querySelector('#offline-mode-toggle');
-    const offlineModeSubRow = modalContent.querySelector('#offline-mode-sub-row');
     const zodiacToggle = modalContent.querySelector('#zodiac-toggle');
     const zodiacToggleRow = modalContent.querySelector('#zodiac-toggle-row');
     const zodiacContrastRow = modalContent.querySelector('#zodiac-contrast-row');
@@ -758,31 +751,23 @@ async function showUserCalSettings() {
         });
     }
 
-    if (offlineModeToggle) {
-        updateOfflineToggleUI(savedOfflineMode);
-        offlineModeToggle.addEventListener('change', handleOfflineToggleChange);
-    }
-
     const forcedOfflineToggle = modalContent.querySelector('#forced-offline-toggle');
-    const updateOfflineSubRowVisibility = (isForcedOffline) => {
-        if (!offlineModeSubRow) return;
-        const isHidden = isForcedOffline !== true;
-        offlineModeSubRow.style.display = isHidden ? 'none' : 'flex';
-        offlineModeSubRow.setAttribute('aria-hidden', String(isHidden));
-    };
 
     if (forcedOfflineToggle) {
-        updateOfflineSubRowVisibility(forcedOfflineToggle.checked);
-        if (typeof toggleForcedOfflineMode === 'function') {
-            forcedOfflineToggle.addEventListener('change', (event) => {
+        forcedOfflineToggle.addEventListener('change', (event) => {
+            if (!hasPremiumAccess) {
+                event.target.checked = forcedOfflineEnabled;
+                showPremiumAccessAlert({
+                    previewImageSrc: 'assets/images/preview-offline.webp',
+                    previewImageAlt: 'Offline mode preview',
+                    description: 'Keep Earthcal available and your calendar data cached when you\'re offline or on a limited connection.'
+                });
+                return;
+            }
+            if (typeof toggleForcedOfflineMode === 'function') {
                 toggleForcedOfflineMode(event);
-                updateOfflineSubRowVisibility(Boolean(event?.target?.checked));
-            });
-        } else {
-            forcedOfflineToggle.addEventListener('change', (event) => {
-                updateOfflineSubRowVisibility(Boolean(event?.target?.checked));
-            });
-        }
+            }
+        });
     }
 
     const clearUserDataButton = modalContent.querySelector('#clear-user-data-button');

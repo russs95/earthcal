@@ -97,9 +97,10 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=50.5"></script>
+    <script src="js/earthcal-init.js?v=53.2"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=47.3">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=48.2">
+    <link rel="stylesheet" href="css/auspicer-styles.css?v=1.0">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
 
@@ -219,6 +220,53 @@
         //Initiate
         gsap.registerPlugin(MotionPathPlugin);
 
+        /* ==================== MOON BUTTON DESKTOP LUNAR AUSPICES ==================== */
+        function setupMoonButtonDesktop() {
+            var moonBtn = document.getElementById('moon-button');
+            var panel = document.getElementById('lunar-auspices-dash-panel');
+            if (!moonBtn || !panel) return;
+
+            moonBtn.addEventListener('click', function () {
+                if (window.innerWidth < 769) return; // mobile: cycle-toggle handles it
+
+                // Defer to run after cycle-toggle's own listener
+                setTimeout(function () {
+                    var isActive = moonBtn.classList.contains('totems-active');
+                    var moonCycle = document.getElementById('moon-cycle');
+                    if (isActive) {
+                        if (moonCycle) moonCycle.style.display = 'none';
+                        panel.style.display = 'block';
+                        // Render auspices if not yet rendered for this targetDate
+                        var dateKey = (typeof targetDate !== 'undefined' && targetDate instanceof Date)
+                            ? targetDate.toDateString() : 'today';
+                        if (panel.dataset.renderedFor !== dateKey) {
+                            panel.dataset.renderedFor = dateKey;
+                            panel.innerHTML = '';
+                            _renderLunarAuspicesIntoDashPanel(panel);
+                        }
+                    } else {
+                        panel.style.display = 'none';
+                    }
+                }, 0);
+            });
+        }
+
+        async function _renderLunarAuspicesIntoDashPanel(panel) {
+            try {
+                var date = (typeof targetDate !== 'undefined' && targetDate instanceof Date)
+                    ? new Date(targetDate) : new Date();
+                var response = await fetch('js/earthcal_lunar_intention_config.json', { cache: 'default' });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                var config = await response.json();
+                if (typeof SunCalc !== 'undefined' && typeof SunCalc.renderLunarAuspices === 'function') {
+                    var el = SunCalc.renderLunarAuspices(date, config, {});
+                    panel.appendChild(el);
+                }
+            } catch (err) {
+                console.warn('[_renderLunarAuspicesIntoDashPanel] Failed:', err);
+            }
+        }
+
         /* ==================== ROLL CALL / INITIALIZE PAGE ==================== */
         async function initializePage() {
             /* ==================== INITIAL DOM ELEMENT ROLL CALL ==================== */
@@ -260,10 +308,6 @@
                 }
             }, 3000);
 
-            setTimeout(() => {
-                zodiacLayer.style.opacity = '1';
-                lunarLayer.style.opacity = '1';
-            }, 4000);
 
             /* ==================== THEME / COLOR INITIALIZATION ==================== */
             updateBackgroundColor();   // Updates colors for night and day themes
@@ -314,6 +358,12 @@
                     window.initPlanetAnimator();
                 }
 
+                if (typeof window.animatePlanets === "function") {
+                    requestAnimationFrame(() => window.animatePlanets(startDate, targetDate));
+                } else {
+                    console.warn("animatePlanets not ready yet.");
+                }
+
                 const cycleData = {
                     frequency: shareParams.get('f'),
                     title: decodeURIComponent(shareParams.get('t') || ''),
@@ -335,7 +385,7 @@
                 }
 
                 if (typeof window.animatePlanets === "function") {
-                    window.animatePlanets(startDate, targetDate);
+                    requestAnimationFrame(() => window.animatePlanets(startDate, targetDate));
                 } else {
                     console.warn("animatePlanets not ready yet.");
                 }
@@ -360,6 +410,7 @@
             const currentYear = parseInt(currentYearText.textContent); // gets the year from the currentYearText div
 
             cyclesToggleSimplified();          // Show/hide animal cycles
+            setupMoonButtonDesktop();          // Desktop: show lunar auspices instead of moon-cycle
             initializeToggleListener();        // Show or hide datecycles?
             updateDayIds(currentYear);         // Updates the day ids for the current year
             updateDayTitles(currentYear);      // Updates the day titles for the current year
@@ -382,12 +433,6 @@
 
             setTimeout(function () {
                 startDate = targetDate;
-
-                if (shareParams.get('action') === 'add-event') {
-                    if (userAnimations && typeof window.animatePlanets === "function") {
-                        window.animatePlanets(startDate, targetDate);
-                    }
-                }
 
                 setYearsMonthsOn();
                 updateTargetMonth();
@@ -426,21 +471,55 @@
             const { buwana_id } = (typeof getActiveUserContext === 'function')
                 ? getActiveUserContext()
                 : {};
+            const _storeStatus2 = window.syncStore?.getStatus?.();
+            const _isEffectivelyOnline = _storeStatus2?.online ?? navigator.onLine;
+            const _offlineModeEnabled = (typeof isForcedOfflineEnabled === 'function') ? isForcedOfflineEnabled() : false;
+
+            // Ensure targetDate is always a valid Date before highlighting
+            if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) {
+                if (typeof setCurrentDate === 'function') { setCurrentDate(); }
+                if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) { targetDate = new Date(); }
+            }
+
             if (buwana_id) {
-                syncDatecycles()
-                    .then(() => highlightDateCycles(targetDate))
-                    .catch(err => { console.error("Sync error:", err); highlightDateCycles(targetDate); });
+                if (!_isEffectivelyOnline && !_offlineModeEnabled) {
+                    // Offline + no offline mode → show alert, don't try to load data
+                    const isPadwan = !window.user_plan || window.user_plan === 'padwan';
+                    const alertMsg = isPadwan
+                        ? "Looks like you're offline! Please re-connect to use EarthCal. Or... upgrade to a Jedi account that lets you use EarthCal in our super useful Offline Mode."
+                        : "Looks like you're offline! Please re-connect to use EarthCal. Or... enable Offline Mode in your Settings to browse your cached calendar without connectivity.";
+                    showOfflineAlert(alertMsg);
+                } else {
+                    syncDatecycles()
+                        .then(() => highlightDateCycles(targetDate))
+                        .catch(err => { console.error("Sync error:", err); highlightDateCycles(targetDate); });
+                }
             } else {
-                // Only highlight cached items in offline mode; online guest sees login view only
-                const isOnline = window.syncStore?.getStatus?.()?.online ?? navigator.onLine;
-                if (!isOnline) {
-                    highlightDateCycles(targetDate);
+                // Not logged in
+                if (!_isEffectivelyOnline) {
+                    if (_offlineModeEnabled) {
+                        highlightDateCycles(targetDate);
+                    }
+                    // If offline mode not enabled, leave calendar empty (login panel will show)
                 }
             }
 
             if (userClock) {
                 openClock(userTimeZone);
             }
+        }
+
+        /* ==================== OFFLINE ALERT BANNER ==================== */
+        function showOfflineAlert(msg) {
+            let banner = document.getElementById('offline-alert-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'offline-alert-banner';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#1c1917;padding:12px 16px;font-size:14px;text-align:center;';
+                document.body.prepend(banner);
+            }
+            banner.textContent = msg;
+            banner.style.display = 'block';
         }
 
         /* ==================== OFFLINE MODE PLACEHOLDER ==================== */
@@ -468,6 +547,9 @@
 </HEAD>
 
 <BODY style="overflow: hidden !important;">
+
+<!--OFFLINE TOP BANNER-->
+<div id="offline-top-banner" class="offline-top-banner" hidden aria-live="assertive" role="status"></div>
 
 <!--FORM MODAL ALERT-->
 <div id="form-modal-alert" class="modal-hidden" aria-hidden="true">
@@ -762,7 +844,7 @@
       border-radius: 15px;">
         <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
         <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
-        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="Earthcal v1.3.1"></button></div>
+        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="Earthcal v1.3.4"></button></div>
     </div>
 
     <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">
@@ -822,6 +904,7 @@
             <div id="moon-info" class="planet-info" style="text-align: right;display: contents;"></div><br>
             <button type="button" style="cursor:pointer; margin-top:15px;" onclick="closePlanetInfoBoxes()" aria-label="Click to close settings page" class="x-button close-planet-info-button"></button>
         </div>
+        <div id="lunar-auspices-dash-panel"></div>
     </div>
 
     <!--ANIMALS-->
@@ -1095,8 +1178,8 @@
 
 <!-- FINAL LOADED SCRIPTS -->
 
-<script src="js/1-event-management.js?v=19.5"></script>
-<script src="js/kin-cycles.js?v=5.0"></script>
+<script src="js/1-event-management.js?v=21.0"></script>
+<script src="js/kin-cycles.js?v=5.1"></script>
 
 
 </html>

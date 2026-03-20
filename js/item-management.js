@@ -48,17 +48,30 @@ async function openAddItem() {
     // We need a valid buwana_id to associate the new item and to
     // scope calendar reads/writes. If missing, prompt login/registration.
     // ============================================================
-    const user = getCurrentUser(); // { buwana_id, time_zone?, name? }
+    const isOfflineJedi = (typeof window.isOfflineJediUser === 'function') && window.isOfflineJediUser();
 
-    console.log('[openAddItem] user object:', getCurrentUser());
-
-    const userIsAuthenticated = user?.buwana_id &&
-        (typeof window.isLoggedIn !== 'function' || window.isLoggedIn());
-    if (!userIsAuthenticated) {
-        alert('Please log in to add items.');
-        if (typeof sendUpRegistration === 'function') sendUpRegistration();
-        return;
+    // For offline Jedi users, also try cached user_profile when sessionStorage
+    // and localStorage.buwana_id are both unavailable.
+    let user = getCurrentUser(); // { buwana_id, time_zone?, name? }
+    if (!user?.buwana_id && isOfflineJedi) {
+        try {
+            const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+            if (p?.buwana_id) user = { buwana_id: p.buwana_id };
+        } catch {}
     }
+
+    console.log('[openAddItem] user object:', user);
+
+    // BETA TEST MODE: login gate temporarily commented out to allow testing
+    // of displayEarthenAuspicer without requiring authentication.
+    // TODO: re-enable before production release.
+    // const userIsAuthenticated = user?.buwana_id &&
+    //     (isOfflineJedi || typeof window.isLoggedIn !== 'function' || window.isLoggedIn());
+    // if (!userIsAuthenticated) {
+    //     alert('Please log in to add items.');
+    //     if (typeof sendUpRegistration === 'function') sendUpRegistration();
+    //     return;
+    // }
 
     // ============================================================
     // 1. GET TARGET DATE
@@ -1875,6 +1888,7 @@ function openEditCalendarOverlay({ calendar, hostTarget } = {}) {
     });
 }
 
+
 function displayMoonPhasev1({ date, container } = {}) {
     let host = null;
     if (container instanceof HTMLElement) {
@@ -1941,61 +1955,32 @@ function displayMoonPhasev1({ date, container } = {}) {
 
     const distance = Number.isFinite(moonPosition?.distance) ? moonPosition.distance : null;
 
-    const maxMoonDist = 406700;
-    const minMoonDist = 363300;
-    const percentOfMax = Number.isFinite(distance)
-        ? ((distance - minMoonDist) / (maxMoonDist - minMoonDist)) * 100
-        : null;
-
-    const metrics = [];
-    if (fraction !== null) {
-        metrics.push({
-            text: `${Math.round(fraction * 100)}% illuminated`,
-            className: 'ec-moon-phase-metric--illumination'
-        });
-    }
-    if (percentOfMax !== null && Number.isFinite(percentOfMax)) {
-        metrics.push({
-            text: `${safeToFixed(percentOfMax, 0)}% max distance`,
-            className: 'ec-moon-phase-metric--distance'
-        });
-    }
-
-    const existing = host.querySelector('.ec-moon-phase');
+    // --- Phase A: synchronous — build wrapper with loading placeholder ---
+    const existing = host.querySelector('.auspicer-pallette');
     if (existing) existing.remove();
 
     const wrapper = document.createElement('div');
-    wrapper.className = 'ec-moon-phase';
-    const metricsHtml = metrics.map(({ text, className }) => {
-        const classes = ['ec-moon-phase-metric'];
-        if (className) classes.push(className);
-        return `<div class="${classes.join(' ')}">${text}</div>`;
-    }).join('');
-
-    let auspiciousText = '';
-    if (typeof SunCalc.getLunarMoment === 'function') {
-        try {
-            const lm = SunCalc.getLunarMoment(target);
-            auspiciousText = `Today is a most auspicious day for intending and manifesting as the moon is ${lm.phaseName}, ${lm.motionName} and ${lm.comboName}.`;
-        } catch (err) {
-            console.warn('[displayMoonPhasev1] getLunarMoment failed:', err);
-        }
-    }
-
+    wrapper.className = 'auspicer-pallette';
     wrapper.innerHTML = `
-        <div class="ec-moon-phase-emoji" aria-hidden="true">${emoji}</div>
-        <div class="ec-moon-phase-details">
-            ${auspiciousText ? `<div class="ec-moon-phase-name">${auspiciousText}</div>` : `<div class="ec-moon-phase-name">${getMoonPhaseNameLocal(phase)}</div>${metricsHtml}`}
+        <div class="ec-moon-phase-details ec-moon-phase-details--loading">
+            <span aria-hidden="true" style="font-size:1.6rem;vertical-align:middle;margin-right:8px;">${emoji}</span>Discerning Auspices…
         </div>
     `;
 
-
     const title = host.querySelector('.ec-form-title');
     if (title && title.parentNode === host) {
-        host.insertBefore(wrapper, title);
+        title.insertAdjacentElement('afterend', wrapper);
     } else {
-        host.prepend(wrapper);
+        const form = host.querySelector('form');
+        if (form) {
+            host.insertBefore(wrapper, form);
+        } else {
+            host.prepend(wrapper);
+        }
     }
+
+    // --- Phase B: async — fire-and-forget auspices load ---
+    _loadAndRenderAuspices(target, wrapper, getMoonPhaseNameLocal(phase), emoji);
 
     return {
         emoji,
@@ -2004,6 +1989,40 @@ function displayMoonPhasev1({ date, container } = {}) {
         distance,
         element: wrapper
     };
+}
+
+async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji) {
+    const showTime = Date.now();
+    try {
+        const configUrl = 'js/auspices_config.json';
+        const response = await fetch(configUrl, { cache: 'default' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const config = await response.json();
+
+        let auspicesEl = null;
+        if (typeof SunCalc.renderLunarAuspices === 'function') {
+            auspicesEl = SunCalc.renderLunarAuspices(date, config, {}, emoji);
+        }
+
+        const elapsed = Date.now() - showTime;
+        await new Promise(resolve => setTimeout(resolve, Math.max(0, 500 - elapsed)));
+
+        const detailsDiv = wrapper.querySelector('.ec-moon-phase-details');
+        if (detailsDiv && auspicesEl instanceof HTMLElement) {
+            detailsDiv.classList.remove('ec-moon-phase-details--loading');
+            detailsDiv.innerHTML = '';
+            detailsDiv.appendChild(auspicesEl);
+        }
+    } catch (err) {
+        console.warn('[_loadAndRenderAuspices] Failed to load auspices:', err);
+        const elapsed = Date.now() - showTime;
+        await new Promise(resolve => setTimeout(resolve, Math.max(0, 500 - elapsed)));
+        const detailsDiv = wrapper.querySelector('.ec-moon-phase-details');
+        if (detailsDiv) {
+            detailsDiv.classList.remove('ec-moon-phase-details--loading');
+            detailsDiv.textContent = fallbackPhaseName || 'Lunar phase unavailable';
+        }
+    }
 }
 
 

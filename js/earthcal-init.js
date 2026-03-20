@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=3.7"
+                "js/service-worker.js?v=4.2"
             );
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
@@ -66,8 +66,9 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=1.0",
-        "js/sync-store.js?v=2.2",
+        "js/auspicer.js?v=2.2",
+        "js/auspices/biodynamic_council.js?v=1.0",
+        "js/sync-store.js?v=2.5",
         "js/astronomy.browser.js",
 
         // core app
@@ -77,13 +78,13 @@ async function initCalendar() {
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1.1",
-        "js/time-setting.js?v=10.2",
+        "js/time-setting.js?v=10.5",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=8.3",
+        "js/planet-orbits.js?v=8.6",
         // rest of app
-        "js/login-scripts.js?v=20.6",
-        "js/item-management.js?v=10.1",
+        "js/login-scripts.js?v=21.3",
+        "js/item-management.js?v=10.8",
         "js/calendar-scripts.js?v=2.8",
     ];
 
@@ -99,15 +100,15 @@ async function initCalendar() {
             await loadScriptSequential(src);
         }
 
-        // 4) Module script(s)hjhjjk
+        // 4) Module script(s)
         const moduleScript = document.createElement("script");
         moduleScript.type = "module";
         moduleScript.src = "js/dark-mode-toggle.mjs.js";
         document.head.appendChild(moduleScript);
 
-        // 5) Start your normal flow
+        // 5) Start your normal flow — await so the spinner persists until getUserData() completes
         if (typeof initializePage === "function") {
-            initializePage();
+            await initializePage();
         } else {
             console.warn("initializePage() is not defined after initCalendar()");
         }

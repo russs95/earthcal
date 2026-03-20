@@ -51,6 +51,26 @@ function unwrapAngleBySign(startDeg, endDeg, directionSign) {
     return endDeg;
 }
 
+/* 3a) SVG TRANSFORM PARSER
+   DOMMatrix(string) requires CSS syntax (comma-separated).
+   SVG transform attributes use space-separated values, so we parse manually. */
+function parseSvgTransform(str) {
+    if (!str || str.trim() === "") return new DOMMatrix();
+    // matrix(a b c d e f) — SVG space-separated form
+    const m = /^matrix\(\s*([-\d.e+]+)\s+([-\d.e+]+)\s+([-\d.e+]+)\s+([-\d.e+]+)\s+([-\d.e+]+)\s+([-\d.e+]+)\s*\)$/i.exec(str.trim());
+    if (m) return new DOMMatrix([+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]]);
+    // rotate(angle) or rotate(angle cx cy) — SVG form
+    const r = /^rotate\(\s*([-\d.e+]+)(?:\s+([-\d.e+]+)\s+([-\d.e+]+))?\s*\)$/i.exec(str.trim());
+    if (r) {
+        const a = +r[1] * Math.PI / 180;
+        const cx = r[2] ? +r[2] : 0, cy = r[3] ? +r[3] : 0;
+        const c = Math.cos(a), s = Math.sin(a);
+        return new DOMMatrix([c, s, -s, c, cx * (1 - c) + cy * s, cy * (1 - c) - cx * s]);
+    }
+    // Fall back: try CSS form (commas already present)
+    try { return new DOMMatrix(str); } catch (e) { return new DOMMatrix(); }
+}
+
 /* 3) PLANET ROTATOR (epoch angle comes from SVG once) */
 class PlanetGroupRotator {
     constructor(
@@ -141,12 +161,35 @@ class PlanetGroupRotator {
 
     applyCounterRotation(angleDeg) {
         if (!this.counterEl) return;
-        this.resolveCounterPivot();
         const pivot = this.counterPivot || this.pivot;
         const { x, y } = pivot;
-        const counterAngle = -angleDeg;
-        const base = this.counterBaseTransform ? `${this.counterBaseTransform} ` : "";
-        this.counterEl.setAttribute("transform", `${base}rotate(${counterAngle} ${x} ${y})`);
+
+        // Counter-rotate only the delta from epoch (not the absolute angle)
+        const delta = angleDeg - this.epochAngle;
+        const rad = -delta * Math.PI / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        // Build rotation-around-point matrix via DOMMatrix (avoids SVG transform chaining
+        // which produces different results in Chrome vs Firefox)
+        const rotM = new DOMMatrix([
+            cos, sin, -sin, cos,
+            x * (1 - cos) + y * sin,
+            y * (1 - cos) - x * sin
+        ]);
+
+        // Load the zodiacs' original SVG base transform.
+        // SVG uses space-separated matrix() values; DOMMatrix string constructor
+        // expects CSS (comma-separated), so parse the values manually.
+        const baseStr = this.counterEl.dataset.ecBaseTransform || "";
+        const baseM = parseSvgTransform(baseStr);
+
+        // Compose: rotM × baseM (base applied first, then counter-rotation on top)
+        const m = rotM.multiply(baseM);
+        this.counterEl.setAttribute(
+            "transform",
+            `matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f})`
+        );
     }
 }
 
@@ -168,6 +211,7 @@ function buildSolarAnimatorByRotation() {
             direction: +1,
             minFrameMs: 0,
             counterRotateId: "zodiacs",
+            counterPivot: pivot,          // sun center, bypasses getBBox() timing race
         }),
         new PlanetGroupRotator("mars", 686.98, pivot, { direction: +1, minFrameMs: 16 }),
         new PlanetGroupRotator("jupiter", 4332.59, pivot, { direction: +1, minFrameMs: 48 }),

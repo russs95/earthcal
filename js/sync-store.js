@@ -132,6 +132,12 @@
         const itemKey = storageKey('items');
         if (!calKey || !itemKey) return null;
         try {
+            const savedAt = Number(localStorage.getItem(storageKey('cache_saved_at')) || 0);
+            const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+            if (savedAt && Date.now() - savedAt > ONE_WEEK_MS) {
+                console.warn('[sync-store] Cached state is older than 1 week — treating as stale.');
+                return null;
+            }
             const calendars = JSON.parse(localStorage.getItem(calKey) || '[]');
             const itemsByCalendar = JSON.parse(localStorage.getItem(itemKey) || '{}');
             return { calendars, itemsByCalendar };
@@ -148,6 +154,7 @@
         try {
             localStorage.setItem(calKey, JSON.stringify(calendars || []));
             localStorage.setItem(itemKey, JSON.stringify(itemsByCalendar || {}));
+            localStorage.setItem(storageKey('cache_saved_at'), String(Date.now()));
         } catch (err) {
             console.warn('[sync-store] unable to persist cache', err);
         }
@@ -157,27 +164,13 @@
     function mirrorLegacyCaches(calendars, itemsByCalendar) {
         const safeCalendars = Array.isArray(calendars) ? calendars : [];
         const safeItems = itemsByCalendar && typeof itemsByCalendar === 'object' ? itemsByCalendar : {};
-        const keysToKeep = new Set();
-        let totalItems = 0;
 
-        safeCalendars.forEach((calendar) => {
-            if (!calendar || calendar.calendar_id === undefined || calendar.calendar_id === null) return;
-            const calId = calendar.calendar_id;
-            const storageKey = `calendar_${calId}`;
-            const items = Array.isArray(safeItems[calId]) ? safeItems[calId] : [];
-            try {
-                localStorage.setItem(storageKey, JSON.stringify(items));
-                keysToKeep.add(storageKey);
-            } catch (err) {
-                console.warn('[sync-store] unable to mirror items for calendar', calId, err);
-            }
-            totalItems += items.length;
-        });
-
+        // Purge any stale legacy calendar_${calId} keys left over from the old storage scheme.
         Object.keys(localStorage)
-            .filter((key) => /^calendar_\d+$/.test(key) && !keysToKeep.has(key))
+            .filter((key) => /^calendar_\d+$/.test(key))
             .forEach((key) => localStorage.removeItem(key));
 
+        // Keep user_calendars_v1 mirrors (calendar list still accessed by other modules).
         const payload = JSON.stringify(safeCalendars);
         try {
             sessionStorage.setItem('user_calendars_v1', payload);
@@ -185,6 +178,14 @@
         } catch (err) {
             console.warn('[sync-store] unable to mirror calendar list', err);
         }
+
+        let totalItems = 0;
+        safeCalendars.forEach((calendar) => {
+            if (!calendar || calendar.calendar_id === undefined || calendar.calendar_id === null) return;
+            totalItems += Array.isArray(safeItems[calendar.calendar_id])
+                ? safeItems[calendar.calendar_id].length
+                : 0;
+        });
 
         const summary = summarizeOutbox(readOutbox());
         connectivityState.pending = summary.pending;
@@ -455,18 +456,8 @@
 
     async function determineConnectivity(options = {}) {
         const { force = false } = options;
-        if (isForcedOffline()) {
-            connectivityState = {
-                ...connectivityState,
-                online: false,
-                backendReachable: false,
-                lastChecked: Date.now(),
-                forcedOffline: true
-            };
-            notifyStatusListeners();
-            return false;
-        }
 
+        // 1. Use 18-second cache if still fresh (skip probe + forced-offline check)
         const now = Date.now();
         if (
             !force &&
@@ -485,27 +476,57 @@
             return connectivityState.online;
         }
 
+        // 2. Probe backend first — real connectivity takes priority over forced-offline flag
         const reachable = await checkBackendReachable();
+        const browserOnline = navigator.onLine;
 
-        // In Electron/snap, navigator.onLine is often unreliable.
-        // If the backend is reachable, we treat the app as online.
-        const online = reachable || navigator.onLine;
+        if (reachable || browserOnline) {
+            // Actually online — ignore forced-offline setting
+            const online = reachable || browserOnline;
+            connectivityState = {
+                ...connectivityState,
+                online,
+                backendReachable: reachable,
+                lastChecked: Date.now(),
+                forcedOffline: false
+            };
+            cachedConnectivity = {
+                lastChecked: connectivityState.lastChecked,
+                online,
+                backendReachable: reachable
+            };
+            notifyStatusListeners();
+            return online;
+        }
 
+        // 3. Genuinely offline — now check forced-offline preference
+        if (isForcedOffline()) {
+            connectivityState = {
+                ...connectivityState,
+                online: false,
+                backendReachable: false,
+                lastChecked: Date.now(),
+                forcedOffline: true
+            };
+            notifyStatusListeners();
+            return false;
+        }
+
+        // 4. Offline, forced-offline not set
         connectivityState = {
             ...connectivityState,
-            online,
-            backendReachable: reachable,
+            online: false,
+            backendReachable: false,
             lastChecked: Date.now(),
             forcedOffline: false
         };
         cachedConnectivity = {
             lastChecked: connectivityState.lastChecked,
-            online,
-            backendReachable: reachable
+            online: false,
+            backendReachable: false
         };
-
         notifyStatusListeners();
-        return connectivityState.online;
+        return false;
     }
 
 
@@ -696,7 +717,16 @@
                 last_error: change.status === 'error' ? change.last_error || 'Sync failed' : null
             };
             pendingItem = nextItem;
-            itemsByCalendar[calId].push(nextItem);
+            const existingIdx = itemsByCalendar[calId].findIndex((item) =>
+                item.item_id === normalized.item_id ||
+                item.item_id === change.client_temp_id ||
+                item.unique_key === normalized.unique_key
+            );
+            if (existingIdx >= 0) {
+                itemsByCalendar[calId][existingIdx] = nextItem;
+            } else {
+                itemsByCalendar[calId].push(nextItem);
+            }
         }
 
         persistCachedState(calendars, itemsByCalendar);
@@ -788,9 +818,6 @@
                 }
             }
             persistOutbox(remaining);
-            if (!skipReload && connectivityState.online && hadSuccess && remaining.length === 0) {
-                await loadInitialState();
-            }
             return remaining;
         })();
 
@@ -859,7 +886,11 @@
         });
 
         if (!replaced) {
-            updatedItems.push({ ...normalized, pending: false, pending_action: undefined, last_error: null });
+            console.warn(
+                '[sync-store] reconcileServerItem: pending item not found for clientTempId',
+                clientTempId,
+                '— skipping insert; loadInitialState will supply the authoritative server item.'
+            );
         }
 
         itemsByCalendar[calId] = updatedItems;
@@ -885,20 +916,26 @@
     async function createOrUpdateItem(payload) {
         const operation = payload?.item_id ? 'update' : 'create';
         const clientTempId = payload?.client_temp_id || payload?.item_id || `tmp_${Date.now()}`;
+
+        // Write to outbox without triggering a notification yet (applyLocalChange: false
+        // suppresses the internal persistOutbox notification via upsertOutboxEntry).
         const change = enqueueChange(
             operation,
             { ...payload, client_temp_id: clientTempId },
             { applyLocalChange: false }
         );
+
+        // Write item to storage FIRST so that any listener that fires can see it.
         const pendingState = applyLocalChange(change);
         const pendingItem = pendingState?.item;
+
+        // Notify once — item is now in storage, subscription will read consistent state.
+        notifyStatusListeners();
 
         const online = await determineConnectivity();
         if (online) {
             flushOutbox({ skipReload: true }).catch((err) => console.warn('[sync-store] async flush failed', err));
         }
-
-        notifyStatusListeners();
 
         return { ok: true, queued: true, item: pendingItem, client_temp_id: clientTempId };
     }

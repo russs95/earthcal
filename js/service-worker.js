@@ -1,5 +1,5 @@
 importScripts('earthcal-config.js');
-const CACHE_NAME = 'earthcal-cache-v5';
+const CACHE_NAME = 'earthcal-cache-v6';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
 // List of assets to pre-cache
@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
     './site.webmanifest',
     './assets/icons/favicon.ico',
     './js/earthcal-config.js',
-    './js/earthcal-init.js?v=38.1',
+    './js/earthcal-init.js?v=38.4',
     './js/suncalc.min.js',
     './js/auspicer.js',
     './js/astronomy.browser.js',
@@ -20,13 +20,13 @@ const STATIC_ASSETS = [
     './js/breakouts.js',
     './js/set-targetdate.js',
     './js/planet-orbits.js',
-    './js/login-scripts.js?v=18',
-    './js/item-management.js?v=9.7',
-    './js/time-setting.js?v=1.4',
+    './js/login-scripts.js?v=21.1',
+    './js/item-management.js?v=9.8',
+    './js/time-setting.js?v=1.5',
     './js/calendar-scripts.js?v=2.5',
     './css/light.css?v=7.61',
     './css/dark.css?v=7.7',
-    './css/1-stylesheet.css?v=12.8',
+    './css/1-stylesheet.css?v=12.9',
     './css/login-styles.css?v=8.72',
     './css/slider.css?v=1.2',
     './assets/fonts/Mulish-Light.ttf',

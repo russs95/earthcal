@@ -513,6 +513,7 @@ async function getUserData() {
 
         userPlanType = mapPlanIdToType(resolvedPlanId ?? 1);
         window.user_plan = userPlanType;
+        try { localStorage.setItem('earthcal_user_plan', userPlanType); } catch (e) {}
 
         console.log(
             `🛰️ EarthCal user_plan set to "${userPlanType}" (plan_id: ${resolvedPlanId ?? 'unknown'})`
@@ -620,8 +621,6 @@ async function getUserData() {
     // 5️⃣ Prepare the logged-in panel (but don’t auto-open it)
     showLoggedInView(calendars, { autoExpand: false });
 
-    // 6️⃣ Kick off any additional external sync (CalDAV / Google / etc.)
-    await syncDatecycles();
 }
 
 
@@ -637,15 +636,58 @@ function updateSessionStatus(message, isLoggedIn = false) {
 }
 
 let syncIndicatorUnsubscribe = null;
+let offlineBannerShown = false;
 
-function renderOfflineSyncIndicator({ text, showSpinner = false } = {}) {
+function showOfflineTopBanner() {
+    if (offlineBannerShown) return;
+    offlineBannerShown = true;
+
+    const banner = document.getElementById('offline-top-banner');
+    if (!banner) return;
+
+    const userPlanType = (window.user_plan || '').toString().trim().toLowerCase();
+    const isJedi = userPlanType === 'jedi' || userPlanType === 'master';
+    const forcedOfflineOn = localStorage.getItem('earthcal_forced_offline') === 'true';
+
+    let message;
+    if (!isJedi) {
+        message = "Looks like you're offline! Re-connect to sync. Or... upgrade to use Jedi Offline mode.";
+    } else if (forcedOfflineOn) {
+        message = "You're using Earthcal in Jedi Offline mode! Re-connect to sync.";
+    } else {
+        message = "You're offline. Offline mode is off. No data loaded. Re-connect to sync.";
+    }
+
+    banner.textContent = message;
+    banner.removeAttribute('hidden');
+
+    setTimeout(() => {
+        banner.classList.add('hiding');
+        banner.addEventListener('transitionend', () => {
+            banner.setAttribute('hidden', '');
+            banner.classList.remove('hiding');
+        }, { once: true });
+    }, 5000);
+}
+
+function renderOfflineSyncIndicator({ text, showSpinner = false, actionLabel = null, actionFn = null } = {}) {
     const indicator = document.getElementById('offline-sync-indicator');
     if (!indicator) return;
     const safeText = text || '';
     indicator.innerHTML = `
         <span class="offline-sync-text">${safeText}</span>
+        ${actionLabel ? `<a href="#" class="offline-sync-action">${actionLabel}</a>` : ''}
         ${showSpinner ? '<span class="offline-sync-spinner" aria-hidden="true"></span>' : ''}
     `;
+    if (actionLabel && actionFn) {
+        const link = indicator.querySelector('.offline-sync-action');
+        if (link) {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                actionFn();
+            });
+        }
+    }
 }
 
 function updateOfflineSyncIndicator(status = {}) {
@@ -654,13 +696,34 @@ function updateOfflineSyncIndicator(status = {}) {
     const pending = Number(status.pending || 0);
     const isOnline = Boolean(status.online && status.backendReachable);
 
+    if (!isOnline) {
+        showOfflineTopBanner();
+    }
+
     if (pending > 0) {
         renderOfflineSyncIndicator({
             text: `There are ${pending} offline changes waiting to be synced`,
-            showSpinner: false
+            showSpinner: false,
+            actionLabel: 'Try syncing now',
+            actionFn: () => {
+                setOfflineSyncIndicatorUpdating();
+                window.syncStore?.flushOutbox?.()
+                    .then(refreshOfflineSyncIndicatorStatus)
+                    .catch(refreshOfflineSyncIndicatorStatus);
+            }
         });
     } else if (!isOnline) {
-        renderOfflineSyncIndicator({ text: 'Offline mode: using cached data', showSpinner: false });
+        renderOfflineSyncIndicator({
+            text: 'Offline mode: using cached data',
+            showSpinner: false,
+            actionLabel: 'Try to connect',
+            actionFn: () => {
+                setOfflineSyncIndicatorUpdating();
+                window.syncStore?.flushOutbox?.()
+                    .then(refreshOfflineSyncIndicatorStatus)
+                    .catch(refreshOfflineSyncIndicatorStatus);
+            }
+        });
     } else {
         renderOfflineSyncIndicator({ text: 'You are online and synced', showSpinner: false });
     }
@@ -789,6 +852,35 @@ window.setSimpleMode = function(enabled) {
     window.isSimpleModeActive = val;
 };
 
+/**
+ * Returns true when ALL of the following are true:
+ *   1. The user's plan is jedi or master
+ *   2. They have explicitly turned on offline mode (earthcal_forced_offline = 'true')
+ *   3. A cached buwana_id exists so offline operations can be scoped correctly
+ *
+ * Used as a gate to allow offline Jedi users to view cached calendar data
+ * and add/edit items (which queue to the outbox for later sync).
+ */
+function isOfflineJediUser() {
+    const plan = (window.user_plan || '').toString().trim().toLowerCase();
+    if (plan !== 'jedi' && plan !== 'master') return false;
+    try {
+        if (localStorage.getItem('earthcal_forced_offline') !== 'true') return false;
+    } catch { return false; }
+    // Must have a cached identity to scope offline operations
+    try {
+        const s = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+        if (s?.buwana_id) return true;
+    } catch {}
+    if (localStorage.getItem('buwana_id')) return true;
+    try {
+        const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+        if (p?.buwana_id) return true;
+    } catch {}
+    return false;
+}
+window.isOfflineJediUser = isOfflineJediUser;
+
 function isForcedOfflineEnabled() {
     try {
         const stored = localStorage.getItem(FORCED_OFFLINE_STORAGE_KEY);
@@ -796,9 +888,8 @@ function isForcedOfflineEnabled() {
             return true;
         }
         if (stored === null) {
-            localStorage.setItem(FORCED_OFFLINE_STORAGE_KEY, 'true');
-            window.isForcedOffline = true;
-            return true;
+            window.isForcedOffline = false;
+            return false;
         }
     } catch (err) {
         console.warn('[EarthCal] Unable to read forced offline preference:', err);
@@ -844,9 +935,9 @@ function toggleForcedOfflineMode(eventOrChecked) {
     }
 
     if (forced) {
-        console.info('[EarthCal] Forced offline mode enabled. All syncing paused.');
+        console.info('[Settings] User has opted for using offline mode when there is no connectivity.');
     } else {
-        console.info('[EarthCal] Forced offline mode disabled. Online checks may resume.');
+        console.info('[Settings] User has disabled offline mode preference. Online checks will resume when connectivity is restored.');
     }
 }
 
@@ -1116,6 +1207,12 @@ function getOfflineUserData({ useCachedData = true } = {}) {
                 continent: cachedProfile["buwana:location.continent"] || cachedProfile.continent || null,
                 status: cachedProfile.status || "returning",
             };
+
+            // Restore plan tier from localStorage so offline jedi users retain their access level
+            try {
+                const cachedPlan = localStorage.getItem('earthcal_user_plan');
+                if (cachedPlan) window.user_plan = cachedPlan;
+            } catch (e) {}
 
             displayUserData(userTimeZone, userLanguage);
             setCurrentDate(userTimeZone, userLanguage);
@@ -2831,10 +2928,12 @@ async function sendUpRegistration() {
             loggedOutView.style.display = "block";
             loggedInView.style.display = "none";
 
-            setLoginViewCopy(
-                "You're Offline",
-                "Connect to the internet to login and sync with the Earthcal server."
-            );
+            const offlineName = cachedProfile?.given_name || cachedProfile?.first_name || null;
+            const offlineTitle = offlineName ? `${offlineName}, you're offline` : "You're Offline";
+            const offlineSubtitle = offlineName
+                ? `Hi ${offlineName}! Connect to the internet to sync with the Earthcal server.`
+                : "Connect to the internet to login and sync with the Earthcal server.";
+            setLoginViewCopy(offlineTitle, offlineSubtitle);
 
             if (loginButton) {
                 loginButton.style.display = 'none';

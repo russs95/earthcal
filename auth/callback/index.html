@@ -53,8 +53,11 @@
         body.theme-dark .footer {
             color: rgba(226, 232, 240, 0.75);
         }
-        body.theme-dark #authenticating-text {
-            color: #e2e8f0;
+        body.theme-dark #loading-progress {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        body.theme-dark #loading-progress-bar {
+            background: #383737;
         }
         #initial-load {
             width: 100%;
@@ -74,20 +77,24 @@
             height: auto;
             display: block;
         }
-        #authenticating-text {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: clamp(0.9rem, 3vw, 1.05rem);
-            letter-spacing: 0.04em;
+        #loading-progress {
+            width: min(140px, 35vw);
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
         }
-        #authenticating-text span {
-            white-space: nowrap;
+        #loading-progress-bar {
+            height: 100%;
+            background: #b5b4b4b4;
+            animation: indeterminate-progress 1.6s ease-in-out infinite;
+            transform-origin: left;
         }
-        #dots {
-            display: inline-block;
-            min-width: 0.9em;
-            text-align: left;
+        @keyframes indeterminate-progress {
+            0%   { width: 0%;   margin-left: 0%; }
+            50%  { width: 70%;  margin-left: 15%; }
+            100% { width: 0%;   margin-left: 100%; }
         }
         .footer {
             position: fixed;
@@ -126,15 +133,14 @@
 <body>
 <div id="initial-load" aria-hidden="true">
     <img class="earthcal-logo" src="/svgs/earthcal-icon.svg" alt="EarthCal logo" aria-hidden="true">
-    <div id="authenticating-text" role="status" aria-live="polite">
-        <span>Authenticating with Buwana</span>
-        <span id="dots">...</span>
+    <div id="loading-progress" role="presentation" aria-hidden="true">
+        <div id="loading-progress-bar"></div>
     </div>
     <div class="footer" style="text-align: center">
             <span class="earthen-logo-wrapper" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="/svgs/earthen-icon.svg" alt="Earthen logo">
             </span>
-        <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.0 by Earthen</p>
+        <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.1 by Earthen</p>
     </div>
 </div>
 
@@ -215,14 +221,6 @@
             applyPreferredTheme(detectPreferredTheme());
         }
     });
-
-    // Animate dots
-    let dotPhase = 0;
-    const dotElem = document.getElementById("dots");
-    setInterval(() => {
-        dotPhase = (dotPhase % 3) + 1;
-        dotElem.textContent = ".".repeat(dotPhase);
-    }, 400);
 
     // ========= OIDC fallback helpers =========
     function readOidcFallback(key) {

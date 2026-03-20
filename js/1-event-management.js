@@ -3,10 +3,22 @@
 async function openAddCycle() {
     console.log('openAddCycle called');
 
-    const craftBuwana =
-        JSON.parse(sessionStorage.getItem('buwana_user') || '{}').buwana_id ||
-        localStorage.getItem('buwana_id') ||
-        null;
+    const craftBuwana = (() => {
+        try {
+            const s = JSON.parse(sessionStorage.getItem('buwana_user') || '{}');
+            if (s?.buwana_id) return s.buwana_id;
+        } catch {}
+        const id = localStorage.getItem('buwana_id');
+        if (id) return id;
+        // Offline Jedi fallback: cached profile may hold the identity
+        if (typeof isOfflineJediUser === 'function' && isOfflineJediUser()) {
+            try {
+                const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+                if (p?.buwana_id) return p.buwana_id;
+            } catch {}
+        }
+        return null;
+    })();
 
     if (!craftBuwana) {
         alert('Please log in to add events.');
@@ -419,23 +431,30 @@ function normalizeV1Item(item, calendar, buwanaId) {
 }
 
 function findDateCycleInStorage(uniqueKey) {
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
-    for (const key of calendarKeys) {
-        let calendarData = [];
-        try {
-            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
-            if (Array.isArray(parsed)) {
-                calendarData = parsed;
-            }
-        } catch (err) {
-            console.warn(`Unable to parse localStorage for ${key}:`, err);
-            continue;
-        }
+    const { buwana_id } = getActiveUserContext();
+    if (!buwana_id) return null;
 
+    const storageKey = `ec_user_${buwana_id}_items`;
+    let itemsByCalendar = {};
+    try {
+        const raw = localStorage.getItem(storageKey);
+        const parsed = raw ? JSON.parse(raw) : {};
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            itemsByCalendar = parsed;
+        }
+    } catch (err) {
+        console.warn('[findDateCycleInStorage] unable to parse items store', err);
+        return null;
+    }
+
+    for (const calId of Object.keys(itemsByCalendar)) {
+        const calendarData = Array.isArray(itemsByCalendar[calId]) ? itemsByCalendar[calId] : [];
         const index = calendarData.findIndex(dc => dc?.unique_key === uniqueKey);
         if (index !== -1) {
             return {
-                calendarKey: key,
+                storageKey,
+                calendarKey: storageKey, // kept for legacy callers
+                calId,
                 calendarData,
                 index,
                 dateCycle: calendarData[index]
@@ -455,13 +474,25 @@ function updateDateCycleRecord(uniqueKey, updater) {
 
     if (!updatedDateCycle) return null;
 
-    const updatedCalendarData = [...record.calendarData];
-    updatedCalendarData[record.index] = updatedDateCycle;
+    // Re-read the full items object so we don't clobber other calendars.
+    let itemsByCalendar = {};
+    try {
+        const raw = localStorage.getItem(record.storageKey);
+        itemsByCalendar = raw ? JSON.parse(raw) : {};
+    } catch (err) {
+        console.warn(`[updateDateCycleRecord] Unable to read ${record.storageKey}`, err);
+    }
+
+    const calArray = Array.isArray(itemsByCalendar[record.calId])
+        ? [...itemsByCalendar[record.calId]]
+        : [...record.calendarData];
+    calArray[record.index] = updatedDateCycle;
+    itemsByCalendar[record.calId] = calArray;
 
     try {
-        localStorage.setItem(record.calendarKey, JSON.stringify(updatedCalendarData));
+        localStorage.setItem(record.storageKey, JSON.stringify(itemsByCalendar));
     } catch (err) {
-        console.warn(`[updateDateCycleRecord] Unable to persist changes for ${record.calendarKey}`, err);
+        console.warn(`[updateDateCycleRecord] Unable to persist changes for ${record.storageKey}`, err);
     }
 
     return updatedDateCycle;
@@ -944,7 +975,10 @@ function isDateCycleVisible(entry, calendarActivityMap) {
     return true;
 }
 
+let highlightGeneration = 0;
+
 async function highlightDateCycles(targetDate) {
+    const generation = ++highlightGeneration;
     // Ensure targetDate is a Date object.
     const targetDateObj = new Date(targetDate);
     const formattedTargetDate = `-${targetDateObj.getDate()}-${targetDateObj.getMonth() + 1}-${targetDateObj.getFullYear()}`;
@@ -977,9 +1011,12 @@ async function highlightDateCycles(targetDate) {
         return;
     }
 
-    // 🔹 Auth guard: do not show cached items to users who are not logged in
+    // 🔹 Auth guard: do not show cached items to users who are not logged in.
+    // Exception: Jedi users who have explicitly enabled offline mode may view
+    // their locally-cached data while disconnected.
     const userIsLoggedIn = (typeof isLoggedIn === 'function') ? isLoggedIn() : false;
-    if (!userIsLoggedIn) {
+    const offlineJediAccess = (typeof isOfflineJediUser === 'function') && isOfflineJediUser();
+    if (!userIsLoggedIn && !offlineJediAccess) {
         console.info('ℹ️ Highlighter: User not logged in — skipping date item display.');
         const pinnedPanel = document.getElementById('pinned-datecycles');
         const currentPanel = document.getElementById('current-datecycles');
@@ -994,6 +1031,7 @@ async function highlightDateCycles(targetDate) {
 
     // 🔹 Fetch all dateCycles from storage or API
     const rawDateCycleEvents = await fetchDateCycleCalendars(); // <-- Ensure we await the result
+    if (generation !== highlightGeneration) return; // superseded by a newer call — bail out
 
     // 🔹 Ensure we have an array before proceeding
     if (!Array.isArray(rawDateCycleEvents) || rawDateCycleEvents.length === 0) {
@@ -1087,6 +1125,7 @@ async function highlightDateCycles(targetDate) {
 
     // Update the event count display
     await updateDateCycleCount(matchingPinned.length, matchingCurrent.length);
+    if (generation !== highlightGeneration) return; // bail before SVG path writes
 
     // Highlight corresponding date paths ending with "-day-marker"
     const pathEventMap = new Map();
@@ -1585,23 +1624,9 @@ async function pinThisDatecycle(uniqueKey) {
 
 
 function editDateCycle(uniqueKey) {
-    // Step 1: Fetch all calendar keys from localStorage.
-    const calendarKeys = Object.keys(localStorage).filter(key => key.startsWith('calendar_'));
+    const foundRecord = findDateCycleInStorage(uniqueKey);
+    const dateCycle = foundRecord?.dateCycle || null;
 
-    let dateCycle = null;
-    let calendarKey = null;
-
-    // Step 2: Search through each calendar for the matching dateCycle by unique_key.
-    for (const key of calendarKeys) {
-        const calendarData = JSON.parse(localStorage.getItem(key) || '[]');
-        dateCycle = calendarData.find(dc => dc.unique_key === uniqueKey);
-        if (dateCycle) {
-            calendarKey = key; // Save the calendar key where the dateCycle was found.
-            break; // Exit loop once the matching dateCycle is found.
-        }
-    }
-
-    // Step 3: Handle case where the dateCycle is not found.
     if (!dateCycle) {
         console.log(`No dateCycle found with unique_key: ${uniqueKey}`);
         return;
@@ -1910,11 +1935,6 @@ async function push2today(uniqueKey) {
     }
 
     console.log('[push2today] startDate:', startDate, 'targetDate:', targetDate, 'shake: NO');
-    targetDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    if (typeof calendarRefresh === 'function') {
-        calendarRefresh();
-    }
-
     console.log(`🤞Yo, yo...pushing dateCycle with unique_key: ${uniqueKey} to today (which is ${formattedDate}).`);
 
     const pendingDateCycle = updateDateCycleRecord(uniqueKey, (existing) => ({
@@ -2049,13 +2069,18 @@ async function deleteDateCycle(uniqueKey) {
                 buwana_id,
                 item_id: Number(record.dateCycle.item_id)
             });
-            if (record?.calendarKey) {
-                const updatedCalendarData = [...record.calendarData];
-                updatedCalendarData.splice(record.index, 1);
+            if (record?.storageKey && record?.calId) {
                 try {
-                    localStorage.setItem(record.calendarKey, JSON.stringify(updatedCalendarData));
+                    const raw = localStorage.getItem(record.storageKey);
+                    const itemsByCalendar = raw ? JSON.parse(raw) : {};
+                    const calArray = Array.isArray(itemsByCalendar[record.calId])
+                        ? [...itemsByCalendar[record.calId]]
+                        : [...record.calendarData];
+                    calArray.splice(record.index, 1);
+                    itemsByCalendar[record.calId] = calArray;
+                    localStorage.setItem(record.storageKey, JSON.stringify(itemsByCalendar));
                 } catch (err) {
-                    console.warn(`[deleteDateCycle] Unable to remove ${uniqueKey} from ${record.calendarKey}`, err);
+                    console.warn(`[deleteDateCycle] Unable to remove ${uniqueKey} from ${record.storageKey}`, err);
                 }
             }
         }
@@ -2708,7 +2733,9 @@ async function addDatecycle() {
             await requestHighlightRefresh();
             await callV1Api('add_item.php', payload);
         }
-        scheduleBackgroundSync('add-datecycle');
+        if (!usedSyncStore) {
+            scheduleBackgroundSync('add-datecycle');
+        }
 
         document.getElementById('select-calendar').value = 'Select calendar...';
         document.getElementById('dateCycle-type').value = 'One-time';
@@ -2992,7 +3019,6 @@ function fetchLocalCalendarByCalId(calId) {
 
 
 function fetchDateCycleCalendars() {
-    const calendarKeys = Object.keys(localStorage).filter(k => k.startsWith("calendar_"));
     const dedupedDateCycles = new Map();
 
     const normalizeForHighlight = (dc) => {
@@ -3060,24 +3086,6 @@ function fetchDateCycleCalendars() {
             }
         });
     };
-
-    for (const key of calendarKeys) {
-        try {
-            const raw = localStorage.getItem(key);
-            if (!raw) continue;
-
-            const parsed = JSON.parse(raw);
-            const list = Array.isArray(parsed)
-                ? parsed
-                : Array.isArray(parsed.datecycles)
-                    ? parsed.datecycles
-                    : [];
-
-            addValidCycles(list);
-        } catch (err) {
-            console.warn(`❌ Error parsing ${key}:`, err);
-        }
-    }
 
     try {
         const pendingKeys = Object.keys(localStorage).filter(k => /^ec_user_\d+_items$/.test(k));

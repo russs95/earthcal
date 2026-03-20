@@ -177,6 +177,9 @@ function cyclesToggleSimplified() {
     );
     allCycles.forEach(el => el.style.display = "none");
 
+    const lunarDashPanel = document.getElementById('lunar-auspices-dash-panel');
+    if (lunarDashPanel) lunarDashPanel.style.display = 'none';
+
     //document.getElementById("main-clock").style.opacity = "0.2";
   }
 }

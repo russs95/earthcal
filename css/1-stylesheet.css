@@ -2852,6 +2852,19 @@ color: #b2b1b1;
     flex: 1 1 auto;
 }
 
+.offline-sync-indicator .offline-sync-action {
+    flex: 0 0 auto;
+    color: var(--link-color, #4a90d9);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.offline-sync-indicator .offline-sync-action:hover {
+    opacity: 0.75;
+}
+
 .offline-sync-indicator .offline-sync-spinner {
     width: 12px;
     height: 12px;
@@ -3826,49 +3839,12 @@ select.blur-form-field {
 }
 
 
-.ec-moon-phase {
-    width: fit-content;
-    max-width: 300px;
-    margin: 0;
-    padding: 12px 16px;
-    border-radius: 18px;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.ec-moon-phase-emoji {
-    font-size: 2.4rem;
-    line-height: 1;
-}
-
-.ec-moon-phase-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    line-height: 1.25;
-    max-width: min(300px, 100%);
-}
-
-.ec-moon-phase-name {
-    font-weight: 600;
-    font-size: 0.9em;
-}
-
-.ec-moon-phase-metric {
-    font-size: 0.76em;
-    color: var(--subdued-text);
-}
-
-.ec-moon-phase-metric + .ec-moon-phase-metric {
-    margin-top: 2px;
-}
+/* auspicer-pallette and ec-moon-phase-* styles moved to css/auspicer-styles.css */
 
 #modal-content .add-date-form,
 #modal-content .ec-add-form {
     position: relative;
-    padding: 120px 24px 32px;
+    padding: 20px 24px 32px;
     margin: auto;
     box-sizing: border-box;
 }
@@ -3878,20 +3854,7 @@ select.blur-form-field {
     margin-top: 0;
 }
 
-#modal-content .add-date-form .ec-moon-phase,
-#modal-content .ec-add-form .ec-moon-phase {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    margin: 0;
-    z-index: 75;
-    max-width: 222px;
-}
-
-#modal-content .add-date-form .ec-moon-phase-details,
-#modal-content .ec-add-form .ec-moon-phase-details {
-    max-width: min(260px, 100%);
-}
+/* auspicer modal positioning, lunar dash panel, and ec-moon-phase modal overrides moved to css/auspicer-styles.css */
 
 #ec-public-cal-overlay {
     font-family: 'Mulish', 'Helvetica Neue', Arial, sans-serif;
@@ -4417,6 +4380,7 @@ select.blur-form-field {
       width: 100%;
       max-width: 100%;
   }
+  /* .auspicer-pallette responsive override moved to css/auspicer-styles.css */
 
   .ec-form-inline {
       justify-content: flex-start;
@@ -4428,14 +4392,7 @@ select.blur-form-field {
 
   #modal-content .add-date-form,
   #modal-content .ec-add-form {
-      padding: 140px 16px 24px;
-  }
-
-  #modal-content .add-date-form .ec-moon-phase,
-  #modal-content .ec-add-form .ec-moon-phase {
-      left: 16px;
-      right: 16px;
-      width: auto;
+      padding: 16px 16px 24px;
   }
 }
 
@@ -5609,4 +5566,27 @@ svg path #june:hover {
 
 .toggle-row.toggle-row-dark-mode {
     overflow: visible;
+}
+
+/* ── Offline top-of-screen banner ── */
+.offline-top-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    background: #f5c518;
+    color: var(--general-background);
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 11px 20px;
+    line-height: 1.4;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.offline-top-banner.hiding {
+    opacity: 0;
 }
