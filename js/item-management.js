@@ -1980,7 +1980,7 @@ function displayMoonPhasev1({ date, container } = {}) {
     }
 
     // --- Phase B: async — fire-and-forget auspices load ---
-    _loadAndRenderAuspices(target, wrapper, getMoonPhaseNameLocal(phase), emoji);
+    _loadAndRenderAuspices(target, wrapper, getMoonPhaseNameLocal(phase), emoji, lat, lon);
 
     return {
         emoji,
@@ -1991,7 +1991,7 @@ function displayMoonPhasev1({ date, container } = {}) {
     };
 }
 
-async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji) {
+async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji, lat, lon) {
     const showTime = Date.now();
     try {
         const configUrl = 'js/auspices/auspices-config.json';
@@ -2001,7 +2001,9 @@ async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji) {
 
         let auspicesEl = null;
         if (typeof SunCalc.renderAuspices === 'function') {
-            auspicesEl = SunCalc.renderAuspices(date, config, {});
+            const opts = (typeof lat === 'number' && typeof lon === 'number')
+                ? { location: { lat, lon } } : {};
+            auspicesEl = SunCalc.renderAuspices(date, config, opts);
         }
 
         const elapsed = Date.now() - showTime;

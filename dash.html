@@ -97,10 +97,10 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=54.0"></script>
+    <script src="js/earthcal-init.js?v=54.1"></script>
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=48.2">
-    <link rel="stylesheet" href="css/auspicer-styles.css?v=1.0">
+    <link rel="stylesheet" href="css/auspicer-styles.css?v=1.1">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
 
@@ -255,11 +255,15 @@
             try {
                 var date = (typeof targetDate !== 'undefined' && targetDate instanceof Date)
                     ? new Date(targetDate) : new Date();
-                var response = await fetch('js/earthcal_lunar_intention_config.json', { cache: 'default' });
+                var response = await fetch('js/auspices/auspices-config.json', { cache: 'default' });
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 var config = await response.json();
-                if (typeof SunCalc !== 'undefined' && typeof SunCalc.renderLunarAuspices === 'function') {
-                    var el = SunCalc.renderLunarAuspices(date, config, {});
+                if (typeof SunCalc !== 'undefined' && typeof SunCalc.renderAuspices === 'function') {
+                    var lat = window.userLat || null;
+                    var lon = window.userLon || null;
+                    var opts = (typeof lat === 'number' && typeof lon === 'number')
+                        ? { location: { lat: lat, lon: lon } } : {};
+                    var el = SunCalc.renderAuspices(date, config, opts);
                     panel.appendChild(el);
                 }
             } catch (err) {

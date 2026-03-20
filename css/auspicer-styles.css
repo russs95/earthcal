@@ -21,7 +21,7 @@
 
 .auspicer-pallette {
     width: 70%;
-    max-width: 444px;
+    max-width: 600px;
     margin: 10px auto;
     color: var(--text-color);
 }
@@ -137,7 +137,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 60px);
-    max-width: 440px;
+    max-width: 600px;
     margin: 0;
     z-index: 55;
 }
@@ -176,6 +176,7 @@
     left: 20px;
     width: 300px;
     z-index: 37;
+    font-family: 'Mulish', sans-serif;
 }
 
 #lunar-auspices-dash-panel .ec-lunar-auspices {
@@ -183,7 +184,7 @@
     color: var(--text-color, #242424);
     border: 1px solid rgba(127,127,127,0.22);
     border-radius: 14px;
-    font-family: inherit;
+    font-family: 'Mulish', sans-serif;
     box-shadow: 0 4px 18px rgba(0,0,0,0.13);
 }
 
