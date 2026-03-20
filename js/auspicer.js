@@ -1475,7 +1475,6 @@
     margin-top: 6px;
 }
         */
-    }
 
     /**
      * Render lunar auspices panel.
