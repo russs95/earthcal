@@ -174,7 +174,7 @@
     position: fixed;
     bottom: 55px;
     left: 20px;
-    width: 300px;
+    width: 365px;
     z-index: 37;
     font-family: 'Mulish', sans-serif;
 }
@@ -209,7 +209,7 @@
 /* Header row */
 .ec-lunar-auspices .ec-lunar-auspices__header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     cursor: pointer;
     user-select: none;
@@ -219,21 +219,25 @@
     font-size: 1.9rem;
     line-height: 1;
     flex-shrink: 0;
+    margin-top: 1px;
 }
 .ec-lunar-auspices .ec-lunar-auspices__labels {
     min-width: 0;
     flex: 1;
+    text-align: left;
 }
 .ec-lunar-auspices .ec-lunar-auspices__primary {
     font-size: 1rem;
     font-weight: 700;
     margin: 0 0 2px 0;
     color: var(--text-color, #242424);
+    text-align: left;
 }
 .ec-lunar-auspices .ec-lunar-auspices__secondary {
     font-size: 0.82rem;
     color: var(--subdued-text, #454545);
     margin: 0 0 2px 0;
+    text-align: left;
     line-height: 1.2;
 }
 .ec-lunar-auspices .ec-lunar-auspices__effect {
@@ -422,7 +426,75 @@
 
 
 /* =========================================================
-   7. RESPONSIVE OVERRIDES
+   7. ANCESTRAL EXAMPLE SECTION
+   ========================================================= */
+
+.ec-lunar-auspices .ec-ancestral-example {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(127,127,127,0.15);
+}
+
+.ec-lunar-auspices .ec-ancestral-example__title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--subdued-text, #454545);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__toggle {
+    background: none;
+    border: none;
+    padding: 0 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--subdued-text, #454545);
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__body {
+    display: none;
+    margin-top: 6px;
+    font-size: 0.84rem;
+    font-family: 'Mulish', sans-serif;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__culture {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--subdued-text, #454545);
+    margin-bottom: 3px;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__practice-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 0.86rem;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__summary {
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.ec-lunar-auspices .ec-ancestral-example__notes {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--subdued-text, #454545);
+    border-left: 2px solid rgba(127,127,127,0.25);
+    padding-left: 8px;
+    line-height: 1.35;
+}
+
+
+/* =========================================================
+   8. RESPONSIVE OVERRIDES
    ========================================================= */
 
 @media screen and (max-width: 768px) {

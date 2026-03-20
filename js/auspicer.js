@@ -1056,6 +1056,65 @@
     // Public export for direct use elsewhere
     window.resolveBiodynamicCouncil = resolveBiodynamicCouncil;
 
+    /**
+     * Resolve the most relevant ancestral example for the given matched tag IDs.
+     * Matches by tag-array overlap against window.EARTHCAL_ANCESTRAL_EXAMPLES.
+     */
+    function resolveAncestralExample(tagIds) {
+        var ae = window.EARTHCAL_ANCESTRAL_EXAMPLES;
+        if (!ae || !Array.isArray(ae.examples)) return null;
+        if (!tagIds || !tagIds.length) return null;
+
+        var CONFIDENCE_ORDER = ["high", "moderate-high", "moderate", "low"];
+
+        var candidates = ae.examples.filter(function (ex) {
+            return ex.reviewStatus !== "hold" && ex.confidence !== "review_needed";
+        }).map(function (ex) {
+            var overlap = (ex.tags || []).filter(function (t) {
+                return tagIds.indexOf(t) !== -1;
+            }).length;
+            return { ex: ex, overlap: overlap };
+        }).filter(function (item) {
+            return item.overlap > 0;
+        });
+
+        if (!candidates.length) return null;
+
+        candidates.sort(function (a, b) {
+            if (b.overlap !== a.overlap) return b.overlap - a.overlap;
+            var ai = CONFIDENCE_ORDER.indexOf(a.ex.confidence);
+            var bi = CONFIDENCE_ORDER.indexOf(b.ex.confidence);
+            if (ai === -1) ai = 99;
+            if (bi === -1) bi = 99;
+            return ai - bi;
+        });
+
+        return candidates[0].ex;
+    }
+
+    function buildAncestralExampleHtml(tagIds) {
+        var example = resolveAncestralExample(tagIds);
+        if (!example) return "";
+
+        var notesHtml = example.notes
+            ? '<div class="ec-ancestral-example__notes">' + esc(example.notes) + "</div>"
+            : "";
+
+        return (
+            '<div class="ec-ancestral-example">' +
+            '<div class="ec-ancestral-example__title">Ancestral Grounding ' +
+            '<button class="ec-ancestral-example__toggle" aria-label="Show ancestral example" aria-expanded="false">+</button>' +
+            "</div>" +
+            '<div class="ec-ancestral-example__body">' +
+            '<div class="ec-ancestral-example__culture">' + esc(example.culture || "") + (example.region ? " &middot; " + esc(example.region) : "") + "</div>" +
+            '<div class="ec-ancestral-example__practice-title">' + esc(example.title || "") + "</div>" +
+            '<div class="ec-ancestral-example__summary">' + esc(example.summary || "") + "</div>" +
+            notesHtml +
+            "</div>" +
+            "</div>"
+        );
+    }
+
 
 
     // =========================================================
@@ -1527,6 +1586,7 @@
         var warningsHtml = buildWarningsHtml(warningTags);
         var actionsHtml = buildActionsHtml(suggestedActions);
         var biodynamicCouncilHtml = buildBiodynamicCouncilHtml(date);
+        var ancestralExampleHtml = buildAncestralExampleHtml(auspices ? (auspices.tagIds || []) : []);
         var lunarDataHtml = buildLunarDataHtml(lunarMoment);
 
         panel.innerHTML =
@@ -1548,6 +1608,7 @@
             warningsHtml +
             actionsHtml +
             biodynamicCouncilHtml +
+            ancestralExampleHtml +
             lunarDataHtml +
             "</div>";
 
@@ -1598,6 +1659,26 @@
                     body.style.display = "block";
                     bdcToggleBtn.setAttribute("aria-expanded", "true");
                     bdcToggleBtn.textContent = "−";
+                }
+            });
+        }
+
+        var aeToggleBtn = panel.querySelector(".ec-ancestral-example__toggle");
+        if (aeToggleBtn) {
+            aeToggleBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var body = aeToggleBtn.closest(".ec-ancestral-example").querySelector(".ec-ancestral-example__body");
+                if (!body) return;
+
+                var expanded = aeToggleBtn.getAttribute("aria-expanded") === "true";
+                if (expanded) {
+                    body.style.display = "none";
+                    aeToggleBtn.setAttribute("aria-expanded", "false");
+                    aeToggleBtn.textContent = "+";
+                } else {
+                    body.style.display = "block";
+                    aeToggleBtn.setAttribute("aria-expanded", "true");
+                    aeToggleBtn.textContent = "−";
                 }
             });
         }
@@ -1677,6 +1758,8 @@
             biodynamicCouncilHtml = buildBiodynamicCouncilHtml(date);
         }
 
+        var ancestralExampleHtml = buildAncestralExampleHtml(auspices.tagIds || []);
+
         var lunarDataHtml = lunarMoment ? buildLunarDataHtml(lunarMoment) : "";
         var solarDataHtml = solarMoment ? buildSolarDataHtml(solarMoment) : "";
 
@@ -1699,6 +1782,7 @@
             warningsHtml +
             actionsHtml +
             biodynamicCouncilHtml +
+            ancestralExampleHtml +
             lunarDataHtml +
             solarDataHtml +
             "</div>";
@@ -1715,16 +1799,21 @@
             });
         }
 
-        var toggleButtons = panel.querySelectorAll(".ec-lunar-data__toggle, .ec-biodynamic-council__toggle");
+        var toggleButtons = panel.querySelectorAll(".ec-lunar-data__toggle, .ec-biodynamic-council__toggle, .ec-ancestral-example__toggle");
         for (var i = 0; i < toggleButtons.length; i++) {
             toggleButtons[i].addEventListener("click", function (e) {
                 e.stopPropagation();
 
-                var isCouncil = this.classList.contains("ec-biodynamic-council__toggle");
-                var container = this.closest(isCouncil ? ".ec-biodynamic-council" : ".ec-lunar-data");
-                if (!container) return;
+                var isCouncil   = this.classList.contains("ec-biodynamic-council__toggle");
+                var isAncestral = this.classList.contains("ec-ancestral-example__toggle");
+                var containerSel = isCouncil   ? ".ec-biodynamic-council"  :
+                                   isAncestral ? ".ec-ancestral-example"   : ".ec-lunar-data";
+                var bodySel      = isCouncil   ? ".ec-biodynamic-council__body" :
+                                   isAncestral ? ".ec-ancestral-example__body"  : ".ec-lunar-data__grid";
 
-                var body = container.querySelector(isCouncil ? ".ec-biodynamic-council__body" : ".ec-lunar-data__grid");
+                var container = this.closest(containerSel);
+                if (!container) return;
+                var body = container.querySelector(bodySel);
                 if (!body) return;
 
                 var expanded = this.getAttribute("aria-expanded") === "true";
@@ -1733,7 +1822,7 @@
                     this.setAttribute("aria-expanded", "false");
                     this.textContent = "+";
                 } else {
-                    body.style.display = isCouncil ? "block" : "";
+                    body.style.display = (isCouncil || isAncestral) ? "block" : "";
                     this.setAttribute("aria-expanded", "true");
                     this.textContent = "−";
                 }

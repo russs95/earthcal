@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=4.4"
+                "js/service-worker.js?v=4.5"
             );
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
@@ -66,8 +66,9 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.0",
+        "js/auspicer.js?v=3.1",
         "js/auspices/biodynamic_council.js?v=1.0",
+        "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",
         "js/astronomy.browser.js",
 
