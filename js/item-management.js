@@ -1996,23 +1996,18 @@ async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji) {
     try {
         const configUrl = 'js/auspices/auspices-config.json';
         const response = await fetch(configUrl, { cache: 'default' });
-        console.log('[auspices] fetch status:', response.status, response.ok);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const config = await response.json();
-        console.log('[auspices] config loaded, schema:', config && config.schema);
-        console.log('[auspices] SunCalc.renderLunarAuspices type:', typeof SunCalc?.renderLunarAuspices);
 
         let auspicesEl = null;
-        if (typeof SunCalc.renderLunarAuspices === 'function') {
-            auspicesEl = SunCalc.renderLunarAuspices(date, config, {}, emoji);
-            console.log('[auspices] renderLunarAuspices returned:', auspicesEl && auspicesEl.tagName, auspicesEl instanceof HTMLElement);
+        if (typeof SunCalc.renderAuspices === 'function') {
+            auspicesEl = SunCalc.renderAuspices(date, config, {});
         }
 
         const elapsed = Date.now() - showTime;
         await new Promise(resolve => setTimeout(resolve, Math.max(0, 500 - elapsed)));
 
         const detailsDiv = wrapper.querySelector('.ec-moon-phase-details');
-        console.log('[auspices] detailsDiv found:', !!detailsDiv, 'wrapper in DOM:', document.body.contains(wrapper));
         if (detailsDiv && auspicesEl instanceof HTMLElement) {
             detailsDiv.classList.remove('ec-moon-phase-details--loading');
             detailsDiv.innerHTML = '';
