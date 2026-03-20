@@ -172,7 +172,7 @@
      * Supports the current multi-layer config first, then older lunar-only config.
      *
      * Expected current config:
-     * - file: auspices_config.json
+     * - file: auspices-config.json
      * - schema: earthcal.auspices-config.v2
      */
     function getAuspicesConfig(passedConfig) {
@@ -982,7 +982,7 @@
     /**
      * Async config loader.
      * Current expected file:
-     * - auspices_config.json
+     * - auspices-config.json
      */
     C.loadAuspicesConfig = async function (url) {
         var res = await fetch(url, { cache: "no-cache" });

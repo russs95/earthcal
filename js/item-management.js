@@ -1994,7 +1994,7 @@ function displayMoonPhasev1({ date, container } = {}) {
 async function _loadAndRenderAuspices(date, wrapper, fallbackPhaseName, emoji) {
     const showTime = Date.now();
     try {
-        const configUrl = 'js/auspices_config.json';
+        const configUrl = 'js/auspices-config.json';
         const response = await fetch(configUrl, { cache: 'default' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const config = await response.json();
