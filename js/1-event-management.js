@@ -1339,8 +1339,8 @@ async function updateDateCycleCount(pinnedCount, currentCount) {
     const message = `${prefix} ${totalCount} ${eventWord}`;
 
     currentDatecycleCount.textContent = message;
-    dateCycleCountBox.classList.add("show");
-    scheduleDateCycleNoticeHide();
+    // dateCycleCountBox.classList.add("show");
+    // scheduleDateCycleNoticeHide();
 }
 
 

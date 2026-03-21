@@ -282,6 +282,40 @@
                     "Excellent for grounding the broader solar arc rather than only a single annual event."
             },
 
+            {
+                id: "kichwa-runa-mushuk-nina-spring-equinox",
+                tags: ["march-equinox-window"],
+                layer: "solar",
+                culture: "Kichwa Runa",
+                region: "Andean Ecuador / diaspora community documentation",
+                title: "Mushuk Nina spring equinox renewal",
+                practiceType: "spring equinox ceremony / renewal / new fire",
+                summary:
+                    "Mushuk Nina is described as a spring equinox ceremony of renewal led by the Kichwa Runa Community of Indigenous Peoples, marking a threshold of seasonal return, rebalancing, and fresh beginning.",
+                confidence: "high",
+                sourceType: "museum program documentation / living Indigenous practice",
+                reviewStatus: "usable",
+                notes:
+                    "A strong spring-equinox example for renewal, rebalancing, and threshold-crossing. Phrase carefully as a documented community-led observance rather than a universal Andean rule."
+            },
+
+            {
+                id: "inupiaq-autumn-equinox-new-year-threshold",
+                tags: ["september-equinox-window"],
+                layer: "solar",
+                culture: "Iñupiaq",
+                region: "Alaska Arctic",
+                title: "Autumn equinox and the new-year threshold",
+                practiceType: "seasonal threshold / ceremonial marking / new year",
+                summary:
+                    "Smithsonian documentation records an Iñupiaq ceremonial association with the autumn equinox, described as 'when two stars appear' and also referred to as the Iñupiaq New Year, linking equinox time with communal and ceremonial transition.",
+                confidence: "moderate",
+                sourceType: "Smithsonian collections research / historical interpretation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Good for an autumn-equinox threshold example, but keep wording specific to the cited documentation and avoid overgeneralizing to all Iñupiaq communities."
+            }
+
             // --------------------------------------------------
             // PLACEHOLDERS FOR FUTURE RESEARCH
             // --------------------------------------------------
@@ -303,22 +337,7 @@
                     "Included as a research placeholder only."
             },
 
-            {
-                id: "equinox-indigenous-specific-placeholder",
-                tags: ["march-equinox-window", "september-equinox-window"],
-                layer: "solar",
-                culture: "Indigenous / First Nations examples to be determined",
-                region: "To be determined",
-                title: "Specific equinox example needed",
-                practiceType: "placeholder",
-                summary:
-                    "A strong equinox-specific Indigenous example should be added only once it is grounded in a clear, attributable source from the relevant people or institution.",
-                confidence: "review_needed",
-                sourceType: "placeholder / needs source review",
-                reviewStatus: "hold",
-                notes:
-                    "Included to mark a current gap in the library."
-            }
+
 
         ]
     };
