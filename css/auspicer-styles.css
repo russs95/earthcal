@@ -203,6 +203,7 @@
     font-size: 0.92rem;
     line-height: 1.3;
     position: relative;
+    text-align: left;
 }
 .ec-lunar-auspices.is-expanded { max-height: 1200px; }
 
@@ -247,7 +248,7 @@
     line-height: 1.25;
 }
 
-/* Header right: stage badge + expand button */
+/* Header right: stage badge + button row */
 .ec-lunar-auspices .ec-lunar-auspices__header-right {
     display: flex;
     flex-direction: column;
@@ -266,6 +267,11 @@
     color: var(--subdued-text, #454545);
     border: 1px solid rgba(127,127,127,0.18);
     white-space: nowrap;
+}
+.ec-lunar-auspices .ec-lunar-auspices__btn-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 .ec-lunar-auspices .ec-lunar-auspices__expand-btn {
     display: flex;
@@ -296,6 +302,28 @@
 .ec-lunar-auspices.is-expanded .ec-lunar-auspices__expand-btn::after {
     transform: rotate(-135deg);
     top: 3px;
+}
+.ec-lunar-auspices .ec-lunar-auspices__close-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 26px;
+    height: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: rgba(90,90,90,0.60);
+    border-radius: 50%;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.ec-lunar-auspices .ec-lunar-auspices__close-btn:hover {
+    background: rgba(127,127,127,0.12);
+    color: rgba(90,90,90,0.90);
 }
 
 /* Body */
@@ -352,10 +380,20 @@
 .ec-lunar-auspices .ec-lunar-actions__list {
     margin: 0;
     padding-left: 16px;
+    text-align: left;
 }
 .ec-lunar-auspices .ec-lunar-actions__item {
     margin: 0 0 3px 0;
     font-size: 0.86rem;
+    text-align: left;
+}
+
+/* Ensure all lists inside panel are left-aligned */
+.ec-lunar-auspices ul,
+.ec-lunar-auspices ol,
+.ec-lunar-auspices li,
+.ec-lunar-auspices .ec-biodynamic-council__list {
+    text-align: left;
 }
 
 /* Data sections: lunar + solar */
@@ -436,26 +474,27 @@
 }
 
 .ec-lunar-auspices .ec-ancestral-example__title {
-    font-size: 0.78rem;
+    font-size: 0.73rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--subdued-text, #454545);
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+    gap: 5px;
 }
 
 .ec-lunar-auspices .ec-ancestral-example__toggle {
     background: none;
-    border: none;
-    padding: 0 4px;
-    font-size: 1rem;
+    border: 1px solid rgba(127,127,127,0.28);
+    border-radius: 3px;
     cursor: pointer;
     color: var(--subdued-text, #454545);
-    line-height: 1;
-    flex-shrink: 0;
+    font-size: 0.80rem;
+    padding: 0 3px;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .ec-lunar-auspices .ec-ancestral-example__body {

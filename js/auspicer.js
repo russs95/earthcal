@@ -1599,7 +1599,10 @@
             "</div>" +
             '<div class="ec-lunar-auspices__header-right">' +
             stageHtml +
+            '<div class="ec-lunar-auspices__btn-row">' +
             '<button class="ec-lunar-auspices__expand-btn" aria-label="Expand lunar details" title="Show more"></button>' +
+            '<button class="ec-lunar-auspices__close-btn" aria-label="Close" title="Close">✕</button>' +
+            '</div>' +
             "</div>" +
             "</div>" +
             '<div class="ec-lunar-auspices__body">' +
@@ -1679,6 +1682,22 @@
                     body.style.display = "block";
                     aeToggleBtn.setAttribute("aria-expanded", "true");
                     aeToggleBtn.textContent = "−";
+                }
+            });
+        }
+
+        var closeBtn = panel.querySelector(".ec-lunar-auspices__close-btn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var pallette = panel.closest(".auspicer-pallette");
+                if (pallette) {
+                    pallette.style.display = "none";
+                    return;
+                }
+                var dashPanel = document.getElementById("lunar-auspices-dash-panel");
+                if (dashPanel) {
+                    dashPanel.style.display = "none";
                 }
             });
         }
@@ -1773,7 +1792,10 @@
             "</div>" +
             '<div class="ec-lunar-auspices__header-right">' +
             stageHtml +
+            '<div class="ec-lunar-auspices__btn-row">' +
             '<button class="ec-lunar-auspices__expand-btn" aria-label="Expand auspices details" title="Show more"></button>' +
+            '<button class="ec-lunar-auspices__close-btn" aria-label="Close" title="Close">✕</button>' +
+            '</div>' +
             "</div>" +
             "</div>" +
             '<div class="ec-lunar-auspices__body">' +
@@ -1825,6 +1847,22 @@
                     body.style.display = (isCouncil || isAncestral) ? "block" : "";
                     this.setAttribute("aria-expanded", "true");
                     this.textContent = "−";
+                }
+            });
+        }
+
+        var closeBtn = panel.querySelector(".ec-lunar-auspices__close-btn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var pallette = panel.closest(".auspicer-pallette");
+                if (pallette) {
+                    pallette.style.display = "none";
+                    return;
+                }
+                var dashPanel = document.getElementById("lunar-auspices-dash-panel");
+                if (dashPanel) {
+                    dashPanel.style.display = "none";
                 }
             });
         }

@@ -66,7 +66,7 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.1",
+        "js/auspicer.js?v=3.2",
         "js/auspices/biodynamic_council.js?v=1.0",
         "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",

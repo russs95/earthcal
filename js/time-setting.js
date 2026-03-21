@@ -758,7 +758,7 @@ async function showUserCalSettings() {
             if (!hasPremiumAccess) {
                 event.target.checked = forcedOfflineEnabled;
                 showPremiumAccessAlert({
-                    previewImageSrc: 'assets/images/preview-offline.webp',
+                    previewImageSrc: 'assets/images/preview-offline.webp?v=2',
                     previewImageAlt: 'Offline mode preview',
                     description: 'Keep Earthcal available and your calendar data cached when you\'re offline or on a limited connection.'
                 });
@@ -818,7 +818,7 @@ async function showUserCalSettings() {
                     if (!hasPremiumAccess) {
                         event.target.checked = userZodiacPositions;
                         showPremiumAccessAlert({
-                            previewImageSrc: 'assets/images/preview-comet.webp',
+                            previewImageSrc: 'assets/images/preview-comet.webp?v=2',
                             previewImageAlt: 'Zodiac overlay preview',
                             description: 'View an overlay of the twelve houses so that you can gauge where and when the planets will be in particular zodiac zone.'
                         });
@@ -835,7 +835,7 @@ async function showUserCalSettings() {
             if (!hasPremiumAccess) {
                 event.target.checked = userLunarCalendar;
                 showPremiumAccessAlert({
-                    previewImageSrc: 'assets/images/preview-lunarmonths.webp',
+                    previewImageSrc: 'assets/images/preview-lunarmonths.webp?v=2',
                     previewImageAlt: 'Lunar months preview',
                     description: 'View the lunar months overlaid upon the solar year to help make sense of the Korean, Chinese, Islamic or other lunar calendars'
                 });
@@ -850,7 +850,7 @@ async function showUserCalSettings() {
             if (!hasPremiumAccess) {
                 event.target.checked = userCometTracking;
                 showPremiumAccessAlert({
-                    previewImageSrc: 'assets/images/preview-comet.webp',
+                    previewImageSrc: 'assets/images/preview-comet.webp?v=2',
                     previewImageAlt: 'Comet tracking preview',
                     description: 'Track the progress of interstellar comet 3I-ATLAS as it zooms though our solar system in 2025 and 2026.'
                 });
