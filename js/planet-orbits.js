@@ -264,27 +264,24 @@ function buildSolarAnimatorByRotation() {
         // backward snap at worst (see comment above).
 
         const myToken = ++animToken;
+        // Capture t0 now so the first rAF tick immediately begins interpolating.
+        // The old two-frame init (outer rAF sets t0, inner rAF starts tick) added a ~32 ms
+        // dead pause at the start. That was originally needed to let forceAngle(a0) settle,
+        // but since a0 is now read from the live DOM there is nothing to settle.
+        const t0 = performance.now();
 
-        // Two-frame init: begin interpolation next frame
-        requestAnimationFrame(() => {
+        requestAnimationFrame(function tick(now) {
             if (myToken !== animToken) return;
-            const t0 = performance.now();
 
-            function tick(now) {
-                if (myToken !== animToken) return;
-
-                const t = (now - t0) / duration;
-                if (t >= 1) {
-                    for (const { p, a1 } of plan) p.forceAngle(a1);
-                    return;
-                }
-
-                for (const { p, a0, a1 } of plan) {
-                    p.setAngle(a0 + (a1 - a0) * t, now);
-                }
-                requestAnimationFrame(tick);
+            const t = (now - t0) / duration;
+            if (t >= 1) {
+                for (const { p, a1 } of plan) p.forceAngle(a1);
+                return;
             }
 
+            for (const { p, a0, a1 } of plan) {
+                p.setAngle(a0 + (a1 - a0) * t, now);
+            }
             requestAnimationFrame(tick);
         });
     };

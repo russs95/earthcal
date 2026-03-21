@@ -73,7 +73,7 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=3.1",
+        "js/core.js?v=3.2",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
@@ -82,7 +82,7 @@ async function initCalendar() {
         "js/time-setting.js?v=10.5",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=8.7",
+        "js/planet-orbits.js?v=8.8",
         // rest of app
         "js/login-scripts.js?v=21.3",
         "js/item-management.js?v=11.3",

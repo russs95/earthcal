@@ -153,7 +153,7 @@ This function now handles all SVG transform strings safely and cross-browser.
 
 ---
 
-### Problem 4 — Backward Snap on Interrupted Animations
+### Problem 4 — Backward Snap on Interrupted Animations (and two-frame init overhead)
 
 **Symptom:** When clicking a new date on the calendar while a planet animation was still running, all planets briefly snapped backward before animating forward to the correct target position.
 
@@ -162,6 +162,22 @@ This function now handles all SVG transform strings safely and cross-browser.
 The earlier "two-frame init" pattern was intended to address a related backstep artifact but did not fix this specific case: the snap itself happened before any frame was drawn, so spacing the interpolation across two frames made no difference.
 
 **Fix:** Changed `a0` to be read from the planet element's live `transform` attribute via `parseRotateDegrees(p.el.getAttribute("transform"))` rather than computed from `startDate`. Since `a0` now equals the planet's actual current visual angle, the `forceAngle(a0)` call is no longer needed and was removed. The interpolation now always starts smoothly from wherever the planet currently is, regardless of whether a previous animation was running.
+
+The two-frame init (outer rAF captured `t0`, inner rAF started the tick) also became unnecessary once `forceAngle(a0)` was removed. It was collapsed to a single-frame init (`t0` captured synchronously, single rAF starts the tick), eliminating a ~32 ms dead pause at the start of every animation.
+
+---
+
+### Problem 5 — `set2Yesterday()` Spins Planets a Full Orbit
+
+**Symptom:** Clicking the "previous day" button caused all planets to rapidly spin almost a full orbit forward instead of stepping back one day. `set2Tomorrow()` worked correctly.
+
+**Root cause:** The day-path click handler does `startDate = targetDate` after `calendarRefresh()`, making both variables reference the **same Date object**. `set2Yesterday()` then calls `targetDate.setDate(getDate() - 1)`, which mutates the shared object — so **both `startDate` and `targetDate` silently become yesterday**. When `animatePlanets(yesterday, yesterday)` is called, `dayJump = 0` and `jumpSign` defaults to `+1` (forward). With the new code reading `a0` from the live DOM (today's angle) and `a1 = angleAt(yesterday)` being slightly *less* than `a0`, `unwrapAngleBySign` with `desiredSign = +1` keeps adding 360° until `a1 ≥ a0`, causing a near-full-orbit forward spin.
+
+`set2Tomorrow()` only avoided the same fate by coincidence: tomorrow's angle is already larger than today's, so the `+1` unwrap needed no adjustment and the 1-day forward step happened to be correct.
+
+**Fix:** Both `set2Yesterday()` and `set2Tomorrow()` now snapshot `startDate` as a **new Date object** (`startDate = new Date(targetDate)`) *before* mutating `targetDate`. This ensures `dayJump = ±1` and the correct `jumpSign`, so `unwrapAngleBySign` wraps in the right direction for a clean one-day step.
+
+**Key lesson:** Never mutate `targetDate` in place without first copying it to `startDate` as a new object. Because the click handler aliases `startDate = targetDate`, any in-place mutation of `targetDate` invisibly changes `startDate` too, collapsing the date range to zero and breaking direction detection.
 
 ---
 

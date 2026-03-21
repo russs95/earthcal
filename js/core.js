@@ -1449,8 +1449,12 @@ function calendarRefresh() {
 }
 
 function set2Tomorrow() {
-  // This function sets the target date to tomorrow and then refreshes the calendar
-  // targetDate = new Date();
+  // Snapshot startDate as a NEW object before mutating targetDate.
+  // startDate and targetDate can alias the same object (set via "startDate = targetDate"
+  // in the day-path click handler). If we mutate targetDate in place without snapshotting,
+  // dayJump becomes 0 and jumpSign defaults to +1, causing unwrapAngleBySign to spin
+  // planets forward a full orbit instead of stepping forward one day.
+  startDate = new Date(targetDate);
   targetDate.setDate(targetDate.getDate() + 1); // Sets the target date to tomorrow
   calendarRefresh(); // Call the calendarRefresh function
   // document.getElementById("reset").style.display = "block";
@@ -1462,8 +1466,8 @@ function set2Tomorrow() {
 }
 
 function set2Yesterday() {
-  // This function sets the target date to yesterday and then refreshes the calendar
-  // targetDate = new Date();
+  // Same aliasing guard as set2Tomorrow — snapshot before mutating.
+  startDate = new Date(targetDate);
   targetDate.setDate(targetDate.getDate() - 1); // Sets the target date to yesterday
   calendarRefresh(); // Call the calendarRefresh function
   // document.getElementById("reset").style.display = "block";

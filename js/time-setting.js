@@ -758,7 +758,7 @@ async function showUserCalSettings() {
             if (!hasPremiumAccess) {
                 event.target.checked = forcedOfflineEnabled;
                 showPremiumAccessAlert({
-                    previewImageSrc: 'assets/images/preview-offline.webp?v=2',
+                    previewImageSrc: 'assets/images/venus-offline.webp?v=2',
                     previewImageAlt: 'Offline mode preview',
                     description: 'Keep Earthcal available and your calendar data cached when you\'re offline or on a limited connection.'
                 });
@@ -818,7 +818,7 @@ async function showUserCalSettings() {
                     if (!hasPremiumAccess) {
                         event.target.checked = userZodiacPositions;
                         showPremiumAccessAlert({
-                            previewImageSrc: 'assets/images/preview-zodiac.webp',
+                            previewImageSrc: 'assets/images/preview-zodiac.webp?v=2',
                             previewImageAlt: 'Zodiac overlay preview',
                             description: 'View an overlay of the twelve houses so that you can gauge where and when the planets will be in particular zodiac zone.'
                         });
