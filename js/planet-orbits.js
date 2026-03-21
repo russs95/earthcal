@@ -259,19 +259,26 @@ function buildSolarAnimatorByRotation() {
             return;
         }
 
-        // Do NOT call forceAngle(a0) here. a0 was read from the planet's current visual
-        // transform, so calling forceAngle(a0) would be a no-op at best and a visible
-        // backward snap at worst (see comment above).
+        // Sync counter-rotation elements (zodiacs) immediately — without snapping planets.
+        // applyCounterRotation is only called by setAngle/forceAngle, so without the old
+        // forceAngle(a0) at animation start there was no guarantee the zodiac would be in
+        // the right position before the first tick fires (e.g. if the animation is cancelled
+        // or if the zodiac was just made visible). Calling it directly here is a no-op for
+        // the planet position itself but keeps the counter-element in sync from frame 0.
+        for (const { p, a0 } of plan) {
+            if (p.counterEl) p.applyCounterRotation(a0);
+        }
 
         const myToken = ++animToken;
-        // Capture t0 now so the first rAF tick immediately begins interpolating.
-        // The old two-frame init (outer rAF sets t0, inner rAF starts tick) added a ~32 ms
-        // dead pause at the start. That was originally needed to let forceAngle(a0) settle,
-        // but since a0 is now read from the live DOM there is nothing to settle.
-        const t0 = performance.now();
+
+        // Capture t0 inside the first rAF callback so that t === 0 on the very first tick.
+        // Capturing t0 synchronously before rAF means the first rendered frame already has
+        // t ≈ 16 ms / duration (a small but visible forward jump from a0).
+        let t0 = -1;
 
         requestAnimationFrame(function tick(now) {
             if (myToken !== animToken) return;
+            if (t0 < 0) t0 = now;   // latch on first frame → t starts at exactly 0
 
             const t = (now - t0) / duration;
             if (t >= 1) {
