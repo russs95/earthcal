@@ -758,7 +758,7 @@ async function showUserCalSettings() {
             if (!hasPremiumAccess) {
                 event.target.checked = forcedOfflineEnabled;
                 showPremiumAccessAlert({
-                    previewImageSrc: 'assets/images/venus-offline.webp?v=2',
+                    previewImageSrc: 'assets/images/venus-offline.webp?v=3',
                     previewImageAlt: 'Offline mode preview',
                     description: 'Keep Earthcal available and your calendar data cached when you\'re offline or on a limited connection.'
                 });

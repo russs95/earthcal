@@ -104,15 +104,31 @@ class PlanetGroupRotator {
 
         this.counterEl = null;
         this.counterBaseTransform = "";
+        this.counterCenter = null;   // ring centre in parent's (Earth's) local frame
         if (this.counterRotateId) {
             this.counterEl = document.getElementById(this.counterRotateId);
             if (!this.counterEl) {
                 console.warn(`Missing counter-rotation group: #${this.counterRotateId}`);
-            } else if (this.counterEl.dataset.ecBaseTransform == null) {
-                this.counterEl.dataset.ecBaseTransform = this.counterEl.getAttribute("transform") || "";
-                this.counterBaseTransform = this.counterEl.dataset.ecBaseTransform;
             } else {
+                if (this.counterEl.dataset.ecBaseTransform == null) {
+                    this.counterEl.dataset.ecBaseTransform = this.counterEl.getAttribute("transform") || "";
+                }
                 this.counterBaseTransform = this.counterEl.dataset.ecBaseTransform;
+
+                // Compute the ring's centre in the parent (Earth) local frame.
+                // Rotating around this point by -delta preserves orientation (signs stay
+                // aligned with fixed sky directions) while letting position orbit with Earth.
+                // Using the sun pivot instead would globally fix the zodiac position — wrong.
+                const bm = parseSvgTransform(this.counterBaseTransform);
+                const circ = this.counterEl.querySelector("circle");
+                if (circ) {
+                    const lx = circ.cx.baseVal.value;
+                    const ly = circ.cy.baseVal.value;
+                    this.counterCenter = {
+                        x: bm.a * lx + bm.c * ly + bm.e,
+                        y: bm.b * lx + bm.d * ly + bm.f,
+                    };
+                }
             }
         }
 
@@ -161,7 +177,12 @@ class PlanetGroupRotator {
 
     applyCounterRotation(angleDeg) {
         if (!this.counterEl) return;
-        const pivot = this.counterPivot || this.pivot;
+        // Rotate around the zodiac ring's own centre (in Earth's local frame), NOT the sun.
+        // Rotating around the sun pivot would cancel Earth's orbital translation entirely and
+        // pin the zodiac at a fixed global position.  Rotating around the ring's own centre
+        // cancels only the coordinate-frame rotation so the signs stay aligned with fixed sky
+        // directions while the ring's position continues to orbit with Earth.
+        const pivot = this.counterCenter || this.counterPivot || this.pivot;
         const { x, y } = pivot;
 
         // Counter-rotate only the delta from epoch (not the absolute angle)
