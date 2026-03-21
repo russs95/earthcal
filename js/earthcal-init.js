@@ -82,7 +82,7 @@ async function initCalendar() {
         "js/time-setting.js?v=10.5",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=8.8",
+        "js/planet-orbits.js?v=8.9",
         // rest of app
         "js/login-scripts.js?v=21.3",
         "js/item-management.js?v=11.3",

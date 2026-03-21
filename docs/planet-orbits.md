@@ -64,6 +64,10 @@ Because angles are modular (0–360 repeating), a naive interpolation between st
 
 The start angle `a0` for each planet is read **directly from the planet element's current `transform` attribute** using `parseRotateDegrees()`. It is **not** computed from `startDate`. This is critical: if `a0` were calculated from `startDate` instead, calling `animatePlanets()` while a previous animation is still running mid-way would snap all planets to the `startDate` position before the new animation begins — visible as a brief backward jump. By reading the live DOM transform, `a0` always equals the planet's actual current visual angle, and no snap occurs.
 
+**Counter-rotation pre-sync:** Before starting the rAF loop, `animatePlanets` calls `p.applyCounterRotation(a0)` for any planet that has a `counterEl` (i.e., Earth → zodiacs). This ensures the zodiac ring is snapped to the correct position for `a0` at the moment the new animation begins — without snapping the planet itself. Without this explicit call, the zodiac could remain frozen at the epoch/base position if no previous animation had run (e.g., on first navigation with zodiacs visible, or after a visibility toggle).
+
+**`t0` first-frame latch:** The animation timer `t0` is set to `-1` before the rAF loop and latched to `now` on the **first callback frame** (`if (t0 < 0) t0 = now`). This ensures `t = 0` on the very first tick. If `t0` were captured synchronously before the rAF call, the browser's rAF scheduling delay (~16 ms) would mean the first frame already has `t > 0`, producing a perceptible initial jump proportional to `16ms / duration`.
+
 An `animToken` integer guards against race conditions — if a new `animatePlanets()` call arrives mid-animation, the old loop detects the stale token and exits cleanly.
 
 ### 5. Per-Planet FPS Throttling
@@ -163,7 +167,7 @@ The earlier "two-frame init" pattern was intended to address a related backstep 
 
 **Fix:** Changed `a0` to be read from the planet element's live `transform` attribute via `parseRotateDegrees(p.el.getAttribute("transform"))` rather than computed from `startDate`. Since `a0` now equals the planet's actual current visual angle, the `forceAngle(a0)` call is no longer needed and was removed. The interpolation now always starts smoothly from wherever the planet currently is, regardless of whether a previous animation was running.
 
-The two-frame init (outer rAF captured `t0`, inner rAF started the tick) also became unnecessary once `forceAngle(a0)` was removed. It was collapsed to a single-frame init (`t0` captured synchronously, single rAF starts the tick), eliminating a ~32 ms dead pause at the start of every animation.
+The two-frame init (outer rAF captured `t0`, inner rAF started the tick) also became unnecessary once `forceAngle(a0)` was removed. It was collapsed to a single-frame init where `t0` is latched inside the first rAF callback, eliminating both the ~32 ms dead pause and the first-frame jump described in Problem 6.
 
 ---
 
@@ -181,6 +185,35 @@ The two-frame init (outer rAF captured `t0`, inner rAF started the tick) also be
 
 ---
 
+### Problem 6 — Miniscule Snap at Animation Start (t0 Timing)
+
+**Symptom:** A very small but perceptible forward jump occurred at the very beginning of every planet animation — planets appeared to leap slightly from `a0` before settling into smooth interpolation.
+
+**Root cause:** `t0` (the animation start timestamp) was captured synchronously with `const t0 = performance.now()` before the `requestAnimationFrame` call. The browser schedules the first rAF callback ~16 ms later. On that first frame, `t = (now - t0) / duration` was already `≈ 16/duration` — nonzero — so the interpolation began partway through. With a 500 ms animation, the first tick immediately jumped to `t ≈ 0.032`, which is perceptible as a snap.
+
+**Fix:** Changed to a first-frame latch: `let t0 = -1` before the rAF loop, then `if (t0 < 0) t0 = now` as the first line inside the callback. `t` is exactly `0` on the first frame, and the animation begins from precisely `a0` with no initial jump.
+
+---
+
+### Problem 7 — Zodiac Not Counter-Rotating on First Animation
+
+**Symptom:** With "View zodiac positions" enabled, the `#zodiacs` group remained frozen at the epoch/base SVG position when navigating to a non-epoch date. It did not counter-rotate to track Earth's orbit.
+
+**Root cause:** `applyCounterRotation()` is only invoked inside `setAngle()` and `forceAngle()`. After the fix for Problem 4 removed the `forceAngle(a0)` setup loop, there was no longer any synchronous call to establish the zodiac's counter-rotation at animation start. If `animatePlanets` was called for the first time (or after a visibility toggle that reset state), the first rAF tick might be delayed long enough that a user could see the zodiac at the wrong position. More critically, if the previous animation had been cancelled or had never run, `applyCounterRotation` was never called at all, leaving zodiacs stuck at the SVG base position.
+
+**Fix:** Added a pre-animation loop before the `animToken` assignment that explicitly calls `p.applyCounterRotation(a0)` for any planet that has `p.counterEl` set (currently only Earth):
+
+```js
+// Sync counter-rotation elements immediately — without snapping planets.
+for (const { p, a0 } of plan) {
+    if (p.counterEl) p.applyCounterRotation(a0);
+}
+```
+
+This call sets the zodiac to its correct counter-rotated position for the current Earth angle (`a0`) synchronously, before the first rAF tick. The planet itself is not moved — no `forceAngle` is called.
+
+---
+
 ## Key Design Decisions
 
 | Decision | Reason |
@@ -190,6 +223,8 @@ The two-frame init (outer rAF captured `t0`, inner rAF started the tick) also be
 | Counter-pivot = sun centre, not `getBBox()` | `getBBox()` is unreliable before the SVG is fully rendered and laid out. The sun centre from `#sol.cx/cy` is always available as soon as the SVG enters the DOM. |
 | `animToken` cancellation guard | Prevents ghost animation loops from old `animatePlanets()` calls if the user selects dates rapidly. |
 | UTC midnight arithmetic for day counting | Avoids DST-related fractional days that cause slight positional errors at DST transition dates in the user's local timezone. |
+| Counter-rotation pre-sync before rAF loop | `applyCounterRotation(a0)` is called synchronously for Earth before starting the animation loop. This guarantees the zodiac is correctly positioned from frame 0, even when no previous animation has run. |
+| `t0` latched on first rAF frame, not before | Capturing `t0 = now` inside the first callback rather than before `requestAnimationFrame` ensures `t = 0` on the first tick, eliminating the ~16 ms initial jump that would otherwise occur due to rAF scheduling delay. |
 
 ---
 
