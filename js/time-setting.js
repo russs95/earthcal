@@ -818,7 +818,7 @@ async function showUserCalSettings() {
                     if (!hasPremiumAccess) {
                         event.target.checked = userZodiacPositions;
                         showPremiumAccessAlert({
-                            previewImageSrc: 'assets/images/preview-comet.webp?v=2',
+                            previewImageSrc: 'assets/images/preview-zodiac.webp',
                             previewImageAlt: 'Zodiac overlay preview',
                             description: 'View an overlay of the twelve houses so that you can gauge where and when the planets will be in particular zodiac zone.'
                         });

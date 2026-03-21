@@ -354,11 +354,45 @@ async function openMainMenu() {
         `
         : '';
 
+    const menuTopHtml = (() => {
+        if (isAuthenticated) {
+            const userPlan = (window.user_plan || '').toLowerCase();
+            const planName = userPlan === 'jedi'
+                ? 'EarthCal Jedi'
+                : userPlan === 'padwan'
+                    ? 'EarthCal Padwan'
+                    : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
+            const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
+            const syncStatus = typeof window.syncStore?.getStatus === 'function' ? window.syncStore.getStatus() : null;
+            const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
+            const showPlanAction = (userPlan === 'padwan' || userPlan === 'jedi') && hasConnectivity;
+            const planActionText = userPlan === 'jedi' ? 'Manage Subscription' : 'Upgrade EarthCal';
+            return `
+                <div class="menu-plan-status">
+                    <div class="menu-plan-pill ${planClass}">
+                        <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
+                        <span class="menu-plan-pill-text">${planName}</span>
+                        ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="menu-plan-status">
+                    <button type="button" class="login-button" onclick="closeMainMenu(); setTimeout(() => { const btn = document.getElementById('auth-login-button'); if (btn) btn.click(); }, 300);">Login</button>
+                    <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" class="signup-button" style="text-align:center;text-decoration:none;display:inline-block;" target="_blank">Sign Up</a>
+                </div>
+            `;
+        }
+    })();
+
     content.innerHTML = `
         <div id="main-menu-box">
             <div class="earthcal-app-logo">
                 <img src="svgs/earthcal-icon.svg" alt="EarthCal Logo" title="${mainMenu.title}">
             </div>
+
+            ${menuTopHtml}
 
             <div id="all-the-main-menu-items"></div>
             <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
@@ -367,9 +401,6 @@ async function openMainMenu() {
 
             <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
                 ${mainMenu.latestVersion}
-            </div>
-            <div class="menu-page-item" role="button" tabindex="0" onclick="manageEarthcalUserSub();" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); manageEarthcalUserSub(); }">
-                Upgrade Earthcal
             </div>
             <div class="menu-page-item">
                 <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
