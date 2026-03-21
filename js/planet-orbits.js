@@ -210,8 +210,9 @@ function buildSolarAnimatorByRotation() {
         new PlanetGroupRotator("earth", 365.256, pivot, {
             direction: +1,
             minFrameMs: 0,
-            counterRotateId: "zodiacs",
-            counterPivot: pivot,          // sun center, bypasses getBBox() timing race
+            // #zodiacs is a child of #earth in the SVG, so it naturally orbits with Earth.
+            // No counter-rotation needed — counter-rotation was pinning it at the epoch
+            // global position instead of letting it follow Earth's orbit.
         }),
         new PlanetGroupRotator("mars", 686.98, pivot, { direction: +1, minFrameMs: 16 }),
         new PlanetGroupRotator("jupiter", 4332.59, pivot, { direction: +1, minFrameMs: 48 }),
