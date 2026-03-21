@@ -314,7 +314,7 @@
                 reviewStatus: "usable-with-context",
                 notes:
                     "Good for an autumn-equinox threshold example, but keep wording specific to the cited documentation and avoid overgeneralizing to all Iñupiaq communities."
-            }
+            },
 
             // --------------------------------------------------
             // PLACEHOLDERS FOR FUTURE RESEARCH

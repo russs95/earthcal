@@ -60,7 +60,9 @@ Because angles are modular (0–360 repeating), a naive interpolation between st
 
 ### 4. Animation Loop
 
-`animatePlanets(startDate, targetDate)` uses a vanilla `requestAnimationFrame` loop — **not GSAP**. The animation duration scales with the size of the date jump (0.5s for <30 days up to 4s for multi-year jumps). A **two-frame init** pattern is used: all planets are snapped to the start pose on frame 0, then the interpolation loop begins on frame 1. This prevents the "backstep" artifact where planets briefly jump to the wrong position before animating.
+`animatePlanets(startDate, targetDate)` uses a vanilla `requestAnimationFrame` loop — **not GSAP**. The animation duration scales with the size of the date jump (0.5s for <30 days up to 4s for multi-year jumps).
+
+The start angle `a0` for each planet is read **directly from the planet element's current `transform` attribute** using `parseRotateDegrees()`. It is **not** computed from `startDate`. This is critical: if `a0` were calculated from `startDate` instead, calling `animatePlanets()` while a previous animation is still running mid-way would snap all planets to the `startDate` position before the new animation begins — visible as a brief backward jump. By reading the live DOM transform, `a0` always equals the planet's actual current visual angle, and no snap occurs.
 
 An `animToken` integer guards against race conditions — if a new `animatePlanets()` call arrives mid-animation, the old loop detects the stale token and exits cleanly.
 
@@ -148,6 +150,18 @@ This is **SVG syntax** — values are space-separated. The `DOMMatrix` string co
 3. Falls back to a direct `new DOMMatrix(str)` try/catch for CSS-already-formatted strings.
 
 This function now handles all SVG transform strings safely and cross-browser.
+
+---
+
+### Problem 4 — Backward Snap on Interrupted Animations
+
+**Symptom:** When clicking a new date on the calendar while a planet animation was still running, all planets briefly snapped backward before animating forward to the correct target position.
+
+**Root cause:** `animatePlanets()` computed `a0` (the animation start angle) from `startDate` using `p.angleAt(startDate, epochDate)`, then called `forceAngle(a0)` to snap every planet to that position before starting the new animation. `startDate` is the *previous* `targetDate` — the position the planets were heading *to*, not where they currently *are*. When a previous animation was interrupted mid-way (the common case when users click rapidly), the planets were at some intermediate visual position. `forceAngle(a0)` snapped them back to `startDate`'s angle, which could be behind the current position — producing a visible backward jump.
+
+The earlier "two-frame init" pattern was intended to address a related backstep artifact but did not fix this specific case: the snap itself happened before any frame was drawn, so spacing the interpolation across two frames made no difference.
+
+**Fix:** Changed `a0` to be read from the planet element's live `transform` attribute via `parseRotateDegrees(p.el.getAttribute("transform"))` rather than computed from `startDate`. Since `a0` now equals the planet's actual current visual angle, the `forceAngle(a0)` call is no longer needed and was removed. The interpolation now always starts smoothly from wherever the planet currently is, regardless of whether a previous animation was running.
 
 ---
 

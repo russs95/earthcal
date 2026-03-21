@@ -237,8 +237,14 @@ function buildSolarAnimatorByRotation() {
         if (key === lastKey) return;
         lastKey = key;
 
+        // Read each planet's current visual angle from its DOM transform — NOT from startDate.
+        // Using startDate's angle as a0 caused a visible backward snap whenever animatePlanets
+        // was called while a previous animation was still running: the old startDate angle
+        // could be behind the planet's actual visual position, so forceAngle(a0) would snap
+        // the planet backward before the new animation began. Reading from the live transform
+        // attribute means a0 == current visual position, so no snap occurs.
         const plan = planets.map(p => {
-            const a0 = p.angleAt(startDate, epochDate);
+            const a0 = parseRotateDegrees(p.el.getAttribute("transform") || "");
             let a1 = p.angleAt(targetDate, epochDate);
 
             const desiredSign = p.direction * jumpSign;
@@ -247,14 +253,15 @@ function buildSolarAnimatorByRotation() {
             return { p, a0, a1 };
         });
 
-        // Snap if no duration
+        // Snap if no duration (same-day click, etc.)
         if (!duration || duration <= 0) {
             for (const { p, a1 } of plan) p.forceAngle(a1);
             return;
         }
 
-        // Set planets to start pose FIRST (so Jan 1 2023 matches SVG perfectly when startDate=epoch)
-        for (const { p, a0 } of plan) p.forceAngle(a0);
+        // Do NOT call forceAngle(a0) here. a0 was read from the planet's current visual
+        // transform, so calling forceAngle(a0) would be a no-op at best and a visible
+        // backward snap at worst (see comment above).
 
         const myToken = ++animToken;
 
