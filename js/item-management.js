@@ -14,6 +14,44 @@ Options to add to-do title, color, emoji and description
 
  */
 
+// ===== Login Required Modal =====
+
+function showLoginRequiredModal() {
+    const modalBox = document.getElementById('modal-content');
+    const modal = document.getElementById('form-modal-message');
+    if (!modalBox || !modal) return;
+
+    modalBox.innerHTML = `
+        <div style="text-align:center; padding: 10px 0 20px;">
+            <div class="earthcal-app-logo" style="margin-bottom: 16px;">
+                <img src="svgs/earthcal-icon.svg" style="width:80px;height:80px;" alt="EarthCal">
+            </div>
+            <h2 style="margin-bottom: 8px;">Login to Add Items</h2>
+            <p style="margin-bottom: 24px; color: var(--subdued-text);">Create a free Buwana account or log in to save your items to EarthCal.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <button id="modal-login-gate-btn" class="login-button" style="width:auto; min-width:100px;">Login</button>
+                <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58"
+                   class="signup-button"
+                   style="width:auto; min-width:100px; padding:10px 16px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;"
+                   target="_blank">Sign Up</a>
+            </div>
+        </div>
+    `;
+
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible', 'dim-blur');
+
+    const loginBtn = document.getElementById('modal-login-gate-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            closeTheModal();
+            const authBtn = document.getElementById('auth-login-button');
+            if (authBtn) authBtn.click();
+        });
+    }
+}
+
+
 // ===== Add Item (v1) =====
 
 /**
@@ -62,16 +100,12 @@ async function openAddItem() {
 
     console.log('[openAddItem] user object:', user);
 
-    // BETA TEST MODE: login gate temporarily commented out to allow testing
-    // of displayEarthenAuspicer without requiring authentication.
-    // TODO: re-enable before production release.
-    // const userIsAuthenticated = user?.buwana_id &&
-    //     (isOfflineJedi || typeof window.isLoggedIn !== 'function' || window.isLoggedIn());
-    // if (!userIsAuthenticated) {
-    //     alert('Please log in to add items.');
-    //     if (typeof sendUpRegistration === 'function') sendUpRegistration();
-    //     return;
-    // }
+    const userIsAuthenticated = user?.buwana_id &&
+        (isOfflineJedi || typeof window.isLoggedIn !== 'function' || window.isLoggedIn());
+    if (!userIsAuthenticated) {
+        showLoginRequiredModal();
+        return;
+    }
 
     // ============================================================
     // 1. GET TARGET DATE

@@ -379,8 +379,8 @@ async function openMainMenu() {
         } else {
             return `
                 <div class="menu-plan-status">
-                    <button type="button" class="login-button" onclick="closeMainMenu(); setTimeout(() => { const btn = document.getElementById('auth-login-button'); if (btn) btn.click(); }, 300);">Login</button>
-                    <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" class="signup-button" style="text-align:center;text-decoration:none;display:inline-block;" target="_blank">Sign Up</a>
+                    <button type="button" class="main-menu-overlay-login" onclick="closeMainMenu(); setTimeout(() => { const btn = document.getElementById('auth-login-button'); if (btn) btn.click(); }, 300);">Login</button>
+                    <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" class="main-menu-overlay-signup" target="_blank">Sign Up</a>
                 </div>
             `;
         }

@@ -73,7 +73,7 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=3.2",
+        "js/core.js?v=3.3",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
@@ -85,7 +85,7 @@ async function initCalendar() {
         "js/planet-orbits.js?v=9.2",
         // rest of app
         "js/login-scripts.js?v=21.3",
-        "js/item-management.js?v=11.3",
+        "js/item-management.js?v=11.4",
         "js/calendar-scripts.js?v=2.8",
     ];
 

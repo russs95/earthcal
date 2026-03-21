@@ -7,7 +7,9 @@
 
 ## Overview
 
-EarthCal displays the eight planets of the solar system as SVG groups that orbit visually around the sun (`#sol`) at the centre of the circular calendar. When a user selects a new target date, all planets animate smoothly from their start-date positions to their target-date positions. The zodiac ring (`#zodiacs`) counter-rotates opposite to Earth so that the zodiac signs appear fixed in space (as they should be), not spinning with the planet groups.
+EarthCal displays the eight planets of the solar system as SVG groups that orbit visually around the sun (`#sol`) at the centre of the circular calendar. When a user selects a new target date, all planets animate smoothly from their start-date positions to their target-date positions.
+
+The zodiac ring (`#zodiacs`) is a **child of `#earth`** in the SVG, so it naturally orbits with Earth as Earth's group rotates. A counter-rotation is applied each frame that spins `#zodiacs` around **its own ring centre** by the negative of Earth's angular delta from epoch. This keeps the zodiac sign boundaries aligned with fixed astronomical directions (Aries toward the vernal equinox, etc.) while still letting the ring orbit with Earth.
 
 ---
 
@@ -21,7 +23,18 @@ The calendar SVG (`cals/earthcal-v1-2-2.svg`) contains eight planet groups, each
 
 Each group is nested inside `#solar-system-center`. The sun circle is `#sol`, and its `cx`/`cy` attributes provide the exact pixel coordinates of the orbital centre — the pivot point for all rotations.
 
-The zodiac ring is a separate group `#zodiacs` that sits on the same layer. In the SVG it has a pre-baked `matrix(...)` transform that positions and rotates it correctly for the epoch date. As Earth animates forward or backward in time, the zodiac ring must be counter-rotated by an equal and opposite angle so it appears stationary relative to the sky.
+The zodiac ring is the group `#zodiacs`. **Critically, `#zodiacs` is a child of `#earth`** — it sits inside Earth's SVG group, not alongside it:
+
+```
+#solar-system-center
+  └── #earth  [transform="rotate(-29.416 180.85 164.03)"]
+        ├── #zodiacs  [transform="matrix(.70022 .65133 -.65133 .70022 164.13 -84.579)"]
+        └── #earth-planet  (the blue dot)
+```
+
+Because `#zodiacs` is a child of `#earth`, it naturally orbits with Earth whenever Earth's group transform changes. Its epoch `matrix(...)` transform positions it in Earth's **local** coordinate frame; after Earth's group rotation is applied, the ring appears centred on Earth's orbital position in SVG space.
+
+A per-frame counter-rotation is applied to `#zodiacs` to keep its sign boundaries pointing toward fixed sky directions (see Zodiac Counter-Rotation section below).
 
 ---
 
@@ -80,30 +93,67 @@ Inner planets (Mercury, Venus, Earth) animate at full frame rate. Outer planets 
 
 ### The Goal
 
-The zodiac signs (`#zodiacs`) must appear **fixed in space** — i.e., Aries always points to the vernal equinox regardless of what date is displayed. Since all planet groups (including `#earth`) rotate around the sun, a naive rotation would spin the zodiacs with the calendar rings. Counter-rotation cancels this.
+The zodiac sign boundaries must point toward **fixed astronomical directions** regardless of what date is displayed — Aries toward the vernal equinox, Capricorn toward the winter solstice, etc. Because `#zodiacs` is a child of `#earth`, when Earth's group rotates the zodiac ring orbits with it (correct for position) but also inherits the coordinate-frame rotation (wrong for orientation — the signs would slowly spin as the year progresses).
+
+The counter-rotation cancels only the **orientation drift**: it spins `#zodiacs` around its own ring centre by `-delta` degrees each frame, so the signs stay aligned with the sky while the ring's position continues to follow Earth's orbit.
 
 ### How It Is Linked
 
 `#earth`'s `PlanetGroupRotator` is constructed with:
 ```js
 counterRotateId: "zodiacs",
-counterPivot: pivot   // ← the sun centre coordinates from #sol
+counterPivot: pivot   // stored for reference; actual pivot used is counterCenter (see below)
 ```
 
 Every time Earth's angle is set (each animation frame), `applyCounterRotation()` fires automatically.
 
-### The Counter-Rotation Calculation
+### The Counter-Rotation Pivot — Ring Centre, Not Sun Centre
 
-The rotation applied to `#zodiacs` is the **negative delta from the epoch angle**:
+**This is the critical design point.** There are two candidate pivots:
+
+| Pivot | Effect |
+|---|---|
+| Sun centre `(cx, cy)` from `#sol` | Globally fixes the zodiac — cancels Earth's orbit entirely. Ring stops moving. ❌ |
+| Zodiac ring's own centre in Earth's local frame | Cancels only orientation drift. Ring still orbits with Earth. ✓ |
+
+The ring centre is computed once at construction time by applying `baseM` (the zodiac's epoch matrix from the SVG) to the zodiac circle's local-frame coordinates:
+
+```js
+const bm = parseSvgTransform(counterBaseTransform);   // zodiac's SVG epoch matrix
+const circ = counterEl.querySelector("circle");        // any circle; all share the same centre
+const lx = circ.cx.baseVal.value;                     // 243.34 px  (zodiac local frame)
+const ly = circ.cy.baseVal.value;                     // 132.27 px  (zodiac local frame)
+counterCenter = {
+    x: bm.a * lx + bm.c * ly + bm.e,   // ≈ 248.40 px  (Earth's local frame)
+    y: bm.b * lx + bm.d * ly + bm.f,   // ≈ 166.48 px  (Earth's local frame)
+};
+```
+
+This point stays fixed in Earth's local frame as the counter-rotation is applied, so the zodiac ring's centre orbits with Earth while the ring itself rotates around that centre to keep the signs aligned.
+
+### The Counter-Rotation Calculation
 
 ```
 delta = earthAngleDeg − earthEpochAngle
-counterRotation = −delta   (around the sun centre)
+counterRotation = rotate(−delta) around counterCenter, composed with baseM
 ```
 
-This means: at the epoch date (Jan 1, 2026), delta = 0 and no counter-rotation is applied — the zodiacs sit exactly where the SVG placed them. As Earth moves forward, the counter-rotation grows equal and opposite so the zodiac ring stays visually fixed.
+At epoch (delta = 0): the rotation is identity, so `#zodiacs` keeps its SVG base transform exactly.
 
-The counter-rotation is composed with the zodiacs' **original SVG base transform** (its epoch matrix) so that the built-in positioning of the zodiac ring is preserved. The composition is: `rotationMatrix × baseMatrix`.
+As Earth moves forward by `delta` degrees of orbit, `#zodiacs` is rotated by `-delta` around `counterCenter` in Earth's local frame. The global orientation of the zodiac signs therefore stays constant:
+
+```
+global_orientation = earthAngleDeg + (−delta) + baseM_rotation
+                   = earthAngleDeg − (earthAngleDeg − epochAngle) + baseM_rotation
+                   = epochAngle + baseM_rotation    ← constant ✓
+```
+
+The counter-rotation matrix is composed with `baseM` before being written to the `transform` attribute:
+
+```js
+const m = rotM.multiply(baseM);
+counterEl.setAttribute("transform", `matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f})`);
+```
 
 ---
 
@@ -214,13 +264,52 @@ This call sets the zodiac to its correct counter-rotated position for the curren
 
 ---
 
+### Problem 8 — Zodiac Stops Orbiting with Earth (Wrong Counter-Rotation Pivot)
+
+**Symptom:** After counter-rotation was re-enabled, the `#zodiacs` ring stopped moving entirely. Earth animated to new dates but the zodiac ring stayed frozen at the same absolute position on screen.
+
+**Root cause:** The counter-rotation pivot was the **sun centre** — the same `(cx, cy)` pivot used to orbit the planet groups. Mathematically, rotating a child element by `-delta` around the sun pivot exactly cancels Earth's own orbital rotation around that same point, making the zodiac globally fixed in SVG space. Both position *and* orientation were frozen; the ring no longer orbited with Earth.
+
+This was the wrong application of counter-rotation. The goal is to cancel only the **orientation drift** introduced by Earth's orbital rotation (which spins the local coordinate frame by `delta` degrees per orbit step), not to cancel the orbital translation as well.
+
+**The orbital mechanics rule:**
+
+A planet group's `rotate(angleDeg cx cy)` transform does two things simultaneously:
+1. **Translates** the group's origin along the orbit path (the orbital "position" change).
+2. **Rotates** the local coordinate frame by `angleDeg` around the pivot (the "orientation" change).
+
+Children of the group inherit both effects. To selectively cancel only effect (2) while keeping effect (1):
+- Rotate the child by `-delta` around a point that is **fixed in the parent's local frame** (i.e., fixed relative to Earth).
+- The zodiac ring's own centre `(248.40, 166.48)` in Earth's local frame satisfies this: it stays at the same Earth-local position as the counter-rotation is applied, so the ring orbits with Earth but spins to keep the signs aligned.
+
+If you instead use a point fixed in **SVG global space** (like the sun centre), the counter-rotation cancels the translation too, globally fixing the element.
+
+**Fix:** Changed the counter-rotation pivot from `this.counterPivot` (sun centre, global space) to `this.counterCenter` (zodiac ring centre, Earth's local frame), computed at construction time as `baseM × (cx_local, cy_local)` from the zodiac circle element.
+
+```js
+// In constructor — compute ring centre in Earth's local frame:
+const bm = parseSvgTransform(this.counterBaseTransform);
+const circ = this.counterEl.querySelector("circle");
+this.counterCenter = {
+    x: bm.a * circ.cx.baseVal.value + bm.c * circ.cy.baseVal.value + bm.e,
+    y: bm.b * circ.cx.baseVal.value + bm.d * circ.cy.baseVal.value + bm.f,
+};
+
+// In applyCounterRotation — use counterCenter, not counterPivot:
+const pivot = this.counterCenter || this.counterPivot || this.pivot;
+```
+
+---
+
 ## Key Design Decisions
 
 | Decision | Reason |
 |---|---|
 | `requestAnimationFrame` loop, not GSAP | GSAP is used for the whale marker path animation elsewhere; keeping planet rotation as a plain rAF loop avoids a GSAP dependency for a simple linear interpolation. |
 | Epoch angle read once from SVG, never recalculated | The SVG encodes planet positions for Jan 1, 2026 — treating this as the ground truth epoch avoids floating-point drift from repeated incremental angle math. |
-| Counter-pivot = sun centre, not `getBBox()` | `getBBox()` is unreliable before the SVG is fully rendered and laid out. The sun centre from `#sol.cx/cy` is always available as soon as the SVG enters the DOM. |
+| `#zodiacs` is a child of `#earth` in the SVG | The zodiac ring is designed to orbit with Earth (showing Earth's current sky context). Making it a sibling would require explicitly positioning it relative to Earth every frame. |
+| Counter-rotation pivot = zodiac ring's own centre (Earth's local frame) | Rotating around the ring's own centre cancels only the coordinate-frame orientation drift from Earth's orbit, leaving the ring's orbital position unchanged. Using the sun centre as pivot would cancel the orbital translation too and globally freeze the ring. |
+| Ring centre computed from `baseM × circle.cx/cy` | The zodiac circle's cx/cy attributes are in the ring's own local frame; applying `baseM` transforms them to Earth's local frame where the rotation is computed. This is stable and requires no DOM layout pass. |
 | `animToken` cancellation guard | Prevents ghost animation loops from old `animatePlanets()` calls if the user selects dates rapidly. |
 | UTC midnight arithmetic for day counting | Avoids DST-related fractional days that cause slight positional errors at DST transition dates in the user's local timezone. |
 | Counter-rotation pre-sync before rAF loop | `applyCounterRotation(a0)` is called synchronously for Earth before starting the animation loop. This guarantees the zodiac is correctly positioned from frame 0, even when no previous animation has run. |

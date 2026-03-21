@@ -5029,6 +5029,44 @@ svg path #june:hover {
 
 }
 
+/* Main-menu overlay login/signup buttons — side by side, smaller, semi-transparent */
+.main-menu-overlay-login {
+    border: 1px solid var(--button-2-1);
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    background-color: var(--button-2-1-over);
+    color: white;
+    cursor: pointer;
+    opacity: 0.77;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.main-menu-overlay-login:hover {
+    background-color: var(--button-2-1);
+    opacity: 1;
+}
+
+.main-menu-overlay-signup {
+    border: 1px solid var(--emblem-green-over);
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    background-color: var(--emblem-green);
+    color: white;
+    cursor: pointer;
+    opacity: 0.77;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.main-menu-overlay-signup:hover {
+    background-color: var(--emblem-green-over);
+    opacity: 1;
+}
+
 .offline-button {
     border: 1px solid var(--subdued-text, #6b7280);
     width:100%;
