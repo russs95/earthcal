@@ -389,7 +389,7 @@ async function openMainMenu() {
     content.innerHTML = `
         <div id="main-menu-box">
             <div class="earthcal-app-logo">
-                <img src="svgs/earthcal-icon.svg" alt="EarthCal Logo" title="${mainMenu.title}">
+                <img src="assets/logo/earthcal-logo-full.svg" alt="EarthCal Logo" title="${mainMenu.title}">
             </div>
 
             ${menuTopHtml}
@@ -406,7 +406,7 @@ async function openMainMenu() {
                 <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
             </div>
 
-            <div class="menu-page-item">
+            <div class="menu-page-item menu-page-item-no-border">
                 <a href="https://earthen.io/cycles" target="_blank">${mainMenu.about}</a>
             </div>
 

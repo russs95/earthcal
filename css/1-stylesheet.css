@@ -913,7 +913,7 @@ border-color: #00a112 !important;
 
 #main-menu-overlay .x-button {
     position: absolute;
-    top: 25px;
+    top: 14px;
     left: 25px;
     right: auto;
     z-index: 60;
@@ -949,9 +949,11 @@ border-color: #00a112 !important;
   color:var(--text-color);
   border-bottom:1px solid var(--subdued-text);
   cursor: pointer;
-    width: 100%;
+  width: 100%;
+}
 
-
+.menu-page-item-no-border {
+  border-bottom: none;
 }
 
 
@@ -960,10 +962,9 @@ border-color: #00a112 !important;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin: 24px auto 0;
+  gap: 10px;
+  margin: 14px auto 16px;
   text-align: center;
-    margin-bottom: 30px;
 }
 
 .settings-plan-status {
@@ -5031,12 +5032,13 @@ svg path #june:hover {
 
 }
 
-/* Main-menu overlay login/signup buttons — side by side, smaller, semi-transparent */
+/* Main-menu overlay login/signup buttons — integrated pill pair with 10px gap */
 .main-menu-overlay-login {
     border: 1px solid var(--button-2-1);
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-size: 0.9em;
+    padding: 9px 20px;
+    border-radius: 10px 0 0 10px;
+    font-size: 1.0em;
+    font-weight: 600;
     background-color: var(--button-2-1-over);
     color: white;
     cursor: pointer;
@@ -5051,9 +5053,10 @@ svg path #june:hover {
 
 .main-menu-overlay-signup {
     border: 1px solid var(--emblem-green-over);
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-size: 0.9em;
+    padding: 9px 20px;
+    border-radius: 0 10px 10px 0;
+    font-size: 1.0em;
+    font-weight: 600;
     background-color: var(--emblem-green);
     color: white;
     cursor: pointer;
