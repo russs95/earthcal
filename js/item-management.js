@@ -21,19 +21,25 @@ function showLoginRequiredModal() {
     const modal = document.getElementById('form-modal-message');
     if (!modalBox || !modal) return;
 
+    const lang = (typeof userLanguage !== 'undefined' && userLanguage)
+        ? userLanguage.toLowerCase() : 'en';
+
     modalBox.innerHTML = `
-        <div style="text-align:center; padding: 10px 0 20px;">
-            <div class="earthcal-app-logo" style="margin-bottom: 16px;">
-                <img src="svgs/earthcal-icon.svg" style="width:80px;height:80px;" alt="EarthCal">
+        <div style="text-align:center; padding: 10px; font-family: 'Mulish', sans-serif;">
+            <div style="text-align:center;width:100%;">
+                <div class="earthcal-app-logo" style="margin-bottom: 20px;">
+                    <img src="svgs/earthcal-icon.svg" style="width:145px;height:145px;">
+                </div>
+                <div class="login-greeting">Login to add moments</div>
+                <div style="margin-top:0;margin-bottom:0;font-family:'Mulish',sans-serif;color:var(--subdued-text);font-weight:300;padding:10px;max-width:760px;margin:auto;line-height:1.5em;padding-bottom:20px;">
+                    Login or create an Earthcal Buwana account to save and sync your events, to-dos, cycles and more.
+                </div>
             </div>
-            <h2 style="margin-bottom: 8px;">Login to Add Items</h2>
-            <p style="margin-bottom: 24px; color: var(--subdued-text);">Create a free Buwana account or log in to save your items to EarthCal.</p>
-            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                <button id="modal-login-gate-btn" class="login-button" style="width:auto; min-width:100px;">Login</button>
-                <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58"
-                   class="signup-button"
-                   style="width:auto; min-width:100px; padding:10px 16px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;"
-                   target="_blank">Sign Up</a>
+            <div style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                <button id="modal-login-gate-btn" class="login-button">Login with Buwana</button>
+                <button id="modal-signup-gate-btn" class="signup-button">Sign Up to Earthcal</button>
+                <p style="margin:auto;margin-bottom:-15px;font-size:0.8em;text-align:center;" data-lang-id="1000-authentication-by">Authentication by</p>
+                <div class="buwana-word-mark" alt="Buwana Logo" title="Authentication by Buwana" onclick="navigateTo('index.php')" style="cursor:pointer;"></div>
             </div>
         </div>
     `;
@@ -41,8 +47,25 @@ function showLoginRequiredModal() {
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible', 'dim-blur');
 
+    const signupBtn = document.getElementById('modal-signup-gate-btn');
+    if (signupBtn) {
+        signupBtn.onclick = () => {
+            window.location.href = `https://buwana.ecobricks.org/${lang}/signup-1.php?app=ecal_7f3da821d0a54f8a9b58`;
+        };
+    }
+
     const loginBtn = document.getElementById('modal-login-gate-btn');
-    if (loginBtn) {
+    if (loginBtn && typeof createJWTloginURL === 'function') {
+        createJWTloginURL()
+            .then(url => { if (url) loginBtn.onclick = () => { window.location.href = url; }; })
+            .catch(() => {
+                loginBtn.addEventListener('click', () => {
+                    closeTheModal();
+                    const authBtn = document.getElementById('auth-login-button');
+                    if (authBtn) authBtn.click();
+                });
+            });
+    } else if (loginBtn) {
         loginBtn.addEventListener('click', () => {
             closeTheModal();
             const authBtn = document.getElementById('auth-login-button');
