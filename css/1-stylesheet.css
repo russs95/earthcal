@@ -5043,7 +5043,8 @@ svg path #june:hover {
     color: white;
     cursor: pointer;
     opacity: 0.77;
-    flex: 1 1 0;
+    width: 100px;
+    flex: 0 0 100px;
     text-align: center;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
@@ -5066,7 +5067,8 @@ svg path #june:hover {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    flex: 1 1 0;
+    width: 100px;
+    flex: 0 0 100px;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 

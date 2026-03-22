@@ -21,8 +21,45 @@ async function openAddCycle() {
     })();
 
     if (!craftBuwana) {
-        alert('Please log in to add events.');
-        sendUpRegistration();
+        const modal = document.getElementById('form-modal-message');
+        const modalContent = document.getElementById('modal-content');
+        if (!modal || !modalContent) {
+            alert('Please log in to add events.');
+            sendUpRegistration();
+            return;
+        }
+        const lang = (typeof userLanguage !== 'undefined' && userLanguage)
+            ? userLanguage.toLowerCase() : 'en';
+        modalContent.innerHTML = `
+            <div style="text-align:center; padding: 10px 10px 20px;">
+                <div class="earthcal-app-logo" style="margin-bottom: 16px;">
+                    <img src="svgs/earthcal-icon.svg" style="width:145px; height:145px;">
+                </div>
+                <div class="login-greeting">Welcome Earthling</div>
+                <div id="sub-status-message" style="margin: 8px 0 4px;">Please log in to add events to EarthCal.</div>
+                <div id="modal-datecycle-login-buttons" style="text-align:center;width:100%;margin:auto;margin-top:20px;max-width:500px;display:flex;flex-direction:column;gap:10px;">
+                    <button id="modal-datecycle-login-btn" class="login-button">Login with Buwana</button>
+                    <button id="modal-datecycle-signup-btn" class="signup-button">Sign Up to Earthcal</button>
+                    <p style="margin:auto;margin-bottom:-15px;font-size:0.8em;text-align:center;" data-lang-id="1000-authentication-by">Authentication by</p>
+                    <div class="buwana-word-mark" title="Authentication by Buwana" style="cursor:pointer;"></div>
+                </div>
+            </div>
+        `;
+        modal.classList.remove('modal-hidden');
+        modal.classList.add('modal-visible');
+
+        const signupBtn = document.getElementById('modal-datecycle-signup-btn');
+        if (signupBtn) {
+            signupBtn.onclick = () => {
+                window.location.href = `https://buwana.ecobricks.org/${lang}/signup-1.php?app=ecal_7f3da821d0a54f8a9b58`;
+            };
+        }
+        const loginBtn = document.getElementById('modal-datecycle-login-btn');
+        if (loginBtn && typeof createJWTloginURL === 'function') {
+            createJWTloginURL()
+                .then(url => { if (url) loginBtn.onclick = () => { window.location.href = url; }; })
+                .catch(err => console.error('Unable to prepare datecycle login button', err));
+        }
         return;
     }
 
