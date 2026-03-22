@@ -963,7 +963,7 @@ border-color: #00a112 !important;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin: 14px auto 16px;
+  margin: 1px auto 16px;
   text-align: center;
 }
 
@@ -5036,13 +5036,15 @@ svg path #june:hover {
 .main-menu-overlay-login {
     border: 1px solid var(--button-2-1);
     padding: 9px 20px;
-    border-radius: 10px 0 0 10px;
+    border-radius: 10px 3px 3px 10px;
     font-size: 1.0em;
     font-weight: 600;
     background-color: var(--button-2-1-over);
     color: white;
     cursor: pointer;
     opacity: 0.77;
+    flex: 1 1 0;
+    text-align: center;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 
@@ -5054,7 +5056,7 @@ svg path #june:hover {
 .main-menu-overlay-signup {
     border: 1px solid var(--emblem-green-over);
     padding: 9px 20px;
-    border-radius: 0 10px 10px 0;
+    border-radius: 3px 10px 10px 3px;
     font-size: 1.0em;
     font-weight: 600;
     background-color: var(--emblem-green);
@@ -5064,6 +5066,7 @@ svg path #june:hover {
     text-align: center;
     text-decoration: none;
     display: inline-block;
+    flex: 1 1 0;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 

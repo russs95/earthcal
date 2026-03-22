@@ -289,14 +289,28 @@ function updateHighlightColor() {
 }
 
 
+// Separate flag for the main menu (avoids collision with the subscription sub-modal)
+let mainMenuOpen = false;
+// Shared flag used by subscription/item modals (manageEarthcalUserSub etc.)
 let modalOpen = false;
+
+// Module-level translation cache — avoids repeated dynamic import() on each menu open
+const _menuTranslationCache = {};
+
+// Render-key cache — skip full innerHTML rebuild when auth state/plan haven't changed
+let _menuLastRenderKey = null;
 
 async function openMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
     const content = document.getElementById("main-menu-content");
 
     const lang = userLanguage?.toLowerCase() || 'en';
-    const { mainMenu } = await loadTranslations(lang);
+
+    // Bug 4 fix: memoize translations per language
+    if (!_menuTranslationCache[lang]) {
+        _menuTranslationCache[lang] = await loadTranslations(lang);
+    }
+    const { mainMenu } = _menuTranslationCache[lang];
 
     const safeJsonParse = (value) => {
         if (!value) return null;
@@ -338,91 +352,99 @@ async function openMainMenu() {
     })();
 
     const isAuthenticated = Boolean(payload?.buwana_id);
+    const userPlan = (window.user_plan || '').toLowerCase();
+    const syncStatus = typeof window.syncStore?.getStatus === 'function' ? window.syncStore.getStatus() : null;
+    const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
 
-    const appClientId = payload?.aud || payload?.client_id || 'unknown';
-    const feedbackUrl = resolvedBuwanaId
-        ? `https://buwana.ecobricks.org/${lang}/feedback.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(appClientId)}`
-        : `https://buwana.ecobricks.org/${lang}/feedback.php`;
+    // Bug 1 fix: only rebuild DOM when auth state, plan, connectivity, or language changed
+    const renderKey = `${lang}|${isAuthenticated ? 'auth' : 'anon'}|${userPlan}|${hasConnectivity}`;
+    if (_menuLastRenderKey !== renderKey || !content.innerHTML.trim()) {
 
-    const feedbackItemHtml = isAuthenticated
-        ? `
-            <div class="menu-page-item">
-                <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
-                    Feedback &amp; Bugs
-                </div>
-            </div>
-        `
-        : '';
+        const appClientId = payload?.aud || payload?.client_id || 'unknown';
+        const feedbackUrl = resolvedBuwanaId
+            ? `https://buwana.ecobricks.org/${lang}/feedback.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(appClientId)}`
+            : `https://buwana.ecobricks.org/${lang}/feedback.php`;
 
-    const menuTopHtml = (() => {
-        if (isAuthenticated) {
-            const userPlan = (window.user_plan || '').toLowerCase();
-            const planName = userPlan === 'jedi'
-                ? 'EarthCal Jedi'
-                : userPlan === 'padwan'
-                    ? 'EarthCal Padwan'
-                    : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
-            const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
-            const syncStatus = typeof window.syncStore?.getStatus === 'function' ? window.syncStore.getStatus() : null;
-            const hasConnectivity = Boolean((syncStatus?.backendReachable ?? navigator.onLine) && (syncStatus?.online ?? true));
-            const showPlanAction = (userPlan === 'padwan' || userPlan === 'jedi') && hasConnectivity;
-            const planActionText = userPlan === 'jedi' ? 'Manage Subscription' : 'Upgrade EarthCal';
-            return `
-                <div class="menu-plan-status">
-                    <div class="menu-plan-pill ${planClass}">
-                        <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
-                        <span class="menu-plan-pill-text">${planName}</span>
-                        ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+        const feedbackItemHtml = isAuthenticated
+            ? `
+                <div class="menu-page-item">
+                    <div role="button" tabindex="0" class="menu-feedback-link" onclick="closeMainMenu(); window.open('${feedbackUrl}', '_blank');" onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); closeMainMenu(); window.open('${feedbackUrl}', '_blank'); }">
+                        Feedback &amp; Bugs
                     </div>
                 </div>
-            `;
-        } else {
-            return `
-                <div class="menu-plan-status">
-                    <button type="button" class="main-menu-overlay-login" onclick="closeMainMenu(); setTimeout(() => { const btn = document.getElementById('auth-login-button'); if (btn) btn.click(); }, 300);">Login</button>
-                    <a href="https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" class="main-menu-overlay-signup" target="_blank">Sign Up</a>
+            `
+            : '';
+
+        const menuTopHtml = (() => {
+            if (isAuthenticated) {
+                const planName = userPlan === 'jedi'
+                    ? 'EarthCal Jedi'
+                    : userPlan === 'padwan'
+                        ? 'EarthCal Padwan'
+                        : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
+                const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
+                const showPlanAction = (userPlan === 'padwan' || userPlan === 'jedi') && hasConnectivity;
+                const planActionText = userPlan === 'jedi' ? 'Manage Subscription' : 'Upgrade EarthCal';
+                return `
+                    <div class="menu-plan-status">
+                        <div class="menu-plan-pill ${planClass}">
+                            <img class="menu-plan-pill-icon" src="assets/icons/green-check.png" alt="">
+                            <span class="menu-plan-pill-text">${planName}</span>
+                            ${showPlanAction ? `<button type="button" class="menu-plan-action" onclick="manageEarthcalUserSub();">${planActionText}</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Bug 6 fix: use resolved lang instead of hardcoded 'en' in signup URL
+                return `
+                    <div class="menu-plan-status">
+                        <button type="button" class="main-menu-overlay-login" onclick="closeMainMenu(); setTimeout(() => { const btn = document.getElementById('auth-login-button'); if (btn) btn.click(); }, 300);">Login</button>
+                        <a href="https://buwana.ecobricks.org/${lang}/signup-1.php?app=ecal_7f3da821d0a54f8a9b58" class="main-menu-overlay-signup" target="_blank">Sign Up</a>
+                    </div>
+                `;
+            }
+        })();
+
+        content.innerHTML = `
+            <div id="main-menu-box">
+                <div class="earthcal-app-logo">
+                    <img src="assets/logo/earthcal-logo-full.svg" alt="EarthCal Logo" title="${mainMenu.title}">
                 </div>
-            `;
-        }
-    })();
 
-    content.innerHTML = `
-        <div id="main-menu-box">
-            <div class="earthcal-app-logo">
-                <img src="assets/logo/earthcal-logo-full.svg" alt="EarthCal Logo" title="${mainMenu.title}">
+                ${menuTopHtml}
+
+                <div id="all-the-main-menu-items"></div>
+                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
+                    ${mainMenu.featureTour}
+                </div>
+
+                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
+                    ${mainMenu.latestVersion}
+                </div>
+                <div class="menu-page-item">
+                    <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
+                </div>
+
+                <div class="menu-page-item menu-page-item-no-border">
+                    <a href="https://earthen.io/cycles" target="_blank">${mainMenu.about}</a>
+                </div>
+
+                ${feedbackItemHtml}
             </div>
 
-            ${menuTopHtml}
+            <div id="main-menu-footer">
+                <a href="https://snapcraft.io/earthcal" target="_blank" style="margin-top:30px">
+                    <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
+                </a>
 
-            <div id="all-the-main-menu-items"></div>
-            <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
-                ${mainMenu.featureTour}
+                <p style="font-size:small; margin-bottom: 2px;">
+                    ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a> | ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
+                </p>
             </div>
+        `;
 
-            <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
-                ${mainMenu.latestVersion}
-            </div>
-            <div class="menu-page-item">
-                <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
-            </div>
-
-            <div class="menu-page-item menu-page-item-no-border">
-                <a href="https://earthen.io/cycles" target="_blank">${mainMenu.about}</a>
-            </div>
-
-            ${feedbackItemHtml}
-        </div>
-        
-        <div id="main-menu-footer">
-            <a href="https://snapcraft.io/earthcal" style="margin-top:30px">
-                <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
-            </a>
-    
-            <p style="font-size:small; margin-bottom: 2px;">
-                ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a> | ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
-            </p>
-        </div>
-    `;
+        _menuLastRenderKey = renderKey;
+    }
 
     modal.style.width = "100%";
     document.body.style.overflowY = "hidden";
@@ -431,7 +453,8 @@ async function openMainMenu() {
 
     modal.setAttribute("tabindex", "0");
     modal.focus();
-    modalOpen = true;
+    // Bug 2 fix: use dedicated mainMenuOpen flag, not the shared modalOpen
+    mainMenuOpen = true;
 
     document.addEventListener("focus", focusMainMenuRestrict, true);
 }
@@ -1185,8 +1208,9 @@ async function manageBilling() {
 
 
 function focusMainMenuRestrict(event) {
+    // Bug 2 fix: use mainMenuOpen, not the shared modalOpen flag
     const modal = document.getElementById("main-menu-overlay");
-    if (modalOpen && !modal.contains(event.target)) {
+    if (mainMenuOpen && !modal.contains(event.target)) {
         event.stopPropagation();
         modal.focus();
     }
@@ -1194,17 +1218,32 @@ function focusMainMenuRestrict(event) {
 
 function closeMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
+    const content = document.getElementById("main-menu-content");
     modal.style.width = "0%";
     document.body.style.overflowY = "unset";
     document.body.style.maxHeight = "unset";
     modal.classList.remove("main-menu-open");
 
-    modalOpen = false;
+    // Bug 2 fix: clear dedicated flag
+    mainMenuOpen = false;
 
-    // Cleanup event listeners
+    // Cleanup focus trap
     document.removeEventListener("focus", focusMainMenuRestrict, true);
+
+    // Bug 5 fix: clear stale HTML after the slide-out transition (0.5s) to avoid
+    // a flash of old content on re-open
+    setTimeout(() => {
+        if (content) {
+            content.innerHTML = '';
+            _menuLastRenderKey = null;
+        }
+    }, 500);
 }
+
 function modalCloseCurtains(event) {
+    // Bug 3 fix: only intercept Escape when the main menu is actually open,
+    // so other modals (item forms, subscription modal) handle their own Escape
+    if (!mainMenuOpen) return;
     if (!event.key || event.key === "Escape") {
         closeMainMenu();
     }
