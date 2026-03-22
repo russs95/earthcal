@@ -337,7 +337,7 @@ async function openMainMenu() {
         return Number.isNaN(numericId) ? storedId : numericId;
     })();
 
-    const isAuthenticated = Boolean(payload?.buwana_id || resolvedBuwanaId);
+    const isAuthenticated = Boolean(payload?.buwana_id);
 
     const appClientId = payload?.aud || payload?.client_id || 'unknown';
     const feedbackUrl = resolvedBuwanaId

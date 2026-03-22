@@ -2984,6 +2984,8 @@ INFO MODAL
   top: 16px;
   right: 16px;
   z-index: 65;
+    background-color: var(--general-background);
+    border-radius: 100px;
 }
 
 .form-modal-alert-message {
