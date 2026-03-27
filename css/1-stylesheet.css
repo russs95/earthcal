@@ -5047,7 +5047,7 @@ svg path #june:hover {
     color: white;
     cursor: pointer;
     opacity: 0.77;
-    width: 100px;
+    width: 111px;
     text-align: center;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
@@ -5073,7 +5073,7 @@ svg path #june:hover {
     opacity: 0.77;
     text-align: center;
     text-decoration: none;
-    width: 100px;
+    width: 111px;
     transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 
@@ -5640,4 +5640,48 @@ svg path #june:hover {
 
 .offline-top-banner.hiding {
     opacity: 0;
+}
+
+/* ── Settings modal: Your Place on Earth (buwana:bioregion / buwana:community) ── */
+.settings-location-section {
+    margin: 14px 0 6px;
+    border-radius: 12px;
+    background: var(--general-background);
+    padding: 10px 12px 6px;
+}
+
+.settings-location-header {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted, #9ca3af);
+    margin-bottom: 8px;
+    padding-left: 2px;
+}
+
+.location-data-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 2px;
+    border-bottom: 1px solid var(--border-subtle, rgba(0,0,0,0.06));
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.location-data-row:last-child {
+    border-bottom: none;
+}
+
+.location-data-label {
+    color: var(--text-muted, #9ca3af);
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.location-data-value {
+    text-align: right;
+    word-break: break-word;
 }

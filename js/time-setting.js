@@ -419,6 +419,36 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
     modal.setAttribute('aria-hidden', 'false');
 }
 
+function buildLocationSectionHtml(profile) {
+    const esc = (v) => (v == null ? '' : String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+
+    const rows = [];
+
+    if (profile.community)        rows.push(['Community',  esc(profile.community)]);
+    if (profile.continent)        rows.push(['Continent',  esc(profile.continent)]);
+    if (profile.country)          rows.push(['Country',    esc(profile.country)]);
+    if (profile.location_full)    rows.push(['Location',   esc(profile.location_full)]);
+    if (profile.watershed_name)   rows.push(['Watershed',  esc(profile.watershed_name)]);
+    if (profile.location_watershed && profile.location_watershed !== profile.watershed_name)
+                                  rows.push(['Watershed area', esc(profile.location_watershed)]);
+    if (profile.location_lat != null && profile.location_long != null)
+                                  rows.push(['Coordinates', `${esc(profile.location_lat)}, ${esc(profile.location_long)}`]);
+
+    if (rows.length === 0) return '';
+
+    const rowsHtml = rows.map(([label, value]) => `
+        <div class="location-data-row">
+            <span class="location-data-label">${label}</span>
+            <span class="location-data-value">${value}</span>
+        </div>`).join('');
+
+    return `
+        <div class="settings-location-section">
+            <div class="settings-location-header">Your Place on Earth</div>
+            ${rowsHtml}
+        </div>`;
+}
+
 async function showUserCalSettings() {
     const modal = document.getElementById('form-modal-message');
 
@@ -664,6 +694,7 @@ async function showUserCalSettings() {
             <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit stellar-submit--apply" style="display:none;">
                 ${settingsContent.applySettings}
             </button>
+            ${buildLocationSectionHtml(profile)}
             ${profileButtonsHtml}
         </form>
     `;

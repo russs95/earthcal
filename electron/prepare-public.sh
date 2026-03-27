@@ -25,4 +25,3 @@ cp -r ../svgs public/
 cp -r ../translations public/
 
 echo "[EarthCal] public/ ready."
- npx electron-packager . earthcal --platform=linux --arch=x64 --out=./ --overwrite --prune=true

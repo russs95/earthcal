@@ -1,11 +1,11 @@
 name: earthcal
-title: EarthCal | EarthCycles Calendar
-version: '1.3.3'
+title: EarthCAL | EarthCycles Calendar
+version: '1.3.5'
 summary: Earthcal
 description: |
   Sync your moments with Earth's cycles.
 
-base: core22
+base: core24
 confinement: strict
 grade: stable
 icon: snap/gui/earthcal.png
@@ -19,34 +19,34 @@ donation: https://earthen.io
 
 apps:
   earthcal:
-    command: earthcal
-    desktop: snap/gui/earthcal.desktop
+    command: earthcal --no-sandbox
+    desktop: meta/gui/earthcal.desktop
     extensions: [gnome]
     plugs:
       - browser-support
       - desktop
-      - desktop-legacy
       - home
       - network
-      - network-bind
       - x11
+      - wayland
       - gsettings
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
-      ELECTRON_DISABLE_SANDBOX: 1
-      GTK_MODULES: ""   # prevent trying to load canberra/atk GTK modules
+      GTK_MODULES: ""
+
+
+lint:
+  ignore:
+    - library
 
 
 parts:
   earthcal:
     plugin: dump
     source: earthcal-linux-x64/
-    build-snaps:
-      - node/14/stable
-    build-packages:
-      - unzip
     stage-packages:
       - libnss3
       - libnspr4
-      - libgtk-3-0
-      - libcanberra-gtk3-module
+    prime:
+      - .
+      - -LICENSES.chromium.html

@@ -65,16 +65,13 @@ export const translations = {
 
 //VERSION ANNOUNCEMENT
     versioning: {
-        title: "Earthcal v1.1 for 2026!",
-        subtitle: "I've literally been working slow and steady on the Earth Cycles Project for the last 20 years.  With the 2026, the calendar is officially solid. Version 1.0 incorporates a completely new database-- that is in full alignment with iCal specs.  This is the same database structure used by Google, Apple and Outlook-- allowing fully sinc off these platforms (soyou can make your EarthCal first of course!).  Version 1.1 works our UI and sync bugs to clear the way for our first MacOS release.  In early January, we'll make a native Mac version available for down for Jedi (pro) users.",
+        title: "Earthcal v1.3",
+        subtitle: "In time for the Spring Equinox, we're excited to release Earthcal version 1.3. The entire codebase has been reviewed to work out bugs, streamline installation and functionality. But, that's not what's exciting.  What is?  We're calling the Earthen Auspicer API.  Earthcal already does astronomical calculations for various lunar, solar and planetary cycles for a given day-- we show you these visually and numberically. But, what does it MEAN?  In fact, indigenous traditions, chronobiology and biodynamics have clear and resounding interpretations!  Whether the moon is wanning and ascending or at apogee, full and descending, we've crossreferenced these three sources to build a date interpreter. Now when you add a date item, you see the Earthen auspices of a given date!  This isn't astrology, nor is it AI-- its a complex semantic engine based on hard astronomical data, biodynamic theory and ancestral wisdom. Expand the data windows to see what we mean.",
         features: [
-            "Get going with Earthcal using the Buwana authentication protocol",
-            "Connect your Google Calendar to Earthcal (Beta)",
-            "Add to-dos to Earthcal (using the ical protocol)",
-            "Create, manage and sync with private, public and Google calendars",
-            "Major interface upgrade.",
-
-
+            "Auspicer version 1.0 now active (hit + to add Event)",
+            "Jedi mode now available for advanced features",
+            "Zodiac positions can now be toggled on and off",
+            "New MacOS release of EarthCal for desktop ",
         ],
         gotIt: "👍 Let's Go!",
         tour: " 🌏 EarthCal Guided Tour",
@@ -98,7 +95,6 @@ settings: {
         remember: "Remember for all pages"
     }
 },
-
 
 // DATE SEARCH
     openDateSearch: {

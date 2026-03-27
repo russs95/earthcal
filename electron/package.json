@@ -1,13 +1,13 @@
 {
   "name": "earthcal",
-  "version": "1.3.3",
+  "version": "1.3.5",
   "description": "Sync your moments with Earth's cycles",
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
     "prepare-public": "./prepare-public.sh",
-    "package": "npm run prepare-public && electron-packager . earthcal --platform=linux --arch=x64 --out=./ --overwrite",
-    "snap": "npm run package && electron-installer-snap --src earthcal-linux-x64/ --dest snap/",
+    "package": "npm run prepare-public && electron-packager . earthcal --platform=linux --arch=x64 --out=./ --overwrite --prune=true --ignore=/snap --ignore=snapcraft.yaml --ignore=prepare-public.sh --ignore=webpack.config.js && bash -c 'find earthcal-linux-x64/locales -name \"*.pak\" ! -name \"en-US.pak\" -delete && echo \"[EarthCal] Locales pruned (~30MB saved).\"'",
+    "snap": "npm run package && snapcraft",
     "test": "jest"
   },
   "repository": {
@@ -22,8 +22,7 @@
   "author": "Russell Maier",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^26.6.10",
-    "electron-installer-snap": "^5.2.0",
+    "electron": "^36.0.0",
     "electron-packager": "^17.1.2",
     "jest": "^30.0.5"
   }

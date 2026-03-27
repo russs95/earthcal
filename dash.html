@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=55.8"></script>
+    <script src="js/earthcal-init.js?v=56.0"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=48.8">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=49.0">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.3">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -491,7 +491,7 @@
                     const isPadwan = !window.user_plan || window.user_plan === 'padwan';
                     const alertMsg = isPadwan
                         ? "Looks like you're offline! Please re-connect to use EarthCal. Or... upgrade to a Jedi account that lets you use EarthCal in our super useful Offline Mode."
-                        : "Looks like you're offline! Please re-connect to use EarthCal. Or... enable Offline Mode in your Settings to browse your cached calendar without connectivity.";
+                        : "Looks like you're offline! Please re-connect or enable Offline Mode in your settings to use cached data.";
                     showOfflineAlert(alertMsg);
                 } else {
                     syncDatecycles()
@@ -519,7 +519,7 @@
             if (!banner) {
                 banner = document.createElement('div');
                 banner.id = 'offline-alert-banner';
-                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#1c1917;padding:12px 16px;font-size:14px;text-align:center;';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f59e0b;color:#1c1917;padding:12px 16px;font-size:14px;text-align:center;font-family:\'Mulish\';
                 document.body.prepend(banner);
             }
             banner.textContent = msg;
@@ -848,7 +848,7 @@
       border-radius: 15px;">
         <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
         <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
-        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="Earthcal v1.3.4"></button></div>
+        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="Earthcal v1.3.5"></button></div>
     </div>
 
     <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">

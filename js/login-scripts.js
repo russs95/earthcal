@@ -456,13 +456,29 @@ async function getUserData() {
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     userProfile = {
-        first_name: payload.given_name || "Earthling",
-        email: payload.email || null,
-        buwana_id: buwanaId,
-        earthling_emoji: payload["buwana:earthlingEmoji"] || "🌎",
-        community: payload["buwana:community"] || null,
-        continent: payload["buwana:location.continent"] || null,
-        status: payload["status"] || "returning"
+        // buwana:basic
+        first_name:         payload.given_name || "Earthling",
+        email:              payload.email || null,
+        buwana_id:          buwanaId,
+        earthling_emoji:    payload["buwana:earthlingEmoji"] || "🌎",
+        // buwana:profile
+        family_name:        payload.family_name || null,
+        country:            payload.country || null,
+        language:           payload.language || null,
+        zoneinfo:           payload.zoneinfo || null,
+        community_id:       payload.community_id || null,
+        brikcoin_balance:   payload.brikcoin_balance ?? null,
+        // buwana:community
+        community:          payload["buwana:community"] || null,
+        // buwana:bioregion
+        continent:          payload.continent || null,
+        location_full:      payload.location_full || null,
+        watershed_name:     payload.watershed_name || null,
+        location_watershed: payload.location_watershed || null,
+        location_lat:       payload.location_lat ?? null,
+        location_long:      payload.location_long ?? null,
+        // meta
+        status:             payload["status"] || "returning",
     };
 
     console.log("✅ Loaded userProfile:", userProfile);
@@ -1199,13 +1215,29 @@ function getOfflineUserData({ useCachedData = true } = {}) {
             }
 
             userProfile = {
-                first_name: cachedProfile.given_name || cachedProfile.first_name || "Earthling",
-                earthling_emoji: cachedProfile["buwana:earthlingEmoji"] || cachedProfile.earthling_emoji || "🐸",
-                email: cachedProfile.email || null,
-                buwana_id: cachedProfile.buwana_id || cachedProfile.sub || null,
-                community: cachedProfile["buwana:community"] || cachedProfile.community || null,
-                continent: cachedProfile["buwana:location.continent"] || cachedProfile.continent || null,
-                status: cachedProfile.status || "returning",
+                // buwana:basic
+                first_name:         cachedProfile.given_name || cachedProfile.first_name || "Earthling",
+                earthling_emoji:    cachedProfile["buwana:earthlingEmoji"] || cachedProfile.earthling_emoji || "🐸",
+                email:              cachedProfile.email || null,
+                buwana_id:          cachedProfile.buwana_id || cachedProfile.sub || null,
+                // buwana:profile
+                family_name:        cachedProfile.family_name || null,
+                country:            cachedProfile.country || null,
+                language:           cachedProfile.language || null,
+                zoneinfo:           cachedProfile.zoneinfo || null,
+                community_id:       cachedProfile.community_id || null,
+                brikcoin_balance:   cachedProfile.brikcoin_balance ?? null,
+                // buwana:community
+                community:          cachedProfile["buwana:community"] || cachedProfile.community || null,
+                // buwana:bioregion
+                continent:          cachedProfile.continent || null,
+                location_full:      cachedProfile.location_full || null,
+                watershed_name:     cachedProfile.watershed_name || null,
+                location_watershed: cachedProfile.location_watershed || null,
+                location_lat:       cachedProfile.location_lat ?? null,
+                location_long:      cachedProfile.location_long ?? null,
+                // meta
+                status:             cachedProfile.status || "returning",
             };
 
             // Restore plan tier from localStorage so offline jedi users retain their access level
@@ -2737,7 +2769,7 @@ async function createJWTloginURL() {
     const buwanaAuthorizeURL = "https://buwana.ecobricks.org/authorize";
     const client_id = "ecal_7f3da821d0a54f8a9b58";
     const redirect_uri = buildRedirectUri();
-    const scope = "openid email profile";
+    const scope = "openid buwana:basic buwana:profile buwana:community buwana:bioregion";
     const lang = "en"; // You can replace this with dynamic language detection if needed
 
     // Generate random state and nonce
