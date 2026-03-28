@@ -19,6 +19,7 @@ node_modules
 electron/earthcal-linux-x64
 electron/node_modules
 electron/public
+electron/prepare-public.sh
 
 # macOS
 .DS_Store
