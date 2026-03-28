@@ -654,28 +654,45 @@ function updateSessionStatus(message, isLoggedIn = false) {
 let syncIndicatorUnsubscribe = null;
 let offlineBannerShown = false;
 
+function _getOfflineBannerMessage(s) {
+    s = s || {};
+    const userPlanType = (window.user_plan || '').toString().trim().toLowerCase();
+    const isJedi = userPlanType === 'jedi' || userPlanType === 'master';
+    const forcedOfflineOn = localStorage.getItem('earthcal_forced_offline') === 'true';
+    if (!isJedi) {
+        return s.bannerNonJedi || "Looks like you're offline! Re-connect to sync. Or... upgrade to use Jedi Offline mode.";
+    } else if (forcedOfflineOn) {
+        return s.bannerJediModeOn || "You're in Jedi Offline mode! Re-connect to sync when ready.";
+    } else {
+        return s.bannerJediModeOff || "You're offline. Offline mode is off. Re-connect to sync.";
+    }
+}
+
 function showOfflineTopBanner() {
     if (offlineBannerShown) return;
+    // Don't show if the offline-alert-banner (dash.html) is already visible
+    if (window._offlineAlertShown) return;
     offlineBannerShown = true;
 
     const banner = document.getElementById('offline-top-banner');
     if (!banner) return;
 
-    const userPlanType = (window.user_plan || '').toString().trim().toLowerCase();
-    const isJedi = userPlanType === 'jedi' || userPlanType === 'master';
-    const forcedOfflineOn = localStorage.getItem('earthcal_forced_offline') === 'true';
-
-    let message;
-    if (!isJedi) {
-        message = "Looks like you're offline! Re-connect to sync. Or... upgrade to use Jedi Offline mode.";
-    } else if (forcedOfflineOn) {
-        message = "You're using Earthcal in Jedi Offline mode! Re-connect to sync.";
-    } else {
-        message = "You're offline. Offline mode is off. No data loaded. Re-connect to sync.";
-    }
-
-    banner.textContent = message;
+    // Show immediately using cached translation strings (or English fallback)
+    banner.textContent = _getOfflineBannerMessage(window._offlineStrings);
     banner.removeAttribute('hidden');
+
+    // If no cached strings yet, load translations and update banner text while still visible
+    if (!window._offlineStrings && typeof loadTranslations === 'function') {
+        const lang = (window.userLanguage || 'en').toLowerCase();
+        if (lang !== 'en') {
+            loadTranslations(lang).then(t => {
+                window._offlineStrings = t.offline || {};
+                if (!banner.hasAttribute('hidden')) {
+                    banner.textContent = _getOfflineBannerMessage(window._offlineStrings);
+                }
+            }).catch(() => {});
+        }
+    }
 
     setTimeout(() => {
         banner.classList.add('hiding');

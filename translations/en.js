@@ -183,6 +183,16 @@ settings: {
     },
 
 
+    // OFFLINE MESSAGES
+    offline: {
+        bannerNonJedi: "Looks like you're offline! Re-connect to sync. Or... upgrade to use Jedi Offline mode.",
+        bannerJediModeOn: "You're in Jedi Offline mode! Re-connect to sync when ready.",
+        bannerJediModeOff: "You're offline. Offline mode is off. Re-connect to sync.",
+        alertPadwan: "Looks like you're offline! Please re-connect to use EarthCal. Or... upgrade to a Jedi account that lets you use EarthCal in our super useful Offline Mode.",
+        alertJedi: "Looks like you're offline! Please re-connect or enable Offline Mode in your settings to use cached data.",
+    },
+
+
     // ADD DATECYCLE - still needs work!
 
 addCycle: {

@@ -63,18 +63,16 @@ export const translations = {
 // VERSION ANNOUNCEMENT
 
   versioning: {
-    title: "مرحبًا بك في EarthCal 0.9!",
-    subtitle: "تم تحديث EarthCal لشهر يونيو 2025! نحن الآن في الإصدار 0.94:",
+    title: "Earthcal v1.3",
+    subtitle: "في الوقت المناسب لاعتدال الربيع، يسعدنا الإعلان عن إصدار Earthcal الإصدار 1.3. تمت مراجعة قاعدة الكود بالكامل لإصلاح الأخطاء وتحسين التثبيت والوظائف. لكن هذا ليس المثير للاهتمام. ما هو إذن؟ نحن ندعو الآن واجهة برمجة تطبيقات Earthen Auspicer. تُجري Earthcal بالفعل حسابات فلكية لمختلف الدورات القمرية والشمسية والكوكبية ليوم معين – نعرضها بصريًا وعدديًا. لكن ماذا تعني؟ التقاليد الأصلية وعلم الكرونوبيولوجيا والزراعة الحيوية تقدم تفسيرات واضحة وصادية! سواء كان القمر في طور التناقص والصعود، أو في الأوج، أو بدرًا في طور الهبوط – قمنا بمقارنة هذه المصادر الثلاثة لإنشاء محرك تفسير للتواريخ. الآن عند إضافة عنصر تاريخ، سترى الطوالع الأرضية لذلك التاريخ! هذا ليس علم التنجيم ولا ذكاء اصطناعي – إنه محرك دلالي معقد مبني على بيانات فلكية صلبة ونظرية حيوية ديناميكية وحكمة أجدادية. وسّع نوافذ البيانات لترى ما نعنيه.",
     features: [
-      "يمكنك الآن تسجيل الدخول باستخدام حساب Buwana لحفظ ومزامنة أحداثك",
-      "تم تفعيل دعم المناطق الزمنية! استخدم زر الإعدادات للتغيير.",
-      "تحسين دعم اللغة! الآن تم ترجمة ما يصل إلى 75% من التطبيق.",
-      "التقاويم العامة متاحة الآن للإضافة إلى العرض (يجب تسجيل الدخول أولاً)",
-      "تمت مزامنة دورة هجرة البلشون الأسود مع التقويم.",
-      "تصحيحات أخطاء بسيطة وكبيرة."
+      "الإصدار 1.0 من Auspicer نشط الآن (اضغط + لإضافة حدث)",
+      "وضع Jedi متاح الآن للميزات المتقدمة",
+      "يمكن الآن تفعيل وإيقاف مواضع الأبراج",
+      "إصدار macOS الجديد من EarthCal لسطح المكتب",
     ],
     gotIt: "👍 لنبدأ!",
-    tour: " 🌏 EarthCal Guided Tour"
+    tour: " 🌏 EarthCal Guided Tour",
   },
 
 // SETTINGS
@@ -86,7 +84,8 @@ export const translations = {
       FR: "FR - الفرنسية",
       ES: "ES - الإسبانية",
       DE: "DE - الألمانية",
-      AR: "AR - العربية"
+      AR: "AR - العربية",
+      ZH: "ZH - 中文"
     },
     applySettings: "تطبيق الإعدادات",
     saving: "جارٍ الحفظ...",
@@ -117,14 +116,14 @@ openDateSearch: {
 loggedIn: {
   welcome: "مرحبًا",
   syncingInfo: "أنت تدير Earthcals التالية...",
-  publicCalendarsIntro: "You are subscribed to the following public calendars...",
-  webcalHasSubscriptions: "You have the following iCal subscriptions...",
-  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
+  publicCalendarsIntro: "أنت مشترك في التقاويم العامة التالية...",
+  webcalHasSubscriptions: "لديك اشتراكات iCal التالية...",
+  webcalNoSubscriptions: "ليس لديك أي اشتراكات webcal حتى الآن.",
   noPersonal: "لا توجد تقاويم شخصية متاحة.",
   addPersonal: "أضف Earthcal جديدًا...",
   browsePublic: "تصفح واشترك في Earthcals العامة...",
   noPublic: "لا توجد تقاويم عامة متاحة.",
-  noWebcal: "No iCal subscriptions connected yet.",
+  noWebcal: "لم يتم ربط أي اشتراكات iCal بعد.",
   syncNow: "مزامنة الآن",
   logout: "تسجيل الخروج",
   notYetSynced: "لم يتم مزامنة دورات التاريخ الخاصة بك بعد.",
@@ -148,7 +147,7 @@ mainMenu: {
   title: "مزامنة مع دورات الأرض",
   featureTour: "جولة في الميزات",
   latestVersion: "معلومات الإصدار الأخير",
-  upgradeToPro: "Upgrade to Pro",
+  upgradeToPro: "الترقية إلى Pro",
   newsletter: "النشرة الإخبارية لـ Earthen.io",
   guide: "دليل التقويم ↗",
   purchasePrint: "شراء النسخة المطبوعة ↗",
@@ -159,24 +158,33 @@ mainMenu: {
 },
 
 subscriptions: {
-  heading: "Upgrade EarthCal",
-  currentPlan: "You are currently on the {planName} plan.",
-  currentStatus: "Status: {status}",
-  loginRequired: "Please sign in to manage your EarthCal subscription.",
-  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
-  noPlans: "No plans are available right now.",
+  heading: "ترقية EarthCal",
+  currentPlan: "أنت حاليًا على خطة {planName}.",
+  currentStatus: "الحالة: {status}",
+  loginRequired: "يُرجى تسجيل الدخول لإدارة اشتراكك في EarthCal.",
+  loadError: "تعذّر تحميل تفاصيل اشتراكك. يُرجى المحاولة مجددًا بعد لحظات.",
+  noPlans: "لا توجد خطط متاحة الآن.",
   tableHeaders: {
-    plan: "Plan",
-    description: "Description",
-    price: "Price"
+    plan: "الخطة",
+    description: "الوصف",
+    price: "السعر"
   },
-  priceFree: "Free",
+  priceFree: "مجاني",
   billingSuffix: {
-    month: "/ month",
-    year: "/ year",
-    lifetime: "Lifetime access"
+    month: "/ شهر",
+    year: "/ سنة",
+    lifetime: "وصول مدى الحياة"
   },
-  currentBadge: "Current plan"
+  currentBadge: "الخطة الحالية"
+},
+
+// OFFLINE MESSAGES
+offline: {
+  bannerNonJedi: "يبدو أنك غير متصل بالإنترنت! أعد الاتصال للمزامنة. أو... قم بالترقية لاستخدام وضع Jedi Offline.",
+  bannerJediModeOn: "أنت في وضع Jedi Offline! أعد الاتصال للمزامنة عندما تكون مستعدًا.",
+  bannerJediModeOff: "أنت غير متصل. وضع Offline معطّل. أعد الاتصال للمزامنة.",
+  alertPadwan: "يبدو أنك غير متصل بالإنترنت! يُرجى إعادة الاتصال لاستخدام EarthCal. أو... قم بالترقية إلى حساب Jedi للاستفادة من وضع Offline الرائع.",
+  alertJedi: "يبدو أنك غير متصل بالإنترنت! يُرجى إعادة الاتصال أو تفعيل وضع Offline في الإعدادات لاستخدام البيانات المخزنة.",
 },
 
 // ADD DATECYCLE

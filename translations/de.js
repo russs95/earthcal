@@ -63,18 +63,16 @@ export const translations = {
 // VERSION ANNOUNCEMENT
 
   versioning: {
-    title: "Willkommen bei EarthCal 0.9!",
-    subtitle: "EarthCal wurde für Juni 2025 aktualisiert! Wir sind jetzt bei Version 0.94:",
+    title: "Earthcal v1.3",
+    subtitle: "Pünktlich zur Frühlings-Tagundnachtgleiche freuen wir uns, Earthcal Version 1.3 zu veröffentlichen. Die gesamte Codebasis wurde überprüft, um Fehler zu beheben und Installation sowie Funktionalität zu verbessern. Aber das ist noch nicht das Aufregendste. Was dann? Wir rufen jetzt die Earthen Auspicer API auf. Earthcal berechnet bereits astronomische Zyklen für Mond, Sonne und Planeten – visuell und numerisch. Aber was bedeuten sie? Indigene Traditionen, Chronobiologie und Biodynamik bieten klare Antworten! Ob der Mond abnimmt und aufsteigt, im Apogäum ist, voll und absteigt – wir haben diese drei Quellen gekreuzreferenziert, um einen Datumsinterpreter zu erstellen. Wenn du nun ein Datumselement hinzufügst, siehst du die Erdlichen Auspizien dieses Datums! Keine Astrologie, keine KI – eine komplexe semantische Engine aus astronomischen Daten, Biodynamik und Vorfahrenwissen. Klappe die Datenfenster aus, um mehr zu sehen.",
     features: [
-      "Du kannst dich jetzt mit einem Buwana-Konto anmelden, um deine Ereignisse zu speichern und zu synchronisieren",
-      "Zeitzonenunterstützung ist jetzt aktiviert! Nutze den Einstellungen-Button, um zu wechseln.",
-      "Sprachunterstützung verbessert! Jetzt sind bis zu 75 % der App übersetzt.",
-      "Öffentliche Kalender können jetzt zur Ansicht hinzugefügt werden (Anmeldung erforderlich)",
-      "Der Zugzyklus des schwarzen Reihers ist mit dem Kalender synchronisiert.",
-      "Kleinere und größere Fehlerbehebungen."
+      "Auspicer Version 1.0 jetzt aktiv (+ drücken, um Ereignis hinzuzufügen)",
+      "Jedi-Modus jetzt für erweiterte Funktionen verfügbar",
+      "Tierkreispositionen können jetzt ein- und ausgeblendet werden",
+      "Neue macOS-Version von EarthCal für den Desktop",
     ],
     gotIt: "👍 Los geht’s!",
-    tour: " 🌏 EarthCal Guided Tour"
+    tour: " 🌏 EarthCal Guided Tour",
   },
 
 // SETTINGS
@@ -86,7 +84,8 @@ export const translations = {
       FR: "FR - Französisch",
       ES: "ES - Spanisch",
       DE: "DE - Deutsch",
-      AR: "AR - Arabisch"
+      AR: "AR - Arabisch",
+      ZH: "ZH - Chinesisch"
     },
     applySettings: "Einstellungen anwenden",
     saving: "Speichern...",
@@ -117,14 +116,14 @@ openDateSearch: {
 loggedIn: {
   welcome: "Willkommen",
   syncingInfo: "Du verwaltest die folgenden Earthcals...",
-  publicCalendarsIntro: "You are subscribed to the following public calendars...",
-  webcalHasSubscriptions: "You have the following iCal subscriptions...",
-  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
+  publicCalendarsIntro: "Du hast folgende öffentliche Kalender abonniert...",
+  webcalHasSubscriptions: "Du hast folgende iCal-Abonnements...",
+  webcalNoSubscriptions: "Du hast noch keine Webcal-Abonnements.",
   noPersonal: "Keine persönlichen Kalender verfügbar.",
   addPersonal: "Neuen Earthcal hinzufügen...",
   browsePublic: "Öffentliche Earthcals entdecken und abonnieren...",
   noPublic: "Keine öffentlichen Kalender verfügbar.",
-  noWebcal: "No iCal subscriptions connected yet.",
+  noWebcal: "Noch keine iCal-Abonnements verbunden.",
   syncNow: "Jetzt synchronisieren",
   logout: "Abmelden",
   notYetSynced: "Deine DateCycles wurden noch nicht synchronisiert.",
@@ -148,7 +147,7 @@ mainMenu: {
   title: "Mit den Zyklen der Erde synchronisieren",
   featureTour: "Funktionen-Rundgang",
   latestVersion: "Neueste Version",
-  upgradeToPro: "Upgrade to Pro",
+  upgradeToPro: "Auf Pro upgraden",
   newsletter: "Earthen.io Newsletter",
   guide: "Kalenderanleitung ↗",
   purchasePrint: "Gedruckte Version kaufen ↗",
@@ -159,24 +158,33 @@ mainMenu: {
 },
 
 subscriptions: {
-  heading: "Upgrade EarthCal",
-  currentPlan: "You are currently on the {planName} plan.",
+  heading: "EarthCal upgraden",
+  currentPlan: "Du nutzt aktuell den {planName}-Plan.",
   currentStatus: "Status: {status}",
-  loginRequired: "Please sign in to manage your EarthCal subscription.",
-  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
-  noPlans: "No plans are available right now.",
+  loginRequired: "Bitte melde dich an, um dein EarthCal-Abonnement zu verwalten.",
+  loadError: "Wir konnten deine Abonnementdetails nicht laden. Bitte versuche es in wenigen Augenblicken erneut.",
+  noPlans: "Zurzeit sind keine Pläne verfügbar.",
   tableHeaders: {
     plan: "Plan",
-    description: "Description",
-    price: "Price"
+    description: "Beschreibung",
+    price: "Preis"
   },
-  priceFree: "Free",
+  priceFree: "Kostenlos",
   billingSuffix: {
-    month: "/ month",
-    year: "/ year",
-    lifetime: "Lifetime access"
+    month: "/ Monat",
+    year: "/ Jahr",
+    lifetime: "Lebenslanger Zugang"
   },
-  currentBadge: "Current plan"
+  currentBadge: "Aktueller Plan"
+},
+
+// OFFLINE MESSAGES
+offline: {
+  bannerNonJedi: "Du scheinst offline zu sein! Wieder verbinden, um zu synchronisieren. Oder... auf Jedi Offline upgraden.",
+  bannerJediModeOn: "Du bist im Jedi Offline-Modus! Wieder verbinden, um zu synchronisieren.",
+  bannerJediModeOff: "Du bist offline. Offline-Modus ist deaktiviert. Wieder verbinden, um zu synchronisieren.",
+  alertPadwan: "Du scheinst offline zu sein! Bitte wieder verbinden, um EarthCal zu nutzen. Oder... auf ein Jedi-Konto upgraden und den nützlichen Offline-Modus verwenden.",
+  alertJedi: "Du scheinst offline zu sein! Bitte wieder verbinden oder den Offline-Modus in den Einstellungen aktivieren, um auf zwischengespeicherte Daten zuzugreifen.",
 },
 
 // ADD DATECYCLE

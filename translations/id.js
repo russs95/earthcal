@@ -61,15 +61,13 @@ events: 'acara',
 
 // VERSION ANNOUNCEMENT
 versioning: {
-  title: "Selamat datang di EarthCal 0.9!",
-  subtitle: "EarthCal telah diperbarui untuk Juni 2025! Sekarang kami di versi 0.94.:",
+  title: "Earthcal v1.3",
+  subtitle: "Tepat saat Ekuinoks Musim Semi, kami dengan senang hati merilis Earthcal versi 1.3. Seluruh kode telah ditinjau untuk memperbaiki bug, memperlancar instalasi, dan meningkatkan fungsionalitas. Tapi itu bukan yang paling menarik. Apa itu? Kami kini memanggil API Earthen Auspicer. Earthcal sudah melakukan perhitungan astronomi untuk berbagai siklus lunar, matahari, dan planet pada hari tertentu – kami menampilkannya secara visual dan numerik. Tapi apa artinya? Tradisi leluhur, kronobiologi, dan biodinamika memiliki interpretasi yang jelas dan bergema! Apakah bulan sedang menyusut dan naik, di apogee, penuh dan turun – kami telah mencocokkan tiga sumber ini untuk membangun penafsir tanggal. Kini saat Anda menambahkan item tanggal, Anda melihat auspisi bumi dari tanggal tersebut! Ini bukan astrologi, bukan pula AI – ini adalah mesin semantik kompleks yang dibangun dari data astronomi keras, teori biodinamika, dan kearifan leluhur. Perluas jendela data untuk melihat maksud kami.",
   features: [
-    "Sekarang Anda dapat masuk dengan akun Buwana untuk menyimpan dan menyinkronkan acara Anda",
-    "Dukungan zona waktu sekarang diaktifkan! Gunakan tombol pengaturan untuk mengganti.",
-    "Peningkatan dukungan bahasa! Kini hingga 75% aplikasi telah diterjemahkan.",
-    "Kalender publik sekarang tersedia untuk ditambahkan ke tampilan Anda (Anda harus masuk terlebih dahulu)",
-    "Siklus migrasi bangau hitam sekarang disinkronkan dengan kalender.",
-    "Perbaikan bug kecil dan besar.",
+    "Auspicer versi 1.0 kini aktif (tekan + untuk menambah Acara)",
+    "Mode Jedi kini tersedia untuk fitur-fitur canggih",
+    "Posisi zodiak kini dapat dinyalakan dan dimatikan",
+    "Rilis macOS baru EarthCal untuk desktop",
   ],
   gotIt: "👍 Ayo Mulai!",
   tour: " 🌏 EarthCal Guided Tour",
@@ -118,14 +116,14 @@ openDateSearch: {
 loggedIn: {
   welcome: "Selamat datang",
   syncingInfo: "Anda mengelola Earthcal berikut...",
-  publicCalendarsIntro: "You are subscribed to the following public calendars...",
-  webcalHasSubscriptions: "You have the following iCal subscriptions...",
-  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
+  publicCalendarsIntro: "Anda berlangganan kalender publik berikut...",
+  webcalHasSubscriptions: "Anda memiliki langganan iCal berikut...",
+  webcalNoSubscriptions: "Anda belum memiliki langganan webcal.",
   noPersonal: "Tidak ada kalender pribadi yang tersedia.",
   addPersonal: "Tambahkan Earthcal baru...",
   browsePublic: "Jelajahi dan berlangganan Earthcal publik...",
   noPublic: "Tidak ada kalender publik yang tersedia.",
-  noWebcal: "No iCal subscriptions connected yet.",
+  noWebcal: "Belum ada langganan iCal yang terhubung.",
   syncNow: "Sinkronkan Sekarang",
   logout: "Keluar",
   notYetSynced: "Siklus tanggal Anda belum disinkronkan.",
@@ -149,7 +147,7 @@ mainMenu: {
   title: "Sinkronkan dengan siklus Bumi",
   featureTour: "Tur Fitur",
   latestVersion: "Info Versi Terbaru",
-  upgradeToPro: "Upgrade to Pro",
+  upgradeToPro: "Tingkatkan ke Pro",
   newsletter: "Buletin Earthen.io",
   guide: "Panduan Kalender ↗",
   purchasePrint: "Beli Cetakan ↗",
@@ -160,24 +158,33 @@ mainMenu: {
 },
 
 subscriptions: {
-  heading: "Upgrade EarthCal",
-  currentPlan: "You are currently on the {planName} plan.",
+  heading: "Tingkatkan EarthCal",
+  currentPlan: "Anda saat ini menggunakan paket {planName}.",
   currentStatus: "Status: {status}",
-  loginRequired: "Please sign in to manage your EarthCal subscription.",
-  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
-  noPlans: "No plans are available right now.",
+  loginRequired: "Silakan masuk untuk mengelola langganan EarthCal Anda.",
+  loadError: "Kami tidak dapat memuat detail langganan Anda. Silakan coba lagi dalam beberapa saat.",
+  noPlans: "Tidak ada paket yang tersedia saat ini.",
   tableHeaders: {
-    plan: "Plan",
-    description: "Description",
-    price: "Price"
+    plan: "Paket",
+    description: "Deskripsi",
+    price: "Harga"
   },
-  priceFree: "Free",
+  priceFree: "Gratis",
   billingSuffix: {
-    month: "/ month",
-    year: "/ year",
-    lifetime: "Lifetime access"
+    month: "/ bulan",
+    year: "/ tahun",
+    lifetime: "Akses seumur hidup"
   },
-  currentBadge: "Current plan"
+  currentBadge: "Paket saat ini"
+},
+
+// OFFLINE MESSAGES
+offline: {
+  bannerNonJedi: "Sepertinya Anda sedang offline! Sambungkan kembali untuk menyinkronkan. Atau... tingkatkan untuk menggunakan mode Jedi Offline.",
+  bannerJediModeOn: "Anda sedang dalam mode Jedi Offline! Sambungkan kembali untuk menyinkronkan saat siap.",
+  bannerJediModeOff: "Anda offline. Mode Offline dinonaktifkan. Sambungkan kembali untuk menyinkronkan.",
+  alertPadwan: "Sepertinya Anda sedang offline! Silakan sambungkan kembali untuk menggunakan EarthCal. Atau... tingkatkan ke akun Jedi untuk menggunakan Mode Offline yang sangat berguna.",
+  alertJedi: "Sepertinya Anda sedang offline! Silakan sambungkan kembali atau aktifkan Mode Offline di pengaturan untuk menggunakan data yang tersimpan.",
 },
 
 // ADD DATECYCLE

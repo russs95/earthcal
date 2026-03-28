@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=5.0"
+                "js/service-worker.js?v=5.1"
             );
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
@@ -73,18 +73,18 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=3.6",
+        "js/core.js?v=3.7",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1.1",
-        "js/time-setting.js?v=11.0",
+        "js/time-setting.js?v=11.1",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=9.2",
         // rest of app
-        "js/login-scripts.js?v=22.0",
+        "js/login-scripts.js?v=22.2",
         "js/item-management.js?v=11.5",
         "js/calendar-scripts.js?v=2.8",
     ];

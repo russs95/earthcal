@@ -63,18 +63,16 @@ export const translations = {
 // VERSION ANNOUNCEMENT
 
   versioning: {
-    title: "欢迎使用 EarthCal 0.9！",
-    subtitle: "EarthCal 已更新至 2025 年 6 月版本！当前版本为 0.94：",
+    title: "Earthcal v1.3",
+    subtitle: "值此春分之际，我们欣然推出 Earthcal 1.3 版本。整个代码库已经过全面审查，修复了错误，优化了安装流程和功能表现。但这还不是最令人兴奋的。最激动人心的是什么？我们现在接入了 Earthen Auspicer API。Earthcal 已经能够为特定日期计算各种月相、太阳和行星周期的天文数据，并以可视化和数字形式呈现。但它们意味着什么？原住民传统、时间生物学和生物动力学对此有明确而深刻的解读！无论月亮是在下弦月上升、远地点、满月下降，我们都将这三个来源交叉参考，构建了一套日期解析引擎。现在当你添加一个日期项时，你将看到该日期的地球征兆！这不是占星术，也不是人工智能——这是一套基于扎实天文数据、生物动力学理论和先祖智慧构建的复杂语义引擎。展开数据窗口，一探究竟。",
     features: [
-      "你现在可以通过 Buwana 账户登录，以保存并同步你的事件",
-      "已启用时区支持！请使用设置按钮切换。",
-      "语言支持升级！应用程序现已翻译超过 75%。",
-      "现在可以添加公共日历到你的视图中（需要先登录）",
-      "黑鹭的迁徙周期已与日历同步。",
-      "修复了若干主要和次要的错误。"
+      "Auspicer 1.0 版本现已激活（点击 + 添加事件）",
+      "Jedi 模式现已开放，可使用高级功能",
+      "黄道带位置现在可以切换显示与隐藏",
+      "EarthCal macOS 桌面新版本已发布",
     ],
     gotIt: "👍 开始使用！",
-    tour: " 🌏 EarthCal Guided Tour"
+    tour: " 🌏 EarthCal Guided Tour",
   },
 
 // SETTINGS
@@ -117,14 +115,14 @@ openDateSearch: {
 loggedIn: {
   welcome: "欢迎",
   syncingInfo: "您正在管理以下 Earthcal...",
-  publicCalendarsIntro: "You are subscribed to the following public calendars...",
-  webcalHasSubscriptions: "You have the following iCal subscriptions...",
-  webcalNoSubscriptions: "You don't yet have any webcal subscriptions.",
+  publicCalendarsIntro: "你已订阅以下公共日历...",
+  webcalHasSubscriptions: "你有以下 iCal 订阅...",
+  webcalNoSubscriptions: "你还没有任何 webcal 订阅。",
   noPersonal: "没有可用的个人日历。",
   addPersonal: "添加新的 Earthcal...",
   browsePublic: "浏览并订阅公共 Earthcal...",
   noPublic: "没有可用的公共日历。",
-  noWebcal: "No iCal subscriptions connected yet.",
+  noWebcal: "尚未连接任何 iCal 订阅。",
   syncNow: "立即同步",
   logout: "退出登录",
   notYetSynced: "您的日期循环尚未同步。",
@@ -148,7 +146,7 @@ mainMenu: {
   title: "与地球周期同步",
   featureTour: "功能导览",
   latestVersion: "最新版本信息",
-  upgradeToPro: "Upgrade to Pro",
+  upgradeToPro: "升级到 Pro",
   newsletter: "Earthen.io 通讯",
   guide: "日历指南 ↗",
   purchasePrint: "购买印刷版 ↗",
@@ -159,24 +157,33 @@ mainMenu: {
 },
 
 subscriptions: {
-  heading: "Upgrade EarthCal",
-  currentPlan: "You are currently on the {planName} plan.",
-  currentStatus: "Status: {status}",
-  loginRequired: "Please sign in to manage your EarthCal subscription.",
-  loadError: "We were unable to load your subscription details. Please try again in a few moments.",
-  noPlans: "No plans are available right now.",
+  heading: "升级 EarthCal",
+  currentPlan: "你当前使用的是 {planName} 套餐。",
+  currentStatus: "状态：{status}",
+  loginRequired: "请登录以管理你的 EarthCal 订阅。",
+  loadError: "我们无法加载你的订阅详情，请稍后再试。",
+  noPlans: "目前没有可用的套餐。",
   tableHeaders: {
-    plan: "Plan",
-    description: "Description",
-    price: "Price"
+    plan: "套餐",
+    description: "描述",
+    price: "价格"
   },
-  priceFree: "Free",
+  priceFree: "免费",
   billingSuffix: {
-    month: "/ month",
-    year: "/ year",
-    lifetime: "Lifetime access"
+    month: "/ 月",
+    year: "/ 年",
+    lifetime: "终身使用"
   },
-  currentBadge: "Current plan"
+  currentBadge: "当前套餐"
+},
+
+// OFFLINE MESSAGES
+offline: {
+  bannerNonJedi: "你似乎处于离线状态！重新连接以同步。或者...升级以使用 Jedi 离线模式。",
+  bannerJediModeOn: "你正在使用 Jedi 离线模式！准备好后重新连接以同步。",
+  bannerJediModeOff: "你处于离线状态。离线模式已关闭。重新连接以同步。",
+  alertPadwan: "你似乎处于离线状态！请重新连接以使用 EarthCal。或者...升级到 Jedi 账户，享受超实用的离线模式。",
+  alertJedi: "你似乎处于离线状态！请重新连接，或在设置中开启离线模式以使用缓存数据。",
 },
 
 // ADD DATECYCLE
