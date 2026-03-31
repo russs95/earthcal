@@ -1096,10 +1096,6 @@
         var example = resolveAncestralExample(tagIds);
         if (!example) return "";
 
-        var notesHtml = example.notes
-            ? '<div class="ec-ancestral-example__notes">' + esc(example.notes) + "</div>"
-            : "";
-
         return (
             '<div class="ec-ancestral-example">' +
             '<div class="ec-ancestral-example__title">Ancestral Grounding ' +
@@ -1109,7 +1105,6 @@
             '<div class="ec-ancestral-example__culture">' + esc(example.culture || "") + (example.region ? " &middot; " + esc(example.region) : "") + "</div>" +
             '<div class="ec-ancestral-example__practice-title">' + esc(example.title || "") + "</div>" +
             '<div class="ec-ancestral-example__summary">' + esc(example.summary || "") + "</div>" +
-            notesHtml +
             "</div>" +
             "</div>"
         );
@@ -1218,7 +1213,7 @@
         );
     }
 
-    function buildSolarDataHtml(solarMoment) {
+    function buildSolarDataHtml(solarMoment, location) {
         if (!solarMoment) return "";
 
         function fmtTime(d) {
@@ -1231,6 +1226,13 @@
             } catch (e) {
                 return d.toLocaleTimeString();
             }
+        }
+
+        var positionNote = "";
+        if (location && location.lat != null && location.lon != null) {
+            positionNote =
+                '<div class="ec-solar-position-note">Auspicer data is determined by today\'s lunar and solar positions given your set position ' +
+                '(long: ' + Number(location.lon).toFixed(4) + ', lat: ' + Number(location.lat).toFixed(4) + ').</div>';
         }
 
         return (
@@ -1247,6 +1249,7 @@
             "<dt>Sunset</dt><dd>" + fmtTime(solarMoment.sunset) + "</dd>" +
             "<dt>Nadir</dt><dd>" + fmtTime(solarMoment.nadir) + "</dd>" +
             "</dl>" +
+            positionNote +
             "</div>"
         );
     }
@@ -1779,8 +1782,9 @@
 
         var ancestralExampleHtml = buildAncestralExampleHtml(auspices.tagIds || []);
 
+        var location = (options && options.location) ? options.location : null;
         var lunarDataHtml = lunarMoment ? buildLunarDataHtml(lunarMoment) : "";
-        var solarDataHtml = solarMoment ? buildSolarDataHtml(solarMoment) : "";
+        var solarDataHtml = solarMoment ? buildSolarDataHtml(solarMoment, location) : "";
 
         panel.innerHTML =
             '<div class="ec-lunar-auspices__header">' +
@@ -1800,6 +1804,7 @@
             "</div>" +
             '<div class="ec-lunar-auspices__body">' +
             guidanceHtml +
+            '<div class="ec-lunar-auspices__scroll-body">' +
             tagsHtml +
             warningsHtml +
             actionsHtml +
@@ -1807,6 +1812,7 @@
             ancestralExampleHtml +
             lunarDataHtml +
             solarDataHtml +
+            '</div>' +
             "</div>";
 
         panel.dataset.auspicesPrimaryTag = primaryTag ? primaryTag.id : "";

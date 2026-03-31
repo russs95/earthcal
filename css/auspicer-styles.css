@@ -24,6 +24,11 @@
     max-width: 600px;
     margin: 10px auto;
     color: var(--text-color);
+    background: var(--general-background);
+}
+
+.auspicer-pallette .ec-lunar-auspices {
+    background: var(--general-background);
 }
 
 
@@ -438,6 +443,26 @@
 .ec-lunar-auspices .ec-lunar-auspices__empty {
     color: var(--subdued-text, #454545);
     font-style: italic;
+}
+
+/* Scrollable body below guidance */
+.ec-lunar-auspices .ec-lunar-auspices__scroll-body {
+    border-top: 1px solid rgba(127,127,127,0.22);
+    margin-top: 8px;
+    padding-top: 6px;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+/* Solar position note */
+.ec-lunar-auspices .ec-solar-position-note {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(127,127,127,0.15);
+    font-size: 0.74rem;
+    color: var(--subdued-text, #454545);
+    font-style: italic;
+    line-height: 1.35;
 }
 
 /* Biodynamic council */

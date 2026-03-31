@@ -198,6 +198,11 @@ function formatDate(date) {
   if (document.getElementById('saturn-cycle').style.display === 'block') {
     UpdateSaturnData(date);
   }
+
+  // Check if the mercury-cycle div is set to display block
+  if (document.getElementById('mercury-cycle').style.display === 'block') {
+    UpdateMercuryData(date);
+  }
 }
 
 
@@ -242,6 +247,11 @@ function displayMoonPhaseOnTouch(pathID) {
   if (document.getElementById('saturn-cycle').style.display === 'block') {
     UpdateSaturnData(date);
   }
+
+  // Check if the mercury-cycle div is set to display block
+  if (document.getElementById('mercury-cycle').style.display === 'block') {
+    UpdateMercuryData(date);
+  }
 }
 
 // This function displays the current moon phase after mouseout or touchout
@@ -251,6 +261,7 @@ function redisplayTargetData() {
   displayMoonPhaseInDiv(targetDate);
   displayDayInfo(targetDate, userLanguage, userTimeZone);
   UpdateVenusData(targetDate);
+  UpdateMercuryData(targetDate);
 
 }
 
@@ -312,9 +323,8 @@ function focusRestrict(event) {
   //   return; // Exit the function if moon-cycle is not displayed
   // }
 
-    // Set the latitude and longitude to use for the moon phase calculations
-    const lat = -8.506853;
-    const lon = 115.262477;
+    // Use the user's Buwana location, or Stonehenge UK as default
+    const { lat, lon } = getUserLocation();
 
     // Calculate the moon illumination details and get the phase, emoji, and phase index
     const moonIllumination = SunCalc.getMoonIllumination(date);

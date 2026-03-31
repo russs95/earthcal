@@ -339,6 +339,102 @@ PLANET DATA
 
 
 
+/*----------MERCURY--------------------*/
+
+
+function UpdateMercuryData(date) {
+    const now = date;
+
+    let MercuryElong = Astronomy.Elongation('Mercury', now);
+    let MercuryIllum = Astronomy.Illumination('Mercury', now);
+    let max_mag = -1.9;
+    let max_dist = 1.40;
+    let min_dist = 0.61;
+    let current_mag = MercuryIllum.mag;
+    let current_dist = MercuryIllum.geo_dist;
+    let per_dist = ((current_dist - min_dist) / (max_dist - min_dist)) * 100;
+    let magPercent = (current_mag / max_mag) * 100;
+
+    const mercuryElongation = MercuryElong.elongation;
+    const illumination = MercuryIllum.phase_fraction;
+    const illuminatedFraction = illumination.toFixed(2);
+
+    let MercuryConjunction = Astronomy.SearchRelativeLongitude('Mercury', 0, now);
+    const daysTilConjunction = daysBetweenDates(now, MercuryConjunction.date);
+
+    // Determine Mercury phase based on elongation
+    let phase;
+    let phaseDescription;
+
+    if (mercuryElongation < 2) {
+        phase = '🌚';
+        phaseDescription = "at conjunction";
+    } else if (mercuryElongation < 10) {
+        phase = '🌑';
+        phaseDescription = "New Crescent";
+    } else if (mercuryElongation < 18) {
+        phase = '🌒';
+        phaseDescription = "Waxing Crescent";
+    } else if (mercuryElongation < 24) {
+        phase = '🌓';
+        phaseDescription = "Quarter Phase";
+    } else if (mercuryElongation < 28) {
+        phase = '🌔';
+        phaseDescription = "Near Max Elongation";
+    } else {
+        phase = '🌓';
+        phaseDescription = "Max Elongation";
+    }
+
+    // Refine phase at inferior conjunction (inner planet, nearly new)
+    if (illumination < 0.1) {
+        phase = '🌑';
+        phaseDescription = "Near Inferior Conjunction";
+    }
+    // Near superior conjunction — fully lit but hidden behind Sun
+    if (illumination > 0.95) {
+        phase = '🌕';
+        phaseDescription = "Near Superior Conjunction";
+    }
+
+    document.getElementById("mercury-phase").innerHTML = phase;
+    document.getElementById("mercury-phase-info").innerHTML =
+        "<span style=\"font-size:1.5em\">Mercury ☿</span><br>" +
+        phaseDescription +
+        "<br>Magnitude: " +
+        MercuryIllum.mag.toFixed(2) +
+        "<br>Elongation: " +
+        mercuryElongation.toFixed(1) +
+        "°<br>Days to Conjunction: " +
+        daysTilConjunction.toFixed(0) +
+        "<br>Illuminated: " +
+        illuminatedFraction +
+        "<br>Dist.: " +
+        MercuryIllum.geo_dist.toFixed(2) +
+        " AU (" +
+        per_dist.toFixed(0) +
+        "% of max)";
+
+    adjustMercurySize(per_dist);
+}
+
+function adjustMercurySize(per_dist) {
+    let minSize, maxSize;
+
+    if (window.innerWidth < 700) {
+        minSize = 1.3;
+        maxSize = 2.0;
+    } else {
+        minSize = 2;
+        maxSize = 4;
+    }
+
+    const size = ((minSize - maxSize) * per_dist / 100) + maxSize;
+    const mercuryPhase = document.getElementById("mercury-phase");
+    mercuryPhase.style.fontSize = `${size}em`;
+}
+
+
 /*----------VENUS--------------------*/
 
 
@@ -804,7 +900,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     document.getElementById("mercury").addEventListener("click", () => {
-        console.log("Mercury clicked - No update function defined yet.");
+        UpdateMercuryData(targetDate);
     });
 
     document.getElementById("venus").addEventListener("click", () => {

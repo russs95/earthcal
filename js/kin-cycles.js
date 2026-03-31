@@ -1049,6 +1049,7 @@ function openPlanetInfoBox() {
     UpdateMarsData(targetDate);
     UpdateJupiterData(targetDate);
     UpdateSaturnData(targetDate);
+    UpdateMercuryData(targetDate);
 
   // For each orbit path, add a click event listener
   orbitPaths.forEach(path => {

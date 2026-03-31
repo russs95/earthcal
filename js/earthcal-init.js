@@ -5,6 +5,7 @@ if ("serviceWorker" in navigator) {
             const registration = await navigator.serviceWorker.register(
                 "js/service-worker.js?v=5.1"
             );
+
             console.log("ServiceWorker registration successful with scope:", registration.scope);
         } catch (error) {
             console.log("ServiceWorker registration failed:", error);
@@ -66,14 +67,14 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.2",
+        "js/auspicer.js?v=3.3",
         "js/auspices/biodynamic_council.js?v=1.0",
         "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=3.7",
+        "js/core.js?v=4.0",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
@@ -82,11 +83,11 @@ async function initCalendar() {
         "js/time-setting.js?v=11.1",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
-        "js/planet-orbits.js?v=9.2",
+        "js/planet-orbits.js?v=9.3",
         // rest of app
         "js/login-scripts.js?v=22.2",
-        "js/item-management.js?v=11.5",
-        "js/calendar-scripts.js?v=2.8",
+        "js/item-management.js?v=11.6",
+        "js/calendar-scripts.js?v=3.0",
     ];
 
     try {

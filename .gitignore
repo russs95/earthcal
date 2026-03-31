@@ -12,6 +12,7 @@ api/calconn_env.php
 api/stripe_env.php
 
 vendor/
+electron/
 electron/earthcal_1.3.3_amd64.snap
 electron/earthcal_1.3.4_amd64.snap
 electron/earthcal_1.3.5_amd64.snap

@@ -1967,8 +1967,8 @@ function displayMoonPhasev1({ date, container } = {}) {
     const isValidDate = value => value instanceof Date && !Number.isNaN(value.getTime());
     const target = isValidDate(date) ? date : new Date();
 
-    const lat = -8.506853;
-    const lon = 115.262477;
+    // Use the user's Buwana location, or Stonehenge UK as default
+    const { lat, lon } = getUserLocation();
 
     const safeToFixed = (value, digits) => (Number.isFinite(value) ? value.toFixed(digits) : null);
     const normalizePhase = phase => (Number.isFinite(phase) ? phase : 0);

@@ -89,6 +89,9 @@ function ensurePlanetData(date) {
     if (typeof UpdateSaturnData === "function") {
       UpdateSaturnData(date);
     }
+    if (typeof UpdateMercuryData === "function") {
+      UpdateMercuryData(date);
+    }
     return;
   }
 
@@ -2313,6 +2316,78 @@ const initializeCometSystem = () => {
     window.hideCometSystem = hideCometSystem;
     window.updateCometTrajectory = updateCometTrajectory;
 };
+
+// ============================================================
+// LOCATION HELPERS
+// ============================================================
+
+/**
+ * Returns the user's geographic coordinates.
+ * Reads location_lat / location_long from window.userProfile (populated by
+ * login-scripts.js from the Buwana buwana:bioregion JWT scope).
+ * Falls back to Stonehenge, UK when no user location is available.
+ * @returns {{ lat: number, lon: number, isDefault: boolean }}
+ */
+function getUserLocation() {
+    const lat = window.userProfile?.location_lat;
+    const lon = window.userProfile?.location_long;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+        return { lat, lon, isDefault: false };
+    }
+    // Stonehenge, UK — EarthCal default
+    return { lat: 51.1789, lon: -1.8262, isDefault: true };
+}
+window.getUserLocation = getUserLocation;
+
+/**
+ * If the logged-in user has no buwana:bioregion location set and hasn't
+ * already dismissed this prompt, show a modal asking them to update their
+ * Buwana profile or accept the Stonehenge default.
+ */
+function promptForBuwanaLocation() {
+    if (!window.isLoggedIn || !window.isLoggedIn()) return;
+    const profile = window.userProfile;
+    if (!profile) return;
+
+    // Already has coordinates — nothing to do
+    if (typeof profile.location_lat === 'number' && typeof profile.location_long === 'number') return;
+
+    // User already chose the default — don't nag again
+    if (localStorage.getItem('earthcal_location_accepted_default') === 'true') return;
+
+    if (typeof showFormModalAlert !== 'function') return;
+
+    const buwanaId = profile.buwana_id || '';
+    const profileUrl = `https://buwana.ecobricks.org/en/edit-profile.php?buwana=${buwanaId}&app=ecal_7f3da821d0a54f8a9b58`;
+
+    showFormModalAlert({
+        title: 'Add Your Location',
+        message: [
+            'EarthCal can personalize moon position, parallactic angle, and sunrise/sunset times for your location.',
+            "Your Buwana profile doesn't include location coordinates yet. Add them to get accurate local sky data."
+        ],
+        actions: [
+            {
+                label: 'Update Buwana Profile',
+                className: 'ec-button-primary',
+                onClick: () => {
+                    window.open(profileUrl, '_blank', 'noopener');
+                    closeFormModalAlert();
+                }
+            },
+            {
+                label: 'Use Stonehenge Default',
+                className: 'ec-button-secondary',
+                onClick: () => {
+                    localStorage.setItem('earthcal_location_accepted_default', 'true');
+                    closeFormModalAlert();
+                }
+            }
+        ],
+        footerMessage: 'Location is used only for local sky calculations — it is never shared.'
+    });
+}
+window.promptForBuwanaLocation = promptForBuwanaLocation;
 
 if (typeof document !== "undefined") {
     if (document.readyState === "loading") {
