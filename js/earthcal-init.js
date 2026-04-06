@@ -80,7 +80,7 @@ async function initCalendar() {
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1.1",
-        "js/time-setting.js?v=11.1",
+        "js/time-setting.js?v=11.2",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=9.3",
@@ -118,5 +118,6 @@ async function initCalendar() {
         console.error("Initialization error:", err);
     } finally {
         if (spinner) spinner.classList.add("hidden");
+        document.getElementById("boot-overlay")?.remove();
     }
 }

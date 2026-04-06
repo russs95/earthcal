@@ -97,7 +97,7 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=56.5"></script>
+    <script src="js/earthcal-init.js?v=56.6"></script>
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=49.0">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.4">
@@ -199,6 +199,31 @@
 
         #lunar-months {
             opacity: 0;
+        }
+
+        /* ── Boot overlay: visible from first paint, no JS required ── */
+        #boot-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (prefers-color-scheme: dark) {
+            #boot-overlay { background: #111; }
+        }
+        #boot-overlay-spinner {
+            width: 48px;
+            height: 48px;
+            border: 6px solid rgba(128,128,128,0.2);
+            border-top-color: #0fb57f;
+            border-radius: 50%;
+            animation: spin-boot 1s linear infinite;
+        }
+        @keyframes spin-boot {
+            to { transform: rotate(360deg); }
         }
 
     </style>
@@ -581,6 +606,11 @@
 
 <BODY style="overflow: hidden !important;">
 
+<!-- Boot overlay: shows before any JS runs, dismissed by initCalendar() finally block -->
+<div id="boot-overlay" aria-hidden="true" role="presentation">
+    <div id="boot-overlay-spinner"></div>
+</div>
+
 <!--OFFLINE TOP BANNER-->
 <div id="offline-top-banner" class="offline-top-banner" hidden aria-live="assertive" role="status"></div>
 
@@ -956,7 +986,7 @@
 
     <div id="comet-3i-trajectory" class="planet-info animal-info-box" style="background:none; pointer-events:none;"></div>
 
-    <div id="loading-spinner" style="display:none !important;"></div>
+    <div id="loading-spinner" class="hidden"></div>
 
     <div id="the-cal">
         <!--Init will Insert the The raw file here-->

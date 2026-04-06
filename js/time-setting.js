@@ -1100,7 +1100,7 @@ function toggleSolarAnimations(isChecked) {
     }
 }
 
-const layerRevealDelayMs = 4000;
+const layerRevealDelayMs = 3000;
 const applyInitialLayerVisibility = () => {
     if (userZodiacPositions) {
         setTimeout(() => {
