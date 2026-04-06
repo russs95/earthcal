@@ -215,15 +215,15 @@
             #boot-overlay { background: #111; }
         }
         #boot-overlay-spinner {
-            width: 48px;
-            height: 48px;
-            border: 6px solid rgba(128,128,128,0.2);
-            border-top-color: #0fb57f;
+            width: 15px;
+            height: 15px;
+            background: #ffd900;
             border-radius: 50%;
-            animation: spin-boot 1s linear infinite;
+            animation: pulse-boot 1s ease-in-out infinite;
         }
-        @keyframes spin-boot {
-            to { transform: rotate(360deg); }
+        @keyframes pulse-boot {
+            0%, 100% { width: 15px; height: 15px; }
+            50%       { width: 20px; height: 20px; }
         }
 
     </style>
