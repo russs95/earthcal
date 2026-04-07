@@ -67,14 +67,14 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.4",
+        "js/auspicer.js?v=3.5",
         "js/auspices/biodynamic_council.js?v=1.0",
         "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=4.4",
+        "js/core.js?v=4.5",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
@@ -87,7 +87,7 @@ async function initCalendar() {
         // rest of app
         "js/login-scripts.js?v=22.3",
         "js/item-management.js?v=11.7",
-        "js/calendar-scripts.js?v=3.0",
+        "js/calendar-scripts.js?v=3.1",
     ];
 
     try {

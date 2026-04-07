@@ -388,8 +388,7 @@ function displayMoonPhaseOnBreakoutTouch(event) {
 
         const date = new Date(year, month, day);
 
-        // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
-        displayMoonPhaseInDiv(date);
+        // displayMoonPhaseInDiv(date); // retired — auspices panel replaces moon-cycle info
         updateMoonPhase(date);
     }
 }

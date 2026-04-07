@@ -172,12 +172,7 @@ function formatDate(date) {
     displayDayInfo(date, userLanguage, userTimeZone);
 
 
-    displayMoonPhaseInDiv(date);
-
-  // Check if the moon-cycle div is set to display block
-  // if (document.getElementById('moon-cycle').style.display === 'block') {
-  //   displayMoonPhaseInDiv(date);
-  // }
+    // displayMoonPhaseInDiv(date); // retired — auspices panel replaces moon-cycle info
 
   // Check if the venus-cycle div is set to display block
   if (document.getElementById('venus-cycle').style.display === 'block') {
@@ -215,12 +210,11 @@ function displayMoonPhaseOnTouch(pathID) {
   const month = parseInt(dateParts[2]) - 1; // month is 0-indexed in JavaScript
   const year = parseInt(dateParts[3]);
   const date = new Date(year, month, dayOfMonth);
-  // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
   // Call the relevant functions to show details for the selected date
   // displayDayInfo(date);
   displayDayInfo(targetDate, userLanguage, userTimeZone);
 
-  displayMoonPhaseInDiv(date);
+  // displayMoonPhaseInDiv(date); // retired — auspices panel replaces moon-cycle info
 
 
   // // Check if the moon-cycle div is set to display block
@@ -257,8 +251,7 @@ function displayMoonPhaseOnTouch(pathID) {
 // This function displays the current moon phase after mouseout or touchout
 
 function redisplayTargetData() {
-  // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
-  displayMoonPhaseInDiv(targetDate);
+  // displayMoonPhaseInDiv(targetDate); // retired — auspices panel replaces moon-cycle info
   displayDayInfo(targetDate, userLanguage, userTimeZone);
   UpdateVenusData(targetDate);
   UpdateMercuryData(targetDate);
@@ -266,8 +259,7 @@ function redisplayTargetData() {
 }
 
 function handleTouchEnd() {
-  // Call the displayMoonPhaseInDiv function to show the moon phase details for the selected date
-  displayMoonPhaseInDiv(targetDate);
+  // displayMoonPhaseInDiv(targetDate); // retired — auspices panel replaces moon-cycle info
   // displayDayInfo(targetDate);
   // UpdateVenusData(targetDate);
   //   console.log(targetDate);
@@ -310,48 +302,14 @@ function focusRestrict(event) {
 }
 
 
-  /*----------MOON--------------------
-  // This function displays the moon phase details in the bottom right div element.
-*/
-
-  function displayMoonPhaseInDiv(date) {
-
-      // Check if the moon-cycle div is not set to display none
-      //NOTE:  this could be replaced and the prevention instead set on the displayPlanetInfoOnHover function
-  // var moonCycleDiv = document.getElementById('moon-cycle');
-  // if (moonCycleDiv.style.display === 'none') {
-  //   return; // Exit the function if moon-cycle is not displayed
-  // }
-
-    // Use the user's Buwana location, or Stonehenge UK as default
-    const { lat, lon } = getUserLocation();
-
-    // Calculate the moon illumination details and get the phase, emoji, and phase index
-    const moonIllumination = SunCalc.getMoonIllumination(date);
-    const phase = moonIllumination.phase;
-    const moonPhaseEmoji = getMoonPhaseEmoji(phase);
-    const phaseIndex = getPhaseIndex(phase);
-
-    // Calculate the moon position and get the distance, angle, illuminated fraction, and phase name
-    const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
-    const moonDistance = moonPosition.distance.toFixed(2);
-    const moonAngle = (moonPosition.parallacticAngle * (180 / Math.PI)).toFixed(2);
-    const illuminatedFraction = moonIllumination.fraction.toFixed(2);
-    const moonPhaseName = getMoonPhaseName(phase);
-    //const islamicMonth = getIslamicMonth(date);
-    //const islamicMonthName = getIslamicMonthName(islamicMonth);
-    const maxMoonDist = 406700; // km
-    const minMoonDist = 363300; // km
-    const per_MoonDist = ((moonDistance - minMoonDist) / (maxMoonDist - minMoonDist)) * 100;
-    // Update the moon phase div with the calculated details
-    const moonPhaseDiv = document.getElementById('moon-phase');
-    const moonPhaseInfoDiv = document.getElementById('moon-info');
-
-    moonPhaseDiv.innerHTML = `${moonPhaseEmoji}`;
-    moonPhaseInfoDiv.innerHTML = `${moonPhaseName} <br>Illuminated Fraction: ${illuminatedFraction} <br>Angle: ${moonAngle}°<br>Distance: ${moonDistance} km<br>Percent of Max Distance: ${per_MoonDist.toFixed(0)} %`;
-
-    adjustMoonSize(per_MoonDist)
-  }
+  /* ---------- MOON (RETIRED) ----------------------------------
+     displayMoonPhaseInDiv has been retired. The lunar auspices
+     dash panel (rendered by SunCalc.renderAuspices) now shows
+     all moon/solar data. The moon-cycle info box is no longer
+     populated; keep it in the DOM but leave it empty.
+  ---------------------------------------------------------------
+  function displayMoonPhaseInDiv(date) { ... }
+  -------------------------------------------------------------- */
 
 
 

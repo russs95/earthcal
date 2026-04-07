@@ -131,32 +131,10 @@
 
 /* =========================================================
    5. MODAL POSITIONING — Auspicer Palette
-   When the auspicer is displayed inside the Add Date modal,
-   it floats fixed at the top of the viewport.
+   Legacy selectors kept for non-multilayer contexts.
+   The primary modal auspicer now uses .ec-multilayer-auspicer
+   (see section 9) for scoped overrides.
    ========================================================= */
-
-#modal-content .add-date-form .auspicer-pallette,
-#modal-content .ec-add-form .auspicer-pallette {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 60px);
-    max-width: 600px;
-    margin: 0;
-    z-index: 55;
-}
-
-#modal-content .add-date-form .auspicer-pallette:has(.ec-lunar-auspices.is-expanded),
-#modal-content .ec-add-form .auspicer-pallette:has(.ec-lunar-auspices.is-expanded) {
-    bottom: 20px;
-}
-
-#modal-content .add-date-form .auspicer-pallette .ec-lunar-auspices.is-expanded,
-#modal-content .ec-add-form .auspicer-pallette .ec-lunar-auspices.is-expanded {
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-}
 
 #modal-content .add-date-form .ec-moon-phase-emoji,
 #modal-content .ec-add-form .ec-moon-phase-emoji {
@@ -193,6 +171,15 @@
     width: 365px;
     z-index: 37;
     font-family: 'Mulish', sans-serif;
+}
+
+@media screen and (max-width: 700px) {
+    #lunar-auspices-dash-panel {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        bottom: 70px;
+    }
 }
 
 #lunar-auspices-dash-panel .ec-lunar-auspices {
@@ -638,7 +625,67 @@
 
 
 /* =========================================================
-   9. RESPONSIVE OVERRIDES
+   9. EC-MULTILAYER-AUSPICER
+   Scoped wrapper class added to the modal auspicer palette
+   by displayEarthenAuspicer(). All modal-specific positioning,
+   full-height expansion, and mobile overrides live here so
+   the base .ec-lunar-auspices rules remain untouched.
+   ========================================================= */
+
+/* Desktop: fixed position at top of viewport */
+.ec-multilayer-auspicer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 60px);
+    max-width: 600px;
+    margin: 0;
+    z-index: 55;
+    background: transparent;
+}
+
+/* Stretch pallette to fill viewport when child is expanded */
+.ec-multilayer-auspicer:has(.ec-lunar-auspices.is-expanded) {
+    bottom: 20px;
+}
+
+/* Expanded panel fills full viewport height (both expand-btn and ⓘ) */
+.ec-multilayer-auspicer .ec-lunar-auspices.is-expanded {
+    height: calc(100vh - 40px);
+    max-height: none;
+    overflow-y: auto;
+}
+
+/* Mobile: 3px margins all sides, full width, clear modal X button */
+@media screen and (max-width: 700px) {
+    .ec-multilayer-auspicer {
+        top: 3px;
+        left: 3px;
+        right: 3px;
+        width: auto;
+        max-width: none;
+        transform: none;
+    }
+
+    .ec-multilayer-auspicer:has(.ec-lunar-auspices.is-expanded) {
+        bottom: 3px;
+    }
+
+    .ec-multilayer-auspicer .ec-lunar-auspices.is-expanded {
+        height: calc(100vh - 6px);
+        max-height: none;
+    }
+
+    /* Push header content left to clear the modal X button (right: 12px, ~50px wide) */
+    .ec-multilayer-auspicer .ec-lunar-auspices .ec-lunar-auspices__header {
+        padding-right: 56px;
+    }
+}
+
+
+/* =========================================================
+   10. RESPONSIVE OVERRIDES
    ========================================================= */
 
 @media screen and (max-width: 768px) {

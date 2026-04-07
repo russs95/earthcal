@@ -97,10 +97,10 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=57.4"></script>
+    <script src="js/earthcal-init.js?v=57.6"></script>
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=49.7">
-    <link rel="stylesheet" href="css/auspicer-styles.css?v=1.5">
+    <link rel="stylesheet" href="css/auspicer-styles.css?v=1.7">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
 
@@ -252,9 +252,7 @@
             if (!moonBtn || !panel) return;
 
             moonBtn.addEventListener('click', function () {
-                if (window.innerWidth < 769) return; // mobile: cycle-toggle handles it
-
-                // Defer to run after cycle-toggle's own listener
+                // Defer to run after cycle-toggle's own listener (works on all viewport sizes)
                 setTimeout(function () {
                     var isActive = moonBtn.classList.contains('totems-active');
                     var moonCycle = document.getElementById('moon-cycle');
@@ -275,6 +273,19 @@
                 }, 0);
             });
         }
+
+        // Exposed globally so calendarRefresh() in core.js can trigger a re-render
+        // when the panel is open and the user navigates to a new targetDate.
+        window.refreshLunarAuspicesDashPanel = function () {
+            var panel = document.getElementById('lunar-auspices-dash-panel');
+            if (!panel || panel.style.display !== 'block') return;
+            var dateKey = (typeof targetDate !== 'undefined' && targetDate instanceof Date)
+                ? targetDate.toDateString() : 'today';
+            if (panel.dataset.renderedFor === dateKey) return; // already current
+            panel.dataset.renderedFor = dateKey;
+            panel.innerHTML = '';
+            _renderLunarAuspicesIntoDashPanel(panel);
+        };
 
         async function _renderLunarAuspicesIntoDashPanel(panel) {
             try {

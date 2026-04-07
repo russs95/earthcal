@@ -1514,6 +1514,11 @@ function calendarRefresh() {
     highlightDateCycles(targetDate);
     //displayMatchingDateCycle();
 
+    // Refresh the lunar auspices dash panel if it is currently visible
+    if (typeof window.refreshLunarAuspicesDashPanel === 'function') {
+        window.refreshLunarAuspicesDashPanel();
+    }
+
 
     // getFirstNewMoon(targetDate);  //Rotate lunar months into alignment with first new moon
     // setLunarMonthForTarget(targetDate);
@@ -1527,9 +1532,7 @@ function calendarRefresh() {
    setLunarMonthForTarget(targetDate, currentYear);
 
    setTimeout(function() {
-    displayMoonPhaseInDiv(targetDate);
-
-    displayMoonPhaseInDiv(targetDate);
+    // displayMoonPhaseInDiv(targetDate); // retired — auspices panel replaces moon-cycle info
 
     ensurePlanetData(targetDate);
 
