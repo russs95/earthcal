@@ -74,7 +74,7 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=4.1",
+        "js/core.js?v=4.3",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 

@@ -456,7 +456,43 @@ async function openMainMenu() {
         const macosBtn = modal.querySelector('#macos-download-btn');
         if (macosBtn) {
             macosBtn.addEventListener('click', () => {
-                alert('A native EarthCal MacOS app is in the works. Download will be available April 10th 2026!');
+                const loggedIn = typeof isLoggedIn === 'function' && isLoggedIn();
+                if (loggedIn) {
+                    closeMainMenu();
+                    showMacOSModal();
+                } else {
+                    // Show Jedi-style alert on top of the main menu
+                    if (typeof showFormModalAlert === 'function') {
+                        showFormModalAlert({
+                            previewImageSrc: 'assets/images/preview-macos.webp',
+                            previewImageAlt: 'EarthCal for macOS',
+                            title: 'Jedi Feature',
+                            message: 'Download the native EarthCal app for macOS. Free for all Jedi EarthCal users.',
+                            footerMessage: 'Login or create a Jedi account to access the macOS download.',
+                            actions: [
+                                {
+                                    label: 'Login',
+                                    template: 'login',
+                                    iconSrc: 'svgs/earthcal-icon.svg',
+                                    onClick: async () => {
+                                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                                        closeMainMenu();
+                                        if (typeof navigateToAuthLogin === 'function') await navigateToAuthLogin();
+                                    }
+                                },
+                                {
+                                    label: 'Signup to Earthcal',
+                                    template: 'signup',
+                                    onClick: () => {
+                                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                                        closeMainMenu();
+                                        if (typeof navigateToAuthSignup === 'function') navigateToAuthSignup();
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                }
             });
         }
     }
@@ -2400,6 +2436,55 @@ function promptForBuwanaLocation() {
     });
 }
 window.promptForBuwanaLocation = promptForBuwanaLocation;
+
+function showMacOSModal() {
+    const modal = document.getElementById('form-modal-alert');
+    const messageEl = document.getElementById('form-modal-alert-message');
+    const actionsEl = document.getElementById('form-modal-alert-actions');
+    if (!modal || !messageEl || !actionsEl) return;
+
+    const modalCard = modal.querySelector('.form-modal-alert-card');
+
+    // Remove any card-level preview from a previous alert
+    const existingPreview = modalCard ? modalCard.querySelector('.form-modal-alert-preview') : null;
+    if (existingPreview) existingPreview.remove();
+
+    // Build message
+    messageEl.innerHTML = '';
+
+    const logo = document.createElement('img');
+    logo.src = 'svgs/macOS.svg';
+    logo.alt = 'macOS';
+    logo.className = 'macos-modal-logo';
+    messageEl.appendChild(logo);
+
+    const heading = document.createElement('h2');
+    heading.className = 'form-modal-alert-title macos-modal-title';
+    heading.textContent = 'EarthCal for Mac';
+    messageEl.appendChild(heading);
+
+    const p1 = document.createElement('p');
+    p1.textContent = 'A native EarthCal MacOS app is in the works. Download will be available April 10th 2026!';
+    messageEl.appendChild(p1);
+
+    const p2 = document.createElement('p');
+    p2.textContent = 'The app will be available for free download for all Jedi EarthCal users.';
+    messageEl.appendChild(p2);
+
+    actionsEl.innerHTML = '';
+
+    if (modalCard) {
+        let footerEl = modalCard.querySelector('#form-modal-alert-footer');
+        if (footerEl) {
+            footerEl.textContent = '';
+            footerEl.style.display = 'none';
+        }
+    }
+
+    modal.classList.remove('modal-hidden');
+    modal.classList.add('modal-visible');
+    modal.setAttribute('aria-hidden', 'false');
+}
 
 if (typeof document !== "undefined") {
     if (document.readyState === "loading") {

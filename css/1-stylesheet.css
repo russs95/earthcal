@@ -762,6 +762,17 @@ flex-direction: row;
   display: block;
 }
 
+.macos-modal-logo {
+  width: 140px;
+  height: auto;
+  display: block;
+  margin: 8px auto 4px;
+}
+
+.macos-modal-title {
+  font-size: 1.3rem;
+}
+
 
 .earthcal-app-logo {
   margin: 0 auto 30px;
