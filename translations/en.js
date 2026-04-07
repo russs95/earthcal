@@ -17,8 +17,8 @@ export const translations = {
     neighborhoodTitle: "Our Neighbourhood",
     neighborhoodDesc: "When you click on any day, you can also view the progress and position of our planetary neighbours. Click any planet to get detailed orbital data. Watch oppositions, conjunctions and planetary alignments happen in real time. This not only helps us understand the night sky, it helps us align with much larger cycles of time (Neptune takes 165 Earth years to complete its orbit!).",
 
-    getLunarTitle: "Get Lunar",
-    getLunarDesc: "Notice the center of the calendar while you skim over the days of the year? You can see in real-time how the phase of the moon changes over the course of the year. Click the moon in the bottom right for detailed orbital data.",
+    getLunarTitle: "Get the Day's Auspices",
+    getLunarDesc: "Earthcal's proprietary auspice engine uses each day's lunar, solar and planetary astronomical data to cross reference it with ancestral, biodynamic and ecological insights to give you the \"auspices\" (synk advice) for each day. Is it best to sew an intention, to pause a project, to harvest ones investments? Connect your planning directly to Earthen cycles.",
 
     animalCyclesTitle: "Great Earthling Cycles",
     animalCyclesDesc: "Great civilizations didn't just follow celestial cycles, they used the cycles of the great creatures around them to celebrate time. Click on the Earth icon at the bottom left corner to see where the grey whales of North America are in their migration at a particular time of the year. More animals coming soon!",

@@ -1881,7 +1881,14 @@ function guidedTour() {
   modal.style.display = "flex";
   document.getElementById("page-content").classList.add("blur");
 
-  const translationVersion = '1.3';
+  // Always reset to slide 1 so re-opening starts from the beginning
+  const information = document.querySelectorAll(".information");
+  information.forEach((el, i) => {
+    el.style.display = i === 0 ? "block" : "none";
+  });
+  let currentInfo = 0;
+
+  const translationVersion = '1.4';
 
   import(`../translations/${userLanguage}.js?v=${translationVersion}`).then(module => {
     const t = module.translations.tour;
@@ -1915,9 +1922,6 @@ function guidedTour() {
     document.getElementById("back-6").innerText = t.buttonBack;
     document.getElementById("done").innerText = t.buttonDone;
   });
-
-  const information = document.querySelectorAll(".information");
-  let currentInfo = 0;
 
   function showInfo(index) {
     if (index >= 0 && index < information.length) {
