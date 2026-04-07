@@ -24,7 +24,7 @@
     max-width: 600px;
     margin: 10px auto;
     color: var(--text-color);
-    background: var(--general-background);
+    background: transparent;
 }
 
 .auspicer-pallette .ec-lunar-auspices {
@@ -145,6 +145,17 @@
     max-width: 600px;
     margin: 0;
     z-index: 55;
+}
+
+#modal-content .add-date-form .auspicer-pallette:has(.ec-lunar-auspices.is-expanded),
+#modal-content .ec-add-form .auspicer-pallette:has(.ec-lunar-auspices.is-expanded) {
+    bottom: 20px;
+}
+
+#modal-content .add-date-form .auspicer-pallette .ec-lunar-auspices.is-expanded,
+#modal-content .ec-add-form .auspicer-pallette .ec-lunar-auspices.is-expanded {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
 }
 
 #modal-content .add-date-form .ec-moon-phase-emoji,
@@ -558,7 +569,76 @@
 
 
 /* =========================================================
-   8. RESPONSIVE OVERRIDES
+   8. INFO BUTTON & INFO PANEL
+   ⓘ button in btn-row; info panel content inside body.
+   ========================================================= */
+
+.ec-lunar-auspices .ec-lunar-auspices__info-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 26px;
+    height: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: rgba(90,90,90,0.60);
+    border-radius: 50%;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.ec-lunar-auspices .ec-lunar-auspices__info-btn:hover {
+    background: rgba(127,127,127,0.12);
+    color: rgba(90,90,90,0.90);
+}
+.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__info-btn {
+    color: var(--text-color, #242424);
+}
+
+.ec-lunar-auspices__info-panel {
+    display: none;
+    padding-top: 4px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-color, #242424);
+}
+.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__info-panel {
+    display: block;
+}
+.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__guidance,
+.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__scroll-body,
+.ec-lunar-auspices.is-info-mode .ec-lunar-tags,
+.ec-lunar-auspices.is-info-mode .ec-lunar-warning,
+.ec-lunar-auspices.is-info-mode .ec-lunar-actions__list,
+.ec-lunar-auspices.is-info-mode .ec-biodynamic-council,
+.ec-lunar-auspices.is-info-mode .ec-ancestral-example,
+.ec-lunar-auspices.is-info-mode .ec-lunar-data {
+    display: none !important;
+}
+
+.ec-lunar-auspices__info-panel p {
+    margin: 0 0 10px 0;
+}
+.ec-lunar-auspices__info-panel p:last-child {
+    margin-bottom: 0;
+}
+.ec-lunar-auspices__info-footer {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(127,127,127,0.18);
+    font-size: 0.76rem;
+    color: var(--subdued-text, #454545);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   9. RESPONSIVE OVERRIDES
    ========================================================= */
 
 @media screen and (max-width: 768px) {

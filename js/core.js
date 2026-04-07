@@ -387,7 +387,7 @@ async function openMainMenu() {
                         : (window.user_plan ? String(window.user_plan) : 'EarthCal Padwan');
                 const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
                 const showPlanAction = (userPlan === 'padwan' || userPlan === 'jedi') && hasConnectivity;
-                const planActionText = userPlan === 'jedi' ? 'Manage Subscription' : 'Upgrade EarthCal';
+                const planActionText = userPlan === 'jedi' ? 'Manage Subscription' : 'Upgrade';
                 return `
                     <div class="menu-plan-status">
                         <div class="menu-plan-pill ${planClass}">
@@ -424,6 +424,9 @@ async function openMainMenu() {
                 <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
                     ${mainMenu.latestVersion}
                 </div>
+
+                ${feedbackItemHtml}
+
                 <div class="menu-page-item">
                     <a href="https://guide.earthen.io/" target="_blank">${mainMenu.guide}</a>
                 </div>
@@ -431,8 +434,6 @@ async function openMainMenu() {
                 <div class="menu-page-item menu-page-item-no-border">
                     <a href="https://earthen.io/cycles" target="_blank">${mainMenu.about}</a>
                 </div>
-
-                ${feedbackItemHtml}
             </div>
 
             <div id="main-menu-footer">
@@ -446,7 +447,7 @@ async function openMainMenu() {
                 </div>
 
                 <p style="font-size:small; margin-bottom: 2px;">
-                    ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a> | ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
+                    Developed by <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a>
                 </p>
             </div>
         `;

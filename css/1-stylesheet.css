@@ -762,6 +762,29 @@ flex-direction: row;
   display: block;
 }
 
+@media screen and (max-width: 600px) {
+  .app-download {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .app-download-btn {
+    height: 30px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .app-download-btn img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .menu-page-item {
+    font-size: 1.1em;
+  }
+}
+
 .macos-modal-logo {
   width: 140px;
   height: auto;
@@ -3122,7 +3145,10 @@ INFO MODAL
     border-radius: 0;
     box-shadow: none;
     overflow-y: auto;
-      max-height: 95vh;
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .form-modal-alert-preview {

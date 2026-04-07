@@ -2354,7 +2354,7 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
     const planClass = userPlan === 'jedi' ? 'menu-plan-pill-jedi' : 'menu-plan-pill-padwan';
     const planActionText = userPlan === 'jedi'
         ? 'Manage Subscription'
-        : 'Upgrade EarthCal';
+        : 'Upgrade';
     const syncStatus = typeof window !== 'undefined' && typeof window.syncStore?.getStatus === 'function'
         ? window.syncStore.getStatus()
         : null;
