@@ -66,7 +66,7 @@
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources ttt-->
     <link rel="preload" href="/" as="image" type="image/svg+xml">
-    <link rel="preload" href="js/earthcal-init.js?v=56.6" as="script">
+    <link rel="preload" href="js/earthcal-init.js?v=57.1" as="script">
     <link rel="preload" href="css/light.css?v=7.9" as="style">
     <link rel="preload" href="css/dark.css?v=7.9" as="style">
     <link rel="preload" href="css/1-stylesheet.css?v=10.0" as="style">
@@ -596,7 +596,7 @@
     const updateStaticText = () => {
         document.querySelectorAll(".footer-text").forEach((el) => {
             const fallbackValue = el.textContent || translate("footer.tagline", {}, "");
-            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.1 by Earthen");
+            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.3 by Earthen");
         });
 
         document.querySelectorAll('[data-i18n][data-i18n-attr]').forEach((el) => {
