@@ -807,11 +807,11 @@ flex-direction: row;
 }
 
 .macos-dmg-download-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   gap: 10px;
-  width: 100%;
   padding: 12px 20px;
   border: none;
   border-radius: 10px;
@@ -833,7 +833,6 @@ flex-direction: row;
 }
 
 .macos-dmg-label {
-  flex: 1;
   text-align: center;
 }
 

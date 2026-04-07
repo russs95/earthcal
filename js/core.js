@@ -2461,7 +2461,7 @@ function showMacOSModal() {
     messageEl.innerHTML = '';
 
     const logo = document.createElement('img');
-    logo.src = 'svgs/macOS.svg';
+    logo.src = 'svgs/macOS.svg?v=2';
     logo.alt = 'macOS';
     logo.className = 'macos-modal-logo';
     messageEl.appendChild(logo);
@@ -2473,12 +2473,12 @@ function showMacOSModal() {
     const unlockIcon = document.createElement('span');
     unlockIcon.className = 'pure-unlocked-icon macos-modal-unlock-icon';
     unlockIcon.setAttribute('aria-hidden', 'true');
-    heading.appendChild(headingText);
     heading.appendChild(unlockIcon);
+    heading.appendChild(headingText);
     messageEl.appendChild(heading);
 
     const p1 = document.createElement('p');
-    p1.textContent = "There's no better place to run EarthCal than full screen on your Mac! We're excited to offer Jedi users a native MacOS version (we're working on an iOS version for 2027). Works on MacOS Sequoia and above. Since EarthCal makes complex astronomical calculations in the background, M1 processors and above is recommended.";
+    p1.textContent = "There's no better place to run EarthCal than full screen on your Mac! As an EarthCal Jedi user you have access to our native MacOS version (requires) Sequoia and above). As EarthCal makes complex astronomical calculations M1 processors and above are recommended.";
     messageEl.appendChild(p1);
 
     actionsEl.innerHTML = '';
