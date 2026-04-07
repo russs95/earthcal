@@ -504,7 +504,7 @@ async function showUserCalSettings() {
 
     const jediStatusLabel = !isAuthenticated
         ? 'Unlock features'
-        : (isJediPlan ? 'Jedi active!' : 'Unlock Jedi features');
+        : (isJediPlan ? 'Jedi powers activated' : 'Unlock Jedi features');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
     const jediAccessIconClass = isJediPlan ? 'pure-unlocked-icon' : 'pure-locked-icon';
     const clockViewLabel = 'Analogue clock view';
@@ -644,7 +644,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Show Auspicer in add-item panel</span>
+                <span>Auspicer in add-event panel</span>
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="auspicer-toggle" ${userShowAuspicer ? 'checked' : ''} aria-label="Show Auspicer in add-item panel">
                     <span class="toggle-slider"></span>
@@ -709,7 +709,7 @@ async function showUserCalSettings() {
                 </label>
             </div>
             <div class="toggle-row toggle-row-simple-mode">
-                <span>Hide personal event items on Earthcal display</span>
+                <span>Hide personal event items</span>
                 <label class="toggle-switch toggle-switch-simple">
                     <input type="checkbox" id="simple-mode-toggle" ${window.isSimpleMode ? 'checked' : ''} aria-label="Hide personal event items on Earthcal display">
                     <span class="toggle-slider"></span>

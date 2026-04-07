@@ -3,7 +3,7 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
         try {
             const registration = await navigator.serviceWorker.register(
-                "js/service-worker.js?v=5.2"
+                "js/service-worker.js?v=5.3"
             );
 
             console.log("ServiceWorker registration successful with scope:", registration.scope);
@@ -74,7 +74,7 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=4.7",
+        "js/core.js?v=4.8",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 

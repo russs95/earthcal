@@ -2468,18 +2468,40 @@ function showMacOSModal() {
 
     const heading = document.createElement('h2');
     heading.className = 'form-modal-alert-title macos-modal-title';
-    heading.textContent = 'EarthCal for Mac';
+    const headingText = document.createElement('span');
+    headingText.textContent = 'EarthCal for MacOS';
+    const unlockIcon = document.createElement('span');
+    unlockIcon.className = 'pure-unlocked-icon macos-modal-unlock-icon';
+    unlockIcon.setAttribute('aria-hidden', 'true');
+    heading.appendChild(headingText);
+    heading.appendChild(unlockIcon);
     messageEl.appendChild(heading);
 
     const p1 = document.createElement('p');
-    p1.textContent = 'A native EarthCal MacOS app is in the works. Download will be available April 10th 2026!';
+    p1.textContent = "There's no better place to run EarthCal than full screen on your Mac! We're excited to offer Jedi users a native MacOS version (we're working on an iOS version for 2027). Works on MacOS Sequoia and above. Since EarthCal makes complex astronomical calculations in the background, M1 processors and above is recommended.";
     messageEl.appendChild(p1);
 
-    const p2 = document.createElement('p');
-    p2.textContent = 'The app will be available for free download for all Jedi EarthCal users.';
-    messageEl.appendChild(p2);
-
     actionsEl.innerHTML = '';
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.type = 'button';
+    downloadBtn.className = 'macos-dmg-download-btn';
+    downloadBtn.innerHTML = '<span class="macos-dmg-icon"><img src="assets/icons/apple_logo.png" alt="" width="20" height="20"></span><span class="macos-dmg-label">Download EarthCal DMG v1.3</span>';
+    downloadBtn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = 'https://earthen.io/downloads/earthcal_macOS_v1.3.5.dmg';
+        link.download = 'earthcal_macOS_v1.3.5.dmg';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+    actionsEl.appendChild(downloadBtn);
+
+    const footnote = document.createElement('p');
+    footnote.className = 'macos-dmg-footnote';
+    footnote.textContent = 'EarthCal is not yet on the MacStore so you will need to manually install by dragging the EarthCal icon to your Application folder.';
+    actionsEl.appendChild(footnote);
 
     if (modalCard) {
         let footerEl = modalCard.querySelector('#form-modal-alert-footer');

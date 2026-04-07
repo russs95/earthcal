@@ -465,3 +465,12 @@
 .ec-plan-toggle .ec-toggle-option.active {
   color: #ffffff;
 }
+
+.macos-dmg-download-btn {
+  background: linear-gradient(135deg, #0a0a0a, #1c1c1e);
+  color: #f5f5f7;
+}
+
+.macos-dmg-download-btn .macos-dmg-icon img {
+  filter: invert(1);
+}
