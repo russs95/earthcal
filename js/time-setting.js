@@ -23,6 +23,10 @@ const storedCometTracking = localStorage.getItem('user_comet_tracking');
 window.userCometTracking = storedCometTracking === null ? false : storedCometTracking === 'true';
 if (storedCometTracking === null) localStorage.setItem('user_comet_tracking', 'false');
 
+const storedShowAuspicer = localStorage.getItem('user_show_auspicer');
+window.userShowAuspicer = storedShowAuspicer === null ? true : storedShowAuspicer === 'true';
+if (storedShowAuspicer === null) localStorage.setItem('user_show_auspicer', 'true');
+
 const storedZodiacShadeSetting = localStorage.getItem('zodiac_shade_setting');
 const parsedZodiacShadeSetting = Number(storedZodiacShadeSetting);
 window.zodiacShadeSetting = storedZodiacShadeSetting === null || Number.isNaN(parsedZodiacShadeSetting)
@@ -346,6 +350,9 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
     const actionsEl = document.getElementById('form-modal-alert-actions');
     if (!modal || !messageEl || !actionsEl) return;
     const modalCard = modal.querySelector('.form-modal-alert-card');
+    // Remove any existing preview at card level before re-rendering
+    const existingPreview = modalCard ? modalCard.querySelector('.form-modal-alert-preview') : null;
+    if (existingPreview) existingPreview.remove();
     messageEl.innerHTML = '';
     if (previewImageSrc) {
         const previewImage = document.createElement('div');
@@ -355,7 +362,14 @@ function showFormModalAlert({ message, actions = [], previewImageSrc = '', previ
         if (previewImageAlt) {
             previewImage.setAttribute('aria-label', previewImageAlt);
         }
-        messageEl.appendChild(previewImage);
+        // Insert at card level (before message) so it is unaffected by
+        // the message div's scrollbar, which would otherwise narrow the
+        // content area and break the full-width negative-margin trick.
+        if (modalCard) {
+            modalCard.insertBefore(previewImage, messageEl);
+        } else {
+            messageEl.prepend(previewImage);
+        }
     }
     if (title) {
         const titleEl = document.createElement('h2');
@@ -488,13 +502,11 @@ async function showUserCalSettings() {
         ? `https://buwana.ecobricks.org/${lang}/edit-profile.php?buwana=${encodeURIComponent(resolvedBuwanaId)}&app=${encodeURIComponent(payload?.aud || payload?.client_id || "unknown")}`
         : null;
 
-    const jediStatusText = !isAuthenticated
-        ? 'Unlock Earthcal features | Signup + Login'
-        : (isJediPlan ? 'Full Jedi powers enabled! | manage subscription' : 'Unlock Jedi features | upgrade');
+    const jediStatusLabel = !isAuthenticated
+        ? 'Unlock features'
+        : (isJediPlan ? 'Jedi active!' : 'Unlock Jedi features');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
-    const showHoverUnlock = !isAuthenticated && !isJediPlan;
     const jediAccessIconClass = isJediPlan ? 'pure-unlocked-icon' : 'pure-locked-icon';
-    const jediAccessHoverClass = showHoverUnlock ? 'pure-lock-hover' : '';
     const clockViewLabel = 'Analogue clock view';
     const lockIconHtml = (isUnlocked) => `
         <div class="settings-lock-icon ${isUnlocked ? 'unlocked-icon' : 'locked-icon'}" aria-hidden="true"></div>
@@ -587,14 +599,25 @@ async function showUserCalSettings() {
             <div class="top-settings-icon"></div>
         </div>
         <form id="user-settings-form">
-            <button
-                type="button"
+            <div
                 class="toggle-row toggle-row-jedi ${isJediPlan ? 'is-jedi' : ''}"
-                aria-label="${jediStatusText}"
-                style="padding-top: 20px; padding-bottom: 20px;"
+                aria-label="${jediStatusLabel}"
             >
-                <span>${jediStatusText}</span>
-                <div class="jedi-access-indicator ${jediAccessIconClass} ${jediAccessHoverClass}" aria-hidden="true"></div>
+                <div class="jedi-access-indicator ${jediAccessIconClass}" aria-hidden="true"></div>
+                <span class="jedi-status-label">${jediStatusLabel}</span>
+                <div class="jedi-row-actions">
+                    ${!isAuthenticated ? `
+                        <button type="button" class="jedi-mini-btn jedi-mini-btn--login" id="jedi-login-btn">Login</button>
+                        <button type="button" class="jedi-mini-btn jedi-mini-btn--signup" id="jedi-signup-btn">Signup</button>
+                    ` : (!isJediPlan ? `
+                        <button type="button" class="jedi-mini-btn" id="jedi-upgrade-btn">Upgrade</button>
+                    ` : `
+                        <button type="button" class="jedi-mini-btn jedi-mini-btn--manage" id="jedi-manage-btn">manage</button>
+                    `)}
+                </div>
+            </div>
+            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit stellar-submit--apply" style="display:none;">
+                ${settingsContent.applySettings}
             </button>
             <div class="toggle-row settings-select-row">
                 <select id="timezone" name="timezone" class="blur-form-field">
@@ -618,6 +641,13 @@ async function showUserCalSettings() {
                 <label class="toggle-switch toggle-switch-advanced">
                     <input type="checkbox" id="solar-animations-toggle" ${userAnimations ? 'checked' : ''} onchange="toggleSolarAnimations(this.checked)" aria-label="Toggle solar system animations">
                     <span class="toggle-slider orbit-toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <span>Show Auspicer in add-item panel</span>
+                <label class="toggle-switch toggle-switch-advanced">
+                    <input type="checkbox" id="auspicer-toggle" ${userShowAuspicer ? 'checked' : ''} aria-label="Show Auspicer in add-item panel">
+                    <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="toggle-row">
@@ -691,9 +721,6 @@ async function showUserCalSettings() {
                     CLEAR
                 </button>
             </div>
-            <button type="button" name="apply" onclick="animateApplySettingsButton()" class="stellar-submit stellar-submit--apply" style="display:none;">
-                ${settingsContent.applySettings}
-            </button>
             ${buildLocationSectionHtml(profile)}
             ${profileButtonsHtml}
         </form>
@@ -761,24 +788,67 @@ async function showUserCalSettings() {
     languageSelect?.addEventListener('change', checkSettingsChange);
     checkSettingsChange();
 
-    if (jediPlanRow) {
-        jediPlanRow.addEventListener('click', () => {
-            if (!isAuthenticated) {
-                if (typeof closeTheModal === 'function') {
-                    closeTheModal();
-                }
-                if (typeof sendUpRegistration === 'function') {
-                    sendUpRegistration();
-                }
-                return;
-            }
+    const jediLoginBtn = modalContent.querySelector('#jedi-login-btn');
+    if (jediLoginBtn) {
+        jediLoginBtn.addEventListener('click', async () => {
+            if (typeof closeTheModal === 'function') closeTheModal();
+            await navigateToAuthLogin();
+        });
+    }
 
-            if (typeof closeTheModal === 'function') {
-                closeTheModal();
+    const jediSignupBtn = modalContent.querySelector('#jedi-signup-btn');
+    if (jediSignupBtn) {
+        jediSignupBtn.addEventListener('click', () => {
+            window.location.href = 'https://buwana.ecobricks.org/en/signup-1.php?app=ecal_7f3da821d0a54f8a9b58';
+        });
+    }
+
+    const jediUpgradeBtn = modalContent.querySelector('#jedi-upgrade-btn');
+    if (jediUpgradeBtn) {
+        jediUpgradeBtn.addEventListener('click', () => {
+            if (typeof closeTheModal === 'function') closeTheModal();
+            if (typeof manageEarthcalUserSub === 'function') manageEarthcalUserSub();
+        });
+    }
+
+    const jediManageBtn = modalContent.querySelector('#jedi-manage-btn');
+    if (jediManageBtn) {
+        jediManageBtn.addEventListener('click', () => {
+            if (typeof closeTheModal === 'function') closeTheModal();
+            if (typeof manageEarthcalUserSub === 'function') manageEarthcalUserSub();
+        });
+    }
+
+    // Hover effects: lock icon, Login, and Signup buttons trigger row highlight,
+    // icon switch (locked → unlocked), and label text change.
+    if (!isAuthenticated && jediPlanRow) {
+        const jediLockIcon = jediPlanRow.querySelector('.jedi-access-indicator');
+        const jediStatusLabelEl = jediPlanRow.querySelector('.jedi-status-label');
+        const hoverTargets = [jediLockIcon, jediLoginBtn, jediSignupBtn].filter(Boolean);
+
+        const enterHoverState = () => {
+            jediPlanRow.classList.add('jedi-row-hovered');
+            if (jediLockIcon) {
+                jediLockIcon.classList.remove('pure-locked-icon');
+                jediLockIcon.classList.add('pure-unlocked-icon');
             }
-            if (typeof manageEarthcalUserSub === 'function') {
-                manageEarthcalUserSub();
+            if (jediStatusLabelEl) jediStatusLabelEl.textContent = 'Enable Jedi tools';
+        };
+
+        const leaveHoverState = () => {
+            // Only reset if the pointer has left all trigger elements
+            if (hoverTargets.some(el => el.matches(':hover'))) return;
+            jediPlanRow.classList.remove('jedi-row-hovered');
+            if (jediLockIcon) {
+                jediLockIcon.classList.remove('pure-unlocked-icon');
+                jediLockIcon.classList.add('pure-locked-icon');
             }
+            if (jediStatusLabelEl) jediStatusLabelEl.textContent = 'Unlock features';
+        };
+
+        hoverTargets.forEach(el => {
+            el.addEventListener('mouseenter', enterHoverState);
+            el.addEventListener('mouseleave', leaveHoverState);
         });
     }
 
@@ -890,6 +960,70 @@ async function showUserCalSettings() {
             toggleCometTracking(event.target.checked);
         });
     }
+
+    const auspicerToggle = modalContent.querySelector('#auspicer-toggle');
+    if (auspicerToggle) {
+        auspicerToggle.addEventListener('change', (event) => {
+            window.userShowAuspicer = event.target.checked;
+            localStorage.setItem('user_show_auspicer', String(event.target.checked));
+        });
+    }
+
+    // Lock icon click handlers for Jedi-only rows — clicking either state shows the feature alert
+    const jediRowAlerts = [
+        {
+            rowId: 'forced-offline-row',
+            alertConfig: {
+                previewImageSrc: 'assets/images/venus-offline.webp?v=3',
+                previewImageAlt: 'Offline mode preview',
+                description: 'Keep Earthcal available and your calendar data cached when you\'re offline or on a limited connection.'
+            }
+        },
+        {
+            rowId: 'zodiac-toggle-row',
+            alertConfig: {
+                previewImageSrc: 'assets/images/preview-zodiac.webp?v=2',
+                previewImageAlt: 'Zodiac overlay preview',
+                description: 'View an overlay of the twelve houses so that you can gauge where and when the planets will be in particular zodiac zone.'
+            }
+        },
+        {
+            toggleId: 'lunar-calendar-toggle',
+            alertConfig: {
+                previewImageSrc: 'assets/images/preview-lunarmonths.webp?v=2',
+                previewImageAlt: 'Lunar months preview',
+                description: 'View the lunar months overlaid upon the solar year to help make sense of the Korean, Chinese, Islamic or other lunar calendars'
+            }
+        },
+        {
+            toggleId: 'comet-tracking-toggle',
+            alertConfig: {
+                previewImageSrc: 'assets/images/preview-comet.webp?v=2',
+                previewImageAlt: 'Comet tracking preview',
+                description: 'Track the progress of interstellar comet 3I-ATLAS as it zooms though our solar system in 2025 and 2026.'
+            }
+        }
+    ];
+
+    jediRowAlerts.forEach(({ rowId, toggleId, alertConfig }) => {
+        const row = rowId
+            ? modalContent.querySelector(`#${rowId}`)
+            : (toggleId ? modalContent.querySelector(`#${toggleId}`)?.closest('.toggle-row') : null);
+        if (!row) return;
+        const lockIcon = row.querySelector('.settings-lock-icon');
+        if (!lockIcon) return;
+        lockIcon.removeAttribute('aria-hidden');
+        lockIcon.setAttribute('role', 'button');
+        lockIcon.setAttribute('tabindex', '0');
+        lockIcon.style.cursor = 'pointer';
+        lockIcon.addEventListener('click', () => showPremiumAccessAlert(alertConfig));
+        lockIcon.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                showPremiumAccessAlert(alertConfig);
+            }
+        });
+    });
 
     if (zodiacContrastSlider) {
         zodiacContrastSlider.value = String(clampZodiacShadeSetting(zodiacShadeSetting));

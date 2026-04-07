@@ -436,9 +436,14 @@ async function openMainMenu() {
             </div>
 
             <div id="main-menu-footer">
-                <a href="https://snapcraft.io/earthcal" target="_blank" style="margin-top:30px">
-                    <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" style="max-width:111px;width:100%;height:auto;" />
-                </a>
+                <div class="app-download">
+                    <a href="https://snapcraft.io/earthcal" target="_blank" class="app-download-btn">
+                        <img alt="Get it from the Snap Store" src="svgs/snap-store-black.svg" />
+                    </a>
+                    <button type="button" class="app-download-btn" id="macos-download-btn" aria-label="Download EarthCal for macOS">
+                        <img alt="Download for macOS" src="assets/images/download-for-macOS.webp" />
+                    </button>
+                </div>
 
                 <p style="font-size:small; margin-bottom: 2px;">
                     ${mainMenu.developedBy} <a href="https://earthen.io/earthcal-v0-9/" target="_blank">Earthen.io</a> | ${mainMenu.authBy} <a href="https://buwana.ecobricks.org/en/" target="_blank">Buwana</a>
@@ -447,6 +452,13 @@ async function openMainMenu() {
         `;
 
         _menuLastRenderKey = renderKey;
+
+        const macosBtn = modal.querySelector('#macos-download-btn');
+        if (macosBtn) {
+            macosBtn.addEventListener('click', () => {
+                alert('A native EarthCal MacOS app is in the works. Download will be available April 10th 2026!');
+            });
+        }
     }
 
     modal.style.width = "100%";

@@ -296,10 +296,13 @@ async function openAddItem() {
         return new Date();
     })();
 
-    const moonPhaseInfo = displayMoonPhasev1({
-        date: resolvedMoonDate,
-        container: formRoot
-    }) || null;
+    const showAuspicer = typeof window.userShowAuspicer !== 'undefined'
+        ? window.userShowAuspicer
+        : (localStorage.getItem('user_show_auspicer') !== 'false');
+
+    const moonPhaseInfo = showAuspicer
+        ? (displayMoonPhasev1({ date: resolvedMoonDate, container: formRoot }) || null)
+        : null;
 
     const presetMoonEmoji = sanitizeEmojiInput(moonPhaseInfo?.emoji || '') || '';
 
