@@ -28,7 +28,7 @@ export const translations = {
 
     buttonNextWelcome: "How it works ➔",
     buttonNextOrbit: "The Planets ➔",
-    buttonNextPlanets: "The Moon ➔",
+    buttonNextPlanets: "Auspice the Day ➔",
     buttonNextMoon: "Great Earthling Cycles ➔",
     buttonNextCycles: "Next ➔",
     buttonDone: "✓ Done",

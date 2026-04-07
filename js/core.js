@@ -1888,7 +1888,7 @@ function guidedTour() {
   });
   let currentInfo = 0;
 
-  const translationVersion = '1.4';
+  const translationVersion = '1.5';
 
   import(`../translations/${userLanguage}.js?v=${translationVersion}`).then(module => {
     const t = module.translations.tour;
