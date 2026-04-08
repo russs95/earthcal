@@ -2489,8 +2489,8 @@ function showMacOSModal() {
     downloadBtn.innerHTML = '<span class="macos-dmg-icon"><img src="assets/icons/apple_logo.png" alt="" width="20" height="20"></span><span class="macos-dmg-label">Download EarthCal DMG v1.3</span>';
     downloadBtn.addEventListener('click', () => {
         const link = document.createElement('a');
-        link.href = 'https://earthen.io/downloads/earthcal_macOS_v1.3.5.dmg';
-        link.download = 'earthcal_macOS_v1.3.5.dmg';
+        link.href = 'https://earthcal.app/downloads/EarthCal_1.3.7.dmg';
+        link.download = 'EarthCal_1.3.7.dmg';
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
