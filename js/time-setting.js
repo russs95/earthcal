@@ -458,7 +458,7 @@ function buildLocationSectionHtml(profile) {
 
     return `
         <div class="settings-location-section">
-            <div class="settings-location-header">Your Place on Earth</div>
+            <div class="settings-location-header">Your Place on Earth | Used for astronomy calculations</div>
             ${rowsHtml}
         </div>`;
 }

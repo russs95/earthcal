@@ -3238,6 +3238,18 @@ INFO MODAL
   background-repeat: no-repeat;
   background-size: cover;
   background-position: top center;
+  /* Bleed to all edges — no side/bottom margins */
+  max-width: 100%;
+  width: 100%;
+  max-height: 100vh;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+#modal-content-box.subscription-modal-background .ec-subscription-modal {
+  padding-bottom: 48px;
 }
 
 .ec-subscription-modal {
