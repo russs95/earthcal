@@ -1787,26 +1787,27 @@ function renderCalendarSelectionForm(calendars, {
             webcalIntroEl.textContent = introText;
         }
 
-        const ensureJediPlanAccess = (onAllowed) => {
-            const plan = (window.user_plan || '').toString().trim().toLowerCase();
-            if (plan === 'jedi') {
-                if (typeof onAllowed === 'function') {
-                    onAllowed();
-                }
-                return true;
-            }
+        const isJediPlan = (window.user_plan || '').toString().trim().toLowerCase() === 'jedi';
 
-            alert('Sorry, these advanced EarthCal features require a Jedi account.  Upgrade your account to support EarthCal development and access.');
-
-            if (typeof manageEarthcalUserSub === 'function') {
-                try {
-                    manageEarthcalUserSub();
-                } catch (error) {
-                    console.error('Unable to open subscription modal after Jedi alert.', error);
-                }
-            }
-
-            return false;
+        const showContactsUpgradeAlert = ({ previewImageSrc, previewImageAlt, providerName }) => {
+            if (typeof showFormModalAlert !== 'function') return;
+            showFormModalAlert({
+                previewImageSrc,
+                previewImageAlt,
+                title: 'Jedi Feature',
+                message: `Sync your ${providerName} contacts into EarthCal as a calendar. This feature is available to Jedi EarthCal users — upgrade to unlock it!`,
+                footerMessage: 'Upgrade your EarthCal account to Jedi to connect your contacts.',
+                actions: [
+                    {
+                        label: 'Upgrade to Jedi',
+                        template: 'login',
+                        onClick: () => {
+                            if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                            if (typeof manageEarthcalUserSub === 'function') manageEarthcalUserSub();
+                        }
+                    }
+                ]
+            });
         };
 
         const connectSummary = webcalForm.querySelector('.cal-connect-google-row .cal-row-summary');
@@ -1814,11 +1815,17 @@ function renderCalendarSelectionForm(calendars, {
             const handleConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                ensureJediPlanAccess(() => {
-                    if (typeof openGoogleCalendarConnectModal === 'function') {
-                        openGoogleCalendarConnectModal();
-                    }
-                });
+                if (!isJediPlan) {
+                    showContactsUpgradeAlert({
+                        previewImageSrc: 'assets/images/preview-google-contacts.webp',
+                        previewImageAlt: 'Google Contacts sync preview',
+                        providerName: 'Google'
+                    });
+                    return;
+                }
+                if (typeof openGoogleCalendarConnectModal === 'function') {
+                    openGoogleCalendarConnectModal();
+                }
             };
 
             connectSummary.addEventListener('click', handleConnect);
@@ -1834,11 +1841,17 @@ function renderCalendarSelectionForm(calendars, {
             const handleAppleConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                ensureJediPlanAccess(() => {
-                    if (typeof connectAppleCalendar === 'function') {
-                        connectAppleCalendar();
-                    }
-                });
+                if (!isJediPlan) {
+                    showContactsUpgradeAlert({
+                        previewImageSrc: 'assets/images/preview-apple-contacts.webp',
+                        previewImageAlt: 'Apple Contacts sync preview',
+                        providerName: 'Apple'
+                    });
+                    return;
+                }
+                if (typeof connectAppleCalendar === 'function') {
+                    connectAppleCalendar();
+                }
             };
 
             appleSummary.addEventListener('click', handleAppleConnect);
@@ -1854,11 +1867,17 @@ function renderCalendarSelectionForm(calendars, {
             const handleOutlookConnect = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                ensureJediPlanAccess(() => {
-                    if (typeof connectOutlookCalendar === 'function') {
-                        connectOutlookCalendar();
-                    }
-                });
+                if (!isJediPlan) {
+                    showContactsUpgradeAlert({
+                        previewImageSrc: 'assets/images/preview-outlook-contacts.webp',
+                        previewImageAlt: 'Outlook Contacts sync preview',
+                        providerName: 'Outlook'
+                    });
+                    return;
+                }
+                if (typeof connectOutlookCalendar === 'function') {
+                    connectOutlookCalendar();
+                }
             };
 
             outlookSummary.addEventListener('click', handleOutlookConnect);
@@ -2346,6 +2365,16 @@ async function showLoggedInView(calendars = [], { autoExpand = true } = {}) {
 
     const sortedCalendars = sortCalendarsByName(normalizedCalendars);
     const userPlan = (window.user_plan || '').toLowerCase();
+
+    // Preload contact-sync preview images for non-Jedi users so they display
+    // instantly if the user clicks a locked connect row.
+    if (userPlan !== 'jedi') {
+        ['assets/images/preview-google-contacts.webp',
+         'assets/images/preview-apple-contacts.webp',
+         'assets/images/preview-outlook-contacts.webp'
+        ].forEach(src => { new Image().src = src; });
+    }
+
     const planName = userPlan === 'jedi'
         ? 'EarthCal Jedi'
         : userPlan === 'padwan'

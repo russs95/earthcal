@@ -307,6 +307,9 @@ async function openMainMenu() {
     const modal = document.getElementById("main-menu-overlay");
     const content = document.getElementById("main-menu-content");
 
+    // Preload the macOS upgrade preview so it displays instantly for padwan users
+    new Image().src = 'assets/images/preview-apple-contacts.webp';
+
     const lang = userLanguage?.toLowerCase() || 'en';
 
     // Bug 4 fix: memoize translations per language
@@ -458,14 +461,40 @@ async function openMainMenu() {
         if (macosBtn) {
             macosBtn.addEventListener('click', () => {
                 const loggedIn = typeof isLoggedIn === 'function' && isLoggedIn();
-                if (loggedIn) {
+                const currentPlan = (window.user_plan || '').toString().trim().toLowerCase();
+                const isJediOrAbove = loggedIn && (currentPlan === 'jedi' || currentPlan === 'master');
+                const isPadwan = loggedIn && currentPlan === 'padwan';
+
+                if (isJediOrAbove) {
                     closeMainMenu();
                     showMacOSModal();
-                } else {
-                    // Show Jedi-style alert on top of the main menu
+                } else if (isPadwan) {
+                    // Padwan user — show upgrade invitation
                     if (typeof showFormModalAlert === 'function') {
                         showFormModalAlert({
-                            previewImageSrc: 'assets/images/preview-macos.webp',
+                            previewImageSrc: 'assets/images/preview-apple-contacts.webp',
+                            previewImageAlt: 'EarthCal for macOS preview',
+                            title: 'Jedi Feature',
+                            message: "Download the native EarthCal app for macOS. This feature is available to Jedi EarthCal users. Upgrade to Jedi to run EarthCal full-screen on your Mac!",
+                            footerMessage: 'Upgrade your EarthCal account to Jedi to access the macOS download.',
+                            actions: [
+                                {
+                                    label: 'Upgrade to Jedi',
+                                    template: 'login',
+                                    onClick: () => {
+                                        if (typeof closeFormModalAlert === 'function') closeFormModalAlert();
+                                        closeMainMenu();
+                                        if (typeof manageEarthcalUserSub === 'function') manageEarthcalUserSub();
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                } else {
+                    // Not logged in — show login/signup prompt
+                    if (typeof showFormModalAlert === 'function') {
+                        showFormModalAlert({
+                            previewImageSrc: 'assets/images/preview-apple-contacts.webp',
                             previewImageAlt: 'EarthCal for macOS',
                             title: 'Jedi Feature',
                             message: 'Download the native EarthCal app for macOS. Free for all Jedi EarthCal users.',

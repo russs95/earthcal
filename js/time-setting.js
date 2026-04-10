@@ -506,6 +506,17 @@ async function showUserCalSettings() {
         ? 'Unlock features'
         : (isJediPlan ? 'Jedi powers activated' : 'Unlock Jedi features');
     const hasPremiumAccess = isAuthenticated && isJediPlan;
+
+    // Lazy-preload Jedi feature preview images for non-Jedi users so they
+    // display instantly if the user clicks a locked toggle.
+    if (!hasPremiumAccess) {
+        ['assets/images/preview-comet.webp?v=2',
+         'assets/images/preview-lunarmonths.webp?v=2',
+         'assets/images/venus-offline.webp?v=3',
+         'assets/images/preview-zodiac.webp?v=2'
+        ].forEach(src => { new Image().src = src; });
+    }
+
     const jediAccessIconClass = isJediPlan ? 'pure-unlocked-icon' : 'pure-locked-icon';
     const clockViewLabel = 'Analogue clock view';
     const lockIconHtml = (isUnlocked) => `
