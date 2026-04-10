@@ -491,3 +491,9 @@
 .macos-dmg-download-btn .macos-dmg-icon img {
   filter: none;
 }
+
+/* In dark mode the backdrop needs to be darker so the modal card is visually
+   separated from the near-black page content behind it. */
+#form-modal-alert {
+  background-color: rgba(0, 0, 0, 0.75);
+}
