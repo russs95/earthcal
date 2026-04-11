@@ -91,7 +91,33 @@ function showLoginRequiredModal() {
  */
 
 
-async function openAddItem() {
+function selectAddItemType() {
+    const palette = document.getElementById('select-item-type-palette');
+    if (!palette) { openAddItem(); return; }
+    palette.classList.remove('modal-hidden');
+    palette.classList.add('modal-visible');
+
+    palette.addEventListener('click', function onBackdropClick(e) {
+        if (e.target === palette) {
+            closeSelectItemTypePalette();
+            palette.removeEventListener('click', onBackdropClick);
+        }
+    });
+}
+
+function selectAddItemTypeChoice(kind) {
+    closeSelectItemTypePalette();
+    openAddItem(kind);
+}
+
+function closeSelectItemTypePalette() {
+    const palette = document.getElementById('select-item-type-palette');
+    if (!palette) return;
+    palette.classList.remove('modal-visible');
+    palette.classList.add('modal-hidden');
+}
+
+async function openAddItem(preselectedKind = null) {
     async function initSyncStoreForUser(user) {
         if (!user?.buwana_id || !window.syncStore?.initSyncStore) return false;
         try {
@@ -129,6 +155,10 @@ async function openAddItem() {
         showLoginRequiredModal();
         return;
     }
+
+    const initialKind = (preselectedKind && Object.prototype.hasOwnProperty.call(ADD_ITEM_KIND_CONFIG, preselectedKind))
+        ? preselectedKind
+        : 'todo';
 
     // ============================================================
     // 1. GET TARGET DATE
@@ -277,7 +307,8 @@ async function openAddItem() {
         calendarId,
         calendarName,
         tzid: getUserTZ(),
-        calendars: ownedCalendars
+        calendars: ownedCalendars,
+        initialKind
     });
 
     const formRoot = modalContent.querySelector('#ec-add-form-root');
@@ -314,7 +345,12 @@ async function openAddItem() {
         presetMoonEmoji
     };
 
-    applyKindToForm('todo', kindContext, {});
+    applyKindToForm(initialKind, kindContext, {});
+
+    if (preselectedKind) {
+        const kindSelectField = document.getElementById('ec-item-kind')?.closest('.ec-form-field');
+        if (kindSelectField) kindSelectField.style.display = 'none';
+    }
 
     const titleInput = document.getElementById('ec-title');
     if (titleInput) {
@@ -674,7 +710,8 @@ function buildKindSpecificFields(kind, { dateStr, timeStr }) {
     return buildTodoFields({ notesPlaceholder });
 }
 
-function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid, calendars = [] }) {
+function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calendarName, tzid, calendars = [], initialKind = 'todo' }) {
+    const kindCfg = ADD_ITEM_KIND_CONFIG[initialKind] || ADD_ITEM_KIND_CONFIG.todo;
     const calendarOptions = Array.isArray(calendars) && calendars.length
         ? calendars.map(cal => {
             const idRaw = cal.calendar_id ?? cal.id ?? '';
@@ -686,8 +723,8 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         : `<option value="${escapeAttr(calendarId)}" selected>${escapeHTML(calendarName)}</option>`;
 
     return `
-    <div class="ec-add-form ${ADD_ITEM_KIND_CONFIG.todo.className}" id="ec-add-form-root" data-active-kind="todo" style="margin:auto;">
-      <h3 class="ec-form-title" id="ec-add-form-title">${ADD_ITEM_KIND_CONFIG.todo.heading(displayDate)}</h3>
+    <div class="ec-add-form ${kindCfg.className}" id="ec-add-form-root" data-active-kind="${initialKind}" style="margin:auto;">
+      <h3 class="ec-form-title" id="ec-add-form-title">${kindCfg.heading(displayDate)}</h3>
 
       <form id="ec-add-item-form" autocomplete="off">
         <input id="ec-date" type="hidden" value="${escapeAttr(dateStr)}">
@@ -695,14 +732,14 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         <input id="ec-tzid" type="hidden" value="${escapeAttr(tzid)}">
 
         <div class="ec-form-field ec-title-row">
-          <input id="ec-title" type="text" class="blur-form-field" placeholder="${ADD_ITEM_KIND_CONFIG.todo.titlePlaceholder}" style="height:45px;width:100%;cursor:text;margin-bottom: 5px;margin-top:10px;" aria-label="Title">
+          <input id="ec-title" type="text" class="blur-form-field" placeholder="${kindCfg.titlePlaceholder}" style="height:45px;width:100%;cursor:text;margin-bottom: 5px;margin-top:10px;" aria-label="Title">
         </div>
 
         <div class="ec-form-field">
           <select id="ec-item-kind" class="blur-form-field" style="height:45px;width:100%;text-align:center;" aria-label="Item type">
-            <option value="todo" selected>To-Do</option>
-            <option value="event">Event</option>
-            <option value="journal">Journal</option>
+            <option value="todo"${initialKind === 'todo' ? ' selected' : ''}>To-Do</option>
+            <option value="event"${initialKind === 'event' ? ' selected' : ''}>Event</option>
+            <option value="journal"${initialKind === 'journal' ? ' selected' : ''}>Journal</option>
           </select>
         </div>
 
@@ -714,7 +751,7 @@ function buildAddItemFormHTML({ displayDate, dateStr, timeStr, calendarId, calen
         </div>
 
         <div id="ec-kind-fields" class="ec-kind-fields">
-          ${buildKindSpecificFields('todo', { dateStr, timeStr })}
+          ${buildKindSpecificFields(initialKind, { dateStr, timeStr })}
         </div>
 
         <div class="ec-form-actions">

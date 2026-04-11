@@ -475,7 +475,7 @@ async function openMainMenu() {
                             previewImageSrc: 'assets/images/preview-apple-contacts.webp',
                             previewImageAlt: 'EarthCal for macOS preview',
                             title: 'Jedi Feature',
-                            message: "Download the native EarthCal app for macOS. This feature is available to Jedi EarthCal users. Upgrade to Jedi to run EarthCal full-screen on your Mac!",
+                            message: "EarthCal can be installed as a awesome MacOS app. Run full in glorious screen on your MacBook.  Download is available to Jedi EarthCal users.",
                             footerMessage: 'Upgrade your EarthCal account to Jedi to access the macOS download.',
                             actions: [
                                 {

@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=58.3"></script>
+    <script src="js/earthcal-init.js?v=58.4"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.3">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.4">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.7">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -650,6 +650,22 @@
     </div>
 </div>
 
+<!-- SELECT ITEM TYPE PALETTE -->
+<div id="select-item-type-palette" class="modal-hidden" role="dialog" aria-label="Select item type" aria-modal="true">
+  <div id="select-item-type-panel">
+    <div class="select-type-header-desktop">
+      <button class="top-add-button select-type-icon-display" aria-hidden="true" tabindex="-1"></button>
+    </div>
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('todo')">+ Add To-Do</button>
+    <hr class="select-type-divider">
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('event')">+ Add Event</button>
+    <hr class="select-type-divider">
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('journal')">+ Add Journal</button>
+    <hr class="select-type-divider">
+    <button type="button" class="select-type-cancel" onclick="closeSelectItemTypePalette()">Cancel</button>
+  </div>
+</div>
+
 <!-- DATE SEARCH -->
 <div id="day-search" class="modal-hidden" >
     <button
@@ -839,7 +855,7 @@
                     <div id="user-timezone-lang"></div>
                 </div>
                 <div class="add-event-button" style="justify-content:center;margin-top:auto;margin-bottom: auto;display:flex;z-index:20;padding-top:8px;">
-                    <button type="button" class="top-add-button" onclick="openAddItem()" aria-label="Add a Cycle" id="add-datecycle-button"></button>
+                    <button type="button" class="top-add-button" onclick="selectAddItemType()" aria-label="Add item" id="add-datecycle-button"></button>
                 </div>
             </div>
             <div id="time-controller">
