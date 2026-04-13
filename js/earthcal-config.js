@@ -3,4 +3,4 @@
 
 // Single source of truth for the client-side app version.
 // Update this whenever a new macOS build is packaged.
-window.EARTHCAL_APP_VERSION = "1.0.0";
+window.EARTHCAL_APP_VERSION = "1.3.8";
