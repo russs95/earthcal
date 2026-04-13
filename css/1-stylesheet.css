@@ -5863,8 +5863,8 @@ svg path #june:hover {
 
 .select-type-header-desktop {
   display: none;
-  justify-content: center;
-  padding: 6px 0 4px;
+  justify-content: flex-end;
+  padding: 4px 0 4px;
 }
 
 @media (min-width: 769px) {
@@ -5875,13 +5875,13 @@ svg path #june:hover {
 
 .select-type-icon-display {
   pointer-events: none;
-  opacity: 0.85;
-  margin: 0 auto;
-  height: 32px;
-  width: 32px;
-    margin-left: auto;
-    margin-right: 10px;
-    margin-top: -10px;
+  height: 45px;
+  width: 45px;
+  margin-left: auto;
+  margin-right: 6px;
+  margin-top: 0;
+  background: url(../svgs/add-night-over.svg) no-repeat center !important;
+  background-size: contain !important;
 }
 
 .select-type-option {
@@ -5889,17 +5889,45 @@ svg path #june:hover {
   border: none;
   cursor: pointer;
   font-family: 'Mulish', sans-serif;
-  font-size: 0.9em;
+  font-size: 1.2em;
   color: var(--h1);
   text-align: left;
   padding: 10px 18px;
   width: 100%;
 }
 
+@media (min-width: 769px) {
+  .select-type-option {
+    font-size: 1.15em;
+  }
+}
+
 .select-type-option:hover,
 .select-type-option:focus {
   background: rgba(128, 128, 128, 0.12);
   outline: none;
+}
+
+@keyframes selectTypeClickDarken {
+  0%   { background: transparent; }
+  50%  { background: rgba(0, 0, 0, 0.11); }
+  100% { background: rgba(0, 0, 0, 0.07); }
+}
+
+@keyframes selectTypeClickLighten {
+  0%   { background: transparent; }
+  50%  { background: rgba(255, 255, 255, 0.15); }
+  100% { background: rgba(255, 255, 255, 0.09); }
+}
+
+.select-type-clicking--darken {
+  animation: selectTypeClickDarken 0.3s ease forwards;
+  pointer-events: none;
+}
+
+.select-type-clicking--lighten {
+  animation: selectTypeClickLighten 0.3s ease forwards;
+  pointer-events: none;
 }
 
 .select-type-divider {

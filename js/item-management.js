@@ -110,6 +110,13 @@ function selectAddItemTypeChoice(kind) {
     openAddItem(kind);
 }
 
+function selectAddItemTypeChoiceAnimated(el, kind) {
+    const isDark = window.userDarkMode === 'dark' ||
+        (!window.userDarkMode && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    el.classList.add(isDark ? 'select-type-clicking--lighten' : 'select-type-clicking--darken');
+    setTimeout(() => selectAddItemTypeChoice(kind), 300);
+}
+
 function closeSelectItemTypePalette() {
     const palette = document.getElementById('select-item-type-palette');
     if (!palette) return;

@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=58.4"></script>
+    <script src="js/earthcal-init.js?v=58.5"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.5">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.6">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.7">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -656,11 +656,11 @@
     <div class="select-type-header-desktop">
       <button class="top-add-button select-type-icon-display" aria-hidden="true" tabindex="-1"></button>
     </div>
-    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('todo')">+ Add To-Do</button>
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'todo')">+ Add To-Do</button>
     <hr class="select-type-divider">
-    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('event')">+ Add Event</button>
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'event')">+ Add Event</button>
     <hr class="select-type-divider">
-    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoice('journal')">+ Add Journal</button>
+    <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'journal')">+ Add Journal</button>
     <hr class="select-type-divider">
     <button type="button" class="select-type-cancel" onclick="closeSelectItemTypePalette()">Cancel</button>
   </div>
