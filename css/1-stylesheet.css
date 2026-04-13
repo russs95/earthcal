@@ -5843,9 +5843,9 @@ svg path #june:hover {
   width: 100%;
   background: var(--top-header);
   font-family: 'Mulish', sans-serif;
-  font-size: 1.4em;
-  border-radius: 0 0 14px 14px;
-  padding: 12px 0 8px;
+  font-size: 1em;
+  border-radius: 0 0 12px 12px;
+  padding: 6px 0 4px;
   display: flex;
   flex-direction: column;
   z-index: 55;
@@ -5853,18 +5853,18 @@ svg path #june:hover {
 
 @media (min-width: 769px) {
   #select-item-type-panel {
-    top: 12px;
-    right: 16px;
+    top: 10px;
+    right: 14px;
     left: auto;
-    width: 220px;
-    border-radius: 14px;
+    width: 180px;
+    border-radius: 12px;
   }
 }
 
 .select-type-header-desktop {
   display: none;
   justify-content: center;
-  padding: 10px 0 6px;
+  padding: 6px 0 4px;
 }
 
 @media (min-width: 769px) {
@@ -5877,6 +5877,11 @@ svg path #june:hover {
   pointer-events: none;
   opacity: 0.85;
   margin: 0 auto;
+  height: 32px;
+  width: 32px;
+    margin-left: auto;
+    margin-right: 10px;
+    margin-top: -10px;
 }
 
 .select-type-option {
@@ -5884,10 +5889,10 @@ svg path #june:hover {
   border: none;
   cursor: pointer;
   font-family: 'Mulish', sans-serif;
-  font-size: 1em;
+  font-size: 0.9em;
   color: var(--h1);
   text-align: left;
-  padding: 16px 28px;
+  padding: 10px 18px;
   width: 100%;
 }
 
@@ -5908,12 +5913,12 @@ svg path #june:hover {
   border: none;
   cursor: pointer;
   font-family: 'Mulish', sans-serif;
-  font-size: 0.9em;
+  font-size: 0.8em;
   color: rgba(128, 128, 128, 0.8);
   text-align: center;
-  padding: 14px 28px;
+  padding: 9px 18px;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .select-type-cancel:hover,
