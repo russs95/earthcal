@@ -2515,11 +2515,13 @@ function showMacOSModal() {
     const downloadBtn = document.createElement('button');
     downloadBtn.type = 'button';
     downloadBtn.className = 'macos-dmg-download-btn';
-    downloadBtn.innerHTML = '<span class="macos-dmg-icon"><img src="assets/icons/apple_logo.png" alt="" width="20" height="20"></span><span class="macos-dmg-label">Download EarthCal DMG v1.3</span>';
+    const _dmgVersion = window.EARTHCAL_APP_VERSION || '1.3.8';
+    const _dmgFilename = 'EarthCal_' + _dmgVersion + '.dmg';
+    downloadBtn.innerHTML = '<span class="macos-dmg-icon"><img src="assets/icons/apple_logo.png" alt="" width="20" height="20"></span><span class="macos-dmg-label">Download EarthCal DMG v' + _dmgVersion + '</span>';
     downloadBtn.addEventListener('click', () => {
         const link = document.createElement('a');
-        link.href = 'https://earthcal.app/downloads/EarthCal_1.3.7.dmg';
-        link.download = 'EarthCal_1.3.7.dmg';
+        link.href = 'https://earthcal.app/downloads/' + _dmgFilename;
+        link.download = _dmgFilename;
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
@@ -2550,5 +2552,56 @@ if (typeof document !== "undefined") {
         document.addEventListener("DOMContentLoaded", initializeCometSystem, { once: true });
     } else {
         initializeCometSystem();
+    }
+}
+
+/* ── macOS App Update Check ─────────────────────────────────────────────────
+ * Called once from initializePage() in dash.html.
+ * Only runs when window.EARTHCAL_APP_VERSION is set (i.e. in the packaged
+ * desktop app). Web users always run the latest served version.
+ */
+async function checkForAppUpdate() {
+    const currentVersion = window.EARTHCAL_APP_VERSION;
+    if (!currentVersion) return;
+
+    try {
+        const url = 'https://earthcal.app/api/version_check.php'
+            + '?app=EarthCal&current_version=' + encodeURIComponent(currentVersion);
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.update_available) return;
+
+        const banner = document.getElementById('update-top-banner');
+        if (!banner) return;
+
+        const dlUrl = data.download_url || 'https://earthcal.app/downloads/';
+        const safeMsg = (data.message || 'A new version of EarthCal is available.')
+            .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeVer = (data.latest_version || '').replace(/[^0-9.]/g, '');
+        const safeDl = dlUrl.replace(/"/g, '%22');
+
+        banner.innerHTML = safeMsg
+            + ' <a href="' + safeDl + '" target="_blank" rel="noopener noreferrer"'
+            + ' style="color:inherit;text-decoration:underline;margin-left:6px;">'
+            + 'Download v' + safeVer + '</a>';
+
+        if (data.critical) {
+            banner.classList.add('critical');
+        }
+        banner.removeAttribute('hidden');
+
+        // Auto-hide after 12 s unless critical
+        if (!data.critical) {
+            setTimeout(() => {
+                banner.classList.add('hiding');
+                banner.addEventListener('transitionend', () => {
+                    banner.setAttribute('hidden', '');
+                    banner.classList.remove('hiding');
+                }, { once: true });
+            }, 12000);
+        }
+    } catch (_) {
+        // Silent fail — never crash the app over a version check
     }
 }

@@ -5777,6 +5777,34 @@ svg path #june:hover {
     opacity: 0;
 }
 
+/* ── Update-available top-of-screen banner ── */
+.update-top-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #f5c518;
+    color: var(--general-background);
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 11px 20px;
+    line-height: 1.4;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.update-top-banner.critical {
+    background: #c0392b;
+    color: #fff;
+}
+
+.update-top-banner.hiding {
+    opacity: 0;
+}
+
 /* ── Settings modal: Your Place on Earth (buwana:bioregion / buwana:community) ── */
 .settings-location-section {
     margin: 14px 0 6px;

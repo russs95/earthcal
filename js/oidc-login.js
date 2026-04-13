@@ -73,6 +73,10 @@ export async function redirectToBuwana() {
     // Use browser language if available
     const lang = (navigator.language || "en").slice(0, 2) || "en";
 
+    // Translate EarthCal's mode key to Buwana's universal mode param
+    const ecMode = localStorage.getItem('user_dark_mode');
+    const mode = ecMode === 'dark' ? 'dark' : 'light';
+
     // PKCE + state/nonce as before
     const state = await generateRandomString(32);
     const nonce = await generateRandomString(32);
@@ -98,6 +102,7 @@ export async function redirectToBuwana() {
     url.searchParams.append("code_challenge", codeChallenge);
     url.searchParams.append("code_challenge_method", "S256");
     url.searchParams.append("lang", lang);
+    url.searchParams.append("mode", mode);
 
     window.location.href = url.toString();
 }

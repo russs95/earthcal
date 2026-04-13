@@ -140,7 +140,7 @@
             <span class="earthen-logo-wrapper" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="/svgs/earthen-icon.svg" alt="Earthen logo">
             </span>
-        <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal v1.3 by Earthen Labs</p>
+        <p id="logo-text" class="footer-text" style="font-size: smaller;">EarthCal by Earthen Labs</p>
     </div>
 </div>
 
@@ -409,6 +409,16 @@
         } catch (err) {
             console.error("Authentication error:", err);
             alert("Login failed. Please try again.");
+        }
+    })();
+</script>
+<script src="/js/earthcal-config.js?v=1.1"></script>
+<script>
+    (function () {
+        var v = window.EARTHCAL_APP_VERSION;
+        if (v) {
+            var el = document.getElementById('logo-text');
+            if (el) el.textContent = 'EarthCal v' + v + ' by Earthen Labs';
         }
     })();
 </script>

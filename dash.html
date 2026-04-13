@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=58.5"></script>
+    <script src="js/earthcal-init.js?v=58.6"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.6">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.7">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.7">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -553,6 +553,17 @@
             if (userClock) {
                 openClock(userTimeZone);
             }
+
+            // Set version tooltip on settings button
+            const settingsBtn = document.getElementById('top-settings');
+            if (settingsBtn && window.EARTHCAL_APP_VERSION) {
+                settingsBtn.title = 'EarthCal v' + window.EARTHCAL_APP_VERSION;
+            }
+
+            // Non-blocking update check for macOS packaged app (fire-and-forget)
+            if (typeof checkForAppUpdate === 'function') {
+                checkForAppUpdate();
+            }
         }
 
         /* ==================== OFFLINE ALERT BANNER ==================== */
@@ -624,6 +635,9 @@
 
 <!--OFFLINE TOP BANNER-->
 <div id="offline-top-banner" class="offline-top-banner" hidden aria-live="assertive" role="status"></div>
+
+<!--UPDATE AVAILABLE BANNER-->
+<div id="update-top-banner" class="update-top-banner" hidden aria-live="polite" role="status"></div>
 
 <!--FORM MODAL ALERT-->
 <div id="form-modal-alert" class="modal-hidden" aria-hidden="true">
@@ -936,7 +950,7 @@
       border-radius: 15px;">
         <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
         <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
-        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="Earthcal v1.3.6"></button></div>
+        <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="EarthCal"></button></div>
     </div>
 
     <div class="planet-info-container" style="width:100%;height:100vh;display:flex;justify-content: center;text-align: center;">

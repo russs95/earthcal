@@ -1,11 +1,11 @@
-We need a way for our non-mac-app-store macOS earthcal to be able to check its version, see if theres a newer one available and at the very least, let the user know they should download it.  
+We need a way for our non-mac-app-store macOS earthcal to be able to check its version, see if there's a newer one available and at the very least, let the user know they should download it.  
 
-Later we'll use sparkle for this process.  
+To start this work, I've gone ahead and created an important new version.json in the root directory.  This contains the master version number.  I've also add a new CHANGELOG.md and a release/ directory where release notes can be stored.  
 
-However, for the moment lets build and deploy a lightweight EarthCal macOS update-check system based on a PHP endpoint.
+Now, let's update the Earthcal index.html, auth/callback/index.hml and dash.html to use the version number in this JSON (get rid of the hardcoded version numbers).  Second, lets build and deploy a lightweight EarthCal macOS update-check system based on a PHP endpoint that can check in to see if it version is behind and if there is an update available.
 
 Goal:
-Create `/api/version_check.php` on the EarthCal server so the macOS app can compare its local version to the latest available version online at launch.
+Create `/api/version_check.php` on the EarthCal server so the macOS app can compare its local version to the latest available version online at launch. 
 
 Requirements:
 
@@ -66,23 +66,6 @@ or false based on semantic version comparison
 * include basic cache headers suitable for a lightweight API
 * keep code simple and dependency-free
 
-8. Deployment:
-
-* place the endpoint in the correct EarthCal public web directory
-* place the config file in a sensible secure location
-* ensure the endpoint works on the current server PHP setup
-* provide exact file paths assumed during deployment
-* provide exact shell commands for upload, permissions, and quick testing with `curl`
-
-9. Deliverables:
-
-* full contents of `version_check.php`
-* full contents of the config file
-* any needed `.htaccess` addition only if necessary
-* a short deployment checklist
-* example `curl` tests
-* one example JSON success response
-* one example JSON error response
 
 10. Keep this first version simple:
 
@@ -91,4 +74,4 @@ or false based on semantic version comparison
 * no authentication
 * just a reliable read-only version check endpoint for the EarthCal macOS app
 
-Please generate production-ready code with comments, and assume this will be deployed on a typical PHP hosting/server environment.
+11. In the same way that we show a logged out Jedi user the top of the screen yellow notice "You're in Jedi Offline Mode..."  let's also use the same notice style to let the user know that there is a new version of the app to download.  If critical is "True" then do not hide the notice and make it red.

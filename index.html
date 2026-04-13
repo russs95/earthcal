@@ -66,11 +66,11 @@
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources ttt-->
     <link rel="preload" href="/" as="image" type="image/svg+xml">
-    <link rel="preload" href="js/earthcal-init.js?v=58.5" as="script">
+    <link rel="preload" href="js/earthcal-init.js?v=58.6" as="script">
     <link rel="preload" href="css/light.css?v=8.0" as="style">
     <link rel="preload" href="css/dark.css?v=8.0" as="style">
-    <link rel="preload" href="css/1-stylesheet.css?v=10.6" as="style">
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=10.6">
+    <link rel="preload" href="css/1-stylesheet.css?v=10.7" as="style">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=10.7">
     <link rel="preload" href="assets/fonts/Mulish-Light.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Mulish-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
     <link rel="preload" href="assets/fonts/Arvo-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
@@ -453,7 +453,7 @@
         <a href="dash.html"><span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:28px;height:28px;">
             </span></a>
-        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html">EarthCal v1.3 by Earthen Labs</a></p>
+        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html" data-version-display="EarthCal {v} by Earthen Labs">EarthCal by Earthen Labs</a></p>
     </div>
 </div>
 
@@ -477,14 +477,24 @@
         <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
             <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:37.4px;height:37.4px;">
         </span>
-        <p class="footer-text" data-i18n="footer.tagline">EarthCal v1.3 by Earthen</p>
+        <p class="footer-text" data-i18n="footer.tagline" data-version-display="EarthCal {v} by Earthen">EarthCal by Earthen</p>
     </div>
 </div>
 
 
 
 
-<script src="js/earthcal-config.js"></script>
+<script src="js/earthcal-config.js?v=1.1"></script>
+<script>
+    // Inject version number into any element with data-version-display
+    (function () {
+        var v = window.EARTHCAL_APP_VERSION || '';
+        if (!v) return;
+        document.querySelectorAll('[data-version-display]').forEach(function (el) {
+            el.textContent = el.getAttribute('data-version-display').replace('{v}', 'v' + v);
+        });
+    })();
+</script>
 <script src="js/first-onboarding.js?v=2.1"></script>
 <script type="module">
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

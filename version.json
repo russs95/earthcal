@@ -1,0 +1,12 @@
+{
+  "app": "EarthCal",
+  "version": "1.3.8",
+  "build": 0,
+  "minimum_supported_version": "1.3.8",
+  "release_date": "2026-04-13",
+  "published_at": "2026-04-13T00:00:00Z",
+  "release_notes_path": "/releases/1.3.md",
+  "download_url": "https://earthcal.app/downloads/EarthCal_1.3.8.dmg",
+  "critical": false,
+  "message": "A new version of EarthCal is available."
+}
