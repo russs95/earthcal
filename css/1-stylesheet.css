@@ -5989,12 +5989,22 @@ svg path #june:hover {
 ──────────────────────────────────────────────────────────────────────────── */
 
 .vm-loading {
-  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 40px;
   text-align: center;
   color: var(--h1);
   font-family: 'Mulish', sans-serif;
   font-size: 1rem;
   opacity: 0.7;
+}
+
+.vm-loading-spinner {
+  width: 56px;
+  height: 56px;
 }
 
 .vm-wrap {
@@ -6044,6 +6054,16 @@ svg path #june:hover {
   margin: 6px 0 0;
   font-size: 0.82rem;
   color: var(--text-muted, #9ca3af);
+}
+
+.vm-build-link {
+  color: var(--text-muted, #9ca3af);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vm-build-link:hover {
+  opacity: 0.7;
 }
 
 /* Release notes */
@@ -6218,14 +6238,23 @@ svg path #june:hover {
   padding-top: 8px;
 }
 
-.vm-manifesto-link {
-  font-size: 0.82rem;
-  color: var(--text-muted, #9ca3af);
-  text-decoration: underline;
+.vm-manifesto-btn {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 6px;
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--h1);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, opacity 0.15s;
+  border: 1px solid rgba(128, 128, 128, 0.25);
 }
 
-.vm-manifesto-link:hover {
-  opacity: 0.75;
+.vm-manifesto-btn:hover,
+.vm-manifesto-btn:focus {
+  background: rgba(128, 128, 128, 0.25);
+  text-decoration: none;
 }
 
 @media (max-width: 480px) {

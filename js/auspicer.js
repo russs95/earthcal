@@ -1611,17 +1611,20 @@
             "</div>" +
             '<div class="ec-lunar-auspices__body">' +
             guidanceHtml +
+            '<div class="ec-lunar-auspices__scroll-body">' +
             tagsHtml +
             warningsHtml +
             actionsHtml +
             biodynamicCouncilHtml +
             ancestralExampleHtml +
             lunarDataHtml +
+            '<div class="ec-lunar-auspices__location-note">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
             '<div class="ec-lunar-auspices__info-panel">' +
             '<p>Introducing the Earthen Auspicer — a power tool for gaining insight into designing your day. Working with live astronomical data, Earthcal calculates the auspices for your day based on long-established traditional ecological knowledge, biodynamic principles, and the latest breakthroughs in chronobiology.</p>' +
             '<p>This algorithm is not AI — nor is it astrology. It is a hard-coded algorithm we have been honing for years, running on our server. The algorithm has three layers: lunar, solar, and planetary. Solar and lunar cycles have profound impacts on life on planet Earth. Planets can have an impact too. When these layers combine and overlap they can have profound subtle consequences: from eclipses to lunar nodes, phases, apogees, and perigees — we\'ve mapped each intersection and correlated it to ancestral wisdom and science.</p>' +
             '<p>Great cultures ancient and ongoing have known what phase and position of the Moon was best for planting, for harvesting, and for letting things take their course. Scientists are only now beginning to understand the mechanisms at play and how they impact us humans. Now it\'s your turn. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to get deeper insights and perspective as you design your days.</p>' +
             '<div class="ec-lunar-auspices__info-footer">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '</div>' +
             '</div>' +
             "</div>";
 
@@ -1834,12 +1837,13 @@
             ancestralExampleHtml +
             lunarDataHtml +
             solarDataHtml +
-            '</div>' +
+            '<div class="ec-lunar-auspices__location-note">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
             '<div class="ec-lunar-auspices__info-panel">' +
             '<p>Introducing the Earthen Auspicer — a power tool for gaining insight into designing your day. Working with live astronomical data, Earthcal calculates the auspices for your day based on long-established traditional ecological knowledge, biodynamic principles, and the latest breakthroughs in chronobiology.</p>' +
             '<p>This algorithm is not AI — nor is it astrology. It is a hard-coded algorithm we have been honing for years, running on our server. The algorithm has three layers: lunar, solar, and planetary. Solar and lunar cycles have profound impacts on life on planet Earth. Planets can have an impact too. When these layers combine and overlap they can have profound subtle consequences: from eclipses to lunar nodes, phases, apogees, and perigees — we\'ve mapped each intersection and correlated it to ancestral wisdom and science.</p>' +
             '<p>Great cultures ancient and ongoing have known what phase and position of the Moon was best for planting, for harvesting, and for letting things take their course. Scientists are only now beginning to understand the mechanisms at play and how they impact us humans. Now it\'s your turn. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to get deeper insights and perspective as you design your days.</p>' +
             '<div class="ec-lunar-auspices__info-footer">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '</div>' +
             '</div>' +
             "</div>";
 

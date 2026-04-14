@@ -420,12 +420,12 @@ async function openMainMenu() {
                 ${menuTopHtml}
 
                 <div id="all-the-main-menu-items"></div>
-                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
-                    ${mainMenu.featureTour}
-                </div>
-
                 <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showVersionModal, 500);">
                     Version ${window.EARTHCAL_APP_VERSION || ''}
+                </div>
+
+                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(guidedTour, 500);">
+                    ${mainMenu.featureTour}
                 </div>
 
                 ${feedbackItemHtml}

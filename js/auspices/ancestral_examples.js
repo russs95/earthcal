@@ -3,10 +3,16 @@
  * EarthCal Ancestral Examples Library
  *
  * Purpose:
- * - Provide Indigenous and First Nations examples of ceremonial, ecological,
- *   calendrical, and seasonal practices associated with lunar and solar moments
+ * - Provide Indigenous and ancestral examples of ceremonial, ecological,
+ *   calendrical, and seasonal practices associated with EarthCal's tracked moments
  * - Serve as a grounding layer for EarthCal auspices
- * - Keep explicit track of confidence and source-review status
+ * - Ensure each tracked moment has either a researched example
+ *   or an explicit placeholder awaiting review
+ *
+ * Design notes:
+ * - This file is organized by tracked moment coverage, not by culture
+ * - Each moment currently has one primary slot
+ * - Placeholder entries are intentional and help ensure no moment is missed
  *
  * Global export:
  *   window.EARTHCAL_ANCESTRAL_EXAMPLES
@@ -16,16 +22,17 @@
     "use strict";
 
     window.EARTHCAL_ANCESTRAL_EXAMPLES = {
-        schema: "earthcal.ancestral-examples.v2",
+        schema: "earthcal.ancestral-examples.v3",
         title: "EarthCal Ancestral Examples",
         description:
-            "Examples of Indigenous, First Nations, and ancestral ceremonial, calendrical, and ecological practices associated with lunar and solar moments.",
+            "Examples of Indigenous, First Nations, and ancestral ceremonial, calendrical, and ecological practices associated with specific tracked lunar and solar moments.",
 
         notes: [
-            "These are grounding examples, not universal claims.",
+            "These examples show how ancestral peoples made use of particular astronomical moments.",
             "Traditions are local, living, and internally diverse. Avoid flattening distinct peoples into a single rule.",
-            "Some examples connect directly to a specific tag, while others are broader calendar-grounding examples.",
-            "Entries marked usable-with-context should be presented carefully and without overgeneralization."
+            "Each tracked moment should have either a specific example or an explicit placeholder for future research.",
+            "Placeholder entries are intentional. They make coverage gaps visible so that no moment is missed as the library develops.",
+            "Where EarthCal tracks a modern astronomical category that may not map directly onto a traditional one, placeholder entries help flag the need for careful interpretive work."
         ],
 
         confidenceScale: {
@@ -37,307 +44,375 @@
 
         examples: [
 
-            // --------------------------------------------------
-            // LUNAR: NEW MOON / DARK MOON
-            // --------------------------------------------------
+            // ==================================================
+            // PRIMARY LUNAR PHASE MOMENTS
+            // ==================================================
 
             {
-                id: "maori-maramataka-new-moon-whiro",
+                id: "balinese-tilem-new-moon-ceremony",
                 tags: ["new-moon"],
                 layer: "lunar",
-                culture: "Māori",
-                region: "Aotearoa / New Zealand",
-                title: "Whiro and dark-moon caution in maramataka",
-                practiceType: "ecological calendar / planning / resource timing",
+                culture: "Balinese Hindu",
+                region: "Bali / Indonesia",
+                title: "Tilem new-moon prayer and purification",
+                practiceType: "ceremony / prayer / purification / spiritual reset",
                 summary:
-                    "In many maramataka traditions, the dark beginning of the lunar cycle, often associated with Whiro, is treated as a low-energy or less favorable period for some activities, while timing for fishing, gardening, and gathering varies by iwi and locality.",
+                    "At every new moon, Balinese Hindus observe Tilem with prayers, offerings, and acts of purification. Individuals may go to dedicated springs and waterfalls to bathe and cleanse. Village communities also gather for ceremony, treating the dark moon as a time for inward reflection, spiritual cleansing, and the clearing of negative forces before the next cycle begins.",
                 confidence: "high",
-                sourceType: "Indigenous ecological calendar / museum and encyclopedia documentation",
-                reviewStatus: "usable-with-context",
+                sourceType: "Living ritual tradition / Hindu religious documentation",
+                reviewStatus: "usable",
                 notes:
-                    "Keep iwi variation explicit. Do not present one pan-Māori rule for all communities."
+                    "A strong recurring new-moon observance. Keep wording focused on Balinese Hindu practice and avoid overstating uniformity across all temples or communities."
             },
 
             {
-                id: "maori-maramataka-lunar-nights-guidance",
-                tags: ["new-moon", "waxing-crescent", "full-moon", "waning"],
+                id: "placeholder-full-moon",
+                tags: ["full-moon"],
                 layer: "lunar",
-                culture: "Māori",
-                region: "Aotearoa / New Zealand",
-                title: "Named lunar nights guiding work and harvest",
-                practiceType: "ecological calendar / fishing / gardening",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for full-moon observance",
+                practiceType: "placeholder / ceremony / gathering / timing",
                 summary:
-                    "Maramataka names each night of the lunar month and links many of those nights to practical guidance for fishing, planting, eeling, shellfish gathering, and other work in te taiao.",
-                confidence: "high",
-                sourceType: "Indigenous ecological calendar / museum and encyclopedia documentation",
-                reviewStatus: "usable",
-                notes:
-                    "Best shown as an example of lunar timing and activity guidance, not as a rigid universal prescription."
-            },
-
-            // --------------------------------------------------
-            // LUNAR: FULL MOON / LUNAR CALENDARING
-            // --------------------------------------------------
-
-            {
-                id: "anishinaabe-thirteen-grandmother-moons",
-                tags: ["full-moon", "new-moon", "waxing", "waning"],
-                layer: "lunar",
-                culture: "Anishinaabe / Anishinaabeg",
-                region: "Great Lakes and surrounding regions, North America",
-                title: "Thirteen Grandmother Moons",
-                practiceType: "lunar calendar / seasonal teaching / cultural orientation",
-                summary:
-                    "Anishinaabe lunar teachings and moon naming traditions use a cycle of named moons to orient seasonal teachings, ecological changes, and community life through the year.",
-                confidence: "moderate-high",
-                sourceType: "First Nations calendar and cultural publications",
-                reviewStatus: "usable",
-                notes:
-                    "Best used as a lunar-calendar grounding example rather than a precise single-tag action rule."
-            },
-
-            {
-                id: "haudenosaunee-lunar-calendar-cycle",
-                tags: ["full-moon", "new-moon", "waxing", "waning"],
-                layer: "lunar",
-                culture: "Haudenosaunee",
-                region: "Northeastern North America",
-                title: "Thirteen-month lunar calendar and ceremonial year",
-                practiceType: "lunar calendar / thanksgiving festivals / seasonal ceremony",
-                summary:
-                    "The Haudenosaunee calendar follows a lunar cycle of thirteen months, with ceremonies through the year that give thanks for sap flow, strawberries, green corn, and the harvest, linking moon time to reciprocal relationship with the land.",
-                confidence: "high",
-                sourceType: "National Museum of the American Indian educational material",
-                reviewStatus: "usable",
-                notes:
-                    "A strong example of lunar calendrics structuring ceremonial and seasonal life."
-            },
-
-            {
-                id: "anishinaabe-moon-names-seasonal-orientation",
-                tags: ["full-moon", "waning", "waxing", "new-moon"],
-                layer: "lunar",
-                culture: "Anishinaabe / Anishinaabeg",
-                region: "Great Lakes and surrounding regions, North America",
-                title: "Moon names as seasonal orientation",
-                practiceType: "seasonal calendar / ecological orientation",
-                summary:
-                    "Named moons in Anishinaabe calendars serve as seasonal teachers, tying timekeeping to ice, berries, animals, water, and changes in communal life rather than to abstract month names alone.",
-                confidence: "moderate",
-                sourceType: "First Nations calendar publications and cultural interpretation",
-                reviewStatus: "usable-with-context",
-                notes:
-                    "Keep wording broad and ecological; avoid claiming one exact moon-name list for all Anishinaabe communities."
-            },
-
-            // --------------------------------------------------
-            // LUNAR: ECLIPSE AND THRESHOLD
-            // --------------------------------------------------
-
-            {
-                id: "indigenous-eclipse-thresholds-general",
-                tags: ["solar-eclipse-window", "lunar-eclipse-window"],
-                layer: "lunar",
-                culture: "Multiple Indigenous peoples",
-                region: "Global / comparative",
-                title: "Eclipses as threshold events",
-                practiceType: "cosmological response / caution / ceremony",
-                summary:
-                    "Across many Indigenous traditions, eclipses are understood as potent threshold events that may call for prayer, caution, witnessing, or temporary suspension of ordinary activity.",
-                confidence: "moderate",
-                sourceType: "Comparative Indigenous and ethnohistorical interpretation",
-                reviewStatus: "usable-with-context",
-                notes:
-                    "Keep this broad and comparative. Do not attach it to a single nation unless the source is specific."
-            },
-
-            // --------------------------------------------------
-            // SOLAR: WINTER SOLSTICE
-            // --------------------------------------------------
-
-            {
-                id: "hopi-soyal-winter-solstice",
-                tags: ["winter-solstice-window", "ascending-light"],
-                layer: "solar",
-                culture: "Hopi",
-                region: "Arizona, USA",
-                title: "Soyal and the winter solstice turning",
-                practiceType: "winter solstice ceremony / prayer / renewal",
-                summary:
-                    "At winter solstice, Hopi Soyal welcomes the katsinam with prayer and ritual, marking a seasonal turning associated with renewal, rain, planting, and the life of corn.",
-                confidence: "high",
-                sourceType: "National Park Service educational source",
-                reviewStatus: "usable",
-                notes:
-                    "A strong winter-solstice example tied to agricultural and ceremonial renewal."
-            },
-
-            {
-                id: "haudenosaunee-midwinter-festival",
-                tags: ["winter-solstice-window", "ascending-light"],
-                layer: "solar",
-                culture: "Haudenosaunee",
-                region: "Northeastern North America",
-                title: "Mid-Winter Festival and new-year renewal",
-                practiceType: "seasonal ceremony / thanksgiving / renewal",
-                summary:
-                    "The Haudenosaunee ceremonial year begins with the Mid-Winter Festival, a time of thanksgiving and preparation for the new year that sits near the deep turning of winter.",
-                confidence: "high",
-                sourceType: "National Museum of the American Indian educational material",
-                reviewStatus: "usable",
-                notes:
-                    "Useful as winter-reset grounding even though it is not identical to an astronomical solstice-day observance."
-            },
-
-            // --------------------------------------------------
-            // SOLAR: SUMMER SOLSTICE
-            // --------------------------------------------------
-
-            {
-                id: "zuni-dowa-yalanne-solstice-harvest",
-                tags: ["summer-solstice-window", "descending-light"],
-                layer: "solar",
-                culture: "A:shiwi (Zuni)",
-                region: "New Mexico, USA",
-                title: "Dowa Yalanne and the path of the sun",
-                practiceType: "solstice observation / agricultural ceremony / harvest timing",
-                summary:
-                    "The A:shiwi use Dowa Yalanne (Corn Mountain) to mark the path of the sun and determine the timing of solstice and harvest ceremonies within a reciprocal agricultural cycle.",
-                confidence: "high",
-                sourceType: "National Museum of the American Indian educational material",
-                reviewStatus: "usable",
-                notes:
-                    "A very strong EarthCal example because it explicitly links solar observation, agriculture, and ceremony."
-            },
-
-            {
-                id: "white-mountain-apache-summer-solstice-dance",
-                tags: ["summer-solstice-window"],
-                layer: "solar",
-                culture: "White Mountain Apache",
-                region: "Arizona, USA",
-                title: "Summer solstice song and dance",
-                practiceType: "solstice celebration / dance / blessing",
-                summary:
-                    "White Mountain Apache performers continue to mark the summer solstice through song and dance, including Crown Dance traditions associated with blessing, healing, protection, and rain.",
-                confidence: "moderate-high",
-                sourceType: "National Museum of the American Indian program documentation",
-                reviewStatus: "usable",
-                notes:
-                    "Good for modern continuance of solstice observance; phrase carefully as a living performance tradition."
-            },
-
-            {
-                id: "kichwa-hatun-puncha-inti-raymi",
-                tags: ["summer-solstice-window", "descending-light"],
-                layer: "solar",
-                culture: "Kichwa-Otavaleño / Andean Indigenous traditions",
-                region: "Ecuador and the northern Andes",
-                title: "Hatun Puncha / Inti Raymi",
-                practiceType: "solstice celebration / music / dance / seasonal ceremony",
-                summary:
-                    "Kichwa-Otavaleños celebrate Hatun Puncha, also called Inti Raymi, as a midsummer solar festival marked by music, dance, and communal movement through the landscape.",
-                confidence: "high",
-                sourceType: "Smithsonian Folklife documentation",
-                reviewStatus: "usable",
-                notes:
-                    "A strong Indigenous solar example for celebration, fullness, and communal expression."
-            },
-
-            // --------------------------------------------------
-            // SOLAR: ANNUAL LIGHT ARC / SEASONAL TURNING
-            // --------------------------------------------------
-
-            {
-                id: "maori-matariki-new-year-threshold",
-                tags: ["winter-solstice-window", "ascending-light", "new-moon"],
-                layer: "solar",
-                culture: "Māori",
-                region: "Aotearoa / New Zealand",
-                title: "Matariki and the new-year threshold",
-                practiceType: "seasonal turning / new-year marking / calendrical renewal",
-                summary:
-                    "In many Māori traditions, the reappearance of Matariki and the first new moon following it mark the new-year threshold, joining stellar observation, lunar timing, and seasonal renewal.",
-                confidence: "high",
-                sourceType: "Museum and encyclopedia documentation",
-                reviewStatus: "usable-with-context",
-                notes:
-                    "This is not a pure solar event, but it is highly relevant to winter turning, renewal, and the return of light."
-            },
-
-            {
-                id: "zuni-annual-cycle-sun-and-seed",
-                tags: ["winter-solstice-window", "summer-solstice-window", "ascending-light", "descending-light"],
-                layer: "solar",
-                culture: "A:shiwi (Zuni)",
-                region: "New Mexico, USA",
-                title: "Annual cycle of seed, rain, growth, and harvest",
-                practiceType: "seasonal ceremonial cycle / agriculture",
-                summary:
-                    "A:shiwi agricultural and ceremonial life follows an annual cycle in which winter seed blessing, spring planting, summer ceremonies for rain, and harvest are linked through observation of season and sun.",
-                confidence: "high",
-                sourceType: "National Museum of the American Indian educational material",
-                reviewStatus: "usable",
-                notes:
-                    "Excellent for grounding the broader solar arc rather than only a single annual event."
-            },
-
-            {
-                id: "kichwa-runa-mushuk-nina-spring-equinox",
-                tags: ["march-equinox-window"],
-                layer: "solar",
-                culture: "Kichwa Runa",
-                region: "Andean Ecuador / diaspora community documentation",
-                title: "Mushuk Nina spring equinox renewal",
-                practiceType: "spring equinox ceremony / renewal / new fire",
-                summary:
-                    "Mushuk Nina is described as a spring equinox ceremony of renewal led by the Kichwa Runa Community of Indigenous Peoples, marking a threshold of seasonal return, rebalancing, and fresh beginning.",
-                confidence: "high",
-                sourceType: "museum program documentation / living Indigenous practice",
-                reviewStatus: "usable",
-                notes:
-                    "A strong spring-equinox example for renewal, rebalancing, and threshold-crossing. Phrase carefully as a documented community-led observance rather than a universal Andean rule."
-            },
-
-            {
-                id: "inupiaq-autumn-equinox-new-year-threshold",
-                tags: ["september-equinox-window"],
-                layer: "solar",
-                culture: "Iñupiaq",
-                region: "Alaska Arctic",
-                title: "Autumn equinox and the new-year threshold",
-                practiceType: "seasonal threshold / ceremonial marking / new year",
-                summary:
-                    "Smithsonian documentation records an Iñupiaq ceremonial association with the autumn equinox, described as 'when two stars appear' and also referred to as the Iñupiaq New Year, linking equinox time with communal and ceremonial transition.",
-                confidence: "moderate",
-                sourceType: "Smithsonian collections research / historical interpretation",
-                reviewStatus: "usable-with-context",
-                notes:
-                    "Good for an autumn-equinox threshold example, but keep wording specific to the cited documentation and avoid overgeneralizing to all Iñupiaq communities."
-            },
-
-            // --------------------------------------------------
-            // PLACEHOLDERS FOR FUTURE RESEARCH
-            // --------------------------------------------------
-
-            {
-                id: "cree-moon-seasonal-round-placeholder",
-                tags: ["full-moon", "new-moon", "waxing", "waning"],
-                layer: "lunar",
-                culture: "Cree / nēhiyawak",
-                region: "Northern and central North America",
-                title: "Possible Cree moon-round seasonal example",
-                practiceType: "seasonal calendar / lunar naming",
-                summary:
-                    "This is a promising area for a stronger Cree-specific lunar calendar example, but it should be expanded only with a clearly attributable community or educational source.",
+                    "We are working to identify a strong ancestral example specifically tied to the full moon. The best future entry should describe not only what the full moon meant, but what people actually did in response, whether gathering, fishing, ceremony, celebration, or restraint.",
                 confidence: "review_needed",
-                sourceType: "placeholder / needs community-specific source review",
+                sourceType: "placeholder / needs source review",
                 reviewStatus: "hold",
                 notes:
-                    "Included as a research placeholder only."
+                    "Replace with a specific and phase-linked example rather than a broad lunar-calendar tradition."
+            },
+
+            {
+                id: "german-alpine-mondholz-waning-building-timber",
+                tags: ["waning"],
+                layer: "lunar",
+                culture: "German / Alpine woodcraft tradition",
+                region: "German-speaking Alpine Europe",
+                title: "Waning moon felling for durable building timber",
+                practiceType: "forestry / woodcutting / building material timing",
+                summary:
+                    "In German-speaking Alpine woodcraft traditions, durable building timber was often felled during the waning moon, especially in winter and in some variants shortly before the dark moon. Woodcutters and builders held that timber cut in this phase would dry better, resist pests and rot more effectively, and remain more stable in construction. Rather than treating the moon as symbolic only, this tradition used the waning phase as practical guidance for when to cut wood intended to last.",
+                confidence: "moderate",
+                sourceType: "Forestry tradition review / Alpine moon-wood documentation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Strong fit for the waning tag. Some versions narrow the ideal timing to winter or the days before new moon, so avoid presenting one single rigid rule for all German-speaking regions."
+            },
+            {
+                id: "german-alpine-waxing-firewood-combustion",
+                tags: ["waxing"],
+                layer: "lunar",
+                culture: "German / Alpine woodcraft tradition",
+                region: "German-speaking Alpine Europe",
+                title: "Waxing moon cutting for firewood",
+                practiceType: "forestry / fuel preparation / seasonal timing",
+                summary:
+                    "In traditional moon-timed woodcutting rules from the German-speaking Alpine world, firewood was cut during the waxing moon, in contrast to building timber cut during the waning moon. The aim here was different: not durability in construction, but wood that would burn more readily and serve well as fuel. This made the waxing moon a practical guide for selecting wood intended for quick combustion and household heat rather than long structural use.",
+                confidence: "moderate",
+                sourceType: "Forestry tradition review / historical moon-rule documentation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Useful as a clean waxing counterpart to the waning building-timber rule. Best framed as a traditional practical maxim, with variation by region and practitioner."
+            },
+
+            {
+                id: "placeholder-ascending",
+                tags: ["ascending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for ascending-moon pattern",
+                practiceType: "placeholder / rising force / expression",
+                summary:
+                    "We are working to identify a strong ancestral example for an ascending lunar pattern. The best future entry would show how a moon experienced as rising or lifting was associated with upward movement, expression, growth above ground, or outward flourishing.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "May be difficult unless sourced from traditions that explicitly track lunar ascent and descent."
+            },
+
+            {
+                id: "placeholder-descending",
+                tags: ["descending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for descending-moon pattern",
+                practiceType: "placeholder / grounding / inwardness / rooting",
+                summary:
+                    "We are working to identify a strong ancestral example for a descending lunar pattern. A future entry should show how a moon experienced as lowering or settling was associated with rooting, grounding, inwardness, burial, or work directed toward what lies below the surface.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Potentially strong if matched with traditions involving planting, root work, or descent symbolism."
+            },
+
+            {
+                id: "maori-maramataka-waxing-nights-tirea-hoata",
+                tags: ["waxing-crescent"],
+                layer: "lunar",
+                culture: "Māori",
+                region: "Aotearoa / New Zealand",
+                title: "Early waxing nights as a return of activity",
+                practiceType: "ecological calendar / planting / fishing / food gathering",
+                summary:
+                    "In many maramataka traditions, the early waxing nights after Whiro, including Tirea and Hoata, were understood as a return of productive energy after the restraint of the dark moon. These nights were associated with practical guidance for planting food, gathering shellfish, and timing activities such as eeling and crayfishing. As the young moon became visible and strength returned to the cycle, work in te taiao could begin to open outward again.",
+                confidence: "high",
+                sourceType: "Indigenous ecological calendar / museum and encyclopedia documentation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Keep iwi variation explicit. Best used as an example of waxing renewal and increasing activity, not as a rigid universal prescription."
+            },
+
+            {
+                id: "placeholder-waxing-gibbous",
+                tags: ["waxing-gibbous"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waxing-gibbous build-up",
+                practiceType: "placeholder / accumulation / ripening / preparation",
+                summary:
+                    "We are working to identify a strong ancestral example for the waxing gibbous phase. The best future entry should show a moment of near-fullness: building momentum, preparing for culmination, or intensifying activity before the full moon.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Good category for ripening, preparation, and intensification if a source can be found."
+            },
+
+            {
+                id: "placeholder-waning-gibbous",
+                tags: ["waning-gibbous"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waning-gibbous distribution or release",
+                practiceType: "placeholder / sharing / decline / post-peak timing",
+                summary:
+                    "We are working to identify a strong ancestral example for the waning gibbous phase. A future entry should show what happens after lunar fullness has passed: distribution, harvesting, ceremonial aftermath, or the beginning of measured decline.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "A useful tag if a tradition distinguishes between fullness and the first stage of release."
+            },
+
+            {
+                id: "hawaiian-mauli-waning-crescent-last-breath",
+                tags: ["waning-crescent"],
+                layer: "lunar",
+                culture: "Native Hawaiian",
+                region: "Hawaiʻi",
+                title: "Mauli as the moon’s last breath",
+                practiceType: "ecological calendar / fishing / timing / reflection",
+                summary:
+                    "In the Hawaiian lunar calendar, Mauli is the last night the moon is visible, and its name is understood as the moon’s 'last breath.' As the final crescent thins and vitality ebbs from the cycle, this moment can be read as one of completion, quieting, and release. In a culture that timed fishing and farming by the moon, such a phase marked not only an observation in the sky but a practical threshold: a time to pause, to refrain from overreaching, and to prepare for the coming reset of the dark moon.",
+                confidence: "moderate",
+                sourceType: "Indigenous lunar calendar / Hawaiian language and cultural documentation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Strong waning-crescent example because it is both phase-specific and symbolically vivid. The 'pause, release, and prepare' interpretation is a careful synthesis from the naming of Mauli and broader Hawaiian lunar timing traditions, so avoid presenting every phrase here as a direct traditional quotation."
+            },
+
+            // ==================================================
+            // COMPOUND LUNAR MOMENTS
+            // ==================================================
+
+            {
+                id: "placeholder-waxing-ascending",
+                tags: ["waxing-ascending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waxing-ascending synthesis",
+                practiceType: "placeholder / compounded lunar timing",
+                summary:
+                    "We are working to identify a strong ancestral example for a waxing and ascending lunar pattern. The ideal future entry would show a period understood as both building in strength and lifting in expression, with corresponding actions in cultivation, movement, or outward activity.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs synthesis review",
+                reviewStatus: "hold",
+                notes:
+                    "This may need to be synthesized from traditions that track multiple lunar qualities at once."
+            },
+
+            {
+                id: "placeholder-waxing-descending",
+                tags: ["waxing-descending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waxing-descending synthesis",
+                practiceType: "placeholder / compounded lunar timing",
+                summary:
+                    "We are working to identify a strong ancestral example for a waxing yet descending lunar pattern. A future entry should illuminate how growth or accumulation might be paired with grounding, rooting, or inward settling rather than pure outward expansion.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs synthesis review",
+                reviewStatus: "hold",
+                notes:
+                    "Likely a more interpretive category than a directly named traditional one."
+            },
+
+            {
+                id: "placeholder-waning-descending",
+                tags: ["waning-descending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waning-descending synthesis",
+                practiceType: "placeholder / compounded lunar timing",
+                summary:
+                    "We are working to identify a strong ancestral example for a waning and descending lunar pattern. The best future example would likely involve release, reduction, composting, burial, rest, or completion with a clear practical action mode.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs synthesis review",
+                reviewStatus: "hold",
+                notes:
+                    "Potentially strong for endings, clearing, and return-to-ground interpretations."
+            },
+
+            {
+                id: "placeholder-waning-ascending",
+                tags: ["waning-ascending"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for waning-ascending synthesis",
+                practiceType: "placeholder / compounded lunar timing",
+                summary:
+                    "We are working to identify a strong ancestral example for a waning yet ascending lunar pattern. A future entry should show how diminishing force might still carry expressive, spiritual, or communicative qualities before the cycle closes.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs synthesis review",
+                reviewStatus: "hold",
+                notes:
+                    "This may later connect well to ritual closure or elevated release traditions."
+            },
+
+            // ==================================================
+            // ORBITAL AND ECLIPSE THRESHOLDS
+            // ==================================================
+
+            {
+                id: "placeholder-solar-eclipse-window",
+                tags: ["solar-eclipse-window"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for solar eclipse response tradition",
+                practiceType: "placeholder / eclipse protocol / ceremony",
+                summary:
+                    "We are working to identify a strong Indigenous or ancestral example specifically tied to a solar eclipse window. The best future example should include both the observed meaning of the eclipse and the human response it called forth, such as prayer, caution, witnessing, or suspension of ordinary activity.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Replace with a culture-specific example once reviewed. Avoid broad comparative statements in final use."
+            },
+
+            {
+                id: "placeholder-lunar-eclipse-window",
+                tags: ["lunar-eclipse-window"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for lunar eclipse response tradition",
+                practiceType: "placeholder / eclipse protocol / ceremony",
+                summary:
+                    "We are working to identify a strong Indigenous or ancestral example specifically tied to a lunar eclipse window. The ideal future entry should show how the dimming or transformation of the moon was interpreted and what actions or cautions people observed in response.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Replace with a culture-specific example once reviewed."
+            },
+
+            {
+                id: "placeholder-ascending-node",
+                tags: ["ascending-node"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for ascending-node interpretation",
+                practiceType: "placeholder / orbital threshold / interpretation",
+                summary:
+                    "We are working to identify whether a specific ancestral tradition can be responsibly associated with a moment analogous to the ascending lunar node. Any final entry should be careful not to force a modern astronomical category onto a tradition that used a different framework.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs conceptual review",
+                reviewStatus: "hold",
+                notes:
+                    "This may require interpretive rather than direct one-to-one mapping."
+            },
+
+            {
+                id: "placeholder-descending-node",
+                tags: ["descending-node"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for descending-node interpretation",
+                practiceType: "placeholder / orbital threshold / interpretation",
+                summary:
+                    "We are working to identify whether a specific ancestral tradition can be responsibly associated with a moment analogous to the descending lunar node. Any final entry should preserve the original cultural logic rather than retrofitting it too aggressively to modern orbital terminology.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs conceptual review",
+                reviewStatus: "hold",
+                notes:
+                    "Likely to require careful interpretive framing."
             },
 
 
+
+            {
+                id: "hindu-rahu-ketu-nodal-threshold-caution",
+                tags: ["node-window"],
+                layer: "lunar",
+                culture: "Hindu",
+                region: "South Asia / India",
+                title: "Rahu and Ketu as nodal thresholds of caution",
+                practiceType: "ritual calendar / restraint / purification",
+                summary:
+                    "In Hindu cosmology and ritual astronomy, Rahu and Ketu are the shadow bodies identified with the lunar nodes, the crossing points where eclipses become possible. Because these nodal forces were associated with disruption, danger, and interruption of ordinary order, periods linked to their influence came to be treated with caution. In practice, traditions surrounding these charged intervals emphasize restraint, avoidance of ordinary or auspicious activity, and acts of purification before returning to normal life.",
+                confidence: "moderate",
+                sourceType: "Hindu cosmology / ritual astronomy / ethnographic documentation",
+                reviewStatus: "usable-with-context",
+                notes:
+                    "Useful for node-window semantics because the nodal principle is direct, but the action pattern is often documented through eclipse observances rather than a separately named recurring node-window. Keep this clearly distinct from the more specific solar- and lunar-eclipse entries."
+            },
+
+            {
+                id: "placeholder-perigee-window",
+                tags: ["perigee-window"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for perigee-window interpretation",
+                practiceType: "placeholder / lunar intensity / timing",
+                summary:
+                    "We are working to identify whether any ancestral traditions can be responsibly mapped to periods of heightened lunar nearness or intensity analogous to perigee. The best future example would need a clear action-mode component and not just symbolic resemblance.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Avoid speculative 'supermoon' back-projections."
+            },
+
+            {
+                id: "placeholder-apogee-window",
+                tags: ["apogee-window"],
+                layer: "lunar",
+                culture: "Research in progress",
+                region: "TBD",
+                title: "Placeholder for apogee-window interpretation",
+                practiceType: "placeholder / lunar distance / timing",
+                summary:
+                    "We are working to identify whether any ancestral traditions can be responsibly mapped to periods of relative lunar distance or thinning influence analogous to apogee. A future example should be grounded in actual practice and observation, not just symbolic interpretation.",
+                confidence: "review_needed",
+                sourceType: "placeholder / needs source review",
+                reviewStatus: "hold",
+                notes:
+                    "Likely a difficult category and may require especially careful justification."
+            }
 
         ]
     };

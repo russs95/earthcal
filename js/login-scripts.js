@@ -2921,7 +2921,6 @@ function alertLoginRequiredForCachedData(cachedContext = {}) {
 
     if (cachedContext?.hasCachedData && !hasPrompted) {
         sessionStorage.setItem(promptKey, 'true');
-        window.alert('Please login to view your cached Earthcal data.');
         return true;
     }
 

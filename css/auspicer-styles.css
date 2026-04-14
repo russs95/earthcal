@@ -463,6 +463,17 @@
     line-height: 1.35;
 }
 
+/* Location clarifier at bottom of scroll-body (regular content view) */
+.ec-lunar-auspices .ec-lunar-auspices__location-note {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(127,127,127,0.15);
+    font-size: 0.74rem;
+    color: var(--subdued-text, #454545);
+    font-style: italic;
+    line-height: 1.35;
+}
+
 /* Biodynamic council */
 .ec-lunar-auspices .ec-biodynamic-council__body { display: none; font-size: 0.84rem; }
 .ec-lunar-auspices .ec-biodynamic-council__label { font-weight: 700; margin-bottom: 4px; font-size: 0.88rem; }
@@ -597,13 +608,13 @@
     display: block;
 }
 .ec-lunar-auspices.is-info-mode .ec-lunar-auspices__guidance,
-.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__scroll-body,
 .ec-lunar-auspices.is-info-mode .ec-lunar-tags,
 .ec-lunar-auspices.is-info-mode .ec-lunar-warning,
-.ec-lunar-auspices.is-info-mode .ec-lunar-actions__list,
+.ec-lunar-auspices.is-info-mode .ec-lunar-actions,
 .ec-lunar-auspices.is-info-mode .ec-biodynamic-council,
 .ec-lunar-auspices.is-info-mode .ec-ancestral-example,
-.ec-lunar-auspices.is-info-mode .ec-lunar-data {
+.ec-lunar-auspices.is-info-mode .ec-lunar-data,
+.ec-lunar-auspices.is-info-mode .ec-lunar-auspices__location-note {
     display: none !important;
 }
 

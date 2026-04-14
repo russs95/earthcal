@@ -77,14 +77,14 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.5",
+        "js/auspicer.js?v=3.6",
         "js/auspices/biodynamic_council.js?v=1.0",
         "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=5.2",
+        "js/core.js?v=5.3",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
@@ -95,7 +95,7 @@ async function initCalendar() {
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=9.3",
         // rest of app
-        "js/login-scripts.js?v=23.0",
+        "js/login-scripts.js?v=23.1",
         "js/item-management.js?v=11.9",
         "js/calendar-scripts.js?v=3.1",
     ];
