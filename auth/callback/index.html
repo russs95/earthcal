@@ -412,14 +412,19 @@
         }
     })();
 </script>
-<script src="/js/earthcal-config.js?v=1.1"></script>
 <script>
-    (function () {
-        var v = window.EARTHCAL_APP_VERSION;
-        if (v) {
-            var el = document.getElementById('logo-text');
-            if (el) el.textContent = 'EarthCal v' + v + ' by Earthen Labs';
-        }
+    // Reads version from version.json — single source of truth, no cache-busting needed.
+    (async function () {
+        try {
+            var res = await fetch('/version.json', { cache: 'no-store' });
+            if (!res.ok) return;
+            var vd = await res.json();
+            var v = vd && vd.version;
+            if (v) {
+                var el = document.getElementById('logo-text');
+                if (el) el.textContent = 'EarthCal v' + v + ' by Earthen Labs';
+            }
+        } catch (_) {}
     })();
 </script>
 </body>

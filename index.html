@@ -484,15 +484,20 @@
 
 
 
-<script src="js/earthcal-config.js?v=1.1"></script>
 <script>
-    // Inject version number into any element with data-version-display
-    (function () {
-        var v = window.EARTHCAL_APP_VERSION || '';
-        if (!v) return;
-        document.querySelectorAll('[data-version-display]').forEach(function (el) {
-            el.textContent = el.getAttribute('data-version-display').replace('{v}', 'v' + v);
-        });
+    // Inject version number into any element with data-version-display.
+    // Reads from version.json — no cache-busting needed.
+    (async function () {
+        try {
+            var res = await fetch('version.json', { cache: 'no-store' });
+            if (!res.ok) return;
+            var vd = await res.json();
+            var v = (vd && vd.version) ? vd.version : '';
+            if (!v) return;
+            document.querySelectorAll('[data-version-display]').forEach(function (el) {
+                el.textContent = el.getAttribute('data-version-display').replace('{v}', 'v' + v);
+            });
+        } catch (_) {}
     })();
 </script>
 <script src="js/first-onboarding.js?v=2.1"></script>

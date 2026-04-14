@@ -56,6 +56,16 @@ async function loadSvgIntoContainer(url, containerId) {
 
 // -------------------- MAIN INIT --------------------
 async function initCalendar() {
+    // Resolve app version from version.json — single source of truth.
+    // No cache-busting needed: fetched fresh every boot.
+    try {
+        const vr = await fetch('version.json', { cache: 'no-store' });
+        if (vr.ok) {
+            const vd = await vr.json();
+            if (vd && vd.version) window.EARTHCAL_APP_VERSION = vd.version;
+        }
+    } catch (_) { /* non-fatal — version remains undefined */ }
+
     const spinner = document.getElementById("loading-spinner");
     if (spinner) spinner.classList.remove("hidden");
 

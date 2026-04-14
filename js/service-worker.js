@@ -1,4 +1,3 @@
-importScripts('earthcal-config.js');
 const CACHE_NAME = 'earthcal-cache-v9';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
@@ -10,7 +9,6 @@ const STATIC_ASSETS = [
     './robots.txt',
     './site.webmanifest',
     './assets/icons/favicon.ico',
-    './js/earthcal-config.js',
     './js/earthcal-init.js?v=38.5',
     './js/gsap.min.js',
     './js/MotionPathPlugin.min.js',
