@@ -14,7 +14,7 @@ const STATIC_ASSETS = [
     './js/MotionPathPlugin.min.js',
     './js/1-lunar-scripts.js?v=3.1',
     './js/suncalc.min.js',
-    './js/auspicer.js?v=3.5',
+    './js/auspicer.js?v=3.8',
     './js/auspices/auspices-config.json',
     './js/auspices/ancestral_examples.js?v=1.0',
     './js/astronomy.browser.js',

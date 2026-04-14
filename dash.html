@@ -96,7 +96,7 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=59.0"></script>
+    <script src="js/earthcal-init.js?v=59.1"></script>
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=51.0">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.8">
@@ -1094,7 +1094,7 @@
         // Show immediately with a spinner loading state
         modalBox.innerHTML = `
             <div class="vm-loading">
-                <img src="svgs/earthcal-spinner.svg" alt="" class="vm-loading-spinner">
+                <object data="svgs/earthcal-spinner.svg" type="image/svg+xml" class="vm-loading-spinner" aria-hidden="true"></object>
                 <span>Loading version info\u2026</span>
             </div>`;
         modal.classList.remove('modal-hidden');
@@ -1236,10 +1236,7 @@
             const parts = [];
             if (releaseDate) parts.push(`Released ${releaseDate}`);
             if (buildNumber !== null) {
-                const buildLabel = notesPageUrl
-                    ? `Build <a href="${notesPageUrl}" target="_blank" rel="noopener" class="vm-build-link">${buildNumber}</a>`
-                    : `Build ${buildNumber}`;
-                parts.push(buildLabel);
+                parts.push(`Build <a href="CHANGELOG.md" target="_blank" rel="noopener" class="vm-build-link">${buildNumber}</a>`);
             }
             return parts.length ? `<p class="vm-release-date">${parts.join(' &nbsp;&middot;&nbsp; ')}</p>` : '';
         })();

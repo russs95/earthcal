@@ -415,7 +415,7 @@
                 lightHalfName = "Descending Light";
             }
         } else if (hemisphere === "south") {
-            if (target >= juneSolstice || target < decemberSolstice) {
+            if (target >= juneSolstice && target < decemberSolstice) {
                 lightHalfName = "Ascending Light";
             } else {
                 lightHalfName = "Descending Light";
@@ -1618,12 +1618,12 @@
             biodynamicCouncilHtml +
             ancestralExampleHtml +
             lunarDataHtml +
-            '<div class="ec-lunar-auspices__location-note">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '<div class="ec-lunar-auspices__location-note">Auspicer data is determined by today\u2019s lunar and solar positions.</div>' +
             '<div class="ec-lunar-auspices__info-panel">' +
-            '<p>Introducing the Earthen Auspicer — a power tool for gaining insight into designing your day. Working with live astronomical data, Earthcal calculates the auspices for your day based on long-established traditional ecological knowledge, biodynamic principles, and the latest breakthroughs in chronobiology.</p>' +
-            '<p>This algorithm is not AI — nor is it astrology. It is a hard-coded algorithm we have been honing for years, running on our server. The algorithm has three layers: lunar, solar, and planetary. Solar and lunar cycles have profound impacts on life on planet Earth. Planets can have an impact too. When these layers combine and overlap they can have profound subtle consequences: from eclipses to lunar nodes, phases, apogees, and perigees — we\'ve mapped each intersection and correlated it to ancestral wisdom and science.</p>' +
-            '<p>Great cultures ancient and ongoing have known what phase and position of the Moon was best for planting, for harvesting, and for letting things take their course. Scientists are only now beginning to understand the mechanisms at play and how they impact us humans. Now it\'s your turn. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to get deeper insights and perspective as you design your days.</p>' +
-            '<div class="ec-lunar-auspices__info-footer">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '<p>Introducing the Earthen Auspicer \u2014 a tool for designing your day with deeper insight. Using live astronomical data, EarthCal calculates daily auspices through long-established ecological knowledge, biodynamic principles, and emerging chronobiological science.</p>' +
+            '<p>This is not AI, and it is not astrology. It is a hard-coded interpretive system we have been refining for years. Working through lunar and solar cycles, EarthCal maps patterns such as phases, nodes, apogees, perigees, and eclipses, then correlates them with both ancestral knowledge and scientific understanding.</p>' +
+            '<p>Many cultures, past and present, have known that different lunar conditions favor different kinds of action \u2014 from planting and harvesting to pausing and letting things take their course. Science is only beginning to understand more of these mechanisms. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to explore these patterns more deeply as you design your days.</p>' +
+            '<div class="ec-lunar-auspices__info-footer">Auspicer data is determined by today\u2019s lunar and solar positions.</div>' +
             '</div>' +
             '</div>' +
             "</div>";
@@ -1810,6 +1810,11 @@
         var lunarDataHtml = lunarMoment ? buildLunarDataHtml(lunarMoment) : "";
         var solarDataHtml = solarMoment ? buildSolarDataHtml(solarMoment, location) : "";
 
+        var locationNoteText = (location && location.lat != null && location.lon != null)
+            ? "Auspicer data is determined by today's lunar and solar positions given your set position (long: " +
+              Number(location.lon).toFixed(4) + ", lat: " + Number(location.lat).toFixed(4) + ")."
+            : "Auspicer data is determined by today\u2019s lunar and solar positions.";
+
         panel.innerHTML =
             '<div class="ec-lunar-auspices__header">' +
             '<span class="ec-lunar-auspices__emoji" aria-hidden="true">' + emoji + "</span>" +
@@ -1837,12 +1842,12 @@
             ancestralExampleHtml +
             lunarDataHtml +
             solarDataHtml +
-            '<div class="ec-lunar-auspices__location-note">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '<div class="ec-lunar-auspices__location-note">' + esc(locationNoteText) + '</div>' +
             '<div class="ec-lunar-auspices__info-panel">' +
-            '<p>Introducing the Earthen Auspicer — a power tool for gaining insight into designing your day. Working with live astronomical data, Earthcal calculates the auspices for your day based on long-established traditional ecological knowledge, biodynamic principles, and the latest breakthroughs in chronobiology.</p>' +
-            '<p>This algorithm is not AI — nor is it astrology. It is a hard-coded algorithm we have been honing for years, running on our server. The algorithm has three layers: lunar, solar, and planetary. Solar and lunar cycles have profound impacts on life on planet Earth. Planets can have an impact too. When these layers combine and overlap they can have profound subtle consequences: from eclipses to lunar nodes, phases, apogees, and perigees — we\'ve mapped each intersection and correlated it to ancestral wisdom and science.</p>' +
-            '<p>Great cultures ancient and ongoing have known what phase and position of the Moon was best for planting, for harvesting, and for letting things take their course. Scientists are only now beginning to understand the mechanisms at play and how they impact us humans. Now it\'s your turn. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to get deeper insights and perspective as you design your days.</p>' +
-            '<div class="ec-lunar-auspices__info-footer">Auspicer data is determined by today\'s lunar and solar positions given your set position (long: 110.3274, lat: -7.8877).</div>' +
+            '<p>Introducing the Earthen Auspicer \u2014 a tool for designing your day with deeper insight. Using live astronomical data, EarthCal calculates daily auspices through long-established ecological knowledge, biodynamic principles, and emerging chronobiological science.</p>' +
+            '<p>This is not AI, and it is not astrology. It is a hard-coded interpretive system we have been refining for years. Working through lunar and solar cycles, EarthCal maps patterns such as phases, nodes, apogees, perigees, and eclipses, then correlates them with both ancestral knowledge and scientific understanding.</p>' +
+            '<p>Many cultures, past and present, have known that different lunar conditions favor different kinds of action \u2014 from planting and harvesting to pausing and letting things take their course. Science is only beginning to understand more of these mechanisms. Open the Biodynamic Council, Ancestral Grounding, and Astronomy tabs in the Auspicer to explore these patterns more deeply as you design your days.</p>' +
+            '<div class="ec-lunar-auspices__info-footer">' + esc(locationNoteText) + '</div>' +
             '</div>' +
             '</div>' +
             "</div>";

@@ -663,7 +663,6 @@ async function showUserCalSettings() {
             </div>
             <div class="toggle-row">
                 <div class="toggle-row-label">
-                    ${lockIconHtml(isAuthenticated)}
                     <span>${clockViewLabel}</span>
                 </div>
                 <label class="toggle-switch toggle-switch-advanced">

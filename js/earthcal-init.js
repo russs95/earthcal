@@ -77,7 +77,7 @@ async function initCalendar() {
     const scripts = [
         // libs / fundamentals
         "js/suncalc.min.js",
-        "js/auspicer.js?v=3.6",
+        "js/auspicer.js?v=3.8",
         "js/auspices/biodynamic_council.js?v=1.0",
         "js/auspices/ancestral_examples.js?v=1.0",
         "js/sync-store.js?v=2.5",
@@ -90,7 +90,7 @@ async function initCalendar() {
 
         // date + time (these often influence targetDate/startDate)
         "js/set-targetdate.js?v=1.1",
-        "js/time-setting.js?v=11.7",
+        "js/time-setting.js?v=11.8",
 
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=9.3",

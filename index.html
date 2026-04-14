@@ -66,7 +66,7 @@
     <link rel="preconnect" href="https://buwana.ecobricks.org" crossorigin>
     <!-- Preload critical dashboard resources ttt-->
     <link rel="preload" href="/" as="image" type="image/svg+xml">
-    <link rel="preload" href="js/earthcal-init.js?v=58.9" as="script">
+    <link rel="preload" href="js/earthcal-init.js?v=59.1" as="script">
     <link rel="preload" href="css/light.css?v=8.0" as="style">
     <link rel="preload" href="css/dark.css?v=8.0" as="style">
     <link rel="preload" href="css/1-stylesheet.css?v=10.9" as="style">
@@ -453,7 +453,7 @@
         <a href="dash.html"><span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
                 <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:28px;height:28px;">
             </span></a>
-        <p id="logo-text" class="footer-text" data-i18nxxx="footer.tagline2" style="font-size: smaller;"><a href="dash.html" data-version-display="EarthCal {v} by Earthen Labs">EarthCal by Earthen Labs</a></p>
+        <p id="logo-text" class="footer-text" style="font-size: smaller;"><a href="dash.html" id="footer-version-1">EarthCal</a></p>
     </div>
 </div>
 
@@ -477,7 +477,7 @@
         <span class="earthen-logo-wrapper" data-i18n-attr="aria-label" data-i18n="footer.visitEarthen" aria-label="Visit Earthen">
             <img class="earthen-logo" src="svgs/earthen-icon.svg" alt="Earthen logo" style="width:37.4px;height:37.4px;">
         </span>
-        <p class="footer-text" data-i18n="footer.tagline" data-version-display="EarthCal {v} by Earthen">EarthCal by Earthen</p>
+        <p class="footer-text" id="footer-version-2">EarthCal</p>
     </div>
 </div>
 
@@ -485,8 +485,7 @@
 
 
 <script>
-    // Inject version number into any element with data-version-display.
-    // Reads from version.json — no cache-busting needed.
+    // Inject version number from version.json — no translation strings needed.
     (async function () {
         try {
             var res = await fetch('version.json', { cache: 'no-store' });
@@ -494,8 +493,10 @@
             var vd = await res.json();
             var v = (vd && vd.version) ? vd.version : '';
             if (!v) return;
-            document.querySelectorAll('[data-version-display]').forEach(function (el) {
-                el.textContent = el.getAttribute('data-version-display').replace('{v}', 'v' + v);
+            var label = 'EarthCal ' + v;
+            ['footer-version-1', 'footer-version-2'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.textContent = label;
             });
         } catch (_) {}
     })();
@@ -609,11 +610,6 @@
     };
 
     const updateStaticText = () => {
-        document.querySelectorAll(".footer-text").forEach((el) => {
-            const fallbackValue = el.textContent || translate("footer.tagline", {}, "");
-            el.textContent = translate("footer.tagline", {}, fallbackValue || "EarthCal v1.3 by Earthen");
-        });
-
         document.querySelectorAll('[data-i18n][data-i18n-attr]').forEach((el) => {
             const key = el.getAttribute("data-i18n");
             const attr = el.getAttribute("data-i18n-attr");

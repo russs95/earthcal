@@ -52,7 +52,7 @@
             anniversaryNotes: "You joined EarthCal on this day! Celebrating your transition from linear-time to cycle-time.",
         },
         footer: {
-            tagline: "EarthCal v1.1 by Earthen",
+            tagline: "EarthCal v1.3.8 by Earthen",
             visitEarthen: "Visit Earthen",
         },
     };
