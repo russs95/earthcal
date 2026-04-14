@@ -5936,27 +5936,6 @@ svg path #june:hover {
   outline: none;
 }
 
-@keyframes selectTypeClickDarken {
-  0%   { background: transparent; }
-  50%  { background: rgba(0, 0, 0, 0.11); }
-  100% { background: rgba(0, 0, 0, 0.07); }
-}
-
-@keyframes selectTypeClickLighten {
-  0%   { background: transparent; }
-  50%  { background: rgba(255, 255, 255, 0.15); }
-  100% { background: rgba(255, 255, 255, 0.09); }
-}
-
-.select-type-clicking--darken {
-  animation: selectTypeClickDarken 0.3s ease forwards;
-  pointer-events: none;
-}
-
-.select-type-clicking--lighten {
-  animation: selectTypeClickLighten 0.3s ease forwards;
-  pointer-events: none;
-}
 
 .select-type-divider {
   border: none;
@@ -5969,12 +5948,18 @@ svg path #june:hover {
   border: none;
   cursor: pointer;
   font-family: 'Mulish', sans-serif;
-  font-size: 0.8em;
+  font-size: 1.2em;
   color: rgba(128, 128, 128, 0.8);
-  text-align: center;
-  padding: 9px 18px;
+  text-align: left;
+  padding: 10px 18px;
   width: 100%;
   margin-top: 2px;
+}
+
+@media (min-width: 769px) {
+  .select-type-cancel {
+    font-size: 1.15em;
+  }
 }
 
 .select-type-cancel:hover,
