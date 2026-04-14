@@ -97,9 +97,9 @@
     />
 
     <script src="js/earthcal-config.js"></script>
-    <script src="js/earthcal-init.js?v=58.6"></script>
+    <script src="js/earthcal-init.js?v=58.7"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.7">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=50.8">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.7">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -1082,52 +1082,186 @@
 </BODY>
 
 <script>
-    async function showIntroModal() {
-        const tokenKey = 'newVersionInfoSeen';
-        const lang = (userLanguage || 'en').toLowerCase();
-
-        const translations = await loadTranslations(lang);
-        const content = translations.versioning;
-
-        const featureList = content.features.map(feature => `<li>${feature}</li>`).join('');
-        const modalContent = `
-        <div style="text-align:center;">
-            <h1>${content.title}</h1>
-            <h4>${content.subtitle}</h4>
-        </div>
-        <div style="width:80%; margin: 10px auto 10px auto;" class="feature-list">
-            <ul style="font-size:1em;">${featureList}</ul>
-        </div>
-        <div style="display:flex;flex-flow:column;justify-content:center;">
-            <button id="got-it-button" class="confirmation-blur-button enabled" style="margin-bottom:0px;">${content.gotIt}</button>
-            <button id="take-tour" class="confirmation-blur-button" style="margin-top:10px; background:var(--general-background-highlight);">${content.tour}</button>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-            <a href="https://earthen.io/cycles/" target="_blank" rel="noopener" style="color:#9ca3af;text-decoration:underline;">
-                Why EarthCal? A Manifesto
-            </a>
-        </div>
-    `;
-
+    /**
+     * showVersionModal — replaces the old showIntroModal.
+     * Fetches version.json + the release notes markdown, checks the user's
+     * version status via api/v1/version_check.php, and renders everything
+     * inside the standard info modal.
+     */
+    async function showVersionModal() {
+        const modal    = document.getElementById('form-modal-message');
         const modalBox = document.getElementById('modal-content');
-        modalBox.innerHTML = modalContent;
 
-        const modal = document.getElementById('form-modal-message');
+        // Show immediately with a loading state
+        modalBox.innerHTML = '<div class="vm-loading">Loading version info\u2026</div>';
         modal.classList.remove('modal-hidden');
-        modal.classList.add('modal-visible');
-        modal.classList.add('dim-blur');
+        modal.classList.add('modal-visible', 'dim-blur');
 
-        document.getElementById('got-it-button').addEventListener('click', function () {
-            closeTheModal();
-            localStorage.setItem(tokenKey, 'true');
-        });
+        // ── Fetch version.json and release notes in parallel ──────────────
+        let versionData   = null;
+        let releaseNotesMd = '';
 
-        document.getElementById('take-tour').addEventListener('click', function () {
-            closeTheModal();
-            localStorage.setItem(tokenKey, 'true');
-            guidedTour();
-            sendDownRegistration();
-        });
+        try {
+            const versionRes = await fetch('version.json', { cache: 'no-store' });
+            if (versionRes.ok) {
+                versionData = await versionRes.json();
+            }
+        } catch (_) {}
+
+        if (versionData && versionData.release_notes_path) {
+            try {
+                const notesPath  = versionData.release_notes_path.replace(/^\//, '');
+                const notesRes   = await fetch(notesPath, { cache: 'no-store' });
+                if (notesRes.ok) releaseNotesMd = await notesRes.text();
+            } catch (_) {}
+        }
+
+        // ── Version strings ───────────────────────────────────────────────
+        const latestVersion  = versionData?.version       || window.EARTHCAL_APP_VERSION || '?';
+        const releaseDate    = versionData?.release_date  || '';
+        const downloadUrl    = versionData?.download_url  || '';
+
+        // ── Lightweight markdown → HTML ───────────────────────────────────
+        function parseMarkdown(md) {
+            if (!md) return '';
+            const lines   = md.split('\n');
+            let html      = '';
+            let inList    = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Close open list before headings / blank lines
+                if (inList && (!line.startsWith('- ') && !line.startsWith('* '))) {
+                    html += '</ul>';
+                    inList = false;
+                }
+
+                if (/^### (.+)/.test(line)) {
+                    html += `<h3 class="vm-notes-h3">${line.replace(/^### /, '')}</h3>`;
+                } else if (/^## (.+)/.test(line)) {
+                    html += `<h2 class="vm-notes-h2">${line.replace(/^## /, '')}</h2>`;
+                } else if (/^# (.+)/.test(line)) {
+                    // Skip the top-level title — we display it separately
+                } else if (/^\*\*(.+)\*\*$/.test(line)) {
+                    html += `<p class="vm-notes-label">${line.replace(/\*\*/g, '')}</p>`;
+                } else if (/^[-*] (.+)/.test(line)) {
+                    if (!inList) { html += '<ul class="vm-notes-list">'; inList = true; }
+                    const item = line.replace(/^[-*] /, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                    html += `<li>${item}</li>`;
+                } else if (line.trim() === '') {
+                    // blank line — ignored (headings/lists create their own spacing)
+                } else {
+                    const para = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                    html += `<p class="vm-notes-para">${para}</p>`;
+                }
+            }
+            if (inList) html += '</ul>';
+            return html;
+        }
+
+        const notesHtml = parseMarkdown(releaseNotesMd);
+
+        // ── Version status check ──────────────────────────────────────────
+        let statusHtml = '';
+        const myVersion = window.EARTHCAL_APP_VERSION || null;
+
+        if (myVersion) {
+            try {
+                const checkRes = await fetch(
+                    `api/v1/version_check.php?current_version=${encodeURIComponent(myVersion)}`,
+                    { cache: 'no-store' }
+                );
+                if (checkRes.ok) {
+                    const chk = await checkRes.json();
+                    if (chk.ok !== false) {
+                        if (chk.update_available) {
+                            const critClass = chk.critical ? 'vm-status-critical' : 'vm-status-outdated';
+                            statusHtml = `
+                                <div class="vm-status-panel ${critClass}">
+                                    <div class="vm-status-icon">&#9888;</div>
+                                    <div class="vm-status-body">
+                                        <strong>${chk.critical ? 'Update required' : 'Update available'}</strong>
+                                        <span>Your version: <code>${myVersion}</code> &nbsp;&middot;&nbsp; Latest: <code>${chk.latest_version}</code></span>
+                                        ${chk.message ? `<span class="vm-status-msg">${chk.message}</span>` : ''}
+                                    </div>
+                                </div>`;
+                        } else {
+                            statusHtml = `
+                                <div class="vm-status-panel vm-status-current">
+                                    <div class="vm-status-icon">&#10003;</div>
+                                    <div class="vm-status-body">
+                                        <strong>You&rsquo;re up to date</strong>
+                                        <span>Running <code>${myVersion}</code> &mdash; the latest release.</span>
+                                    </div>
+                                </div>`;
+                        }
+                    }
+                }
+            } catch (_) {
+                statusHtml = `
+                    <div class="vm-status-panel vm-status-offline">
+                        <div class="vm-status-icon">&#8999;</div>
+                        <div class="vm-status-body">
+                            <strong>Version check unavailable</strong>
+                            <span>Could not reach the EarthCal server.</span>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        // ── Jedi macOS download link ──────────────────────────────────────
+        const loggedIn      = typeof isLoggedIn === 'function' && isLoggedIn();
+        const plan          = (window.user_plan || '').toLowerCase();
+        const isJedi        = loggedIn && (plan === 'jedi' || plan === 'master');
+        const safeDownload  = downloadUrl ? downloadUrl.replace(/"/g, '%22') : '';
+
+        const downloadSection = (isJedi && safeDownload) ? `
+            <div class="vm-download-section">
+                <a href="${safeDownload}" class="vm-download-btn" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/icons/apple_logo.png" alt="" width="16" height="16" style="vertical-align:middle; margin-right:6px;">
+                    Download EarthCal ${latestVersion} for macOS
+                </a>
+                <p class="vm-download-note">Drag EarthCal to your Applications folder to install. Requires macOS Sequoia and above.</p>
+            </div>` : '';
+
+        // ── Render ────────────────────────────────────────────────────────
+        modalBox.innerHTML = `
+            <div class="vm-wrap">
+                <div class="vm-header">
+                    <div class="vm-title-row">
+                        <h1 class="vm-title">EarthCal</h1>
+                        <span class="vm-version-badge">v${latestVersion}</span>
+                    </div>
+                    ${releaseDate ? `<p class="vm-release-date">Released ${releaseDate}</p>` : ''}
+                </div>
+
+                <div class="vm-notes-section">
+                    ${notesHtml || '<p class="vm-notes-para">No release notes available.</p>'}
+                </div>
+
+                <div class="vm-status-section">
+                    <h3 class="vm-section-heading">Your App Version Status</h3>
+                    ${myVersion
+                        ? statusHtml
+                        : '<p class="vm-notes-para" style="color:var(--text-muted, #9ca3af);">Version status is only available in the macOS desktop app.</p>'
+                    }
+                </div>
+
+                ${downloadSection}
+
+                <div class="vm-footer">
+                    <button type="button" class="confirmation-blur-button enabled" id="vm-close-btn">
+                        &#10003;&nbsp; Got it
+                    </button>
+                    <a href="https://earthen.io/cycles/" target="_blank" rel="noopener" class="vm-manifesto-link">
+                        Why EarthCal? A Manifesto &#8599;
+                    </a>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('vm-close-btn').addEventListener('click', closeTheModal);
     }
 
 

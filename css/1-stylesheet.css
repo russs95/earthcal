@@ -5982,3 +5982,254 @@ svg path #june:hover {
   color: var(--h1);
   outline: none;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   VERSION MODAL  (.vm-*)
+   Rendered by showVersionModal() in dash.html
+──────────────────────────────────────────────────────────────────────────── */
+
+.vm-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--h1);
+  font-family: 'Mulish', sans-serif;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.vm-wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 4px 0 16px;
+  font-family: 'Mulish', sans-serif;
+  color: var(--h1);
+}
+
+/* Header */
+.vm-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--general-border, rgba(128,128,128,0.2));
+}
+
+.vm-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vm-title {
+  font-family: 'Arvo', serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin: 0;
+  color: var(--h1);
+}
+
+.vm-version-badge {
+  display: inline-block;
+  background: var(--primary-color, #16a34a);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+
+.vm-release-date {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #9ca3af);
+}
+
+/* Release notes */
+.vm-notes-section {
+  margin-bottom: 24px;
+}
+
+.vm-notes-h2 {
+  font-family: 'Arvo', serif;
+  font-size: 1.15rem;
+  margin: 18px 0 6px;
+  color: var(--h1);
+}
+
+.vm-notes-h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 14px 0 4px;
+  color: var(--h1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+.vm-notes-label {
+  font-weight: 700;
+  margin: 12px 0 2px;
+  font-size: 0.9rem;
+  color: var(--h1);
+}
+
+.vm-notes-para {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 4px 0 8px;
+  color: var(--h1);
+  opacity: 0.85;
+}
+
+.vm-notes-list {
+  margin: 4px 0 10px 18px;
+  padding: 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--h1);
+  opacity: 0.85;
+}
+
+.vm-notes-list li {
+  margin-bottom: 3px;
+}
+
+/* Version status panel */
+.vm-section-heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.55;
+  margin: 0 0 10px;
+}
+
+.vm-status-section {
+  margin-bottom: 20px;
+}
+
+.vm-status-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.vm-status-current {
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.35);
+}
+
+.vm-status-outdated {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+}
+
+.vm-status-critical {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
+.vm-status-offline {
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.vm-status-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.vm-status-current  .vm-status-icon { color: #16a34a; }
+.vm-status-outdated .vm-status-icon { color: #ca8a04; }
+.vm-status-critical .vm-status-icon { color: #dc2626; }
+.vm-status-offline  .vm-status-icon { color: #6b7280; }
+
+.vm-status-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vm-status-body code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  background: rgba(128,128,128,0.12);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.vm-status-msg {
+  margin-top: 4px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* macOS download section (Jedi only) */
+.vm-download-section {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(128,128,128,0.2);
+  text-align: center;
+}
+
+.vm-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--h1);
+  color: var(--general-background, #fff);
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.vm-download-btn:hover,
+.vm-download-btn:focus {
+  opacity: 0.82;
+  text-decoration: none;
+}
+
+.vm-download-note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  opacity: 0.55;
+}
+
+/* Footer */
+.vm-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.vm-manifesto-link {
+  font-size: 0.82rem;
+  color: var(--text-muted, #9ca3af);
+  text-decoration: underline;
+}
+
+.vm-manifesto-link:hover {
+  opacity: 0.75;
+}
+
+@media (max-width: 480px) {
+  .vm-wrap { padding: 2px 0 12px; }
+  .vm-title { font-size: 1.4rem; }
+  .vm-status-panel { flex-direction: column; gap: 6px; }
+}

@@ -424,8 +424,8 @@ async function openMainMenu() {
                     ${mainMenu.featureTour}
                 </div>
 
-                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showIntroModal, 500);">
-                    ${mainMenu.latestVersion}
+                <div class="menu-page-item" onclick="sendDownRegistration(); closeMainMenu(); setTimeout(showVersionModal, 500);">
+                    Version ${window.EARTHCAL_APP_VERSION || ''}
                 </div>
 
                 ${feedbackItemHtml}
