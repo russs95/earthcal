@@ -2,7 +2,8 @@
 // LOGIN SCRIPTS V2
 
 // Global plan tracker shared across EarthCal modules
-window.user_plan = window.user_plan || "padwan";
+// BETA_JEDI_MODE (set in earthcal-init.js) grants Jedi features to all users.
+window.user_plan = window.user_plan || (window.BETA_JEDI_MODE ? "jedi" : "padwan");
 
 
 // API base resolver (supports hosted + Electron/Snap origins)
@@ -417,7 +418,7 @@ async function getUserData() {
         useDefaultUser();
         updateSessionStatus("⚪ Not logged in", false);
 
-        window.user_plan = "padwan";
+        window.user_plan = window.BETA_JEDI_MODE ? "jedi" : "padwan";
         window.cometAccessState = {
             loggedIn: false,
             plan: null,

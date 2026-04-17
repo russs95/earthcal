@@ -505,7 +505,7 @@ async function showUserCalSettings() {
     const jediStatusLabel = !isAuthenticated
         ? 'Unlock features'
         : (isJediPlan ? 'Jedi powers activated' : 'Unlock Jedi features');
-    const hasPremiumAccess = isAuthenticated && isJediPlan;
+    const hasPremiumAccess = (isAuthenticated && isJediPlan) || !!window.BETA_JEDI_MODE;
 
     // Lazy-preload Jedi feature preview images for non-Jedi users so they
     // display instantly if the user clicks a locked toggle.

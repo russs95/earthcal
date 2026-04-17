@@ -1,3 +1,9 @@
+// ==================== BETA TESTING FLAGS ====================
+// Toggle Jedi plan features ON for all users (logged in or not).
+// Flip to false before any production deployment.
+window.BETA_JEDI_MODE = true;
+// ============================================================
+
 // -------------------- SERVICE WORKER --------------------
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
@@ -48,7 +54,17 @@ async function loadSvgIntoContainer(url, containerId) {
         const response = await fetch(url);
         const svg = await response.text();
         const calContainer = document.getElementById(containerId);
-        if (calContainer) calContainer.innerHTML = svg;
+        if (calContainer) {
+            calContainer.innerHTML = svg;
+            // Apply inline CSS to the embedded SVG so it always fills its container.
+            // Optimized SVGs may omit explicit width/height attributes — this ensures
+            // any future optimized calendar SVG renders correctly without modification.
+            const svgEl = calContainer.querySelector('svg');
+            if (svgEl) {
+                svgEl.style.width = '100%';
+                svgEl.style.height = '100%';
+            }
+        }
     } catch (err) {
         console.error("Failed to load SVG", err);
     }
@@ -95,14 +111,14 @@ async function initCalendar() {
         // ✅ planet animation engine BEFORE calendar scripts call refresh/animate
         "js/planet-orbits.js?v=9.3",
         // rest of app
-        "js/login-scripts.js?v=23.1",
+        "js/login-scripts.js?v=23.2",
         "js/item-management.js?v=12.0",
         "js/calendar-scripts.js?v=3.1",
     ];
 
     try {
         // 1) Load SVG first so elements exist when scripts start wiring listenerss
-        await loadSvgIntoContainer("cals/earthcal-v1-2-2.svg?v=21.2", "the-cal");
+        await loadSvgIntoContainer("cals/earthcal-v1-3-8o.svg?v=1.0", "the-cal");
 
         // 2) Preload scripts (real preload links, not fetch)
         await Promise.all(scripts.map(preloadScript));
