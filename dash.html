@@ -102,9 +102,9 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=60.5"></script>
+    <script src="js/earthcal-init.js?v=60.6"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.1">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.2">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.8">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -903,15 +903,15 @@
                         title="Today / Ctrl+click for time travel"
                     ></div>
 
-                    <!-- Time Travel popup menu (ctrl+click on reset-to-today) -->
+                    <!-- Calendar zoom menu (ctrl+click on reset-to-today) -->
                     <div id="time-travel-menu" class="time-travel-menu" style="display:none;">
-                        <div class="ttm-arrow ttm-up"    id="ttm-up"    title="Go back one year">▲</div>
+                        <div class="ttm-arrow ttm-up"    id="ttm-up"    title="Zoom top half">▲</div>
                         <div class="ttm-middle-row">
-                            <div class="ttm-arrow ttm-left"  id="ttm-left"  title="Go back one month">◀</div>
-                            <div class="ttm-center"></div>
-                            <div class="ttm-arrow ttm-right" id="ttm-right" title="Go forward one month">▶</div>
+                            <div class="ttm-arrow ttm-left"  id="ttm-left"  title="Zoom left half">◀</div>
+                            <div class="ttm-center" id="ttm-center" title="Reset to full view">⊙</div>
+                            <div class="ttm-arrow ttm-right" id="ttm-right" title="Zoom right half">▶</div>
                         </div>
-                        <div class="ttm-arrow ttm-down"  id="ttm-down"  title="Go forward one year">▼</div>
+                        <div class="ttm-arrow ttm-down"  id="ttm-down"  title="Zoom bottom half">▼</div>
                     </div>
                     <div
                         id="next-day"

@@ -1663,6 +1663,40 @@ function handleTodayClick(event) {
 (function initTimeTravelMenu() {
 
     let menuOpen = false;
+    let currentZoom = 'full';
+
+    // Zoom states: transform-origin and scale factor for each direction
+    const ZOOM = {
+        full:  { origin: 'center center', scale: 1 },
+        up:    { origin: 'center top',    scale: 2 },
+        down:  { origin: 'center bottom', scale: 2 },
+        left:  { origin: 'left center',   scale: 2 },
+        right: { origin: 'right center',  scale: 2 },
+    };
+
+    function applyZoom(direction) {
+        const svgEl = document.getElementById('EarthCycles');
+        if (!svgEl) return;
+        // Toggle: clicking the active direction resets to full
+        if (currentZoom === direction && direction !== 'full') direction = 'full';
+        const z = ZOOM[direction];
+        svgEl.style.transformOrigin = z.origin;
+        svgEl.style.transform = z.scale === 1 ? 'none' : 'scale(' + z.scale + ')';
+        currentZoom = direction;
+        updateActiveArrow(direction);
+    }
+
+    window.resetCalZoom = function() { applyZoom('full'); };
+
+    function updateActiveArrow(direction) {
+        ['up', 'down', 'left', 'right'].forEach(function(d) {
+            const el = document.getElementById('ttm-' + d);
+            if (el) el.classList.toggle('ttm-active', d === direction);
+        });
+        const center = document.getElementById('ttm-center');
+        if (center) center.style.color = direction === 'full'
+            ? 'rgba(180,200,230,0.5)' : 'rgba(120,200,140,0.9)';
+    }
 
     function positionMenu(triggerEl) {
         const menu = document.getElementById('time-travel-menu');
@@ -1673,7 +1707,7 @@ function handleTodayClick(event) {
         menu.style.top  = cy + 'px';
     }
 
-    window.showTimeTravelMenu = function(event) {
+    window.showTimeTravelMenu = function() {
         const menu = document.getElementById('time-travel-menu');
         if (!menu) return;
         const trigger = document.getElementById('reset-to-today');
@@ -1688,7 +1722,15 @@ function handleTodayClick(event) {
         menuOpen = false;
     }
 
+    // Arrow clicks via event delegation (core.js loads after DOMContentLoaded)
     document.addEventListener('click', function(e) {
+        const id = e.target.id;
+        if (id === 'ttm-up')    { e.stopPropagation(); applyZoom('up');    return; }
+        if (id === 'ttm-down')  { e.stopPropagation(); applyZoom('down');  return; }
+        if (id === 'ttm-left')  { e.stopPropagation(); applyZoom('left');  return; }
+        if (id === 'ttm-right') { e.stopPropagation(); applyZoom('right'); return; }
+        if (id === 'ttm-center'){ e.stopPropagation(); applyZoom('full');  return; }
+
         if (!menuOpen) return;
         const menu = document.getElementById('time-travel-menu');
         const trigger = document.getElementById('reset-to-today');

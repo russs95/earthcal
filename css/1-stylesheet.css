@@ -214,6 +214,30 @@ h2 {
     align-self: center;
 }
 
+.ttm-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--panel-text, rgba(180,200,230,0.5));
+    cursor: pointer;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.ttm-center:hover {
+    color: #fff;
+    background: rgba(120,160,255,0.18);
+}
+
+.ttm-arrow.ttm-active {
+    background: rgba(120,160,255,0.28);
+    color: #fff;
+}
+
 
 .planet-info-box {
     display:none;
@@ -669,6 +693,8 @@ flex-direction: row;
   position: absolute;
   z-index: 0;
   top: 0;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
 }
 
 

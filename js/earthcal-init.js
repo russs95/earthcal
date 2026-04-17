@@ -1,7 +1,7 @@
 // ==================== BETA TESTING FLAGS ====================
 // Toggle Jedi plan features ON for all users (logged in or not).
 // Flip to false before any production deployment.
-window.BETA_JEDI_MODE = true;
+window.BETA_JEDI_MODE = false;
 // ============================================================
 
 // -------------------- SERVICE WORKER --------------------
@@ -100,7 +100,7 @@ async function initCalendar() {
         "js/astronomy.browser.js",
 
         // core app
-        "js/core.js?v=5.4",
+        "js/core.js?v=5.5",
         "js/1-gcal-javascripts.js?v=3.23",
         "js/breakouts.js",
 
