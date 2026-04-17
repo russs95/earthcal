@@ -1649,10 +1649,59 @@ function set2Today() {
 }
 
 
+/* ─── Time Travel popup menu (ctrl+click on reset-to-today) ─── */
 
+function handleTodayClick(event) {
+    if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+        showTimeTravelMenu(event);
+    } else {
+        set2Today();
+    }
+}
 
+(function initTimeTravelMenu() {
 
+    let menuOpen = false;
 
+    function positionMenu(triggerEl) {
+        const menu = document.getElementById('time-travel-menu');
+        const rect = triggerEl.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        menu.style.left = cx + 'px';
+        menu.style.top  = cy + 'px';
+    }
+
+    window.showTimeTravelMenu = function(event) {
+        const menu = document.getElementById('time-travel-menu');
+        if (!menu) return;
+        const trigger = document.getElementById('reset-to-today');
+        positionMenu(trigger);
+        menu.style.display = 'flex';
+        menuOpen = true;
+    };
+
+    function closeMenu() {
+        const menu = document.getElementById('time-travel-menu');
+        if (menu) menu.style.display = 'none';
+        menuOpen = false;
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!menuOpen) return;
+        const menu = document.getElementById('time-travel-menu');
+        const trigger = document.getElementById('reset-to-today');
+        if (menu && !menu.contains(e.target) && e.target !== trigger) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+
+})();
 
 
 /* SET DATE PATHS being used???!
