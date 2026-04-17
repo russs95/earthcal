@@ -177,13 +177,33 @@ class PlanetGroupRotator {
 
     applyCounterRotation(angleDeg) {
         if (!this.counterEl) return;
-        // Rotate around the zodiac ring's own centre (in Earth's local frame), NOT the sun.
-        // Rotating around the sun pivot would cancel Earth's orbital translation entirely and
-        // pin the zodiac at a fixed global position.  Rotating around the ring's own centre
-        // cancels only the coordinate-frame rotation so the signs stay aligned with fixed sky
-        // directions while the ring's position continues to orbit with Earth.
-        const pivot = this.counterCenter || this.counterPivot || this.pivot;
-        const { x, y } = pivot;
+
+        // Lazy-resolve the ring centre in Earth's local frame.
+        // Can't be done at construction time because #zodiacs starts as display:none and
+        // the live SVG no longer contains <circle> elements inside the group.
+        // getBBox() on a <g> returns the bbox of its children in the group's OWN local
+        // coordinate system (i.e. before the group's own transform / baseM is applied),
+        // so we must apply baseM to convert to Earth's local frame.
+        // If the element is still hidden getBBox returns {0,0,0,0} — in that case bail
+        // out rather than falling back to the sun-centre pivot, which globally fixes the
+        // zodiac (Problem 8).
+        if (!this.counterCenter) {
+            try {
+                const b = this.counterEl.getBBox();
+                if (b.width > 0 || b.height > 0) {
+                    const bm = parseSvgTransform(this.counterEl.dataset.ecBaseTransform || '');
+                    const cx = b.x + b.width / 2;
+                    const cy = b.y + b.height / 2;
+                    this.counterCenter = {
+                        x: bm.a * cx + bm.c * cy + bm.e,
+                        y: bm.b * cx + bm.d * cy + bm.f,
+                    };
+                }
+            } catch (e) {}
+        }
+        if (!this.counterCenter) return;
+
+        const { x, y } = this.counterCenter;
 
         // Counter-rotate only the delta from epoch (not the absolute angle)
         const delta = angleDeg - this.epochAngle;
@@ -232,7 +252,7 @@ function buildSolarAnimatorByRotation() {
             direction: +1,
             minFrameMs: 0,
             counterRotateId: "zodiacs",
-            counterPivot: pivot,   // sun centre — keeps zodiac fixed in solar-system space
+            // counterCenter resolved lazily via getBBox in applyCounterRotation
         }),
         new PlanetGroupRotator("mars", 686.98, pivot, { direction: +1, minFrameMs: 16 }),
         new PlanetGroupRotator("jupiter", 4332.59, pivot, { direction: +1, minFrameMs: 48 }),

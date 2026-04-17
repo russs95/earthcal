@@ -295,9 +295,20 @@ this.counterCenter = {
     y: bm.b * circ.cx.baseVal.value + bm.d * circ.cy.baseVal.value + bm.f,
 };
 
-// In applyCounterRotation — use counterCenter, not counterPivot:
-const pivot = this.counterCenter || this.counterPivot || this.pivot;
+// In applyCounterRotation — counterCenter resolved lazily via getBBox:
+if (!this.counterCenter) return;
+const { x, y } = this.counterCenter;
 ```
+
+---
+
+### Problem 9 — Zodiac Stuck at Epoch After SVG Rebuild (No circles in `#zodiacs`)
+
+**Symptom:** Zodiac ring stuck at the epoch position on screen — not orbiting with Earth and not counter-rotating. Identical appearance to Problem 8.
+
+**Root cause:** The SVG was rebuilt (`earthcal-v1-3-8o.svg`) without any `<circle>` elements inside `#zodiacs`. The constructor's `querySelector("circle")` returned null, leaving `this.counterCenter = null`. The fallback chain `this.counterCenter || this.counterPivot || this.pivot` then resolved to `this.counterPivot` which was passed as the sun-centre pivot (`counterPivot: pivot` in `buildSolarAnimatorByRotation`). This re-introduced Problem 8 — the zodiac was globally fixed at the epoch position.
+
+**Fix:** Removed `counterPivot: pivot` from the Earth constructor call. Added lazy `counterCenter` resolution inside `applyCounterRotation`: calls `getBBox()` on `#zodiacs` the first time the method runs. `getBBox()` on a `<g>` returns the bbox in the group's own local coordinate system (before the group's transform is applied), so `baseM` is applied to convert the bbox centre to Earth's local frame. If `getBBox()` still returns zeros (element is `display:none`), the method returns early without applying any rotation — the zodiac orbits with Earth but without orientation correction until it becomes visible, at which point `counterCenter` is resolved on the next animation tick.
 
 ---
 
@@ -309,7 +320,7 @@ const pivot = this.counterCenter || this.counterPivot || this.pivot;
 | Epoch angle read once from SVG, never recalculated | The SVG encodes planet positions for Jan 1, 2026 — treating this as the ground truth epoch avoids floating-point drift from repeated incremental angle math. |
 | `#zodiacs` is a child of `#earth` in the SVG | The zodiac ring is designed to orbit with Earth (showing Earth's current sky context). Making it a sibling would require explicitly positioning it relative to Earth every frame. |
 | Counter-rotation pivot = zodiac ring's own centre (Earth's local frame) | Rotating around the ring's own centre cancels only the coordinate-frame orientation drift from Earth's orbit, leaving the ring's orbital position unchanged. Using the sun centre as pivot would cancel the orbital translation too and globally freeze the ring. |
-| Ring centre computed from `baseM × circle.cx/cy` | The zodiac circle's cx/cy attributes are in the ring's own local frame; applying `baseM` transforms them to Earth's local frame where the rotation is computed. This is stable and requires no DOM layout pass. |
+| Ring centre resolved lazily via `getBBox()` + `baseM` | The ring no longer contains `<circle>` elements. `getBBox()` on `#zodiacs` returns coords in zodiacs' own local frame (before `baseM`); applying `baseM` converts to Earth's local frame. Resolution is deferred to first animation tick when the element is visible, avoiding the `display:none` timing issue (Problem 2). |
 | `animToken` cancellation guard | Prevents ghost animation loops from old `animatePlanets()` calls if the user selects dates rapidly. |
 | UTC midnight arithmetic for day counting | Avoids DST-related fractional days that cause slight positional errors at DST transition dates in the user's local timezone. |
 | Counter-rotation pre-sync before rAF loop | `applyCounterRotation(a0)` is called synchronously for Earth before starting the animation loop. This guarantees the zodiac is correctly positioned from frame 0, even when no previous animation has run. |
