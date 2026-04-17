@@ -836,12 +836,6 @@ function animateCometTrajectory(date, options = {}) {
   }
 
   const cometElement = document.getElementById("comet-start-4");
-  const cometPathElement = document.getElementById("comet-orbit-3");
-
-  if (!cometElement || !cometPathElement) {
-    console.warn("⚠️ Cannot animate comet trajectory: missing SVG elements.");
-    return;
-  }
 
   const animationOptions = (options && typeof options === "object") ? options : {};
   const skipAnimation = Boolean(animationOptions.skipAnimation);
@@ -859,10 +853,21 @@ function animateCometTrajectory(date, options = {}) {
     return;
   }
 
+  const resolvedYear = resolvedDate.getFullYear();
+  const is2026 = resolvedYear === 2026;
+  const cometPathId = is2026 ? "comet-orbit-2026-2" : "comet-orbit-3";
+  const cometPathElement = document.getElementById(cometPathId);
+
+  if (!cometElement || !cometPathElement) {
+    console.warn("⚠️ Cannot animate comet trajectory: missing SVG elements.");
+    return;
+  }
+
   renderCometTrajectoryInfo(resolvedDate);
 
-  const journeyStart = new Date(2025, 0, 1);
-  const journeyEnd = new Date(2025, 11, 25);
+  const journeyStart = is2026 ? new Date(2026, 0, 1) : new Date(2025, 0, 1);
+  const journeyEnd = is2026 ? new Date(2026, 11, 31) : new Date(2025, 11, 25);
+  const journeyDays = is2026 ? 365 : 365;
   const dayMs = 24 * 60 * 60 * 1000;
 
   const clampedTime = Math.min(
@@ -875,7 +880,7 @@ function animateCometTrajectory(date, options = {}) {
     progress = 1;
   } else {
     const elapsedDays = Math.floor((clampedTime - journeyStart.getTime()) / dayMs);
-    progress = Math.max(0, Math.min(elapsedDays / 365, 1));
+    progress = Math.max(0, Math.min(elapsedDays / journeyDays, 1));
   }
 
   if (!Number.isFinite(progress)) {
@@ -884,8 +889,11 @@ function animateCometTrajectory(date, options = {}) {
   }
 
   const previousProgressRaw = Number.parseFloat(cometElement.dataset.cometProgress);
-  const hasPreviousProgress = Number.isFinite(previousProgressRaw);
+  const previousPathId = cometElement.dataset.cometPathId;
+  const pathSwitched = previousPathId && previousPathId !== cometPathId;
+  const hasPreviousProgress = Number.isFinite(previousProgressRaw) && !pathSwitched;
   const startProgress = hasPreviousProgress ? clampProgress(previousProgressRaw) : progress;
+  cometElement.dataset.cometPathId = cometPathId;
 
   const restorePathVisibility = ensureSvgVisibility(cometPathElement);
   const restoreCometVisibility = ensureSvgVisibility(cometElement, "inline");

@@ -1199,6 +1199,8 @@ function toggleZodiacPositions(isChecked) {
 }
 
 function setLunarCalendarVisibility(isVisible) {
+    const lunarGroup = document.getElementById('lunar_months-12');
+    if (lunarGroup) lunarGroup.style.display = isVisible ? '' : 'none';
     const lunarMonthPaths = document.querySelectorAll('path[id*="lunarmonth-12"]');
     lunarMonthPaths.forEach(path => {
         path.style.opacity = isVisible ? '1' : '';
