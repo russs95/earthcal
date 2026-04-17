@@ -4,15 +4,34 @@
  *
  * GET /api/v1/version_check.php
  * GET /api/v1/version_check.php?app=EarthCal&current_version=1.3.7
- *
- * Returns the latest version info so clients can determine whether an
- * update is available.  The source of truth is /version.json at the
- * repo root.
  */
 
-// ── Safety: no error output to clients ─────────────────────────────────────
 ini_set('display_errors', '0');
 error_reporting(0);
+
+// ── CORS ─────────────────────────────────────────────────────────────────────
+$allowedOrigins = [
+    'http://127.0.0.1:3000',
+    'http://localhost:3000',
+    'https://earthcal.app',
+    'https://www.earthcal.app',
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins, true)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header('Vary: Origin');
+}
+
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Accept');
+header('Access-Control-Max-Age: 86400');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
