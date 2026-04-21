@@ -5501,14 +5501,14 @@ svg path #june:hover {
     width: 100%;
     appearance: none;
     height: 8px;
-    border: 1px solid #000000;
+    border: 1px solid #808080;
     border-radius: 999px;
     background: var(--zodiac-contrast-color);
 }
 
 .zodiac-contrast-row input[type="range"]::-webkit-slider-runnable-track {
     height: 8px;
-    border: 1px solid #000000;
+    border: 1px solid #808080;
     border-radius: 999px;
     background: var(--zodiac-contrast-color);
 }
@@ -5519,13 +5519,13 @@ svg path #june:hover {
     height: 18px;
     border-radius: 50%;
     background: #808080;
-    border: 2px solid #000000;
+    border: 2px solid #808080;
     margin-top: -7px;
 }
 
 .zodiac-contrast-row input[type="range"]::-moz-range-track {
     height: 8px;
-    border: 1px solid #000000;
+    border: 1px solid #808080;
     border-radius: 999px;
     background: var(--zodiac-contrast-color);
 }
@@ -5535,16 +5535,7 @@ svg path #june:hover {
     height: 18px;
     border-radius: 50%;
     background: #808080;
-    border: 2px solid #000000;
-}
-
-.zodiac-contrast-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid var(--zodiac-contrast-color);
-    background: var(--zodiac-contrast-color);
-    flex-shrink: 0;
+    border: 2px solid #808080;
 }
 
 .toggle-switch {

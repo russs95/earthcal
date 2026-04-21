@@ -312,6 +312,16 @@ const { x, y } = this.counterCenter;
 
 ---
 
+### Problem 10 — Zodiac Not Counter-Rotating on Initial Calendar Load
+
+**Symptom:** With "View zodiac positions" enabled, the `#zodiacs` ring appeared frozen at the SVG epoch position on the very first page load. The counter-rotation only corrected itself after the user navigated to a new date.
+
+**Root cause:** `applyInitialLayerVisibility()` in `time-setting.js` reveals `#zodiacs` inside a `setTimeout(..., 3000)` — a 3-second cosmetic delay for the animated calendar reveal. The initial `animatePlanets(Jan1, today)` call is scheduled via `requestAnimationFrame` and runs within the first ~16 ms of page load — long before `#zodiacs` is visible. During that animation, every call to `applyCounterRotation()` attempts to lazy-resolve `counterCenter` via `getBBox()` on the hidden `#zodiacs` element. Because `display:none` elements return `{width: 0, height: 0}` from `getBBox()`, the resolution is skipped and `counterCenter` stays null. The animation completes after ~1500 ms (for dates around mid-April); when `#zodiacs` becomes visible at 3000 ms, no animation is running, so `applyCounterRotation` is never called again and the zodiac remains stuck at the epoch position.
+
+**Fix:** Added a call to `window.animatePlanets(targetDate, targetDate)` immediately after `setZodiacVisibility(true)` in `applyInitialLayerVisibility`'s `setTimeout` callback. At this point `#zodiacs` is visible, so `getBBox()` returns real dimensions, `counterCenter` is resolved, and the pre-sync counter-rotation loop applies the correct rotation for Earth's current angle — without moving any planet (start === end date, so the animation is a positional no-op). The same call was added to `toggleZodiacPositions` so that re-enabling zodiacs via the settings toggle also immediately applies the correct rotation.
+
+---
+
 ## Key Design Decisions
 
 | Decision | Reason |
@@ -324,6 +334,7 @@ const { x, y } = this.counterCenter;
 | `animToken` cancellation guard | Prevents ghost animation loops from old `animatePlanets()` calls if the user selects dates rapidly. |
 | UTC midnight arithmetic for day counting | Avoids DST-related fractional days that cause slight positional errors at DST transition dates in the user's local timezone. |
 | Counter-rotation pre-sync before rAF loop | `applyCounterRotation(a0)` is called synchronously for Earth before starting the animation loop. This guarantees the zodiac is correctly positioned from frame 0, even when no previous animation has run. |
+| `animatePlanets(targetDate, targetDate)` called on zodiac reveal | `#zodiacs` starts hidden and is revealed after a 3-second cosmetic delay. The initial planet animation runs before that reveal, so `counterCenter` can never be resolved during it (hidden elements return zero from `getBBox()`). Calling `animatePlanets` again after reveal — with start === target — re-enters the pre-sync loop with the element now visible, resolves `counterCenter`, and applies the correct counter-rotation without visibly moving any planet. |
 | `t0` latched on first rAF frame, not before | Capturing `t0 = now` inside the first callback rather than before `requestAnimationFrame` ensures `t = 0` on the first tick, eliminating the ~16 ms initial jump that would otherwise occur due to rAF scheduling delay. |
 
 ---

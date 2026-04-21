@@ -694,7 +694,6 @@ async function showUserCalSettings() {
                     </label>
                 </div>
                 <div class="zodiac-contrast-row" id="zodiac-contrast-row" aria-hidden="true">
-                    <span class="zodiac-contrast-dot" aria-hidden="true"></span>
                     <input type="range" id="zodiac-contrast-slider" min="-100" max="100" value="${zodiacShadeSetting}" step="1" aria-label="Zodiac ground shade">
                 </div>
             </div>
@@ -777,17 +776,10 @@ async function showUserCalSettings() {
 
     const initialTimezone = timezoneSelect?.value || '';
     const initialLanguage = (languageSelect?.value || '').toLowerCase();
-    const initialZodiacShadeSetting = zodiacContrastSlider
-        ? Number(zodiacContrastSlider.value)
-        : Number(zodiacShadeSetting);
-
     const checkSettingsChange = () => {
         const tzChanged = timezoneSelect?.value !== initialTimezone;
         const langChanged = (languageSelect?.value || '').toLowerCase() !== initialLanguage;
-        const zodiacChanged = zodiacContrastSlider
-            ? Number(zodiacContrastSlider.value) !== initialZodiacShadeSetting
-            : false;
-        if (tzChanged || langChanged || zodiacChanged) {
+        if (tzChanged || langChanged) {
             applyButton.style.display = 'block';
         } else {
             applyButton.style.display = 'none';
@@ -1041,7 +1033,12 @@ async function showUserCalSettings() {
             const newValue = clampZodiacShadeSetting(event.target.value);
             event.target.value = String(newValue);
             updateZodiacGroundShade(newValue);
-            checkSettingsChange();
+        });
+        zodiacContrastSlider.addEventListener('change', (event) => {
+            const newValue = clampZodiacShadeSetting(event.target.value);
+            zodiacShadeSetting = newValue;
+            localStorage.setItem('zodiac_shade_setting', String(newValue));
+            updateZodiacGroundShade(newValue);
         });
     }
 }
@@ -1068,13 +1065,6 @@ async function animateApplySettingsButton() {
     const applyStartTime = typeof performance !== 'undefined' && performance.now
         ? performance.now()
         : Date.now();
-    const zodiacSlider = document.getElementById('zodiac-contrast-slider');
-    if (zodiacSlider) {
-        const newValue = clampZodiacShadeSetting(zodiacSlider.value);
-        zodiacShadeSetting = newValue;
-        localStorage.setItem('zodiac_shade_setting', String(newValue));
-        updateZodiacGroundShade(newValue);
-    }
     await applySettings(applyStartTime);
     restoreApplyButton?.();
 }
@@ -1195,6 +1185,9 @@ function toggleZodiacPositions(isChecked) {
     setZodiacVisibility(isChecked);
     if (isChecked) {
         updateZodiacGroundShade(zodiacShadeSetting);
+        if (typeof window.animatePlanets === 'function' && typeof targetDate !== 'undefined') {
+            window.animatePlanets(targetDate, targetDate);
+        }
     }
 }
 
@@ -1252,6 +1245,14 @@ const applyInitialLayerVisibility = () => {
         setTimeout(() => {
             setZodiacVisibility(true);
             updateZodiacGroundShade(zodiacShadeSetting);
+            // The initial animatePlanets call runs while #zodiacs is still hidden,
+            // so getBBox() returns zero and counterCenter can never resolve during
+            // that animation. Now that the element is visible, re-trigger with
+            // (targetDate, targetDate) so the pre-sync loop resolves counterCenter
+            // and applies the correct counter-rotation without moving any planet.
+            if (typeof window.animatePlanets === 'function' && typeof targetDate !== 'undefined') {
+                window.animatePlanets(targetDate, targetDate);
+            }
         }, layerRevealDelayMs);
     } else {
         setZodiacVisibility(false);
