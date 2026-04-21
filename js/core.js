@@ -1662,27 +1662,50 @@ function handleTodayClick(event) {
 
 (function initTimeTravelMenu() {
 
-    let menuOpen = false;
-    let currentZoom = 'full';
+    let menuOpen   = false;
+    let currentZoom = 'full'; // 'full' | 'up' | 'down' | 'left' | 'right'
+    let panX = 0, panY = 0;   // -1..+1, current joystick position
 
-    // Zoom states: transform-origin and scale factor for each direction
-    const ZOOM = {
-        full:  { origin: 'center center', scale: 1 },
-        up:    { origin: 'center top',    scale: 2 },
-        down:  { origin: 'center bottom', scale: 2 },
-        left:  { origin: 'left center',   scale: 2 },
-        right: { origin: 'right center',  scale: 2 },
+    // Arrow snap positions (panX, panY) in -1..+1 space
+    const ARROW_POS = {
+        up:    [  0, -1 ],
+        down:  [  0, +1 ],
+        left:  [ -1,  0 ],
+        right: [ +1,  0 ],
     };
 
-    function applyZoom(direction) {
+    // Apply transform to the calendar SVG.
+    // At scale 2 with transform-origin:center center, translate range is ±25%
+    // to pan across the full 2x canvas without going out of bounds.
+    function applyTransform(scale, px, py, animated) {
         const svgEl = document.getElementById('EarthCycles');
         if (!svgEl) return;
-        // Toggle: clicking the active direction resets to full
+        svgEl.style.transition = animated
+            ? 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+            : 'none';
+        if (scale <= 1) {
+            svgEl.style.transformOrigin = 'center center';
+            svgEl.style.transform = 'none';
+        } else {
+            const txPct = -px * 25;
+            const tyPct = -py * 25;
+            svgEl.style.transformOrigin = 'center center';
+            svgEl.style.transform = 'translate(' + txPct + '%, ' + tyPct + '%) scale(' + scale + ')';
+        }
+    }
+
+    function applyZoom(direction) {
+        // Toggle: clicking the active arrow resets to full
         if (currentZoom === direction && direction !== 'full') direction = 'full';
-        const z = ZOOM[direction];
-        svgEl.style.transformOrigin = z.origin;
-        svgEl.style.transform = z.scale === 1 ? 'none' : 'scale(' + z.scale + ')';
         currentZoom = direction;
+        if (direction === 'full') {
+            panX = 0; panY = 0;
+            applyTransform(1, 0, 0, true);
+        } else {
+            panX = ARROW_POS[direction][0];
+            panY = ARROW_POS[direction][1];
+            applyTransform(2, panX, panY, true);
+        }
         updateActiveArrow(direction);
     }
 
@@ -1702,7 +1725,7 @@ function handleTodayClick(event) {
         const menu = document.getElementById('time-travel-menu');
         const rect = triggerEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
+        const cy = rect.top  + rect.height / 2;
         menu.style.left = cx + 'px';
         menu.style.top  = cy + 'px';
     }
@@ -1722,7 +1745,24 @@ function handleTodayClick(event) {
         menuOpen = false;
     }
 
-    // Arrow clicks via event delegation (core.js loads after DOMContentLoaded)
+    // ── Joystick: cursor position inside the palette pans the zoomed calendar ──
+    document.addEventListener('mousemove', function(e) {
+        if (!menuOpen || currentZoom === 'full') return;
+        const menu = document.getElementById('time-travel-menu');
+        if (!menu) return;
+        const rect = menu.getBoundingClientRect();
+        // Only pan while cursor is inside the palette
+        if (e.clientX < rect.left || e.clientX > rect.right ||
+            e.clientY < rect.top  || e.clientY > rect.bottom) return;
+        // Map cursor to -1..+1 relative to palette center
+        const nx = (e.clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
+        const ny = (e.clientY - (rect.top  + rect.height / 2)) / (rect.height / 2);
+        panX = Math.max(-1, Math.min(1, nx));
+        panY = Math.max(-1, Math.min(1, ny));
+        applyTransform(2, panX, panY, false);
+    });
+
+    // ── Arrow clicks snap to their fixed position; outside click locks + closes ──
     document.addEventListener('click', function(e) {
         const id = e.target.id;
         if (id === 'ttm-up')    { e.stopPropagation(); applyZoom('up');    return; }
@@ -1735,7 +1775,7 @@ function handleTodayClick(event) {
         const menu = document.getElementById('time-travel-menu');
         const trigger = document.getElementById('reset-to-today');
         if (menu && !menu.contains(e.target) && e.target !== trigger) {
-            closeMenu();
+            closeMenu(); // position locks at current panX/panY
         }
     });
 

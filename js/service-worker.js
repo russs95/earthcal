@@ -18,7 +18,7 @@ const STATIC_ASSETS = [
     './js/auspices/auspices-config.json',
     './js/auspices/ancestral_examples.js?v=1.0',
     './js/astronomy.browser.js',
-    './js/core.js?v=23.6',
+    './js/core.js?v=23.7',
     './js/1-gcal-javascripts.js?v=3.2',
     './js/breakouts.js',
     './js/set-targetdate.js',
