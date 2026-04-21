@@ -1649,12 +1649,12 @@ function set2Today() {
 }
 
 
-/* ─── Time Travel popup menu (ctrl+click on reset-to-today) ─── */
+/* ─── Zoom travel palette (ctrl+click on reset-to-today) ─── */
 
 function handleTodayClick(event) {
     if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
-        showTimeTravelMenu(event);
+        showZoomTravelPalette(event);
     } else {
         set2Today();
     }
@@ -1722,7 +1722,7 @@ function handleTodayClick(event) {
     }
 
     function positionMenu(triggerEl) {
-        const menu = document.getElementById('time-travel-menu');
+        const menu = document.getElementById('zoom-travel-pallette');
         const rect = triggerEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top  + rect.height / 2;
@@ -1730,25 +1730,31 @@ function handleTodayClick(event) {
         menu.style.top  = cy + 'px';
     }
 
-    window.showTimeTravelMenu = function() {
-        const menu = document.getElementById('time-travel-menu');
+    window.showZoomTravelPalette = function() {
+        const menu = document.getElementById('zoom-travel-pallette');
         if (!menu) return;
         const trigger = document.getElementById('reset-to-today');
         positionMenu(trigger);
         menu.style.display = 'flex';
         menuOpen = true;
+        // Auto-apply 2x zoom the moment the palette opens
+        if (currentZoom === 'full') {
+            currentZoom = 'center';
+            applyTransform(2, panX, panY, true);
+            updateActiveArrow('center');
+        }
     };
 
     function closeMenu() {
-        const menu = document.getElementById('time-travel-menu');
+        const menu = document.getElementById('zoom-travel-pallette');
         if (menu) menu.style.display = 'none';
         menuOpen = false;
     }
 
     // ── Joystick: cursor position inside the palette pans the zoomed calendar ──
     document.addEventListener('mousemove', function(e) {
-        if (!menuOpen || currentZoom === 'full') return;
-        const menu = document.getElementById('time-travel-menu');
+        if (!menuOpen) return;
+        const menu = document.getElementById('zoom-travel-pallette');
         if (!menu) return;
         const rect = menu.getBoundingClientRect();
         // Only pan while cursor is inside the palette
@@ -1769,10 +1775,10 @@ function handleTodayClick(event) {
         if (id === 'ttm-down')  { e.stopPropagation(); applyZoom('down');  return; }
         if (id === 'ttm-left')  { e.stopPropagation(); applyZoom('left');  return; }
         if (id === 'ttm-right') { e.stopPropagation(); applyZoom('right'); return; }
-        if (id === 'ttm-center'){ e.stopPropagation(); applyZoom('full');  return; }
+        if (id === 'ttm-center'){ e.stopPropagation(); applyZoom('full'); closeMenu(); return; }
 
         if (!menuOpen) return;
-        const menu = document.getElementById('time-travel-menu');
+        const menu = document.getElementById('zoom-travel-pallette');
         const trigger = document.getElementById('reset-to-today');
         if (menu && !menu.contains(e.target) && e.target !== trigger) {
             closeMenu(); // position locks at current panX/panY

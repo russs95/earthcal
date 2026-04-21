@@ -158,8 +158,8 @@ h2 {
     pointer-events: all;
 }
 
-/* Time Travel popup menu */
-.time-travel-menu {
+/* Zoom travel palette (ctrl+click on reset-to-today) */
+.zoom-travel-pallette {
     position: fixed;
     width: 108px;
     height: 108px;
