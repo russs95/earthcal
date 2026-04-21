@@ -127,6 +127,9 @@
       background-size: contain;
   }
 
+.select-type-search-icon {
+    background-image: url(../svgs/search-night.svg);
+}
 
 .top-clock-button {
     background: url(../assets/icons/event-show.svg) no-repeat;

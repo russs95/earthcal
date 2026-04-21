@@ -102,19 +102,19 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=60.8"></script>
+    <script src="js/earthcal-init.js?v=60.9"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.3">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.4">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.8">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
 
     <!--Default Light Styles to load first   -->
-    <link rel="preload" href="css/light.css?v=8.6" as="style" onload="this.rel='stylesheet'">
+    <link rel="preload" href="css/light.css?v=8.7" as="style" onload="this.rel='stylesheet'">
 
     <!--Stylesheets for light and dark mode.  They need to be called here   -->
-    <link rel="stylesheet" href="css/light.css?v=8.6" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
-    <link rel="stylesheet" href="css/dark.css?v=8.44" media="(prefers-color-scheme: dark)">
+    <link rel="stylesheet" href="css/light.css?v=8.7" media="(prefers-color-scheme: no-preference), (prefers-color-scheme: light)">
+    <link rel="stylesheet" href="css/dark.css?v=8.45" media="(prefers-color-scheme: dark)">
     <link rel="stylesheet" href="css/slider.css?v=1.5">
 
 
@@ -680,6 +680,8 @@
     <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'event')">+ Add Event</button>
     <hr class="select-type-divider">
     <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'journal')">+ Add Journal</button>
+    <hr class="select-type-divider">
+    <button type="button" class="select-type-option select-type-option-search" onclick="openDateSearch()"><span class="select-type-search-icon"></span>Search for date</button>
     <hr class="select-type-divider">
     <button type="button" class="select-type-cancel" onclick="closeSelectItemTypePalette()">× Cancel</button>
   </div>

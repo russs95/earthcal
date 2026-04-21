@@ -101,6 +101,10 @@
       background-size: contain;
   }
 
+.select-type-search-icon {
+    background-image: url(../svgs/search-day.svg);
+}
+
 .top-settings-button {
     background: url(../svgs/settings-icon-day.svg) no-repeat;
     background-size: contain;

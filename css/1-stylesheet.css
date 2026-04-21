@@ -6018,6 +6018,21 @@ svg path #june:hover {
   outline: none;
 }
 
+.select-type-option-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-type-search-icon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 
 .select-type-divider {
   border: none;
