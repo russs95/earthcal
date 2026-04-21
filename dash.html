@@ -102,7 +102,7 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=61.2"></script>
+    <script src="js/earthcal-init.js?v=61.4"></script>
     <!-- Main Calendar Stylesheet-->
     <link rel="stylesheet" href="css/1-stylesheet.css?v=51.5">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.8">
@@ -681,7 +681,7 @@
     <hr class="select-type-divider">
     <button type="button" class="select-type-option" onclick="selectAddItemTypeChoiceAnimated(this,'journal')">+ Add Journal</button>
     <hr class="select-type-divider">
-    <button type="button" class="select-type-option select-type-option-search" onclick="openDateSearch()"><span class="select-type-search-icon"></span>Search for date</button>
+    <button type="button" class="select-type-option select-type-option-search" onclick="openDateSearch()"><span class="select-type-search-icon"></span>Date Search</button>
     <hr class="select-type-divider">
     <button type="button" class="select-type-cancel" onclick="closeSelectItemTypePalette()">× Cancel</button>
   </div>
@@ -967,7 +967,7 @@
     <div id="top-left-buttons" class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:22px;z-index:20;top:0;background: var(--general-background);
       border-radius: 15px;">
         <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
-        <div><button type="button" id="top-search" class="top-search-button" onclick="openDateSearch()" aria-label="Date Search"></button></div>
+        <div><button type="button" id="top-search" class="top-search-button" onclick="showZoomTravelPalette()" aria-label="Zoom/Pan"></button></div>
         <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="EarthCal"></button></div>
     </div>
 

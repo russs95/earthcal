@@ -16,8 +16,8 @@ tour: {
   neighborhoodTitle: "Lingkungan Kita",
   neighborhoodDesc: "Saat Anda mengklik hari apa pun, Anda juga dapat melihat perkembangan dan posisi tetangga planet kita. Klik planet mana pun untuk melihat data orbit yang rinci. Saksikan oposisi, konjungsi, dan penjajaran planet secara waktu nyata. Ini tidak hanya membantu kita memahami langit malam, tetapi juga menyelaraskan kita dengan siklus waktu yang jauh lebih besar (Neptunus membutuhkan 165 tahun Bumi untuk menyelesaikan orbitnya!).",
 
-  getLunarTitle: "Lihat Bulan",
-  getLunarDesc: "Perhatikan bagian tengah kalender saat Anda melayang di atas hari-hari dalam setahun? Anda dapat melihat secara waktu nyata bagaimana fase bulan berubah sepanjang tahun. Klik bulan di kanan bawah untuk melihat data orbit yang rinci.",
+  getLunarTitle: "Dapatkan Auspisi Hari Ini",
+  getLunarDesc: "Mesin auspisi eksklusif Earthcal menggunakan data astronomi lunar, matahari, dan planet setiap hari untuk disilang-referensikan dengan wawasan leluhur, biodinamika, dan ekologis guna memberikan \"auspisi\" (saran sinkronisasi) untuk setiap hari. Apakah sebaiknya menanam niat, menghentikan sebuah proyek, atau memanen investasi? Hubungkan perencanaan Anda langsung dengan siklus Bumi.",
 
   animalCyclesTitle: "Siklus Makhluk Terestrial Hebat",
   animalCyclesDesc: "Peradaban besar tidak hanya mengikuti siklus langit, tetapi juga menggunakan siklus makhluk besar di sekitar mereka untuk merayakan waktu. Klik ikon Bumi di pojok kiri bawah untuk melihat di mana paus abu-abu Amerika Utara berada dalam migrasi mereka pada waktu tertentu dalam setahun. Hewan lainnya akan segera hadir!",

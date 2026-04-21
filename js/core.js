@@ -2652,7 +2652,7 @@ function showMacOSModal() {
     const downloadBtn = document.createElement('button');
     downloadBtn.type = 'button';
     downloadBtn.className = 'macos-dmg-download-btn';
-    const _dmgVersion = window.EARTHCAL_APP_VERSION || '1.3.8';
+    const _dmgVersion = window.EARTHCAL_APP_VERSION || '1.3.9';
     const _dmgFilename = 'EarthCal_' + _dmgVersion + '.dmg';
     downloadBtn.innerHTML = '<span class="macos-dmg-icon"><img src="assets/icons/apple_logo.png" alt="" width="20" height="20"></span><span class="macos-dmg-label">Download EarthCal DMG v' + _dmgVersion + '</span>';
     downloadBtn.addEventListener('click', () => {

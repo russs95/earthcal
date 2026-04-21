@@ -52,7 +52,7 @@
             anniversaryNotes: "Anda bergabung dengan EarthCal pada hari ini! Rayakan peralihan Anda dari waktu linear ke waktu siklus.",
         },
         footer: {
-            tagline: "EarthCal v1.0.0 oleh Earthen",
+            tagline: "EarthCal v1.3.9 oleh Earthen",
             visitEarthen: "Kunjungi Earthen",
         },
     };

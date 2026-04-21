@@ -1269,6 +1269,9 @@ const applyInitialLayerVisibility = () => {
     if (userCometTracking) {
         setTimeout(() => {
             setCometTrackingVisibility(true);
+            if (typeof animateCometTrajectory === 'function' && typeof targetDate !== 'undefined') {
+                animateCometTrajectory(targetDate);
+            }
         }, layerRevealDelayMs);
     } else {
         setCometTrackingVisibility(false);
