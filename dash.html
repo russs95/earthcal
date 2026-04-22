@@ -905,16 +905,7 @@
                         title="Today / Ctrl+click to zoom"
                     ></div>
 
-                    <!-- Zoom travel palette (ctrl+click on reset-to-today) -->
-                    <div id="zoom-travel-pallette" class="zoom-travel-pallette" style="display:none;">
-                        <div class="ttm-arrow ttm-up"    id="ttm-up"    title="Zoom top half">▲</div>
-                        <div class="ttm-middle-row">
-                            <div class="ttm-arrow ttm-left"  id="ttm-left"  title="Zoom left half">◀</div>
-                            <div class="ttm-center" id="ttm-center" title="Reset to full view">⊙</div>
-                            <div class="ttm-arrow ttm-right" id="ttm-right" title="Zoom right half">▶</div>
-                        </div>
-                        <div class="ttm-arrow ttm-down"  id="ttm-down"  title="Zoom bottom half">▼</div>
-                    </div>
+
                     <div
                         id="next-day"
                         class="next-button"
@@ -1448,5 +1439,15 @@
 <script src="js/1-event-management.js?v=21.3"></script>
 <script src="js/kin-cycles.js?v=5.3"></script>
 
+<!-- Zoom travel palette — at body root so opacity stacking context in #header doesn't cap its z-index -->
+<div id="zoom-travel-pallette" class="zoom-travel-pallette" style="display:none;">
+    <div class="ttm-arrow ttm-up"    id="ttm-up"    title="Zoom top half">▲</div>
+    <div class="ttm-middle-row">
+        <div class="ttm-arrow ttm-left"  id="ttm-left"  title="Zoom left half">◀</div>
+        <div class="ttm-center" id="ttm-center" title="Reset to full view">⊙</div>
+        <div class="ttm-arrow ttm-right" id="ttm-right" title="Zoom right half">▶</div>
+    </div>
+    <div class="ttm-arrow ttm-down"  id="ttm-down"  title="Zoom bottom half">▼</div>
+</div>
 
 </html>
