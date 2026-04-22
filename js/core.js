@@ -1654,7 +1654,7 @@ function set2Today() {
 function handleTodayClick(event) {
     if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
-        showZoomTravelPalette(event);
+        showZoomTravelPalette(document.getElementById('reset-to-today'));
     } else {
         set2Today();
     }
@@ -1662,7 +1662,8 @@ function handleTodayClick(event) {
 
 (function initTimeTravelMenu() {
 
-    let menuOpen   = false;
+    let menuOpen    = false;
+    let menuTriggerEl = null;
     let currentZoom = 'full'; // 'full' | 'up' | 'down' | 'left' | 'right'
     let panX = 0, panY = 0;   // -1..+1, current joystick position
 
@@ -1724,17 +1725,24 @@ function handleTodayClick(event) {
     function positionMenu(triggerEl) {
         const menu = document.getElementById('zoom-travel-pallette');
         const rect = triggerEl.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
+        const cx = rect.left + rect.width  / 2;
         const cy = rect.top  + rect.height / 2;
-        menu.style.left = cx + 'px';
-        menu.style.top  = cy + 'px';
+        // Clamp so the 108×108 palette never goes off screen
+        const half = 54;
+        const clampedX = Math.max(half + 4, Math.min(window.innerWidth  - half - 4, cx));
+        const clampedY = Math.max(half + 4, Math.min(window.innerHeight - half - 4, cy));
+        menu.style.left = clampedX + 'px';
+        menu.style.top  = clampedY + 'px';
     }
 
-    window.showZoomTravelPalette = function() {
+    window.showZoomTravelPalette = function(triggerEl) {
         const menu = document.getElementById('zoom-travel-pallette');
         if (!menu) return;
-        const trigger = document.getElementById('reset-to-today');
-        positionMenu(trigger);
+        // Toggle closed if already open
+        if (menuOpen) { closeMenu(); return; }
+        menuTriggerEl = (triggerEl instanceof Element) ? triggerEl
+                      : document.getElementById('top-search');
+        positionMenu(menuTriggerEl);
         menu.style.display = 'flex';
         menuOpen = true;
         // Auto-apply 2x zoom the moment the palette opens
@@ -1768,21 +1776,23 @@ function handleTodayClick(event) {
         applyTransform(2, panX, panY, false);
     });
 
-    // ── Arrow clicks snap to their fixed position; outside click locks + closes ──
+    // ── Any click closes the palette: arrows/center first apply their zoom ──
     document.addEventListener('click', function(e) {
-        const id = e.target.id;
-        if (id === 'ttm-up')    { e.stopPropagation(); applyZoom('up');    return; }
-        if (id === 'ttm-down')  { e.stopPropagation(); applyZoom('down');  return; }
-        if (id === 'ttm-left')  { e.stopPropagation(); applyZoom('left');  return; }
-        if (id === 'ttm-right') { e.stopPropagation(); applyZoom('right'); return; }
-        if (id === 'ttm-center'){ e.stopPropagation(); applyZoom('full'); closeMenu(); return; }
-
         if (!menuOpen) return;
+        const id = e.target.id;
         const menu = document.getElementById('zoom-travel-pallette');
-        const trigger = document.getElementById('reset-to-today');
-        if (menu && !menu.contains(e.target) && e.target !== trigger) {
-            closeMenu(); // position locks at current panX/panY
-        }
+        // Arrow/center: apply zoom then close
+        if (id === 'ttm-up')     { applyZoom('up');    closeMenu(); return; }
+        if (id === 'ttm-down')   { applyZoom('down');  closeMenu(); return; }
+        if (id === 'ttm-left')   { applyZoom('left');  closeMenu(); return; }
+        if (id === 'ttm-right')  { applyZoom('right'); closeMenu(); return; }
+        if (id === 'ttm-center') { applyZoom('full');  closeMenu(); return; }
+        // Click inside palette (background): lock at current joystick position and close
+        if (menu && menu.contains(e.target)) { closeMenu(); return; }
+        // Click on trigger button: guard — showZoomTravelPalette handles the toggle
+        if (menuTriggerEl && e.target === menuTriggerEl) return;
+        // Outside click: close
+        closeMenu();
     });
 
     document.addEventListener('keydown', function(e) {
