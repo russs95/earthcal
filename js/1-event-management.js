@@ -49,6 +49,7 @@ async function openAddCycle() {
                 </div>
             </div>
         `;
+        if (window.resetCalZoom) window.resetCalZoom();
         modal.classList.remove('modal-hidden');
         modal.classList.add('modal-visible');
 
@@ -1735,6 +1736,7 @@ function editDateCycle(uniqueKey) {
 
     // Step 5: Show the modal.
     const modal = document.getElementById('form-modal-message');
+    if (window.resetCalZoom) window.resetCalZoom();
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
 

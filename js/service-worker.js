@@ -1,4 +1,4 @@
-const CACHE_NAME = 'earthcal-cache-v9';
+const CACHE_NAME = 'earthcal-cache-v10';
 const MAX_API_CACHE_ITEMS = 8; // Maximum number of cached API responses
 
 // List of assets to pre-cache
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
     './robots.txt',
     './site.webmanifest',
     './assets/icons/favicon.ico',
-    './js/earthcal-init.js?v=38.5',
+    './js/earthcal-init.js?v=38.6',
     './js/gsap.min.js',
     './js/MotionPathPlugin.min.js',
     './js/1-lunar-scripts.js?v=3.1',
@@ -18,7 +18,7 @@ const STATIC_ASSETS = [
     './js/auspices/auspices-config.json',
     './js/auspices/ancestral_examples.js?v=1.0',
     './js/astronomy.browser.js',
-    './js/core.js?v=23.7',
+    './js/core.js?v=23.8',
     './js/1-gcal-javascripts.js?v=3.2',
     './js/breakouts.js',
     './js/set-targetdate.js',

@@ -1678,6 +1678,25 @@ function handleTodayClick(event) {
     // Apply transform to the calendar SVG.
     // At scale 2 with transform-origin:center center, translate range is ±25%
     // to pan across the full 2x canvas without going out of bounds.
+
+    // Lock/unlock the viewport meta so native pinch-zoom cannot compound with our CSS scale,
+    // which would unlock the browser's scroll container and break fixed-position modals.
+    function setViewportLock(locked) {
+        const meta = document.querySelector('meta[name="viewport"]');
+        if (!meta) return;
+        if (locked) {
+            if (!meta.dataset.ecOriginal) meta.dataset.ecOriginal = meta.getAttribute('content');
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        } else {
+            if (meta.dataset.ecOriginal) {
+                meta.setAttribute('content', meta.dataset.ecOriginal);
+                delete meta.dataset.ecOriginal;
+            }
+        }
+        const calEl = document.getElementById('the-cal');
+        if (calEl) calEl.classList.toggle('cal-viewport-locked', locked);
+    }
+
     function applyTransform(scale, px, py, animated) {
         const svgEl = document.getElementById('EarthCycles');
         if (!svgEl) return;
@@ -1687,11 +1706,13 @@ function handleTodayClick(event) {
         if (scale <= 1) {
             svgEl.style.transformOrigin = 'center center';
             svgEl.style.transform = 'none';
+            setViewportLock(false);
         } else {
             const txPct = -px * 25;
             const tyPct = -py * 25;
             svgEl.style.transformOrigin = 'center center';
             svgEl.style.transform = 'translate(' + txPct + '%, ' + tyPct + '%) scale(' + scale + ')';
+            setViewportLock(true);
         }
     }
 
@@ -2702,17 +2723,33 @@ if (typeof document !== "undefined") {
     }
 }
 
-/* ── macOS App Update Check ─────────────────────────────────────────────────
+/* ── App Update Check ────────────────────────────────────────────────────────
  * Called once from initializePage() in dash.html.
- * Only runs when window.EARTHCAL_APP_VERSION is set (i.e. in the packaged
- * desktop app). Web users always run the latest served version.
+ * Only runs for packaged app users (macOS or Snap) — web users always serve
+ * the latest version from the host and never need an update notice.
+ *
+ * Platform detection:
+ *  - macOS native app: Swift injects window.EARTHCAL_PLATFORM = 'macos'
+ *  - Snap (Electron/Linux): user agent contains "Electron"
+ *  - Web: origin is not localhost/127.0.0.1 — skip entirely
  */
 async function checkForAppUpdate() {
     const currentVersion = window.EARTHCAL_APP_VERSION;
     if (!currentVersion) return;
 
+    // Only run for locally-served packaged builds (macOS app, Snap).
+    // Web users are always on the latest served version.
+    const origin = (typeof window !== 'undefined' && window.location?.origin) || '';
+    const isLocalApp = /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origin);
+    if (!isLocalApp) return;
+
+    // Determine which packaged platform we're on.
+    const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+    const isMacOS  = window.EARTHCAL_PLATFORM === 'macos' || /Mac OS X/.test(ua);
+    const isSnapApp = /Electron/i.test(ua);
+
     try {
-        const url = 'https://earthcal.app/api/version_check.php'
+        const url = 'https://earthcal.app/api/v1/version_check.php'
             + '?app=EarthCal&current_version=' + encodeURIComponent(currentVersion);
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) return;
@@ -2722,23 +2759,41 @@ async function checkForAppUpdate() {
         const banner = document.getElementById('update-top-banner');
         if (!banner) return;
 
-        const dlUrl = data.download_url || 'https://earthcal.app/downloads/';
-        const safeMsg = (data.message || 'A new version of EarthCal is available.')
-            .replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const safeVer = (data.latest_version || '').replace(/[^0-9.]/g, '');
-        const safeDl = dlUrl.replace(/"/g, '%22');
+        let bannerHtml;
 
-        banner.innerHTML = safeMsg
-            + ' <a href="' + safeDl + '" target="_blank" rel="noopener noreferrer"'
-            + ' style="color:inherit;text-decoration:underline;margin-left:6px;">'
-            + 'Download v' + safeVer + '</a>';
+        if (isSnapApp) {
+            // Snap users update through the Snap store, not by downloading a DMG.
+            bannerHtml = 'EarthCal v' + safeVer + ' is available. Update via the Snap Store:'
+                + ' <code style="background:rgba(0,0,0,0.15);padding:2px 8px;border-radius:4px;'
+                + 'font-family:monospace;font-size:0.85em;">snap refresh earthcal</code>';
+        } else {
+            // macOS app (or any other local build) — offer the DMG download.
+            const dlUrl = (data.download_url || 'https://earthcal.app/downloads/').replace(/"/g, '%22');
+            const safeMsg = (data.message || 'A new version of EarthCal is available.')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            bannerHtml = safeMsg
+                + ' <a href="' + dlUrl + '" target="_blank" rel="noopener noreferrer"'
+                + ' style="color:inherit;text-decoration:underline;margin-left:6px;">'
+                + 'Download v' + safeVer + '</a>';
+        }
+
+        // Append a dismiss button for non-critical notices.
+        if (!data.critical) {
+            bannerHtml += ' <button onclick="this.closest(\'#update-top-banner\').setAttribute(\'hidden\',\'\')"'
+                + ' aria-label="Dismiss update notice"'
+                + ' style="background:none;border:none;cursor:pointer;font-size:1.1em;'
+                + 'margin-left:12px;opacity:0.7;color:inherit;padding:0 4px;">×</button>';
+        }
+
+        banner.innerHTML = bannerHtml;
 
         if (data.critical) {
             banner.classList.add('critical');
         }
         banner.removeAttribute('hidden');
 
-        // Auto-hide after 12 s unless critical
+        // Auto-hide after 18 s unless critical.
         if (!data.critical) {
             setTimeout(() => {
                 banner.classList.add('hiding');
@@ -2746,7 +2801,7 @@ async function checkForAppUpdate() {
                     banner.setAttribute('hidden', '');
                     banner.classList.remove('hiding');
                 }, { once: true });
-            }, 12000);
+            }, 18000);
         }
     } catch (_) {
         // Silent fail — never crash the app over a version check

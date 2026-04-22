@@ -44,6 +44,7 @@ function showLoginRequiredModal() {
         </div>
     `;
 
+    if (window.resetCalZoom) window.resetCalZoom();
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible', 'dim-blur');
 
@@ -289,6 +290,7 @@ async function openAddItem(preselectedKind = null) {
     // Show your pre-existing modal shell, prevent page scroll.
     // ============================================================
     const modal = document.getElementById('form-modal-message');
+    if (window.resetCalZoom) window.resetCalZoom();
     modal.classList.remove('modal-hidden');
     modal.classList.add('modal-visible');
     document.body.style.overflowY = 'hidden';

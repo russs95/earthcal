@@ -102,9 +102,9 @@
             content="width=device-width, initial-scale=1.0, target-density dpi=160, maximum-scale=5, user-scalable = yes"
     />
 
-    <script src="js/earthcal-init.js?v=61.5"></script>
+    <script src="js/earthcal-init.js?v=61.7"></script>
     <!-- Main Calendar Stylesheet-->
-    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.5">
+    <link rel="stylesheet" href="css/1-stylesheet.css?v=51.6">
     <link rel="stylesheet" href="css/auspicer-styles.css?v=1.8">
     <link rel="stylesheet" href="css/login-styles.css?v=9.3">
 
@@ -945,7 +945,7 @@
             <!--<div id="bottom-gradient-pinned" class="bottom-gradient-overlay"></div>-->
         </div>
         <!--CURRENT-->
-        <div id="all-current-datecycles" style="overflow-y: auto;height:calc(100vh - 150px);width:fit-content;margin-left:auto;margin-right:12px;padding-top:117px;  position: relative;background:none;"><div id="top-gradient-current" class="top-gradient-overlay"></div>
+        <div id="all-current-datecycles" style="overflow-y: auto;height:calc(100vh - 127px);width:fit-content;margin-left:auto;margin-right:12px;padding-top:117px;  position: relative;background:none;"><div id="top-gradient-current" class="top-gradient-overlay"></div>
             <div id="current-datecycles" class="date-info" style="overflow-y: auto;position: relative;height:auto;
                         z-index: 21;
                         ">
@@ -956,7 +956,7 @@
 
 
     <div id="top-left-buttons" class="button-list" style="display:flex;position:absolute;left:0;width:fit-content;margin-left:10px;flex-flow:column;margin-top:22px;z-index:20;top:0;background: var(--general-background);
-      border-radius: 15px;">
+      border-radius: 15px; padding-top: 10px;">
         <div><button type="button" id="top-menu" class="top-menu-button" onclick="openMainMenu()" aria-label="Open site settings"></button></div>
         <div><button type="button" id="top-search" class="top-search-button" onclick="showZoomTravelPalette(this)" aria-label="Zoom/Pan"></button></div>
         <div><button type="button" id="top-settings" class="top-settings-button" onclick="showUserCalSettings()" aria-label="Calendar Settings" title="EarthCal"></button></div>
@@ -1436,7 +1436,7 @@
 
 <!-- FINAL LOADED SCRIPTS -->
 
-<script src="js/1-event-management.js?v=21.3"></script>
+<script src="js/1-event-management.js?v=21.4"></script>
 <script src="js/kin-cycles.js?v=5.3"></script>
 
 <!-- Zoom travel palette — at body root so opacity stacking context in #header doesn't cap its z-index -->

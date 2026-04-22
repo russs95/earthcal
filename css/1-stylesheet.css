@@ -697,6 +697,13 @@ flex-direction: row;
   transform-origin: center center;
 }
 
+/* When the zoom palette is active, clip the scaled SVG to its container and
+   block any touch-based scroll or pinch from escaping the calendar area. */
+#the-cal.cal-viewport-locked {
+  overflow: hidden;
+  touch-action: none;
+}
+
 
 .date-info {
   height:fit-content; 

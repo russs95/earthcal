@@ -12,7 +12,18 @@ struct WebView: NSViewRepresentable {
     @EnvironmentObject var controller: WebViewController
 
     func makeNSView(context: Context) -> WKWebView {
-        let webView = WKWebView(frame: .zero)
+        let config = WKWebViewConfiguration()
+
+        // Inject a platform flag before any page script runs so JS can reliably
+        // detect it is running inside the native macOS app (not Snap/web).
+        let platformScript = WKUserScript(
+            source: "window.EARTHCAL_PLATFORM = 'macos';",
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        )
+        config.userContentController.addUserScript(platformScript)
+
+        let webView = WKWebView(frame: .zero, configuration: config)
 
         #if DEBUG
         webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
